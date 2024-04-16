@@ -30,7 +30,7 @@ import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, TextureArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const MeshToonArguments = {
   ...BasicArgs,
   ...DisplacementMapArgs,
   ...EmissiveMapArgs,
@@ -42,7 +42,7 @@ export const DefaultArgs = {
 export const MeshToonMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshToonMaterial',
   baseMaterial: Toon,
-  arguments: DefaultArgs,
+  arguments: MeshToonArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 

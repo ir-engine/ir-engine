@@ -30,7 +30,7 @@ import { SourceType } from '../../components/MaterialSource'
 import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
 import { TextureArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const MeshBasicArguments = {
   ...BasicArgs,
   ...EmissiveMapArgs,
   ...LightMapArgs,
@@ -42,7 +42,7 @@ export const DefaultArgs = {
 export const MeshBasicMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshBasicMaterial',
   baseMaterial: Basic,
-  arguments: DefaultArgs,
+  arguments: MeshBasicArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 

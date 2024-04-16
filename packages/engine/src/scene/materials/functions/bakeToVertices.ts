@@ -30,7 +30,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { changeMaterialPrototype } from './MaterialLibraryFunctions'
+import { changeMaterialPrototype } from './materialSourcingFunctions'
 
 export default async function bakeToVertices<T extends Material>(
   entity: Entity,

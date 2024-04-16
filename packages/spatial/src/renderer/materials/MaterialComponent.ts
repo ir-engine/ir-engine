@@ -69,7 +69,8 @@ export const MaterialComponent = defineComponent({
       plugins: [] as string[],
       prototypeUuid: '',
       // shared prototype state
-      prototype: [] as PrototypeArgument[]
+      prototypeName: '',
+      prototypeArguments: {} as PrototypeArgument
     }
   },
 
@@ -83,7 +84,8 @@ export const MaterialComponent = defineComponent({
     if (json.plugins) component.plugins.set(json.plugins)
     if (json.source) component.source.set(json.source)
     if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)
-    if (json.prototype) component.prototype.set(json.prototype)
+    if (json.prototypeName) component.prototypeName.set(json.prototypeName)
+    if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)
   }
 })
 

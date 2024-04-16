@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { createPrototype } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { Material } from 'three'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from './components/MaterialSource'
@@ -39,7 +41,6 @@ import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.m
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
-import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 
 export const MaterialLibraryState = defineState({
@@ -67,7 +68,7 @@ export function initializeMaterialLibrary() {
       MeshToonMaterial,
       ShaderMaterial,
       ShadowMaterial
-    ].map(registerMaterialPrototype)
+    ].map((prototype) => createPrototype(prototype.prototypeId, new Material(), prototype.arguments))
 
     //load default plugins from source
     ;[NoiseOffsetPlugin].map(registerMaterialPlugin)

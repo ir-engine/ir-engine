@@ -29,7 +29,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
 import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
-import { materialToDefaultArgs } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
+import { setMaterialToDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -76,7 +76,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const argData = materialToDefaultArgs(material)
+    const argData = setMaterialToDefaults(material.uuid)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {

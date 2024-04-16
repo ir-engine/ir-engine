@@ -28,10 +28,7 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import {
-  materialFromId,
-  setMaterialName
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+
 import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
 import { NO_PROXY, State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -40,7 +37,9 @@ import { Box, Divider, Stack } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, useComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -71,7 +70,7 @@ export function MaterialEditor(props: { materialID: string }) {
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const materialEntity = UUIDComponent.getEntityByUUID(materialID as EntityUUID)
   const materialComponent = useComponent(materialEntity, MaterialComponent)
-  const material = materialFromId(materialID).material
+  const material = getMaterial(materialID)!
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
@@ -180,7 +179,7 @@ export function MaterialEditor(props: { materialID: string }) {
         values={materialComponent.parameters.value}
         onChange={(k) => async (val) => {
           let prop
-          if (materialComponent.prototype[k].type === 'texture' && typeof val === 'string') {
+          if (materialComponent.prototypeArguments.value[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -198,7 +197,7 @@ export function MaterialEditor(props: { materialID: string }) {
           EditorControlFunctions.modifyMaterial([materialID], materialComponent.material.value!.uuid, [{ [k]: prop }])
           materialComponent.parameters[k].set(prop)
         }}
-        defaults={materialComponent.prototype.value}
+        defaults={materialComponent.prototypeArguments.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />

@@ -29,7 +29,7 @@ import { MaterialPrototypeComponentType } from '../../components/MaterialPrototy
 import { SourceType } from '../../components/MaterialSource'
 import { BoolArg, ColorArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const ShadowMaterialArguments = {
   color: { ...ColorArg, default: new Color('#000') },
   fog: { ...BoolArg, default: true },
   transparent: { ...BoolArg, default: true }
@@ -38,6 +38,6 @@ export const DefaultArgs = {
 export const ShadowMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'ShadowMaterial',
   baseMaterial: Shadow,
-  arguments: DefaultArgs,
+  arguments: ShadowMaterialArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }

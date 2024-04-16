@@ -37,14 +37,12 @@ import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/Compo
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import {
+  createMaterial,
   getMaterialSource,
-  materialFromId,
-  registerMaterial,
   unregisterMaterial,
   unregisterMaterialInstance
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
+} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -53,6 +51,7 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -102,13 +101,12 @@ export async function addMediaNode(
         )[0]
         if (!material) return
         if (UUIDComponent.getEntityByUUID(material.uuid as EntityUUID))
-          material = materialFromId(material.uuid).material
+          material = getMaterial(material.uuid as EntityUUID)!
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)
           if (!src) return
-          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID))
-            registerMaterial(material, { type: SourceType.MODEL, path: src })
+          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterial(material, src)
           const materialComponent = getMutableComponent(mesh.entity, MaterialComponent)
           materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
           if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {

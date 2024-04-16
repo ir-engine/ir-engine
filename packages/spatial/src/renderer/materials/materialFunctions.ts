@@ -23,20 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@etherealengine/ecs'
-import { Color, Texture } from 'three'
-import { stringHash } from '../../common/functions/MathFunctions'
-import { MaterialComponent } from './MaterialComponent'
-
-export const hashMaterial = (source: string, name: string) => {
-  return `${stringHash(source) ^ stringHash(name)}`
-}
+import { Entity, EntityUUID, UUIDComponent, createEntity, getComponent, setComponent } from '@etherealengine/ecs'
+import { cloneDeep } from 'lodash'
+import { Color, Material, Texture } from 'three'
+import { NameComponent } from '../../common/NameComponent'
+import { MaterialComponent, PrototypeArgument } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
   return formatMaterialArgs(
     Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
     defaultArgs
   )
+}
+
+export const createPrototype = (name: string, material: Material, prototypeArguments: PrototypeArgument) => {
+  const prototypeEntity = createEntity()
+  setComponent(prototypeEntity, MaterialComponent, {
+    material,
+    prototypeName: name,
+    prototypeArguments
+  })
+  setComponent(prototypeEntity, NameComponent, name)
 }
 
 export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
@@ -65,15 +72,14 @@ export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
 }
 
 export const createMaterialFromPrototype = (prototypeEntity: Entity) => {
-  const prototype = getComponent(prototypeEntity, MaterialComponent).prototype
+  const prototype = getComponent(prototypeEntity, MaterialComponent)
   return (parms) => {
-    const defaultParms = extractDefaults(prototype.arguments)
-    const formattedParms = { ...defaultParms, ...parms }
-    const result = new prototype.baseMaterial(formattedParms)
-    if (prototype.onBeforeCompile) {
-      result.onBeforeCompile = prototype.onBeforeCompile
-      result.needsUpdate = true
-    }
+    const defaultParms = extractDefaults(prototype.prototypeArguments)
+    const result = cloneDeep(prototype.material)
     return result
   }
+}
+
+export const getMaterial = (uuid: string) => {
+  return getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialComponent).material
 }

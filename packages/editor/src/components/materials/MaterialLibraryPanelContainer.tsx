@@ -31,12 +31,7 @@ import { MeshBasicMaterial } from 'three'
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import {
-  materialFromId,
-  registerMaterial
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
@@ -45,8 +40,10 @@ import { Not } from 'bitecs'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { createMaterial } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -140,7 +137,7 @@ export default function MaterialLibraryPanel() {
           <Stack direction={'column'} spacing={2}>
             <Button
               onClick={() => {
-                registerMaterial(new MeshBasicMaterial(), { path: '', type: SourceType.EDITOR_SESSION })
+                createMaterial(new MeshBasicMaterial(), '')
                 nodeChanges.set(nodeChanges.get() + 1)
               }}
             >
@@ -152,7 +149,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={async () => {
                 const projectName = editorState.projectName.value!
-                const materials = selectedMaterial.value ? [materialFromId(selectedMaterial.value)] : []
+                const materials = selectedMaterial.value ? [getMaterial(selectedMaterial.value)!.entity] : []
                 let libraryName = srcPath.value
                 if (!libraryName.endsWith('.material.gltf')) {
                   libraryName += '.material.gltf'

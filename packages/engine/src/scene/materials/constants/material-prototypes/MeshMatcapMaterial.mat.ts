@@ -30,7 +30,7 @@ import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, TextureArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const MeshMatcapArguments = {
   ...BasicArgs,
   ...BumpMapArgs,
   fog: BoolArg,
@@ -42,7 +42,7 @@ export const DefaultArgs = {
 export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshMatcapMaterial',
   baseMaterial: Matcap,
-  arguments: DefaultArgs,
+  arguments: MeshMatcapArguments,
   onBeforeCompile: (shader, renderer) => {
     ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
       (arg) => (shader.uniforms[arg] = { value: null })

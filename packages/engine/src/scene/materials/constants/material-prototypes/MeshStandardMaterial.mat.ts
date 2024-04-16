@@ -40,7 +40,7 @@ import {
   RoughhnessMapArgs
 } from '../BasicArgs'
 
-export const DefaultArgs = {
+export const MeshStandardArguments = {
   ...BasicArgs,
   ...EmissiveMapArgs,
   ...EnvMapArgs,
@@ -56,7 +56,7 @@ export const DefaultArgs = {
 export const MeshStandardMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshStandardMaterial',
   baseMaterial: Standard,
-  arguments: DefaultArgs,
+  arguments: MeshStandardArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 

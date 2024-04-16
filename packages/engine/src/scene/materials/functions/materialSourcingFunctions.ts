@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Material, Texture } from 'three'
 
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
@@ -42,18 +42,9 @@ import {
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  MaterialComponent,
-  MaterialComponentType,
-  materialSuffix
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { hashMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { MaterialComponent, materialSuffix } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
-import { MaterialSelectionState } from '../MaterialLibraryState'
-import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
-import { MaterialSource, MaterialSourceComponentType, SourceType } from '../components/MaterialSource'
-import { LibraryEntryType } from '../constants/LibraryEntry'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -89,21 +80,19 @@ export const useOrRegisterMaterial = (path: string, sourceEntity: Entity, materi
       material.customProgramCacheKey = () =>
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
     }
-    registerMaterial(material, {
-      type: SourceType.BUILT_IN,
-      path
-    })
+    createMaterial(material, path)
   }
   materialComponent.instances.set([...materialComponent.instances.value, sourceEntity])
 }
 
-export const registerMaterial = (material: Material, src: MaterialSource, params?: { [_: string]: any }) => {
+export const createMaterial = (material: Material, path: string, params?: { [_: string]: any }) => {
   const materialEntity = createEntity()
 
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, src.path as SceneID)
+  setComponent(materialEntity, SourceComponent, path as SceneID)
   setComponent(materialEntity, MaterialComponent, { material })
+
   setMaterialName(materialEntity, material.name)
 
   return materialEntity
@@ -155,79 +144,74 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   )
 }
 
-export function materialFromId(matId: string): MaterialComponentType {
-  const materialLibrary = getState(MaterialLibraryState)
-  const material = materialLibrary.materials[matId]
-  if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
-  return material
+// export function registerMaterialPlugin(component: MaterialPluginType) {
+//   const materialLibrary = getMutableState(MaterialLibraryState)
+//   const src = component.src
+//   addMaterialSource(src)
+//   const srcItems = getSourceItems(src)!
+//   !srcItems.includes(component.plugin.id) &&
+//     materialLibrary.sources[hashMaterialSource(component.src)].entries.set([...srcItems, component.plugin.id])
+//   materialLibrary.plugins[component.plugin.id].set(component)
+// }
+
+// export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
+//   const materialLibrary = getState(MaterialLibraryState)
+//   const prototype = materialLibrary.prototypes[protoId]
+//   if (!prototype) throw new PrototypeNotFoundError('could not find Material Prototype for ID ' + protoId)
+//   return prototype
+// }
+
+export function setMaterialToDefaults(materialUUID: string): object {
+  const material = getComponent(UUIDComponent.getEntityByUUID(materialUUID as EntityUUID), MaterialComponent)
+  const prototype = getComponent(UUIDComponent.getEntityByUUID(material.prototypeUuid as EntityUUID), MaterialComponent)
+  return injectDefaults(prototype, material.parameters)
 }
 
-export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
-  const materialLibrary = getState(MaterialLibraryState)
-  const prototype = materialLibrary.prototypes[protoId]
-  if (!prototype) throw new PrototypeNotFoundError('could not find Material Prototype for ID ' + protoId)
-  return prototype
+// export function protoIdToFactory(protoId: string): (parms: any) => Material {
+//   const prototype = prototypeFromId(protoId)
+//   return (parms) => {
+//     const defaultParms = extractDefaults(prototype.arguments)
+//     const formattedParms = { ...defaultParms, ...parms }
+//     const result = new prototype.baseMaterial(formattedParms)
+//     if (prototype.onBeforeCompile) {
+//       result.onBeforeCompile = prototype.onBeforeCompile
+//       result.needsUpdate = true
+//     }
+//     return result
+//   }
+// }
+
+// export function materialIdToFactory(matId: string): (parms: any) => Material {
+//   const material = materialFromId(matId)
+//   const prototype = prototypeFromId(material.prototype)
+//   return (parms) => {
+//     const formattedParms = { ...material.parameters, ...parms }
+//     const result = new prototype.baseMaterial(formattedParms)
+//     if (prototype.onBeforeCompile) {
+//       result.onBeforeCompile = prototype.onBeforeCompile
+//       result.needsUpdate = true
+//     }
+//     return result
+//   }
+// }
+
+export const hashMaterial = (source: string, name: string) => {
+  return `${stringHash(source) ^ stringHash(name)}`
 }
 
-export function materialIdToDefaultArgs(matId: string): object {
-  const material = materialFromId(matId)
-  const prototype = prototypeFromId(material.prototype)
-  return injectDefaults(prototype.arguments, material.parameters)
-}
+// export function addMaterialSource(src: MaterialSource): boolean {
+//   const materialLibrary = getMutableState(MaterialLibraryState)
+//   const srcId = hashMaterialSource(src)
+//   if (!materialLibrary.sources[srcId].value) {
+//     materialLibrary.sources[srcId].set({ src, entries: [] })
+//     return true
+//   } else return false
+// }
 
-export function protoIdToFactory(protoId: string): (parms: any) => Material {
-  const prototype = prototypeFromId(protoId)
-  return (parms) => {
-    const defaultParms = extractDefaults(prototype.arguments)
-    const formattedParms = { ...defaultParms, ...parms }
-    const result = new prototype.baseMaterial(formattedParms)
-    if (prototype.onBeforeCompile) {
-      result.onBeforeCompile = prototype.onBeforeCompile
-      result.needsUpdate = true
-    }
-    return result
-  }
-}
-
-export function materialIdToFactory(matId: string): (parms: any) => Material {
-  const material = materialFromId(matId)
-  const prototype = prototypeFromId(material.prototype)
-  return (parms) => {
-    const formattedParms = { ...material.parameters, ...parms }
-    const result = new prototype.baseMaterial(formattedParms)
-    if (prototype.onBeforeCompile) {
-      result.onBeforeCompile = prototype.onBeforeCompile
-      result.needsUpdate = true
-    }
-    return result
-  }
-}
-
-export function materialIdToPrototype(matId: string): MaterialPrototypeComponentType {
-  return prototypeFromId(materialFromId(matId).prototype)
-}
-
-export function materialToDefaultArgs(material: Material): object {
-  return materialIdToDefaultArgs(material.uuid)
-}
-
-export function hashMaterialSource(src: MaterialSource): string {
-  return `${stringHash(src.path) ^ stringHash(src.type)}`
-}
-
-export function addMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const srcId = hashMaterialSource(src)
-  if (!materialLibrary.sources[srcId].value) {
-    materialLibrary.sources[srcId].set({ src, entries: [] })
-    return true
-  } else return false
-}
-
-export function getSourceItems(src: MaterialSource): string[] | undefined {
-  const materialLibrary = getState(MaterialLibraryState)
-  return materialLibrary.sources[hashMaterialSource(src)]?.entries
-}
+// export function getSourceItems(src: MaterialSource): string[] | undefined {
+//   const materialLibrary = getState(MaterialLibraryState)
+//   return materialLibrary.sources[hashMaterialSource(src)]?.entries
+// }
 
 export function getMaterialSource(material: Material): string | null {
   const materialLibrary = getState(MaterialLibraryState)
@@ -236,28 +220,28 @@ export function getMaterialSource(material: Material): string | null {
   return matEntry.src.path
 }
 
-export function removeMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const materialSelectionState = getMutableState(MaterialSelectionState)
-  const srcId = hashMaterialSource(src)
-  if (materialLibrary.sources[srcId].value) {
-    const srcComp = materialLibrary.sources[srcId].value
-    srcComp.entries.map((matId) => {
-      const toDelete = materialFromId(matId)
-      if (materialSelectionState.selectedMaterial.value === matId) {
-        materialSelectionState.selectedMaterial.set(null)
-      }
-      Object.values(toDelete.parameters)
-        .filter((val) => (val as Texture)?.isTexture)
-        .map((val: Texture) => val.dispose())
-      toDelete.material.dispose()
-      materialLibrary.materials[matId].set(none)
-    })
-    materialLibrary.sources[srcId].set(none)
+// export function removeMaterialSource(src: MaterialSource): boolean {
+//   const materialLibrary = getMutableState(MaterialLibraryState)
+//   const materialSelectionState = getMutableState(MaterialSelectionState)
+//   const srcId = hashMaterialSource(src)
+//   if (materialLibrary.sources[srcId].value) {
+//     const srcComp = materialLibrary.sources[srcId].value
+//     srcComp.entries.map((matId) => {
+//       const toDelete = materialFromId(matId)
+//       if (materialSelectionState.selectedMaterial.value === matId) {
+//         materialSelectionState.selectedMaterial.set(null)
+//       }
+//       Object.values(toDelete.parameters)
+//         .filter((val) => (val as Texture)?.isTexture)
+//         .map((val: Texture) => val.dispose())
+//       toDelete.material.dispose()
+//       materialLibrary.materials[matId].set(none)
+//     })
+//     materialLibrary.sources[srcId].set(none)
 
-    return true
-  } else return false
-}
+//     return true
+//   } else return false
+// }
 
 export function unregisterMaterial(material: Material) {
   // const materialLibrary = getMutableState(MaterialLibraryState)
@@ -282,19 +266,6 @@ export function unregisterMaterial(material: Material) {
   // }
 }
 
-export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
-  // const materialLibrary = getMutableState(MaterialLibraryState)
-  // if (materialLibrary.prototypes[prototype.prototypeId].value) {
-  //   console.warn(
-  //     'overwriting existing material prototype!\nnew:',
-  //     prototype.prototypeId,
-  //     '\nold:',
-  //     prototypeFromId(prototype.prototypeId)
-  //   )
-  // }
-  // materialLibrary.prototypes[prototype.prototypeId].set(prototype)
-}
-
 export function unregisterMaterialInstance(material: Material, entity: Entity): number {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const materialComponent = materialLibrary.materials[material.uuid]
@@ -302,9 +273,9 @@ export function unregisterMaterialInstance(material: Material, entity: Entity): 
   return materialComponent.instances.value.length
 }
 
-export function materialsFromSource(src: MaterialSource) {
-  return getSourceItems(src)?.map(materialFromId)
-}
+// export function materialsFromSource(src: MaterialSource) {
+//   return getSourceItems(src)?.map(materialFromId)
+// }
 
 const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
@@ -357,16 +328,16 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   // return nuMat
 }
 
-export function entryId(
-  entry: MaterialComponentType | MaterialPrototypeComponentType | MaterialSourceComponentType,
-  type: LibraryEntryType
-) {
-  switch (type) {
-    case LibraryEntryType.MATERIAL:
-      return (entry as MaterialComponentType).material.uuid
-    case LibraryEntryType.MATERIAL_PROTOTYPE:
-      return (entry as MaterialPrototypeComponentType).prototypeId
-    case LibraryEntryType.MATERIAL_SOURCE:
-      return hashMaterialSource((entry as MaterialSourceComponentType).src)
-  }
-}
+// export function entryId(
+//   entry: MaterialComponentType | MaterialPrototypeComponentType | MaterialSourceComponentType,
+//   type: LibraryEntryType
+// ) {
+//   switch (type) {
+//     case LibraryEntryType.MATERIAL:
+//       return (entry as MaterialComponentType).material.uuid
+//     case LibraryEntryType.MATERIAL_PROTOTYPE:
+//       return (entry as MaterialPrototypeComponentType).prototypeId
+//     case LibraryEntryType.MATERIAL_SOURCE:
+//       return hashMaterialSource((entry as MaterialSourceComponentType).src)
+//   }
+// }

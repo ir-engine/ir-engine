@@ -30,7 +30,7 @@ import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, EmissiveMapArgs, EnvMapArgs } from '../BasicArgs'
 import { BoolArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const MeshLambertArguments = {
   ...BasicArgs,
   ...EmissiveMapArgs,
   ...EnvMapArgs,
@@ -40,7 +40,7 @@ export const DefaultArgs = {
 export const MeshLambertMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshLambertMaterial',
   baseMaterial: Lambert,
-  arguments: DefaultArgs,
+  arguments: MeshLambertArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 

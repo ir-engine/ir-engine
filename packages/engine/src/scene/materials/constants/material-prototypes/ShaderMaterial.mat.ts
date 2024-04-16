@@ -29,7 +29,7 @@ import { MaterialPrototypeComponentType } from '../../components/MaterialPrototy
 import { SourceType } from '../../components/MaterialSource'
 import { ColorArg, ObjectArg, ShaderArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const ShaderMaterialArguments = {
   uniforms: {
     ...ObjectArg,
     default: {
@@ -43,6 +43,6 @@ export const DefaultArgs = {
 export const ShaderMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'ShaderMaterial',
   baseMaterial: Shader,
-  arguments: DefaultArgs,
+  arguments: ShaderMaterialArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }

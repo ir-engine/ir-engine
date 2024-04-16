@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 import {
@@ -40,8 +40,6 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   EntityTreeComponent,
@@ -55,6 +53,7 @@ import { getNestedObject } from '@etherealengine/common/src/utils/getNestedPrope
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
@@ -152,25 +151,12 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
-function _getMaterial(node: string, materialId: string) {
-  let material: Material | undefined
-  if (getState(MaterialLibraryState).materials[materialId]) {
-    material = materialFromId(materialId).material
-  }
-  // else {
-  //   const mesh = obj3dFromUuid(node) as Mesh
-  //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-  //   material = materials.find((material) => materialId === material.uuid)
-  // }
-  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
-  return material
-}
-
 const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
-    const material = _getMaterial(node, materialId)
+    const material = getMaterial(materialId)
+    if (!material) return
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')

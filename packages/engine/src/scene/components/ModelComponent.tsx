@@ -144,7 +144,6 @@ function ModelReactor(): JSX.Element {
 
   useEffect(() => {
     if (!error) return
-
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
     SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)

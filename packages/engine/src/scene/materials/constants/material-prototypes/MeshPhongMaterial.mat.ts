@@ -30,7 +30,7 @@ import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, EmissiveMapArgs, EnvMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, FloatArg } from '../DefaultArgs'
 
-export const DefaultArgs = {
+export const MeshPhongArguments = {
   ...BasicArgs,
   ...BumpMapArgs,
   ...DisplacementMapArgs,
@@ -45,7 +45,7 @@ export const DefaultArgs = {
 export const MeshPhongMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshPhongMaterial',
   baseMaterial: Phong,
-  arguments: DefaultArgs,
+  arguments: MeshPhongArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 

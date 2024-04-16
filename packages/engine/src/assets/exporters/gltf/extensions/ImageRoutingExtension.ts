@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
-import { materialFromId } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -40,10 +40,10 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
 
   writeMaterial(material: Material, materialDef: { [key: string]: any }): void {
     if (this.writer.options.binary || this.writer.options.embedImages) return
-    const materialComponent = materialFromId(material.uuid)
-    if (!materialComponent) return
-    const src = materialComponent.src
-    const resolvedPath = pathResolver().exec(src.path)!
+    const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
+    if (!materialEntity) return
+    const src = getComponent(materialEntity, UUIDComponent)
+    const resolvedPath = pathResolver().exec(src)!
     let relativeSrc = resolvedPath[2]
     relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')

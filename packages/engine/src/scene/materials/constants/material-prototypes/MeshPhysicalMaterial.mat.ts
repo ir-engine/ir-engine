@@ -28,9 +28,9 @@ import { MeshPhysicalMaterial as Physical } from 'three'
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
-import { DefaultArgs as StandardDefaults } from './MeshStandardMaterial.mat'
+import { MeshStandardArguments as StandardDefaults } from './MeshStandardMaterial.mat'
 
-export const DefaultArgs = {
+export const MeshPhysicalArguments = {
   ...StandardDefaults,
   clearcoat: { ...NormalizedFloatArg, default: 0.5 },
   clearcoatMap: TextureArg,
@@ -60,7 +60,7 @@ export const DefaultArgs = {
 export const MeshPhysicalMaterial: MaterialPrototypeComponentType = {
   prototypeId: 'MeshPhysicalMaterial',
   baseMaterial: Physical,
-  arguments: DefaultArgs,
+  arguments: MeshPhysicalArguments,
   src: { type: SourceType.BUILT_IN, path: '' }
 }
 
