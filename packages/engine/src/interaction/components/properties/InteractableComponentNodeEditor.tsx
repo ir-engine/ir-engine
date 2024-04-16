@@ -164,7 +164,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 )}
               </InputGroup>
 
-              <PropertiesPanelButton type="submit" onClick={(index: number) => removeCallback(index)}>
+              <PropertiesPanelButton type="submit" onClick={() => removeCallback(index)}>
                 {t('editor:properties.interactable.removecallbacktitle')}
               </PropertiesPanelButton>
             </div>
