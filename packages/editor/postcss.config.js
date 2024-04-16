@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,10 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Component from './index'
 
-module.exports = {
-  plugins: {
-    tailwindcss: import('tailwindcss'),
-    autoprefixer: import('autoprefixer'),
+const argTypes = {}
+
+export default {
+  title: 'Primitives/Tailwind/Password',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Password',
+    jest: 'Password.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
   },
+  argTypes
 }
+export const Default = { args: Component.defaultProps }

@@ -35,7 +35,8 @@ import {
   Vector4,
   WebGLMultiviewRenderTarget,
   WebGLRenderTarget,
-  WebGLRenderTargetOptions
+  WebGLRenderTargetOptions,
+  WebGLRenderer
 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -43,7 +44,6 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
 
 // augment PerspectiveCamera
@@ -98,7 +98,7 @@ export const XRRendererState = defineState({
   }
 })
 
-export function createWebXRManager() {
+export function createWebXRManager(renderer: WebGLRenderer) {
   const xrState = getState(XRState)
   const xrRendererState = getMutableState(XRRendererState)
 
@@ -116,14 +116,14 @@ export function createWebXRManager() {
 
     // restore framebuffer/rendering state
 
-    EngineRenderer.instance.renderer.setRenderTarget(xrRendererState.initialRenderTarget.value)
+    renderer.setRenderTarget(xrRendererState.initialRenderTarget.value)
 
     xrRendererState.glBaseLayer.set(null)
     xrRendererState.glProjLayer.set(null)
     xrRendererState.glBinding.set(null)
     xrRendererState.newRenderTarget.set(null)
 
-    EngineRenderer.instance.renderer.animation.start()
+    renderer.animation.start()
     animation.stop()
 
     scope.isPresenting = false
@@ -136,7 +136,6 @@ export function createWebXRManager() {
 
   scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {
     if (session !== null) {
-      const renderer = EngineRenderer.instance.renderer
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
       session.addEventListener('end', onSessionEnd)

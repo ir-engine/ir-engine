@@ -23,22 +23,86 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { lazy, Suspense, useEffect } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import React, { lazy, useEffect } from 'react'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { LoadingCircle } from '../components/LoadingCircle'
 import { AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
-import Analytics from './components/Analytics'
+import Projects from './components/project'
+
+import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
+import '@etherealengine/engine/src/EngineModule'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+import { useTranslation } from 'react-i18next'
+import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
+import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
-import '@etherealengine/engine/src/EngineModule'
-import { RouterState } from '../common/services/RouterService'
-
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
+
+const AdminTopBar = () => {
+  const theme = useHookstate(getMutableState(ThemeState)).theme
+
+  const toggleTheme = () => {
+    const currentTheme = getState(ThemeState).theme
+    ThemeState.setTheme(currentTheme === 'dark' ? 'light' : 'dark')
+  }
+
+  return (
+    <div className="bg-theme-surface-main flex h-16 w-full items-center justify-between px-8 py-4">
+      <img src="static/etherealengine_logo.png" alt="iR Engine Logo" className="h-7 w-7" />
+      <div className="">
+        <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
+          {theme.value === 'light' ? (
+            <HiMiniMoon className="text-theme-primary" size="1.5rem" />
+          ) : (
+            <HiMiniSun className="text-theme-primary" size="1.5rem" />
+          )}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+const AdminSideBar = () => {
+  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState)).get(NO_PROXY)
+
+  const location = useLocation()
+  const { pathname: fullPathName } = location
+  const { t } = useTranslation()
+
+  const relativePath = fullPathName.split('/').slice(2).join('/')
+
+  return (
+    <aside className="bg-theme-surface-main mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
+      <ul className="space-y-2">
+        {Object.entries(allowedRoutes)
+          .filter(([_, sidebarItem]) => sidebarItem.access)
+          .map(([path, sidebarItem], index) => {
+            return (
+              <li key={index}>
+                <Link to={path}>
+                  <Button
+                    className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
+                      relativePath === path
+                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        : 'bg-theme-surface-main'
+                    }`}
+                    startIcon={sidebarItem.icon}
+                  >
+                    {t(sidebarItem.name)}
+                  </Button>
+                </Link>
+              </li>
+            )
+          })}
+      </ul>
+    </aside>
+  )
+}
 
 const AdminRoutes = () => {
   const location = useLocation()
@@ -76,14 +140,19 @@ const AdminRoutes = () => {
   }
 
   return (
-    <Dashboard>
-      <Suspense fallback={<LoadingCircle message={`Loading ${location.pathname.split('/')[2]}...`} />}>
-        <Routes>
-          <Route path="/*" element={<$allowed />} />
-          {<Route path="/" element={<Analytics />} />}
-        </Routes>
-      </Suspense>
-    </Dashboard>
+    <>
+      <AdminTopBar />
+      <main className="pointer-events-auto mt-6 flex gap-1.5">
+        <AdminSideBar />
+        <div className="mb-8 h-[calc(100vh_-_88px_-_4rem)] w-full overflow-x-auto overflow-y-auto px-3">
+          <Routes>
+            <Route path="/*" element={<$allowed />} />
+            {<Route path="/" element={<Projects />} />}
+          </Routes>
+        </div>
+        <PopupMenu />
+      </main>
+    </>
   )
 }
 

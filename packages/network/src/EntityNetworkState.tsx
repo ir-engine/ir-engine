@@ -31,6 +31,7 @@ import { defineState, dispatchAction, getMutableState, getState, none, useHookst
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, UUIDComponent, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkState, SceneUser } from './NetworkState'
@@ -43,6 +44,7 @@ export const EntityNetworkState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
+      parentUUID: EntityUUID
       ownerId: UserID | typeof SceneUser
       ownerPeer: PeerID
       networkId: NetworkId
@@ -55,6 +57,7 @@ export const EntityNetworkState = defineState({
     onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
       // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
+        parentUUID: action.parentUUID,
         ownerId: action.ownerID,
         networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
@@ -113,6 +116,14 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   useLayoutEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
+    const parentEntity = UUIDComponent.getEntityByUUID(state.parentUUID.value)
+    if (!parentEntity || !entity) return
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+  }, [userConnected, state.parentUUID])
+
+  useLayoutEffect(() => {
+    if (!userConnected) return
+    const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
     const worldNetwork = NetworkState.worldNetwork
 
@@ -162,6 +173,7 @@ const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
         dispatchAction(
           WorldNetworkAction.spawnEntity({
             entityUUID: props.uuid,
+            parentUUID: state.parentUUID.value,
             // if the authority peer is not connected, we need to take authority
             authorityPeerId: networkState.users[Engine.instance.userID].value.includes(ownerPeer)
               ? undefined

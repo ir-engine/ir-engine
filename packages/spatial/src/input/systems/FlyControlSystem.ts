@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   ECSState,
-  Engine,
+  Entity,
   InputSystemGroup,
   defineQuery,
   defineSystem,
@@ -55,8 +55,8 @@ const candidateWorldQuat = new Quaternion()
 const center = new Vector3()
 const directionToCenter = new Vector3()
 
-const onSecondaryClick = () => {
-  setComponent(Engine.instance.cameraEntity, FlyControlComponent, {
+const onSecondaryClick = (viewerEntity: Entity) => {
+  setComponent(viewerEntity, FlyControlComponent, {
     boostSpeed: 4,
     moveSpeed: 4,
     lookSensitivity: 5,
@@ -64,14 +64,14 @@ const onSecondaryClick = () => {
   })
 }
 
-const onSecondaryReleased = () => {
-  const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const editorCameraCenter = getComponent(Engine.instance.cameraEntity, CameraOrbitComponent).cameraOrbitCenter
+const onSecondaryReleased = (viewerEntity: Entity) => {
+  const transform = getComponent(viewerEntity, TransformComponent)
+  const editorCameraCenter = getComponent(viewerEntity, CameraOrbitComponent).cameraOrbitCenter
   center.subVectors(transform.position, editorCameraCenter)
   const centerLength = center.length()
   editorCameraCenter.copy(transform.position)
   editorCameraCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(transform.rotation))
-  removeComponent(Engine.instance.cameraEntity, FlyControlComponent)
+  removeComponent(viewerEntity, FlyControlComponent)
 }
 
 const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
@@ -84,9 +84,11 @@ const execute = () => {
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
+    const inputPointerEntity = InputPointerComponent.getPointerForCanvas(entity)
+    if (!inputPointerEntity) continue
     if (hasComponent(entity, CameraOrbitComponent)) {
-      if (buttons.SecondaryClick?.down) onSecondaryClick()
-      if (buttons.SecondaryClick?.up) onSecondaryReleased()
+      if (buttons.SecondaryClick?.down) onSecondaryClick(entity)
+      if (buttons.SecondaryClick?.up) onSecondaryReleased(entity)
     }
   }
 

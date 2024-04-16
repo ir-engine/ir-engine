@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import { Engine } from '@etherealengine/ecs'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
@@ -40,7 +42,7 @@ import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useMemo, useRef } from 'react'
 import {
@@ -231,7 +233,8 @@ function UVOL1Reactor() {
       mesh.geometry.attributes.position.needsUpdate = true
 
       videoTexture.needsUpdate = true
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+      renderer.renderer.initTexture(videoTexture)
 
       if (volumetric.useLoadingEffect.value) {
         mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
@@ -265,7 +268,7 @@ function UVOL1Reactor() {
         mesh.geometry.attributes.position.needsUpdate = true
 
         videoTexture.needsUpdate = true
-        EngineRenderer.instance.renderer.initTexture(videoTexture)
+        getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(videoTexture)
       }
       removePlayedBuffer(frameToPlay)
     }

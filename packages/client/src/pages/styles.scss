@@ -1,5 +1,5 @@
 :root {
-  --lato: "Lato", sans-serif;
+  --lato: 'Lato', sans-serif;
   --red: #f44336;
   --pink: #e91e63;
   --purple: #9c27b0;
@@ -39,7 +39,7 @@
   --background2: #15171b;
 }
 
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   --textColor: #585858;
   --navbarBackground: #e7e7e7;
   --sidebarBackground: #e1e1e1;
@@ -81,7 +81,7 @@
   --dockBackground: #bdbdbda6;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --textColor: #fff;
   --navbarBackground: rgb(78 78 78 / 100%);
   --sidebarBackground: rgb(80 80 80 / 100%);
@@ -123,7 +123,7 @@
   --dockBackground: rgb(53 53 53 / 93%);
 }
 
-:root[data-theme="vaporwave"] {
+:root[data-theme='vaporwave'] {
   --textColor: #fff;
   --navbarBackground: rgb(31 27 72 / 85%);
   --sidebarBackground: rgb(31 27 72 / 100%);
@@ -172,7 +172,7 @@
 }
 
 ::-webkit-scrollbar {
-  width: .5rem;
+  width: 0.5rem;
 }
 
 ::-webkit-scrollbar-track {

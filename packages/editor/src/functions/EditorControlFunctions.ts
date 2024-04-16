@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -37,14 +37,12 @@ import {
   setComponent,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import obj3dFromUuid from '@etherealengine/spatial/src/common/functions/obj3dFromUuid'
 import {
   EntityTreeComponent,
   iterateEntityNode,
@@ -154,36 +152,16 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
-const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => {
-  const scene = Engine.instance.scene
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i]
-    if (typeof node !== 'string') return
-    const obj3d = scene.getObjectByProperty('uuid', node)!
-    const props = properties[i] ?? properties[0]
-    Object.keys(props).map((k) => {
-      const value = props[k]
-      if (typeof value?.copy === 'function') {
-        if (!obj3d[k]) obj3d[k] = new value.constructor()
-        obj3d[k].copy(value)
-      } else if (typeof value !== 'undefined' && typeof obj3d[k] === 'object' && typeof obj3d[k].set === 'function') {
-        obj3d[k].set(value)
-      } else {
-        obj3d[k] = value
-      }
-    })
-  }
-}
-
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
   if (getState(MaterialLibraryState).materials[materialId]) {
     material = materialFromId(materialId).material
-  } else {
-    const mesh = obj3dFromUuid(node) as Mesh
-    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-    material = materials.find((material) => materialId === material.uuid)
   }
+  // else {
+  //   const mesh = obj3dFromUuid(node) as Mesh
+  //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+  //   material = materials.find((material) => materialId === material.uuid)
+  // }
   if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
   return material
 }
@@ -232,7 +210,7 @@ const createObjectFromSceneElement = (
   }
 
   const entityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
   if (!componentJson.some((comp) => comp.name === TransformComponent.jsonID)) {
     componentJson.push({ name: TransformComponent.jsonID })
   }
@@ -284,7 +262,7 @@ const duplicateObject = (entities: Entity[]) => {
       if (!entityData) return /** @todo entity may be loaded in via GLTF **/
 
       const entityDataClone = JSON.parse(JSON.stringify(entityData))
-      const newUUID = MathUtils.generateUUID() as EntityUUID
+      const newUUID = generateEntityUUID()
       copyMap[entityUUID] = newUUID
 
       const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
@@ -502,7 +480,7 @@ const groupObjects = (entities: Entity[]) => {
   const childIndex = parentEntityTreeComponent.children.length
   const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
 
-  const groupEntityUUID = MathUtils.generateUUID() as EntityUUID
+  const groupEntityUUID = generateEntityUUID()
 
   newSnapshot.data.entities[groupEntityUUID] = {
     name: 'New Group',
@@ -663,7 +641,6 @@ export const EditorControlFunctions = {
   addOrRemoveComponent,
   modifyProperty,
   modifyName,
-  modifyObject3d,
   modifyMaterial,
   createObjectFromSceneElement,
   duplicateObject,

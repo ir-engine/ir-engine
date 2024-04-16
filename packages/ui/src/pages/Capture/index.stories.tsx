@@ -45,7 +45,7 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'

@@ -28,7 +28,6 @@ import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from '
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineQuery } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -60,8 +59,6 @@ const autopilotRaycastArgs = {
   groups: interactionGroups
 } as RaycastArgs
 
-const pointerQuery = defineQuery([InputPointerComponent])
-
 export const autopilotSetPosition = (entity: Entity) => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   const markerState = getMutableState(AutopilotMarker)
@@ -69,7 +66,9 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
-  const pointerPosition = getComponent(pointerQuery()[0], InputPointerComponent).position
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  if (!inputPointerEntity) return
+  const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
 
   const castedRay = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),

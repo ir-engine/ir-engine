@@ -31,7 +31,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { AppState } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'

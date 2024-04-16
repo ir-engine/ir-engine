@@ -49,7 +49,7 @@ export type ProgressBarProps = {
   maxCompleted?: number
   customLabel?: string
   animateOnRender?: boolean
-  barContainerClassName?: string
+  barcontainerClassName?: string
   completedClassName?: string
   labelClassName?: string
 }
@@ -77,7 +77,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   maxCompleted,
   customLabel,
   animateOnRender,
-  barContainerClassName,
+  barcontainerClassName,
   completedClassName,
   labelClassName
 }) => {
@@ -164,7 +164,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       aria-valuemax={ariaValuemax}
       aria-valuetext={`${ariaValuetext === null ? labelStr : ariaValuetext}`}
     >
-      <div style={barContainerClassName ? undefined : containerStyles} className={barContainerClassName}>
+      <div style={barcontainerClassName ? undefined : containerStyles} className={barcontainerClassName}>
         <div style={completedClassName ? undefined : fillerStyles} className={completedClassName}>
           {labelAlignment !== 'outside' && (
             <span style={labelClassName ? undefined : labelStyles} className={labelClassName}>
@@ -200,7 +200,7 @@ ProgressBar.propTypes = {
   maxCompleted: PropTypes.number,
   customLabel: PropTypes.string,
   animateOnRender: PropTypes.bool,
-  barContainerClassName: PropTypes.string,
+  barcontainerClassName: PropTypes.string,
   completedClassName: PropTypes.string,
   labelClassName: PropTypes.string
 }

@@ -106,15 +106,15 @@ const TableBody = ({ className, children, ...props }: TableSectionProps) => {
 }
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
-  containerClassname?: string
+  containerClassName?: string
   className?: string
   children?: ReactNode
 }
 
-const Table = ({ containerClassname, className, children }: TableProps) => {
+const Table = ({ containerClassName, className, children }: TableProps) => {
   const twClassname = twMerge('relative w-full border-collapse whitespace-nowrap text-sm', className)
   return (
-    <div className={twMerge('overflow-x-auto rounded-md', containerClassname)}>
+    <div className={twMerge('overflow-x-auto rounded-md', containerClassName)}>
       <table className={twClassname}>{children}</table>
     </div>
   )
