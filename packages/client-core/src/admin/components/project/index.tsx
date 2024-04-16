@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -40,36 +41,52 @@ export default function AdminProject() {
   const projectState = useHookstate(getMutableState(ProjectState))
 
   return (
-    <Tabs
-      tabsData={[
-        {
-          title: t('admin:components.project.project'),
-          tabLabel: t('admin:components.common.all'),
-          rightComponent: <ProjectTopMenu />,
-          bottomComponent: <ProjectTable />
-        },
-        {
-          title: t('admin:components.buildStatus.buildStatus'),
-          tabLabel: (
-            <span className="flex items-center gap-5">
-              {t('admin:components.project.buildStatus')}{' '}
-              <div
-                className={twMerge(
-                  'inline h-3 w-3 rounded-full',
-                  projectState.succeeded.value === true
-                    ? 'bg-green-500'
-                    : projectState.failed.value === true
-                    ? 'bg-red-500'
-                    : 'bg-yellow-400'
-                )}
-              />
-            </span>
-          ),
-          bottomComponent: <BuildStatusTable />,
-          disabled: config.client.localBuildOrDev
-        }
-      ]}
-      tabcontainerClassName="bg-theme-primary"
-    />
+    <>
+      <div className="mb-2 flex justify-start gap-3">
+        <Badge
+          label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value || '1.6.0'}`}
+          variant="neutral"
+          className="py-2"
+        />
+        <Badge
+          label={`Current Engine Commit: ${
+            projectState.builderInfo.engineCommit.value || '8a20fa9a62b4963e332beee6d0abcba4d92d9f2c'
+          }`}
+          variant="neutral"
+          className="py-2"
+        />
+      </div>
+      <Tabs
+        tabsData={[
+          {
+            title: t('admin:components.project.project'),
+            tabLabel: t('admin:components.common.all'),
+            rightComponent: <ProjectTopMenu />,
+            bottomComponent: <ProjectTable />
+          },
+          {
+            title: t('admin:components.buildStatus.buildStatus'),
+            tabLabel: (
+              <span className="flex items-center gap-5">
+                {t('admin:components.project.buildStatus')}{' '}
+                <div
+                  className={twMerge(
+                    'inline h-3 w-3 rounded-full',
+                    projectState.succeeded.value === true
+                      ? 'bg-green-500'
+                      : projectState.failed.value === true
+                      ? 'bg-red-500'
+                      : 'bg-yellow-400'
+                  )}
+                />
+              </span>
+            ),
+            bottomComponent: <BuildStatusTable />,
+            disabled: config.client.localBuildOrDev
+          }
+        ]}
+        tabcontainerClassName="bg-theme-primary"
+      />
+    </>
   )
 }
