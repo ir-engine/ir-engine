@@ -22,36 +22,38 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { Ray } from '@dimforge/rapier3d-compat'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
   Entity,
   UUIDComponent,
+  UndefinedEntity,
   defineQuery,
   defineSystem,
   getComponent,
   getOptionalComponent,
-  removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { NO_PROXY, defineState, dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { Cache, Intersection, Quaternion, Raycaster, Vector3 } from 'three'
+import { Cache, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
@@ -87,7 +89,7 @@ export const ClickPlacementSystem = defineSystem({
 
     const createPlacementEntity = (parentEntity: Entity) => {
       const placementEntity = createSceneEntity('Placement', parentEntity)
-      removeComponent(placementEntity, SourceComponent)
+      //removeComponent(placementEntity, SourceComponent)
       return placementEntity
     }
 
@@ -98,11 +100,13 @@ export const ClickPlacementSystem = defineSystem({
       const placementEntity = clickState.placementEntity.value
       if (!placementEntity) return
       const sceneID = getComponent(parentEntity, SourceComponent)
-      setComponent(placementEntity, SourceComponent, sceneID)
+      //setComponent(placementEntity, SourceComponent, sceneID)
+      setComponent(placementEntity, EntityTreeComponent, { parentEntity })
       const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
       const uuid = getComponent(placementEntity, UUIDComponent)
       snapshot.data.entities[uuid] = toEntityJson(placementEntity)
-      dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
+
+      //dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
       if (getState(ObjectGridSnapState).enabled) {
         getMutableState(ObjectGridSnapState).apply.set(true)
       }
@@ -131,7 +135,7 @@ export const ClickPlacementSystem = defineSystem({
         removeEntity(clickState.placementEntity.value)
         clickState.placementEntity.set(null)
       }
-    }, [editorState.placementMode, sceneState.scenes, sceneState.sceneLoaded])
+    }, [editorState.placementMode, sceneState.sceneLoaded])
 
     useEffect(() => {
       if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
@@ -139,6 +143,9 @@ export const ClickPlacementSystem = defineSystem({
       const placementEntity = clickState.placementEntity.value
       if (getOptionalComponent(placementEntity, ModelComponent)?.src === assetURL) return
       setComponent(placementEntity, ModelComponent, { src: assetURL })
+      // return () => {
+      //   removeEntity(placementEntity)
+      // }
     }, [clickState.selectedAsset, clickState.placementEntity])
 
     return null
@@ -156,22 +163,45 @@ export const ClickPlacementSystem = defineSystem({
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
 
+    const physicsWorld = getState(PhysicsState).physicsWorld
+
+    let intersectEntity: Entity = UndefinedEntity
+    let targetIntersection: { point: Vector3; normal: Vector3 } | null = null
+
     const mouseEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
     if (!mouseEntity) return
     const mouse = getComponent(mouseEntity, InputPointerComponent).position
     pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
-
-    pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
+    const cameraPosition = pointerScreenRaycaster.ray.origin
+    const cameraDirection = pointerScreenRaycaster.ray.direction
+    const physicsIntersection = physicsWorld.castRayAndGetNormal(new Ray(cameraPosition, cameraDirection), 1000, false)
+    if (physicsIntersection) {
+      const intersectPosition = cameraPosition
+        .clone()
+        .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
+      intersectEntity = (physicsIntersection.collider.parent() as { userData: { entity: Entity } }).userData.entity
+      const intersectNormal = new Vector3(
+        physicsIntersection.normal.x,
+        physicsIntersection.normal.y,
+        physicsIntersection.normal.z
+      )
+      targetIntersection = {
+        point: intersectPosition,
+        normal: intersectNormal
+      }
+    }
     const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, false)
-    if (intersect.length === 0) return
-    let targetIntersection: Intersection | null = null
+    if (intersect.length === 0 && !targetIntersection) return
     for (let i = 0; i < intersect.length; i++) {
       const intersected = intersect[i]
       if (isPlacementDescendant(intersected.object.entity)) continue
-      targetIntersection = intersected
+      targetIntersection = {
+        point: intersected.point,
+        normal: intersected.face?.normal ?? new Vector3(0, 1, 0)
+      }
       break
     }
-    if (!targetIntersection) return
+    if (!targetIntersection || !placementEntity) return
     const placementTransform = getComponent(placementEntity, TransformComponent)
     const position = targetIntersection.point
     const rotation = new Quaternion().setFromUnitVectors(
