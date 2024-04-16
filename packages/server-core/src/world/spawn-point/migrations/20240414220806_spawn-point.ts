@@ -41,7 +41,7 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('sceneId').collate('utf8mb4_bin').alter()
+      table.uuid('sceneId').collate('utf8mb4_bin')
       table.foreign('sceneId').references('id').inTable(assetPath).onDelete('CASCADE').onUpdate('CASCADE')
       table.string('name').nullable()
       table.string('previewImageURL').nullable()

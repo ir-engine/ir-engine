@@ -57,6 +57,7 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -302,12 +303,15 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
 
+      console.log(scene)
       const isGLTF = sceneURL.endsWith('.gltf')
       if (isGLTF) {
         GLTFState.load(commonConfig.client.fileServer + '/' + sceneURL)
       } else {
         const storage = getStorageProvider()
-        const sceneJSON = await storage.getObject(sceneURL)
+        const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
+        const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
+        console.log(sceneJSON)
         SceneState.loadScene(sceneURL, {
           scene: parseStorageProviderURLs(sceneJSON),
           name: sceneURL.split('/')[2],

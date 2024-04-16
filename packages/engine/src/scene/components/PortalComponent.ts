@@ -216,9 +216,7 @@ export const PortalComponent = defineComponent({
       }
     }, [portalComponent.previewType])
 
-    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value, {
-      query: { locationName: portalComponent.location.value }
-    })
+    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
 
     const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
 

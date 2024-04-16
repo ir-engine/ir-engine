@@ -101,7 +101,11 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
 
 const config = {
   onInstall: async (app: Application) => {
-    await createLocations(app, packageJson.name)
+    await createLocations(app, packageJson.name, [
+      'apartment.scene.json',
+      'default.scene.json',
+      'assets/sky-station.gltf'
+    ])
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onUpdate: (app: Application) => {

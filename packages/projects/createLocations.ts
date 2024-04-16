@@ -35,12 +35,9 @@ import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/ass
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers/lib'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
-export const createLocations = async (app: Application, projectName: string) => {
+export const createLocations = async (app: Application, projectName: string, sceneFiles: string[] = []) => {
   const project = (await app.service('project').find({
     query: {
       name: projectName
@@ -49,51 +46,49 @@ export const createLocations = async (app: Application, projectName: string) => 
   if (project.total === 0) throw new Error(`Project ${projectName} not found`)
   const projectData = project.data[0]
   return Promise.all(
-    fs
-      .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects', projectName))
-      .filter((file) => file.endsWith('.scene.json'))
-      .map(async (fileName) => {
-        const locationId = uuidv4() as LocationID
-        const sceneId = uuidv4()
-        const settingsId = uuidv4()
-        const sceneName = fileName.replace('.scene.json', '')
+    sceneFiles.map(async (fileName) => {
+      const assetURL = `projects/${projectName}/${fileName}`
+      const locationId = uuidv4() as LocationID
+      const sceneId = uuidv4()
+      const settingsId = uuidv4()
+      const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
-        /** @todo use .gltf instead */
-        const scene = (await app.service(assetPath).create({
-          id: sceneId,
-          name: sceneName,
-          assetURL: `projects/${projectName}/${sceneName}.scene.json`,
-          thumbnailURL: `projects/${projectName}/${sceneName}.thumbnail.jpg`,
-          projectId: projectData.id
-        })) as AssetDataType
+      /** @todo use .gltf instead */
+      const scene = (await app.service(assetPath).create({
+        id: sceneId,
+        name: sceneName,
+        assetURL,
+        thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.png').replace('.gltf', '.thumbnail.png'),
+        projectId: projectData.id
+      })) as AssetDataType
 
-        const locationName = toCapitalCase(sceneName.replace('-', ' '))
-        const locationSetting = {
-          id: settingsId,
-          locationId,
-          locationType: 'public',
-          audioEnabled: true,
-          videoEnabled: true,
-          screenSharingEnabled: true,
-          faceStreamingEnabled: true
-        } as LocationSettingType
-        const location = {
-          id: locationId,
-          name: locationName,
-          slugifiedName: sceneName,
-          maxUsersPerInstance: 20,
-          sceneId: scene.id,
-          locationSetting,
-          isLobby: false,
-          isFeatured: false
-        } as LocationData
+      const locationName = toCapitalCase(sceneName.replace('-', ' '))
+      const locationSetting = {
+        id: settingsId,
+        locationId,
+        locationType: 'public',
+        audioEnabled: true,
+        videoEnabled: true,
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
+      } as LocationSettingType
+      const location = {
+        id: locationId,
+        name: locationName,
+        slugifiedName: sceneName,
+        maxUsersPerInstance: 20,
+        sceneId: scene.id,
+        locationSetting,
+        isLobby: false,
+        isFeatured: false
+      } as LocationData
 
-        const existingLocation = (await app.service(locationPath).find({
-          query: {
-            slugifiedName: sceneName
-          }
-        })) as Paginated<LocationType>
-        if (existingLocation.total === 0) await app.service(locationPath).create(location)
-      })
+      const existingLocation = (await app.service(locationPath).find({
+        query: {
+          slugifiedName: sceneName
+        }
+      })) as Paginated<LocationType>
+      if (existingLocation.total === 0) await app.service(locationPath).create(location)
+    })
   )
 }
