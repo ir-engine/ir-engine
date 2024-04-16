@@ -22,3 +22,22 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { ModelFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import React from 'react'
+import FileBrowserInput from '../FileBrowser'
+import { StringInputProps } from '../String'
+
+export function ModelInput({ onRelease, ...rest }: StringInputProps) {
+  return (
+    <FileBrowserInput
+      acceptFileTypes={ModelFileTypes}
+      acceptDropItems={ItemTypes.Models}
+      onRelease={onRelease}
+      {...rest}
+    />
+  )
+}
+
+export default ModelInput
