@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ProjectFields from '@etherealengine/client-core/src/admin/components/Project/ProjectFields'
+import ProjectFields from '@etherealengine/client-core/src/admin/common/Project/ProjectFields'
 
 import { useHookstate } from '@hookstate/core'
 
