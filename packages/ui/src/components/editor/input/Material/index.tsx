@@ -69,4 +69,6 @@ export function MaterialInput<T extends { value: Entity; onChange: (val: EntityU
   )
 }
 
+MaterialInput.defaultProps = {}
+
 export default MaterialInput
