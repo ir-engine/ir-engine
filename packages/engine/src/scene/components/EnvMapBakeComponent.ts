@@ -34,26 +34,19 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
   getComponent,
-  hasComponent,
-  setComponent,
-  useComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { MeshHelperComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { createDisposable } from '../../assets/functions/resourceHooks'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -79,8 +72,7 @@ export const EnvMapBakeComponent = defineComponent({
       resolution: 1024,
       refreshMode: EnvMapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',
-      boxProjection: true,
-      helperEntity: null as Entity | null
+      boxProjection: true
     }
   },
 
@@ -112,25 +104,16 @@ export const EnvMapBakeComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const bake = useComponent(entity, EnvMapBakeComponent)
 
     useLayoutEffect(() => {
-      if (!debugEnabled.value) return
-      const [helper, unload] = createDisposable(Mesh, entity, sphereGeometry, helperMeshMaterial)
-      helper.name = `envmap-bake-helper-${entity}`
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      bake.helperEntity.set(helperEntity)
-
-      return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, EnvMapBakeComponent)) return
-        bake.helperEntity.set(none)
-        unload()
+      if (!debugEnabled.value) {
+        removeComponent(entity, MeshHelperComponent)
+      } else {
+        setComponent(entity, MeshHelperComponent, {
+          name: 'envmap-bake-helper',
+          geometry: sphereGeometry,
+          material: helperMeshMaterial
+        })
       }
     }, [debugEnabled])
 
