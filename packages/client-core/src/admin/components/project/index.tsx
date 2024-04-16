@@ -43,18 +43,21 @@ export default function AdminProject() {
   return (
     <>
       <div className="mb-2 flex justify-start gap-3">
-        <Badge
-          label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value || '1.6.0'}`}
-          variant="neutral"
-          className="py-2"
-        />
-        <Badge
-          label={`Current Engine Commit: ${
-            projectState.builderInfo.engineCommit.value || '8a20fa9a62b4963e332beee6d0abcba4d92d9f2c'
-          }`}
-          variant="neutral"
-          className="py-2"
-        />
+        {projectState.builderInfo.engineVersion.value && (
+          <Badge
+            label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`}
+            variant="neutral"
+            className="py-2"
+          />
+        )}
+
+        {projectState.builderInfo.engineCommit.value && (
+          <Badge
+            label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`}
+            variant="neutral"
+            className="py-2"
+          />
+        )}
       </div>
       <Tabs
         tabsData={[
