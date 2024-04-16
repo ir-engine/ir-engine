@@ -32,7 +32,6 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   value: string | number
   label?: string
   containerClassname?: string
-  override?: boolean
   description?: string
   type?: InputHTMLAttributes<HTMLInputElement>['type']
   onChange?: InputHTMLAttributes<HTMLInputElement>['onChange']
