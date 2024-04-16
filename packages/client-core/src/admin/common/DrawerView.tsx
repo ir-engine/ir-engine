@@ -27,7 +27,7 @@ import React from 'react'
 
 import Drawer, { DrawerClasses } from '@mui/material/Drawer'
 
-import styles from '../styles/admin.module.scss'
+import styles from '../old-styles/admin.module.scss'
 
 interface Props {
   open: boolean
