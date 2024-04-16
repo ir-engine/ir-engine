@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { Engine } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -36,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { State, getState } from '@etherealengine/hyperflux'
-import { EngineRenderer } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { AudioState } from '../../audio/AudioState'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
@@ -50,6 +51,7 @@ export function handleAutoplay(
   volumetric: State<ComponentType<typeof VolumetricComponent>>
 ) {
   const attachEventListeners = () => {
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
     const playMedia = () => {
       media.play()
       audioContext.resume()
@@ -57,14 +59,14 @@ export function handleAutoplay(
       window.removeEventListener('pointerdown', playMedia)
       window.removeEventListener('keypress', playMedia)
       window.removeEventListener('touchstart', playMedia)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', playMedia)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', playMedia)
+      renderer.canvas.removeEventListener('pointerdown', playMedia)
+      renderer.canvas.removeEventListener('touchstart', playMedia)
     }
     window.addEventListener('pointerdown', playMedia)
     window.addEventListener('keypress', playMedia)
     window.addEventListener('touchstart', playMedia)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', playMedia)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', playMedia)
+    renderer.canvas.addEventListener('pointerdown', playMedia)
+    renderer.canvas.addEventListener('touchstart', playMedia)
   }
 
   // Try to play. If it fails, attach event listeners to play on user interaction

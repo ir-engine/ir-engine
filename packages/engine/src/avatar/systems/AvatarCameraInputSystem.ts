@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity } from '@etherealengine/ecs'
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -120,9 +120,7 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const inputPointerEntity = pointerQuery().find(
-    (entity) => getComponent(entity, InputSourceComponent).source.handedness === 'none'
-  )
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
   if (!inputPointerEntity) return
 
   const buttons = InputSourceComponent.getMergedButtons()

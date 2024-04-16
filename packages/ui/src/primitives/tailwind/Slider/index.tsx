@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 
 export interface SliderProps {
   className?: string
-  override?: boolean
   value: number
   min?: number
   max?: number

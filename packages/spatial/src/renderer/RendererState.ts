@@ -34,6 +34,7 @@ import CSMHelper from './csm/CSMHelper'
 export const RendererState = defineState({
   name: 'RendererState',
   initial: () => ({
+    mainCanvasEntity: null as Entity | null,
     csm: null as CSM | null,
     csmHelper: null as CSMHelper | null,
     qualityLevel: isIPhone ? 2 : 5, // range from 0 to 5

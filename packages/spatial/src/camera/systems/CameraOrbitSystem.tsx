@@ -24,15 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import {
-  defineQuery,
-  defineSystem,
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  hasComponent,
-  setComponent
-} from '@etherealengine/ecs'
+import { defineQuery, defineSystem, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
@@ -41,11 +33,11 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
-import obj3dFromUuid from '../../common/functions/obj3dFromUuid'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
 import { ClientInputSystem } from '../../input/systems/ClientInputSystem'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const ZOOM_SPEED = 0.1
@@ -60,16 +52,17 @@ const sphere = new Sphere()
 const spherical = new Spherical()
 
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
-const inputPointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
-const orbitCameraQuery = defineQuery([CameraOrbitComponent, InputComponent, Not(FlyControlComponent)])
+const orbitCameraQuery = defineQuery([
+  RendererComponent,
+  CameraOrbitComponent,
+  InputComponent,
+  Not(FlyControlComponent)
+])
 
 const execute = () => {
   if (!isClient) return
 
   // TODO: handle multi-touch pinch/zoom
-  const pointers = inputPointerQuery()
-  if (!pointers.length) return
-  const inputPointer = getComponent(pointers[0], InputPointerComponent)
 
   const buttons = InputSourceComponent.getMergedButtons()
   const axes = InputSourceComponent.getMergedAxes()
@@ -78,7 +71,12 @@ const execute = () => {
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
+    const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
+    if (!inputPointerEntity) continue
+    const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
+
     if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
 
     if (buttons.PrimaryClick?.pressed) {
@@ -89,7 +87,12 @@ const execute = () => {
     const zoom = axes[MouseScroll.VerticalScroll]
     const panning = buttons.AuxiliaryClick?.pressed
 
-    if (buttons.KeyF?.down) {
+    const transform = getComponent(cameraEid, TransformComponent)
+    const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
+    const distance = transform.position.distanceTo(editorCameraCenter)
+    const camera = getComponent(cameraEid, CameraComponent)
+
+    if (buttons.KeyF?.down || distance < cameraOrbit.minimumZoom.value) {
       cameraOrbit.refocus.set(true)
     }
     if (selecting) {
@@ -108,12 +111,7 @@ const execute = () => {
       }
     }
 
-    const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
-    const transform = getComponent(cameraEid, TransformComponent)
-    const camera = getComponent(cameraEid, CameraComponent)
-
     if (zoom) {
-      const distance = transform.position.distanceTo(cameraOrbit.cameraOrbitCenter.value)
       delta.set(0, 0, zoom * distance * ZOOM_SPEED)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
@@ -122,30 +120,22 @@ const execute = () => {
     }
 
     if (cameraOrbit.refocus.value) {
-      let distance = 0
+      let distance = cameraOrbit.minimumZoom.value
       if (cameraOrbit.focusedEntities.length === 0) {
         editorCameraCenter.set(0, 0, 0)
         distance = 10
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group =
-            typeof object === 'string' ? [obj3dFromUuid(object)] : getOptionalComponent(object, GroupComponent) || []
+          const group = getComponent(object, GroupComponent)
           for (const obj of group) {
             box.expandByObject(obj)
           }
         }
         if (box.isEmpty()) {
-          // Focusing on an Group, AmbientLight, etc
-          const object = cameraOrbit.focusedEntities[0].value
-
-          if (typeof object === 'string') {
-            editorCameraCenter.setFromMatrixPosition(obj3dFromUuid(object).matrixWorld)
-          } else if (hasComponent(object, TransformComponent)) {
-            const position = getComponent(object, TransformComponent).position
-            editorCameraCenter.copy(position)
-          }
-          distance = 0.1
+          const entity = cameraOrbit.focusedEntities[0].value
+          const position = getComponent(entity, TransformComponent).position
+          editorCameraCenter.copy(position)
         } else {
           box.getCenter(editorCameraCenter)
           distance = box.getBoundingSphere(sphere).radius

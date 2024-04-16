@@ -36,7 +36,7 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -70,9 +70,11 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+  const sceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId)
+  const rootUUID = SceneState.useScene(sceneID.value)?.root?.value
 
   useEffect(() => {
-    if (!sceneLoaded.value) return
+    if (!sceneLoaded.value || !rootUUID) return
 
     if (spectate) {
       dispatchAction(CameraActions.spectateUser({}))
@@ -91,11 +93,12 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       : getRandomSpawnPoint(Engine.instance.userID)
 
     spawnLocalAvatarInWorld({
+      parentUUID: rootUUID,
       avatarSpawnPose,
       avatarID: user.avatar.id!,
       name: user.name
     })
-  }, [sceneLoaded.value])
+  }, [sceneLoaded.value, rootUUID])
 }
 
 /**

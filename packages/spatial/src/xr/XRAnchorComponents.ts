@@ -184,7 +184,7 @@ function PersistentAnchorReactor() {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
       originalParentEntityUUID.set(originalParent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       TransformComponent.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value

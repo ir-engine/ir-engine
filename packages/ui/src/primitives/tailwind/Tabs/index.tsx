@@ -30,14 +30,15 @@ import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   tabsData: {
-    title: string
     tabLabel: string
+    title?: string
     bottomComponent?: ReactNode
     rightComponent?: ReactNode
     ref?: React.RefObject<HTMLDivElement>
     disabled?: boolean
   }[]
-  tabContainerClassName?: string
+  backgroundTheme?: string
+  tabcontainerClassName?: string
   tabClassName?: string
   scrollable?: boolean
   currentTabIndex?: number
@@ -46,14 +47,14 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Tabs = ({
   tabsData,
-  tabContainerClassName,
+  tabcontainerClassName,
   tabClassName,
   scrollable,
   currentTabIndex,
   onTabChange,
   ...props
 }: TabProps): JSX.Element => {
-  const twTabContainerClassName = twMerge('flex gap-4', tabContainerClassName)
+  const twTabcontainerClassName = twMerge('flex gap-4', tabcontainerClassName)
   const twTabClassName = twMerge(
     'text-theme-secondary p-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
     tabClassName
@@ -87,11 +88,13 @@ const Tabs = ({
 
   return (
     <div className="relative overflow-y-auto">
-      <Text component="h2" fontSize="xl" className="mb-6">
-        {tabsData[currentTab.value]?.title}
-      </Text>
-      <div className="bg-theme-primary sticky top-0 flex justify-between">
-        <div className={twMerge(twTabContainerClassName, tabContainerClassName)} {...props}>
+      {tabsData[currentTab.value]?.title && (
+        <Text component="h2" fontSize="xl" className="mb-6">
+          {tabsData[currentTab.value]?.title}
+        </Text>
+      )}
+      <div className={'sticky top-0 flex justify-between'}>
+        <div className={twMerge(twTabcontainerClassName, tabcontainerClassName)} {...props}>
           {tabsData.map((tab, index) => (
             <button
               key={index}

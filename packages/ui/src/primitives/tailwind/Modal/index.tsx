@@ -53,6 +53,7 @@ export const ModalHeader = ({
   title?: string
   onClose?: (isHeader: boolean) => void
 }) => {
+  // sticky top-0 z-10 bg-theme-surface-main
   return (
     <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text>{title}</Text>}
@@ -116,12 +117,12 @@ const Modal = ({
   closeButtonDisabled,
   submitButtonDisabled
 }: ModalProps) => {
-  const twClassName = twMerge('relative max-h-[80vh] w-full overflow-y-auto', className)
+  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
   return (
     <div className={twClassName}>
       <div className="bg-theme-surface-main relative rounded-lg shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
-        <div className="w-full px-10 py-6">{children}</div>
+        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
         {!hideFooter && (
           <ModalFooter
             closeButtonText={closeButtonText}

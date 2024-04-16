@@ -32,7 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/Scene'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'

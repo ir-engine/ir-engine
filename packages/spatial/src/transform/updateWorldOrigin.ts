@@ -37,7 +37,7 @@ export const updateWorldOriginFromScenePlacement = () => {
   const scenePosition = xrState.scenePosition
   const sceneRotation = xrState.sceneRotation
   const worldScale = XRState.worldScale
-  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
   originTransform.scale.setScalar(worldScale)
@@ -52,14 +52,14 @@ export const updateWorldOriginFromScenePlacement = () => {
 
 export const updateWorldOrigin = () => {
   if (ReferenceSpace.localFloor) {
-    const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
+    const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
   }
 }
 
 export const computeAndUpdateWorldOrigin = () => {
-  computeTransformMatrix(Engine.instance.originEntity)
-  TransformComponent.dirtyTransforms[Engine.instance.originEntity] = false
+  computeTransformMatrix(Engine.instance.localFloorEntity)
+  TransformComponent.dirtyTransforms[Engine.instance.localFloorEntity] = false
   updateWorldOrigin()
 }

@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { Engine, getOptionalComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { EngineRenderer, WebGLRendererSystem } from './WebGLRendererSystem'
+import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({
   name: 'RenderInfoState',
@@ -47,11 +48,12 @@ export const RenderInfoState = defineState({
 })
 
 const execute = () => {
-  if (!EngineRenderer.instance) return
+  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+  if (!renderer) return
 
   const state = getState(RenderInfoState)
   if (state.visible) {
-    const info = EngineRenderer.instance.renderer.info
+    const info = renderer.renderer.info
     const deltaSeconds = getState(ECSState).deltaSeconds
 
     const fps = 1 / deltaSeconds
@@ -71,7 +73,7 @@ const execute = () => {
     info.reset()
   }
 
-  EngineRenderer.instance.renderer.info.autoReset = !state.visible
+  renderer.renderer.info.autoReset = !state.visible
 }
 
 export const RenderInfoSystem = defineSystem({
