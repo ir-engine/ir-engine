@@ -28,7 +28,7 @@ import { Q_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathCon
 import React, { useCallback, useEffect } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 import NumericInput from '../Numeric'
-import { UniformButtonContainer, Vector3Scrubber } from '../Vector3'
+import { Vector3Scrubber } from '../Vector3'
 
 const { RAD2DEG, DEG2RAD } = _Math
 /**
@@ -65,7 +65,6 @@ export const EulerInput = (props: EulerInputProps) => {
 
   return (
     <div className="flex flex-auto flex-row justify-start gap-1.5">
-      <UniformButtonContainer />
       <NumericInput
         value={euler.x.value * RAD2DEG}
         onChange={onSetEuler('x')}
