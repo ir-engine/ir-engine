@@ -33,7 +33,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType } from '@etherealengine/common/src/schema.type.module'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import styles from '../../old-styles/admin.module.scss'
@@ -137,7 +137,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
               </Button>
             )}
 
-            {processing.value && <LoadingCircle className="h-6 w-6" title={t('admin:components.project.processing')} />}
+            {processing.value && <LoadingView className="h-6 w-6" title={t('admin:components.project.processing')} />}
           </>
         </DialogActions>
       </Container>

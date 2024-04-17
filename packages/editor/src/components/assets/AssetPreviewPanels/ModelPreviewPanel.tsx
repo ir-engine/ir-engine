@@ -36,7 +36,7 @@ import { AmbientLightComponent, TransformComponent } from '@etherealengine/spati
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { t } from 'i18next'
 import styles from '../styles.module.scss'
 
@@ -68,7 +68,7 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
-      {loading.value && <LoadingCircle className="h-6 w-6" title={t('common:loader.loading')} />}
+      {loading.value && <LoadingView className="h-6 w-6" title={t('common:loader.loading')} />}
       {error.value && (
         <div className={styles.container}>
           <h1 className={styles.error}>{error.value}</h1>

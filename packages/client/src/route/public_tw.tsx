@@ -31,7 +31,7 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
@@ -43,13 +43,13 @@ function PublicRouter() {
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
 
   if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
-    return <LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
       <Suspense
-        fallback={<LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
+        fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
         <Routes>
           <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />

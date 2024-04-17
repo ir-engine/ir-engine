@@ -27,13 +27,14 @@ import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-const LoadingCircle = ({
+const LoadingView = ({
   title,
   description,
   className,
   fullScreen,
   containerClassname,
-  titleClassname
+  titleClassname,
+  spinnerOnly
 }: {
   title?: string
   description?: string
@@ -41,6 +42,7 @@ const LoadingCircle = ({
   fullScreen?: boolean
   containerClassname?: string
   titleClassname?: string
+  spinnerOnly?: boolean
 }) => {
   const loader = (
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
@@ -63,7 +65,9 @@ const LoadingCircle = ({
     </div>
   )
 
-  return fullScreen || containerClassname || title || description ? (
+  return spinnerOnly ? (
+    loader
+  ) : (
     <div
       className={twMerge(
         'flex flex-col items-center justify-center',
@@ -75,15 +79,13 @@ const LoadingCircle = ({
       {title && <Text className={twMerge('mt-1', titleClassname)}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
-  ) : (
-    loader
   )
 }
 
-LoadingCircle.displayName = 'LoadingCircle'
+LoadingView.displayName = 'LoadingView'
 
-LoadingCircle.defaultProps = {
+LoadingView.defaultProps = {
   message: 'Loading...'
 }
 
-export default LoadingCircle
+export default LoadingView

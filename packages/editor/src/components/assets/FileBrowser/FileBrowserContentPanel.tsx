@@ -65,7 +65,7 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
@@ -643,7 +643,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       </div>
       {retrieving && (
-        <LoadingCircle className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
+        <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
       )}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">

@@ -33,7 +33,7 @@ import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
 import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import styles from './index.module.scss'
 
 interface Props {
@@ -63,7 +63,7 @@ const ConfirmDialog = ({
 
       <DialogContent>
         {!processing && <DialogContentText>{description}</DialogContentText>}
-        {processing && <LoadingCircle className="h-6 w-6" title={t('common:components.processing')} />}
+        {processing && <LoadingView className="h-6 w-6" title={t('common:components.processing')} />}
       </DialogContent>
 
       {!processing && (

@@ -42,7 +42,7 @@ import { UserMenus } from '../../../UserUISystem'
 
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -215,7 +215,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
         sx={{ minHeight: loading === LoadingState.LoadingCreator ? '450px !important' : '370px !important' }}
       >
         {loading !== LoadingState.None && (
-          <LoadingCircle
+          <LoadingView
             className="h-6 w-6"
             title={
               loading === LoadingState.Downloading

@@ -44,7 +44,7 @@ import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
 import '../themes/components.css'
@@ -75,7 +75,7 @@ const AppPage = () => {
   }, [selfUser.id])
 
   if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
-    return <LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (

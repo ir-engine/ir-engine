@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
@@ -38,13 +38,13 @@ const LocationRoutes = () => {
 
   if (!projectsLoaded)
     return (
-      <LoadingCircle className="flex w-[3%] items-center justify-center" message={t('common:loader.loadingProjects')} />
+      <LoadingView className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingProjects')} />
     )
 
   return (
     <Suspense
       fallback={
-        <LoadingCircle className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingLocation')} />
+        <LoadingView className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingLocation')} />
       }
     >
       <AdminRoutes />

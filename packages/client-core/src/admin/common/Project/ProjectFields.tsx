@@ -43,7 +43,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -421,7 +421,7 @@ const ProjectFields = ({
             <div className={styles.projectVersion}>{t('admin:components.project.destinationRepoEmpty')}</div>
           )}
           {projectUpdateStatus.value?.destinationProcessing && (
-            <LoadingCircle title={t('admin:components.project.destinationProcessing')} className="h-6 w-6" />
+            <LoadingView title={t('admin:components.project.destinationProcessing')} className="h-6 w-6" />
           )}
 
           {!changeDestination && !createProject && (
@@ -502,14 +502,14 @@ const ProjectFields = ({
             )}
 
           {projectUpdateStatus.value?.branchProcessing && (
-            <LoadingCircle title={t('admin:components.project.branchProcessing')} className="h-6 w-6" />
+            <LoadingView title={t('admin:components.project.branchProcessing')} className="h-6 w-6" />
           )}
           {projectUpdateStatus.value?.commitsProcessing && (
-            <LoadingCircle title={t('admin:components.project.commitsProcessing')} className="h-6 w-6" />
+            <LoadingView title={t('admin:components.project.commitsProcessing')} className="h-6 w-6" />
           )}
 
           {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
-            <LoadingCircle title={t('admin:components.project.sourceVsDestinationProcessing')} className="h-6 w-6" />
+            <LoadingView title={t('admin:components.project.sourceVsDestinationProcessing')} className="h-6 w-6" />
           )}
 
           {!processing &&
