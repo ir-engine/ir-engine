@@ -50,6 +50,11 @@ const fitOptions = [
   { label: 'Horizontal', value: 'horizontal' }
 ]
 
+const projectionOptions = [
+  { label: 'Flat', value: 'Flat' },
+  { label: 'Equirectangular360', value: 'Equirectangular360' }
+]
+
 /**
  * VideoNodeEditor used to render editor view for property customization.
  *
@@ -105,6 +110,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           value={video.size.value}
           onChange={updateProperty(VideoComponent, 'size')}
           onRelease={commitProperty(VideoComponent, 'size')}
+        />
+      </InputGroup>
+
+      <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
+        <SelectInput
+          value={video.projection.value}
+          onChange={commitProperty(VideoComponent, 'projection')}
+          options={projectionOptions}
         />
       </InputGroup>
 

@@ -89,7 +89,8 @@
     "create-build-status": "cross-env ts-node --swc scripts/create-build-status.ts",
     "record-build-error": "cross-env ts-node --swc scripts/record-build-error.ts",
     "record-build-success": "cross-env ts-node --swc scripts/record-build-success",
-    "add-license-headers": "cross-env ts-node --swc scripts/add-license-headers.ts"
+    "add-license-headers": "cross-env ts-node --swc scripts/add-license-headers.ts",
+    "storybook": "cd packages/ui && npm run storybook"
   },
   "types": "lib/",
   "pre-commit": [
