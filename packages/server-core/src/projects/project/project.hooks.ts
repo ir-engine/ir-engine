@@ -411,7 +411,7 @@ const removeProjectFiles = async (context: HookContext<ProjectService>) => {
   }
 
   logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
-  await deleteProjectFilesInStorageProvider(context.name)
+  await deleteProjectFilesInStorageProvider(context.app, context.name)
 }
 
 /**

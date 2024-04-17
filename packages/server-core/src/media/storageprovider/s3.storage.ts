@@ -629,7 +629,7 @@ export class S3Provider implements StorageProviderInterface {
    * Get the form fields and target URL for direct POST uploading.
    * @param key Key of object.
    * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
-   * @param conditions An array of conditions that must be met for the form upload to be accepted by S3..
+   * @param conditions An array of conditions that must be met for the form upload to be accepted by S3.
    */
   async getSignedUrl(key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> {
     const Bucket = this.bucket
@@ -643,7 +643,6 @@ export class S3Provider implements StorageProviderInterface {
       Expires: expiresAfter
     })
 
-    await this.createInvalidation([key])
     return {
       fields: result.fields,
       cacheDomain: this.cacheDomain,
