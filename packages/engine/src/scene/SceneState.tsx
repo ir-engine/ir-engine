@@ -93,7 +93,6 @@ export const SceneState = defineState({
   },
 
   unloadScene: (sceneID: string) => {
-    console.log('unloadScene', sceneID)
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
     const root = sceneData.scene.root
@@ -268,7 +267,6 @@ const SceneSnapshotReactor = (props: { sceneID: string }) => {
 const createRootEntity = (sceneID: string, sceneData: SceneJsonType) => {
   const entityState = sceneData.entities[sceneData.root]
   const entity = createEntity()
-  console.log('createRootEntity', sceneID, entityState.name)
   setComponent(entity, UUIDComponent, sceneData.root)
   setComponent(entity, NameComponent, entityState.name)
   setComponent(entity, VisibleComponent, true)

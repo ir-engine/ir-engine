@@ -106,7 +106,6 @@ export const saveSceneJSON = async (
   const blob = [JSON.stringify(sceneData, null, 2)]
   const file = new File(blob, relativePath)
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
-  console.log({ newPath })
 
   const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
 
@@ -161,7 +160,6 @@ export const saveSceneGLTF = async (
   if (!isModel) removeComponent(entity, ModelComponent)
 
   const absolutePath = `projects/${projectName}/${relativePath}`
-  console.log({ absolutePath })
 
   if (sceneAssetID) {
     const result = await Engine.instance.api

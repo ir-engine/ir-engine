@@ -302,8 +302,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
-
-      console.log(scene)
       const isGLTF = sceneURL.endsWith('.gltf')
       if (isGLTF) {
         GLTFState.load(commonConfig.client.fileServer + '/' + sceneURL)
@@ -311,7 +309,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
         const storage = getStorageProvider()
         const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
         const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
-        console.log(sceneJSON)
         SceneState.loadScene(sceneURL, {
           scene: parseStorageProviderURLs(sceneJSON),
           name: sceneURL.split('/')[2],
