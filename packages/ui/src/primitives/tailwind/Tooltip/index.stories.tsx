@@ -25,23 +25,23 @@ Ethereal Engine. All Rights Reserved.
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
 import Button from '../Button'
-import ToolTip from './index'
+import Tooltip from './index'
 
 const argTypes: ArgTypes = {}
 
-const ToolTipStory = (title) => {
+const TooltipStory = (title) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <ToolTip title={title} direction="top">
+      <Tooltip title={title} direction="top">
         <Button title="Submit" />
-      </ToolTip>
+      </Tooltip>
     </div>
   )
 }
 
 export default {
-  title: 'Primitives/Tailwind/ToolTip',
-  component: ToolTipStory,
+  title: 'Primitives/Tailwind/Tooltip',
+  component: TooltipStory,
   parameters: {
     componentSubtitle: 'Button',
     design: {
