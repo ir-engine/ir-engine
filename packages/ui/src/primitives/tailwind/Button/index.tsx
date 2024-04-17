@@ -31,7 +31,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'iconLabel'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: boolean
@@ -50,7 +50,8 @@ const variants = {
   pink: 'bg-[#C162A2]',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
-  transparent: 'bg-transparent'
+  transparent: 'bg-transparent',
+  iconLabel: 'bg-button-gradient-onboarding rounded-none'
 }
 
 const Button = ({
@@ -65,25 +66,35 @@ const Button = ({
   className,
   ...props
 }: ButtonProps): JSX.Element => {
+  const paddingClasses = variant !== 'iconLabel' ? sizes[size] : 'px-0 py-0'
+
   const twClassName = twMerge(
     'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
     'disabled:cursor-not-allowed',
     StartIcon || EndIcon ? 'justify-between' : 'justify-center',
-    sizes[size],
-    variants[variant],
+    paddingClasses,
     fullWidth ? 'w-full' : 'w-fit',
     rounded ? 'rounded-full' : 'rounded-md',
+    variants[variant],
     disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
     className
   )
 
+  const iconContainerStyle = twMerge(
+    variant !== 'iconLabel' ? 'mx-1' : 'flex h-full items-center justify-center bg-[#375DAF]'
+  )
+
+  const textContainerStyle = twMerge(variant !== 'iconLabel' ? '' : 'mx-auto flex items-center justify-center')
+
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
       {StartIcon && <span className="mx-1">{StartIcon}</span>}
-      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '')}>{children}</span>}
-      {EndIcon && <span className="mx-1">{EndIcon}</span>}
+      {children && (
+        <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerStyle)}>{children}</span>
+      )}
+      {EndIcon && <span className={iconContainerStyle}>{EndIcon}</span>}
     </button>
   )
 }
