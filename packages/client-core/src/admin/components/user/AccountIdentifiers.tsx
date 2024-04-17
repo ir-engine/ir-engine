@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserType } from '@etherealengine/common/src/schema.type.module'
-import ToolTip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
+import ToolTip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
