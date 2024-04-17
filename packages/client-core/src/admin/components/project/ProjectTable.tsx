@@ -39,7 +39,7 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { GrGithub } from 'react-icons/gr'
 import {
