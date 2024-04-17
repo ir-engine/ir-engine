@@ -29,7 +29,6 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
   FileBrowserState,
@@ -66,6 +65,7 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
@@ -643,11 +643,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       </div>
       {retrieving && (
-        <LoadingView
-          className={styles.filesLoading}
-          title={t('editor:layout.filebrowser.loadingFiles')}
-          variant="body2"
-        />
+        <LoadingCircle className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
       )}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">

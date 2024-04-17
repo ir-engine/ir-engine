@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useRef } from 'react'
 
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { useHookstate } from '@etherealengine/hyperflux'
 
@@ -37,6 +36,8 @@ import { AmbientLightComponent, TransformComponent } from '@etherealengine/spati
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import { t } from 'i18next'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -67,7 +68,7 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
-      {loading.value && <LoadingView />}
+      {loading.value && <LoadingCircle className="h-6 w-6" title={t('common:loader.loading')} />}
       {error.value && (
         <div className={styles.container}>
           <h1 className={styles.error}>{error.value}</h1>

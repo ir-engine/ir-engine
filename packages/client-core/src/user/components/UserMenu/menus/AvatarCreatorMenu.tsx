@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import config from '@etherealengine/common/src/config'
@@ -43,6 +42,7 @@ import { UserMenus } from '../../../UserUISystem'
 
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -215,9 +215,8 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
         sx={{ minHeight: loading === LoadingState.LoadingCreator ? '450px !important' : '370px !important' }}
       >
         {loading !== LoadingState.None && (
-          <LoadingView
-            sx={{ position: 'absolute', background: 'var(--popupBackground)', margin: -3, zIndex: 1 }}
-            variant="body2"
+          <LoadingCircle
+            className="h-6 w-6"
             title={
               loading === LoadingState.Downloading
                 ? t('user:avatar.downloading')
