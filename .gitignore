@@ -170,3 +170,5 @@ packages/ui/tests/jest-test-results.json
 
 # tailscale cert/key
 certs/tailscale
+
+**/credentials
