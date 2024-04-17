@@ -39,9 +39,11 @@ import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
@@ -71,7 +73,7 @@ import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { RestEndpointMethodTypes } from '@octokit/rest'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -133,7 +135,10 @@ export const updateBuilder = async (
 ) => {
   try {
     // invalidate cache for all installed projects
-    await getStorageProvider(storageProviderName).createInvalidation(['projects*'])
+    if (!isDev)
+      await app.service(invalidationPath).create({
+        path: 'projects*'
+      })
   } catch (e) {
     logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }
@@ -1536,7 +1541,7 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: v4(),
+          id: uuidv4(),
           name: projectName,
           enabled,
           repositoryPath,
@@ -1634,15 +1639,20 @@ export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA
   }
 }
 
-export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
+export const deleteProjectFilesInStorageProvider = async (
+  app: Application,
+  projectName: string,
+  storageProviderName?: string
+) => {
   const storageProvider = getStorageProvider(storageProviderName)
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
-      await Promise.all([
-        storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation([`projects/${projectName}*`])
-      ])
+      await storageProvider.deleteResources(existingFiles)
+      if (!isDev)
+        await app.service(invalidationPath).create({
+          path: `projects/${projectName}*`
+        })
     }
   } catch (e) {
     logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')
@@ -1668,7 +1678,7 @@ export const uploadLocalProjectToProvider = async (
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
   if (remove) {
-    await deleteProjectFilesInStorageProvider(projectName)
+    await deleteProjectFilesInStorageProvider(app, projectName)
   }
 
   // upload new files to storage provider

@@ -76,7 +76,7 @@ const StaticResourceItem = (props: {
   const index = props.index
   const resource = resources[index]
 
-  if (resource.folderType === 'folder') {
+  if (resource.folderType === 'folder' && resource.assetClass !== 'unknown') {
     return (
       <div
         key={resource.folderType}
