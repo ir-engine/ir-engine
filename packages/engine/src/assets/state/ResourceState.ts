@@ -600,7 +600,7 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
 const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const obj = (typeof res === 'function' ? res() : res) as AssetType
+  const obj = (typeof res === 'function' ? res() : res) as unknown as AssetType
   const resourceType = getResourceType(obj)
   const callbacks = Callbacks[resourceType]
   resources.merge({

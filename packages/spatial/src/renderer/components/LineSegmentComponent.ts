@@ -24,14 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useDisposable, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferGeometry, Color, ColorRepresentation, LineBasicMaterial, LineSegments, Material } from 'three'
-import { useHelperEntity } from '../../common/debug/DebugComponentUtils'
+import { NameComponent } from '../../common/NameComponent'
 import { matchesColor, matchesGeometry, matchesMaterial } from '../../common/functions/MatchesUtils'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
+import { setVisibleComponent } from './VisibleComponent'
 
 export const LineSegmentComponent = defineComponent({
   name: 'LineSegmentComponent',
@@ -41,7 +44,8 @@ export const LineSegmentComponent = defineComponent({
       name: 'line-segment',
       geometry: null! as BufferGeometry,
       material: new LineBasicMaterial() as Material & { color: Color },
-      color: 0xffffff as ColorRepresentation,
+      color: undefined as undefined | ColorRepresentation,
+      layerMask: ObjectLayers.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -55,6 +59,7 @@ export const LineSegmentComponent = defineComponent({
 
     if (matchesMaterial.test(json.material)) component.material.set(json.material)
     if (matchesColor.test(json.color)) component.color.set(json.color)
+    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
   },
 
   reactor: function () {
@@ -63,29 +68,39 @@ export const LineSegmentComponent = defineComponent({
     const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
     const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
     const [lineSegment] = useDisposable(LineSegments, entity, geometryState.value, materialState.value)
-    useHelperEntity(entity, lineSegment, component)
 
     useEffect(() => {
       addObjectToGroup(entity, lineSegment)
+      setVisibleComponent(entity, true)
       return () => {
         removeObjectFromGroup(entity, lineSegment)
       }
     }, [])
 
     useEffect(() => {
+      setComponent(entity, NameComponent, component.name.value)
+    }, [component.name])
+
+    useEffect(() => {
+      setComponent(entity, ObjectLayerMaskComponent, component.layerMask.value)
+    }, [component.layerMask])
+
+    useEffect(() => {
+      const color = component.color.value
+      if (!color) return
       const mat = component.material.get(NO_PROXY)
-      mat.color.set(component.color.value)
+      mat.color.set(color)
       mat.needsUpdate = true
     }, [component.color])
 
     useDidMount(() => {
       const geo = component.geometry.get(NO_PROXY)
-      geometryState.set(geo)
+      if (geo != geometryState.value) geometryState.set(geo)
     }, [component.geometry])
 
     useDidMount(() => {
       const mat = component.material.get(NO_PROXY)
-      materialState.set(mat)
+      if (mat != materialState.value) materialState.set(mat)
       mat.needsUpdate = true
     }, [component.material])
 
