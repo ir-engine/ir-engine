@@ -104,7 +104,7 @@ const config = {
     await createLocations(app, packageJson.name, [
       'apartment.scene.json',
       'default.scene.json',
-      'assets/sky-station.gltf'
+      'sky-station.scene.json'
     ])
     return installAvatarsFromProject(app, avatarsFolder)
   },
