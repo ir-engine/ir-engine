@@ -237,6 +237,10 @@
         "lbl-callbackID" : "Callback ID"
       }
     },
+    "grabbable": {
+      "name": "Grabbable",
+        "description": "A grabbable component that can be picked up and manipulated by the user"
+    },
     "media": {
       "name": "Media",
       "description": "Audio and video playback",

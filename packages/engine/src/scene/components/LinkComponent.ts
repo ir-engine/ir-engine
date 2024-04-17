@@ -36,7 +36,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -203,11 +203,26 @@ export const LinkComponent = defineComponent({
         const inputSourceEntity = inputComponent?.inputSources[0]
 
         if (inputSourceEntity) {
+          console.log(
+            'input source entity: ' +
+              inputSourceEntity +
+              '  --- capturing entity: ' +
+              getState(InputState).capturingEntity +
+              '  --- entity: ' +
+              entity
+          )
           const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-          if (getState(InputState).capturingEntity !== entity) return
+
+          /* this used to return if (getState(InputState).capturingEntity !== entity). However this was not working as expected afaik.
+           * capturing entity is 0 on hover, or viewer entity (3) on clic
+           * changed this to check if capturing entity is not null (0), otherwise it runs the logic for the link */
+
+          // if (getState(InputState).capturingEntity !== Engine.instance.viewerEntity) return
+          if (getState(InputState).capturingEntity !== UndefinedEntity) return
+          // if (getState(InputState).capturingEntity !== entity) return
           const buttons = inputSource?.buttons
 
-          if (buttons)
+          if (buttons) {
             if (buttons.PrimaryClick?.touched) {
               if (buttons.PrimaryClick.up) {
                 linkLogic(linkComponent, undefined)
@@ -216,6 +231,7 @@ export const LinkComponent = defineComponent({
               const xrState = getState(XRState)
               linkLogic(linkComponent, xrState)
             }
+          }
         }
       },
       { with: InputSystemGroup }
