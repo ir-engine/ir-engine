@@ -795,7 +795,8 @@
       "lbl-fit": "Video Fit",
       "lbl-fit-info": "How the video should be stretched within the given canvas size",
       "lbl-media-info": "An entity w/ a media component that should be sourced for display",
-      "description": "Display a video"
+      "description": "Display a video",
+      "lbl-projection": "Projection"
     },
     "volumetric": {
       "name": "Volumetric",
