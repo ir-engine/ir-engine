@@ -23,24 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import {
+  InvalidationData,
+  InvalidationQuery,
+  InvalidationType
+} from '@etherealengine/common/src/schemas/media/invalidation.schema'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-export default [
-  Invalidation,
-  ProjectResource,
-  StaticResource,
-  StaticResourceFilters,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver
-]
+export interface InvalidationParams extends KnexAdapterParams<InvalidationQuery> {}
+
+export class InvalidationService<
+  T = InvalidationType,
+  ServiceParams extends Params = InvalidationParams
+> extends KnexService<InvalidationType, InvalidationData, InvalidationParams> {}
