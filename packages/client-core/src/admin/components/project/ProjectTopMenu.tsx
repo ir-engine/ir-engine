@@ -33,6 +33,7 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
@@ -77,9 +78,35 @@ export default function ProjectTopMenu() {
     modalProcessing.set(false)
   }
 
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
+  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+
+  const refreshGithubRepoAccess = () => {
+    ProjectService.refreshGithubRepoAccess()
+  }
+
   return (
     <div className="mb-4 flex justify-between gap-2">
       <div className="flex gap-2">
+        {githubProvider != null && (
+          <Button
+            size="small"
+            disabled={projectState.refreshingGithubRepoAccess.value}
+            onClick={() => refreshGithubRepoAccess()}
+            className="[&>*]:m-0"
+          >
+            {projectState.refreshingGithubRepoAccess.value ? (
+              <span className="flex items-center gap-2">
+                <LoadingCircle className="inline-block h-6 w-6" />
+                {t('admin:components.project.refreshingGithubRepoAccess')}
+              </span>
+            ) : (
+              t('admin:components.project.refreshGithubRepoAccess')
+            )}
+          </Button>
+        )}
+
         <Button
           startIcon={<HiArrowPath />}
           size="small"

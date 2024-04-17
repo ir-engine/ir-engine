@@ -420,7 +420,7 @@ export default function AddEditProjectModal({
 
         <div className="grid gap-2">
           {hasGithubProvider ? (
-            <div className="flex gap-2">
+            <div className="flex items-end gap-2">
               <Input
                 label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
                 placeholder="https://github.com/{user}/{repo}"
@@ -439,6 +439,7 @@ export default function AddEditProjectModal({
               <Button
                 title={t('admin:components.project.copyDestination')}
                 variant="outline"
+                className="p-3 [&>*]:m-0"
                 startIcon={<HiMiniClipboardDocumentList />}
                 onClick={() => {
                   handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
