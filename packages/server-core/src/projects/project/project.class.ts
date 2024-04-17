@@ -183,7 +183,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
-        await deleteProjectFilesInStorageProvider(name)
+        await deleteProjectFilesInStorageProvider(this.app, name)
         logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super._remove(id)
       }

@@ -22,25 +22,38 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import React from 'react'
+import Button from '../Button'
+import Tooltip from './index'
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+const argTypes: ArgTypes = {}
 
-export default [
-  Invalidation,
-  ProjectResource,
-  StaticResource,
-  StaticResourceFilters,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver
-]
+const TooltipStory = (title) => {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <Tooltip title={title} direction="top">
+        <Button title="Submit" />
+      </Tooltip>
+    </div>
+  )
+}
+
+export default {
+  title: 'Primitives/Tailwind/Tooltip',
+  component: TooltipStory,
+  parameters: {
+    componentSubtitle: 'Button',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = {
+  args: {
+    title: 'Tooltip info'
+  }
+}

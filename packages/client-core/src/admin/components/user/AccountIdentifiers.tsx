@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserType } from '@etherealengine/common/src/schema.type.module'
-import ToolTip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
@@ -49,44 +49,44 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
   return (
     <div className="flex items-center gap-2">
       {discordIp ? (
-        <ToolTip title={discordIp.accountIdentifier!}>
+        <Tooltip title={discordIp.accountIdentifier!}>
           <RiDiscordFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {googleIp ? (
-        <ToolTip title={googleIp.accountIdentifier!}>
+        <Tooltip title={googleIp.accountIdentifier!}>
           <RiGoogleFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {facebookIp ? (
-        <ToolTip title={facebookIp.accountIdentifier!}>
+        <Tooltip title={facebookIp.accountIdentifier!}>
           <RiFacebookBoxFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {twitterIp ? (
-        <ToolTip title={twitterIp.accountIdentifier!}>
+        <Tooltip title={twitterIp.accountIdentifier!}>
           <RiTwitterFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {linkedinIp ? (
-        <ToolTip title={linkedinIp.accountIdentifier!}>
+        <Tooltip title={linkedinIp.accountIdentifier!}>
           <RiTwitterFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {githubIp ? (
-        <ToolTip title={githubIp.accountIdentifier!}>
+        <Tooltip title={githubIp.accountIdentifier!}>
           <RiGithubFill className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {smsIp ? (
-        <ToolTip title={smsIp.accountIdentifier!}>
+        <Tooltip title={smsIp.accountIdentifier!}>
           <RiMessage2Line className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
       {emailIp ? (
-        <ToolTip title={emailIp.accountIdentifier!}>
+        <Tooltip title={emailIp.accountIdentifier!}>
           <MdEmail className="h-6 w-6" />
-        </ToolTip>
+        </Tooltip>
       ) : null}
     </div>
   )

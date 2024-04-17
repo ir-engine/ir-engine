@@ -30,7 +30,7 @@ import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   tabsData: {
-    tabLabel: string
+    tabLabel: string | ReactNode
     title?: string
     bottomComponent?: ReactNode
     rightComponent?: ReactNode

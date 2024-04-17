@@ -118,6 +118,26 @@ const PWA = (clientSetting) =>
         // ktx2
         '**/*.{ktx2}'
       ],
+      globIgnores: [
+        // fonts
+        '**/projects/**/*.{woff2,woff,ttf,eot}',
+        // images
+        '**/projects/**/*.{png,jpg,jpeg,gif,svg,ico}',
+        // media
+        '**/projects/**/*.{mp3,mp4,webm}',
+        // code
+        '**/projects/**/*.{js, css}',
+        // docs
+        '**/projects/**/*.{txt,xml,json,pdf}',
+        // 3d objects
+        '**/projects/**/*.{gltf,glb,bin,mtl}',
+        // compressed
+        '**/projects/**/*.{br, gzip, zip,rar,7z}',
+        // webassembly
+        '**/projects/**/*.{wasm}',
+        // ktx2
+        '**/projects/**/*.{ktx2}'
+      ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 10 MB
@@ -177,7 +197,7 @@ const PWA = (clientSetting) =>
         // Cache local assets
         {
           urlPattern: ({ url }) => {
-            return /\/assets?.*/i.test(url.href)
+            return /\/assets?.*/i.test(url.href) && !/\/projects\//i.test(url.href)
           },
           handler: 'CacheFirst',
           options: {
