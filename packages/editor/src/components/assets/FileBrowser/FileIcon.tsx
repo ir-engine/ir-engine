@@ -75,7 +75,7 @@ export const FileIcon = ({
   isFolder?: boolean
   showRibbon?: boolean
 }) => {
-  const fallback = { icon: FileIconType[type ?? ''] }
+  const FallbackIcon = FileIconType[type ?? '']
 
   return (
     <>
@@ -88,8 +88,8 @@ export const FileIcon = ({
           src={thumbnailURL}
           alt=""
         />
-      ) : fallback.icon ? (
-        <fallback.icon fontSize={'inherit'} />
+      ) : FallbackIcon ? (
+        <FallbackIcon fontSize={'inherit'} />
       ) : (
         <>
           <DescriptionIcon fontSize={'inherit'} />
