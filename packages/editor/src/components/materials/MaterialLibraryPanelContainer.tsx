@@ -29,10 +29,9 @@ import { FixedSizeList, areEqual } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 import { Not } from 'bitecs'
@@ -63,13 +62,13 @@ export default function MaterialLibraryPanel() {
 
   const createNodes = useCallback(() => {
     const materials = Object.values(MaterialComponent.materialByHash)
-    const result = materials.flatMap((uuid) => {
+    const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const isCollapsed = false
-      const materialComponent = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialComponent)
+      const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
         {
           uuid: uuid,
-          path: materialComponent.source,
+          path: source,
           type: LibraryEntryType.MATERIAL,
           selected: selectedMaterial.value === uuid,
           active: selectedMaterial.value === uuid,
@@ -82,12 +81,9 @@ export default function MaterialLibraryPanel() {
 
   const nodes = useState(createNodes())
 
-  const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (editorState.lockPropertiesPanel.get()) return
-    const material = getState(MaterialLibraryState).materials[node.uuid]
-    if (!material) return
-    selectedMaterial.set(node.uuid)
-  }, [])
+  const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
+    if (node) selectedMaterial.set(node.uuid)
+  }
 
   // const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
   //   const isCollapsed = collapsedNodes.value.has(node.uuid)
