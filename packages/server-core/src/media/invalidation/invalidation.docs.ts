@@ -23,24 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  Invalidation,
-  ProjectResource,
-  StaticResource,
-  StaticResourceFilters,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver
-]
+import {
+  invalidationDataSchema,
+  invalidationQuerySchema,
+  invalidationSchema
+} from '@etherealengine/common/src/schemas/media/invalidation.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    invalidationDataSchema,
+    invalidationQuerySchema,
+    invalidationSchema
+  },
+  docs: {
+    description: 'Invalidation service description',
+    securities: ['all']
+  }
+})
