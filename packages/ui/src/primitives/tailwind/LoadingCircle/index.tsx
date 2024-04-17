@@ -31,18 +31,16 @@ const LoadingCircle = ({
   title,
   description,
   className,
-  centered,
   fullScreen,
   containerClassname,
-  textClassname
+  titleClassname
 }: {
   title?: string
   description?: string
   className?: string
-  centered?: boolean
   fullScreen?: boolean
   containerClassname?: string
-  textClassname?: string
+  titleClassname?: string
 }) => {
   const loader = (
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
@@ -74,7 +72,7 @@ const LoadingCircle = ({
       )}
     >
       {loader}
-      {title && <Text className={twMerge('mt-1', textClassname)}>{title}</Text>}
+      {title && <Text className={twMerge('mt-1', titleClassname)}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   ) : (
