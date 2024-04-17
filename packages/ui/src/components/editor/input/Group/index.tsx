@@ -65,7 +65,8 @@ export const InputGroupContent = ({ extraClassName = '', children }) => (
   <div
     className={twMerge(
       'ml-[5px] flex justify-between',
-      '[&>label]:block [&>label]:w-[35%] [&>label]:pb-0.5 [&>label]:pt-1 [&>label]:text-[color:var(--textColor)]',
+      '[&>label]:block [&>label]:w-[35%] [&>label]:pb-0.5 [&>label]:pt-1 [&>label]:text-neutral-400',
+      "font-['Figtree'] text-xs font-normal text-neutral-400",
       '[&>*:first-child]:max-w-[calc(100%_-_2px)]',
       extraClassName
     )}
@@ -157,7 +158,9 @@ export function InputGroup({
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container>
         <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
-          <label className={`label ${labelClasses}`}>{label}</label>
+          <label className={`text-right font-['Figtree'] text-xs font-normal text-neutral-400 ${labelClasses}`}>
+            {label}
+          </label>
 
           {info && (
             <InfoTooltip title={info}>

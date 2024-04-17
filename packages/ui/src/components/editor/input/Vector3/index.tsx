@@ -47,11 +47,11 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   const color = (() => {
     switch (axis) {
       case 'x':
-        return 'blue-400'
+        return 'theme-iconRed'
       case 'y':
-        return 'red-400' // must be fushsia-400 , but these colors doesnt show up
+        return 'green-400' // must be fushsia-400 , but these colors doesnt show up
       case 'z':
-        return 'green-400' //must be teal-400 , but this color doesnt show up
+        return 'blue-400' //must be teal-400 , but this color doesnt show up
       default:
         return 'inherit'
     }
