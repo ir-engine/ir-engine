@@ -42,7 +42,7 @@ export const InteractableComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: null | EntityUUID //generateEntityUUID
+        target: null | EntityUUID
       }>
     }
   },
