@@ -47,6 +47,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { v4 as uuidv4 } from 'uuid'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -152,7 +153,9 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   for (const child of children) {
     child.parent = model.scene
     iterateObject3D(child, (obj: Object3D) => {
-      const uuid = obj.uuid as EntityUUID
+      const uuid =
+        (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) || (obj.uuid as EntityUUID) || (uuidv4() as EntityUUID)
+      obj.uuid = uuid
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson
     })
@@ -220,6 +223,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
 }
 
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
+  if (!obj.uuid) throw new Error('Object3D must have a UUID')
+  console.log('uuid', obj.uuid)
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity
