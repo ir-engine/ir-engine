@@ -32,7 +32,7 @@ import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCir
 
 export default function Chat() {
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+    <Suspense fallback={<LoadingCircle title={t('common:loader.loadingLocation')} />}>
       <Routes>
         <Route path="*" element={<ChatPage />} />
       </Routes>

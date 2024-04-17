@@ -35,10 +35,10 @@ import Capture from './capture'
 const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
 
-  if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />
+  if (!projectsLoaded) return <LoadingCircle title={t('common:loader.loadingProjects')} />
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+    <Suspense fallback={<LoadingCircle title={t('common:loader.loadingLocation')} />}>
       <Routes>
         <Route path=":locationName" element={<Capture />} />
         <Route path="/" element={<Capture />} />

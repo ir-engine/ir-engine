@@ -44,10 +44,7 @@ const LocationRoutes = () => {
   return (
     <Suspense
       fallback={
-        <LoadingCircle
-          className="flex w-[3%] items-center justify-center"
-          message={t('common:loader.loadingLocation')}
-        />
+        <LoadingCircle className="flex w-[3%] items-center justify-center" title={t('common:loader.loadingLocation')} />
       }
     >
       <AdminRoutes />

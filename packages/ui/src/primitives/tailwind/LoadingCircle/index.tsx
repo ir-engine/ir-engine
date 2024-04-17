@@ -23,19 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 const LoadingCircle = ({
-  message,
+  title,
+  description,
   className,
   centered,
-  fullScreen
+  fullScreen,
+  containerClassname,
+  textClassname
 }: {
-  message: string
+  title?: string
+  description?: string
   className?: string
   centered?: boolean
   fullScreen?: boolean
+  containerClassname?: string
+  textClassname?: string
 }) => {
   const loader = (
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
@@ -55,13 +62,20 @@ const LoadingCircle = ({
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only w-full text-black">{message}</span>
     </div>
   )
 
-  return centered || fullScreen ? (
-    <div className={twMerge(centered && 'flex items-center justify-center', fullScreen && 'h-screen w-screen')}>
+  return fullScreen || containerClassname || title || description ? (
+    <div
+      className={twMerge(
+        'flex flex-col items-center justify-center',
+        fullScreen && 'h-screen w-screen',
+        containerClassname
+      )}
+    >
       {loader}
+      {title && <Text className={twMerge('mt-1', textClassname)}>{title}</Text>}
+      {description && <Text className="opacity-65">{description}</Text>}
     </div>
   ) : (
     loader

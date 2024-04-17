@@ -75,9 +75,7 @@ const AppPage = () => {
   }, [selfUser.id])
 
   if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
-    return (
-      <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
-    )
+    return <LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (

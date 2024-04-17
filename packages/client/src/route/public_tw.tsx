@@ -43,17 +43,13 @@ function PublicRouter() {
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
 
   if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
-    return (
-      <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
-    )
+    return <LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
       <Suspense
-        fallback={
-          <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
-        }
+        fallback={<LoadingCircle fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
         <Routes>
           <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
