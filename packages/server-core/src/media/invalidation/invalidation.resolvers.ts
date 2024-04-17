@@ -23,24 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export default [
-  Invalidation,
-  ProjectResource,
-  StaticResource,
-  StaticResourceFilters,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver
-]
+import { InvalidationQuery, InvalidationType } from '@etherealengine/common/src/schemas/media/invalidation.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const invalidationResolver = resolve<InvalidationType, HookContext>({
+  createdAt: virtual(async (invalidation) => fromDateTimeSql(invalidation.createdAt)),
+  updatedAt: virtual(async (invalidation) => fromDateTimeSql(invalidation.updatedAt))
+})
+
+export const invalidationExternalResolver = resolve<InvalidationType, HookContext>({})
+
+export const invalidationDataResolver = resolve<InvalidationType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const invalidationQueryResolver = resolve<InvalidationQuery, HookContext>({})
