@@ -38,12 +38,13 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
-import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
+import PublicRouter from '../route/public_tw'
 
 import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
 import '../themes/components.css'
@@ -74,7 +75,9 @@ const AppPage = () => {
   }, [selfUser.id])
 
   if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
-    return <CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />
+    return (
+      <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
+    )
   }
 
   return (

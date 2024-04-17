@@ -38,25 +38,23 @@ import $503 from '../pages/503'
 
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 
-export const CenteredLoadingCircle = ({ message }: { message: string }) => {
-  return (
-    <div className="absolute flex h-screen w-screen items-center justify-center">
-      <LoadingCircle className={`block h-12 w-12`} message={message} />
-    </div>
-  )
-}
-
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
 
   if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
-    return <CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />
+    return (
+      <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
+    )
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />}>
+      <Suspense
+        fallback={
+          <LoadingCircle centered fullScreen className={`block h-12 w-12`} message={t('common:loader.loadingRoutes')} />
+        }
+      >
         <Routes>
           <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
           {customRoutes
