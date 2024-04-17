@@ -33,7 +33,8 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)'
+        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
+        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)'
       },
       textColor: {
         theme: {
