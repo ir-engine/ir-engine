@@ -23,24 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { invalidationMethods, invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
+import { Application } from '../../../declarations'
+import { InvalidationService } from './invalidation.class'
+import invalidationDocs from './invalidation.docs'
+import hooks from './invalidation.hooks'
 
-export default [
-  Invalidation,
-  ProjectResource,
-  StaticResource,
-  StaticResourceFilters,
-  FileBrowser,
-  FileBrowserUpload,
-  OEmbed,
-  Upload,
-  Archiver
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [invalidationPath]: InvalidationService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: invalidationPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(invalidationPath, new InvalidationService(options), {
+    // A list of all methods this service exposes externally
+    methods: invalidationMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: invalidationDocs
+  })
+
+  const service = app.service(invalidationPath)
+  service.hooks(hooks)
+}
