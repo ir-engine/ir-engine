@@ -63,18 +63,22 @@ export default function ProjectTopMenu() {
   const handleSubmit = async () => {
     modalProcessing.set(true)
     const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
-    await ProjectService.uploadProject({
-      sourceURL: projectUpdateStatus.sourceURL,
-      destinationURL: projectUpdateStatus.destinationURL,
-      name: projectUpdateStatus.projectName,
-      reset: true,
-      commitSHA: projectUpdateStatus.selectedSHA,
-      sourceBranch: projectUpdateStatus.selectedBranch,
-      updateType: projectUpdateStatus.updateType,
-      updateSchedule: projectUpdateStatus.updateSchedule
-    }).catch((err) => {
+
+    try {
+      await ProjectService.uploadProject({
+        sourceURL: projectUpdateStatus.sourceURL,
+        destinationURL: projectUpdateStatus.destinationURL,
+        name: projectUpdateStatus.projectName,
+        reset: true,
+        commitSHA: projectUpdateStatus.selectedSHA,
+        sourceBranch: projectUpdateStatus.selectedBranch,
+        updateType: projectUpdateStatus.updateType,
+        updateSchedule: projectUpdateStatus.updateSchedule
+      })
+      PopoverState.hidePopupover()
+    } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    })
+    }
     modalProcessing.set(false)
   }
 
