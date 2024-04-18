@@ -44,6 +44,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { SourceComponent } from './components/SourceComponent'
+import { migrateDirectionalLightUseInCSM } from './functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
@@ -82,6 +83,7 @@ export const SceneState = defineState({
     for (const [uuid, entityJson] of Object.entries(data.entities)) {
       migrateOldColliders(entityJson)
     }
+    migrateDirectionalLightUseInCSM(data)
 
     getMutableState(SceneState).scenes[sceneID].set(sceneData)
 

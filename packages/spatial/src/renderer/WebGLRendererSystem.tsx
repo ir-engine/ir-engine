@@ -28,6 +28,7 @@ import '../threejsPatches'
 import {
   ECSState,
   Entity,
+  EntityUUID,
   PresentationSystemGroup,
   QueryReactor,
   defineComponent,
@@ -301,6 +302,7 @@ export const render = (
 export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
   initial: {
+    primaryLight: '' as EntityUUID,
     csm: true,
     cascades: 5,
     toneMapping: LinearToneMapping as ToneMapping,
