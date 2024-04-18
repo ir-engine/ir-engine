@@ -47,14 +47,14 @@ import {
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
-import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
@@ -391,7 +391,9 @@ const uploadToRepo = async (
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
 
-  await app.service(projectPath).patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
+  await app
+    .service(projectPath)
+    .patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()), hasLocalChanges: false })
 
   try {
     //This pushes the commit to the main branch in GitHub

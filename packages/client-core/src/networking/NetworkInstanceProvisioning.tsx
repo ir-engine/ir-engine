@@ -33,19 +33,20 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  MediaInstanceState
+  MediaInstanceState,
+  useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
 
 import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
@@ -69,36 +70,49 @@ export const WorldInstanceProvisioning = () => {
     const hasJoined = !!worldNetwork
 
     if (
-      currentLocation.id?.value &&
-      !isUserBanned &&
-      !hasJoined &&
-      !locationInstances.keys.length &&
-      !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
-    ) {
-      const search = window.location.search
-      let instanceId = '' as InstanceID
-      let roomCode = '' as RoomCode
+      !currentLocation.id?.value ||
+      isUserBanned ||
+      hasJoined ||
+      locationInstances.keys.length ||
+      Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
+    )
+      return
 
-      if (search != null) {
-        if (networkConfigState.instanceID.value)
-          instanceId = new URL(window.location.href).searchParams.get('instanceId') as InstanceID
-        if (networkConfigState.roomID.value)
-          roomCode = new URL(window.location.href).searchParams.get('roomCode') as RoomCode
-      }
+    const search = window.location.search
+    let instanceId = '' as InstanceID
+    let roomCode = '' as RoomCode
 
-      if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
-        LocationInstanceConnectionService.provisionExistingServerByRoomCode(
-          currentLocation.id.value as LocationID,
-          roomCode as RoomCode,
-          currentLocation.sceneId.value as SceneID
-        )
-      } else {
-        LocationInstanceConnectionService.provisionServer(
-          currentLocation.id.value as LocationID,
-          instanceId || undefined,
-          currentLocation.sceneId.value as SceneID,
-          roomCode || undefined
-        )
+    if (search != null) {
+      if (networkConfigState.instanceID.value)
+        instanceId = new URL(window.location.href).searchParams.get('instanceId') as InstanceID
+      if (networkConfigState.roomID.value)
+        roomCode = new URL(window.location.href).searchParams.get('roomCode') as RoomCode
+    }
+
+    const locationID = currentLocation.id.value as LocationID
+
+    if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
+      LocationInstanceConnectionService.provisionExistingServerByRoomCode(
+        locationID,
+        roomCode as RoomCode,
+        currentLocation.sceneId.value as SceneID
+      )
+    } else {
+      LocationInstanceConnectionService.provisionServer(
+        locationID,
+        instanceId || undefined,
+        currentLocation.sceneId.value as SceneID,
+        roomCode || undefined
+      )
+    }
+
+    return () => {
+      const locationInstance = Object.entries(locationInstances.value).find(
+        ([id, instance]) => instance.locationId === locationID
+      )
+      if (locationInstance) {
+        const [id] = locationInstance
+        locationInstances[id].set(none)
       }
     }
   }, [locationState.currentLocation.location])
@@ -107,7 +121,7 @@ export const WorldInstanceProvisioning = () => {
   useEffect(() => {
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (worldNetworkState?.connected?.value) {
+    if (worldNetworkState?.ready?.value) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
 
@@ -120,11 +134,25 @@ export const WorldInstanceProvisioning = () => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [worldNetworkState?.connected, locationInstances.keys.length, networkConfigState])
+  }, [worldNetworkState?.ready, locationInstances.keys.length, networkConfigState])
+
+  /**
+   * Request media server for this world server
+   * @todo handle party logic
+   */
+  useEffect(() => {
+    if (!worldNetwork?.ready) return
+
+    ChannelService.getInstanceChannel(worldNetwork.id)
+
+    return () => {
+      ChannelService.leaveInstanceChannel()
+    }
+  }, [worldNetwork?.ready])
 
   return (
     <>
-      {Object.keys(locationInstances.value).map((instanceId: InstanceID) => (
+      {locationInstances.keys.map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -132,16 +160,15 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const WorldInstance = ({ id }: { id: InstanceID }) => {
-  const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
-
   useEffect(() => {
-    connectToNetwork(
+    const worldInstance = getState(LocationInstanceState).instances[id]
+    return connectToInstance(
       id,
-      worldInstance.ipAddress.value,
-      worldInstance.port.value,
-      worldInstance.locationId.value,
+      worldInstance.ipAddress,
+      worldInstance.port,
+      worldInstance.locationId,
       undefined,
-      worldInstance.roomCode.value
+      worldInstance.roomCode
     )
   }, [])
 
@@ -155,28 +182,41 @@ export const MediaInstanceProvisioning = () => {
   const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
-  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances)
+  const mediaInstanceState = useHookstate(getMutableState(MediaInstanceState).instances)
+  const instance = useMediaInstance()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (mediaInstance.keys.length) return
-    if (channelState.channels.channels?.value.length) {
-      const currentChannel =
-        channelState.targetChannelId.value === ''
-          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkId)?.id
-          : channelState.targetChannelId.value
-      if (currentChannel) MediaInstanceConnectionService.provisionServer(currentChannel, true)
-    }
+    if (mediaInstanceState.keys.length) return
+    if (!channelState.channels.channels?.value.length) return
+    const currentChannel =
+      channelState.targetChannelId.value === ''
+        ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkId)?.id
+        : channelState.targetChannelId.value
+    if (!currentChannel) return
+
+    MediaInstanceConnectionService.provisionServer(currentChannel, true)
+
+    /** @todo support multiple locations & cleanup properly */
+    // return () => {
+    //   const mediaInstance = Object.entries(mediaInstanceState.value).find(
+    //     ([id, instance]) => instance.channelId === currentChannel
+    //   )
+    //   if (mediaInstance) {
+    //     const [id] = mediaInstance
+    //     mediaInstanceState[id].set(none)
+    //   }
+    // }
   }, [
     channelState.channels.channels?.length,
-    worldNetwork?.connected,
-    mediaInstance.keys.length,
+    worldNetwork?.ready,
+    mediaInstanceState.keys.length,
     channelState.targetChannelId
   ])
 
   return (
     <>
-      {Object.keys(mediaInstance.value).map((instanceId: InstanceID) => (
+      {mediaInstanceState.keys.map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -184,16 +224,15 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
-  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
-
   useEffect(() => {
-    connectToNetwork(
+    const mediaInstance = getState(MediaInstanceState).instances[id]
+    return connectToInstance(
       id,
-      mediaInstance.ipAddress.value,
-      mediaInstance.port.value,
+      mediaInstance.ipAddress,
+      mediaInstance.port,
       undefined,
-      mediaInstance.channelId.value,
-      mediaInstance.roomCode.value
+      mediaInstance.channelId,
+      mediaInstance.roomCode
     )
   }, [])
 
@@ -220,10 +259,14 @@ export const FriendMenus = () => {
     })
 
     return () => {
-      menuState.menus[SocialMenus.Friends].set(none)
-      menuState.menus[SocialMenus.Messages].set(none)
+      menuState.menus.merge({
+        [SocialMenus.Friends]: none,
+        [SocialMenus.Messages]: none
+      })
 
-      menuState.hotbar[SocialMenus.Friends].set(none)
+      menuState.hotbar.merge({
+        [SocialMenus.Friends]: none
+      })
     }
   }, [])
 

@@ -27,9 +27,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Material } from 'three'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MeshComponent } from '@etherealengine/engine/src/scene/components/MeshComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
 import GeometryEditor from '../geometry/GeometryEditor'
 import CollapsibleBlock from '../layout/CollapsibleBlock'

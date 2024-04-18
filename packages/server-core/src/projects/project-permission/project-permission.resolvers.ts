@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   ProjectPermissionQuery,
@@ -34,7 +34,7 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
   user: virtual(async (projectPermission, context) => {
@@ -48,7 +48,7 @@ export const projectPermissionExternalResolver = resolve<ProjectPermissionType, 
 
 export const projectPermissionDataResolver = resolve<ProjectPermissionType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

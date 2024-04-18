@@ -27,11 +27,12 @@ import { createState, SetInitialStateAction, State, useHookstate } from '@hookst
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
+import { startReactor } from './ReactorFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -48,6 +49,7 @@ export type StateDefinition<S, Receptors extends ReceptorMap> = {
   initial: SetInitialStateAction<S>
   receptors?: Receptors
   receptorActionQueue?: ActionQueueHandle
+  reactor?: any // why does React.FC break types?
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
@@ -60,6 +62,10 @@ export const setInitialState = (def: StateDefinition<any, ReceptorMap>) => {
   } else {
     const state = (HyperFlux.store.stateMap[def.name] = createState(initial))
     if (def.onCreate) def.onCreate(HyperFlux.store, state)
+    if (def.reactor) {
+      const reactor = startReactor(def.reactor)
+      HyperFlux.store.stateReactors[def.name] = reactor
+    }
   }
 }
 

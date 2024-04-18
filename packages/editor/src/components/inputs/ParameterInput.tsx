@@ -25,13 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { Fragment } from 'react'
 
-import { generateDefaults } from '@etherealengine/engine/src/renderer/materials/constants/DefaultArgs'
+import { generateDefaults } from '@etherealengine/engine/src/scene/materials/constants/DefaultArgs'
 
 import BooleanInput from './BooleanInput'
 import ColorInput from './ColorInput'
 import InputGroup from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
+import StringInput from './StringInput'
 import TexturePreviewInput from './TexturePreviewInput'
 
 export default function ParameterInput({
@@ -78,7 +79,22 @@ export default function ParameterInput({
   }
 
   const _defaults = defaults ?? generateDefaults(values)
-
+  /*
+0: "boolean"
+1: "string"
+2: "integer"
+3: "float"
+4: "vec2"
+5: "vec3"
+6: "vec4"
+7: "color"
+8: "euler"
+9: "quat"
+10: "mat3"
+11: "mat4"
+12: "object"
+13: "list"
+14: "entity"*/
   return (
     <Fragment>
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
@@ -89,8 +105,12 @@ export default function ParameterInput({
               switch (parms.type) {
                 case 'boolean':
                   return <BooleanInput value={values[k]} onChange={setArgsProp(k)} />
+                case 'entity':
+                case 'integer':
                 case 'float':
                   return <NumericInput value={values[k]} onChange={setArgsProp(k)} />
+                case 'string':
+                  return <StringInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
@@ -99,6 +119,7 @@ export default function ParameterInput({
                   else return <TexturePreviewInput value={values[k]} onRelease={setArgsProp(k)} />
                 case 'vec2':
                 case 'vec3':
+                case 'vec4':
                   return (
                     <Fragment>
                       {typeof values[k]?.map === 'function' &&

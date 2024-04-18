@@ -33,14 +33,14 @@ import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import '@etherealengine/engine/src/EngineModule'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 export const initializeEngineForChat = async () => {
   await loadEngineInjection()
-  dispatchAction(EngineActions.sceneLoaded({}))
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 export function ChatPage() {
@@ -58,8 +58,8 @@ export function ChatPage() {
   }, [])
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
-      <div className="w-full h-[100vh] flex bg-[#E3E5E8] pointer">
+    <div className="container pointer-events-auto mx-auto w-full">
+      <div className="pointer flex h-[100vh] w-full bg-[#E3E5E8]">
         <ChatSection />
         <MessageContainer />
         <Media />

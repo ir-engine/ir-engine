@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({
   createdAt: virtual(async (userApiKey) => fromDateTimeSql(userApiKey.createdAt)),
@@ -41,10 +41,10 @@ export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   token: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
@@ -52,10 +52,10 @@ export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   token: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

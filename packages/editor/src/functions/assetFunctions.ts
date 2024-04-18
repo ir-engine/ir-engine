@@ -30,12 +30,17 @@ import {
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@etherealengine/client-core/src/util/upload'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-
+import multiLogger from '@etherealengine/common/src/logger'
 import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { Engine } from '@etherealengine/ecs'
+import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
+import { getState } from '@etherealengine/hyperflux'
+import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
+import { createLODVariants } from '../components/assets/ModelCompressionPanel'
+import { LODVariantDescriptor } from '../constants/GLTFPresets'
 
 const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
@@ -51,7 +56,7 @@ export const inputFileWithAddToScene = async ({
   projectName?: string
   directoryPath?: string
 }): Promise<null> =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
@@ -60,33 +65,57 @@ export const inputFileWithAddToScene = async ({
     el.style.display = 'none'
 
     el.onchange = async () => {
-      let uploadedURLs: string[] = []
-      if (el.files && el.files.length > 0) {
-        const files = Array.from(el.files)
-        if (projectName) {
-          uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map((url) => url[0])
-        } else if (directoryPath) {
-          uploadedURLs = await Promise.all(
-            files.map(
-              (file) =>
-                uploadToFeathersService(fileBrowserUploadPath, [file], {
-                  fileName: file.name,
-                  path: directoryPath,
-                  contentType: ''
-                }).promise
+      try {
+        let uploadedURLs: string[] = []
+        if (el.files && el.files.length > 0) {
+          const files = Array.from(el.files)
+          if (projectName) {
+            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
+              (url) => url[0]
             )
+            for (const url of uploadedURLs) {
+              if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
+                const importSettings = getState(ImportSettingsState)
+                if (importSettings.LODsEnabled) {
+                  const LODSettings = JSON.parse(JSON.stringify(importSettings.selectedLODS)) as LODVariantDescriptor[]
+                  for (const lod of LODSettings) {
+                    const fileName = url.match(/\/([^\/]+)\.\w+$/)!
+                    const fileType = url.match(/\.(\w+)$/)!
+                    const dst = (fileName[1] + lod.suffix).replace(/\s/g, '')
+
+                    lod.params.src = url
+                    lod.params.dst = `${importSettings.LODFolder}${dst}`
+                    lod.params.modelFormat = fileType[1] as ModelFormat
+                  }
+                  await createLODVariants(LODSettings, true, Heuristic.BUDGET, true)
+                }
+              }
+            }
+          } else if (directoryPath) {
+            uploadedURLs = await Promise.all(
+              files.map(
+                (file) =>
+                  uploadToFeathersService(fileBrowserUploadPath, [file], {
+                    fileName: file.name,
+                    path: directoryPath,
+                    contentType: ''
+                  }).promise
+              )
+            )
+          }
+
+          await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
+            logger.info('zip files extracted')
           )
+
+          // if (projectName) {
+          //   uploadedURLs.forEach((url) => addMediaNode(url))
+          // }
+
+          resolve(null)
         }
-
-        await Promise.all(uploadedURLs.filter((url) => /\.zip$/.test(url)).map(extractZip)).then(() =>
-          logger.info('zip files extracted')
-        )
-
-        // if (projectName) {
-        //   uploadedURLs.forEach((url) => addMediaNode(url))
-        // }
-
-        resolve(null)
+      } catch (err) {
+        reject(err)
       }
     }
 
@@ -96,9 +125,13 @@ export const inputFileWithAddToScene = async ({
 
 export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
+  const importSettings = getState(ImportSettingsState)
 
   for (const file of files) {
-    const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
+    const path = `projects/${projectName}${isAsset ? importSettings.importFolder : ''}`
+    // if (importSettings.LODsEnabled) {
+    //   path = `projects/${projectName}${isAsset ? importSettings.LODFolder : ''}`
+    // }
     promises.push(
       uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
     )
@@ -196,4 +229,19 @@ export const extractZip = async (path: string): Promise<any> => {
   } catch (err) {
     console.error('error extracting zip: ', err)
   }
+}
+
+export const downloadBlobAsZip = (blob: Blob, fileName: string) => {
+  const anchorElement = document.createElement('a')
+  anchorElement.href = URL.createObjectURL(blob)
+  anchorElement.download = fileName + '.zip'
+  document.body.appendChild(anchorElement)
+  anchorElement.dispatchEvent(
+    new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    })
+  )
+  document.body.removeChild(anchorElement)
 }

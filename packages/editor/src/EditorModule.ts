@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
+import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
 import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { EditorCameraSystem } from './systems/EditorCameraSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
-import { EditorFlyControlSystem } from './systems/EditorFlyControlSystem'
 import { GizmoSystem } from './systems/GizmoSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
@@ -36,11 +34,9 @@ import { UploadRequestSystem } from './systems/UploadRequestSystem'
 export {
   EditorInstanceNetworkingSystem,
   EditorControlSystem,
-  EditorFlyControlSystem,
   GizmoSystem,
   ModelHandlingSystem,
   ObjectGridSnapSystem,
   UploadRequestSystem,
-  EditorCameraSystem,
   RenderInfoSystem
 }

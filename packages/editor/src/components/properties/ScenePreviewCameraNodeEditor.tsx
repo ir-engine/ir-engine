@@ -27,16 +27,23 @@ import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { getState } from '@etherealengine/hyperflux'
+import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { Scene } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
+import { EditorState } from '../../services/EditorServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import NodeEditor from './NodeEditor'
@@ -63,10 +70,19 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
+    const rootEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
+    const scene = new Scene()
+    scene.children = getComponent(rootEntity, SceneComponent)
+      .children.map(getNestedVisibleChildren)
+      .flat()
+      .map((entity) => getComponent(entity, GroupComponent))
+      .flat()
     const imageBlob = (await previewScreenshot(
       512 / 2,
       320 / 2,
       0.9,
+      'jpeg',
+      scene,
       getComponent(props.entity, ScenePreviewCameraComponent).camera
     ))!
     const url = URL.createObjectURL(imageBlob)

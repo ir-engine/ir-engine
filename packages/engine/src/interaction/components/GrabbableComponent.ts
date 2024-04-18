@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 
 /**
  * GrabbableComponent
@@ -32,7 +32,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
  */
 export const GrabbableComponent = defineComponent({
   name: 'GrabbableComponent',
-  jsonID: 'equippable', // TODO: rename to grabbable
+  jsonID: 'EE_grabbable', // TODO: rename to grabbable
   toJSON: () => true
 })
 

@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserCircleIcon } from '@heroicons/react/20/solid'
+import { HiUserCircle } from 'react-icons/hi2'
+
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -37,55 +38,37 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   const { user } = authState
   const avatarDetails = user?.avatar?.value
   return (
-    <nav className="w-full navbar">
+    <nav className="navbar relative w-full">
+      <label tabIndex={0} className="absolute right-0 top-0">
+        <span className="mr-1">{user?.name?.value}</span>
+        <div className="avatar">
+          <div className="h-[60px] w-auto rounded-full">
+            {avatarDetails?.thumbnailResource?.url ? (
+              <img
+                src={avatarDetails.thumbnailResource?.url}
+                crossOrigin="anonymous"
+                className="h-[60px] w-auto rounded-full"
+              />
+            ) : (
+              <HiUserCircle />
+            )}
+          </div>
+        </div>
+      </label>
       <div className="flex-1">
-        <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
-        <Button
-          icon={null}
-          className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'capture'}
-          title={'Capture'}
-          labelPosition="below"
-          onClick={() => props.mode.set('capture')}
-        />
-        <Button
-          icon={null}
-          className={'btn pointer-events-auto'}
-          disabled={props.mode.value === 'playback'}
-          title={'Playback'}
-          labelPosition="below"
-          onClick={() => props.mode.set('playback')}
-        />
+        <a className="text-xl normal-case">Ethereal Capture</a>
       </div>
       <div className="navbar-end">
-        {/* <label htmlFor="capture-drawer" className="btn btn-square btn-ghost drawer-button">
-          <EllipsisHorizontalIcon className="w-6 h-6" />
-        </label>
-        <ThemeSwitcher /> */}
         <div className="dropdown dropdown-end">
-          <label tabIndex={0} className="btn btn-ghost rounded-btn">
-            <span className="mr-1">{user?.name?.value}</span>
-            <div className="avatar">
-              <div className="w-8 rounded-full">
-                {avatarDetails?.thumbnailResource?.url ? (
-                  <img
-                    src={avatarDetails.thumbnailResource?.url}
-                    crossOrigin="anonymous"
-                    className="max-w-full w-auto h-8"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-8 h-8" />
-                )}
-              </div>
-            </div>
-          </label>
-          <ul tabIndex={0} className="list-none menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52 mt-4">
-            <li>
-              <a href="/" target="_blank">
-                Sign in
-              </a>
-            </li>
-          </ul>
+          <Button
+            className="font=[lato] pointer-events-auto m-2 h-[30px] w-[200px] rounded-full bg-[#292D3E] text-center text-sm font-bold shadow-md"
+            title={'capture/playback'}
+            onClick={() => props.mode.set(props.mode.value === 'playback' ? 'capture' : 'playback')}
+          >
+            <a className="text-l normal-case">
+              {props.mode.value === 'playback' ? 'Switch to capture mode' : 'Switch to playback mode'}
+            </a>
+          </Button>
         </div>
       </div>
     </nav>

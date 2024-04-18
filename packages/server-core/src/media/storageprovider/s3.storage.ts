@@ -43,6 +43,7 @@ import {
   CompletedPart,
   CopyObjectCommand,
   CreateMultipartUploadCommand,
+  CreateMultipartUploadCommandInput,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -53,6 +54,7 @@ import {
   S3Client,
   UploadPartCommand
 } from '@aws-sdk/client-s3'
+import { fromIni } from '@aws-sdk/credential-providers'
 
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
@@ -66,6 +68,14 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
+import {
+  assetsRegex,
+  projectPublicRegex,
+  projectRegex,
+  projectThumbnailsRegex,
+  rootImageRegex,
+  rootSceneJsonRegex
+} from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { Client } from 'minio'
 
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
@@ -76,7 +86,6 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
-  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
@@ -102,12 +111,48 @@ function handler(event) {
 }
 `
 
+const awsPath = './.aws'
+const credentialsPath = `${awsPath}/credentials`
+
+export const getACL = (key: string) =>
+  projectRegex.test(key) &&
+  !projectPublicRegex.test(key) &&
+  !projectThumbnailsRegex.test(key) &&
+  !assetsRegex.test(key) &&
+  !rootImageRegex.test(key) &&
+  !rootSceneJsonRegex.test(key)
+    ? ObjectCannedACL.private
+    : ObjectCannedACL.public_read
+
 /**
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3Provider implements StorageProviderInterface {
   constructor() {
     if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.s3.accessKeyId}\naws_secret_access_key=${config.aws.s3.secretAccessKey}\n[role]\nrole_arn = ${config.aws.s3.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
+    this.provider = new S3Client({
+      credentials: fromIni({
+        profile: config.aws.s3.roleArn ? 'role' : 'default',
+        filepath: credentialsPath
+      }),
+      endpoint: config.server.storageProviderExternalEndpoint
+        ? config.server.storageProviderExternalEndpoint
+        : config.aws.s3.endpoint,
+      region: config.aws.s3.region,
+      forcePathStyle: true,
+      maxAttempts: 5
+    })
+
+    this.blob = new S3BlobStore({
+      client: this.provider,
+      bucket: config.aws.s3.staticResourceBucket,
+      ACL: ObjectCannedACL.public_read
+    })
   }
   /**
    * Name of S3 bucket.
@@ -117,18 +162,7 @@ export class S3Provider implements StorageProviderInterface {
   /**
    * Instance of S3 service object. This object has one method for each API operation.
    */
-  provider: S3Client = new S3Client({
-    credentials: {
-      accessKeyId: config.aws.s3.accessKeyId,
-      secretAccessKey: config.aws.s3.secretAccessKey
-    },
-    endpoint: config.server.storageProviderExternalEndpoint
-      ? config.server.storageProviderExternalEndpoint
-      : config.aws.s3.endpoint,
-    region: config.aws.s3.region,
-    forcePathStyle: true,
-    maxAttempts: 5
-  })
+  provider: S3Client
 
   minioClient =
     config.aws.s3.s3DevMode === 'local'
@@ -172,18 +206,14 @@ export class S3Provider implements StorageProviderInterface {
         : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
-  private blob: typeof S3BlobStore = new S3BlobStore({
-    client: this.provider,
-    bucket: config.aws.s3.staticResourceBucket,
-    ACL: ObjectCannedACL.public_read
-  })
+  private blob: typeof S3BlobStore
 
   private cloudfront: CloudFrontClient = new CloudFrontClient({
     region: config.aws.cloudfront.region,
-    credentials: {
-      accessKeyId: config.aws.s3.accessKeyId,
-      secretAccessKey: config.aws.s3.secretAccessKey
-    }
+    credentials: fromIni({
+      profile: config.aws.s3.roleArn ? 'role' : 'default',
+      filepath: credentialsPath
+    })
   })
 
   /**
@@ -302,24 +332,30 @@ export class S3Provider implements StorageProviderInterface {
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
     const args = params.isDirectory
-      ? {
-          ACL: ObjectCannedACL.public_read,
+      ? ({
           Body: Buffer.alloc(0),
           Bucket: this.bucket,
           ContentType: 'application/x-empty',
           Key: key + '/'
-        }
-      : {
-          ACL: ObjectCannedACL.public_read,
+        } as any)
+      : ({
           Body: data.Body,
           Bucket: this.bucket,
           ContentType: data.ContentType,
           Key: key
-        }
+        } as any)
+
+    if (process.env.STORAGE_AWS_ENABLE_ACLS === 'true') args.ACL = getACL(key)
 
     if (data.ContentEncoding) (args as StorageObjectInterface).ContentEncoding = data.ContentEncoding
 
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
+
+    const cacheControl = (args as StorageObjectInterface).Metadata?.['Cache-Control'] || ''
+    if (cacheControl) {
+      args['CacheControl'] = cacheControl
+      delete (args as StorageObjectInterface).Metadata!['Cache-Control']
+    }
 
     if (data.Body instanceof PassThrough) {
       try {
@@ -333,17 +369,21 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+      return await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
         'Content-Type': args.ContentType
       })
-      return response
     } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
-        ACL: ObjectCannedACL.public_read,
         Bucket: this.bucket,
         Key: key,
         ContentType: data.ContentType
-      } as StorageMultipartStartInterface
+      } as CreateMultipartUploadCommandInput
+
+      if (process.env.STORAGE_AWS_ENABLE_ACLS === 'true') multiPartStartArgs.ACL = getACL(key)
+
+      if (cacheControl) {
+        multiPartStartArgs.CacheControl = cacheControl
+      }
 
       if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
       const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
@@ -464,6 +504,7 @@ export class S3Provider implements StorageProviderInterface {
             break
           case '/location':
           case '/auth':
+          case '/xadm':
           case '/capture':
             routeRegex += `^${route}/|`
             break
@@ -581,14 +622,14 @@ export class S3Provider implements StorageProviderInterface {
    * Get the BlobStore object for S3 storage.
    */
   getStorage(): typeof S3BlobStore {
-    this.blob
+    return this.blob
   }
 
   /**
    * Get the form fields and target URL for direct POST uploading.
    * @param key Key of object.
    * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
-   * @param conditions An array of conditions that must be met for the form upload to be accepted by S3..
+   * @param conditions An array of conditions that must be met for the form upload to be accepted by S3.
    */
   async getSignedUrl(key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> {
     const Bucket = this.bucket
@@ -602,7 +643,6 @@ export class S3Provider implements StorageProviderInterface {
       Expires: expiresAfter
     })
 
-    await this.createInvalidation([key])
     return {
       fields: result.fields,
       cacheDomain: this.cacheDomain,
@@ -710,12 +750,15 @@ export class S3Provider implements StorageProviderInterface {
 
     const result = await Promise.all([
       ...listResponse.Contents.map(async (file) => {
+        const key = path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         const input = {
-          ACL: ObjectCannedACL.public_read,
           Bucket: this.bucket,
           CopySource: `/${this.bucket}/${file.Key}`,
-          Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
-        }
+          Key: key
+        } as any
+
+        if (process.env.STORAGE_AWS_ENABLE_ACLS === 'true') input.ACL = getACL(key)
+
         const command = new CopyObjectCommand(input)
         return this.provider.send(command)
       })

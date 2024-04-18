@@ -29,10 +29,10 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import nock from 'nock'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -53,10 +53,10 @@ describe('project-branches.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-branches-user-name-' + v1()) as UserName
+    const name = ('test-project-branches-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-branches-avatar-name-' + v1()
+      name: 'test-project-branches-avatar-name-' + uuidv4()
     })
 
     const testUser = await app.service(userPath).create({

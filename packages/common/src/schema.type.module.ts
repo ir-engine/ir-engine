@@ -37,6 +37,7 @@ export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
 export type * from './schemas/media/file-browser-upload.schema'
 export type * from './schemas/media/file-browser.schema'
+export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource-filters.schema'
 export type * from './schemas/media/static-resource.schema'
@@ -213,6 +214,7 @@ export const instanceFriendsPath = 'instance-friends'
 
 export const routePath = 'route'
 
+export const helmMainVersionPath = 'helm-main-version'
 export const helmBuilderVersionPath = 'helm-builder-version'
 
 export const coilSettingPath = 'coil-setting'
@@ -255,6 +257,8 @@ export const projectInvalidatePath = 'project-invalidate'
 
 export const projectPath = 'project'
 
+export const projectsPath = 'projects'
+
 export const scenePath = 'scene'
 
 export const builderInfoPath = 'builder-info'
@@ -281,8 +285,6 @@ export const sceneUploadPath = 'scene-upload'
 
 export const logsApiPath = 'logs-api'
 
-export const projectsPath = 'projects'
-
 export const projectGithubPushPath = 'project-github-push'
 
 export const projectCommitsPath = 'project-commits'
@@ -292,3 +294,7 @@ export const podsPath = 'pods'
 export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
+
+export const uploadAssetPath = 'upload-asset'
+
+export const invalidationPath = 'invalidation'

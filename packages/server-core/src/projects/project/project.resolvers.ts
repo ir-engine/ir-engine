@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   ProjectPermissionType,
@@ -37,8 +37,8 @@ import {
   ProjectSettingType,
   ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
   let settings: ProjectSettingType[]
@@ -69,12 +69,14 @@ export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => 
 export const projectResolver = resolve<ProjectType, HookContext>(
   {
     projectPermissions: virtual(async (project, context) => {
-      return (await context.app.service(projectPermissionPath).find({
-        query: {
-          projectId: project.id
-        },
-        paginate: false
-      })) as any as ProjectPermissionType[]
+      return context.params.populateProjectPermissions
+        ? ((await context.app.service(projectPermissionPath).find({
+            query: {
+              projectId: project.id
+            },
+            paginate: false
+          })) as ProjectPermissionType[])
+        : []
     }),
 
     commitDate: virtual(async (project) => {
@@ -96,7 +98,7 @@ export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

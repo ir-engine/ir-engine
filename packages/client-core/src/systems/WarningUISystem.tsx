@@ -27,25 +27,21 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
 
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  getComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 export const WarningUIState = defineState({
@@ -91,7 +87,7 @@ const WarningSystemXRUI = function () {
       <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto, sans-serif' }}>
         <div
           xr-layer="true"
-          className={'pl-6 pr-8 max-w-sm'}
+          className={'max-w-sm pl-6 pr-8'}
           style={{
             paddingLeft: '24px',
             paddingRight: '32px',
@@ -105,7 +101,7 @@ const WarningSystemXRUI = function () {
         >
           <div
             xr-layer="true"
-            className={'flex justify-space-between align-center'}
+            className={'justify-space-between align-center flex'}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -186,7 +182,7 @@ const execute = () => {
   const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
 
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
 
   if (state.timeRemaining > 0) {
     accumulator += deltaSeconds

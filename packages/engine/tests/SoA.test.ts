@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { proxifyQuaternion, proxifyVector3 } from '../src/common/proxies/createThreejsProxy'
-import { destroyEngine } from '../src/ecs/classes/Engine'
-import { getComponent, setComponent } from '../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../src/ecs/functions/EntityFunctions'
-import { createEngine } from '../src/initializeEngine'
-import { TransformComponent } from '../src/transform/components/TransformComponent'
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { proxifyQuaternion, proxifyVector3 } from '@etherealengine/spatial/src/common/proxies/createThreejsProxy'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
   beforeEach(() => {

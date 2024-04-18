@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import { none, State } from '@hookstate/core'
+import { State } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import logger from '@etherealengine/common/src/logger'
 import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 
 import {
   InstanceID,
@@ -40,7 +40,7 @@ import {
   RoomCode,
   SceneID
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -203,16 +203,6 @@ export const LocationInstanceConnectionService = {
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
-  },
-  changeActiveConnectionID: (currentInstanceId: InstanceID, newInstanceId: InstanceID) => {
-    const state = getMutableState(LocationInstanceState)
-    const currentNetwork = state.instances[currentInstanceId].get({ noproxy: true })
-    const networkState = getMutableState(NetworkState)
-    const currentNework = getState(NetworkState).networks[currentInstanceId]
-    updateNetworkID(currentNework as SocketWebRTCClientNetwork, newInstanceId)
-    networkState.hostIds.media.set(newInstanceId)
-    state.instances.merge({ [newInstanceId]: currentNetwork })
-    state.instances[currentInstanceId].set(none)
   },
   useAPIListeners: () => {
     useEffect(() => {

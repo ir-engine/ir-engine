@@ -28,7 +28,7 @@ import cli from 'cli'
 import fs from 'fs'
 import fetch from 'node-fetch'
 
-import { writeFileSyncRecursive } from '@etherealengine/server-core/src/util/fsHelperFunctions'
+import { writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 
 const envPath = appRootPath.path + `/packages/client/public/.wellknown/assetlinks.json`
 

@@ -24,7 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import { Engine } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
@@ -34,27 +53,13 @@ import {
   PlaneGeometry,
   SRGBColorSpace,
   ShaderMaterial,
-  Texture
+  Sphere,
+  Texture,
+  Vector3
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
@@ -228,7 +233,8 @@ function UVOL1Reactor() {
       mesh.geometry.attributes.position.needsUpdate = true
 
       videoTexture.needsUpdate = true
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
+      const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+      renderer.renderer.initTexture(videoTexture)
 
       if (volumetric.useLoadingEffect.value) {
         mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
@@ -262,7 +268,7 @@ function UVOL1Reactor() {
         mesh.geometry.attributes.position.needsUpdate = true
 
         videoTexture.needsUpdate = true
-        EngineRenderer.instance.renderer.initTexture(videoTexture)
+        getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(videoTexture)
       }
       removePlayedBuffer(frameToPlay)
     }
@@ -280,7 +286,7 @@ function UVOL1Reactor() {
       //do not execute if the cortoloader has not been initialized
       if (getState(AssetLoaderState).cortoLoader === null) return
 
-      const delta = getState(EngineState).deltaSeconds
+      const delta = getState(ECSState).deltaSeconds
 
       if (
         component.loadingEffectStarted.value &&
@@ -318,6 +324,7 @@ function UVOL1Reactor() {
                 throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
               }
 
+              geometry.boundingSphere = new Sphere().set(new Vector3(), Infinity)
               meshBuffer.set(i, geometry)
               pendingRequests.current -= 1
 

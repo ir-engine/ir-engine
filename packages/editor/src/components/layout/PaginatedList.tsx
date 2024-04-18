@@ -29,8 +29,17 @@ import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Grid } from '@mui/material'
 
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { Button } from '../inputs/Button'
 import Well from './Well'
+
+const buttonStyle = {
+  width: '90%',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  padding: '5%'
+}
 
 export default function PaginatedList<T>({
   list,
@@ -62,9 +71,9 @@ export default function PaginatedList<T>({
           <Grid item xs={1}>
             <Button
               onClick={() => currentPage.set(Math.min(list.length / countPerPage, Math.max(0, currentPage.value - 1)))}
-              style={{ width: 'auto' }}
+              style={buttonStyle}
             >
-              -
+              <ArrowLeftIcon />
             </Button>
           </Grid>
           {[-2, -1, 0, 1, 2].map((idx) => {
@@ -75,7 +84,7 @@ export default function PaginatedList<T>({
                   <Button
                     disabled={idx === 0}
                     onClick={() => currentPage.set(currentPage.value + idx)}
-                    style={{ width: 'auto' }}
+                    style={buttonStyle}
                   >
                     {currentPage.value + idx}
                   </Button>
@@ -84,9 +93,7 @@ export default function PaginatedList<T>({
             else
               return (
                 <Grid item xs={2} key={btnKey}>
-                  <div style={{ textAlign: 'center' }}>
-                    <p>·</p>
-                  </div>
+                  <div style={buttonStyle}></div>
                 </Grid>
               )
           })}
@@ -97,9 +104,9 @@ export default function PaginatedList<T>({
                   Math.min(Math.floor((list.length - 1) / countPerPage), Math.max(0, currentPage.value + 1))
                 )
               }
-              style={{ width: 'auto' }}
+              style={buttonStyle}
             >
-              +
+              <ArrowRightIcon />
             </Button>
           </Grid>
         </Grid>

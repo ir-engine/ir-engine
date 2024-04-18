@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
-import { V_010 } from '../../common/constants/MathConstants'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
@@ -52,8 +52,8 @@ const speedMultiplier = 2
 
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
-export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
-  const userID = getComponent(localClientEntity, UUIDComponent)
+export const setIkFootTarget = (userID: UserID, delta: number) => {
+  const selfAvatarEntity = AvatarComponent.getUserAvatarEntity(userID)
 
   const leftFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
   const rightFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
@@ -65,8 +65,8 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
   if (!leftFootTargetBlendWeight || !rightFootTargetBlendWeight) return
 
   /** quick fix - set feet to under the avtar and slide around */
-  const avatarTransform = getComponent(localClientEntity, TransformComponent)
-  const avatar = getComponent(localClientEntity, AvatarComponent)
+  const avatarTransform = getComponent(selfAvatarEntity, TransformComponent)
+  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
 
   const leftFootTransform = getComponent(leftFootEntity, TransformComponent)
   leftFootTransform.position
@@ -93,7 +93,7 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
     [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
   }
 
-  const playerRigidbody = getComponent(localClientEntity, RigidBodyComponent)
+  const playerRigidbody = getComponent(selfAvatarEntity, RigidBodyComponent)
 
   /**calculate foot offset so both feet aren't at the transform's center */
   const calculateFootOffset = () => {
@@ -103,9 +103,9 @@ export const setIkFootTarget = (localClientEntity: Entity, delta: number) => {
     return footOffset
   }
 
-  const nextStep = nextSteps[localClientEntity]
+  const nextStep = nextSteps[selfAvatarEntity]
   if (!nextStep)
-    nextSteps[localClientEntity] = {
+    nextSteps[selfAvatarEntity] = {
       [ikTargets.rightFoot]: { position: new Vector3(), rotation: new Quaternion() },
       [ikTargets.leftFoot]: { position: new Vector3(), rotation: new Quaternion() }
     }

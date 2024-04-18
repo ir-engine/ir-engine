@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import multiLogger from '@etherealengine/common/src/logger'
+import { githubRepoAccessRefreshPath, ProjectUpdateParams } from '@etherealengine/common/src/schema.type.module'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -47,10 +47,8 @@ import {
   projectPermissionPath,
   ProjectType
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ProjectParams } from '@etherealengine/server-core/src/projects/project/project.class'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Paginated } from '@feathersjs/feathers'
-import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:projects' })
@@ -63,7 +61,7 @@ export const ProjectState = defineState({
   initial: () => ({
     projects: [] as Array<ProjectType>,
     updateNeeded: true,
-    rebuilding: true,
+    rebuilding: false,
     succeeded: false,
     failed: false,
     builderTags: [] as Array<ProjectBuilderTagsType>,
@@ -79,7 +77,7 @@ export const ProjectState = defineState({
 export const ProjectService = {
   fetchProjects: async () => {
     try {
-      const projects = (await API.instance.client.service(projectPath).find({
+      const projects = (await Engine.instance.api.service(projectPath).find({
         query: {
           action: 'admin',
           allowed: true
@@ -95,15 +93,15 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  createProject: async (name: string, params?: ProjectParams) => {
-    const result = await API.instance.client.service(projectPath).create({ name }, params)
+  createProject: async (name: string, params?: ProjectUpdateParams) => {
+    const result = await Engine.instance.api.service(projectPath).create({ name }, params)
     logger.info({ result }, 'Create project result')
     await ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   uploadProject: async (data: ProjectBuildUpdateItemType) => {
-    const result = await API.instance.client.service(projectPath).update('', {
+    const result = await Engine.instance.api.service(projectPath).update('', {
       sourceURL: data.sourceURL,
       destinationURL: data.destinationURL,
       name: data.name,
@@ -114,20 +112,20 @@ export const ProjectService = {
       updateSchedule: data.updateSchedule
     })
     logger.info({ result }, 'Upload project result')
-    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: data.name })
+    await Engine.instance.api.service(projectInvalidatePath).patch(null, { projectName: data.name })
     await ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
-  removeProject: async (id: string, params?: ProjectParams) => {
-    const result = await API.instance.client.service(projectPath).remove(id, params)
+  removeProject: async (id: string, params?: ProjectUpdateParams) => {
+    const result = await Engine.instance.api.service(projectPath).remove(id, params)
     logger.info({ result }, 'Remove project result')
     await ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   checkReloadStatus: async () => {
-    const result = await API.instance.client.service(projectBuildPath).find()
+    const result = await Engine.instance.api.service(projectBuildPath).find()
     logger.info({ result }, 'Check reload projects result')
     getMutableState(ProjectState).merge({
       rebuilding: !result.succeeded && !result.failed,
@@ -139,18 +137,28 @@ export const ProjectService = {
   // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
-      await API.instance.client.service(projectInvalidatePath).patch(null, { projectName })
+      await Engine.instance.api.service(projectInvalidatePath).patch(null, { projectName })
       await ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')
     }
   },
 
+  setEnabled: async (id: string, enabled: boolean) => {
+    try {
+      await Engine.instance.api.service(projectPath).patch(id, {
+        enabled
+      })
+    } catch (err) {
+      logger.error(err, 'Error setting project enabled')
+      throw err
+    }
+  },
+
   setRepositoryPath: async (id: string, url: string) => {
     try {
-      await API.instance.client.service(projectPath).patch(id, {
-        repositoryPath: url,
-        needsRebuild: true
+      await Engine.instance.api.service(projectPath).patch(id, {
+        repositoryPath: url
       })
     } catch (err) {
       logger.error(err, 'Error setting project repository path')
@@ -160,7 +168,7 @@ export const ProjectService = {
 
   pushProject: async (id: string) => {
     try {
-      await API.instance.client.service(projectGithubPushPath).patch(id, {})
+      await Engine.instance.api.service(projectGithubPushPath).patch(id, {})
     } catch (err) {
       logger.error('Error with project push', err)
       throw err
@@ -169,7 +177,7 @@ export const ProjectService = {
 
   createPermission: async (userInviteCode: InviteCode, projectId: string) => {
     try {
-      await API.instance.client.service(projectPermissionPath).create({
+      return Engine.instance.api.service(projectPermissionPath).create({
         inviteCode: userInviteCode,
         projectId: projectId
       })
@@ -181,7 +189,7 @@ export const ProjectService = {
 
   patchPermission: async (id: string, type: string) => {
     try {
-      await API.instance.client.service(projectPermissionPath).patch(id, {
+      return Engine.instance.api.service(projectPermissionPath).patch(id, {
         type: type
       })
     } catch (err) {
@@ -192,7 +200,7 @@ export const ProjectService = {
 
   removePermission: async (id: string) => {
     try {
-      await API.instance.client.service(projectPermissionPath).remove(id)
+      return Engine.instance.api.service(projectPermissionPath).remove(id)
     } catch (err) {
       logger.error('Error with removing project-permission', err)
       throw err
@@ -207,7 +215,7 @@ export const ProjectService = {
 
     useEffect(() => {
       // TODO #7254
-      // API.instance.client.service(projectBuildPath).on('patched', (params) => {})
+      // Engine.instance.api.service(projectBuildPath).on('patched', (params) => {})
 
       const projectPatchedListener = (params) => {
         getMutableState(ProjectState).updateNeeded.set(true)
@@ -234,7 +242,7 @@ export const ProjectService = {
     try {
       const projectCommits = await Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
-          branchName: branchName
+          sourceBranch: branchName
         }
       })
 
@@ -299,7 +307,6 @@ export const ProjectService = {
 
   updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectBuildUpdateItemType[]) => {
     try {
-      console.log('projectToUpdate', projectsToUpdate)
       await Engine.instance.api.service(projectBuildPath).patch(tag, {
         updateProjects,
         projectsToUpdate
@@ -333,7 +340,7 @@ export const ProjectService = {
   refreshGithubRepoAccess: async () => {
     try {
       getMutableState(ProjectState).refreshingGithubRepoAccess.set(true)
-      await API.instance.client.service(githubRepoAccessRefreshPath).find()
+      await Engine.instance.api.service(githubRepoAccessRefreshPath).find()
       getMutableState(ProjectState).refreshingGithubRepoAccess.set(false)
       await ProjectService.fetchProjects()
     } catch (err) {

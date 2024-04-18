@@ -27,10 +27,11 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine, getComponent } from '@etherealengine/ecs'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { Group } from 'three'
-import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
@@ -49,7 +50,7 @@ import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
   ktxLoader.setTranscoderPath(getState(EngineState).publicPath + '/loader_decoders/basis/')
-  ktxLoader.detectSupport(EngineRenderer.instance.renderer)
+  ktxLoader.detectSupport(getComponent(Engine.instance.viewerEntity, RendererComponent).renderer)
   loader.setKTX2Loader(ktxLoader)
 }
 

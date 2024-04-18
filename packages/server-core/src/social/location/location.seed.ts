@@ -33,14 +33,14 @@ import {
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationSeedData = [
   {
     id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60' as LocationID,
     name: 'Default',
     slugifiedName: 'default',
-    maxUsersPerInstance: 30,
+    maxUsersPerInstance: 20,
     sceneId: 'projects/default-project/default.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
@@ -49,7 +49,7 @@ export const locationSeedData = [
     id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62' as LocationID,
     name: 'Sky Station',
     slugifiedName: 'sky-station',
-    maxUsersPerInstance: 30,
+    maxUsersPerInstance: 20,
     sceneId: 'projects/default-project/sky-station.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false
@@ -58,7 +58,7 @@ export const locationSeedData = [
     id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63' as LocationID,
     name: 'Apartment',
     slugifiedName: 'apartment',
-    maxUsersPerInstance: 30,
+    maxUsersPerInstance: 20,
     sceneId: 'projects/default-project/apartment.scene.json' as SceneID,
     isFeatured: false,
     isLobby: false

@@ -23,65 +23,69 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HandThumbUpIcon } from '@heroicons/react/24/solid'
 import React, { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-/**
- * Button component with customizable label position.
- *
- * @component
- * @param {Object} props - The component props.
- * @param {ReactNode} props.icon - The icon to display in the button.
- * @param {string} props.title - The title of the button.
- * @param {'left' | 'right' | 'above' | 'below'} [props.labelPosition='left'] - The position of the label relative to the button.
- * @param {string} [props.className] - Additional CSS classes for the button.
- * @returns {JSX.Element} - The Button component.
- */
-
-interface ButtonProps {
-  icon: ReactNode
-  title: string
-  showLabel?: boolean
-  labelPosition?: 'left' | 'right' | 'above' | 'below'
+export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+  startIcon?: ReactNode
+  endIcon?: ReactNode
+  children?: ReactNode
+  size?: 'small' | 'medium' | 'large'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent'
+  disabled?: boolean
+  fullWidth?: boolean
+  rounded?: boolean
+  className?: string
 }
 
-const Button = ({ icon, title, showLabel, labelPosition, className, ...props }: ButtonProps & any): JSX.Element => (
-  <button className={twMerge('m-0 btn h-auto tooltip', className)} {...props} data-tip={title}>
-    {labelPosition === 'above' ? (
-      <span className="flex flex-col items-center">
-        {showLabel === true ? <span className="mb-1">{title}</span> : null}
-        {icon !== undefined ? icon : null}
-      </span>
-    ) : null}
-    {labelPosition === 'below' ? (
-      <span className="flex flex-col items-center">
-        {icon !== undefined ? icon : null}
-        {showLabel === true ? <span className="mt-1">{title}</span> : null}
-      </span>
-    ) : null}
-    {labelPosition === 'right' ? (
-      <span className="flex flex-row items-center">
-        {icon !== undefined ? icon : null}
-        {showLabel === true ? <span className="ml-1">{title}</span> : null}
-      </span>
-    ) : null}
-    {labelPosition === 'left' ? (
-      <span className="flex items-center">
-        {showLabel === true ? <span className="mr-1">{title}</span> : null}
-        {icon !== undefined ? icon : null}
-      </span>
-    ) : null}
-  </button>
-)
+const sizes = {
+  small: 'text-sm px-3 py-2',
+  medium: 'text-base px-4 py-2',
+  large: 'text-lg px-7 py-3'
+}
 
-Button.displayName = 'Button'
+const variants = {
+  primary: 'bg-blue-primary',
+  outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
+  pink: 'bg-[#C162A2]',
+  danger: 'bg-red-500',
+  success: 'bg-teal-700',
+  transparent: 'bg-transparent'
+}
 
-Button.defaultProps = {
-  title: '',
-  showLabel: true,
-  labelPosition: 'right',
-  icon: <HandThumbUpIcon className="block w-4 h-4" />
+const Button = ({
+  startIcon: StartIcon,
+  children,
+  endIcon: EndIcon,
+  size = 'medium',
+  fullWidth,
+  rounded,
+  variant = 'primary',
+  disabled = false,
+  className,
+  ...props
+}: ButtonProps): JSX.Element => {
+  const twClassName = twMerge(
+    'flex items-center justify-between',
+    'font-medium text-white',
+    'transition ease-in-out',
+    'disabled:cursor-not-allowed',
+    StartIcon || EndIcon ? 'justify-between' : 'justify-center',
+    sizes[size],
+    variants[variant],
+    fullWidth ? 'w-full' : 'w-fit',
+    rounded ? 'rounded-full' : 'rounded-md',
+    disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
+    className
+  )
+
+  return (
+    <button role="button" disabled={disabled} className={twClassName} {...props}>
+      {StartIcon && <span className="mx-1">{StartIcon}</span>}
+      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '')}>{children}</span>}
+      {EndIcon && <span className="mx-1">{EndIcon}</span>}
+    </button>
+  )
 }
 
 export default Button

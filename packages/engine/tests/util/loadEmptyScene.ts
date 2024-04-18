@@ -23,24 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { UndefinedEntity } from '../../src/ecs/classes/Entity'
-import { SceneState } from '../../src/ecs/classes/Scene'
-import { setComponent } from '../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../src/ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../src/ecs/functions/EntityTree'
-import { NameComponent } from '../../src/scene/components/NameComponent'
-import { SceneObjectComponent } from '../../src/scene/components/SceneObjectComponent'
-import { SceneTagComponent } from '../../src/scene/components/SceneTagComponent'
-import { SourceComponent } from '../../src/scene/components/SourceComponent'
-import { UUIDComponent } from '../../src/scene/components/UUIDComponent'
-import { VisibleComponent } from '../../src/scene/components/VisibleComponent'
-import { TransformComponent } from '../../src/transform/components/TransformComponent'
+import { EntityUUID } from '@etherealengine/ecs'
+import { SceneState } from '../../src/scene/SceneState'
 
 export const loadEmptyScene = () => {
-  SceneState.loadScene('test' as SceneID, {
+  return SceneState.loadScene('test' as SceneID, {
     name: '',
     thumbnailUrl: '',
     project: '',
@@ -56,14 +44,4 @@ export const loadEmptyScene = () => {
       root: 'root' as EntityUUID
     }
   })
-  getMutableState(SceneState).activeScene.set('test' as SceneID)
-  const entity = createEntity()
-  setComponent(entity, NameComponent, 'Root')
-  setComponent(entity, VisibleComponent, true)
-  setComponent(entity, UUIDComponent, 'root' as EntityUUID)
-  setComponent(entity, SceneTagComponent, true)
-  setComponent(entity, TransformComponent)
-  setComponent(entity, SceneObjectComponent)
-  setComponent(entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-  setComponent(entity, SourceComponent, 'test' as SceneID)
 }

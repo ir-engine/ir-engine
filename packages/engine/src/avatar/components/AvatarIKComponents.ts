@@ -26,44 +26,31 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { UUIDComponent } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkObjectComponent } from '@etherealengine/network'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
-const EPSILON = 1e-6
-
 export const AvatarHeadDecapComponent = defineComponent({
-  name: 'AvatarHeadDecapComponent',
-
-  reactor: function () {
-    const entity = useEntityContext()
-
-    const headDecap = useComponent(entity, AvatarHeadDecapComponent)
-    const rig = useComponent(entity, AvatarRigComponent)
-
-    useEffect(() => {
-      if (!rig.rawRig.value?.head?.node || !headDecap?.value) return
-
-      rig.rawRig.value.head.node.scale.setScalar(EPSILON)
-
-      return () => {
-        rig.rawRig.value.head.node.scale.setScalar(1)
-      }
-    }, [headDecap, rig.rawRig])
-
-    return null
-  }
+  name: 'AvatarHeadDecapComponent'
 })
 
 export type AvatarIKTargetsType = {
@@ -92,6 +79,10 @@ export const AvatarIKTargetComponent = defineComponent({
     }, [debugEnabled])
 
     return null
+  },
+
+  getTargetEntity: (ownerID: UserID, targetName: (typeof ikTargets)[keyof typeof ikTargets]) => {
+    return UUIDComponent.getEntityByUUID((ownerID + targetName) as EntityUUID)
   }
 })
 
@@ -113,8 +104,8 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 
-  const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig) return getComponent(entity, TransformComponent)
+  const rig = getOptionalComponent(entity, AvatarRigComponent)
+  if (!rig?.rawRig) return getComponent(entity, TransformComponent)
 
   switch (hand) {
     case 'left':

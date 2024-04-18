@@ -40,8 +40,8 @@ const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes
 
 export const CenteredLoadingCircle = ({ message }: { message: string }) => {
   return (
-    <div className="absolute w-screen h-screen flex justify-center items-center">
-      <LoadingCircle className={`block w-12 h-12`} message={message} />
+    <div className="absolute flex h-screen w-screen items-center justify-center">
+      <LoadingCircle className={`block h-12 w-12`} message={message} />
     </div>
   )
 }
@@ -58,11 +58,7 @@ function PublicRouter() {
     <ErrorBoundary>
       <Suspense fallback={<CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />}>
         <Routes>
-          <Route
-            key={'custom'}
-            path={'/*'}
-            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
-          />
+          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
           {customRoutes
             .filter((c) => c.route === '/')
             .map(({ component: Element, props }) => (

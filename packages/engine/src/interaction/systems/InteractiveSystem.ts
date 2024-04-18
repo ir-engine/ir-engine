@@ -29,25 +29,25 @@ import { Euler, Quaternion, Vector3 } from 'three'
 import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
-} from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
-import { createTransitionState } from '../../xrui/functions/createTransitionState'
-import { createXRUI } from '../../xrui/functions/createXRUI'
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
@@ -80,7 +80,8 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
   TransformComponent.getWorldPosition(entity, xruiTransform.position)
 
-  if (!Engine.instance.localClientEntity) return
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!selfAvatarEntity) return
 
   xruiTransform.position.y += 1
 
@@ -88,7 +89,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   xruiTransform.rotation.copy(cameraTransform.rotation)
 
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, VRMHumanBoneName.Chest, vec3)
+  getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
   const distance = vec3.distanceToSquared(xruiTransform.position)
   const inRange = distance < getState(InteractState).maxDistance
   if (transition.state === 'OUT' && inRange) {
@@ -97,7 +98,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
@@ -138,7 +139,7 @@ const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponen
 let gatherAvailableInteractablesTimer = 0
 
 const execute = () => {
-  gatherAvailableInteractablesTimer += getState(EngineState).deltaSeconds
+  gatherAvailableInteractablesTimer += getState(ECSState).deltaSeconds
   // update every 0.3 seconds
   if (gatherAvailableInteractablesTimer > 0.1) gatherAvailableInteractablesTimer = 0
 
@@ -155,35 +156,33 @@ const execute = () => {
     // if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
   }
 
-  if (Engine.instance.localClientEntity) {
-    const interactables = interactableQuery()
+  const interactables = interactableQuery()
 
-    for (const entity of interactables) {
-      // const interactable = getComponent(entity, InteractableComponent)
-      // interactable.distance = interactable.anchorPosition.distanceTo(
-      //   getComponent(Engine.instance.localClientEntity, TransformComponent).position
-      // )
-      if (InteractiveUI.has(entity)) {
-        const { update, xrui } = InteractiveUI.get(entity)!
-        update(entity, xrui)
-      }
+  for (const entity of interactables) {
+    // const interactable = getComponent(entity, InteractableComponent)
+    // interactable.distance = interactable.anchorPosition.distanceTo(
+    //   getComponent(AvatarComponent.getSelfAvatarEntity(), TransformComponent).position
+    // )
+    if (InteractiveUI.has(entity)) {
+      const { update, xrui } = InteractiveUI.get(entity)!
+      update(entity, xrui)
     }
+  }
 
-    if (gatherAvailableInteractablesTimer === 0) {
-      gatherAvailableInteractables(interactables)
-      // const closestInteractable = getState(InteractState).available[0]
-      // for (const interactiveEntity of interactables) {
-      //   if (interactiveEntity === closestInteractable) {
-      //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
-      //       addComponent(interactiveEntity, HighlightComponent)
-      //     }
-      //   } else {
-      //     if (hasComponent(interactiveEntity, HighlightComponent)) {
-      //       removeComponent(interactiveEntity, HighlightComponent)
-      //     }
-      //   }
-      // }
-    }
+  if (gatherAvailableInteractablesTimer === 0) {
+    gatherAvailableInteractables(interactables)
+    // const closestInteractable = getState(InteractState).available[0]
+    // for (const interactiveEntity of interactables) {
+    //   if (interactiveEntity === closestInteractable) {
+    //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
+    //       addComponent(interactiveEntity, HighlightComponent)
+    //     }
+    //   } else {
+    //     if (hasComponent(interactiveEntity, HighlightComponent)) {
+    //       removeComponent(interactiveEntity, HighlightComponent)
+    //     }
+    //   }
+    // }
   }
 }
 

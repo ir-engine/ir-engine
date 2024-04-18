@@ -33,3 +33,11 @@ require("ts-node").register({
   files: true,
   swc: true
 })
+
+const appRootPath = require('app-root-path')
+const dotenv = require('dotenv-flow')
+
+dotenv.config({
+  path: appRootPath.path,
+  node_env: 'local'
+})

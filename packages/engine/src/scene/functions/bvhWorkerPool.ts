@@ -23,16 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InstancedMesh, Mesh } from 'three'
+import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, InterleavedBufferAttribute, Mesh } from 'three'
 
-import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { WorkerPool } from '@etherealengine/xrui/core/WorkerPool'
+import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
+import Worker from 'web-worker'
 
-const poolSize = 1
+const createWorker = () => {
+  if (isClient) {
+    // module workers currently don't work in safari and firefox
+    return new Worker('/workers/generateBVHAsync.worker.js')
+  } else {
+    const path = require('path')
+    const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
+    return new Worker(workerPath, { type: 'module' })
+  }
+}
 
-const bvhWorkers: GenerateMeshBVHWorker[] = []
-const meshQueue: Mesh[] = []
+const workerPool = new WorkerPool(1)
+workerPool.setWorkerCreator(createWorker)
 
-export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
+export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {}) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
@@ -41,36 +53,53 @@ export function generateMeshBVH(mesh: Mesh | InstancedMesh) {
     mesh.geometry.boundsTree
   )
     return Promise.resolve()
-  if (!bvhWorkers.length) {
-    for (let i = 0; i < poolSize; i++) {
-      bvhWorkers.push(new GenerateMeshBVHWorker())
-    }
+
+  const geometry = mesh.geometry as BufferGeometry
+
+  const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
+  const pos = Float32Array.from((geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array)
+
+  const transferrables = [pos as ArrayLike<number>]
+  if (index) {
+    transferrables.push(index as ArrayLike<number>)
   }
 
-  meshQueue.push(mesh)
-  runBVHGenerator()
+  const response = await workerPool.postMessage<BVHWorkerResponse>(
+    {
+      index,
+      position: pos,
+      options
+    },
+    transferrables.map((arr: any) => arr.buffer)
+  )
 
-  return new Promise<void>((resolve) => {
-    ;(mesh as any).resolvePromiseBVH = resolve
-  })
+  const { serialized, error } = response.data
+
+  if (error) {
+    return console.error(error)
+  } else {
+    // MeshBVH uses generated index instead of default geometry index
+    geometry.setIndex(new BufferAttribute(serialized.index as any, 1))
+
+    const bvh = MeshBVH.deserialize(serialized, geometry)
+    const boundsOptions = Object.assign(
+      {
+        setBoundingBox: true
+      },
+      options
+    )
+
+    if (boundsOptions.setBoundingBox) {
+      geometry.boundingBox = bvh.getBoundingBox(new Box3())
+    }
+
+    geometry.boundsTree = bvh
+
+    return bvh
+  }
 }
 
-function runBVHGenerator() {
-  for (const worker of bvhWorkers) {
-    if (meshQueue.length < 1) {
-      break
-    }
-
-    if (worker.running) {
-      continue
-    }
-
-    const mesh = meshQueue.shift() as Mesh
-
-    worker.generate(mesh.geometry).then((bvh) => {
-      mesh.geometry.boundsTree = bvh
-      runBVHGenerator()
-      ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
-    })
-  }
+type BVHWorkerResponse = {
+  serialized: SerializedBVH
+  error?: string
 }

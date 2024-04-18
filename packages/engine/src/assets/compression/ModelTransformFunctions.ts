@@ -37,7 +37,8 @@ import {
   Mesh,
   Node,
   Primitive,
-  Texture
+  Texture,
+  Transform
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, EXTMeshoptCompression, KHRTextureBasisu } from '@gltf-transform/extensions'
 import {
@@ -49,23 +50,25 @@ import {
   partition,
   prune,
   reorder,
+  simplify,
   textureResize,
   TextureResizeOptions,
   weld
 } from '@gltf-transform/functions'
 import { createHash } from 'crypto'
-import { MeshoptEncoder } from 'meshoptimizer'
-import { LoaderUtils, MathUtils } from 'three'
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { LoaderUtils } from 'three'
 
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
 import config from '@etherealengine/common/src/config'
 import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { v4 as uuidv4 } from 'uuid'
 import { UploadRequestState } from '../state/UploadRequestState'
 
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
@@ -339,7 +342,10 @@ function hashBuffer(buffer: Uint8Array): string {
   return hash.digest('hex')
 }
 
-export async function transformModel(args: ModelTransformParameters) {
+export async function transformModel(
+  args: ModelTransformParameters,
+  onMetadata: (key: string, data: any) => void = (key, data) => {}
+) {
   const parms = args
 
   /**
@@ -510,6 +516,16 @@ export async function transformModel(args: ModelTransformParameters) {
     await document.transform(weld({ tolerance: args.weld.tolerance }))
   }
 
+  if (args.simplifyRatio < 1) {
+    const simplifyTransforms = [] as Transform[]
+    //gltfTransform documentation recommends doing a weld before simply
+    if (!args.weld.enabled) simplifyTransforms.push(weld({ tolerance: 0.0001 }))
+    simplifyTransforms.push(
+      simplify({ simplifier: MeshoptSimplifier, ratio: args.simplifyRatio, error: args.simplifyErrorThreshold })
+    )
+    await document.transform(...simplifyTransforms)
+  }
+
   if (args.reorder) {
     await document.transform(
       reorder({
@@ -599,8 +615,8 @@ export async function transformModel(args: ModelTransformParameters) {
         }
         const texturePixels = await getPixels(texture.getImage()!, texture.getMimeType())
         const clampedData = new Uint8ClampedArray(texturePixels.data as Uint8Array)
-        const imgSize = texture.getSize()!
-        const imgData = new ImageData(clampedData, ...imgSize)
+        const imgSize = texture.getSize() ?? texturePixels.shape.slice(0, 2)
+        const imgData = new ImageData(clampedData, imgSize[0], imgSize[1])
 
         const compressedData = await ktx2Encoder.encode(imgData, {
           uastc: mergedParms.textureCompressionType === 'uastc',
@@ -707,6 +723,14 @@ export async function transformModel(args: ModelTransformParameters) {
       document.createTexture().copy(texture)
     }
   }
+
+  let maxTextureSize = 0
+  for (const texture of textures) {
+    const size = texture.getSize()
+    if (size && size[0] > maxTextureSize) maxTextureSize = size[0]
+  }
+  onMetadata('maxTextureSize', maxTextureSize)
+
   let result
   if (['glb', 'vrm'].includes(parms.modelFormat)) {
     const data = await io.writeBinary(document)
@@ -780,7 +804,7 @@ export async function transformModel(args: ModelTransformParameters) {
       delete resources[image.uri!]
       image.uri = nuURI
     })
-    const defaultBufURI = MathUtils.generateUUID() + '.bin'
+    const defaultBufURI = uuidv4() + '.bin'
     json.buffers?.map((buffer) => {
       buffer.uri = pathJoin(
         args.resourceUri ? args.resourceUri : resourceName + '_resources',
@@ -821,5 +845,17 @@ export async function transformModel(args: ModelTransformParameters) {
 
     console.log('Handled gltf file')
   }
+
+  let totalVertexCount = 0
+  const meshes = root.listMeshes()
+  for (const mesh of meshes) {
+    const primitives = mesh.listPrimitives()
+    for (const primitive of primitives) {
+      const indices = primitive.getIndices()
+      if (indices) totalVertexCount += indices.getCount()
+    }
+  }
+  onMetadata('vertexCount', totalVertexCount)
+
   return result
 }

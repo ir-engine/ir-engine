@@ -38,6 +38,9 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { isDev } from '@etherealengine/common/src/config'
+import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
@@ -52,7 +55,9 @@ const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'upload-asset': any
+    [uploadAssetPath]: {
+      create: ReturnType<typeof uploadAssets>
+    }
   }
 }
 
@@ -113,11 +118,14 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   }
 }
 
-const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
+const addFileToStorageProvider = async (app: Application, file: Buffer, mimeType: string, key: string) => {
   logger.info(`Uploading ${key} to storage provider`)
   const provider = getStorageProvider()
   try {
-    await provider.createInvalidation([key])
+    if (!isDev)
+      await app.service(invalidationPath).create({
+        path: key
+      })
   } catch (e) {
     logger.info(`[ERROR lod-upload while invalidating ${key}]:`, e)
   }
@@ -207,15 +215,8 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (
-  file: Buffer | string,
-  props: { mimeType: string; name?: string; assetURL?: string }
-) => {
-  return createHash('sha3-256')
-    .update(typeof file === 'string' ? file : file.length.toString())
-    .update(props.name || props.assetURL!.split('/').pop()!)
-    .update(props.mimeType)
-    .digest('hex')
+export const createStaticResourceHash = (file: Buffer | string) => {
+  return createHash('sha3-256').update(file).digest('hex')
 }
 
 /**
@@ -263,8 +264,7 @@ export const addAssetAsStaticResource = async (
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash =
-    args.hash || createStaticResourceHash(file.buffer, { mimeType: file.mimetype, name: args.name, assetURL: url })
+  const hash = args.hash || createStaticResourceHash(file.buffer)
   const body: Partial<StaticResourceType> = {
     hash,
     url,
@@ -276,7 +276,7 @@ export const addAssetAsStaticResource = async (
   // if (args.userId) body.userId = args.userId
 
   if (typeof file.buffer !== 'string') {
-    await addFileToStorageProvider(file.buffer, file.mimetype, primaryKey)
+    await addFileToStorageProvider(app, file.buffer, file.mimetype, primaryKey)
   }
 
   let resourceId = ''
@@ -294,7 +294,7 @@ export const addAssetAsStaticResource = async (
 
 export default (app: Application): void => {
   app.use(
-    'upload-asset',
+    uploadAssetPath,
     {
       create: uploadAssets(app)
     },
@@ -317,7 +317,7 @@ export default (app: Application): void => {
       }
     }
   )
-  const service = app.service('upload-asset')
+  const service = app.service(uploadAssetPath)
 
   service.hooks(hooks)
 }

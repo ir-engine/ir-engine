@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { GeometryTypeEnum } from '@etherealengine/engine/src/scene/constants/GeometryTypeEnum'
@@ -115,7 +115,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const renderPrimitiveGeometrySettings = () => (
     <ParameterInput
       entity={`${props.entity}-primitive-geometry`}
-      values={(primitiveGeometry.geometry.value as any).parameters}
+      values={(primitiveGeometry.geometry.value as any)?.parameters ?? {}}
       onChange={(k) => (val) => {
         const params = primitiveGeometry.geometryParams.get(NO_PROXY)
         params[k] = val

@@ -40,17 +40,17 @@ import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
@@ -94,7 +94,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
-  const preferredHand = avatarInputState.preferredHand.value
+  const inputState = useHookstate(getMutableState(InputState))
+  const preferredHand = inputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
   const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
@@ -117,8 +118,6 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
     admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
-
-  const showWorldSettings = !!Engine.instance.localClientEntity
 
   const handleChangeUserThemeMode = (event) => {
     if (!userSettings) return
@@ -144,13 +143,11 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     selectedTab.set(newValue)
   }
 
-  const settingTabs = [{ value: 'general', label: t('user:usermenu.setting.general') }]
-  if (showWorldSettings) {
-    settingTabs.push(
-      { value: 'audio', label: t('user:usermenu.setting.audio') },
-      { value: 'graphics', label: t('user:usermenu.setting.graphics') }
-    )
-  }
+  const settingTabs = [
+    { value: 'general', label: t('user:usermenu.setting.general') },
+    { value: 'audio', label: t('user:usermenu.setting.audio') },
+    { value: 'graphics', label: t('user:usermenu.setting.graphics') }
+  ]
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
@@ -231,7 +228,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               ))}
             </Grid>
 
-            {xrSupported && showWorldSettings && (
+            {xrSupported && (
               <>
                 <Text align="center" variant="body1" mb={1} mt={1}>
                   {t('user:usermenu.setting.xrusersetting')}
@@ -270,9 +267,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
                       menu={handOptionsMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
-                      }
+                      onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
                     />
                   </Grid>
                 </Grid>
@@ -280,47 +275,45 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
             )}
 
             {/* Controls Helptext */}
-            {showWorldSettings && (
-              <>
-                <Text align="center" variant="body1" mb={2} mt={1}>
-                  {t('user:usermenu.setting.controls')}
-                </Text>
+            <>
+              <Text align="center" variant="body1" mb={2} mt={1}>
+                {t('user:usermenu.setting.controls')}
+              </Text>
 
-                {!isMobile && !xrSupported && (
-                  <>
-                    <img
-                      className={`${styles.row} ${styles.tutorialImage}`}
-                      src="/static/Desktop_Tutorial.png"
-                      alt="Desktop Controls"
-                    />
-                    <img
-                      className={`${styles.row} ${styles.tutorialImage}`}
-                      src="/static/Controller_Tutorial.png"
-                      alt="Controller Controls"
-                    />
-                  </>
-                )}
-
-                {isMobile && (
+              {!isMobile && !xrSupported && (
+                <>
                   <img
                     className={`${styles.row} ${styles.tutorialImage}`}
-                    src="/static/Mobile_Tutorial.png"
-                    alt="Mobile Controls"
+                    src="/static/Desktop_Tutorial.png"
+                    alt="Desktop Controls"
                   />
-                )}
-
-                {xrSupported && (
                   <img
                     className={`${styles.row} ${styles.tutorialImage}`}
-                    src="/static/XR_Tutorial.png"
-                    alt="XR Controls"
+                    src="/static/Controller_Tutorial.png"
+                    alt="Controller Controls"
                   />
-                )}
-              </>
-            )}
+                </>
+              )}
+
+              {isMobile && (
+                <img
+                  className={`${styles.row} ${styles.tutorialImage}`}
+                  src="/static/Mobile_Tutorial.png"
+                  alt="Mobile Controls"
+                />
+              )}
+
+              {xrSupported && (
+                <img
+                  className={`${styles.row} ${styles.tutorialImage}`}
+                  src="/static/XR_Tutorial.png"
+                  alt="XR Controls"
+                />
+              )}
+            </>
 
             {/* Windows-specific Graphics/Performance Optimization Helptext */}
-            {windowsPerformanceHelp && showWorldSettings && (
+            {windowsPerformanceHelp && (
               <>
                 <Text align="center" variant="body1" mb={2} mt={3}>
                   {t('user:usermenu.setting.windowsPerformanceHelp')}

@@ -24,74 +24,119 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+import Button from '../Button'
+import LoadingCircle from '../LoadingCircle'
+import Text from '../Text'
 
-/**
- * Interface for Modal props
- */
-interface ModalProps {
-  /**
-   * The ID for the modal component, which can be used for referencing.
-   */
-  id?: string
-  /**
-   * The content to be rendered within the modal.
-   */
-  children?: ReactNode
-  /**
-   * The CSS class name to apply to the modal dialog.
-   */
+export interface ModalProps {
+  title?: string
+  hideFooter?: boolean
   className?: string
+  children: ReactNode
+  submitLoading?: boolean
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+  closeButtonText?: string
+  submitButtonText?: string
+  onClose?: (isHeader: boolean) => void
+  onSubmit?: () => void
 }
 
-/**
- * A Modal component which displays its children within a dialog.
- * The dialog can be closed by clicking the close button.
- *
- * @param {ModalProps} props - The properties that define the Modal component.
- * @returns {JSX.Element} The rendered Modal component.
- */
-const Modal = (props: ModalProps): JSX.Element => {
-  const { id, children, className } = props
-
+export const ModalHeader = ({
+  title,
+  onClose
+}: {
+  closeIcon?: boolean
+  title?: string
+  onClose?: (isHeader: boolean) => void
+}) => {
+  // sticky top-0 z-10 bg-theme-surface-main
   return (
-    <dialog id={id} className={twMerge('modal w-full h-full', className)}>
-      <form method="dialog" className="modal-box w-full h-full">
-        <div className="w-full h-full grid columns-1">
-          <div className="grow w-full">{children}</div>
-          <div className="fixed w-full bottom-10">
-            <button className="btn float-right">Close</button>
-          </div>
-        </div>
-      </form>
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+    <div className="border-b-theme-primary relative flex items-center justify-center border-b px-6 py-5">
+      {title && <Text>{title}</Text>}
+      <Button
+        variant="outline"
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
+        startIcon={<MdClose />}
+        onClick={() => onClose && onClose(true)}
+      />
+    </div>
   )
 }
 
-/**
- * Specifies the name of the component for debugging purposes.
- */
-Modal.displayName = 'Modal'
+export const ModalFooter = ({
+  onCancel,
+  onSubmit,
+  submitLoading,
+  closeButtonDisabled,
+  submitButtonDisabled,
+  closeButtonText,
+  submitButtonText
+}: {
+  onCancel?: (isHeader: boolean) => void
+  onSubmit?: () => void
+  submitLoading?: boolean
+  closeButtonDisabled?: boolean
+  submitButtonDisabled?: boolean
+  closeButtonText?: string
+  submitButtonText?: string
+}) => {
+  const { t } = useTranslation()
+  return (
+    <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
+      <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        {closeButtonText || t('common:components.cancel')}
+      </Button>
+      {onSubmit && (
+        <Button
+          endIcon={submitLoading ? <LoadingCircle className="h-6 w-6" /> : undefined}
+          disabled={submitButtonDisabled || submitLoading}
+          onClick={onSubmit}
+          className="place-self-end"
+        >
+          {submitButtonText || t('common:components.confirm')}
+        </Button>
+      )}
+    </div>
+  )
+}
 
-/**
- * Default properties for the Modal component.
- */
-Modal.defaultProps = {
-  /**
-   * Default value for the id is an empty string.
-   */
-  id: '',
-  /**
-   * Default value for the children is null.
-   */
-  children: null,
-  /**
-   * Default value for the className is an empty string.
-   */
-  className: ''
+const Modal = ({
+  title,
+  onClose,
+  onSubmit,
+  hideFooter,
+  children,
+  className,
+  submitLoading,
+  closeButtonText,
+  submitButtonText,
+  closeButtonDisabled,
+  submitButtonDisabled
+}: ModalProps) => {
+  const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
+  return (
+    <div className={twClassName}>
+      <div className="bg-theme-surface-main relative rounded-lg shadow">
+        {onClose && <ModalHeader title={title} onClose={onClose} />}
+        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
+        {!hideFooter && (
+          <ModalFooter
+            closeButtonText={closeButtonText}
+            submitButtonText={submitButtonText}
+            closeButtonDisabled={closeButtonDisabled}
+            submitButtonDisabled={submitButtonDisabled}
+            onCancel={onClose}
+            onSubmit={onSubmit}
+            submitLoading={submitLoading}
+          />
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default Modal

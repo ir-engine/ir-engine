@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import {
@@ -39,10 +39,10 @@ import {
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import crypto from 'crypto'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
   let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType
@@ -106,7 +106,7 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>({
 export const inviteDataResolver = resolve<InviteType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     passcode: async () => {
       return crypto.randomBytes(8).toString('hex')

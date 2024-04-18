@@ -37,12 +37,11 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent, useQuery } from '@etherealengine/ecs'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -143,6 +142,24 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'csm')}
         />
       </InputGroup>
+      {rendererSettingsState.csm.value === true ? (
+        <InputGroup
+          name="Cascades"
+          label={t('editor:properties.renderSettings.lbl-csm-cascades')}
+          info={t('editor:properties.renderSettings.info-csm-cascades')}
+        >
+          <CompoundNumericInput
+            min={1}
+            max={5}
+            step={1}
+            value={rendererSettingsState.cascades.value}
+            onChange={updateProperty(RenderSettingsComponent, 'cascades')}
+            onRelease={commitProperty(RenderSettingsComponent, 'cascades')}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
       <InputGroup
         name="Tone Mapping"
         label={t('editor:properties.renderSettings.lbl-toneMapping')}

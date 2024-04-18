@@ -26,26 +26,23 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
-import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
-import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {
@@ -81,7 +78,7 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   if (!intersectObjects.length) {
     transition.setState('OUT')
   }
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

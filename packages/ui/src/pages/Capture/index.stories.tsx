@@ -35,10 +35,9 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import Component from './index'
@@ -46,15 +45,13 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import 'daisyui/dist/full.css'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
 const initializeEngineForRecorder = async () => {
-  // const projects = API.instance.client.service(projectsPath).find()
-  // await loadEngineInjection(await projects)
-  dispatchAction(EngineActions.sceneLoaded({}))
+  getMutableState(SceneState).sceneLoaded.set(true)
 }
 
 const argTypes = {}
@@ -70,8 +67,6 @@ const decorators = [
     const projectState = useHookstate(getMutableState(ProjectState))
 
     const notificationstate = useHookstate(getMutableState(NotificationState))
-
-    NotificationState.useNotifications()
 
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
@@ -120,7 +115,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto">
+      <div className="container mx-auto h-full w-full">
         <Story />
         {projectComponents}
       </div>

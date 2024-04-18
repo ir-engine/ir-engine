@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const SceneSettingsComponent = defineComponent({
   name: 'SceneSettingsComponent',
-  jsonID: 'scene-settings',
+  jsonID: 'EE_scene_settings',
 
   onInit() {
     return {
@@ -35,7 +35,8 @@ export const SceneSettingsComponent = defineComponent({
       loadingScreenURL: '',
       primaryColor: '#000000',
       backgroundColor: '#FFFFFF',
-      alternativeColor: '#000000'
+      alternativeColor: '#000000',
+      sceneKillHeight: -10
     }
   },
 
@@ -47,6 +48,7 @@ export const SceneSettingsComponent = defineComponent({
     if (typeof json.primaryColor === 'string') component.primaryColor.set(json.primaryColor)
     if (typeof json.backgroundColor === 'string') component.backgroundColor.set(json.backgroundColor)
     if (typeof json.alternativeColor === 'string') component.alternativeColor.set(json.alternativeColor)
+    if (typeof json.sceneKillHeight === 'number') component.sceneKillHeight.set(json.sceneKillHeight)
   },
 
   toJSON: (entity, component) => {
@@ -55,7 +57,8 @@ export const SceneSettingsComponent = defineComponent({
       loadingScreenURL: component.loadingScreenURL.value,
       primaryColor: component.primaryColor.value,
       backgroundColor: component.backgroundColor.value,
-      alternativeColor: component.alternativeColor.value
+      alternativeColor: component.alternativeColor.value,
+      sceneKillHeight: component.sceneKillHeight.value
     }
   }
 })

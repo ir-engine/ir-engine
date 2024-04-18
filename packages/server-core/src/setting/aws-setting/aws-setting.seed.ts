@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Knex } from 'knex'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/common/src/schemas/setting/aws-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -41,6 +41,7 @@ export async function seed(knex: Knex): Promise<void> {
         s3: JSON.stringify({
           accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
           secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+          roleArn: process.env.STORAGE_AWS_ROLE_ARN,
           endpoint: process.env.STORAGE_S3_ENDPOINT,
           staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET,
           region: process.env.STORAGE_S3_REGION,
@@ -49,7 +50,8 @@ export async function seed(knex: Knex): Promise<void> {
         }),
         eks: JSON.stringify({
           accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET
+          secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET,
+          roleArn: process.env.EKS_AWS_ROLE_ARN
         }),
         cloudfront: JSON.stringify({
           domain:
@@ -67,7 +69,12 @@ export async function seed(knex: Knex): Promise<void> {
           secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY
         })
       }
-    ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
   )
 
   if (forceRefresh || testEnabled) {

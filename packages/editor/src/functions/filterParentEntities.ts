@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 /**
  * Filters the parent entities from the given entity list.
@@ -40,6 +39,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
  * @returns List of parent entities
  */
 export const filterParentEntities = (
+  rootEntity: Entity,
   entityList: Entity[],
   parentEntityList: Entity[] = [],
   filterUnremovable = true,
@@ -69,7 +69,7 @@ export const filterParentEntities = (
     }
   }
 
-  traverseParentOnly(SceneState.getRootEntity())
+  traverseParentOnly(rootEntity)
 
   return parentEntityList
 }

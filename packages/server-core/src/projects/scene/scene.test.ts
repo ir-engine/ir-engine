@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
-import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import assert from 'assert'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -48,8 +49,8 @@ describe('scene.test', () => {
   })
 
   before(async () => {
-    projectName = `test-scene-project-${v1()}`
-    sceneName = `test-scene-name-${v1()}`
+    projectName = `test-scene-project-${uuidv4()}`
+    sceneName = `test-scene-name-${uuidv4()}`
     sceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
     parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
     await app.service(projectPath).create({ name: projectName })
@@ -68,21 +69,21 @@ describe('scene.test', () => {
 
   describe('"scene" service', () => {
     it('should get scene data', async () => {
-      const data = await app
+      const data = (await app
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
       assert.equal(data.name, sceneName)
       assert.equal(data.project, projectName)
       assert.deepStrictEqual(data.scene, parsedSceneData)
     })
 
     it('should add a new scene', async () => {
-      const sceneName = `test-apartment-scene-${v1()}`
-      await app.service(scenePath).update(null, { name: sceneName, project: projectName, sceneData } as any)
+      const sceneName = `test-apartment-scene-${uuidv4()}`
+      await app.service(scenePath).update('', { name: sceneName, project: projectName, sceneData } as any)
 
-      const addedSceneData = await app
+      const addedSceneData = (await app
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
       assert.equal(addedSceneData.name, sceneName)
       assert.equal(addedSceneData.project, projectName)
       assert.deepStrictEqual(addedSceneData.scene, parsedSceneData)
@@ -94,11 +95,11 @@ describe('scene.test', () => {
       newSceneData.version = updatedVersion
       const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))
 
-      await app.service(scenePath).update(null, { name: sceneName, project: projectName, sceneData: newSceneData })
+      await app.service(scenePath).update('', { name: sceneName, project: projectName, sceneData: newSceneData })
 
-      const updatedSceneData = await app
+      const updatedSceneData = (await app
         .service(scenePath)
-        .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+        .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
       assert.equal(updatedSceneData.scene.version, updatedVersion)
       assert.equal(updatedSceneData.name, sceneName)
       assert.equal(updatedSceneData.project, projectName)
@@ -108,9 +109,7 @@ describe('scene.test', () => {
     it('should remove the scene', async () => {
       await app.service(scenePath).remove(null, { query: { project: projectName, name: sceneName } })
       assert.rejects(async () => {
-        await app
-          .service(scenePath)
-          .get(null, { query: { name: sceneName, project: projectName, metadataOnly: false } })
+        await app.service(scenePath).get('', { query: { name: sceneName, project: projectName, metadataOnly: false } })
       })
     })
   })

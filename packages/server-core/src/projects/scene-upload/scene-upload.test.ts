@@ -25,16 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { sceneUploadPath } from '@etherealengine/common/src/schemas/projects/scene-upload.schema'
-import { SceneJsonType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import assert from 'assert'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -49,11 +49,11 @@ describe('scene-upload.test', () => {
   })
 
   before(async () => {
-    projectName = `test-scene-project-${v1()}`
+    projectName = `test-scene-project-${uuidv4()}`
     await app.service(projectPath).create({ name: projectName })
 
-    const name = ('test-scene-upload-user-name-' + v1()) as UserName
-    const avatarName = 'test-scene-upload-avatar-name-' + v1()
+    const name = ('test-scene-upload-user-name-' + uuidv4()) as UserName
+    const avatarName = 'test-scene-upload-avatar-name-' + uuidv4()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -78,8 +78,8 @@ describe('scene-upload.test', () => {
   })
 
   it('should upload a new scene', async () => {
-    const sceneName = `test-scene-name-${v1()}`
-    const sceneData = structuredClone(defaultSceneSeed) as unknown as SceneJsonType
+    const sceneName = `test-scene-name-${uuidv4()}`
+    const sceneData = structuredClone(defaultSceneSeed)
     const parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
 
     await app.service(sceneUploadPath).create(
@@ -93,9 +93,9 @@ describe('scene-upload.test', () => {
       }
     )
 
-    const uploadedSceneData = await app
+    const uploadedSceneData = (await app
       .service(scenePath)
-      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
+      .get('', { query: { project: projectName, name: sceneName, metadataOnly: false } })) as SceneDataType
 
     assert.equal(uploadedSceneData.name, sceneName)
     assert.equal(uploadedSceneData.project, projectName)

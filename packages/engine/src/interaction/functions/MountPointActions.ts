@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityUUID, matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { NetworkTopics } from '@etherealengine/network'
 import matches from 'ts-matches'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
-import { NetworkTopics } from '../../networking/classes/Network'
 
 export class MountPointActions {
   static mountInteraction = defineAction({

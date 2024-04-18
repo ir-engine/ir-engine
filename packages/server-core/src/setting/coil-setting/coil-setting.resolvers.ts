@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { CoilSettingQuery, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const coilSettingResolver = resolve<CoilSettingType, HookContext>({
   createdAt: virtual(async (coilSetting) => fromDateTimeSql(coilSetting.createdAt)),
@@ -53,7 +53,7 @@ export const coilSettingExternalResolver = resolve<CoilSettingType, HookContext>
 
 export const coilSettingDataResolver = resolve<CoilSettingType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

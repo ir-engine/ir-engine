@@ -29,7 +29,7 @@ import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
@@ -37,11 +37,11 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Paginated } from '@feathersjs/feathers'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
@@ -69,8 +69,8 @@ describe('project.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-user-name-' + v1()) as UserName
-    const avatarName = 'test-project-avatar-name-' + v1()
+    const name = ('test-project-user-name-' + uuidv4()) as UserName
+    const avatarName = 'test-project-avatar-name-' + uuidv4()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -102,7 +102,7 @@ describe('project.test', () => {
 
   describe('create', () => {
     it('should add new project', async () => {
-      const projectName = `test-project-${v1()}`
+      const projectName = `test-project-${uuidv4()}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -132,25 +132,24 @@ describe('project.test', () => {
     let testUpdateProjectName: string
 
     before(() => {
-      sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory.git`)
-      fs.mkdirSync(sourceDirectory)
-      fs.writeFileSync(path.resolve(sourceDirectory, 'README.md'), 'Test Cloning Directory')
+      sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory`)
+      copyFolderRecursiveSync(
+        path.resolve(appRootPath.path, `packages/projects/template-project`),
+        path.resolve(appRootPath.path, `packages/projects/projects`)
+      )
+      fs.renameSync(path.resolve(appRootPath.path, `packages/projects/projects/template-project`), sourceDirectory)
 
       const git = useGit(sourceDirectory)
       git.init()
-      git.add('README.md')
+      git.add('.')
       git.commit('initial commit')
-    })
 
-    before(() => {
-      testUpdateProjectName = `test-update-project-name-${v1()}`
+      testUpdateProjectName = `test-update-project-name-${uuidv4()}`
     })
 
     after(async () => {
       await cleanup(app, testUpdateProjectName)
-    })
-
-    after(() => {
+      await cleanup(app, 'template-project')
       fs.rmSync(sourceDirectory, { force: true, recursive: true })
     })
 
@@ -162,7 +161,7 @@ describe('project.test', () => {
       await app.service(projectPath).update(
         testProject.id,
         {
-          sourceURL: sourceDirectory,
+          sourceURL: sourceDirectory + '/', // slash is needed to force the sourceURL to be a directory
           name: testUpdateProjectName
         },
         getParams()
@@ -183,7 +182,7 @@ describe('project.test', () => {
       await app.service(projectPath).update(
         testProject.id,
         {
-          sourceURL: sourceDirectory,
+          sourceURL: sourceDirectory + '/',
           name: testProject.name
         },
         getParams()

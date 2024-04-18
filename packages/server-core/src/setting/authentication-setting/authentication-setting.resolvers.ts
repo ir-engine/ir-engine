@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   AuthAppCredentialsType,
@@ -42,7 +42,7 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { AuthenticationSettingPatch } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
   return {
@@ -177,7 +177,7 @@ export const authenticationSettingExternalResolver = resolve<AuthenticationSetti
 export const authenticationSettingDataResolver = resolve<AuthenticationSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

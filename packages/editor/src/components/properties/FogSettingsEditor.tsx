@@ -27,10 +27,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
-import { FogType } from '@etherealengine/engine/src/scene/constants/FogType'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
+import { FogSettingsComponent, FogType } from '@etherealengine/spatial/src/renderer/components/FogSettingsComponent'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'

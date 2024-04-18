@@ -36,7 +36,7 @@ const config: ProjectConfigInterface = {
       }
     },
     '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
+      component: () => import('@etherealengine/client/src/pages/admin')
     },
     '/location': {
       component: () => import('@etherealengine/client/src/pages/location/location')

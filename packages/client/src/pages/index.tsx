@@ -27,8 +27,8 @@ import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
+import styles from '@etherealengine/client-core/src/admin/old-styles/admin.module.scss'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import '@etherealengine/client-core/src/user/UserUISystem'
@@ -41,6 +41,8 @@ import '@etherealengine/client-core/src/world/LocationModule'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Box, Button } from '@mui/material'
+
+import './index.scss'
 
 const ROOT_REDIRECT = config.client.rootRedirect
 

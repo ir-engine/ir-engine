@@ -1,11 +1,12 @@
-ARG ECR_URL
+ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
-FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
+ARG TAG
+FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as builder
 
 # Create app directory
 WORKDIR /app
-
+COPY project-package-jsons ./
 # to make use of caching, copy only package files and install dependencies
 COPY packages/taskserver/package.json ./packages/taskserver/
 

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SDFComponent, SDFMode } from '@etherealengine/engine/src/scene/components/SDFComponent'
 
 import BooleanInput from '../inputs/BooleanInput'

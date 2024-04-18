@@ -26,16 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { emoteAnimations, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
@@ -233,14 +233,14 @@ export const useEmoteMenuHooks = () => {
   }
 
   const playAnimation = (stateName: string) => {
-    const entity = Engine.instance.localClientEntity
+    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         animationAsset: preloadedAnimations.emotes,
         clipName: stateName,
         loop: false,
         layer: 0,
-        entityUUID: getComponent(entity, UUIDComponent)
+        entityUUID: getComponent(selfAvatarEntity, UUIDComponent)
       })
     )
     // close Menu after playing animation
