@@ -157,7 +157,6 @@ export const createPrototype = (
   setComponent(prototypeEntity, SourceComponent, source as SceneID)
   /**@todo handle duplicate prototype names */
   if (MaterialComponent.prototypeByName[name]) throw new Error('Prototype already exists')
-  MaterialComponent.prototypeByHash[hashMaterial(source, name)] = getComponent(prototypeEntity, UUIDComponent)
   MaterialComponent.prototypeByName[name] = getComponent(prototypeEntity, UUIDComponent)
   console.log(MaterialComponent.prototypeByName)
 }

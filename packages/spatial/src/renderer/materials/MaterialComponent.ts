@@ -75,7 +75,6 @@ export const MaterialComponent = defineComponent({
 
   materialByHash: {} as Record<string, string>,
   materialByName: {} as Record<string, string>,
-  prototypeByHash: {} as Record<string, string>,
   prototypeByName: {} as Record<string, string>,
 
   onSet: (entity, component, json) => {
