@@ -78,7 +78,7 @@ export default function InstanceTable({ search }: { search: string }) {
           </Button>
           <Button
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
-            rounded
+            rounded="full"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
