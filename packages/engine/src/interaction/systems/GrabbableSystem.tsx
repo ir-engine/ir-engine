@@ -65,14 +65,13 @@ import {
 } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
@@ -80,13 +79,9 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
 import { createInteractUI } from '../functions/interactUI'
-import {
-  InteractableState,
-  InteractableTransitions,
-  addInteractableUI,
-  removeInteractableUI
-} from './InteractableSystem'
+import { InteractableState, InteractableTransitions, InteractableUI, removeInteractableUI } from './InteractableSystem'
 
 export class GrabbableNetworkAction {
   static setGrabbedObject = defineAction({
@@ -351,6 +346,7 @@ const onDrop = () => {
   const grabbedEntity = grabber[handedness]!
   if (!grabbedEntity) return
   dropEntity(selfAvatarEntity)
+  updateUI(grabbedEntity)
 }
 
 const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
@@ -377,7 +373,18 @@ const execute = () => {
    */
   if (isClient)
     for (const entity of grabbableQuery.enter()) {
-      addInteractableUI(entity, createInteractUI(entity, grabbableInteractMessage), onGrabbableInteractUpdate)
+      setCallback(entity, 'grabCallback', () => grabCallback(entity))
+      setComponent(entity, InteractableComponent, {
+        label: grabbableInteractMessage,
+        callbacks: [
+          {
+            callbackID: 'grabCallback',
+            target: null
+          }
+        ]
+      })
+
+      //addInteractableUI(entity, createInteractUI(entity, grabbableInteractMessage), onGrabbableInteractUpdate)
     }
 
   for (const entity of grabbableQuery.exit()) {
@@ -390,19 +397,26 @@ const execute = () => {
 }
 
 const executeInput = () => {
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
+  // const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  // if (!inputPointerEntity) return
 
   const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.KeyU?.down) onDrop()
+}
 
-  /** @todo this should move to input group */
+const updateUI = (entity: Entity) => {
+  const isGrabbed = hasComponent(entity, GrabbedComponent)
+  if (isGrabbed) {
+    setVisibleComponent(InteractableUI.get(entity)!.xrui.entity!, !isGrabbed)
+  }
+}
+
+const grabCallback = (targetEntity: Entity) => {
   const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
   for (const entity of nonCapturedInputSources) {
     const inputSource = getComponent(entity, InputSourceComponent)
-    /** @todo currently mouse has to be over the grabbable for it to be grabbed */
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      onGrab(getState(InteractableState).available[0], inputSource.source.handedness === 'left' ? 'left' : 'right')
+    onGrab(targetEntity, inputSource.source.handedness === 'left' ? 'left' : 'right')
+    updateUI(targetEntity)
   }
 }
 

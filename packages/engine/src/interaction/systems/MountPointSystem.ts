@@ -100,6 +100,9 @@ const unmountEntity = (entity: Entity) => {
 }
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  const mountedEntities = getState(MountPointState)
+  if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
+
   const avatarUUID = getComponent(avatarEntity, UUIDComponent)
   const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
   if (!mountPoint || mountPoint.type !== MountPoint.seat) return
