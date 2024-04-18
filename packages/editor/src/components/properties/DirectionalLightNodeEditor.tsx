@@ -31,7 +31,6 @@ import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/
 
 import BoltIcon from '@mui/icons-material/Bolt'
 
-import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
@@ -73,12 +72,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         onRelease={commitProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
-        <BooleanInput
-          value={lightComponent.useInCSM}
-          onChange={commitProperty(DirectionalLightComponent, 'useInCSM')}
-        />
-      </InputGroup>
       <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
       <NumericInputGroup
         name="CameraFar"
