@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material, Texture } from 'three'
+import { Material } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -62,13 +62,6 @@ export function PrototypeNotFoundError(message) {
   this.message = message
 }
 
-export function extractDefaults(defaultArgs) {
-  return formatMaterialArgs(
-    Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
-    defaultArgs
-  )
-}
-
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
 export const useOrCreateMaterial = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
@@ -102,6 +95,7 @@ export const createMaterial = (material: Material, path: string) => {
     material,
     prototypeUuid: MaterialComponent.prototypeByName[material.type]
   })
+
   console.log(MaterialComponent.prototypeByName)
 
   setMaterialName(materialEntity, material.name)
@@ -165,31 +159,6 @@ export const createPrototype = (
 export function injectDefaults(defaultArgs, values) {
   return Object.fromEntries(
     Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, { ...v, default: values[k] }])
-  )
-}
-
-export function formatMaterialArgs(args, defaultArgs: any = undefined) {
-  if (!args) return args
-  return Object.fromEntries(
-    Object.entries(args)
-      .map(([k, v]: [string, any]) => {
-        if (!!defaultArgs && defaultArgs[k]) {
-          switch (defaultArgs[k].type) {
-            case 'color':
-              return [k, v ? ((v as Color).isColor ? v : new Color(v)) : undefined]
-          }
-        }
-        const tex = v as Texture
-        if (tex?.isTexture) {
-          if (tex.source.data !== undefined) {
-            return [k, v]
-          }
-          return [k, undefined]
-        }
-        if (v === '') return [k, undefined]
-        return [k, v]
-      })
-      .filter(([_, v]) => v !== undefined)
   )
 }
 
