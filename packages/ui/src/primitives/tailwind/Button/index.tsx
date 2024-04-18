@@ -31,7 +31,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'iconLabel'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'onboarding'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: boolean
@@ -51,7 +51,7 @@ const variants = {
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent',
-  iconLabel: 'bg-button-gradient-onboarding rounded-none'
+  onboarding: 'bg-button-gradient-onboarding rounded-none'
 }
 
 const Button = ({
@@ -66,7 +66,7 @@ const Button = ({
   className,
   ...props
 }: ButtonProps): JSX.Element => {
-  const paddingClasses = variant !== 'iconLabel' ? sizes[size] : 'px-0 py-0'
+  const paddingClasses = variant !== 'onboarding' ? sizes[size] : 'px-0 py-0'
 
   const twClassName = twMerge(
     'flex items-center justify-between',
@@ -83,10 +83,10 @@ const Button = ({
   )
 
   const iconContainerStyle = twMerge(
-    variant !== 'iconLabel' ? 'mx-1' : 'flex h-full items-center justify-center bg-[#375DAF]'
+    variant !== 'onboarding' ? 'mx-1' : 'flex h-full items-center justify-center bg-[#375DAF]'
   )
 
-  const textContainerStyle = twMerge(variant !== 'iconLabel' ? '' : 'mx-auto flex items-center justify-center')
+  const textContainerStyle = twMerge(variant !== 'onboarding' ? '' : 'mx-auto flex items-center justify-center')
 
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
