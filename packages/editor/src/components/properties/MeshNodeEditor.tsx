@@ -51,7 +51,7 @@ export const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) =
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </CollapsibleBlock>
       <CollapsibleBlock label={t('editor:properties.mesh.materialEditor')}>
-        <MaterialEditor materialID={(meshComponent?.material as Material).uuid ?? null} />
+        <MaterialEditor materialUUID={(meshComponent?.material as Material).uuid ?? null} />
       </CollapsibleBlock>
     </NodeEditor>
   )

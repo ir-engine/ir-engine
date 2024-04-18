@@ -69,7 +69,7 @@ export function extractDefaults(defaultArgs) {
   )
 }
 
-/** Creates and returns a new material UUID from a GLTF. If a material from the GLTF path already exists, returns it instead. */
+/** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
 export const useOrCreateMaterial = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
   const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
@@ -79,9 +79,10 @@ export const useOrCreateMaterial = (path: string, sourceEntity: Entity, material
     materialComponent.uuid.set([...materialComponent.uuid.value, entityFromHash])
     return entityFromHash
   }
-  materialComponent.uuid.set([...materialComponent.uuid.value, material.uuid])
+  const newUUID = material.uuid as EntityUUID
+  materialComponent.uuid.set([...materialComponent.uuid.value, newUUID])
 
-  if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) {
+  if (!UUIDComponent.getEntityByUUID(newUUID)) {
     if (material.plugins) {
       material.customProgramCacheKey = () =>
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')

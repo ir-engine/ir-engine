@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Shader } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 export type MaterialWithEntity = Material & { entity: Entity }
@@ -60,22 +60,22 @@ export const MaterialComponent = defineComponent({
   onInit: (entity) => {
     return {
       // materialUUID points to entities with MaterialComponent holding state
-      uuid: [] as string[],
+      uuid: [] as EntityUUID[],
       // material & material specific data
       material: null as null | Material,
       parameters: {},
       instances: [] as Entity[],
       plugins: [] as string[],
-      prototypeUuid: '',
+      prototypeUuid: '' as EntityUUID,
       // shared prototype state
       prototypeName: '',
       prototypeArguments: {} as PrototypeArgument
     }
   },
 
-  materialByHash: {} as Record<string, string>,
-  materialByName: {} as Record<string, string>,
-  prototypeByName: {} as Record<string, string>,
+  materialByHash: {} as Record<string, EntityUUID>,
+  materialByName: {} as Record<string, EntityUUID>,
+  prototypeByName: {} as Record<string, EntityUUID>,
 
   onSet: (entity, component, json) => {
     if (!json) return

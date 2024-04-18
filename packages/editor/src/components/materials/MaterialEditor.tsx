@@ -61,9 +61,9 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor(props: { materialID: string }) {
+export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const { materialID } = props
+  const { materialUUID: materialID } = props
   const material = getMaterial(materialID)!
   const prototypes = Object.keys(MaterialComponent.prototypeByName).map((prototype) => ({
     label: prototype,
@@ -127,7 +127,7 @@ export function MaterialEditor(props: { materialID: string }) {
   //   clearThumbs().then(createThumbnails).then(checkThumbs)
   // }, [materialComponent.uuid])
 
-  const materialComponent = getComponent(UUIDComponent.getEntityByUUID(materialID as EntityUUID), MaterialComponent)
+  const materialComponent = getComponent(UUIDComponent.getEntityByUUID(materialID), MaterialComponent)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -161,10 +161,8 @@ export function MaterialEditor(props: { materialID: string }) {
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
           value={
-            getComponent(
-              UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid as EntityUUID),
-              MaterialComponent
-            ).prototypeName
+            getComponent(UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid), MaterialComponent)
+              .prototypeName
           }
           options={prototypes}
           onChange={(protoId) => {
