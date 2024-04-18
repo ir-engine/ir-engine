@@ -81,6 +81,7 @@ export const MaterialComponent = defineComponent({
     if (!json) return
     if (json.uuid) component.uuid.set(json.uuid)
     if (json.material) component.material.set(json.material)
+    if (json.parameters) component.parameters.set(json.parameters)
     if (json.instances) component.instances.set(json.instances)
     if (json.plugins) component.plugins.set(json.plugins)
     if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)

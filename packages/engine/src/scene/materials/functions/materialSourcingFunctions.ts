@@ -49,6 +49,7 @@ import {
   PrototypeArgument,
   materialSuffix
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
@@ -91,9 +92,17 @@ export const createMaterial = (material: Material, path: string) => {
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, path as SceneID)
+  const prototypeUUID = MaterialComponent.prototypeByName[material.type]
   setComponent(materialEntity, MaterialComponent, {
     material,
-    prototypeUuid: MaterialComponent.prototypeByName[material.type]
+    prototypeUuid: prototypeUUID,
+    parameters: Object.fromEntries(
+      Object.keys(
+        extractDefaults(
+          getComponent(UUIDComponent.getEntityByUUID(prototypeUUID), MaterialComponent).prototypeArguments
+        )
+      ).map((k) => [k, material[k]])
+    )
   })
 
   console.log(MaterialComponent.prototypeByName)
