@@ -23,28 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList, areEqual } from 'react-window'
+import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
-import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 import { Not } from 'bitecs'
 
-import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { createMaterial } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { uploadProjectFiles } from '../../functions/assetFunctions'
-import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -52,37 +47,30 @@ import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 
 export default function MaterialLibraryPanel() {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
   const srcPath = useState('/mat/material-test')
 
   const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
+  const nodes = useState([] as MaterialLibraryEntryType[])
+  const selectedMaterial = useState('')
 
-  const createNodes = useCallback(() => {
+  useEffect(() => {
     const materials = Object.values(MaterialComponent.materialByHash)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
-      const isCollapsed = false
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
         {
           uuid: uuid,
           path: source,
-          type: LibraryEntryType.MATERIAL,
-          selected: selectedMaterial.value === uuid,
-          active: selectedMaterial.value === uuid,
-          isCollapsed
+          type: LibraryEntryType.MATERIAL
         }
       ]
     })
-    return result
-  }, [nodeChanges, materialQuery, selectedMaterial])
-
-  const nodes = useState(createNodes())
+    nodes.set(result)
+  }, [nodeChanges, materialQuery])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
-    if (node) selectedMaterial.set(node.uuid)
+    getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
   }
 
   // const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
@@ -100,10 +88,7 @@ export default function MaterialLibraryPanel() {
   //   }
   //   nodeChanges.set(nodeChanges.get() + 1)
   // }, [])
-
-  useEffect(() => {
-    nodes.set(createNodes())
-  }, [nodeChanges, selectedMaterial, materialQuery])
+  const MemoMatLibEntry = MaterialLibraryEntry
 
   return (
     <>
@@ -117,7 +102,7 @@ export default function MaterialLibraryPanel() {
                 itemSize={32}
                 itemCount={nodes.length}
                 itemData={{
-                  nodes: nodes.get(),
+                  nodes: nodes.value,
                   onClick
                 }}
                 itemKey={(index, _) => index}
@@ -144,25 +129,24 @@ export default function MaterialLibraryPanel() {
             </InputGroup>
             <Button
               onClick={async () => {
-                const projectName = editorState.projectName.value!
-                const materials = selectedMaterial.value ? [getMaterial(selectedMaterial.value)!.entity] : []
-                let libraryName = srcPath.value
-                if (!libraryName.endsWith('.material.gltf')) {
-                  libraryName += '.material.gltf'
-                }
-                const relativePath = pathJoin('assets', libraryName)
-                const gltf = (await exportMaterialsGLTF(materials, {
-                  binary: false,
-                  relativePath
-                })!) as /*ArrayBuffer*/ { [key: string]: any }
-
-                const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, libraryName)
-                /*const pName = editorState.projectName.value!
-                const blob = [gltf]
-                const file = new File(blob, "material-test.glb")*/
-                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
-                console.log('exported material data to ', ...urls)
+                // const projectName = editorState.projectName.value!
+                // const materials = selectedMaterial.value ? [getMaterial(selectedMaterial.value)!.entity] : []
+                // let libraryName = srcPath.value
+                // if (!libraryName.endsWith('.material.gltf')) {
+                //   libraryName += '.material.gltf'
+                // }
+                // const relativePath = pathJoin('assets', libraryName)
+                // const gltf = (await exportMaterialsGLTF(materials, {
+                //   binary: false,
+                //   relativePath
+                // })!) as /*ArrayBuffer*/ { [key: string]: any }
+                // const blob = [JSON.stringify(gltf)]
+                // const file = new File(blob, libraryName)
+                // /*const pName = editorState.projectName.value!
+                // const blob = [gltf]
+                // const file = new File(blob, "material-test.glb")*/
+                // const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
+                // console.log('exported material data to ', ...urls)
               }}
             >
               Save

@@ -30,8 +30,6 @@ import { useDrag } from 'react-dnd'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
 import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
 import { Grid } from '@mui/material'
@@ -48,8 +46,6 @@ export type MaterialLibraryEntryType = {
   path: string
   type: LibraryEntryType
   selected?: boolean
-  active?: boolean
-  isCollapsed?: boolean
 }
 
 export type MaterialLibraryEntryData = {
@@ -75,7 +71,11 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
 
   const selectionState = useHookstate(getMutableState(SelectionState))
 
-  const onClickNode = useCallback((e) => data.onClick(e, node), [node, data.onClick])
+  const onClickNode = (e) => {
+    data.onClick(e, node)
+  }
+
+  console.log('node')
 
   const onCollapseNode = useCallback(
     (e: MouseEvent) => {
@@ -114,26 +114,11 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       style={props.style}
       ref={drag}
       id={node.uuid}
-      className={
-        styles.treeNodeContainer +
-        (node.selected ? ' ' + styles.selected : '') +
-        (node.active ? ` ${styles.selected}` : '')
-      }
+      className={styles.treeNodeContainer + (node.selected ? ' ' + styles.selected : '')}
       onClick={onClickNode}
     >
       <div className={styles.nodeContent}>
         <Grid container columns={16} sx={{ flexWrap: 'unset' }}>
-          <Grid item xs={1}>
-            {node.type === LibraryEntryType.MATERIAL_SOURCE ? (
-              node.isCollapsed ? (
-                <ArrowRightIcon className={styles.collapseButton} onClick={onCollapseNode} />
-              ) : (
-                <ArrowDropDownIcon className={styles.collapseButton} onClick={onCollapseNode} />
-              )
-            ) : (
-              <div className={styles.spacer} />
-            )}
-          </Grid>
           <Grid item xs={1}>
             <div className={styles.nodeIcon}>
               {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}

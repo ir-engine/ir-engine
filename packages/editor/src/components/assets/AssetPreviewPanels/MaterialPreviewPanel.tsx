@@ -23,46 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
-
-import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-
 export const MaterialPreviewCanvas = () => {
-  const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
-  const renderPanel = useRender3DPanelSystem(panelRef)
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-
-  useEffect(() => {
-    // if (!selectedMaterial.value) return
-    // const { sceneEntity, cameraEntity } = renderPanel
-    // setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
-    // const uuid = generateEntityUUID()
-    // setComponent(sceneEntity, UUIDComponent, uuid)
-    // setComponent(sceneEntity, VisibleComponent, true)
-    // const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
-    // if (!material) return
-    // addObjectToGroup(sceneEntity, new Mesh(new SphereGeometry(5, 32, 32), material))
-    // setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
-    // const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
-    // orbitCamera.focusedEntities.set([sceneEntity])
-    // orbitCamera.refocus.set(true)
-  }, [selectedMaterial])
-
-  return (
-    <>
-      <div id="materialPreview" style={{ minHeight: '250px', width: '100%', height: '100%' }}>
-        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
-      </div>
-    </>
-  )
+  // const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
+  // const renderPanel = useRender3DPanelSystem(panelRef)
+  // const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  // useEffect(() => {
+  //   if (!selectedMaterial.value) return
+  //   const { sceneEntity, cameraEntity } = renderPanel
+  //   setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
+  //   const uuid = generateEntityUUID()
+  //   setComponent(sceneEntity, UUIDComponent, uuid)
+  //   setComponent(sceneEntity, VisibleComponent, true)
+  //   const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material
+  //   if (!material) return
+  //   addObjectToGroup(sceneEntity, new Mesh(new SphereGeometry(5, 32, 32), material))
+  //   setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
+  //   const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
+  //   orbitCamera.focusedEntities.set([sceneEntity])
+  //   orbitCamera.refocus.set(true)
+  // }, [selectedMaterial])
+  // return (
+  //   <>
+  //     <div id="materialPreview" style={{ minHeight: '250px', width: '100%', height: '100%' }}>
+  //       <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
+  //     </div>
+  //   </>
+  // )
 }
 
 export const MaterialPreviewPanel = (props) => {
-  const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  if (!selectedMaterial.value) return null
-
-  return <MaterialPreviewCanvas key={selectedMaterial.value} />
+  // const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  // if (!selectedMaterial.value) return null
+  // return <MaterialPreviewCanvas key={selectedMaterial.value} />
 }
