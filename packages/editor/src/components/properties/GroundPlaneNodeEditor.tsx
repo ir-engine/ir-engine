@@ -35,7 +35,6 @@ import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import ShadowProperties from './ShadowProperties'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
@@ -66,7 +65,6 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(GroundPlaneComponent, 'visible')}
         />
       </InputGroup>
-      <ShadowProperties entity={props.entity} />
     </NodeEditor>
   )
 }
