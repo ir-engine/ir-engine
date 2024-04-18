@@ -23,7 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, createEntity, removeEntity, setComponent } from '@etherealengine/ecs'
+import {
+  Entity,
+  UUIDComponent,
+  createEntity,
+  generateEntityUUID,
+  removeEntity,
+  setComponent
+} from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -34,26 +41,32 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { useEffect } from 'react'
 import { Object3D } from 'three'
 
-export function useHelperEntity<T extends Object3D, T2 extends State<Partial<{ name: string; entity: Entity }>>>(
+export function useHelperEntity<
+  TObject extends Object3D,
+  TComponent extends State<Partial<{ name: string; entity: Entity }>>
+>(
   entity: Entity,
-  helper: T,
-  component: T2,
+  component: TComponent,
+  helper: TObject | undefined = undefined,
   layerMask = ObjectLayers.NodeHelper
 ): Entity {
   const helperEntityState = useHookstate<Entity>(createEntity())
 
   useEffect(() => {
-    helper.name = `${component.name.value}-${entity}`
     const helperEntity = helperEntityState.value
-    addObjectToGroup(helperEntity, helper)
-    setComponent(helperEntity, NameComponent, helper.name)
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    if (helper) {
+      helper.name = `${component.name.value}-${entity}`
+      addObjectToGroup(helperEntity, helper)
+      setComponent(helperEntity, NameComponent, helper.name)
+    }
     setVisibleComponent(helperEntity, true)
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
     component.entity.set(helperEntity)
 
     return () => {
-      removeObjectFromGroup(helperEntity, helper)
+      if (helper) removeObjectFromGroup(helperEntity, helper)
       removeEntity(helperEntity)
     }
   }, [])

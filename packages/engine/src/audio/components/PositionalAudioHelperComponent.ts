@@ -77,7 +77,7 @@ export const PositionalAudioHelperComponent = defineComponent({
       materialOuterAngle.value,
       materialInnerAngle.value
     ])
-    useHelperEntity(entity, line, component)
+    useHelperEntity(entity, component, line)
 
     useDidMount(() => {
       component.divisions.set(component.divisionsInnerAngle.value + component.divisionsOuterAngle.value * 2)

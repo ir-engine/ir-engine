@@ -50,7 +50,7 @@ export const CameraHelperComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, CameraHelperComponent)
     const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
-    useHelperEntity(entity, helper, component)
+    useHelperEntity(entity, component, helper)
 
     return null
   }

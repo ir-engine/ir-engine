@@ -60,7 +60,7 @@ export const MeshHelperComponent = defineComponent({
       component.geometry.value,
       component.material.value
     )
-    useHelperEntity(entity, mesh, component)
+    useHelperEntity(entity, component, mesh)
 
     useDidMount(() => {
       const geo = component.geometry.get(NO_PROXY)

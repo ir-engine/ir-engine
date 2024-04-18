@@ -52,7 +52,7 @@ export const AxesHelperComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, AxesHelperComponent)
     const [helper] = useDisposable(AxesHelper, entity, component.size.value)
-    useHelperEntity(entity, helper, component, component.layer.value)
+    useHelperEntity(entity, component, helper, component.layer.value)
 
     return null
   }

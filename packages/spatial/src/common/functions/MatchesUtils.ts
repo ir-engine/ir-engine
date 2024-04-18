@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BufferGeometry, ColorRepresentation, Material, Quaternion, Vector3 } from 'three'
+import { BufferGeometry, ColorRepresentation, Material, Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 import { matches } from 'ts-matches'
 
 const matchesVec3Shape = matches.shape({
@@ -46,6 +46,41 @@ const matchesQuatShape = matches.some(
     w: matches.number
   })
 )
+
+const matchesMat4 = matches.shape({
+  elements: matches.tuple(
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number
+  )
+})
+
+const matchesMat3 = matches.shape({
+  elements: matches.tuple(
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number,
+    matches.number
+  )
+})
 
 const matchesColorShape = matches.some(
   matches.string,
@@ -75,8 +110,18 @@ const matchesMaterialShape = matches.shape({
 
 const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
+const matchesMatrix4 = matches.guard((m): m is Matrix4 => matchesMat4.test(m))
+const matchesMatrix3 = matches.guard((m): m is Matrix3 => matchesMat3.test(m))
 const matchesColor = matches.guard((c): c is ColorRepresentation => matchesColorShape.test(c))
 const matchesGeometry = matches.guard((b): b is BufferGeometry => matchesGeometryShape.test(b))
 const matchesMaterial = matches.guard((m): m is Material => matchesMaterialShape.test(m))
 
-export { matchesVector3, matchesQuaternion, matchesColor, matchesGeometry, matchesMaterial }
+export {
+  matchesVector3,
+  matchesQuaternion,
+  matchesColor,
+  matchesGeometry,
+  matchesMaterial,
+  matchesMatrix4,
+  matchesMatrix3
+}

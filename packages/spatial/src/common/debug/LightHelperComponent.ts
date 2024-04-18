@@ -76,7 +76,7 @@ export const LightHelperComponent = defineComponent({
 
     const light = component.light.value
     const [helper] = useDisposable(getLightHelperType(light), entity, light, component.size.value)
-    useHelperEntity(entity, helper, component)
+    useHelperEntity(entity, component, helper)
     helper.update()
 
     useEffect(() => {

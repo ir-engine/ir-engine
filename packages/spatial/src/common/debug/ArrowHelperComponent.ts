@@ -71,7 +71,7 @@ export const ArrowHelperComponent = defineComponent({
       component.headLength.value,
       component.headWidth.value
     )
-    useHelperEntity(entity, helper, component)
+    useHelperEntity(entity, component, helper)
 
     useDidMount(() => {
       helper.setDirection(component.dir.value)
