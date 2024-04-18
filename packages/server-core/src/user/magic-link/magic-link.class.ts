@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -29,7 +29,10 @@ import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
 import { smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { UserName } from '@etherealengine/common/src/schemas/user/user.schema'
@@ -128,17 +131,23 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     if (data.type === 'email') token = data.email
     else if (data.type === 'sms') token = data.mobile
 
-    let identityProvider
+    let identityProvider: IdentityProviderType
     const identityProviders = (
-      (await identityProviderService.find({
+      await identityProviderService.find({
         query: {
           token: token,
           type: data.type
         }
-      })) as any
+      })
     ).data
 
-    if (identityProviders.length === 0) {
+    const guestIdentityProvider = identityProviders.find((identityProvider) => identityProvider.type === 'guest')
+
+    if (guestIdentityProvider) {
+      await identityProviderService.remove(guestIdentityProvider.id)
+    }
+
+    if (identityProviders.length === 0 || guestIdentityProvider) {
       identityProvider = await identityProviderService.create(
         {
           token: token,
@@ -157,6 +166,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
         identityProviderId: identityProvider.id
       })
 
+      await this.removePreviousLoginTokens(identityProvider.id)
+
       if (data.type === 'email') {
         await this.sendEmail(data.email, loginToken.token)
       } else if (data.type === 'sms') {
@@ -164,5 +175,21 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       }
     }
     return data
+  }
+
+  private async removePreviousLoginTokens(identityProviderId: string) {
+    const loginTokenService = this.app.service(loginTokenPath)
+    const previousTokens = await loginTokenService.find({
+      query: {
+        identityProviderId: identityProviderId
+      }
+    })
+    // Keep only the latest token and remove the rest
+    if (previousTokens.total > 1) {
+      const tokensToRemove = previousTokens.data.slice(0, -1)
+      for (const token of tokensToRemove) {
+        await loginTokenService.remove(token.id)
+      }
+    }
   }
 }
