@@ -34,10 +34,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { matchesMatrix4 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -162,6 +163,7 @@ export const ObjectGridSnapComponent = defineComponent({
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
+    const debugEnabled = useMutableState(RendererState).nodeHelperVisibility
 
     useEffect(() => {
       if (assetLoading?.value) return
@@ -208,9 +210,14 @@ export const ObjectGridSnapComponent = defineComponent({
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
-      const bbox = snapComponent.bbox.value
-      setComponent(entity, BoundingBoxHelperComponent, { bbox })
-    }, [snapComponent.bbox, engineState.isEditing])
+
+      if (debugEnabled.value) {
+        const bbox = snapComponent.bbox.value
+        setComponent(entity, BoundingBoxHelperComponent, { bbox })
+      } else {
+        removeComponent(entity, BoundingBoxHelperComponent)
+      }
+    }, [snapComponent.bbox, engineState.isEditing, debugEnabled])
 
     return null
   }
