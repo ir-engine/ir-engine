@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -33,20 +35,97 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useMutableState, useState } from '@etherealengine/hyperflux'
+import {
+  createEntity,
+  generateEntityUUID,
+  removeEntity,
+  useEntityContext
+} from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
-import { matchesMatrix4 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { matchesColor, matchesMatrix4 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  ObjectLayerMaskComponent,
+  setObjectLayers
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import { Box3, BufferGeometry, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import {
+  Box3,
+  BufferGeometry,
+  ColorRepresentation,
+  LineBasicMaterial,
+  LineSegments,
+  Matrix4,
+  Mesh,
+  Quaternion,
+  Vector3
+} from 'three'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+
+function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
+  const lineSegmentList: Vector3[] = []
+  const size = new Vector3()
+  bbox.getSize(size)
+
+  // Create grid lines for each face of the bounding box
+
+  // Front and back faces (parallel to XY plane)
+  const zFront = bbox.min.z
+  const zBack = bbox.max.z
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const x = bbox.min.x + segmentFraction * size.x
+    const y = bbox.min.y + segmentFraction * size.y
+
+    lineSegmentList.push(new Vector3(x, bbox.min.y, zFront), new Vector3(x, bbox.max.y, zFront))
+    lineSegmentList.push(new Vector3(x, bbox.min.y, zBack), new Vector3(x, bbox.max.y, zBack))
+    lineSegmentList.push(new Vector3(bbox.min.x, y, zFront), new Vector3(bbox.max.x, y, zFront))
+    lineSegmentList.push(new Vector3(bbox.min.x, y, zBack), new Vector3(bbox.max.x, y, zBack))
+  }
+
+  // Top and bottom faces (parallel to XZ plane)
+  const yTop = bbox.max.y
+  const yBottom = bbox.min.y
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const x = bbox.min.x + segmentFraction * size.x
+    const z = bbox.min.z + segmentFraction * size.z
+
+    lineSegmentList.push(new Vector3(x, yTop, bbox.min.z), new Vector3(x, yTop, bbox.max.z))
+    lineSegmentList.push(new Vector3(x, yBottom, bbox.min.z), new Vector3(x, yBottom, bbox.max.z))
+    lineSegmentList.push(new Vector3(bbox.min.x, yTop, z), new Vector3(bbox.max.x, yTop, z))
+    lineSegmentList.push(new Vector3(bbox.min.x, yBottom, z), new Vector3(bbox.max.x, yBottom, z))
+  }
+
+  // Left and right faces (parallel to YZ plane)
+  const xLeft = bbox.min.x
+  const xRight = bbox.max.x
+  for (let j = 0; j <= density; j++) {
+    const segmentFraction = j / density
+    const y = bbox.min.y + segmentFraction * size.y
+    const z = bbox.min.z + segmentFraction * size.z
+
+    lineSegmentList.push(new Vector3(xLeft, y, bbox.min.z), new Vector3(xLeft, y, bbox.max.z))
+    lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
+    lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
+    lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
+  }
+  for (let i = 0; i < lineSegmentList.length; i++) {
+    lineSegmentList[i].applyMatrix4(matrixWorld)
+  }
+
+  return new BufferGeometry().setFromPoints(lineSegmentList)
+}
 
 export const BoundingBoxHelperComponent = defineComponent({
   name: 'BoundingBoxHelperComponent',
@@ -57,6 +136,8 @@ export const BoundingBoxHelperComponent = defineComponent({
       bbox: new Box3(),
       matrixWorld: new Matrix4().identity(),
       density: 2,
+      color: 0xff0000 as ColorRepresentation,
+      layer: ObjectLayers.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -67,73 +148,25 @@ export const BoundingBoxHelperComponent = defineComponent({
 
     if (matchesMatrix4.test(json.matrixWorld)) component.matrixWorld.set(json.matrixWorld)
     if (typeof json.density === 'number') component.density.set(json.density)
+    if (matchesColor.test(json.color)) component.color.set(json.color)
+    if (typeof json.layer === 'number') component.layer.set(json.layer)
   },
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, BoundingBoxHelperComponent)
     const helper = useHelperEntity(entity, component)
+    const lineSegment = useOptionalComponent(helper, LineSegmentComponent)
 
     useEffect(() => {
       const bbox = component.bbox.value
       const density = component.density.value
       const matrixWorld = component.matrixWorld.value
 
-      const lineSegmentList: Vector3[] = []
-      const size = new Vector3()
-      bbox.getSize(size)
-
-      // Create grid lines for each face of the bounding box
-
-      // Front and back faces (parallel to XY plane)
-      const zFront = bbox.min.z
-      const zBack = bbox.max.z
-      for (let j = 0; j <= density; j++) {
-        const segmentFraction = j / density
-        const x = bbox.min.x + segmentFraction * size.x
-        const y = bbox.min.y + segmentFraction * size.y
-
-        lineSegmentList.push(new Vector3(x, bbox.min.y, zFront), new Vector3(x, bbox.max.y, zFront))
-        lineSegmentList.push(new Vector3(x, bbox.min.y, zBack), new Vector3(x, bbox.max.y, zBack))
-        lineSegmentList.push(new Vector3(bbox.min.x, y, zFront), new Vector3(bbox.max.x, y, zFront))
-        lineSegmentList.push(new Vector3(bbox.min.x, y, zBack), new Vector3(bbox.max.x, y, zBack))
-      }
-
-      // Top and bottom faces (parallel to XZ plane)
-      const yTop = bbox.max.y
-      const yBottom = bbox.min.y
-      for (let j = 0; j <= density; j++) {
-        const segmentFraction = j / density
-        const x = bbox.min.x + segmentFraction * size.x
-        const z = bbox.min.z + segmentFraction * size.z
-
-        lineSegmentList.push(new Vector3(x, yTop, bbox.min.z), new Vector3(x, yTop, bbox.max.z))
-        lineSegmentList.push(new Vector3(x, yBottom, bbox.min.z), new Vector3(x, yBottom, bbox.max.z))
-        lineSegmentList.push(new Vector3(bbox.min.x, yTop, z), new Vector3(bbox.max.x, yTop, z))
-        lineSegmentList.push(new Vector3(bbox.min.x, yBottom, z), new Vector3(bbox.max.x, yBottom, z))
-      }
-
-      // Left and right faces (parallel to YZ plane)
-      const xLeft = bbox.min.x
-      const xRight = bbox.max.x
-      for (let j = 0; j <= density; j++) {
-        const segmentFraction = j / density
-        const y = bbox.min.y + segmentFraction * size.y
-        const z = bbox.min.z + segmentFraction * size.z
-
-        lineSegmentList.push(new Vector3(xLeft, y, bbox.min.z), new Vector3(xLeft, y, bbox.max.z))
-        lineSegmentList.push(new Vector3(xRight, y, bbox.min.z), new Vector3(xRight, y, bbox.max.z))
-        lineSegmentList.push(new Vector3(xLeft, bbox.min.y, z), new Vector3(xLeft, bbox.max.y, z))
-        lineSegmentList.push(new Vector3(xRight, bbox.min.y, z), new Vector3(xRight, bbox.max.y, z))
-      }
-      for (let i = 0; i < lineSegmentList.length; i++) {
-        lineSegmentList[i].applyMatrix4(matrixWorld)
-      }
-
       setComponent(helper, LineSegmentComponent, {
         name: 'bbox-line-segment',
-        geometry: new BufferGeometry().setFromPoints(lineSegmentList),
-        material: new LineBasicMaterial({ color: 0xff0000 })
+        geometry: createBBoxGridGeometry(matrixWorld, bbox, density),
+        material: new LineBasicMaterial({ color: component.color.value })
       })
 
       return () => {
@@ -141,29 +174,64 @@ export const BoundingBoxHelperComponent = defineComponent({
       }
     }, [component.bbox])
 
+    useEffect(() => {
+      if (!lineSegment) return
+      lineSegment.color.set(component.color.value)
+    }, [component.color, lineSegment])
+
+    useEffect(() => {
+      setComponent(helper, ObjectLayerMaskComponent, component.layer.value)
+    }, [component.layer])
+
     return null
   }
 })
+
+function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
+  const result = new LineSegments(
+    createBBoxGridGeometry(matrixWorld, bbox, density),
+    new LineBasicMaterial({ color: 0xff0000 })
+  )
+  return result
+}
 
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
   onInit: (entity) => {
     return {
-      bbox: new Box3()
+      bbox: new Box3(),
+      helper: null as Entity | null
     }
   },
   onSet: (entity, component, json) => {
     if (!json) return
     //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
+    if (typeof json.helper === 'number') component.helper.set(json.helper)
   },
   reactor: () => {
     const entity = useEntityContext()
+
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
+
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
-    const debugEnabled = useMutableState(RendererState).nodeHelperVisibility
+    useEffect(() => {
+      const helper = createEntity()
+      setComponent(helper, NameComponent, 'helper')
+      setComponent(helper, VisibleComponent)
+      setComponent(helper, TransformComponent)
+      setComponent(helper, UUIDComponent, generateEntityUUID())
+      setComponent(helper, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+
+      setComponent(entity, ObjectGridSnapComponent, { helper })
+      return () => {
+        const helper = getOptionalComponent(entity, ObjectGridSnapComponent)?.helper
+        !!helper && removeEntity(helper)
+      }
+    }, [])
 
     useEffect(() => {
       if (assetLoading?.value) return
@@ -210,14 +278,17 @@ export const ObjectGridSnapComponent = defineComponent({
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
-
-      if (debugEnabled.value) {
-        const bbox = snapComponent.bbox.value
-        setComponent(entity, BoundingBoxHelperComponent, { bbox })
-      } else {
-        removeComponent(entity, BoundingBoxHelperComponent)
+      const bbox = snapComponent.bbox.value
+      const helperEntity = snapComponent.helper.value
+      if (!helperEntity) return
+      const matrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
+      const helperMesh = createBBoxGridHelper(new Matrix4().identity(), bbox, 2)
+      addObjectToGroup(helperEntity, helperMesh)
+      setObjectLayers(helperMesh, ObjectLayers.NodeHelper)
+      return () => {
+        removeObjectFromGroup(helperEntity, helperMesh)
       }
-    }, [snapComponent.bbox, engineState.isEditing, debugEnabled])
+    }, [snapComponent.bbox, snapComponent.helper, engineState.isEditing])
 
     return null
   }
