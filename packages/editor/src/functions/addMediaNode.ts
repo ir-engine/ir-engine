@@ -39,9 +39,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import {
   createMaterial,
-  getMaterialSource,
-  unregisterMaterial,
-  unregisterMaterialInstance
+  getMaterialSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
@@ -109,9 +107,9 @@ export async function addMediaNode(
           if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterial(material, src)
           const materialComponent = getMutableComponent(mesh.entity, MaterialComponent)
           materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
-          if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
-            unregisterMaterial(mesh.material as Material)
-          }
+          //if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
+          //  unregisterMaterial(mesh.material as Material)
+          //}
           mesh.material = material
         })
       })

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
@@ -39,6 +39,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeEntity,
   setComponent
 } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -64,7 +65,7 @@ export function PrototypeNotFoundError(message) {
 }
 
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
-export const useOrCreateMaterial = (path: string, sourceEntity: Entity, material: Material) => {
+export const createMaterialInstance = (path: string, sourceEntity: Entity, material: Material) => {
   //if we already have a material by the same name from the same source, use it instead
   const entityFromHash = MaterialComponent.materialByHash[hashMaterial(path, material.name)]
   if (!hasComponent(sourceEntity, MaterialComponent)) setComponent(sourceEntity, MaterialComponent)
@@ -104,12 +105,27 @@ export const createMaterial = (material: Material, path: string) => {
       ).map((k) => [k, material[k]])
     )
   })
-
-  console.log(MaterialComponent.prototypeByName)
-
   setMaterialName(materialEntity, material.name)
 
   return materialEntity
+}
+
+export const removeMaterial = (entity: Entity) => {
+  delete MaterialComponent.materialByName[getComponent(entity, NameComponent)]
+  delete MaterialComponent.materialByHash[
+    hashMaterial(getComponent(entity, SourceComponent), getComponent(entity, NameComponent))
+  ]
+  removeEntity(entity)
+}
+
+export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) => {
+  const materialComponent = getComponent(sourceEntity, MaterialComponent)
+  const sourceMaterial = getComponent(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]), MaterialComponent)
+  const instances = sourceMaterial.instances.filter((instance) => instance !== sourceEntity)
+  if (instances.length === 0) {
+    removeMaterial(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]))
+  }
+  return instances.length
 }
 
 /**Sets a unique name and source hash for a given material entity */
@@ -162,7 +178,6 @@ export const createPrototype = (
   /**@todo handle duplicate prototype names */
   if (MaterialComponent.prototypeByName[name]) throw new Error('Prototype already exists')
   MaterialComponent.prototypeByName[name] = getComponent(prototypeEntity, UUIDComponent)
-  console.log(MaterialComponent.prototypeByName)
 }
 
 export function injectDefaults(defaultArgs, values) {
@@ -179,13 +194,6 @@ export function injectDefaults(defaultArgs, values) {
 //   !srcItems.includes(component.plugin.id) &&
 //     materialLibrary.sources[hashMaterialSource(component.src)].entries.set([...srcItems, component.plugin.id])
 //   materialLibrary.plugins[component.plugin.id].set(component)
-// }
-
-// export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
-//   const materialLibrary = getState(MaterialLibraryState)
-//   const prototype = materialLibrary.prototypes[protoId]
-//   if (!prototype) throw new PrototypeNotFoundError('could not find Material Prototype for ID ' + protoId)
-//   return prototype
 // }
 
 export const setMaterialToDefaults = (materialUUID: string) => {
@@ -292,17 +300,6 @@ export function unregisterMaterial(material: Material) {
   //   } else throw error
   // }
 }
-
-export function unregisterMaterialInstance(material: Material, entity: Entity): number {
-  const materialLibrary = getMutableState(MaterialLibraryState)
-  const materialComponent = materialLibrary.materials[material.uuid]
-  materialComponent.instances.set(materialComponent.instances.value.filter((e) => e !== entity))
-  return materialComponent.instances.value.length
-}
-
-// export function materialsFromSource(src: MaterialSource) {
-//   return getSourceItems(src)?.map(materialFromId)
-// }
 
 const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
