@@ -39,12 +39,15 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   startComponent?: JSX.Element
   endComponent?: JSX.Element
-  variant?: 'outlined' | 'underlined'
+  variant?: 'outlined' | 'underlined' | 'onboarding'
+  labelClassname?: string
 }
 
 const variants = {
   outlined: ' ',
-  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]',
+  onboarding:
+    'bg-transparent border-0 border border-neutral-500 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -63,6 +66,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       startComponent,
       endComponent,
       variant = 'outlined',
+      labelClassname,
       ...props
     },
     ref
@@ -73,7 +77,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
-      variant === 'underlined' ? '' : 'focus-visible:ring-1',
+      variant !== 'outlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
       endComponent ? 'pe-10' : undefined,
       variants[variant],
@@ -82,7 +86,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const containerVariants = {
       outlined: 'gap-2',
-      underlined: ''
+      underlined: '',
+      onboarding: ''
     }
 
     const twcontainerClassName = twMerge(
@@ -96,7 +101,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className={twcontainerClassName}>
-        {label && <Label className={`self-stretch ${labelClass}`}>{label}</Label>}
+        {label && <Label className={twMerge(`self-stretch ${labelClass}`, labelClassname)}>{label}</Label>}
         <div className={containerClass}>
           {startComponent && (
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">

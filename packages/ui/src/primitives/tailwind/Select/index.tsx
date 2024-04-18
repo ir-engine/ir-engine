@@ -31,7 +31,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-type OptionValueType = string | number
+export type OptionValueType = string | number
 
 export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
 
@@ -46,6 +46,9 @@ export interface SelectProps<T extends OptionValueType> {
   placeholder?: string
   disabled?: boolean
   menuClassname?: string
+  labelClassName?: string
+  inputVariant?: 'outlined' | 'underlined' | 'onboarding'
+  inputClassName?: string
 }
 
 const Select = <T extends OptionValueType>({
@@ -58,7 +61,10 @@ const Select = <T extends OptionValueType>({
   onChange,
   placeholder,
   disabled,
-  menuClassname
+  menuClassname,
+  labelClassName,
+  inputVariant,
+  inputClassName
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -93,9 +99,11 @@ const Select = <T extends OptionValueType>({
       <Input
         disabled={disabled}
         label={label}
+        labelClassname={labelClassName}
+        variant={inputVariant}
         description={description}
         error={error}
-        className="cursor-pointer"
+        className={`cursor-pointer ${inputClassName}`}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
