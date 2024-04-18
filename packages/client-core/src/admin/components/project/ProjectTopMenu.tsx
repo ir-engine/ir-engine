@@ -98,7 +98,7 @@ export default function ProjectTopMenu() {
           >
             {projectState.refreshingGithubRepoAccess.value ? (
               <span className="flex items-center gap-2">
-                <LoadingCircle className="inline-block h-6 w-6" />
+                <LoadingView spinnerOnly className="inline-block h-6 w-6" />
                 {t('admin:components.project.refreshingGithubRepoAccess')}
               </span>
             ) : (
