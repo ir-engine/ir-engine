@@ -40,7 +40,7 @@ export default function ErrorView({ title, description, retryButtonText, onRetry
   const { t } = useTranslation()
   return (
     <div className="flex h-full w-full flex-col items-center justify-center space-y-1">
-      <HiOutlineXCircle className="text-red-500" />
+      <HiOutlineXCircle className="h-8 w-8 text-red-500" />
       <Text>{title}</Text>
       {description && (
         <Text fontSize="sm" theme="secondary">
