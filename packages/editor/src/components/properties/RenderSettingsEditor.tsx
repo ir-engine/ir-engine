@@ -37,7 +37,7 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { UUIDComponent, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -109,12 +109,19 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
 
-  const directionalLightOptions = useQuery([DirectionalLightComponent]).map((entity) => {
-    return {
-      label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
+  const directionalLightOptions = [
+    {
+      label: 'None',
+      value: '' as EntityUUID
     }
-  })
+  ].concat(
+    useQuery([DirectionalLightComponent]).map((entity) => {
+      return {
+        label: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent)
+      }
+    })
+  )
 
   return (
     <PropertyGroup
