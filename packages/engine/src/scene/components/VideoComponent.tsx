@@ -24,7 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Vector2, VideoTexture } from 'three'
+import {
+  DoubleSide,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  Side,
+  SphereGeometry,
+  Vector2,
+  VideoTexture
+} from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 
@@ -47,7 +57,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
+import { PLANE_GEO, SPHERE_GEO, resizeImageMesh } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -77,12 +87,16 @@ export const VideoComponent = defineComponent({
   jsonID: 'EE_video',
 
   onInit: (entity) => {
-    const videoMesh = new Mesh(PLANE_GEO.clone(), new MeshBasicMaterial())
+    const videoMesh: Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial> = new Mesh(
+      PLANE_GEO.clone(),
+      new MeshBasicMaterial()
+    )
     videoMesh.name = `video-group-${entity}`
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
       fit: 'contain' as ContentFitType,
+      projection: 'Flat' as 'Flat' | 'Equirectangular360',
       mediaUUID: '' as EntityUUID,
       // internal
       videoMesh,
@@ -99,7 +113,8 @@ export const VideoComponent = defineComponent({
       mediaUUID: component.mediaUUID.value,
       side: component.side.value,
       size: component.size.value,
-      fit: component.fit.value
+      fit: component.fit.value,
+      projection: component.projection.value
     }
   },
 
@@ -109,6 +124,8 @@ export const VideoComponent = defineComponent({
     if (typeof json.side === 'number') component.side.set(json.side)
     if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
     if (typeof json.fit === 'string') component.fit.set(json.fit)
+    if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
+      component.projection.set(json.projection)
   },
 
   onRemove: (entity, component) => {
@@ -168,9 +185,11 @@ function VideoReactor() {
   }, [video.size, video.fit, video.texture])
 
   useEffect(() => {
+    video.videoMesh.value.geometry = video.projection.value === 'Flat' ? PLANE_GEO.clone() : SPHERE_GEO.clone()
+    video.videoMesh.value.geometry.attributes.position.needsUpdate = true
     video.videoMesh.value.material.map = video.texture.value
     video.videoMesh.value.material.needsUpdate = true
-  }, [video.texture])
+  }, [video.texture, video.projection])
 
   return <VideoMediaSourceReactor mediaEntity={mediaEntity} key={mediaEntity} />
 }

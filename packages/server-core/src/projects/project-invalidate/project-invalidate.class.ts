@@ -18,10 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isDev } from '@etherealengine/common/src/config'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { ProjectInvalidatePatch } from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 //export interface ProjectInvalidateParams extends KnexAdapterParams<ProjectInvalidateQuery> {}
 
@@ -33,8 +34,9 @@ export class ProjectInvalidateService implements ServiceInterface<void, ProjectI
   }
 
   async patch(id: NullableId, data: ProjectInvalidatePatch) {
-    if (data.projectName) {
-      await getStorageProvider(data.storageProviderName).createInvalidation([`projects/${data.projectName}*`])
-    }
+    if (data.projectName && !isDev)
+      await this.app.service(invalidationPath).create({
+        path: `projects/${data.projectName}*`
+      })
   }
 }
