@@ -23,8 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { useEffect } from 'react'
 
 /**
  * GrabbableComponent
@@ -33,7 +37,16 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 export const GrabbableComponent = defineComponent({
   name: 'GrabbableComponent',
   jsonID: 'EE_grabbable', // TODO: rename to grabbable
-  toJSON: () => true
+
+  toJSON: () => true,
+
+  reactor: function () {
+    const entity = useEntityContext()
+    useEffect(() => {
+      setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+    }, [])
+    return null
+  }
 })
 
 /**
