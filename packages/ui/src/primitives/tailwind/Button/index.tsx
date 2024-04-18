@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-
 import { twMerge } from 'tailwind-merge'
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
