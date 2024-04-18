@@ -122,8 +122,6 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
   const directionalLight = directionalLightComponent.light.value
 
   useEffect(() => {
-    /** @todo fix useInCSM reactivity */
-    // if (!directionalLightComponent.useInCSM.value) return
     getMutableState(RendererState).csm.set(
       new CSM({
         light: directionalLight,
@@ -142,7 +140,7 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
     () => {
-      directionalLight.visible = false //!directionalLightComponent.useInCSM.value
+      directionalLight.visible = false
     },
     { after: SceneObjectSystem }
   )
@@ -162,7 +160,6 @@ const EntityCSMReactor = (props: { entity: Entity }) => {
     }
   }, [
     shadowMapResolution,
-    directionalLightComponent?.useInCSM,
     directionalLightComponent?.shadowBias,
     directionalLightComponent?.intensity,
     directionalLightComponent?.color,
