@@ -338,7 +338,6 @@
       "lbl-cameraBottom": "Camera Bottom",
       "lbl-cameraLeft": "Camera Left",
       "lbl-cameraRight": "Camera Right",
-      "lbl-useInCSM": "Use in CSM",
       "lbl-castShadow": "Cast Shadow",
       "lbl-disableForCSM": "Disabled when CSM is enabled",
       "lbl-shadowmapResolution": "Shadow Map Resolution",
@@ -718,6 +717,8 @@
       "info-usePostProcessing": "Enables post processing",
       "lbl-useShadows": "Use Shadows",
       "info-useShadows": "Enables shadows",
+      "lbl-primaryLight": "Primary Light",
+      "info-primaryLight": "Set the primary light for the scene",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-csm-cascades": "Cascades",
@@ -810,7 +811,8 @@
       "lbl-fit": "Video Fit",
       "lbl-fit-info": "How the video should be stretched within the given canvas size",
       "lbl-media-info": "An entity w/ a media component that should be sourced for display",
-      "description": "Display a video"
+      "description": "Display a video",
+      "lbl-projection": "Projection"
     },
     "volumetric": {
       "name": "Volumetric",

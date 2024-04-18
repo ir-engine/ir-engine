@@ -48,6 +48,7 @@ import { V_000 } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
@@ -179,6 +180,7 @@ export class CSM {
         addObjectToGroup(entity, light)
         setComponent(entity, NameComponent, 'CSM light ' + i)
         setComponent(entity, VisibleComponent)
+        setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
         this.lightEntities.push(entity)
         this.lights.push(light)
@@ -204,6 +206,7 @@ export class CSM {
       addObjectToGroup(entity, light)
       setComponent(entity, NameComponent, 'CSM light ' + i)
       setComponent(entity, VisibleComponent)
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
       this.lightEntities.push(entity)
       this.lights.push(light)

@@ -31,11 +31,19 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'onboarding'
   disabled?: boolean
   fullWidth?: boolean
-  rounded?: boolean
+  rounded?: 'partial' | 'full' | 'none'
   className?: string
+  iconContainerClassName?: string
+  textContainerClassName?: string
+}
+
+const roundedTypes = {
+  partial: 'rounded-md',
+  full: 'rounded-full',
+  none: 'rounded-none'
 }
 
 const sizes = {
@@ -50,7 +58,8 @@ const variants = {
   pink: 'bg-[#C162A2]',
   danger: 'bg-red-500',
   success: 'bg-teal-700',
-  transparent: 'bg-transparent'
+  transparent: 'bg-transparent',
+  onboarding: 'bg-button-gradient-onboarding'
 }
 
 const Button = ({
@@ -59,10 +68,12 @@ const Button = ({
   endIcon: EndIcon,
   size = 'medium',
   fullWidth,
-  rounded,
+  rounded = 'partial',
   variant = 'primary',
   disabled = false,
   className,
+  iconContainerClassName,
+  textContainerClassName,
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
@@ -72,18 +83,20 @@ const Button = ({
     'disabled:cursor-not-allowed',
     StartIcon || EndIcon ? 'justify-between' : 'justify-center',
     sizes[size],
-    variants[variant],
     fullWidth ? 'w-full' : 'w-fit',
-    rounded ? 'rounded-full' : 'rounded-md',
+    roundedTypes[rounded],
+    variants[variant],
     disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
     className
   )
 
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
-      {StartIcon && <span className="mx-1">{StartIcon}</span>}
-      {children && <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '')}>{children}</span>}
-      {EndIcon && <span className="mx-1">{EndIcon}</span>}
+      {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
+      {children && (
+        <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
+      )}
+      {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
     </button>
   )
 }

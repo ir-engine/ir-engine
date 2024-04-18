@@ -28,7 +28,7 @@ import React, { Suspense } from 'react'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import AdminRoutes from '@etherealengine/client-core/src/admin2/adminRoutes'
+import AdminRoutes from '@etherealengine/client-core/src/admin/adminRoutes'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 

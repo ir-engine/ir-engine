@@ -37,6 +37,7 @@ export type * from './schemas/matchmaking/match-user.schema'
 export type * from './schemas/media/archiver.schema'
 export type * from './schemas/media/file-browser-upload.schema'
 export type * from './schemas/media/file-browser.schema'
+export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource-filters.schema'
 export type * from './schemas/media/static-resource.schema'
@@ -295,3 +296,5 @@ export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
 
 export const uploadAssetPath = 'upload-asset'
+
+export const invalidationPath = 'invalidation'
