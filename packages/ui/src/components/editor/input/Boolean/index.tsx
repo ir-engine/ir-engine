@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import Checkbox from '../../../../primitives/tailwind/Checkbox'
 
@@ -37,9 +37,7 @@ export interface BooleanInputProp {
 }
 
 export const BooleanInput = (props: BooleanInputProp) => {
-  const [checkboxId] = useState(() => `boolean-input-${uniqueId++}`)
-
-  const labelStyle = twMerge([
+  const labelClassName = twMerge([
     'h-[21px] w-[22px] rounded-sm border px-1 py-1',
     props.value ? 'border-blue-800 bg-zinc-900 ' : 'border-zinc-800 bg-neutral-900',
     'hover: bg-zinc-900 hover:border-blue-800',
@@ -52,30 +50,29 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   return (
     <Checkbox
-      className={labelStyle}
+      className={labelClassName}
       value={props.value}
-      override={true}
       onChange={props.onChange}
       onBlur={onBlur}
       disabled={props.disabled}
-      icon={
-        <svg
-          className="h-full w-full"
-          width="12"
-          height="9"
-          viewBox="0 0 12 9"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M11 1L4.125 8L1 4.81818"
-            stroke="#375DAF"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      }
+      // icon={
+      //   <svg
+      //     className="h-full w-full"
+      //     width="12"
+      //     height="9"
+      //     viewBox="0 0 12 9"
+      //     fill="none"
+      //     xmlns="http://www.w3.org/2000/svg"
+      //   >
+      //     <path
+      //       d="M11 1L4.125 8L1 4.81818"
+      //       stroke="#375DAF"
+      //       stroke-width="1.5"
+      //       stroke-linecap="round"
+      //       stroke-linejoin="round"
+      //     />
+      //   </svg>
+      // }
     />
   )
 }

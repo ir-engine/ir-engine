@@ -27,23 +27,20 @@ import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import Label from '../Label'
 
-export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  value: any
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+  value: boolean
   label?: string
   className?: string
-  override?: boolean
-  onChange: (value: any) => void
+  onChange: (value: boolean) => void
   disabled?: boolean
-  icon?: React.ReactNode
 }
 
-const Checkbox = ({ className, override, label, value, onChange, disabled, icon, ...props }: CheckboxProps) => {
-  const originalClassName = [
+const Checkbox = ({ className, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
+  const twClassName = twMerge(
     'h-4 w-4 rounded',
-    'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600'
-  ]
-
-  const twClassName = twMerge(override === false ? originalClassName : 'm-0 hidden', className)
+    'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600',
+    className
+  )
 
   return (
     <div className="flex w-full items-center gap-4">
@@ -53,13 +50,8 @@ const Checkbox = ({ className, override, label, value, onChange, disabled, icon,
         checked={value}
         onChange={() => onChange(!value)}
         disabled={disabled}
-        {...props}
+        {...rest}
       />
-      {override && (
-        <label className={className} tabIndex={0}>
-          {value && icon !== undefined && icon}
-        </label>
-      )}
       {label && (
         <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
           {label}
