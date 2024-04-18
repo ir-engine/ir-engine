@@ -39,12 +39,12 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   startComponent?: JSX.Element
   endComponent?: JSX.Element
-  variant?: 'Outlined' | 'Standard'
+  variant?: 'outlined' | 'underlined'
 }
 
 const variants = {
-  Outlined: ' ',
-  Standard: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+  outlined: ' ',
+  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -62,7 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled,
       startComponent,
       endComponent,
-      variant = 'Outlined',
+      variant = 'outlined',
       ...props
     },
     ref
@@ -73,7 +73,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
-      variant === 'Standard' ? '' : 'focus-visible:ring-1',
+      variant === 'underlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
       endComponent ? 'pe-10' : undefined,
       variants[variant],
@@ -81,8 +81,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     )
 
     const containerVariants = {
-      Outlined: 'gap-2',
-      Standard: ''
+      outlined: 'gap-2',
+      underlined: ''
     }
 
     const twcontainerClassName = twMerge(
@@ -91,13 +91,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       containerClassname
     )
 
-    const containerStyle = variant === 'Outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
-    const labelClass = variant === 'Outlined' ? '' : 'text-neutral-500 text-xs'
+    const containerClass = variant === 'outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
+    const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
       <div className={twcontainerClassName}>
         {label && <Label className={`self-stretch ${labelClass}`}>{label}</Label>}
-        <div className={containerStyle}>
+        <div className={containerClass}>
           {startComponent && (
             <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
               {startComponent}

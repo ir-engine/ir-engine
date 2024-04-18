@@ -34,8 +34,16 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'onboarding'
   disabled?: boolean
   fullWidth?: boolean
-  rounded?: boolean
+  rounded?: 'partial' | 'full' | 'none'
   className?: string
+  iconContainerClassName?: string
+  textContainerClassName?: string
+}
+
+const roundedTypes = {
+  partial: 'rounded-md',
+  full: 'rounded-full',
+  none: 'rounded-none'
 }
 
 const sizes = {
@@ -51,7 +59,7 @@ const variants = {
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent',
-  onboarding: 'bg-button-gradient-onboarding rounded-none'
+  onboarding: 'bg-button-gradient-onboarding'
 }
 
 const Button = ({
@@ -60,41 +68,35 @@ const Button = ({
   endIcon: EndIcon,
   size = 'medium',
   fullWidth,
-  rounded,
+  rounded = 'partial',
   variant = 'primary',
   disabled = false,
   className,
+  iconContainerClassName,
+  textContainerClassName,
   ...props
 }: ButtonProps): JSX.Element => {
-  const paddingClasses = variant !== 'onboarding' ? sizes[size] : 'px-0 py-0'
-
   const twClassName = twMerge(
     'flex items-center justify-between',
     'font-medium text-white',
     'transition ease-in-out',
     'disabled:cursor-not-allowed',
     StartIcon || EndIcon ? 'justify-between' : 'justify-center',
-    paddingClasses,
+    sizes[size],
     fullWidth ? 'w-full' : 'w-fit',
-    rounded ? 'rounded-full' : 'rounded-md',
+    roundedTypes[rounded],
     variants[variant],
     disabled ? 'bg-[#F3F4F6] text-[#9CA3AF] dark:bg-[#2B2C30] dark:text-[#D1D5DB]' : '',
     className
   )
 
-  const iconContainerStyle = twMerge(
-    variant !== 'onboarding' ? 'mx-1' : 'flex h-full items-center justify-center bg-[#375DAF]'
-  )
-
-  const textContainerStyle = twMerge(variant !== 'onboarding' ? '' : 'mx-auto flex items-center justify-center')
-
   return (
     <button role="button" disabled={disabled} className={twClassName} {...props}>
-      {StartIcon && <span className="mx-1">{StartIcon}</span>}
+      {StartIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{StartIcon}</span>}
       {children && (
-        <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerStyle)}>{children}</span>
+        <span className={twMerge('mx-1', fullWidth ? 'mx-1 w-full' : '', textContainerClassName)}>{children}</span>
       )}
-      {EndIcon && <span className={iconContainerStyle}>{EndIcon}</span>}
+      {EndIcon && <span className={twMerge('mx-1', iconContainerClassName)}>{EndIcon}</span>}
     </button>
   )
 }
