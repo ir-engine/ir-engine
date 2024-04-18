@@ -27,8 +27,6 @@ import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import Checkbox from '../../../../primitives/tailwind/Checkbox'
 
-let uniqueId = 0
-
 export interface BooleanInputProp {
   value: boolean
   onChange: (value: boolean) => void
@@ -37,42 +35,21 @@ export interface BooleanInputProp {
 }
 
 export const BooleanInput = (props: BooleanInputProp) => {
-  const labelClassName = twMerge([
-    'h-[21px] w-[22px] rounded-sm border px-1 py-1',
-    props.value ? 'border-blue-800 bg-zinc-900 ' : 'border-zinc-800 bg-neutral-900',
-    'hover: bg-zinc-900 hover:border-blue-800',
-    props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
-  ])
-
   const onBlur = () => {
     if (props.onRelease) props.onRelease(props.value)
   }
 
   return (
     <Checkbox
-      className={labelClassName}
+      className={twMerge(
+        'rounded-sm border bg-black px-1 py-1 dark:bg-[#1A1A1A]',
+        'hover:border-blue-800 hover:bg-zinc-900',
+        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
+      )}
       value={props.value}
       onChange={props.onChange}
       onBlur={onBlur}
       disabled={props.disabled}
-      // icon={
-      //   <svg
-      //     className="h-full w-full"
-      //     width="12"
-      //     height="9"
-      //     viewBox="0 0 12 9"
-      //     fill="none"
-      //     xmlns="http://www.w3.org/2000/svg"
-      //   >
-      //     <path
-      //       d="M11 1L4.125 8L1 4.81818"
-      //       stroke="#375DAF"
-      //       stroke-width="1.5"
-      //       stroke-linecap="round"
-      //       stroke-linejoin="round"
-      //     />
-      //   </svg>
-      // }
     />
   )
 }
