@@ -129,6 +129,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const entity = UUIDComponent.getEntityByUUID(materialID)
   const materialComponent = getComponent(entity, MaterialComponent)
+  const prototypeEntity = UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid)
+  const prototype = getComponent(prototypeEntity, MaterialComponent)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -161,10 +163,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={
-            getComponent(UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid), MaterialComponent)
-              .prototypeName
-          }
+          value={prototype.prototypeName}
           options={prototypes}
           onChange={(protoId) => {
             //const nuMat = changeMaterialPrototype(material, protoId)
@@ -179,7 +178,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         values={materialComponent.parameters}
         onChange={(k) => async (val) => {
           let prop
-          if (materialComponent.prototypeArguments.value[k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
