@@ -94,7 +94,6 @@ declare module 'three/src/materials/Material' {
     shader: Shader
     plugins?: PluginType[]
     _onBeforeCompile: typeof Material.prototype.onBeforeCompile
-    entity: Entity
     needsUpdate: boolean
   }
 }

@@ -127,7 +127,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   //   clearThumbs().then(createThumbnails).then(checkThumbs)
   // }, [materialComponent.uuid])
 
-  const materialComponent = getComponent(UUIDComponent.getEntityByUUID(materialID), MaterialComponent)
+  const entity = UUIDComponent.getEntityByUUID(materialID)
+  const materialComponent = getComponent(entity, MaterialComponent)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -151,7 +152,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
                 <div>
                   <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
-                <div>{getComponent(materialComponent.material!.entity, SourceComponent)}</div>
+                <div>{getComponent(entity, SourceComponent)}</div>
               </Stack>
             </Stack>
           </Box>

@@ -42,7 +42,7 @@ import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 
 export type MaterialLibraryEntryType = {
-  uuid: string
+  uuid: EntityUUID
   path: string
   type: LibraryEntryType
   selected?: boolean
