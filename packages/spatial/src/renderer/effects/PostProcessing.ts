@@ -28,6 +28,7 @@ import {
   BloomEffect,
   BloomEffectOptions,
   BrightnessContrastEffect,
+  ColorAverageEffect,
   ColorDepthEffect,
   DepthOfFieldEffect,
   EdgeDetectionMode,
@@ -63,7 +64,7 @@ export const Effects = {
   TRAAEffect: 'TRAAEffect' as const,
   // ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
-  // ColorAverageEffect: 'ColorAverageEffect' as const,
+  ColorAverageEffect: 'ColorAverageEffect' as const,
   // DotScreenEffect: 'DotScreenEffect' as const,
   // TiltShiftEffect: 'TiltShiftEffect' as const,
   // GlitchEffect: 'GlitchEffect' as const,
@@ -97,7 +98,7 @@ export const EffectMap = {
   [Effects.TRAAEffect]: TRAAEffect,
   // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
   // [Effects.MotionBlurEffect]: MotionBlurEffect,
-  // [Effects.ColorAverageEffect]: ColorAverageEffect,
+  [Effects.ColorAverageEffect]: ColorAverageEffect,
   // [Effects.DotScreenEffect]: DotScreenEffect,
   // [Effects.TiltShiftEffect]: TiltShiftEffect,
   // [Effects.GlitchEffect]: GlitchEffect,
@@ -402,7 +403,7 @@ export type EffectPropsSchema = {
   [Effects.TRAAEffect]: TRAAEffectProps
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
   // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
-  // [Effects.ColorAverageEffect]: ColorAverageEffectProps
+  [Effects.ColorAverageEffect]: ColorAverageEffectProps
   // [Effects.DotScreenEffect]: DotScreenEffectProps
   // [Effects.TiltShiftEffect]: TiltShiftEffectProps
   // [Effects.GlitchEffect]: GlitchEffectProps
@@ -475,33 +476,33 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.SSAOEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.MULTIPLY,
+    blendFunction: BlendFunction.LINEAR_LIGHT,
     distanceScaling: true,
     depthAwareUpsampling: true,
     normalDepthBuffer: undefined,
-    samples: 9,
-    rings: 7,
+    samples: 23,
+    rings: 0.29,
     // worldDistanceThreshold: 0.97,
     // worldDistanceFalloff: 0.03,
     // worldProximityThreshold: 0.0005,
     // worldProximityFalloff: 0.001,
-    distanceThreshold: 0.125, // Render up to a distance of ~20 world units
-    distanceFalloff: 0.02, // with an additional ~2.5 units of falloff.
+    distanceThreshold: 0.06, // Render up to a distance of ~20 world units
+    distanceFalloff: 0.494, // with an additional ~2.5 units of falloff.
     rangeThreshold: 0.0005,
-    rangeFalloff: 0.001,
-    minRadiusScale: 0.1,
-    luminanceInfluence: 0.7,
-    bias: 0.025,
-    radius: 0.1825,
-    intensity: 1.0,
-    fade: 0.01,
+    rangeFalloff: 0.537,
+    minRadiusScale: -0.64,
+    luminanceInfluence: 0.52,
+    bias: -0.04,
+    radius: 0.09,
+    intensity: 3,
+    fade: 0.09,
     color: undefined,
     resolutionScale: 1.0,
     resolutionX: Resolution.AUTO_SIZE,
     resolutionY: Resolution.AUTO_SIZE,
     width: Resolution.AUTO_SIZE,
     height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.SMALL,
+    kernelSize: KernelSize.VERY_LARGE,
     blur: true
   },
   [Effects.DepthOfFieldEffect]: {
@@ -583,10 +584,10 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   radialModulation: false,
   //   modulationOffset: 0.15
   // },
-  // [Effects.ColorAverageEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL
-  // },
+  [Effects.ColorAverageEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL
+  },
   // [Effects.DotScreenEffect]: { isActive: false, blendFunction: BlendFunction.NORMAL, angle: 1.57, scale: 1.0 },
   // [Effects.TiltShiftEffect]: {
   //   isActive: false,
