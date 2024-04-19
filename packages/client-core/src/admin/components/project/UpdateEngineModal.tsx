@@ -134,6 +134,7 @@ export default function UpdateEngineModal() {
           }
         })
       )
+      PopoverState.hidePopupover()
     } catch (err) {
       errors.set(err.message)
     }
