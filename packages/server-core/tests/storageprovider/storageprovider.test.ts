@@ -45,8 +45,9 @@ describe('storageprovider', () => {
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
   const storageProviders = [] as any[]
-  storageProviders.push(LocalStorage)
+  if (process.env.STORAGE_PROVIDER === 'local') storageProviders.push(LocalStorage)
   if (
+    process.env.STORAGE_PROVIDER === 's3' &&
     process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
     process.env.STORAGE_AWS_ACCESS_KEY_SECRET
