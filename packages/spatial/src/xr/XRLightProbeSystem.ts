@@ -30,7 +30,7 @@ import { defineState, getMutableState, getState, useHookstate } from '@ethereale
 
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { V_000 } from '../common/constants/MathConstants'
@@ -71,7 +71,7 @@ export const XRLightProbeState = defineState({
     isEstimatingLight: false,
     lightProbe: new LightProbe(),
     probe: null as XRLightProbe | null,
-    directionalLightEntity: null as Entity | null,
+    directionalLightEntity: UndefinedEntity,
     environment: null as CubeTexture | null,
     xrWebGLBinding: null as XRWebGLBinding | null
   })
@@ -194,8 +194,7 @@ const reactor = () => {
       shadowBias: -0.000001,
       shadowRadius: 1,
       cameraFar: 2000,
-      castShadow: true,
-      useInCSM: true
+      castShadow: true
     })
     addObjectToGroup(directionalLightEntity, xrLightProbeState.lightProbe.value)
     setVisibleComponent(directionalLightEntity, true)
@@ -203,7 +202,7 @@ const reactor = () => {
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
 
     return () => {
-      xrLightProbeState.directionalLightEntity.set(null)
+      xrLightProbeState.directionalLightEntity.set(UndefinedEntity)
     }
   }, [xrLightProbeState.isEstimatingLight])
 

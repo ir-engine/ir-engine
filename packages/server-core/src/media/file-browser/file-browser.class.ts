@@ -37,6 +37,7 @@ import {
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
   ProjectPermissionType,
@@ -185,7 +186,10 @@ export class FileBrowserService
       isDirectory: true
     })
 
-    await storageProvider.createInvalidation([keyPath])
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: keyPath
+      })
 
     if (isDev && PROJECT_FILE_REGEX.test(directory))
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
@@ -207,7 +211,15 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    await storageProvider.createInvalidation([_oldPath, _newPath])
+    if (!isDev)
+      await this.app.service(invalidationPath).create([
+        {
+          path: _oldPath + data.oldName
+        },
+        {
+          path: _newPath + fileName
+        }
+      ])
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
@@ -301,7 +313,11 @@ export class FileBrowserService
         },
         { isInternal: true }
       )
-      await storageProvider.createInvalidation([key])
+
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     } else {
       await this.app.service(staticResourcePath).create(
         {
@@ -313,7 +329,11 @@ export class FileBrowserService
         },
         { isInternal: true }
       )
-      await storageProvider.createInvalidation([key])
+
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     }
 
     return getCachedURL(key, storageProvider.cacheDomain)
@@ -331,7 +351,11 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
-    await storageProvider.createInvalidation([key])
+
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: key
+      })
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {

@@ -28,7 +28,7 @@ import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
   TableBody,
   TableCell,
@@ -117,7 +117,7 @@ const DataTable = ({ query, columns, rows }: DataTableProps) => {
     <div className="relative h-full">
       {query.status === 'pending' && (
         <div className="absolute left-1/2 top-1/2 flex h-8 -translate-x-1/2 -translate-y-1/2 items-center">
-          <LoadingCircle className="mx-1 h-8 w-8" />
+          <LoadingView className="mx-1 h-8 w-8" />
           <Text className="mx-1">{t('common:table.refetching')}</Text>
         </div>
       )}

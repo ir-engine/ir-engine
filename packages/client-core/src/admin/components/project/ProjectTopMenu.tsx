@@ -29,10 +29,11 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import config from '@etherealengine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
+import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
@@ -62,24 +63,54 @@ export default function ProjectTopMenu() {
   const handleSubmit = async () => {
     modalProcessing.set(true)
     const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
-    await ProjectService.uploadProject({
-      sourceURL: projectUpdateStatus.sourceURL,
-      destinationURL: projectUpdateStatus.destinationURL,
-      name: projectUpdateStatus.projectName,
-      reset: true,
-      commitSHA: projectUpdateStatus.selectedSHA,
-      sourceBranch: projectUpdateStatus.selectedBranch,
-      updateType: projectUpdateStatus.updateType,
-      updateSchedule: projectUpdateStatus.updateSchedule
-    }).catch((err) => {
+
+    try {
+      await ProjectService.uploadProject({
+        sourceURL: projectUpdateStatus.sourceURL,
+        destinationURL: projectUpdateStatus.destinationURL,
+        name: projectUpdateStatus.projectName,
+        reset: true,
+        commitSHA: projectUpdateStatus.selectedSHA,
+        sourceBranch: projectUpdateStatus.selectedBranch,
+        updateType: projectUpdateStatus.updateType,
+        updateSchedule: projectUpdateStatus.updateSchedule
+      })
+      PopoverState.hidePopupover()
+    } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    })
+    }
     modalProcessing.set(false)
+  }
+
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
+  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+
+  const refreshGithubRepoAccess = () => {
+    ProjectService.refreshGithubRepoAccess()
   }
 
   return (
     <div className="mb-4 flex justify-between gap-2">
       <div className="flex gap-2">
+        {githubProvider != null && (
+          <Button
+            size="small"
+            disabled={projectState.refreshingGithubRepoAccess.value}
+            onClick={() => refreshGithubRepoAccess()}
+            className="[&>*]:m-0"
+          >
+            {projectState.refreshingGithubRepoAccess.value ? (
+              <span className="flex items-center gap-2">
+                <LoadingView spinnerOnly className="inline-block h-6 w-6" />
+                {t('admin:components.project.refreshingGithubRepoAccess')}
+              </span>
+            ) : (
+              t('admin:components.project.refreshGithubRepoAccess')
+            )}
+          </Button>
+        )}
+
         <Button
           startIcon={<HiArrowPath />}
           size="small"
@@ -89,7 +120,7 @@ export default function ProjectTopMenu() {
           disabled={config.client.localBuildOrDev}
           endIcon={
             !config.client.localBuildOrDev && projectState.rebuilding.value ? (
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             ) : undefined
           }
         >
