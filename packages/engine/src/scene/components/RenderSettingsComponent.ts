@@ -44,6 +44,7 @@ export const RenderSettingsComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
+    if (typeof json.primaryLight === 'string') component.primaryLight.set(json.primaryLight)
     if (typeof json.csm === 'boolean') component.csm.set(json.csm)
     if (typeof json.cascades === 'number') component.cascades.set(json.cascades)
     if (typeof json.toneMapping === 'number') component.toneMapping.set(json.toneMapping)
@@ -53,6 +54,7 @@ export const RenderSettingsComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
+      primaryLight: component.primaryLight.value,
       csm: component.csm.value,
       cascades: component.cascades.value,
       toneMapping: component.toneMapping.value,

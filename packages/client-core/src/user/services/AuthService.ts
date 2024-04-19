@@ -525,9 +525,17 @@ export const AuthService = {
 
     try {
       await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
-      NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
+      const message = {
+        email: 'email-sent-msg',
+        sms: 'sms-sent-msg',
+        default: 'success-msg'
+      }
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+        variant: 'success'
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      throw new Error(err)
     } finally {
       authState.merge({ isProcessing: false, error: '' })
     }

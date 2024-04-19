@@ -49,6 +49,7 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getSceneData } from './scene-helper'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { cleanStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -217,9 +218,12 @@ const createSceneInStorageProvider = async (context: HookContext<SceneService>) 
     )
   )
   try {
-    await context.storageProvider.createInvalidation(
-      SCENE_ASSET_FILES.map((asset) => `${data.directory}${context.newSceneName}${asset}`)
-    )
+    if (!isDev)
+      await context.app.service(invalidationPath).create(
+        SCENE_ASSET_FILES.map((file) => {
+          return { path: `${data.directory}${context.newSceneName}${file}` }
+        })
+      )
   } catch (e) {
     logger.error(e)
     logger.info(SCENE_ASSET_FILES)
@@ -287,7 +291,15 @@ const renameSceneInStorageProvider = async (context: HookContext<SceneService>) 
     if (await storageProvider.doesExist(oldSceneJsonName, directory!)) {
       await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, directory!, directory!)
       try {
-        await storageProvider.createInvalidation([directory + oldSceneJsonName, directory + newSceneJsonName])
+        if (!isDev)
+          await context.app.service(invalidationPath).create([
+            {
+              path: directory + oldSceneJsonName
+            },
+            {
+              path: directory + newSceneJsonName
+            }
+          ])
       } catch (e) {
         logger.error(e)
         logger.info(directory + oldSceneJsonName, directory + newSceneJsonName)
@@ -393,7 +405,12 @@ const saveSceneInStorageProvider = async (context: HookContext<SceneService>) =>
   }
 
   try {
-    await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${name}${asset}`))
+    if (!isDev)
+      await context.app.service(invalidationPath).create(
+        SCENE_ASSET_FILES.map((asset) => {
+          return { path: `${directory}${name}${asset}` }
+        })
+      )
   } catch (e) {
     logger.error(e)
     logger.info(SCENE_ASSET_FILES)
@@ -493,7 +510,12 @@ const removeSceneInStorageProvider = async (context: HookContext<SceneService>) 
   await storageProvider.deleteResources(SCENE_ASSET_FILES.map((ext) => `${directory}${sceneName}${ext}`))
 
   try {
-    await storageProvider.createInvalidation(SCENE_ASSET_FILES.map((asset) => `${directory}${sceneName}${asset}`))
+    if (!isDev)
+      await context.app.service(invalidationPath).create(
+        SCENE_ASSET_FILES.map((asset) => {
+          return { path: `${directory}${sceneName}${asset}` }
+        })
+      )
   } catch (e) {
     logger.error(e)
     logger.info(SCENE_ASSET_FILES)
