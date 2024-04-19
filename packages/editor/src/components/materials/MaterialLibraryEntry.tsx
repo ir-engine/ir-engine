@@ -36,6 +36,7 @@ import { Grid } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
@@ -75,8 +76,6 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     data.onClick(e, node)
   }
 
-  console.log('node')
-
   const onCollapseNode = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
@@ -108,13 +107,13 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
       isDragging: !!monitor.isDragging()
     })
   })
-
+  const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   return (
     <li
       style={props.style}
       ref={drag}
       id={node.uuid}
-      className={styles.treeNodeContainer + (node.selected ? ' ' + styles.selected : '')}
+      className={styles.treeNodeContainer + (materialSelection.value === node.uuid ? ' ' + styles.selected : '')}
       onClick={onClickNode}
     >
       <div className={styles.nodeContent}>

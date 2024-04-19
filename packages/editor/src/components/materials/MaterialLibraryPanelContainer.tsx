@@ -52,7 +52,6 @@ export default function MaterialLibraryPanel() {
 
   const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
   const nodes = useState([] as MaterialLibraryEntryType[])
-  const selectedMaterial = useState('')
 
   useEffect(() => {
     const materials = Object.values(MaterialComponent.materialByHash)
