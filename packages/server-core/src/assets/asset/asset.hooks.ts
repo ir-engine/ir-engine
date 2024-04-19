@@ -100,7 +100,7 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
       } else {
         await context.app.service(invalidationPath).create([{ path: assetURL }])
       }
-      await storageProvider.deleteResources([assetURL])
+      await storageProvider.deleteResources([assetURL.replace('.scene.json', '') + ext])
     }
   } else {
     if (isDev) {
@@ -279,18 +279,23 @@ const renameAsset = async (context: HookContext<AssetService>) => {
     const newPath = asset.assetURL.replace(oldName, newName)
 
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
-    for (const ext of SCENE_ASSET_FILES) {
-      const oldFile = path.resolve(projectPathLocal, oldPath.replace('.scene.json', '') + ext)
-      const newFile = path.resolve(projectPathLocal, newPath.replace('.scene.json', '') + ext)
+    const directory = oldPath.split('/').slice(0, -1).join('/')
 
-      if (isDev) fs.renameSync(oldFile, newFile)
-      else await context.app.service(invalidationPath).create([{ path: oldPath }, { path: newPath }])
+    for (const ext of SCENE_ASSET_FILES) {
+      const oldLocalFile = path.resolve(projectPathLocal, oldPath.replace('.scene.json', '') + ext)
+      const newLocalFile = path.resolve(projectPathLocal, newPath.replace('.scene.json', '') + ext)
+
+      const newDirPath = newPath.replace('.scene.json', '') + ext
+      const oldDirPath = oldPath.replace('.scene.json', '') + ext
+
+      if (isDev) fs.renameSync(oldLocalFile, newLocalFile)
+      else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
 
       await storageProvider.moveObject(
-        oldPath.split('/').pop()!,
-        newPath.split('/').pop()!,
-        path.resolve(projectPathLocal + '/' + oldPath.split('/').slice(0, -1).join('/')),
-        path.resolve(projectPathLocal + '/' + oldPath.split('/').slice(0, -1).join('/')),
+        oldDirPath.split('/').pop()!,
+        newDirPath.split('/').pop()!,
+        directory,
+        directory,
         true
       )
     }

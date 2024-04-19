@@ -197,8 +197,10 @@ export default function ScenesPanel() {
                         </ClickAwayListener>
                       </Paper>
                     ) : (
-                      <InfoTooltip title={scene.assetURL.replace('.gltf', '').replace('.scene.json', '')}>
-                        <span>{scene.assetURL.replace('.gltf', '').replace('.scene.json', '')}</span>
+                      <InfoTooltip
+                        title={scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}
+                      >
+                        <span>{scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}</span>
                       </InfoTooltip>
                     )}
                     <IconButton onClick={(e) => openContextMenu(e, scene)}>
