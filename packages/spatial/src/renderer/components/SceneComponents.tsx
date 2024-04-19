@@ -112,7 +112,7 @@ const SceneComponentReactor = (props: { entity: Entity }) => {
 }
 
 const SceneComponentTreeReactor = (props: { entity: Entity; Component: SceneComponentType }) => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     setComponent(props.entity, props.Component)
     return () => {
       removeComponent(props.entity, props.Component)
@@ -137,28 +137,28 @@ export function useScene(entity: Entity) {
       const SceneChildComponent = useHookstate(SceneComponent.sceneState[props.sceneUUID])
       const ancestor = useAncestorWithComponent(entity, SceneChildComponent.get(NO_PROXY))
 
-      useLayoutEffect(() => {
+      useEffect(() => {
         if (!ancestor) return
+
         result.set(props.sceneEntity)
 
         return () => {
-          if (!unmounted) result.set(UndefinedEntity)
+          if (!unmounted) {
+            result.set(UndefinedEntity)
+          }
         }
       }, [ancestor])
 
       return null
     }
 
-    function SceneSubReactor(props: { sceneEntity: Entity }) {
+    function SceneSubReactor() {
+      const sceneEntity = useEntityContext()
       const scenes = useHookstate(SceneComponent.sceneState)
       return (
         <>
           {scenes.keys.map((uuid: EntityUUID) => (
-            <SceneSubChildReactor
-              sceneEntity={props.sceneEntity}
-              sceneUUID={uuid}
-              key={`${props.sceneEntity} - ${uuid}`}
-            />
+            <SceneSubChildReactor sceneEntity={sceneEntity} sceneUUID={uuid} key={uuid} />
           ))}
         </>
       )
@@ -167,6 +167,7 @@ export function useScene(entity: Entity) {
     const root = startReactor(function useQueryReactor() {
       return <QueryReactor Components={[SceneComponent]} ChildEntityReactor={SceneSubReactor} />
     })
+
     return () => {
       unmounted = true
       root.stop()

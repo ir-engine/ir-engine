@@ -28,7 +28,6 @@ import '../threejsPatches'
 import {
   ECSState,
   Entity,
-  EntityUUID,
   PresentationSystemGroup,
   QueryReactor,
   defineComponent,
@@ -48,13 +47,9 @@ import {
   Color,
   CubeTexture,
   FogBase,
-  LinearToneMapping,
-  PCFSoftShadowMap,
   SRGBColorSpace,
   Scene,
-  ShadowMapType,
   Texture,
-  ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters
@@ -78,6 +73,8 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
+import { CSM } from './csm/CSM'
+import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
 
 export const RendererComponent = defineComponent({
@@ -135,6 +132,9 @@ export class EngineRenderer {
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
+
+  csm = null as CSM | null
+  csmHelper = null as CSMHelper | null
 
   initialize() {
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -272,7 +272,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.qualityLevel > 0 && state.csm?.updateFrustums()
+    state.qualityLevel > 0 && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -302,12 +302,6 @@ export const render = (
 export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
   initial: {
-    primaryLight: '' as EntityUUID,
-    csm: true,
-    cascades: 5,
-    toneMapping: LinearToneMapping as ToneMapping,
-    toneMappingExposure: 0.8,
-    shadowMapType: PCFSoftShadowMap as ShadowMapType,
     smaaPreset: SMAAPreset.MEDIUM
   }
 })
@@ -363,22 +357,7 @@ const execute = () => {
 const rendererReactor = () => {
   const entity = useEntityContext()
   const renderer = useComponent(entity, RendererComponent).value
-  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
-  const xrState = useHookstate(getMutableState(XRState))
-
-  useEffect(() => {
-    renderer.renderer.toneMapping = renderSettings.toneMapping.value
-  }, [renderSettings.toneMapping])
-
-  useEffect(() => {
-    renderer.renderer.toneMappingExposure = renderSettings.toneMappingExposure.value
-  }, [renderSettings.toneMappingExposure])
-
-  useEffect(() => {
-    renderer.renderer.shadowMap.type = renderSettings.shadowMapType.value
-    renderer.renderer.shadowMap.needsUpdate = true
-  }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
 
   useEffect(() => {
     renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel
