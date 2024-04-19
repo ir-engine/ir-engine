@@ -95,12 +95,18 @@ export const LineSegmentComponent = defineComponent({
 
     useDidMount(() => {
       const geo = component.geometry.get(NO_PROXY)
-      if (geo != geometryState.value) geometryState.set(geo)
+      if (geo != geometryState.value) {
+        geometryState.set(geo)
+        lineSegment.geometry = geo
+      }
     }, [component.geometry])
 
     useDidMount(() => {
       const mat = component.material.get(NO_PROXY)
-      if (mat != materialState.value) materialState.set(mat)
+      if (mat != materialState.value) {
+        materialState.set(mat)
+        lineSegment.material = mat
+      }
       mat.needsUpdate = true
     }, [component.material])
 

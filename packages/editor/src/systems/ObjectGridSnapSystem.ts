@@ -26,23 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import {
   getComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
+import {
+  BoundingBoxHelperComponent,
+  ObjectGridSnapComponent
+} from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import { Box3, Color, LineBasicMaterial, LineSegments, Matrix4, Quaternion, Vector3 } from 'three'
+import { Box3, Color, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -189,24 +191,22 @@ export const ObjectGridSnapState = defineState({
 })
 
 function setHelperLayer(entity: Entity, layer: number) {
-  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  const helper = getOptionalMutableComponent(entity, BoundingBoxHelperComponent)
   if (helper) {
-    const helperObj = getComponent(helper, GroupComponent)[0]
-    setObjectLayers(helperObj, layer)
+    const layerMask = 1 << layer
+    helper.layerMask.set(layerMask)
   }
 }
 
 function setHelperColor(entity: Entity, color: Color) {
-  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  const helper = getOptionalMutableComponent(entity, BoundingBoxHelperComponent)
   if (helper) {
-    const helperObj = getComponent(helper, GroupComponent)[0] as LineSegments
-    const material = helperObj.material as LineBasicMaterial
-    material.color.copy(color)
+    helper.color.set(color)
   }
 }
 
 function resetHelperTransform(entity: Entity) {
-  const helper = getComponent(entity, ObjectGridSnapComponent).helper
+  const helper = getOptionalComponent(entity, BoundingBoxHelperComponent)?.entity
   if (helper) {
     setComponent(helper, TransformComponent, {
       position: new Vector3(),
@@ -287,9 +287,9 @@ export const ObjectGridSnapSystem = defineSystem({
           setHelperLayer(candidateEntity, ObjectLayers.Scene)
         }
       }
-      const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
+
+      const helperEntity = getComponent(selectedEntity, BoundingBoxHelperComponent).entity
       const commitNoOp = () => {
-        const helperEntity = selectedSnapComponent.helper
         if (helperEntity) {
           //reset helper bbox if exists
           setComponent(helperEntity, TransformComponent, {
@@ -347,7 +347,7 @@ export const ObjectGridSnapSystem = defineSystem({
       const position = new Vector3()
       const scale = new Vector3()
       srcMatrixWorld.decompose(position, new Quaternion(), scale)
-      const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : selectedSnapComponent.helper
+      const dstEntity = getState(ObjectGridSnapState).apply ? selectedParent : helperEntity
       if (!dstEntity) {
         commitNoOp()
         continue
