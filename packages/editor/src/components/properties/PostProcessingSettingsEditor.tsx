@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BlendFunction, VignetteTechnique } from 'postprocessing'
+import { BlendFunction, SMAAPreset, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
@@ -64,6 +64,13 @@ type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
+  SMAAEffect: {
+    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
+  },
+  ColorAverageEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
+  },
+
   OutlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
@@ -74,16 +81,12 @@ const EffectsOptions: EffectOptionsType = {
     multisampling: { propertyType: PropertyTypes.Number, name: 'Multisampling', min: 0, max: 10, step: 0.01 },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'ResolutionScale', min: 0, max: 10, step: 0.01 },
     blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-    xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' }
-
+    xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' },
+    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kernel Size', min: 1, max: 5, step: 1 }
     //resolutionX: Resolution.AUTO_SIZE,
     //resolutionY: Resolution.AUTO_SIZE,
     //width: Resolution.AUTO_SIZE,
     //height: 480,
-    //kernelSize: KernelSize.VERY_SMALL,
-  },
-  ColorAverageEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
   },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -227,6 +230,10 @@ const EffectsOptions: EffectOptionsType = {
   }
 }
 
+const SMAAPresetSelect = Object.entries(SMAAPreset).map(([label, value]) => {
+  return { label, value }
+})
+
 const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) => {
   return { label, value }
 })
@@ -242,13 +249,6 @@ const KernelSizeSelect = [
   { label: 'LARGE', value: 3 },
   { label: 'VERY_LARGE', value: 4 },
   { label: 'HUGE', value: 5 }
-]
-
-const SMAAPreset = [
-  { label: 'LOW', value: 0 },
-  { label: 'MEDIUM', value: 1 },
-  { label: 'HIGH', value: 2 },
-  { label: 'ULTRA', value: 3 }
 ]
 
 const EdgeDetectionMode = [
@@ -296,6 +296,16 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       case PropertyTypes.Boolean:
         renderVal = (
           <BooleanInput
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            value={effectSettingState.value}
+          />
+        )
+        break
+
+      case PropertyTypes.SMAAPreset:
+        renderVal = (
+          <SelectInput
+            options={SMAAPresetSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             value={effectSettingState.value}
           />

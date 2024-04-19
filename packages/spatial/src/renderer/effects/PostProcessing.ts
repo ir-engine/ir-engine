@@ -37,6 +37,7 @@ import {
   OutlineEffect,
   PredicationMode,
   Resolution,
+  SMAAEffect,
   SMAAPreset,
   SSAOEffect,
   ToneMappingEffect,
@@ -50,7 +51,7 @@ import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
-  // SMAAEffect: 'SMAAEffect' as const,
+  ç: 'SMAAEffect' as const,
   OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
@@ -84,7 +85,7 @@ export const Effects = {
 }
 
 export const EffectMap = {
-  // [Effects.SMAAEffect]: SMAAEffect,
+  [Effects.SMAAEffect]: SMAAEffect,
   [Effects.OutlineEffect]: OutlineEffect,
   [Effects.SSAOEffect]: SSAOEffect,
   [Effects.SSREffect]: SSREffect,
@@ -389,7 +390,7 @@ export type LensDistortionEffectProps = EffectProps & {
 }
 
 export type EffectPropsSchema = {
-  // [Effects.SMAAEffect]: SMAAEffectProps
+  [Effects.SMAAEffect]: SMAAEffectProps
   [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
@@ -425,12 +426,12 @@ export type EffectPropsSchema = {
 export type EffectPropsSchemaType = (typeof defaultPostProcessingSchema)[keyof typeof defaultPostProcessingSchema]
 
 export const defaultPostProcessingSchema: EffectPropsSchema = {
-  // [Effects.SMAAEffect]: {
-  //   isActive: false,
-  //   preset: SMAAPreset.MEDIUM,
-  //   edgeDetectionMode: EdgeDetectionMode.COLOR,
-  //   predicationMode: PredicationMode.DISABLED
-  // },
+  [Effects.SMAAEffect]: {
+    isActive: false,
+    preset: SMAAPreset.MEDIUM,
+    edgeDetectionMode: EdgeDetectionMode.COLOR,
+    predicationMode: PredicationMode.DISABLED
+  },
   [Effects.OutlineEffect]: {
     isActive: false,
     blendFunction: BlendFunction.SCREEN,
@@ -681,11 +682,11 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
  * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@17.0/manual
  */
 
-/** 1. input aliasing */
-// Effects.SMAAEffect,
-// Effects.OutlineEffect,
-
 export const effectInOrder = [
+  /** 1. input aliasing */
+  Effects.SMAAEffect,
+  // Effects.OutlineEffect,
+
   /** 2. world effects */
   // Effects.PaniniProjection,
   Effects.DepthOfFieldEffect,
