@@ -33,7 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
@@ -412,7 +412,7 @@ export default function AddEditProjectModal({
           {projectUpdateStatus.value?.destinationProcessing && (
             <div className="flex items-center gap-3">
               <div>
-                <LoadingCircle className="h-6 w-6" />
+                <LoadingView spinnerOnly className="h-6 w-6" />
               </div>
               <Text>{t('admin:components.project.destinationProcessing')}</Text>
             </div>
@@ -469,7 +469,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.branchProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.branchProcessing')}</Text>
           </div>
@@ -496,7 +496,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.commitsProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.commitsProcessing')}</Text>
           </div>
@@ -505,7 +505,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.sourceVsDestinationProcessing')}</Text>
           </div>
