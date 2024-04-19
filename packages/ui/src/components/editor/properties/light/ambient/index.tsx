@@ -42,8 +42,6 @@ import NodeEditor from '../../nodeEditor'
  *
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
  * ambient light is basically used to illuminates all the objects present inside the scene.
- *
- * @type {[component class]}
  */
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
