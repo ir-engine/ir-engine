@@ -25,9 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
-import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  State,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
@@ -115,7 +124,7 @@ type Resource = {
   metadata: Metadata
 }
 
-const debug = false
+let debug = false
 const debugLog = debug ? console.log : () => {}
 
 export const ResourceState = defineState({
@@ -127,9 +136,23 @@ export const ResourceState = defineState({
     totalBufferCount: 0
   }),
   reactor: () => {
+    const debugEnabled = useMutableState(RendererState).nodeHelperVisibility
+
     useEffect(() => {
       setDefaultLoadingManager()
     }, [])
+
+    useEffect(() => {
+      if (debugEnabled.value) {
+        //@ts-ignore
+        window.resources = getState(ResourceState)
+        debug = true
+      } else {
+        //@ts-ignore
+        window.resources = undefined
+        debug = false
+      }
+    }, [debugEnabled])
   }
 })
 
@@ -177,9 +200,6 @@ const onLoad = () => {
     debugLog(
       `ResourceState:onLoad: Loaded ${totalSize} bytes of resources, ${totalVerts} vertices, ${totalBuff} bytes in buffer`
     )
-
-    //@ts-ignore
-    window.resources = getState(ResourceState)
   }
 }
 

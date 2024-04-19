@@ -103,10 +103,11 @@ const matchesGeometryShape = matches.shape({
 })
 
 const matchesMaterialShape = matches.shape({
-  color: matchesColorShape,
   uuid: matches.string,
   isMaterial: matches.literal(true)
 })
+
+const matchesMeshMaterialShape = matches.some(matchesMaterialShape, matches.arrayOf(matchesMaterialShape))
 
 const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
@@ -115,6 +116,7 @@ const matchesMatrix3 = matches.guard((m): m is Matrix3 => matchesMat3.test(m))
 const matchesColor = matches.guard((c): c is ColorRepresentation => matchesColorShape.test(c))
 const matchesGeometry = matches.guard((b): b is BufferGeometry => matchesGeometryShape.test(b))
 const matchesMaterial = matches.guard((m): m is Material => matchesMaterialShape.test(m))
+const matchesMeshMaterial = matches.guard((m): m is Material | Material[] => matchesMeshMaterialShape.test(m))
 
 export {
   matchesVector3,
@@ -122,6 +124,7 @@ export {
   matchesColor,
   matchesGeometry,
   matchesMaterial,
+  matchesMeshMaterial,
   matchesMatrix4,
   matchesMatrix3
 }

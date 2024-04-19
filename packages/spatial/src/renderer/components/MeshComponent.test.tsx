@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, Color, LineBasicMaterial, MeshBasicMaterial, SphereGeometry } from 'three'
+import { BoxGeometry, Color, LineBasicMaterial, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { hasComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { ResourceState } from '@etherealengine/engine/src/assets/state/ResourceState'
@@ -35,6 +35,8 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { createEngine } from '../../initializeEngine'
+import { GeometryComponent } from './GeometryComponent'
+import { MaterialComponent } from './MaterialComponent'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
 
 describe('MeshComponent', () => {
@@ -46,15 +48,22 @@ describe('MeshComponent', () => {
     return destroyEngine()
   })
 
-  it('useMeshComponent hook creates component correctly', (done) => {
+  it('MeshComponent is created correctly', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-    const { result } = renderHook(() => useMeshComponent(entity, geometry, material))
+    setComponent(entity, MeshComponent, new Mesh(geometry, material))
 
     assert(hasComponent(entity, MeshComponent))
-    done()
+    assert(hasComponent(entity, MaterialComponent))
+    assert(hasComponent(entity, GeometryComponent))
+
+    removeComponent(entity, MeshComponent)
+
+    assert(!hasComponent(entity, MeshComponent))
+    assert(!hasComponent(entity, MaterialComponent))
+    assert(!hasComponent(entity, GeometryComponent))
   })
 
   it('useMeshComponent disposes resources correctly', (done) => {
@@ -66,27 +75,31 @@ describe('MeshComponent', () => {
     geometry.dispose = spy
     material.dispose = spy
 
-    const Reactor = () => {
-      const [mesh] = useMeshComponent(entity, geometry, material)
-      return <></>
-    }
+    assert.doesNotThrow(() => {
+      const Reactor = () => {
+        const [mesh] = useMeshComponent(entity, geometry, material)
+        return <></>
+      }
 
-    const { rerender, unmount } = render(<Reactor />)
+      const { rerender, unmount } = render(<Reactor />)
 
-    const resourceState = getState(ResourceState)
-
-    act(async () => {
       assert(hasComponent(entity, MeshComponent))
-      assert(resourceState.resources[geometry.uuid])
-      assert(resourceState.resources[material.uuid])
-      unmount()
-    }).then(() => {
-      assert(!hasComponent(entity, MeshComponent))
-      assert(!resourceState.resources[geometry.uuid])
-      assert(!resourceState.resources[material.uuid])
-      sinon.assert.calledTwice(spy)
-      removeEntity(entity)
-      done()
+      const meshUUID = getComponent(entity, MeshComponent).uuid
+      const resourceState = getState(ResourceState)
+      act(async () => {
+        assert(resourceState.resources[meshUUID])
+        assert(resourceState.resources[geometry.uuid])
+        assert(resourceState.resources[material.uuid])
+        unmount()
+      }).then(() => {
+        assert(!hasComponent(entity, MeshComponent))
+        assert(!resourceState.resources[meshUUID])
+        assert(!resourceState.resources[geometry.uuid])
+        assert(!resourceState.resources[material.uuid])
+        sinon.assert.calledTwice(spy)
+        removeEntity(entity)
+        done()
+      })
     })
   })
 
@@ -98,10 +111,13 @@ describe('MeshComponent', () => {
 
     const geoUUID = geometry.uuid
 
-    let renders = -1
+    const spy = sinon.spy()
+    geometry.dispose = spy
 
+    let renders = -1
     const resourceState = getState(ResourceState)
-    const { result } = renderHook(() => {
+    //State updated within the hook will run synchronously
+    const { unmount } = renderHook(() => {
       const [mesh, geoState, _] = useMeshComponent<BoxGeometry | SphereGeometry>(entity, geometry, material)
       renders += 1
 
@@ -114,17 +130,20 @@ describe('MeshComponent', () => {
           assert(mesh.geometry.type === 'BoxGeometry')
           geoState.set(geometry2)
         } else if (renders == 1) {
+          sinon.assert.calledOnce(spy)
           assert(geoState.value)
           assert(resourceState.resources[geoUUID].asset)
           assert(resourceState.resources[geoUUID].references.length == 1)
           assert((resourceState.resources[geoUUID].asset as SphereGeometry).type === 'SphereGeometry')
           assert(mesh.geometry.type === 'SphereGeometry')
-          done()
         }
       }, [geoState])
 
       return <></>
     })
+
+    unmount()
+    done()
   })
 
   it('useMeshComponent updates material correctly', (done) => {
@@ -137,7 +156,7 @@ describe('MeshComponent', () => {
 
     let renders = -1
 
-    const { result } = renderHook(() => {
+    const { unmount } = renderHook(() => {
       const resourceState = getState(ResourceState)
       const [mesh, _, matState] = useMeshComponent<BoxGeometry, MeshBasicMaterial | LineBasicMaterial>(
         entity,
@@ -179,11 +198,13 @@ describe('MeshComponent', () => {
           assert((resourceState.resources[matUUID].asset as LineBasicMaterial).color.getHex() === 0x000000)
           assert(mesh.material.type === 'LineBasicMaterial')
           assert(mesh.material.color.getHex() === 0x000000)
-          done()
         }
       }, [matState])
 
       return <></>
     })
+
+    unmount()
+    done()
   })
 })

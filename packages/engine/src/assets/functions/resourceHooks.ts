@@ -396,7 +396,9 @@ export function useResource<T extends object>(
   }
 
   useEffect(() => {
-    return unload
+    return () => {
+      unload()
+    }
   }, [])
 
   useDidMount(() => {
