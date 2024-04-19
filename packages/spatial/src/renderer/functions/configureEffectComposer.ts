@@ -176,6 +176,14 @@ export const configureEffectComposer = (entity: Entity): void => {
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
+    } else if (key === Effects.ColorAverageEffect) {
+      const eff = new EffectClass(effectOptions.blendFunction)
+      composer[key] = eff
+      effects.push(eff)
+    } else if (key === Effects.OutlineEffect) {
+      const eff = new EffectClass(scene, camera, effectOptions)
+      composer[key] = eff
+      effects.push(eff)
     } else {
       const eff = new EffectClass(effectOptions)
       composer[key] = eff

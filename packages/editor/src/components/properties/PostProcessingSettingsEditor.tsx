@@ -64,6 +64,24 @@ type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
+  OutlineEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
+    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: 0, max: 10, step: 0.01 },
+    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: 0, max: 10, step: 0.01 },
+    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
+    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
+    multisampling: { propertyType: PropertyTypes.Number, name: 'Multisampling', min: 0, max: 10, step: 0.01 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'ResolutionScale', min: 0, max: 10, step: 0.01 },
+    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
+    xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' }
+
+    //resolutionX: Resolution.AUTO_SIZE,
+    //resolutionY: Resolution.AUTO_SIZE,
+    //width: Resolution.AUTO_SIZE,
+    //height: 480,
+    //kernelSize: KernelSize.VERY_SMALL,
+  },
   ColorAverageEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
   },

@@ -34,6 +34,7 @@ import {
   EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
+  OutlineEffect,
   PredicationMode,
   Resolution,
   SMAAPreset,
@@ -50,7 +51,7 @@ import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
   // SMAAEffect: 'SMAAEffect' as const,
-  // OutlineEffect: 'OutlineEffect' as const,
+  OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
@@ -84,7 +85,7 @@ export const Effects = {
 
 export const EffectMap = {
   // [Effects.SMAAEffect]: SMAAEffect,
-  // [Effects.OutlineEffect]: OutlineEffect,
+  [Effects.OutlineEffect]: OutlineEffect,
   [Effects.SSAOEffect]: SSAOEffect,
   [Effects.SSREffect]: SSREffect,
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
@@ -389,7 +390,7 @@ export type LensDistortionEffectProps = EffectProps & {
 
 export type EffectPropsSchema = {
   // [Effects.SMAAEffect]: SMAAEffectProps
-  // [Effects.OutlineEffect]: OutlineEffectProps
+  [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -430,24 +431,24 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   edgeDetectionMode: EdgeDetectionMode.COLOR,
   //   predicationMode: PredicationMode.DISABLED
   // },
-  // [Effects.OutlineEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.SCREEN,
-  //   patternScale: 1.0,
-  //   edgeStrength: 1.0,
-  //   pulseSpeed: 0.0,
-  //   visibleEdgeColor: 0xffffff,
-  //   hiddenEdgeColor: 0x22090a,
-  //   multisampling: 0,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE,
-  //   width: Resolution.AUTO_SIZE,
-  //   height: 480,
-  //   kernelSize: KernelSize.VERY_SMALL,
-  //   blur: false,
-  //   xRay: true
-  // },
+  [Effects.OutlineEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SCREEN,
+    patternScale: 1.0,
+    edgeStrength: 1.0,
+    pulseSpeed: 0.0,
+    visibleEdgeColor: 0xffffff,
+    hiddenEdgeColor: 0x22090a,
+    multisampling: 0,
+    resolutionScale: 0.5,
+    resolutionX: Resolution.AUTO_SIZE,
+    resolutionY: Resolution.AUTO_SIZE,
+    width: Resolution.AUTO_SIZE,
+    height: 480,
+    kernelSize: KernelSize.VERY_SMALL,
+    blur: false,
+    xRay: true
+  },
   [Effects.SSREffect]: {
     isActive: false,
     ...defaultSSROptions
