@@ -285,7 +285,7 @@ const renameAsset = async (context: HookContext<AssetService>) => {
 
   if (newName && newName !== oldName) {
     const oldPath = asset.assetURL
-    const newPath = asset.assetURL.replace(oldName, newName)
+    const newPath = asset.assetURL.replace(oldName + '.scene.json', newName + '.scene.json')
 
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
     const directory = oldPath.split('/').slice(0, -1).join('/')
