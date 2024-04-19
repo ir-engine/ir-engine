@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
 import { v4 } from 'uuid'
@@ -44,7 +44,6 @@ export async function up(knex: Knex): Promise<void> {
     await trx.schema.createTable(assetPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('name', 255).notNullable()
       table.string('assetURL', 255).notNullable().unique()
       //@ts-ignore
       table.uuid('projectId').collate('utf8mb4_bin')
@@ -53,29 +52,33 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })
-  }
 
-  const locations = await trx.select().from(locationPath)
-  if (locations.length > 0) {
-    const locationSceneIds = await Promise.all(
-      locations
-        .filter((item) => item.sceneId)
-        .map(async (location) => {
-          const projects = await trx.select().from(locationPath).where('name', location.sceneId.split('/').get(-2))
-          const projectId = projects[0].id
-          return {
-            id: v4(),
-            assetURL: location.sceneId,
-            name: location.sceneId.split('/').pop().replace('.scene.json', ''),
-            thumbnailURL: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
-            projectId,
-            createdAt: await getDateTimeSql(),
-            updatedAt: await getDateTimeSql()
-          } as AssetDataType
-        })
-    )
+    const locations = await trx.select().from(locationPath)
+    if (locations.length > 0) {
+      const locationSceneIds = await Promise.all(
+        locations
+          .filter((item) => item.sceneId)
+          .map(async (location: LocationType) => {
+            if (!location.sceneId.endsWith('.scene.json')) return
+            const id = v4()
+            await trx.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
+            const [, projectName] = location.sceneId.split('/')
+            const projects = await trx.select().from(projectPath).where('name', projectName)
+            const projectId = projects[0].id
+            return {
+              id,
+              assetURL: location.sceneId,
+              thumbnailURL: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
+              projectId,
+              createdAt: await getDateTimeSql(),
+              updatedAt: await getDateTimeSql()
+            } as AssetDataType
+          })
+          .filter(Boolean)
+      )
 
-    await trx.from(assetPath).insert(locationSceneIds)
+      await trx.from(assetPath).insert(locationSceneIds)
+    }
   }
 
   /** Change location table from storing sceneId as string to ref the scenetable */

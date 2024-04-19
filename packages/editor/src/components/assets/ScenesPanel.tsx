@@ -94,9 +94,10 @@ export default function ScenesPanel() {
   const deleteActiveScene = async () => {
     if (loadedScene) {
       await deleteScene(loadedScene.id)
-      if (editorState.sceneName.value === loadedScene.name) {
+      if (editorState.sceneAssetID.value === loadedScene.id) {
         getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
+        editorState.sceneAssetID.set(null)
       }
     }
 
@@ -126,13 +127,13 @@ export default function ScenesPanel() {
     setContextMenuOpen(false)
     setAnchorEl(null)
     setRenaming(true)
-    setNewName(loadedScene!.name)
+    setNewName(loadedScene!.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', ''))
   }
 
   const finishRenaming = async (id: string) => {
     setRenaming(false)
-    await renameScene(id, newName)
-    if (loadedScene) getMutableState(EditorState).scenePath.set(loadedScene.assetURL.replace(loadedScene.name, newName))
+    const newData = await renameScene(id, newName)
+    if (loadedScene) getMutableState(EditorState).scenePath.set(newData.assetURL)
     setNewName('')
   }
 
@@ -167,7 +168,7 @@ export default function ScenesPanel() {
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
             {scenes.map((scene: AssetDataType) => (
-              <div className={styles.sceneContainer} key={scene.name}>
+              <div className={styles.sceneContainer} key={scene.assetURL}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
@@ -196,8 +197,8 @@ export default function ScenesPanel() {
                         </ClickAwayListener>
                       </Paper>
                     ) : (
-                      <InfoTooltip title={scene.name}>
-                        <span>{scene.name}</span>
+                      <InfoTooltip title={scene.assetURL.replace('.gltf', '').replace('.scene.json', '')}>
+                        <span>{scene.assetURL.replace('.gltf', '').replace('.scene.json', '')}</span>
                       </InfoTooltip>
                     )}
                     <IconButton onClick={(e) => openContextMenu(e, scene)}>

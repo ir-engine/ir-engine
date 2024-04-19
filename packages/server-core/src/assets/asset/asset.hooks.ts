@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  AssetQuery,
+  AssetPatch,
   assetDataValidator,
   assetQueryValidator
 } from '@etherealengine/common/src/schemas/assets/asset.schema'
@@ -43,6 +43,9 @@ import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
+import { isDev } from '@etherealengine/common/src/config'
+import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.type.module'
+import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetQueryResolver, assetResolver } from './asset.resolvers'
@@ -62,23 +65,9 @@ export const getSceneFiles = async (directory: string, storageProviderName?: str
  * @param context Hook context
  * @returns
  */
-const checkIfProjectExists = async (context: HookContext<AssetService>, project: string) => {
-  const projectResult = (await context.app
-    .service(projectPath)
-    .find({ query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
-  if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
-}
-
-/**
- * Sets scene key in query
- * @param context Hook context
- * @returns
- */
-const checkAssetProjectExists = async (context: HookContext<AssetService>) => {
-  const { project } = context.params.query as AssetQuery
-  if (project) {
-    checkIfProjectExists(context, project.toString())
-  }
+const checkIfProjectExists = async (context: HookContext<AssetService>, projectId: string) => {
+  const projectResult = await context.app.service(projectPath).get(projectId)
+  if (!projectResult) throw new Error(`No project ${projectId} exists`)
 }
 
 /**
@@ -86,32 +75,43 @@ const checkAssetProjectExists = async (context: HookContext<AssetService>) => {
  * @param context Hook context
  * @returns
  */
-const removeAssetLocally = async (context: HookContext<AssetService>) => {
+const removeAssetFiles = async (context: HookContext<AssetService>) => {
   if (context.method !== 'remove') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const sceneName = context.params?.query?.name
-  const localDirectory = context.params!.query!.localDirectory!.toString()!
+  const asset = await context.app.service(assetPath).get(context.id!)
 
-  for (const ext of SCENE_ASSET_FILES) {
-    const assetFilePath = path.resolve(appRootPath.path, `${localDirectory}/${sceneName}${ext}`)
-    if (fs.existsSync(assetFilePath)) {
-      fs.rmSync(path.resolve(assetFilePath))
+  checkIfProjectExists(context, asset.projectId!)
+
+  const storageProvider = getStorageProvider()
+  const assetURL = asset.assetURL
+
+  const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
+
+  if (assetURL.endsWith('.scene.json')) {
+    for (const ext of SCENE_ASSET_FILES) {
+      console.log(assetURL, ext, projectPathLocal)
+      if (isDev) {
+        const assetFilePath = path.resolve(projectPathLocal, assetURL.replace('.scene.json', '') + ext)
+        if (fs.existsSync(assetFilePath)) {
+          fs.rmSync(path.resolve(assetFilePath))
+        }
+      } else {
+        await context.app.service(invalidationPath).create([{ path: assetURL }])
+      }
+      await storageProvider.deleteResources([assetURL])
     }
-  }
-}
-
-/**
- * Sets directory in query
- * @param context Hook context
- * @returns
- */
-const getDirectoryFromQuery = async (context: HookContext<AssetService>) => {
-  if (!context.params.query!.directory) {
-    checkIfProjectExists(context, context.params.query!.project!.toString())
-    context.params.query!.directory = `projects/${context.params.query!.project}/`
-    context.params.query!.localDirectory = `packages/projects/projects/${context.params.query!.project}/`
+  } else {
+    if (isDev) {
+      const assetFilePath = path.resolve(projectPathLocal, assetURL)
+      if (fs.existsSync(assetFilePath)) {
+        fs.rmSync(path.resolve(assetFilePath))
+      }
+    } else {
+      await context.app.service(invalidationPath).create([{ path: assetURL }])
+    }
+    await storageProvider.deleteResources([assetURL])
   }
 }
 
@@ -124,8 +124,19 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
       .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
     context.data.projectId = projectResult.data[0].id
-    delete context.data.project
   }
+}
+
+const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+  if (!context.data) return
+  delete context.data.project
+}
+
+const removeNameField = async (context: HookContext<AssetService>) => {
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+  if (!context.data) return
+  delete context.data.name
 }
 
 const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
@@ -141,6 +152,154 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
   }
 }
 
+/**
+ * Ensures new scene name is unique
+ * @param context Hook context
+ * @returns
+ */
+const ensureUniqueName = async (context: HookContext<AssetService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  if (!context.data.project) throw new BadRequest('Project is required')
+
+  const data = context.data
+  const name = context.data.name ?? NEW_SCENE_NAME
+  context.data.name = name
+  const storageProvider = getStorageProvider()
+  let counter = 0
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    if (counter > 0) context.data.name = name + '-' + counter
+    const sceneNameExists = await storageProvider.doesExist(
+      `${context.data.name}.scene.json`,
+      'projects/' + data.project
+    )
+    if (!sceneNameExists) break
+
+    counter++
+  }
+}
+
+/**
+ * Creates new scene in storage provider
+ * @param context Hook context
+ * @returns
+ */
+const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  const data = context.data
+
+  // ignore if we are seeding data
+  if (data.assetURL) return
+
+  const storageProvider = getStorageProvider()
+
+  await Promise.all(
+    SCENE_ASSET_FILES.map((ext) =>
+      storageProvider.moveObject(
+        `default${ext}`,
+        `${data.name}${ext}`,
+        `projects/default-project`,
+        `projects/` + data.project,
+        true
+      )
+    )
+  )
+  try {
+    if (!isDev)
+      await context.app.service(invalidationPath).create(
+        SCENE_ASSET_FILES.map((file) => {
+          return { path: `${data.project}${data.name}${file}` }
+        })
+      )
+  } catch (e) {
+    logger.error(e)
+    logger.info(SCENE_ASSET_FILES)
+  }
+
+  if (!data.thumbnailURL) data.thumbnailURL = `projects/${data.project}/${data.name}.thumbnail.jpg`
+}
+
+/**
+ * Creates new scene in local storage
+ * @param context Hook context
+ * @returns
+ */
+const createSceneLocally = async (context: HookContext<AssetService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  const data = context.data
+
+  // ignore if we are seeding data
+  if (data.assetURL) return
+
+  if (isDev) {
+    const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
+    for (const ext of SCENE_ASSET_FILES) {
+      fs.copyFileSync(
+        path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
+        path.resolve(projectPathLocal + '/' + data.name + ext)
+      )
+    }
+  }
+
+  data.assetURL = `projects/${data.project}/${data.name}.scene.json`
+}
+
+const renameAsset = async (context: HookContext<AssetService>) => {
+  if (!context.data || !(context.method === 'patch' || context.method === 'update')) {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const asset = await context.app.service(assetPath).get(context.id!)
+
+  const data = context.data! as AssetPatch
+  if (!asset.assetURL.endsWith('.scene.json')) return
+
+  const storageProvider = getStorageProvider()
+  const newName = data.name
+  const oldName = asset.assetURL!.split('/').pop()!.replace('.scene.json', '')
+
+  if (newName && newName !== oldName) {
+    const oldPath = asset.assetURL
+    const newPath = asset.assetURL.replace(oldName, newName)
+
+    const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
+    for (const ext of SCENE_ASSET_FILES) {
+      const oldFile = path.resolve(projectPathLocal, oldPath.replace('.scene.json', '') + ext)
+      const newFile = path.resolve(projectPathLocal, newPath.replace('.scene.json', '') + ext)
+
+      if (isDev) fs.renameSync(oldFile, newFile)
+      else await context.app.service(invalidationPath).create([{ path: oldPath }, { path: newPath }])
+
+      await storageProvider.moveObject(
+        oldPath.split('/').pop()!,
+        newPath.split('/').pop()!,
+        path.resolve(projectPathLocal + '/' + oldPath.split('/').slice(0, -1).join('/')),
+        path.resolve(projectPathLocal + '/' + oldPath.split('/').slice(0, -1).join('/')),
+        true
+      )
+    }
+
+    data.assetURL = newPath
+    data.thumbnailURL = newPath.replace('.scene.json', '.thumbnail.jpg')
+  }
+}
+
 export default createSkippableHooks(
   {
     around: {
@@ -149,29 +308,39 @@ export default createSkippableHooks(
     before: {
       all: [() => schemaHooks.validateQuery(assetQueryValidator), schemaHooks.resolveQuery(assetQueryResolver)],
       find: [enableClientPagination(), resolveProjectIdForAssetQuery],
-      get: [checkAssetProjectExists],
+      get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
-        resolveProjectIdForAssetData
+        resolveProjectIdForAssetData,
+        ensureUniqueName,
+        createSceneInStorageProvider,
+        createSceneLocally,
+        removeNameField,
+        removeProjectForAssetData
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
-        resolveProjectIdForAssetData
+        resolveProjectIdForAssetData,
+        renameAsset,
+        removeNameField,
+        removeProjectForAssetData
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
-        resolveProjectIdForAssetData
+        resolveProjectIdForAssetData,
+        renameAsset,
+        removeNameField,
+        removeProjectForAssetData
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        getDirectoryFromQuery,
-        removeAssetLocally
+        removeAssetFiles
       ]
     },
 

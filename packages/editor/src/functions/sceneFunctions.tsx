@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { assetPath, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -48,9 +48,9 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  * @param  {string}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (scene: string): Promise<any> => {
+export const deleteScene = async (sceneID: string): Promise<any> => {
   try {
-    await Engine.instance.api.service(scenePath).remove(null, { query: { assetURL: scene } })
+    await Engine.instance.api.service(assetPath).remove(sceneID)
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
@@ -60,12 +60,11 @@ export const deleteScene = async (scene: string): Promise<any> => {
 
 export const renameScene = async (id: string, name: string, params?: AssetParams) => {
   try {
-    await Engine.instance.api.service(scenePath).patch(id, { name }, params)
+    return await Engine.instance.api.service(assetPath).patch(id, { name }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
   }
-  return true
 }
 
 /**
@@ -115,7 +114,7 @@ export const saveSceneJSON = async (
       .patch(sceneAssetID, { name: sceneName, assetURL, project: projectName })
 
     getMutableState(EditorState).merge({
-      sceneName: result.name,
+      sceneName: result.assetURL.split('/').pop()!.replace('.scene.json', ''),
       scenePath: result.assetURL,
       projectName,
       sceneAssetID: result.id
@@ -128,7 +127,7 @@ export const saveSceneJSON = async (
     .create({ name: sceneName, assetURL, project: projectName })
 
   getMutableState(EditorState).merge({
-    sceneName: result.name,
+    sceneName: result.assetURL.split('/').pop()!.replace('.scene.json', ''),
     scenePath: result.assetURL,
     projectName,
     sceneAssetID: result.id
@@ -167,7 +166,7 @@ export const saveSceneGLTF = async (
       .patch(sceneAssetID, { name: sceneName, assetURL: absolutePath, project: projectName })
 
     getMutableState(EditorState).merge({
-      sceneName: result.name,
+      sceneName: result.assetURL.split('/').pop()!.replace('.gltf', ''),
       scenePath: absolutePath,
       projectName,
       sceneAssetID: result.id
@@ -180,7 +179,7 @@ export const saveSceneGLTF = async (
     .create({ name: sceneName, assetURL: absolutePath, project: projectName })
 
   getMutableState(EditorState).merge({
-    sceneName: result.name,
+    sceneName: result.assetURL.split('/').pop()!.replace('.gltf', ''),
     scenePath: absolutePath,
     projectName,
     sceneAssetID: result.id

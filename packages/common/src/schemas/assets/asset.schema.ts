@@ -33,7 +33,6 @@ export const assetDataSchema = Type.Object(
   {
     id: Type.String(),
     assetURL: Type.String(),
-    name: Type.String(),
     thumbnailURL: Type.String(),
     projectId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
@@ -51,9 +50,7 @@ export const assetCreateDataSchema = Type.Object(
     assetURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),
-    projectId: Type.Optional(Type.String()),
-    directory: Type.Optional(Type.String()),
-    localDirectory: Type.Optional(Type.String())
+    projectId: Type.Optional(Type.String())
   },
   { $id: 'AssetCreateData', additionalProperties: false }
 )
@@ -73,7 +70,8 @@ export const assetPatchSchema = Type.Object(
   {
     name: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
-    assetURL: Type.Optional(Type.String())
+    assetURL: Type.Optional(Type.String()),
+    thumbnailURL: Type.Optional(Type.String())
   },
   {
     $id: 'AssetPatch'
@@ -89,7 +87,6 @@ export const assetQuerySchema = Type.Intersect(
       {
         project: Type.Optional(Type.String()),
         projectId: Type.Optional(Type.String()),
-        name: Type.Optional(Type.String()),
         assetURL: Type.Optional(Type.String()),
         internal: Type.Optional(Type.Boolean()),
         paginate: Type.Optional(Type.Boolean()),

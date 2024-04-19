@@ -28,8 +28,7 @@ import {
   LocationID,
   locationPath,
   LocationSettingType,
-  LocationType,
-  ProjectType
+  LocationType
 } from '@etherealengine/common/src/schema.type.module'
 import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
@@ -38,13 +37,6 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { v4 as uuidv4 } from 'uuid'
 
 export const createLocations = async (app: Application, projectName: string, sceneFiles: string[] = []) => {
-  const project = (await app.service('project').find({
-    query: {
-      name: projectName
-    }
-  })) as Paginated<ProjectType>
-  if (project.total === 0) throw new Error(`Project ${projectName} not found`)
-  const projectData = project.data[0]
   return Promise.all(
     sceneFiles.map(async (fileName) => {
       const assetURL = `projects/${projectName}/${fileName}`
@@ -56,10 +48,9 @@ export const createLocations = async (app: Application, projectName: string, sce
       /** @todo use .gltf instead */
       const scene = await app.service(assetPath).create({
         id: sceneId,
-        name: sceneName,
         assetURL,
         thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.jpg').replace('.gltf', '.thumbnail.jpg'),
-        projectId: projectData.id
+        project: projectName
       })
 
       const locationName = toCapitalCase(sceneName.replace('-', ' '))
