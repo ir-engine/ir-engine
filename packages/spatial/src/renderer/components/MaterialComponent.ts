@@ -45,7 +45,7 @@ export const MaterialComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const materialComponent = useComponent(entity, MaterialComponent)
-    const [materialResource] = useResource(
+    const [materialResource] = useResource<Material | Material[]>(
       materialComponent.value,
       entity,
       !Array.isArray(materialComponent.value) ? (materialComponent.value as Material).uuid : undefined
