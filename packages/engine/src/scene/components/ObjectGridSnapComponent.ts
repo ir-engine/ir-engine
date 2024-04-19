@@ -175,15 +175,15 @@ export const ObjectGridSnapComponent = defineComponent({
   onInit: (entity) => {
     return {
       bbox: new Box3()
-      // helper: null as Entity | null
     }
   },
+
   onSet: (entity, component, json) => {
     if (!json) return
     //if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-    // if (typeof json.helper === 'number') component.helper.set(json.helper)
   },
+
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
