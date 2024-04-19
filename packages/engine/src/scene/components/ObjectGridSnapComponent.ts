@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import {
   defineComponent,
   getComponent,
@@ -46,17 +47,7 @@ import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import {
-  Box3,
-  BufferGeometry,
-  ColorRepresentation,
-  LineBasicMaterial,
-  LineSegments,
-  Matrix4,
-  Mesh,
-  Quaternion,
-  Vector3
-} from 'three'
+import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
@@ -158,7 +149,7 @@ export const BoundingBoxHelperComponent = defineComponent({
       }
     }, [])
 
-    useEffect(() => {
+    useDidMount(() => {
       if (!lineSegment) return
       const bbox = component.bbox.value
       const density = component.density.value
@@ -177,14 +168,6 @@ export const BoundingBoxHelperComponent = defineComponent({
     return null
   }
 })
-
-function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
-  const result = new LineSegments(
-    createBBoxGridGeometry(matrixWorld, bbox, density),
-    new LineBasicMaterial({ color: 0xff0000 })
-  )
-  return result
-}
 
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',

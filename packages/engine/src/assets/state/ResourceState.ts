@@ -680,8 +680,8 @@ const unload = (id: string, entity: Entity, uuid?: string) => {
     return
   }
 
-  debugLog('ResourceManager:unload Unloading resource: ' + id + ' for entity: ' + entity)
   const resource = resources[id]
+  debugLog(`ResourceManager:unload Unloading resource: ${id}, for entity: ${entity}, of type: ${resource.type.value}`)
   if (uuid) resource.onLoads.merge({ [uuid]: none })
   resource.references.set((entities) => {
     const index = entities.indexOf(entity)
