@@ -41,13 +41,12 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   endComponent?: JSX.Element
   variant?: 'outlined' | 'underlined' | 'onboarding'
   labelClassname?: string
+  errorBorder?: boolean
 }
 
 const variants = {
   outlined: ' ',
-  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]',
-  onboarding:
-    'bg-transparent border-0 border border-neutral-500 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -67,10 +66,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       endComponent,
       variant = 'outlined',
       labelClassname,
+      errorBorder,
       ...props
     },
     ref
   ) => {
+    // Define a base style for the onboarding variant and conditionally apply error styling
+    const onboardingVariantStyle = errorBorder
+      ? 'bg-transparent border border-rose-600 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+      : 'bg-transparent border border-neutral-500 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
+
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
       'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
@@ -80,7 +85,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
       endComponent ? 'pe-10' : undefined,
-      variants[variant],
+      variant === 'onboarding' ? onboardingVariantStyle : variants[variant],
       className
     )
 
