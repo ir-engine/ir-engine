@@ -32,7 +32,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { forwardRef } from 'react'
@@ -133,7 +133,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
             variant="primary"
             className="col-span-1"
             onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
+            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             fullWidth
           >
             {t('admin:components.common.save')}
