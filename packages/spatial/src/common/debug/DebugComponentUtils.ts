@@ -50,7 +50,7 @@ export function useHelperEntity<
   helper: TObject | undefined = undefined,
   layerMask = ObjectLayerMasks.NodeHelper
 ): Entity {
-  const helperEntityState = useHookstate<Entity>(createEntity())
+  const helperEntityState = useHookstate<Entity>(createEntity)
 
   useEffect(() => {
     const helperEntity = helperEntityState.value
