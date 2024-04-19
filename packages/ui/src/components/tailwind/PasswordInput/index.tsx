@@ -43,7 +43,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
         {...props}
         type={show.value ? 'text' : 'password'}
         endComponent={
-          <Button onClick={toggleShow} className="bg-transperant pointer-events-auto px-0">
+          <Button onClick={toggleShow} className="bg-transperant pointer-events-auto mr-3.5 px-0">
             {show.value ? (
               <HiOutlineEyeSlash className="text-theme-primary" />
             ) : (
