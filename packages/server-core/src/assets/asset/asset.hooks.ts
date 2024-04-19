@@ -271,22 +271,23 @@ const renameAsset = async (context: HookContext<AssetService>) => {
   if (!asset.assetURL.endsWith('.scene.json')) return
 
   const storageProvider = getStorageProvider()
-  const newName = data.name
   const oldName = asset.assetURL!.split('/').pop()!.replace('.scene.json', '')
+  const projectName = asset.assetURL.split('/')[1]
+  const newName = data.name
 
   if (newName && newName !== oldName) {
     const oldPath = asset.assetURL
-    const newPath = asset.assetURL.replace(oldName, newName)
+    const newPath = `projects/${projectName}/${newName}.scene.json`
 
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
     const directory = oldPath.split('/').slice(0, -1).join('/')
 
     for (const ext of SCENE_ASSET_FILES) {
-      const oldLocalFile = path.resolve(projectPathLocal, oldPath.replace('.scene.json', '') + ext)
-      const newLocalFile = path.resolve(projectPathLocal, newPath.replace('.scene.json', '') + ext)
-
-      const newDirPath = newPath.replace('.scene.json', '') + ext
       const oldDirPath = oldPath.replace('.scene.json', '') + ext
+      const newDirPath = newPath.replace('.scene.json', '') + ext
+
+      const oldLocalFile = path.resolve(projectPathLocal, oldDirPath)
+      const newLocalFile = path.resolve(projectPathLocal, newDirPath)
 
       if (isDev) fs.renameSync(oldLocalFile, newLocalFile)
       else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])

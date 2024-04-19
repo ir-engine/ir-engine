@@ -114,7 +114,7 @@ export const saveSceneJSON = async (
       .patch(sceneAssetID, { name: sceneName, assetURL, project: projectName })
 
     getMutableState(EditorState).merge({
-      sceneName: result.assetURL.split('/').pop()!.replace('.scene.json', ''),
+      sceneName,
       scenePath: result.assetURL,
       projectName,
       sceneAssetID: result.id
@@ -127,7 +127,7 @@ export const saveSceneJSON = async (
     .create({ name: sceneName, assetURL, project: projectName })
 
   getMutableState(EditorState).merge({
-    sceneName: result.assetURL.split('/').pop()!.replace('.scene.json', ''),
+    sceneName,
     scenePath: result.assetURL,
     projectName,
     sceneAssetID: result.id
@@ -166,7 +166,7 @@ export const saveSceneGLTF = async (
       .patch(sceneAssetID, { name: sceneName, assetURL: absolutePath, project: projectName })
 
     getMutableState(EditorState).merge({
-      sceneName: result.assetURL.split('/').pop()!.replace('.gltf', ''),
+      sceneName,
       scenePath: absolutePath,
       projectName,
       sceneAssetID: result.id
@@ -179,7 +179,7 @@ export const saveSceneGLTF = async (
     .create({ name: sceneName, assetURL: absolutePath, project: projectName })
 
   getMutableState(EditorState).merge({
-    sceneName: result.assetURL.split('/').pop()!.replace('.gltf', ''),
+    sceneName,
     scenePath: absolutePath,
     projectName,
     sceneAssetID: result.id
