@@ -102,7 +102,7 @@ export const GroundPlaneComponent = defineComponent({
       mesh.material.polygonOffsetFactor = -0.01
       mesh.material.polygonOffsetUnits = 1
 
-      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Camera)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
         shape: Shapes.Plane,

@@ -30,7 +30,6 @@ import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/sr
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup } from './GroupComponent'
 import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
@@ -46,8 +45,8 @@ describe('ObjectLayerComponent', () => {
   it('Sets mask and layer', () => {
     const entity = createEntity()
 
-    const layerMask = ObjectLayerMasks.NodeHelper
-    const layer = ObjectLayers.NodeHelper
+    const layer = 8
+    const layerMask = 1 << layer
 
     setComponent(entity, ObjectLayerMaskComponent, layerMask)
 
