@@ -31,11 +31,12 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   value: boolean
   label?: string
   className?: string
+  containerClassName?: string
   onChange: (value: boolean) => void
   disabled?: boolean
 }
 
-const Checkbox = ({ className, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
+const Checkbox = ({ className, containerClassName, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
   const twClassName = twMerge(
     'disabled:border-steel-400 disabled:bg-steel-400 peer',
     'relative h-4 w-4 shrink-0 appearance-none rounded-sm',
@@ -46,7 +47,7 @@ const Checkbox = ({ className, label, value, onChange, disabled, ...rest }: Chec
   )
 
   return (
-    <div className="flex w-full items-center gap-4">
+    <div className={twMerge('flex w-full items-center gap-4', containerClassName)}>
       <input type="checkbox" className={twClassName} {...rest} />
       {label && (
         <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">

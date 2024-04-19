@@ -129,7 +129,6 @@ export type InputGroupProps = React.PropsWithChildren<
  * InputGroup used to render the view of component.
  */
 export function InputGroup({
-  name,
   children,
   disabled,
   info,
@@ -142,7 +141,7 @@ export function InputGroup({
     <InputGroupContainer disabled={disabled} {...rest}>
       <div className="grid grid-cols-12">
         <div className="col-span-4 flex items-center justify-end">
-          <label className={`text-right text-xs font-normal text-neutral-400 ${labelClasses}`}>{label}</label>
+          <label className={twMerge(`text-right text-xs font-normal text-neutral-400 ${labelClasses}`)}>{label}</label>
 
           {info && (
             <InfoTooltip title={info}>

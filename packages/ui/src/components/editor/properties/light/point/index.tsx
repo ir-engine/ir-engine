@@ -34,6 +34,8 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import LightbulbIcon from '@mui/icons-material/Lightbulb'
+import { Color } from 'three'
+import ColorInput from '../../../../../primitives/tailwind/ColorInput'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
@@ -46,11 +48,11 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        {/* <ColorInput
-          value={lightComponent.color}
+        <ColorInput
+          // value={lightComponent.color}
+          value={new Color('#00FF00')}
           onChange={updateProperty(PointLightComponent, 'color')}
-          onRelease={commitProperty(PointLightComponent, 'color')}
-  />*/}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.pointLight.lbl-intensity')}>
         <NumericInput

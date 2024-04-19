@@ -36,6 +36,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import ColorInput from '../../../../../primitives/tailwind/ColorInput'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
@@ -55,18 +56,13 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.hemisphere.description')}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        {/*<ColorInput
-          value={lightComponent.skyColor}
-          onChange={updateProperty(HemisphereLightComponent, 'skyColor')}
-          onRelease={commitProperty(HemisphereLightComponent, 'skyColor')}
-        />*/}
+        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
-        {/*<ColorInput
+        <ColorInput
           value={lightComponent.groundColor}
           onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
-          onRelease={commitProperty(HemisphereLightComponent, 'groundColor')}
-        />*/}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.hemisphere.lbl-intensity')}>
         <NumericInput

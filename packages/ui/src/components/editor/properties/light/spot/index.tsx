@@ -36,6 +36,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import ColorInput from '../../../../../primitives/tailwind/ColorInput'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
@@ -43,8 +44,6 @@ import LightShadowProperties from '../shadowProperties'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
- *
- *  @type {class component}
  */
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -54,11 +53,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        {/*<ColorInput
-          value={lightComponent.color}
-          onChange={updateProperty(SpotLightComponent, 'color')}
-          onRelease={commitProperty(SpotLightComponent, 'color')}
-        />*/}
+        <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput

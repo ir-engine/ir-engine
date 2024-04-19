@@ -34,8 +34,6 @@ import Text from '../Text'
 interface ColorInputProp {
   value: Color
   onChange: (color: Color) => void
-  onSelect?: (color: Color) => void
-  onRelease?: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
   className?: string
@@ -61,7 +59,7 @@ export function ColorInput({
   return (
     <div
       className={twMerge(
-        'bg-theme-primary flex h-8 w-44 items-center gap-1 rounded px-1',
+        'bg-theme-primary flex h-8 w-[200px] items-center gap-1 rounded px-1',
         disabled && 'cursor-not-allowed',
         className
       )}

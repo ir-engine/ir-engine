@@ -32,6 +32,7 @@ export interface BooleanInputProp {
   onChange: (value: boolean) => void
   onRelease?: (value: boolean) => void
   disabled?: boolean
+  className?: string
 }
 
 export const BooleanInput = (props: BooleanInputProp) => {
@@ -41,10 +42,12 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   return (
     <Checkbox
+      containerClassName="w-[200px]"
       className={twMerge(
-        'rounded-sm border bg-black px-1 py-1 dark:bg-[#1A1A1A]',
+        ' rounded-sm border bg-black px-1 py-1 dark:bg-[#1A1A1A]',
         'hover:border-blue-800 hover:bg-zinc-900',
-        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer'
+        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer',
+        props.className
       )}
       value={props.value}
       onChange={props.onChange}

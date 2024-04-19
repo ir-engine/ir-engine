@@ -34,6 +34,8 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { Color } from 'three'
+import ColorInput from '../../../../../primitives/tailwind/ColorInput'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
@@ -55,11 +57,12 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.directionalLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
-        {/*<ColorInput
-          value={lightComponent.color}
+        <ColorInput
+          className="bg-[#1A1A1A]"
+          // value={lightComponent.color}
+          value={new Color('#00FF00')}
           onChange={updateProperty(DirectionalLightComponent, 'color')}
-          onRelease={commitProperty(DirectionalLightComponent, 'color')}
-        />*/}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.directionalLight.lbl-intensity')}>
         <NumericInput
