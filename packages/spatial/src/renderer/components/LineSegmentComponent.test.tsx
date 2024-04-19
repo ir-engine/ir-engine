@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, LineBasicMaterial, MeshBasicMaterial, SphereGeometry } from 'three'
+import { BoxGeometry, LineBasicMaterial, LineSegments, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { getMutableComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { ResourceState } from '@etherealengine/engine/src/assets/state/ResourceState'
@@ -35,7 +35,10 @@ import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { createEngine } from '../../initializeEngine'
+import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
+import { GroupComponent } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
+import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 describe('LineSegmentComponent', () => {
   beforeEach(async () => {
@@ -176,6 +179,48 @@ describe('LineSegmentComponent', () => {
       assert(!resourceState.resources[geometry.uuid])
       assert(!resourceState.resources[material.uuid])
       sinon.assert.calledTwice(spy)
+      removeEntity(entity)
+      done()
+    })
+  })
+
+  it('Sets LineSegment layer mask correctly', (done) => {
+    const entity = createEntity()
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial({ color: 0xffff00 })
+
+    const layerMask = ObjectLayerMasks.NodeHelper
+    const layer = ObjectLayers.NodeHelper
+
+    const Reactor = () => {
+      useEffect(() => {
+        setComponent(entity, LineSegmentComponent, {
+          geometry: geometry,
+          material: material,
+          layerMask: layerMask
+        })
+        return () => {
+          removeComponent(entity, LineSegmentComponent)
+        }
+      }, [])
+
+      return <></>
+    }
+
+    const { rerender, unmount } = render(<Reactor />)
+
+    act(async () => {
+      rerender(<Reactor />)
+    }).then(() => {
+      assert(hasComponent(entity, LineSegmentComponent))
+      assert(hasComponent(entity, GroupComponent))
+      assert(hasComponent(entity, ObjectLayerMaskComponent))
+      assert(hasComponent(entity, ObjectLayerComponents[layer]))
+      const group = getComponent(entity, GroupComponent)
+      const lineSegments = group[0] as LineSegments
+      assert(lineSegments.isLineSegments)
+      assert(lineSegments.layers.mask === layerMask)
+      unmount()
       removeEntity(entity)
       done()
     })

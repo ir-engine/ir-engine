@@ -67,7 +67,7 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
-    component.set(ObjectLayerMaskComponent.mask[entity])
+    component.set(mask)
   },
 
   onRemove(entity, component) {

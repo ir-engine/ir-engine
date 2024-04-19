@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { AxesHelper } from 'three'
 import { useHelperEntity } from './DebugComponentUtils'
 
@@ -36,7 +36,7 @@ export const AxesHelperComponent = defineComponent({
     return {
       name: 'axes-helper',
       size: 1,
-      layer: ObjectLayers.NodeHelper,
+      layerMask: ObjectLayerMasks.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -45,14 +45,14 @@ export const AxesHelperComponent = defineComponent({
     if (!json) return
     if (typeof json.name === 'string') component.name.set(json.name)
     if (typeof json.size === 'number') component.size.set(json.size)
-    if (typeof json.layer === 'number') component.layer.set(json.layer)
+    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
   },
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, AxesHelperComponent)
     const [helper] = useDisposable(AxesHelper, entity, component.size.value)
-    useHelperEntity(entity, component, helper, component.layer.value)
+    useHelperEntity(entity, component, helper, component.layerMask.value)
 
     return null
   }

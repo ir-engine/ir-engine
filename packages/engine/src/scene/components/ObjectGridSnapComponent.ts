@@ -45,7 +45,7 @@ import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
-import { matchesColor, matchesMatrix4 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -54,7 +54,7 @@ import {
   setObjectLayers
 } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks, ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -134,10 +134,9 @@ export const BoundingBoxHelperComponent = defineComponent({
     return {
       name: 'bounding-box-helper',
       bbox: new Box3(),
-      matrixWorld: new Matrix4().identity(),
       density: 2,
       color: 0xff0000 as ColorRepresentation,
-      layer: ObjectLayers.NodeHelper,
+      layerMask: ObjectLayerMasks.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -146,10 +145,9 @@ export const BoundingBoxHelperComponent = defineComponent({
     if (!json || !json.bbox || !json.bbox.isBox3) throw new Error('BoundingBoxHelperComponent: Requires Box3')
     component.bbox.set(json.bbox)
 
-    if (matchesMatrix4.test(json.matrixWorld)) component.matrixWorld.set(json.matrixWorld)
     if (typeof json.density === 'number') component.density.set(json.density)
     if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.layer === 'number') component.layer.set(json.layer)
+    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
   },
 
   reactor: function () {
@@ -161,12 +159,12 @@ export const BoundingBoxHelperComponent = defineComponent({
     useEffect(() => {
       const bbox = component.bbox.value
       const density = component.density.value
-      const matrixWorld = component.matrixWorld.value
 
       setComponent(helper, LineSegmentComponent, {
         name: 'bbox-line-segment',
-        geometry: createBBoxGridGeometry(matrixWorld, bbox, density),
-        material: new LineBasicMaterial({ color: component.color.value })
+        geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
+        material: new LineBasicMaterial({ color: component.color.value }),
+        layerMask: component.layerMask.value
       })
 
       return () => {
@@ -180,8 +178,8 @@ export const BoundingBoxHelperComponent = defineComponent({
     }, [component.color, lineSegment])
 
     useEffect(() => {
-      setComponent(helper, ObjectLayerMaskComponent, component.layer.value)
-    }, [component.layer])
+      setComponent(helper, ObjectLayerMaskComponent, component.layerMask.value)
+    }, [component.layerMask])
 
     return null
   }
@@ -212,11 +210,10 @@ export const ObjectGridSnapComponent = defineComponent({
   },
   reactor: () => {
     const entity = useEntityContext()
-
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
-
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
+
     useEffect(() => {
       const helper = createEntity()
       setComponent(helper, NameComponent, 'helper')

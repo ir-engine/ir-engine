@@ -42,7 +42,7 @@ import { NetworkObjectComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
 import { ikTargets } from '../animation/Util'
@@ -73,7 +73,7 @@ export const AvatarIKTargetComponent = defineComponent({
         setComponent(entity, AxesHelperComponent, {
           name: 'avatar-ik-helper',
           size: 0.5,
-          layer: ObjectLayers.AvatarHelper
+          layerMask: ObjectLayerMasks.AvatarHelper
         })
       }
     }, [debugEnabled])

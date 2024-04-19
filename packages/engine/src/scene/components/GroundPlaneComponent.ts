@@ -44,7 +44,7 @@ import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/Colli
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SourceComponent } from './SourceComponent'
 
@@ -102,7 +102,7 @@ export const GroundPlaneComponent = defineComponent({
       mesh.material.polygonOffsetFactor = -0.01
       mesh.material.polygonOffsetUnits = 1
 
-      setComponent(entity, ObjectLayerMaskComponent, ObjectLayers.Camera)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Camera)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
         shape: Shapes.Plane,

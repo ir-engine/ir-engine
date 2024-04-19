@@ -36,7 +36,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { Object3D } from 'three'
@@ -48,7 +48,7 @@ export function useHelperEntity<
   entity: Entity,
   component: TComponent,
   helper: TObject | undefined = undefined,
-  layerMask = ObjectLayers.NodeHelper
+  layerMask = ObjectLayerMasks.NodeHelper
 ): Entity {
   const helperEntityState = useHookstate<Entity>(createEntity())
 
@@ -59,10 +59,10 @@ export function useHelperEntity<
       addObjectToGroup(helperEntity, helper)
       setComponent(helperEntity, NameComponent, helper.name)
     }
-    setVisibleComponent(helperEntity, true)
     setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
+    setVisibleComponent(helperEntity, true)
     component.entity.set(helperEntity)
 
     return () => {
