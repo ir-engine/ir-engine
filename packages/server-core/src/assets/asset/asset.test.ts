@@ -18,10 +18,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isDev } from '@etherealengine/common/src/config'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
+import fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -64,6 +66,10 @@ describe('asset.test', () => {
       assert.equal(secondAddedSceneData.assetURL, 'projects/' + projectName + '/New-Scene-1.scene.json')
       assert.equal(addedSceneData.projectId, project.id)
       assert(storageProvider.doesExist('New-Scene-1.scene.json', 'projects/' + projectName))
+
+      if (isDev) {
+        assert(fs.existsSync('projects/' + projectName + '/New-Scene.scene.json'))
+      }
     })
 
     it('should query assets by projectName', async () => {
@@ -80,6 +86,10 @@ describe('asset.test', () => {
       assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.scene.json')
       const storageProvider = getStorageProvider()
       assert(storageProvider.doesExist('Updated-Scene.scene.json', 'projects/' + projectName))
+      if (isDev) {
+        assert(!fs.existsSync('projects/' + projectName + '/New-Scene.scene.json'))
+        assert(fs.existsSync('projects/' + projectName + '/Updated-Scene.scene.json'))
+      }
     })
 
     it('should remove scene', async () => {
@@ -89,6 +99,9 @@ describe('asset.test', () => {
       assert.rejects(async () => await app.service(assetPath).get(data.id, params))
       const storageProvider = getStorageProvider()
       assert(!(await storageProvider.doesExist('Updated-Scene.scene.json', 'projects/' + projectName)))
+      if (isDev) {
+        assert(!fs.existsSync('projects/' + projectName + '/Updated-Scene.scene.json'))
+      }
     })
   })
 })
