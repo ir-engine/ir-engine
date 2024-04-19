@@ -81,7 +81,7 @@ export default function LocationTable({ search }: { search: string }) {
       action: (
         <div className="flex items-center justify-start gap-3">
           <Button
-            rounded
+            rounded="full"
             variant="outline"
             className="h-8 w-8"
             disabled={!userHasAccess('location:write')}
@@ -91,7 +91,7 @@ export default function LocationTable({ search }: { search: string }) {
             <HiPencil className="text-theme-iconGreen place-self-center" />
           </Button>
           <Button
-            rounded
+            rounded="full"
             variant="outline"
             className="h-8 w-8"
             title={t('admin:components.common.delete')}

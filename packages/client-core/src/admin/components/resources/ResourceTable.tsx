@@ -75,13 +75,13 @@ export default function ResourceTable({ search }: { search: string }) {
             onClick={() => {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
-            rounded
+            rounded="full"
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
           >
             <HiEye className="text-theme-primary place-self-center" />
           </Button>
           <Button
-            rounded
+            rounded="full"
             className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
