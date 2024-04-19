@@ -124,7 +124,7 @@ type Resource = {
   metadata: Metadata
 }
 
-let debug = true
+let debug = false
 const debugLog = debug ? console.log : () => {}
 
 export const ResourceState = defineState({
