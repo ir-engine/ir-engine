@@ -26,27 +26,27 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
-
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import Brightness7Icon from '@mui/icons-material/Brightness7'
+import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
+import { MdBrightness7 } from 'react-icons/md'
+import { Color } from 'three'
+import ColorInput from '../../../../../primitives/tailwind/ColorInput'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
 
 /**
- *
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
  * ambient light is basically used to illuminates all the objects present inside the scene.
  */
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const lightComponent = useComponent(props.entity, AmbientLightComponent)
+  // const lightComponent = useComponent(props.entity, AmbientLightComponent)
 
   return (
     <NodeEditor
@@ -55,11 +55,12 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.ambientLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
-        {/*<ColorInput
-          value={lightComponent.color.value}
+        <ColorInput
+          className="bg-[#1A1A1A]"
+          textClassName="text-white"
+          value={new Color('#00FF00')}
           onChange={updateProperty(AmbientLightComponent, 'color')}
-          onRelease={commitProperty(AmbientLightComponent, 'color')}
-      />*/}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.ambientLight.lbl-intensity')}>
         <NumericInput
@@ -80,6 +81,6 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-AmbientLightNodeEditor.iconComponent = Brightness7Icon
+AmbientLightNodeEditor.iconComponent = MdBrightness7
 
 export default AmbientLightNodeEditor

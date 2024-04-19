@@ -39,10 +39,18 @@ interface ColorInputProp {
   disabled?: boolean
   isValueAsInteger?: boolean
   className?: string
+  textClassName?: string
   sketchPickerClassName?: string
 }
 
-export function ColorInput({ value, onChange, disabled, className, sketchPickerClassName }: ColorInputProp) {
+export function ColorInput({
+  value,
+  onChange,
+  disabled,
+  className,
+  textClassName,
+  sketchPickerClassName
+}: ColorInputProp) {
   const hexColor = typeof value.getHexString === 'function' ? '#' + value.getHexString() : '#000'
 
   const handleChange = (result: ColorResult) => {
@@ -58,7 +66,10 @@ export function ColorInput({ value, onChange, disabled, className, sketchPickerC
         className
       )}
     >
-      <div tabIndex={0} className={twMerge('group h-5 w-5 rounded border border-black', `bg-[#${hexColor}`)}>
+      <div
+        tabIndex={0}
+        className={`focus:border-theme-primary group h-5 w-5 rounded border border-black bg-[${hexColor}]`}
+      >
         <SketchPicker
           className={twMerge(
             'absolute z-10 mt-5 scale-0 group-hover:scale-100 group-focus:scale-100',
@@ -69,7 +80,7 @@ export function ColorInput({ value, onChange, disabled, className, sketchPickerC
           disableAlpha={true}
         />
       </div>
-      <Text fontFamily="Figtree" fontSize="xs">
+      <Text fontFamily="Figtree" fontSize="xs" className={textClassName}>
         {hexColor.toUpperCase()}
       </Text>
     </div>
