@@ -29,7 +29,7 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import config from '@etherealengine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
@@ -63,18 +63,22 @@ export default function ProjectTopMenu() {
   const handleSubmit = async () => {
     modalProcessing.set(true)
     const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
-    await ProjectService.uploadProject({
-      sourceURL: projectUpdateStatus.sourceURL,
-      destinationURL: projectUpdateStatus.destinationURL,
-      name: projectUpdateStatus.projectName,
-      reset: true,
-      commitSHA: projectUpdateStatus.selectedSHA,
-      sourceBranch: projectUpdateStatus.selectedBranch,
-      updateType: projectUpdateStatus.updateType,
-      updateSchedule: projectUpdateStatus.updateSchedule
-    }).catch((err) => {
+
+    try {
+      await ProjectService.uploadProject({
+        sourceURL: projectUpdateStatus.sourceURL,
+        destinationURL: projectUpdateStatus.destinationURL,
+        name: projectUpdateStatus.projectName,
+        reset: true,
+        commitSHA: projectUpdateStatus.selectedSHA,
+        sourceBranch: projectUpdateStatus.selectedBranch,
+        updateType: projectUpdateStatus.updateType,
+        updateSchedule: projectUpdateStatus.updateSchedule
+      })
+      PopoverState.hidePopupover()
+    } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    })
+    }
     modalProcessing.set(false)
   }
 
@@ -98,7 +102,7 @@ export default function ProjectTopMenu() {
           >
             {projectState.refreshingGithubRepoAccess.value ? (
               <span className="flex items-center gap-2">
-                <LoadingCircle className="inline-block h-6 w-6" />
+                <LoadingView spinnerOnly className="inline-block h-6 w-6" />
                 {t('admin:components.project.refreshingGithubRepoAccess')}
               </span>
             ) : (
@@ -116,7 +120,7 @@ export default function ProjectTopMenu() {
           disabled={config.client.localBuildOrDev}
           endIcon={
             !config.client.localBuildOrDev && projectState.rebuilding.value ? (
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             ) : undefined
           }
         >

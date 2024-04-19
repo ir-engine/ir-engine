@@ -27,13 +27,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
 import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import styles from './index.module.scss'
 
 interface Props {
@@ -63,7 +63,7 @@ const ConfirmDialog = ({
 
       <DialogContent>
         {!processing && <DialogContentText>{description}</DialogContentText>}
-        {processing && <LoadingView sx={{ height: 170 }} variant="body1" title={t('common:components.processing')} />}
+        {processing && <LoadingView className="h-6 w-6" title={t('common:components.processing')} />}
       </DialogContent>
 
       {!processing && (

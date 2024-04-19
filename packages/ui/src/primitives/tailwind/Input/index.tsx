@@ -39,6 +39,12 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
   startComponent?: JSX.Element
   endComponent?: JSX.Element
+  variant?: 'outlined' | 'underlined'
+}
+
+const variants = {
+  outlined: ' ',
+  underlined: 'bg-transparent border-0 border-b rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -56,6 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       disabled,
       startComponent,
       endComponent,
+      variant = 'outlined',
       ...props
     },
     ref
@@ -65,20 +72,34 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
       'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',
-      'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50',
+      'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+      variant === 'underlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
       endComponent ? 'pe-10' : undefined,
+      variants[variant],
       className
     )
 
-    const twcontainerClassName = twMerge('flex w-full flex-col items-center gap-2', containerClassname)
+    const containerVariants = {
+      outlined: 'gap-2',
+      underlined: ''
+    }
+
+    const twcontainerClassName = twMerge(
+      'flex w-full flex-col items-center ',
+      containerVariants[variant],
+      containerClassname
+    )
+
+    const containerClass = variant === 'outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
+    const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
       <div className={twcontainerClassName}>
-        {label && <Label className="self-stretch">{label}</Label>}
-        <div className="bg-theme-surface-main relative w-full">
+        {label && <Label className={`self-stretch ${labelClass}`}>{label}</Label>}
+        <div className={containerClass}>
           {startComponent && (
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
+            <div className="pointer-events-auto absolute inset-y-0 start-0 flex items-center ps-3.5">
               {startComponent}
             </div>
           )}
@@ -93,7 +114,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           />
 
           {endComponent && (
-            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5">{endComponent}</div>
+            <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
           )}
         </div>
         {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
