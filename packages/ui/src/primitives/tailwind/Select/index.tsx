@@ -75,6 +75,10 @@ const Select = <T extends OptionValueType>({
 
   const showOptions = useHookstate(false)
   const filteredOptions = useHookstate(options)
+
+  const toggleDropdown = () => {
+    showOptions.set((v) => !v)
+  }
   useEffect(() => {
     filteredOptions.set(options)
   }, [options])
@@ -112,15 +116,14 @@ const Select = <T extends OptionValueType>({
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
-        onClick={() => {
-          showOptions.set((v) => !v)
-        }}
+        onClick={toggleDropdown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
         className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
           label ? 'top-8' : 'top-2'
         }`}
+        onClick={toggleDropdown}
       />
       <div
         className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
