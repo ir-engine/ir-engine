@@ -42,10 +42,6 @@ import { Vector2Input } from '../Vector2'
 
 /**
  * VideoInput used to render component view for video inputs.
- *
- * @param       {function} onChange
- * @param       {any} rest
- * @constructor
  */
 export function TextureInput({ ...rest }: StringInputProps) {
   return (
@@ -98,7 +94,7 @@ export default function TexturePreviewInput({
     <ImageContainer>
       <div className="flex flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
         <div className="relative h-[274px] w-[305px]">
-          <div className="flex flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
+          <div className="flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
             <div className="h-auto w-auto rounded bg-neutral-900">
               {showPreview && (
                 <Fragment>
@@ -146,7 +142,7 @@ export default function TexturePreviewInput({
           <>
             <InputGroup name="Encoding" label="Encoding">
               <SelectInput
-                value={colorspace.value}
+                currentValue={colorspace.value}
                 options={[
                   { label: 'Linear', value: LinearSRGBColorSpace },
                   { label: 'sRGB', value: SRGBColorSpace },

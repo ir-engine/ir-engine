@@ -50,7 +50,6 @@ const StringInput = ({ value, onChange, onRelease, onFocus, disabled, placeholde
     <Input
       containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"
       className="w-full text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
-      override={true}
       value={value ?? ''}
       onChange={(e) => {
         onChange?.(e.target.value)
@@ -82,15 +81,8 @@ export default StringInput
 // do we really need a controlled string input? we could easily integrate this with string input itself
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
   const { onChange, onRelease, value, placeholder, disabled, type, ...rest } = values
-  const { error, canDrop, ...other } = rest
   const inputRef = useRef<HTMLInputElement>()
   const [tempValue, setTempValue] = useState(value)
-
-  const onKeyUp = (e) => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      inputRef.current?.blur()
-    }
-  }
 
   useEffect(() => {
     setTempValue(value)
@@ -115,7 +107,6 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       ref={ref}
       containerClassname="w-[246px] h-[30px] bg-zinc-900 rounded-[5px]"
       className="w-[220px] text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
-      override={true}
       value={value ?? ''}
       onChange={(e) => {
         onChangeValue(e.target.value)

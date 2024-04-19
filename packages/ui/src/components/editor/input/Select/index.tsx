@@ -29,15 +29,13 @@ import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
 // make new component instead
 
-const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) => {
+const SelectInput = ({ options, currentValue, onChange }: SelectProps<any>, ...rest) => {
   return (
     <Select
       options={options}
       className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
-      menuClassname=""
       arrowClassname="text-neutral-400 absolute right-3 top-2"
-      override={true}
-      value={value}
+      currentValue={currentValue}
       onChange={onChange!}
       {...rest}
     />
