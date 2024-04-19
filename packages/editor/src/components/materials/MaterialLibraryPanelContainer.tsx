@@ -49,7 +49,7 @@ import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 
-import exportMaterialsGLTF from '@etherealengine/engine/src/scene/materials/functions/exportMaterialsGLTF'
+import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 
 export default function MaterialLibraryPanel() {
   const nodeChanges = useState(0)
@@ -134,13 +134,13 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={async () => {
                 const projectName = getState(EditorState).projectName!
-                const materials = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
+                const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
                 let libraryName = srcPath.value
                 if (!libraryName.endsWith('.material.gltf')) {
                   libraryName += '.material.gltf'
                 }
                 const relativePath = pathJoin('assets', libraryName)
-                const gltf = (await exportMaterialsGLTF(materials, {
+                const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
                   binary: false,
                   relativePath
                 })!) as /*ArrayBuffer*/ { [key: string]: any }
