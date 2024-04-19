@@ -17,7 +17,7 @@ then
     export COMPOSE_IGNORE_ORPHANS=true
 
     eval "$command_to_execute up -d"
-    if [[ -z "${IS_LOCAL_FS}" || "${IS_LOCAL_FS}" == 'false' ]]; then
+    if [[ -z "${STORAGE_PROVIDER}" || "${STORAGE_PROVIDER}" == 's3' ]]; then
         eval "$command_to_execute -f docker-compose-minio.yml up -d"
     fi
 else
