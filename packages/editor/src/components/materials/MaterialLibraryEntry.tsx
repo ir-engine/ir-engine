@@ -124,6 +124,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
               {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
             </div>
           </Grid>
+          <div className={styles.spacer} />
           <Grid item xs>
             <div className={styles.nodeContent}>{nodeDisplayName(node)}</div>
           </Grid>
