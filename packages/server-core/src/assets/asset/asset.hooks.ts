@@ -177,14 +177,21 @@ const ensureUniqueName = async (context: HookContext<AssetService>) => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     if (counter > 0) context.data.name = name + '-' + counter
-    const sceneNameExists = await storageProvider.doesExist(
-      `${context.data.name}.scene.json`,
-      'projects/' + data.project
-    )
+    const sceneNameExists = await storageProvider.doesExist(`${context.data.name}.scene.json`, context.directory)
     if (!sceneNameExists) break
 
     counter++
   }
+}
+
+const setDirectoryFromData = async (context: HookContext<AssetService>) => {
+  if (!context.data) {
+    throw new BadRequest(`${context.path} service. No data provided`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  if (!context.directory) context.directory = `projects/` + context.data.project
 }
 
 /**
@@ -212,7 +219,7 @@ const createSceneInStorageProvider = async (context: HookContext<AssetService>) 
         `default${ext}`,
         `${data.name}${ext}`,
         `projects/default-project`,
-        `projects/` + data.project,
+        context.directory,
         true
       )
     )
@@ -221,7 +228,7 @@ const createSceneInStorageProvider = async (context: HookContext<AssetService>) 
     if (!isDev)
       await context.app.service(invalidationPath).create(
         SCENE_ASSET_FILES.map((file) => {
-          return { path: `${data.project}${data.name}${file}` }
+          return { path: `${context.directory}${data.name}${file}` }
         })
       )
   } catch (e) {
@@ -321,6 +328,7 @@ export default createSkippableHooks(
         () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
+        setDirectoryFromData,
         ensureUniqueName,
         createSceneInStorageProvider,
         createSceneLocally,
