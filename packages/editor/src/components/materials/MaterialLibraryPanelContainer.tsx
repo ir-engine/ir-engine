@@ -30,21 +30,26 @@ import { MeshBasicMaterial } from 'three'
 
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 import { Not } from 'bitecs'
 
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { createMaterial } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { uploadProjectFiles } from '../../functions/assetFunctions'
+import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
+
+import exportMaterialsGLTF from '@etherealengine/engine/src/scene/materials/functions/exportMaterialsGLTF'
 
 export default function MaterialLibraryPanel() {
   const nodeChanges = useState(0)
@@ -128,24 +133,24 @@ export default function MaterialLibraryPanel() {
             </InputGroup>
             <Button
               onClick={async () => {
-                // const projectName = editorState.projectName.value!
-                // const materials = selectedMaterial.value ? [getMaterial(selectedMaterial.value)!.entity] : []
-                // let libraryName = srcPath.value
-                // if (!libraryName.endsWith('.material.gltf')) {
-                //   libraryName += '.material.gltf'
-                // }
-                // const relativePath = pathJoin('assets', libraryName)
-                // const gltf = (await exportMaterialsGLTF(materials, {
-                //   binary: false,
-                //   relativePath
-                // })!) as /*ArrayBuffer*/ { [key: string]: any }
-                // const blob = [JSON.stringify(gltf)]
-                // const file = new File(blob, libraryName)
-                // /*const pName = editorState.projectName.value!
-                // const blob = [gltf]
-                // const file = new File(blob, "material-test.glb")*/
-                // const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
-                // console.log('exported material data to ', ...urls)
+                const projectName = getState(EditorState).projectName!
+                const materials = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
+                let libraryName = srcPath.value
+                if (!libraryName.endsWith('.material.gltf')) {
+                  libraryName += '.material.gltf'
+                }
+                const relativePath = pathJoin('assets', libraryName)
+                const gltf = (await exportMaterialsGLTF(materials, {
+                  binary: false,
+                  relativePath
+                })!) as /*ArrayBuffer*/ { [key: string]: any }
+                const blob = [JSON.stringify(gltf)]
+                const file = new File(blob, libraryName)
+                /*const pName = editorState.projectName.value!
+                const blob = [gltf]
+                const file = new File(blob, "material-test.glb")*/
+                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
+                console.log('exported material data to ', ...urls)
               }}
             >
               Save
