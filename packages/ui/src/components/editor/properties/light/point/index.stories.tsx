@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Properties/Transform',
+  title: 'Editor/Properties/Light/Point',
   component: Component,
   parameters: {
-    componentSubtitle: 'TransformNodeEditor',
-    jest: 'transformNodeEditor.test.tsx',
+    componentSubtitle: 'PointLightNodeEditor',
+    jest: 'pointLightNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''

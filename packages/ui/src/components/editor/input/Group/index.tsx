@@ -27,22 +27,8 @@ import React from 'react'
 
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
-import { createStyles } from '@mui/material'
-import Grid from '@mui/material/Grid'
-import makeStyles from '@mui/styles/makeStyles'
 import { twMerge } from 'tailwind-merge'
 import { InfoTooltip } from '../../layout/Tooltip'
-
-const useStyles = makeStyles<any, any, any>(() => {
-  return createStyles({
-    info: {
-      color: 'var(--textColor)',
-      height: '16px',
-      width: 'auto',
-      marginLeft: '5px'
-    }
-  })
-})
 
 /**
  * Used to provide styles for InputGroupContainer div.
@@ -64,7 +50,7 @@ export const InputGroupContainer = ({ disabled = false, children, ...rest }) => 
 export const InputGroupContent = ({ extraClassName = '', children }) => (
   <div
     className={twMerge(
-      'ml-[5px] flex justify-between',
+      'ml-4 flex justify-between',
       '[&>label]:block [&>label]:w-[35%] [&>label]:pb-0.5 [&>label]:pt-1 [&>label]:text-neutral-400',
       "font-['Figtree'] text-xs font-normal text-neutral-400",
       '[&>*:first-child]:max-w-[calc(100%_-_2px)]',
@@ -152,26 +138,23 @@ export function InputGroup({
   contentClasses,
   ...rest
 }: InputGroupProps) {
-  const styles = useStyles({})
-
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <Grid container>
-        <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
-          <label className={`text-right font-['Figtree'] text-xs font-normal text-neutral-400 ${labelClasses}`}>
-            {label}
-          </label>
+      <div className="grid grid-cols-12">
+        <div className="col-span-4 flex items-center justify-end">
+          <label className={`text-right text-xs font-normal text-neutral-400 ${labelClasses}`}>{label}</label>
 
           {info && (
             <InfoTooltip title={info}>
-              <InfoOutlined className={styles.info} />
+              <InfoOutlined className="ml-[5px] h-[16px] w-[auto] text-neutral-400" />
             </InfoTooltip>
           )}
-        </Grid>
-        <Grid item xs={8}>
+        </div>
+
+        <div className="col-span-8 flex items-center justify-start">
           <InputGroupContent extraClassName={contentClasses}>{children}</InputGroupContent>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </InputGroupContainer>
   )
 }

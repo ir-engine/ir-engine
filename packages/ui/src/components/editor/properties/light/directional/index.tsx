@@ -22,21 +22,22 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import React from 'react'
+import React, { Component } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 
 import BoltIcon from '@mui/icons-material/Bolt'
 
-import ColorInput from '../inputs/ColorInput'
-import InputGroup from '../inputs/InputGroup'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import LightShadowProperties from './LightShadowProperties'
-import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
+import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
+import NodeEditor from '../../nodeEditor'
+import LightShadowProperties from '../shadowProperties'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -45,7 +46,7 @@ import { EditorComponentType, commitProperty, updateProperty } from './Util'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
+  //const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
 
   return (
     <NodeEditor
@@ -54,36 +55,42 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.directionalLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
-        <ColorInput
+        {/*<ColorInput
           value={lightComponent.color}
           onChange={updateProperty(DirectionalLightComponent, 'color')}
           onRelease={commitProperty(DirectionalLightComponent, 'color')}
+        />*/}
+      </InputGroup>
+      <InputGroup name="Intensity" label={t('editor:properties.directionalLight.lbl-intensity')}>
+        <NumericInput
+          min={0}
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          value={
+            //lightComponent.intensity
+            0
+          }
+          onChange={updateProperty(DirectionalLightComponent, 'intensity')}
+          onRelease={commitProperty(DirectionalLightComponent, 'intensity')}
+          unit="cd"
         />
       </InputGroup>
-      <NumericInputGroup
-        name="Intensity"
-        label={t('editor:properties.directionalLight.lbl-intensity')}
-        min={0}
-        smallStep={0.001}
-        mediumStep={0.01}
-        largeStep={0.1}
-        value={lightComponent.intensity}
-        onChange={updateProperty(DirectionalLightComponent, 'intensity')}
-        onRelease={commitProperty(DirectionalLightComponent, 'intensity')}
-        unit="cd"
-      />
       <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
-      <NumericInputGroup
-        name="CameraFar"
-        label={t('editor:properties.directionalLight.lbl-cameraFar')}
-        min={0}
-        smallStep={0.01}
-        mediumStep={0.1}
-        largeStep={1}
-        value={lightComponent.cameraFar}
-        onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
-        onRelease={commitProperty(DirectionalLightComponent, 'cameraFar')}
-      />
+      <InputGroup name="Camera Near" label={t('editor:properties.directionalLight.lbl-cameraNear')}>
+        <NumericInput
+          min={0}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          value={
+            //lightComponent.cameraFar
+            0
+          }
+          onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
+          onRelease={commitProperty(DirectionalLightComponent, 'cameraFar')}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

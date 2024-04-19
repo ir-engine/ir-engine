@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Properties/Transform',
+  title: 'Editor/Properties/Image/SourceProperties',
   component: Component,
   parameters: {
-    componentSubtitle: 'TransformNodeEditor',
-    jest: 'transformNodeEditor.test.tsx',
+    componentSubtitle: 'ImageSourcePropertiesEditor',
+    jest: 'imageNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -40,4 +40,4 @@ export default {
   },
   argTypes
 }
-export const Default = { args: {} }
+export const Default = { args: Component.defaultProps }

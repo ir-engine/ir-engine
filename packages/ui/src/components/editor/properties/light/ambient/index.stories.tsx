@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Properties/Transform',
+  title: 'Editor/Properties/Light/Ambient',
   component: Component,
   parameters: {
-    componentSubtitle: 'TransformNodeEditor',
-    jest: 'transformNodeEditor.test.tsx',
+    componentSubtitle: 'AmbientLightNodeEditor',
+    jest: 'ambientLightNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''

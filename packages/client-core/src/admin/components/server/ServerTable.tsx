@@ -108,7 +108,7 @@ export default function ServerTable({
             {t('admin:components.server.viewLogs')}
           </Button>
           <Button
-            rounded
+            rounded="full"
             variant="outline"
             className="h-8 w-8"
             onClick={() => {
