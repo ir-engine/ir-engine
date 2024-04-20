@@ -28,11 +28,11 @@ import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { ChatPage } from '@etherealengine/ui/src/pages/Chat/chat'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 export default function Chat() {
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+    <Suspense fallback={<LoadingView title={t('common:loader.loadingLocation')} />}>
       <Routes>
         <Route path="*" element={<ChatPage />} />
       </Routes>
