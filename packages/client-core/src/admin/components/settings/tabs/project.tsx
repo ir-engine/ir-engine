@@ -31,7 +31,7 @@ import { useGet, useMutation } from '@etherealengine/spatial/src/common/function
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { forwardRef, useEffect } from 'react'
@@ -169,7 +169,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
               className="col-span-1"
               fullWidth
               onClick={handleSubmit}
-              startIcon={state.loading.value && <LoadingCircle className="h-8 w-8" />}
+              startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
             >
               {t('admin:components.setting.project.submit')}
             </Button>
