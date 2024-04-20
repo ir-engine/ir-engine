@@ -88,8 +88,6 @@ export async function addMediaNode(
       mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1
       pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
 
-      pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
-
       const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, true)
       //change states
       const intersected = pointerScreenRaycaster.intersectObjects(sceneObjects)[0]

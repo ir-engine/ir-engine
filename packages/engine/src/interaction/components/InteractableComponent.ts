@@ -50,25 +50,17 @@ export const InteractableComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.label) component.label.set(json.label)
-
-    // backwards compatibility
-    const callbackID = (json as any).callbackID ?? null
-    const target = (json as any).target ?? null
-    if (!!callbackID || !!target) {
-      component.callbacks.set([{ callbackID, target }])
-    } else if (typeof json.callbacks === 'object') {
-      if (
-        matches
-          .arrayOf(
-            matches.shape({
-              callbackID: matches.nill.orParser(matches.string),
-              target: matches.nill.orParser(matches.string)
-            })
-          )
-          .test(json.callbacks)
-      ) {
-        component.callbacks.set(json.callbacks)
-      }
+    if (
+      matches
+        .arrayOf(
+          matches.shape({
+            callbackID: matches.nill.orParser(matches.string),
+            target: matches.nill.orParser(matches.string)
+          })
+        )
+        .test(json.callbacks)
+    ) {
+      component.callbacks.set(json.callbacks)
     }
   },
 

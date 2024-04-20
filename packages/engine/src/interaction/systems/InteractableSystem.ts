@@ -133,6 +133,7 @@ export const removeInteractableUI = (entity: Entity) => {
   }
 }
 
+//TODO refactor this to essentially be a flag to use its own default update or turn it off. replace overrides with manual manipulation from external systems
 export const addInteractableUI = (
   entity: Entity,
   xrui: ReturnType<typeof createXRUI>,

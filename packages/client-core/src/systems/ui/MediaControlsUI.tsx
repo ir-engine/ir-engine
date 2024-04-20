@@ -37,7 +37,7 @@ import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRU
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
-  return createXRUI(MediaControls)
+  return createXRUI(MediaControls, null, { interactable: false })
 }
 
 type MediaControlsProps = {

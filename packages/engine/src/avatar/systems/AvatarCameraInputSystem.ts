@@ -196,6 +196,6 @@ const execute = () => {
 
 export const AvatarCameraInputSystem = defineSystem({
   uuid: 'ee.engine.AvatarCameraInputSystem',
-  insert: { after: InputSystemGroup },
+  insert: { with: InputSystemGroup },
   execute
 })

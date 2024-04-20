@@ -26,74 +26,49 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  matches,
   none,
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
+  defineQuery,
+  defineSystem,
   ECSState,
   Engine,
   Entity,
-  SimulationSystemGroup,
-  defineQuery,
-  defineSystem,
   entityExists,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  matchesEntityUUID,
   removeComponent,
   setComponent,
-  useComponent
+  SimulationSystemGroup
 } from '@etherealengine/ecs'
-import {
-  NetworkObjectAuthorityTag,
-  NetworkObjectComponent,
-  NetworkState,
-  NetworkTopics,
-  WorldNetworkAction
-} from '@etherealengine/network'
+import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { GrabbableComponent, GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
+import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
+import { GrabbableNetworkAction } from '../functions/grabbableFunctions'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractableState, InteractableTransitions, InteractableUI, removeInteractableUI } from './InteractableSystem'
-
-export class GrabbableNetworkAction {
-  static setGrabbedObject = defineAction({
-    type: 'ee.engine.grabbable.SET_GRABBED_OBJECT',
-    entityUUID: matchesEntityUUID,
-    grabbed: matches.boolean,
-    attachmentPoint: matches.literals('left', 'right').optional(),
-    grabberUserId: matchesEntityUUID,
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-}
+import { InteractableState, InteractableTransitions } from './InteractableSystem'
 
 export const GrabbableState = defineState({
   name: 'ee.engine.grabbables.GrabbableState',
@@ -139,10 +114,10 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
   const attachmentPoint = state.attachmentPoint.value
-  const bodyState = useComponent(entity, RigidBodyComponent)?.body
+  const bodyState = useOptionalComponent(entity, RigidBodyComponent)?.body
 
   useEffect(() => {
-    if (!entity || !grabberEntity || !bodyState) return
+    if (!entity || !grabberEntity) return
 
     setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: entity })
     setComponent(entity, GrabbedComponent, {
@@ -150,7 +125,7 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       attachmentPoint
     })
 
-    const body = bodyState.value
+    const body = bodyState?.value
 
     if (body) {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
@@ -200,28 +175,6 @@ export function transferAuthorityOfObjectReceptor(
       })
     )
   }
-}
-
-// since grabbables are all client authoritative, we don't need to recompute this for all users
-export function grabbableQueryAll(grabbableEntity: Entity) {
-  const grabbedComponent = getOptionalComponent(grabbableEntity, GrabbedComponent)
-  if (!grabbedComponent) return
-  const attachmentPoint = grabbedComponent.attachmentPoint
-
-  const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
-
-  const rigidbodyComponent = getOptionalComponent(grabbableEntity, RigidBodyComponent)
-
-  if (rigidbodyComponent) {
-    rigidbodyComponent.targetKinematicPosition.copy(target.position)
-    rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-    rigidbodyComponent.body.setTranslation(target.position, true)
-    rigidbodyComponent.body.setRotation(target.rotation, true)
-  }
-
-  const grabbableTransform = getComponent(grabbableEntity, TransformComponent)
-  grabbableTransform.position.copy(target.position)
-  grabbableTransform.rotation.copy(target.rotation)
 }
 
 const vec3 = new Vector3()
@@ -278,60 +231,9 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
   })
 }
 
-export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachmentPoint: 'left' | 'right'): void => {
-  // todo, do we ever need to handle this in offline contexts?
-  if (!NetworkState.worldNetwork) return console.warn('[GrabbableSystem] no world network found')
-  const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
-    dispatchAction(
-      GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        grabberUserId: getComponent(grabberEntity, UUIDComponent),
-        grabbed: true,
-        attachmentPoint
-      })
-    )
-  } else {
-    dispatchAction(
-      WorldNetworkAction.requestAuthorityOverObject({
-        entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        newAuthority: Engine.instance.store.peerID,
-        $to: networkComponent.ownerPeer
-      })
-    )
-  }
-}
-
-export const dropEntity = (grabberEntity: Entity): void => {
-  const grabberComponent = getComponent(grabberEntity, GrabberComponent)
-  if (!grabberComponent) return
-  const handedness = getState(InputState).preferredHand
-  const grabbedEntity = grabberComponent[handedness]!
-  if (!grabbedEntity) return
-  const networkComponent = getComponent(grabbedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.store.peerID) {
-    dispatchAction(
-      GrabbableNetworkAction.setGrabbedObject({
-        entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        grabberUserId: getComponent(grabberEntity, UUIDComponent),
-        grabbed: false
-      })
-    )
-  } else {
-    dispatchAction(
-      WorldNetworkAction.transferAuthorityOfObject({
-        ownerID: Engine.instance.userID,
-        entityUUID: getComponent(grabbedEntity, UUIDComponent),
-        newAuthority: networkComponent.authorityPeerID
-      })
-    )
-  }
-}
-
 /**
  * @todo refactor this into i18n and configurable
  */
-export const grabbableInteractMessage = 'Grab'
 
 /** @todo replace this with event sourcing */
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
@@ -339,85 +241,36 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 const grabbableQuery = defineQuery([GrabbableComponent])
 
-const onDrop = () => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
-  const handedness = getState(InputState).preferredHand
-  const grabbedEntity = grabber[handedness]!
-  if (!grabbedEntity) return
-  dropEntity(selfAvatarEntity)
-  updateUI(grabbedEntity)
-}
-
-const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  if (!hasComponent(targetEntity, GrabbableComponent)) return
-  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
-  const grabbedEntity = grabber[handedness]!
-  if (!grabbedEntity) return
-  if (grabbedEntity) {
-    onDrop()
-  } else {
-    grabEntity(selfAvatarEntity, targetEntity, handedness)
-  }
-}
-
 const execute = () => {
   if (getState(EngineState).isEditor) return
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
-  /**
-   * @todo use an XRUI pool
-   * @todo this should move to animation group
-   */
-  if (isClient)
-    for (const entity of grabbableQuery.enter()) {
-      setCallback(entity, 'grabCallback', () => grabCallback(entity))
-      setComponent(entity, InteractableComponent, {
-        label: grabbableInteractMessage,
-        callbacks: [
-          {
-            callbackID: 'grabCallback',
-            target: null
-          }
-        ]
-      })
+  for (const entity of ownedGrabbableQuery()) {
+    const grabbedComponent = getOptionalComponent(entity, GrabbedComponent)
+    if (!grabbedComponent) return
+    const attachmentPoint = grabbedComponent.attachmentPoint
 
-      //addInteractableUI(entity, createInteractUI(entity, grabbableInteractMessage), onGrabbableInteractUpdate)
+    const target = getHandTarget(grabbedComponent.grabberEntity, attachmentPoint ?? 'right')!
+
+    const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
+
+    if (rigidbodyComponent) {
+      rigidbodyComponent.targetKinematicPosition.copy(target.position)
+      rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
+      rigidbodyComponent.body.setTranslation(target.position, true)
+      rigidbodyComponent.body.setRotation(target.rotation, true)
     }
 
-  for (const entity of grabbableQuery.exit()) {
-    removeInteractableUI(entity)
-  }
-
-  for (const entity of ownedGrabbableQuery()) {
-    grabbableQueryAll(entity)
+    const grabbableTransform = getComponent(entity, TransformComponent)
+    grabbableTransform.position.copy(target.position)
+    grabbableTransform.rotation.copy(target.rotation)
   }
 }
 
 const executeInput = () => {
-  // const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  // if (!inputPointerEntity) return
-
   const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.KeyU?.down) onDrop()
-}
-
-const updateUI = (entity: Entity) => {
-  const isGrabbed = hasComponent(entity, GrabbedComponent)
-  if (isGrabbed) {
-    setVisibleComponent(InteractableUI.get(entity)!.xrui.entity!, !isGrabbed)
-  }
-}
-
-const grabCallback = (targetEntity: Entity) => {
-  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSources) {
-    const inputSource = getComponent(entity, InputSourceComponent)
-    onGrab(targetEntity, inputSource.source.handedness === 'left' ? 'left' : 'right')
-    updateUI(targetEntity)
-  }
 }
 
 export const GrabbableSystem = defineSystem({

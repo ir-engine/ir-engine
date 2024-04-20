@@ -23,12 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@etherealengine/ecs'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, hasComponent, useEntityContext } from '@etherealengine/ecs'
 import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { getState } from '@etherealengine/hyperflux'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { dropEntity, grabEntity, grabbableInteractMessage } from '../functions/grabbableFunctions'
+import { InteractableUI, removeInteractableUI } from '../systems/InteractableSystem'
+import { InteractableComponent } from './InteractableComponent'
 
 /**
  * GrabbableComponent
@@ -43,11 +51,66 @@ export const GrabbableComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     useEffect(() => {
-      setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+      if (isClient) {
+        setCallback(entity, 'grabCallback', () => grabCallback(entity))
+        setComponent(entity, InteractableComponent, {
+          label: grabbableInteractMessage,
+          callbacks: [
+            {
+              callbackID: 'grabCallback',
+              target: null
+            }
+          ]
+        })
+
+        //addInteractableUI(entity, createInteractUI(entity, grabbableInteractMessage), onGrabbableInteractUpdate)
+      }
+
+      //unmount
+      return () => {
+        removeInteractableUI(entity)
+      }
     }, [])
     return null
   }
 })
+
+const grabCallback = (targetEntity: Entity) => {
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSources()
+  for (const entity of nonCapturedInputSources) {
+    const inputSource = getComponent(entity, InputSourceComponent)
+    onGrab(targetEntity, inputSource.source.handedness === 'left' ? 'left' : 'right')
+    updateUI(targetEntity)
+  }
+}
+const updateUI = (entity: Entity) => {
+  const isGrabbed = hasComponent(entity, GrabbedComponent)
+  if (isGrabbed) {
+    setVisibleComponent(InteractableUI.get(entity)!.xrui.entity!, !isGrabbed)
+  }
+}
+
+const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  if (!hasComponent(targetEntity, GrabbableComponent)) return
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
+  if (grabbedEntity) {
+    onDrop()
+  } else {
+    grabEntity(selfAvatarEntity, targetEntity, handedness)
+  }
+}
+export const onDrop = () => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const grabber = getComponent(selfAvatarEntity, GrabberComponent)
+  const handedness = getState(InputState).preferredHand
+  const grabbedEntity = grabber[handedness]!
+  if (!grabbedEntity) return
+  dropEntity(selfAvatarEntity)
+  updateUI(grabbedEntity)
+}
 
 /**
  * GrabbedComponent

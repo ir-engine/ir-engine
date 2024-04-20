@@ -45,12 +45,14 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceHooks'
@@ -253,6 +255,8 @@ export function MediaReactor() {
   if (!isClient) return null
 
   useEffect(() => {
+    setComponent(entity, BoundingBoxComponent)
+    setComponent(entity, InputComponent, { highlight: false, grow: false })
     const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
