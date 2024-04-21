@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
+import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -42,7 +43,8 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     if (this.writer.options.binary || this.writer.options.embedImages) return
     const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
     if (!materialEntity) return
-    const src = getComponent(materialEntity, UUIDComponent)
+    const src = getComponent(materialEntity, SourceComponent)
+    console.log(src)
     const resolvedPath = pathResolver().exec(src)!
     let relativeSrc = resolvedPath[2]
     relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
