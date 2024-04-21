@@ -44,7 +44,6 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
     if (!materialEntity) return
     const src = getComponent(materialEntity, SourceComponent)
-    console.log(src)
     const resolvedPath = pathResolver().exec(src)!
     let relativeSrc = resolvedPath[2]
     relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
