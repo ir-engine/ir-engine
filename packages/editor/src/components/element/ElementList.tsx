@@ -67,6 +67,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
+import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -101,7 +102,8 @@ export const ComponentShelfCategoriesState = defineState({
         PositionalAudioComponent,
         AudioAnalysisComponent,
         VideoComponent,
-        ImageComponent
+        ImageComponent,
+        PlaylistComponent
       ],
       'Scene Composition': [
         PrimitiveGeometryComponent,
