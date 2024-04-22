@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Input/Numeric/Compound',
+  title: 'Editor/Properties/Envmap',
   component: Component,
   parameters: {
-    componentSubtitle: 'CompoundNumericInput',
-    jest: 'CompoundNumeric.test.tsx',
+    componentSubtitle: 'EnvmapNodeEditor',
+    jest: 'envmapNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -40,4 +40,4 @@ export default {
   },
   argTypes
 }
-export const Default = { args: Component.defaultProps }
+export const Default = { args: {} }

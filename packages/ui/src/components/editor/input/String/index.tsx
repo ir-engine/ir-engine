@@ -44,8 +44,8 @@ export interface StringInputProps {
   disabled?: boolean
 }
 
-const StringInput = ({ value, onChange, onRelease, onFocus, disabled, placeholder, type, ...rest }) => {
-  const { error, canDrop, ...other } = rest
+const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) => {
+  const { error, canDrop, disabled, placeholder, type, onFocus, ...other } = rest
   return (
     <Input
       containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"

@@ -23,34 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import { useTranslation } from 'react-i18next'
+import NodeEditor from '../nodeEditor'
 
-// make new component instead
+/**
+ * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
+ *
+ * @type {Class component}
+ */
+export const SpawnPointNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
 
-const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) => {
+  //const spawnComponent = useComponent(props.entity, SpawnPointComponent)
+
   return (
-    <Select
-      options={options}
-      className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
-      arrowClassname="text-neutral-400 absolute right-3 top-2"
-      value={value}
-      onChange={onChange!}
-      {...rest}
-    />
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.spawnPoint.name')}
+      description={t('editor:properties.spawnPoint.description')}
+    ></NodeEditor>
   )
 }
 
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch size="1.5em" /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump size="1.5em" /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower size="1.5em" /> }
-  ],
-  currentValue: 'a',
-  onChange: () => {}
-}
+SpawnPointNodeEditor.iconComponent = StreetviewIcon
 
-export default SelectInput
+export default SpawnPointNodeEditor

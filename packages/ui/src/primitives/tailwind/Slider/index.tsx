@@ -32,9 +32,10 @@ export interface SliderProps {
   max?: number
   step?: number
   onChange: (value: number) => void
+  onRelease: (value: number) => void
 }
 
-const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
+const Slider = ({ value, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps) => {
   useEffect(() => {
     // no external css file, we cannot target ::-webkit-slider-thumb other wise
     const style = document.createElement('style')
@@ -78,6 +79,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
         max={max}
         value={value}
         onChange={handleInputChange}
+        onBlur={() => onRelease(value)}
         className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
@@ -86,6 +88,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange }) => {
         max={max}
         value={value}
         onChange={handleChange}
+        onBlur={() => onRelease(value)}
         step={step}
         className="h-8 w-[200px] appearance-none rounded bg-neutral-900 accent-slate-400"
         style={{

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
@@ -47,7 +46,7 @@ import NodeEditor from '../../nodeEditor'
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
+  //const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
 
   return (
     <NodeEditor
@@ -56,11 +55,20 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.hemisphere.description')}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
+        <ColorInput
+          value={
+            //lightComponent.skyColor
+            undefined
+          }
+          onChange={updateProperty(HemisphereLightComponent, 'skyColor')}
+        />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
         <ColorInput
-          value={lightComponent.groundColor}
+          value={
+            //lightComponent.groundColor
+            undefined
+          }
           onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
         />
       </InputGroup>
@@ -70,7 +78,10 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={lightComponent.intensity}
+          value={
+            //lightComponent.intensity
+            0
+          }
           onChange={updateProperty(HemisphereLightComponent, 'intensity')}
           onRelease={commitProperty(HemisphereLightComponent, 'intensity')}
           unit="cd"

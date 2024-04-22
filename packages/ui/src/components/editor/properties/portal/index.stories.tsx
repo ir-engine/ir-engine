@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Input/Numeric/Group',
+  title: 'Editor/Properties/Portal',
   component: Component,
   parameters: {
-    componentSubtitle: 'NumericInputGroup',
-    jest: 'NumericInputGroup.test.tsx',
+    componentSubtitle: 'PortalNodeEditor',
+    jest: 'portalNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -40,4 +40,4 @@ export default {
   },
   argTypes
 }
-export const Default = { args: Component.defaultProps }
+export const Default = { args: {} }

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
@@ -48,12 +47,18 @@ import LightShadowProperties from '../shadowProperties'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.entity, SpotLightComponent).value
+  //const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
+        <ColorInput
+          value={
+            //lightComponent.color
+            undefined
+          }
+          onChange={updateProperty(SpotLightComponent, 'color')}
+        />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput
@@ -61,7 +66,10 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={lightComponent.intensity}
+          value={
+            //lightComponent.intensity
+            0
+          }
           onChange={updateProperty(SpotLightComponent, 'intensity')}
           onRelease={commitProperty(SpotLightComponent, 'intensity')}
         />
@@ -72,7 +80,10 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={1}
           smallStep={0.01}
           mediumStep={0.1}
-          value={lightComponent.penumbra}
+          value={
+            //lightComponent.penumbra
+            0
+          }
           onChange={updateProperty(SpotLightComponent, 'penumbra')}
           onRelease={commitProperty(SpotLightComponent, 'penumbra')}
         />
@@ -96,7 +107,10 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={lightComponent.range}
+          value={
+            //lightComponent.range
+            0
+          }
           onChange={updateProperty(SpotLightComponent, 'range')}
           onRelease={commitProperty(SpotLightComponent, 'range')}
           unit="m"
@@ -108,7 +122,10 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={10}
           smallStep={0.1}
           mediumStep={1}
-          value={lightComponent.decay}
+          value={
+            //lightComponent.decay
+            0
+          }
           onChange={updateProperty(SpotLightComponent, 'decay')}
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />

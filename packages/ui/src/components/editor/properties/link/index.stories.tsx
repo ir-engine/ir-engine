@@ -23,34 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import Component from './index'
 
-// make new component instead
+const argTypes = {}
 
-const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) => {
-  return (
-    <Select
-      options={options}
-      className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
-      arrowClassname="text-neutral-400 absolute right-3 top-2"
-      value={value}
-      onChange={onChange!}
-      {...rest}
-    />
-  )
+export default {
+  title: 'Editor/Properties/Link',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'LinkNodeEditor',
+    jest: 'linkNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch size="1.5em" /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump size="1.5em" /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower size="1.5em" /> }
-  ],
-  currentValue: 'a',
-  onChange: () => {}
-}
-
-export default SelectInput
+export const Default = { args: {} }
