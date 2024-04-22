@@ -97,7 +97,10 @@ cli.main(async () => {
             }
           )
         } catch (err) {
-          console.error('cronjob update error on', `${process.env.RELEASE_NAME}-${project.name}-auto-update`, err)
+          await k8BatchClient.createNamespacedCronJob(
+            'default',
+            getCronJobBody(project, `${options.repoUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`)
+          )
         }
       }
     cli.exit(0)

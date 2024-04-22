@@ -96,7 +96,7 @@ fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
+npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${DESTINATION_REPO_NAME_STEM} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
 
 npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
 npm run record-build-success
