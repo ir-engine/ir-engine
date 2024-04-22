@@ -444,3 +444,60 @@ export function haveCommonAncestor(entity1: Entity, entity2: Entity): boolean {
 
   return false
 }
+
+// Returns an array of objects that are not ancestors of any other objects in the array.
+export function findCommonAncestors(objects: Entity[], target: Entity[] = []): Entity[] {
+  // Initially all objects are candidates
+  for (let i = 0; i < objects.length; i++) target.push(objects[i])
+
+  // For each object check if it is an ancestor of any of the other objects.
+  // If so reject that object and remove it from the candidate array.
+  for (let i = 0; i < objects.length; i++) {
+    const object = objects[i]
+    let validCandidate = true
+
+    for (let j = 0; j < target.length; j++) {
+      if (isAncestor(target[j], object)) {
+        validCandidate = false
+        break
+      }
+    }
+
+    if (!validCandidate) {
+      const index = findIndexOfEntityNode(target, object)
+      if (index === -1) throw new Error('Object not found')
+
+      target.splice(index, 1)
+    }
+  }
+
+  return target
+}
+
+export function isAncestor(parent: Entity, potentialChild: Entity) {
+  if (!potentialChild) return false
+  if (parent === potentialChild) return false
+  return traverseEarlyOut(parent, (child) => child === potentialChild)
+}
+
+export function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean): boolean {
+  let stopTravel = cb(entity)
+
+  if (stopTravel) return stopTravel
+
+  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
+
+  const children = entityTreeComponent.children
+  if (!children) return stopTravel
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+
+    if (child) {
+      stopTravel = traverseEarlyOut(child, cb)
+      if (stopTravel) break
+    }
+  }
+
+  return stopTravel
+}

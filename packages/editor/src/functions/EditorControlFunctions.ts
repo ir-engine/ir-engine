@@ -50,6 +50,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import {
   EntityTreeComponent,
   findAncestorWithComponent,
+  findCommonAncestors,
   iterateEntityNode,
   traverseEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -61,7 +62,6 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
-import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 
 const getSourcesForEntities = (entities: Entity[]) => {
   const scenes: Record<string, Entity[]> = {}
@@ -286,18 +286,19 @@ const createObjectFromSceneElement = (
         extensions[VisibleComponent.jsonID] = true
       }
 
-      gltf.data.nodes?.splice(nodeIndex, 0, {
+      gltf.data.nodes!.splice(nodeIndex, 0, {
         name: componentJson[0].name,
-        extensions,
-        children: []
+        extensions
       })
 
       if (parentEntity === EditorState.rootEntity) {
-        gltf.data.scenes?.[0].nodes.push(nodeIndex)
+        gltf.data.scenes![0].nodes.push(nodeIndex)
       } else {
         const parentUUID = getComponent(parentEntity, UUIDComponent)
         const parentNode = getGLTFNodeByUUID(gltf.data, parentUUID)
-        parentNode?.children?.push(nodeIndex)
+        if (!parentNode) continue
+        if (!parentNode.children) parentNode.children = []
+        parentNode.children.push(nodeIndex)
       }
 
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
@@ -357,7 +358,7 @@ const duplicateObject = (entities: Entity[]) => {
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
-    const rootEntities = getDetachedObjectsRoots(entities)
+    const rootEntities = findCommonAncestors(entities)
 
     const copyMap = {} as { [entityUUID: EntityUUID | string]: EntityUUID | string }
 
