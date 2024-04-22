@@ -28,8 +28,6 @@ import { BufferGeometry, Material, Mesh, Scene } from 'three'
 import { Entity, getComponent } from '@etherealengine/ecs'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { v4 as uuidv4 } from 'uuid'
-import { SourceComponent } from '../../scene/components/SourceComponent'
-import { createMaterialEntity, unregisterMaterial } from '../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 
@@ -46,7 +44,6 @@ export default async function exportMaterialsGLTF(
   for (const material of materialEntities) {
     const nuMat: Material = getComponent(material, MaterialComponent).material!.clone()
     nuMat.uuid = uuidv4()
-    createMaterialEntity(nuMat, getComponent(material, SourceComponent))
     nuMats.push(nuMat)
   }
   const lib = new Mesh(dudGeo, nuMats)
@@ -68,7 +65,6 @@ export default async function exportMaterialsGLTF(
     )
   })
   for (const material of nuMats) {
-    unregisterMaterial(material)
     material.dispose()
   }
   return gltf

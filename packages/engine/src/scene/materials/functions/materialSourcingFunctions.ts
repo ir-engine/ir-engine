@@ -110,20 +110,18 @@ export const createMaterialEntity = (material: Material, path: string) => {
   return materialEntity
 }
 
-export const removeMaterialEntity = (entity: Entity) => {
-  delete MaterialComponent.materialByName[getComponent(entity, NameComponent)]
-  delete MaterialComponent.materialByHash[
-    hashMaterial(getComponent(entity, SourceComponent), getComponent(entity, NameComponent))
-  ]
-  removeEntity(entity)
-}
-
+/** Removes an instance of a material, also removes its referenced material entity if there are no remaining references to it */
 export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) => {
   const materialComponent = getComponent(sourceEntity, MaterialComponent)
-  const sourceMaterial = getComponent(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]), MaterialComponent)
+  const materialEntity = UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex])
+  const sourceMaterial = getComponent(materialEntity, MaterialComponent)
   const instances = sourceMaterial.instances.filter((instance) => instance !== sourceEntity)
   if (instances.length === 0) {
-    removeMaterialEntity(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]))
+    delete MaterialComponent.materialByName[getComponent(materialEntity, NameComponent)]
+    delete MaterialComponent.materialByHash[
+      hashMaterial(getComponent(materialEntity, SourceComponent), getComponent(materialEntity, NameComponent))
+    ]
+    removeEntity(materialEntity)
   }
   return instances.length
 }
@@ -282,29 +280,6 @@ export function getMaterialSource(material: Material): string | null {
 //     return true
 //   } else return false
 // }
-
-export function unregisterMaterial(material: Material) {
-  // const materialLibrary = getMutableState(MaterialLibraryState)
-  // try {
-  //   const matEntry = materialFromId(material.uuid)
-  //   const materialSelectionState = getMutableState(MaterialSelectionState)
-  //   if (materialSelectionState.selectedMaterial.value === material.uuid) {
-  //     materialSelectionState.selectedMaterial.set(null)
-  //   }
-  //   materialLibrary.materials[material.uuid].set(none)
-  //   const srcEntry = materialLibrary.sources[hashMaterialSource(matEntry.src)].entries
-  //   srcEntry.set(srcEntry.value.filter((matId) => matId !== material.uuid))
-  //   if (srcEntry.value.length === 0) {
-  //     removeMaterialSource(matEntry.src)
-  //   }
-  //   return matEntry
-  // } catch (error) {
-  //   if (error instanceof MaterialNotFoundError) {
-  //     console.warn('material is already unregistered')
-  //     return undefined
-  //   } else throw error
-  // }
-}
 
 const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 

@@ -27,6 +27,7 @@ import { Material, Shader } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 export type MaterialWithEntity = Material & { entity: Entity }
@@ -87,6 +88,12 @@ export const MaterialComponent = defineComponent({
     if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)
     if (json.prototypeName) component.prototypeName.set(json.prototypeName)
     if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)
+  },
+
+  onRemove: (entity, component) => {
+    for (let i = 0; i < component.uuid.value.length; i++) {
+      removeMaterialInstance(entity, i)
+    }
   }
 })
 
