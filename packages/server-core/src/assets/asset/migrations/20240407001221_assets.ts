@@ -25,26 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
 import type { Knex } from 'knex'
-import path from 'path'
 import { v4 } from 'uuid'
-
-const projectsPath = path.resolve(appRootPath.path, 'packages/projects/projects')
-
-const getAllScenes = () =>
-  fs
-    .readdirSync(projectsPath)
-    .map((project) =>
-      fs
-        .readdirSync(path.resolve(projectsPath, project))
-        .filter((scene) => scene.endsWith('.scene.json'))
-        .map((scene) => 'projects/' + project + '/' + scene)
-    )
-    .flat()
 
 /**
  * @param { import("knex").Knex } knex
@@ -69,21 +53,22 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('updatedAt').notNullable()
     })
 
-    const locations = getAllScenes()
+    const locations = await trx.select().from(locationPath)
     if (locations.length > 0) {
       const locationSceneIds = await Promise.all(
         locations
-          .map(async (scenePath: string) => {
+          .filter((item) => item.sceneId)
+          .map(async (location: LocationType) => {
             const id = v4()
-            await trx.from(locationPath).where({ sceneId: scenePath }).update({ sceneId: id })
-            const [, projectName] = scenePath.split('/')
+            await trx.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
+            const [, projectName] = location.sceneId.split('/')
             const projects = await trx.select().from(projectPath).where('name', projectName)
             if (!projects.length) return
             const projectId = projects[0].id
             return {
               id,
-              assetURL: scenePath,
-              thumbnailURL: scenePath.replace('.scene.json', '.thumbnail.jpg'),
+              assetURL: location.sceneId,
+              thumbnailURL: location.sceneId.replace('.scene.json', '.thumbnail.jpg'),
               projectId,
               createdAt: await getDateTimeSql(),
               updatedAt: await getDateTimeSql()
