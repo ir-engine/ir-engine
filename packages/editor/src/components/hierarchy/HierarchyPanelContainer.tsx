@@ -96,6 +96,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const sceneID = useHookstate(getMutableState(EditorState).sceneID)
   const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
+  const studioMode = useHookstate(getMutableState(EditorHelperState).studioMode)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -490,7 +491,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           }}
           onClick={(event) => {
             anchorElement.set(event.currentTarget)
-            if (getMutableState(EditorHelperState).studioMode.value == 'Advanced') {
+            if (studioMode.value == 'Advanced') {
               EditorControlFunctions.createObjectFromSceneElement()
             }
           }}
@@ -507,7 +508,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       >
         <Popover
           id={open ? 'add-component-popover' : undefined}
-          open={open && getMutableState(EditorHelperState).studioMode.value == 'Simple'}
+          open={open && studioMode.value == 'Simple'}
           anchorEl={anchorElement.value}
           onClose={() => anchorElement.set(null)}
           anchorOrigin={{

@@ -35,6 +35,7 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { Popover } from '@mui/material'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -62,7 +63,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   useHookstate(getMutableState(ComponentEditorsState).keys).value
   const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
-
+  const studioMode = useHookstate(getMutableState(EditorHelperState).studioMode)
   const open = !!anchorEl.value
 
   return (
@@ -74,13 +75,16 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
-        <PropertiesPanelButton onClick={(event) => anchorEl.set(event.currentTarget)}>
+        <PropertiesPanelButton
+          onClick={(event) => anchorEl.set(event.currentTarget)}
+          style={{ display: studioMode.value === 'Simple' ? 'none' : 'block' }}
+        >
           {t('editor:properties.lbl-addComponent')}
         </PropertiesPanelButton>
       </div>
       <Popover
         id={open ? 'add-component-popover' : undefined}
-        open={open}
+        open={open && studioMode.value == 'Advanced'}
         anchorEl={anchorEl.value}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
