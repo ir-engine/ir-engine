@@ -92,6 +92,11 @@ const EffectsOptions: EffectOptionsType = {
     radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
     modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
   },
+  DotScreenEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    angle: { propertyType: PropertyTypes.Number, name: 'Angle', min: 0, max: 360, step: 0.1 },
+    scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 }
+  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },

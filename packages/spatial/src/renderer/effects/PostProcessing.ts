@@ -32,6 +32,7 @@ import {
   ColorAverageEffect,
   ColorDepthEffect,
   DepthOfFieldEffect,
+  DotScreenEffect,
   EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
@@ -68,7 +69,7 @@ export const Effects = {
   ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
   ColorAverageEffect: 'ColorAverageEffect' as const,
-  // DotScreenEffect: 'DotScreenEffect' as const,
+  DotScreenEffect: 'DotScreenEffect' as const,
   // TiltShiftEffect: 'TiltShiftEffect' as const,
   // GlitchEffect: 'GlitchEffect' as const,
   // GodRaysEffect: 'GodRaysEffect' as const,
@@ -102,7 +103,7 @@ export const EffectMap = {
   [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
   // [Effects.MotionBlurEffect]: MotionBlurEffect,
   [Effects.ColorAverageEffect]: ColorAverageEffect,
-  // [Effects.DotScreenEffect]: DotScreenEffect,
+  [Effects.DotScreenEffect]: DotScreenEffect,
   // [Effects.TiltShiftEffect]: TiltShiftEffect,
   // [Effects.GlitchEffect]: GlitchEffect,
   // [Effects.GodRaysEffect]: GodRaysEffect,
@@ -406,7 +407,7 @@ export type EffectPropsSchema = {
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
   [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
   [Effects.ColorAverageEffect]: ColorAverageEffectProps
-  // [Effects.DotScreenEffect]: DotScreenEffectProps
+  [Effects.DotScreenEffect]: DotScreenEffectProps
   // [Effects.TiltShiftEffect]: TiltShiftEffectProps
   // [Effects.GlitchEffect]: GlitchEffectProps
   // [Effects.GodRaysEffect]: GodRaysEffectProps
@@ -589,7 +590,12 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     isActive: false,
     blendFunction: BlendFunction.NORMAL
   },
-  // [Effects.DotScreenEffect]: { isActive: false, blendFunction: BlendFunction.NORMAL, angle: 1.57, scale: 1.0 },
+  [Effects.DotScreenEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    angle: 1.57,
+    scale: 1.0
+  },
   // [Effects.TiltShiftEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.NORMAL,
