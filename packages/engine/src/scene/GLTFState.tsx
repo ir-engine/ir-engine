@@ -37,6 +37,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { GLTF } from '@gltf-transform/core'
 import { MathUtils } from 'three'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
@@ -48,8 +49,6 @@ export const GLTFState = defineState({
     string,
     {
       entity: Entity
-      /** @todo */
-      // document?: GLTF.IGLTF
     }
   >,
 
@@ -70,4 +69,9 @@ export const GLTFState = defineState({
   unload: (source: string, entity: Entity) => {
     removeEntity(entity)
   }
+})
+
+export const GLTFDocumentState = defineState({
+  name: 'GLTFDocumentState',
+  initial: {} as Record<string, GLTF.IGLTF>
 })
