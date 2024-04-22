@@ -121,7 +121,7 @@ export default function UserTable({
         action: (
           <div className="flex items-center justify-start gap-3">
             <Button
-              rounded
+              rounded="full"
               variant="outline"
               className="h-8 w-8"
               disabled={!userHasAccess('location:write')}
@@ -131,7 +131,7 @@ export default function UserTable({
               <HiPencil className="text-theme-iconGreen place-self-center" />
             </Button>
             <Button
-              rounded
+              rounded="full"
               variant="outline"
               className="h-8 w-8"
               disabled={user.id.value === row.id}

@@ -32,7 +32,6 @@ import InputRadio from '@etherealengine/client-core/src/common/components/InputR
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -44,6 +43,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -421,12 +421,7 @@ const ProjectFields = ({
             <div className={styles.projectVersion}>{t('admin:components.project.destinationRepoEmpty')}</div>
           )}
           {projectUpdateStatus.value?.destinationProcessing && (
-            <LoadingView
-              title={t('admin:components.project.destinationProcessing')}
-              variant="body1"
-              flexDirection="row"
-              fullHeight={false}
-            />
+            <LoadingView title={t('admin:components.project.destinationProcessing')} className="h-6 w-6" />
           )}
 
           {!changeDestination && !createProject && (
@@ -507,29 +502,14 @@ const ProjectFields = ({
             )}
 
           {projectUpdateStatus.value?.branchProcessing && (
-            <LoadingView
-              title={t('admin:components.project.branchProcessing')}
-              flexDirection="row"
-              variant="body1"
-              fullHeight={false}
-            />
+            <LoadingView title={t('admin:components.project.branchProcessing')} className="h-6 w-6" />
           )}
           {projectUpdateStatus.value?.commitsProcessing && (
-            <LoadingView
-              title={t('admin:components.project.commitsProcessing')}
-              flexDirection="row"
-              variant="body1"
-              fullHeight={false}
-            />
+            <LoadingView title={t('admin:components.project.commitsProcessing')} className="h-6 w-6" />
           )}
 
           {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
-            <LoadingView
-              title={t('admin:components.project.sourceVsDestinationProcessing')}
-              variant="body1"
-              flexDirection="row"
-              fullHeight={false}
-            />
+            <LoadingView title={t('admin:components.project.sourceVsDestinationProcessing')} className="h-6 w-6" />
           )}
 
           {!processing &&

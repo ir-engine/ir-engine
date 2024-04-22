@@ -37,6 +37,8 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 import { FileIcon } from './FileIcon'
 
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
@@ -132,10 +134,14 @@ export const FileTableListBody = ({
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
+
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+
   const tableColumns = {
     name: (
       <span className={styles.cellName}>
-        <FileIcon file={file} />
+        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
       </span>
     ),
@@ -174,6 +180,8 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
+  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
       className={styles.fileListItemContainer}
@@ -193,7 +201,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           fontSize: iconSize
         }}
       >
-        <FileIcon file={props.item} showRibbon />
+        <FileIcon thumbnailURL={thumbnailURL} type={props.item.type} isFolder={props.item.isFolder} showRibbon />
       </div>
       {props.isRenaming ? (
         <RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />
