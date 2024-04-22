@@ -121,11 +121,17 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
   if (context.data && context.data.project) {
-    const projectResult = (await context.app
-      .service(projectPath)
-      .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
-    if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
-    context.data.projectId = projectResult.data[0].id
+    if (!context.data.projectId) {
+      const projectResult = (await context.app
+        .service(projectPath)
+        .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
+
+      if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
+
+      context.data.projectId = projectResult.data[0].id
+    } else {
+      delete context.data.projectId
+    }
   }
 }
 
@@ -145,11 +151,17 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
   if (Array.isArray(context.params.query)) throw new BadRequest('Array is not supported')
 
   if (context.params.query && context.params.query.project) {
-    const projectResult = (await context.app
-      .service(projectPath)
-      .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
-    if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
-    context.params.query.projectId = projectResult.data[0].id
+    if (!context.params.query.projectId) {
+      const projectResult = (await context.app
+        .service(projectPath)
+        .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
+
+      if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
+
+      context.params.query.projectId = projectResult.data[0].id
+    } else {
+      delete context.params.query.projectId
+    }
     delete context.params.query.project
   }
 }
