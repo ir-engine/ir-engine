@@ -22,3 +22,62 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import React from 'react'
+import { HiPlus } from 'react-icons/hi2'
+import { PiTrashSimple } from 'react-icons/pi'
+import Input from '../../../../primitives/tailwind/Input'
+import Label from '../../../../primitives/tailwind/Label'
+import Text from '../../../../primitives/tailwind/Text'
+
+export interface ArrayInputProps {
+  name?: string
+  label: string
+  containerClassName?: string
+  values: string[]
+  onChange: (values: string[]) => void
+  inputLabel?: string
+}
+
+// TODO: file and drag and drop functionality
+
+export default function ArrayInputGroup({
+  name,
+  label,
+  containerClassName,
+  values,
+  onChange,
+  inputLabel
+}: ArrayInputProps) {
+  const handleChange = (value: string, index: number, addRemove?: 'add' | 'remove') => {
+    if (addRemove === 'add') {
+      onChange([...values, value])
+    } else if (addRemove === 'remove') {
+      onChange(values.filter((_, idx) => idx !== index))
+    } else {
+      onChange(values.map((v, idx) => (idx === index ? value : v)))
+    }
+  }
+
+  return (
+    <div aria-label={name} className={containerClassName}>
+      <div className="mb-3 flex justify-between">
+        <Text className="ml-5">{label}</Text>
+        <HiPlus className="mr-5 cursor-pointer bg-[#1A1A1A] text-white" onClick={() => handleChange('', 0, 'add')} />
+      </div>
+      <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
+        {values.map((value, idx) => (
+          <div key={value + idx} className="mr-5 flex items-center justify-end gap-x-2.5">
+            {inputLabel && <Label className="text-[#A0A1A2]">{inputLabel + ' ' + (idx + 1)}</Label>}
+            <Input
+              containerClassname="w-32"
+              className="border-none bg-[#242424] text-[#8B8B8D]"
+              value={value}
+              onChange={(event) => handleChange(event.target.value, idx)}
+            />
+            <PiTrashSimple className="cursor-pointer text-[#444]" onClick={() => handleChange('', idx, 'remove')} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

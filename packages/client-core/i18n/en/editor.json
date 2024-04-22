@@ -228,6 +228,7 @@
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
+      "path": "Path",
       "paths": "Source Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",

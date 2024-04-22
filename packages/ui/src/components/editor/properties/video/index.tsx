@@ -63,9 +63,6 @@ const projectionOptions = [
 
 /**
  * VideoNodeEditor used to render editor view for property customization.
- *
- * @param       {any} props
- * @constructor
  */
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

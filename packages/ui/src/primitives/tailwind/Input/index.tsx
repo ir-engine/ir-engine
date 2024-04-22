@@ -91,7 +91,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       containerClassname
     )
 
-    const containerClass = variant === 'outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
+    const containerClass = variant === 'outlined' ? 'bg-inherit relative w-full' : ' relative w-full'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (

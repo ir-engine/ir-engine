@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Input/Array',
+  title: 'Editor/Properties/Media',
   component: Component,
   parameters: {
-    componentSubtitle: 'ArrayInput',
-    jest: 'Array.test.tsx',
+    componentSubtitle: 'MediaNodeEditor',
+    jest: '',
     design: {
       type: 'figma',
       url: ''
@@ -40,12 +40,4 @@ export default {
   },
   argTypes
 }
-
-export const Default = {
-  args: {
-    label: 'Source Path',
-    containerClassName: 'w-96',
-    values: ['test name 1', 'test value 2', 'test 3', 'test 4'],
-    inputLabel: 'Path'
-  }
-}
+export const Default = { args: {} }
