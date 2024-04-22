@@ -285,10 +285,10 @@ const generateToolbarMenu = () => {
       action: () => onSaveScene(false)
     },
     /** @todo - support GLTF scenes in studio */
-    // {
-    //   name: t('editor:menubar.saveSceneGLTF'),
-    //   action: () => onSaveScene(true)
-    // },
+    {
+      name: t('editor:menubar.saveSceneGLTF'),
+      action: () => onSaveScene(true)
+    },
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs

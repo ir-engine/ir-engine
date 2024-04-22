@@ -32,12 +32,23 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  Topic,
+  Validator,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  matches,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
+import React, { useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
@@ -75,3 +86,111 @@ export const GLTFDocumentState = defineState({
   name: 'GLTFDocumentState',
   initial: {} as Record<string, GLTF.IGLTF>
 })
+
+export class GLTFSnapshotAction {
+  static createSnapshot = defineAction({
+    type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
+    source: matches.string as Validator<unknown, string>,
+    data: matches.object as Validator<unknown, GLTF.IGLTF>
+  })
+
+  static undo = defineAction({
+    type: 'ee.scene.snapshot.UNDO' as const,
+    source: matches.string as Validator<unknown, string>,
+    count: matches.number
+  })
+
+  static redo = defineAction({
+    type: 'ee.scene.snapshot.REDO' as const,
+    source: matches.string as Validator<unknown, string>,
+    count: matches.number
+  })
+
+  static clearHistory = defineAction({
+    type: 'ee.scene.snapshot.CLEAR_HISTORY' as const,
+    source: matches.string as Validator<unknown, string>
+  })
+}
+
+/**@todo rename to GLTFSnapshotState */
+export const GLTFSnapshotState = defineState({
+  name: 'GLTFSnapshotState',
+  initial: {} as Record<
+    string,
+    {
+      snapshots: Array<GLTF.IGLTF>
+      index: number
+    }
+  >,
+
+  receptors: {
+    onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
+      const { data } = action
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (!state.value) {
+        state.set({ index: 0, snapshots: [data] })
+        return
+      }
+      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+      state.index.set(state.index.value + 1)
+    }),
+
+    onUndo: GLTFSnapshotAction.undo.receive((action) => {
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (state.index.value <= 0) return
+      state.index.set(Math.max(state.index.value - action.count, 0))
+    }),
+
+    onRedo: GLTFSnapshotAction.redo.receive((action) => {
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (state.index.value >= state.snapshots.value.length - 1) return
+      state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
+    }),
+
+    onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
+      const state = getState(GLTFSnapshotState)[action.source]
+      const data = state.snapshots[0]
+      getMutableState(GLTFSnapshotState)[action.source].set({
+        index: 0,
+        snapshots: [data]
+      })
+    })
+  },
+
+  reactor: () => {
+    const state = useHookstate(getMutableState(GLTFSnapshotState))
+    return (
+      <>
+        {state.keys.map((source: string) => (
+          <GLTFSnapshotReactor source={source} key={source} />
+        ))}
+      </>
+    )
+  },
+
+  useSnapshotIndex(source: string) {
+    return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
+  },
+
+  cloneCurrentSnapshot: (source: string) => {
+    const state = getState(GLTFSnapshotState)[source]
+    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+      data: GLTF.IGLTF
+      source: string
+    }
+  }
+})
+
+export const EditorTopic = 'editor' as Topic
+
+const GLTFSnapshotReactor = (props: { source: string }) => {
+  const sceneState = useHookstate(getMutableState(GLTFSnapshotState)[props.source])
+
+  useLayoutEffect(() => {
+    if (!sceneState.index.value) return
+    // update gltf state with the current snapshot
+    getMutableState(GLTFDocumentState)[props.source].set(sceneState.snapshots[sceneState.index.value].get(NO_PROXY))
+  }, [sceneState.index])
+
+  return null
+}
