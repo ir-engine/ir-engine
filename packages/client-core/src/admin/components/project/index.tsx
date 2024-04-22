@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
+import config, { isDev } from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
@@ -71,17 +71,19 @@ export default function AdminProject() {
             title: t('admin:components.buildStatus.buildStatus'),
             tabLabel: (
               <span className="flex items-center gap-5">
-                {t('admin:components.project.buildStatus')}{' '}
-                <div
-                  className={twMerge(
-                    'inline h-3 w-3 rounded-full',
-                    projectState.succeeded.value === true
-                      ? 'bg-green-500'
-                      : projectState.failed.value === true
-                      ? 'bg-red-500'
-                      : 'bg-yellow-400'
-                  )}
-                />
+                {t('admin:components.project.buildStatus')}
+                {!isDev && (
+                  <div
+                    className={twMerge(
+                      'inline h-3 w-3 rounded-full',
+                      projectState.succeeded.value === true
+                        ? 'bg-green-500'
+                        : projectState.failed.value === true
+                        ? 'bg-red-500'
+                        : 'bg-yellow-400'
+                    )}
+                  />
+                )}
               </span>
             ),
             bottomComponent: <BuildStatusTable />,

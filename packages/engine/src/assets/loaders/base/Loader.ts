@@ -62,7 +62,7 @@ class Loader<TData = unknown, TUrl = string> {
     })
   }
 
-  parse?(data?: TData) {}
+  parse(data, path, onLoad, onError, url = '') {}
 
   setCrossOrigin(crossOrigin: string): this {
     this.crossOrigin = crossOrigin
