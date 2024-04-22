@@ -124,6 +124,19 @@ export const ResourceState = defineState({
   })
 })
 
+// add type override for itemEndFor
+declare module 'three/src/loaders/LoadingManager' {
+  export interface LoadingManager {
+    // itemEndFor: <T extends AssetType>(
+    //   url: string,
+    //   resourceType: ResourceType,
+    //   id: string,
+    //   asset: T
+    // ) => void
+    itemEndFor: any
+  }
+}
+
 const setDefaultLoadingManager = (
   loadingManager: LoadingManager = new ResourceLoadingManager(
     onItemStart,
@@ -141,7 +154,6 @@ const setDefaultLoadingManager = (
   DefaultLoadingManager.addHandler = loadingManager.addHandler
   DefaultLoadingManager.removeHandler = loadingManager.removeHandler
   DefaultLoadingManager.getHandler = loadingManager.getHandler
-  //@ts-ignore
   DefaultLoadingManager.itemEndFor = onItemLoadedFor
 }
 

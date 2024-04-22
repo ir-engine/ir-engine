@@ -44,9 +44,9 @@ export class KHRMaterialsPBRSpecularGlossinessExtension extends ImporterExtensio
   extendMaterialParams(materialIndex: number, materialParams: { [key: string]: any }): Promise<void> {
     if (!isClient) return Promise.resolve()
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
-    const extension: KHRMaterialsPBRSpecularGlossiness = materialDef.extensions[this.name]
+    const extension: KHRMaterialsPBRSpecularGlossiness = materialDef.extensions[this.name] as any
     const assignDiffuse = async () => {
       if (!extension.diffuseTexture) return
       return parser.assignTexture(materialParams, 'map', extension.diffuseTexture)
