@@ -310,3 +310,22 @@ export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boo
   })
   return children
 }
+
+export function haveCommonAncestor(entity1: Entity, entity2: Entity): boolean {
+  const entity1Ancestors: Entity[] = []
+  const entity2Ancestors: Entity[] = []
+
+  traverseEntityNodeParent(entity1, (parent) => {
+    entity1Ancestors.push(parent)
+  })
+
+  traverseEntityNodeParent(entity2, (parent) => {
+    entity2Ancestors.push(parent)
+  })
+
+  for (const entity of entity1Ancestors) {
+    if (entity2Ancestors.includes(entity)) return true
+  }
+
+  return false
+}
