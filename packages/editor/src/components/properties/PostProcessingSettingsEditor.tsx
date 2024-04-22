@@ -43,6 +43,7 @@ import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Vector2Input from '../inputs/Vector2Input'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
@@ -56,6 +57,7 @@ enum PropertyTypes {
   SMAAPreset,
   EdgeDetectionMode,
   PredicationMode,
+  Vector2,
   VignetteTechnique
 }
 
@@ -88,7 +90,7 @@ const EffectsOptions: EffectOptionsType = {
     //height: 480,
   },
   ChromaticAberrationEffect: {
-    //offset?: Vector2
+    offset: { propertyType: PropertyTypes.Vector2, name: 'Offset' },
     radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
     modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
   },
@@ -248,6 +250,17 @@ const EffectsOptions: EffectOptionsType = {
     eskil: { propertyType: PropertyTypes.Boolean, name: 'Eskil' },
     offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
     darkness: { propertyType: PropertyTypes.Number, name: 'Darkness', min: 0, max: 10, step: 0.1 }
+  },
+  GlitchEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    chromaticAberrationOffset: { propertyType: PropertyTypes.Vector2, name: 'Chromatic Aberration Offset' },
+    delay: { propertyType: PropertyTypes.Vector2, name: 'Delay' },
+    duration: { propertyType: PropertyTypes.Vector2, name: 'Duration' },
+    strength: { propertyType: PropertyTypes.Vector2, name: 'Strength' },
+    //perturbationMap?: Texture
+    dtSize: { propertyType: PropertyTypes.Number, name: 'DT Size', min: 0, max: 10, step: 0.1 },
+    columns: { propertyType: PropertyTypes.Number, name: 'Columns', min: 0, max: 10, step: 0.1 },
+    ratio: { propertyType: PropertyTypes.Number, name: 'Ratio', min: 0, max: 10, step: 0.1 }
   }
 }
 
@@ -349,6 +362,15 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             options={VignetteTechniqueSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             value={effectSettingState.value}
+          />
+        )
+        break
+
+      case PropertyTypes.Vector2:
+        renderVal = (
+          <Vector2Input
+            value={effectSettingState.value}
+            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
         break

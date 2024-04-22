@@ -34,6 +34,7 @@ import {
   DepthOfFieldEffect,
   DotScreenEffect,
   EdgeDetectionMode,
+  GlitchEffect,
   HueSaturationEffect,
   KernelSize,
   OutlineEffect,
@@ -72,7 +73,7 @@ export const Effects = {
   ColorAverageEffect: 'ColorAverageEffect' as const,
   DotScreenEffect: 'DotScreenEffect' as const,
   TiltShiftEffect: 'TiltShiftEffect' as const,
-  // GlitchEffect: 'GlitchEffect' as const,
+  GlitchEffect: 'GlitchEffect' as const,
   // GodRaysEffect: 'GodRaysEffect' as const,
   // GridEffect: 'GridEffect' as const,
   // LUT1DEffect: 'LUT1DEffect' as const,
@@ -106,7 +107,7 @@ export const EffectMap = {
   [Effects.ColorAverageEffect]: ColorAverageEffect,
   [Effects.DotScreenEffect]: DotScreenEffect,
   [Effects.TiltShiftEffect]: TiltShiftEffect,
-  // [Effects.GlitchEffect]: GlitchEffect,
+  [Effects.GlitchEffect]: GlitchEffect,
   // [Effects.GodRaysEffect]: GodRaysEffect,
   // [Effects.GridEffect]: GridEffect,
   // [Effects.LUT1DEffect]: LUT1DEffect,
@@ -410,7 +411,7 @@ export type EffectPropsSchema = {
   [Effects.ColorAverageEffect]: ColorAverageEffectProps
   [Effects.DotScreenEffect]: DotScreenEffectProps
   [Effects.TiltShiftEffect]: TiltShiftEffectProps
-  // [Effects.GlitchEffect]: GlitchEffectProps
+  [Effects.GlitchEffect]: GlitchEffectProps
   // [Effects.GodRaysEffect]: GodRaysEffectProps
   // [Effects.GridEffect]: GridEffectProps
   // [Effects.LUT1DEffect]: LUT1DEffectProps
@@ -610,18 +611,18 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     resolutionX: Resolution.AUTO_SIZE,
     resolutionY: Resolution.AUTO_SIZE
   },
-  // [Effects.GlitchEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   chromaticAberrationOffset: undefined,
-  //   delay: undefined,
-  //   duration: undefined,
-  //   strength: undefined,
-  //   perturbationMap: undefined,
-  //   dtSize: 64,
-  //   columns: 0.05,
-  //   ratio: 0.85
-  // },
+  [Effects.GlitchEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    chromaticAberrationOffset: undefined,
+    delay: undefined,
+    duration: undefined,
+    strength: undefined,
+    perturbationMap: undefined,
+    dtSize: 64,
+    columns: 0.05,
+    ratio: 0.85
+  },
   // [Effects.GodRaysEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.SCREEN,
