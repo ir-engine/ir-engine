@@ -44,4 +44,5 @@ export class DRACOLoader extends Loader {
   getEncoderModule(): Promise<any>
   preload(): DRACOLoader
   dispose(): DRACOLoader
+  decodeDracoFile(arrayBuffer: ArrayBuffer, callback: (geometry: BufferGeometry) => void, attributeIDs, attributeTypes): void
 }
