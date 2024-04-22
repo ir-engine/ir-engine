@@ -357,7 +357,7 @@
         {
           "name": "EE_ground_plane",
           "props": {
-            "color": 8311585,
+            "color": "#587F36",
             "visible": true
           }
         },
