@@ -156,19 +156,6 @@ export const ResourceState = defineState({
   }
 })
 
-// add type override for itemEndFor
-declare module 'three/src/loaders/LoadingManager' {
-  export interface LoadingManager {
-    // itemEndFor: <T extends AssetType>(
-    //   url: string,
-    //   resourceType: ResourceType,
-    //   id: string,
-    //   asset: T
-    // ) => void
-    itemEndFor: any
-  }
-}
-
 const setDefaultLoadingManager = (
   loadingManager: LoadingManager = new ResourceLoadingManager(
     onItemStart,
@@ -186,7 +173,6 @@ const setDefaultLoadingManager = (
   DefaultLoadingManager.addHandler = loadingManager.addHandler
   DefaultLoadingManager.removeHandler = loadingManager.removeHandler
   DefaultLoadingManager.getHandler = loadingManager.getHandler
-  DefaultLoadingManager.itemEndFor = onItemLoadedFor
 }
 
 const onItemStart = (url: string) => {
@@ -224,9 +210,7 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
     return
   }
 
-  debugLog(
-    'ResourceManager:loadedFor loading asset of type ' + resourceType + ' with ID: ' + id + ' for asset at url: ' + url
-  )
+  debugLog(`ResourceManager:loadedFor loading asset of type ${resourceType} with ID: ${id} for asset at url: ${url}`)
 
   const referencedAssets = resourceState.nested('referencedAssets')
   if (!referencedAssets[id].value) {
@@ -256,7 +240,6 @@ const onItemLoadedFor = <T extends AssetType>(url: string, resourceType: Resourc
   else if (!resources[url].assetRefs[resourceType].value) resources[url].assetRefs.merge({ [resourceType]: [id] })
   else resources[url].assetRefs[resourceType].merge([id])
 
-  /**@todo figure out a way to uniquely map an asset for a GLTF to the GLTF resource */
   referencedAssets[id].set([url])
 }
 
@@ -629,6 +612,34 @@ const loadObj = <T extends DisposableObject, T2 extends new (...params: any[]) =
   return obj as InstanceType<T2>
 }
 
+const addReferencedAsset = (assetKey: string, asset: AssetType) => {
+  const resourceType = getResourceType(asset)
+  if (resourceType == ResourceType.Unknown) return
+
+  switch (resourceType) {
+    case ResourceType.GLTF:
+      console.warn("ResourceState:addReferencedAsset GLTFs shouldn't be a referenced asset")
+      break
+    case ResourceType.Mesh:
+      onItemLoadedFor(assetKey, resourceType, (asset as Mesh).uuid, asset as Mesh)
+      break
+    case ResourceType.Texture:
+      onItemLoadedFor(assetKey, resourceType, (asset as Texture).source.uuid, asset as Texture)
+      break
+    case ResourceType.Geometry:
+      onItemLoadedFor(assetKey, resourceType, (asset as Geometry).uuid, asset as Geometry)
+      break
+    case ResourceType.Material:
+      onItemLoadedFor(assetKey, resourceType, (asset as Material).uuid, asset as Material)
+      break
+    case ResourceType.Object3D:
+      onItemLoadedFor(assetKey, resourceType, (asset as Object3D).uuid, asset as Object3D)
+      break
+    default:
+      break
+  }
+}
+
 const addResource = <T extends object>(res: NonNullable<T> | (() => NonNullable<T>), id: string, entity: Entity): T => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
@@ -722,7 +733,7 @@ const tryUnloadObj = (obj: DisposableObject) => {
 
 const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => {
   const remove = (obj: Object3D) => {
-    debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
+    debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
     const disposable = obj as DisposableObject // anything with dispose function
     if (typeof disposable.dispose === 'function') disposable.dispose()
   }
@@ -785,6 +796,7 @@ const removeResource = (id: string) => {
 export const ResourceManager = {
   load,
   loadObj,
+  addReferencedAsset,
   addResource,
   unload,
   unloadObj,

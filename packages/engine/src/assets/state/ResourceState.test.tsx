@@ -294,4 +294,35 @@ describe('ResourceState', () => {
       )
     }, done)
   })
+
+  it('Tracks assets referenced by GLTFs', (done) => {
+    const entity = createEntity()
+    const resourceState = getState(ResourceState)
+    const controller = new AbortController()
+    assert.doesNotThrow(() => {
+      ResourceManager.load(
+        url,
+        ResourceType.GLTF,
+        entity,
+        {},
+        (response) => {
+          assert(resourceState.resources[url])
+          assert(resourceState.resources[url].assetRefs?.Mesh.length === 2)
+          const referencedMeshes = resourceState.resources[url].assetRefs.Mesh
+          for (const refMesh of referencedMeshes) assert(resourceState.resources[refMesh])
+          ResourceManager.unload(url, entity)
+          assert(!resourceState.resources[url])
+          for (const refMesh of referencedMeshes) assert(!resourceState.resources[refMesh])
+          done()
+        },
+        (resquest) => {
+          assert(false)
+        },
+        (error) => {
+          assert(false)
+        },
+        controller.signal
+      )
+    }, done)
+  })
 })

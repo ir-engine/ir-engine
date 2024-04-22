@@ -45,6 +45,7 @@ import { KHRMaterialsPBRSpecularGlossinessExtension } from '../loaders/gltf/exte
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
 import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
+import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/ResourceManagerLoadExtension'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
@@ -70,6 +71,8 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: false }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
+  loader.register((parser) => new ResourceManagerLoadExtension(parser))
+
   if (MeshoptDecoder.useWorkers) {
     MeshoptDecoder.useWorkers(2)
   }
