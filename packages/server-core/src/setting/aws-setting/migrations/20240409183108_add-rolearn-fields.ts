@@ -55,14 +55,15 @@ export async function up(knex: Knex): Promise<void> {
  */
 export async function down(knex: Knex): Promise<void> {
   const awsSetting = await knex.table(awsSettingPath).first()
-  await knex.table(awsSettingPath).update({
-    eks: JSON.stringify({
-      accessKeyId: awsSetting.eks.accessKeyId,
-      secretAccessKey: awsSetting.eks.secretAccessKey
-    }),
-    s3: JSON.stringify({
-      accessKeyId: awsSetting.s3.accessKeyId,
-      secretAccessKey: awsSetting.s3.secretAccessKey
+  if (awsSetting)
+    await knex.table(awsSettingPath).update({
+      eks: JSON.stringify({
+        accessKeyId: awsSetting.eks.accessKeyId,
+        secretAccessKey: awsSetting.eks.secretAccessKey
+      }),
+      s3: JSON.stringify({
+        accessKeyId: awsSetting.s3.accessKeyId,
+        secretAccessKey: awsSetting.s3.secretAccessKey
+      })
     })
-  })
 }
