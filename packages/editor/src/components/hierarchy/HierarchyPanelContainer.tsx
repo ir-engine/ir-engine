@@ -491,7 +491,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           }}
           onClick={(event) => {
             anchorElement.set(event.currentTarget)
-            if (studioMode.value == 'Advanced') {
+            if (studioMode.value === 'Advanced') {
               EditorControlFunctions.createObjectFromSceneElement()
             }
           }}
@@ -508,7 +508,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       >
         <Popover
           id={open ? 'add-component-popover' : undefined}
-          open={open && studioMode.value == 'Simple'}
+          open={open && studioMode.value === 'Simple'}
           anchorEl={anchorElement.value}
           onClose={() => anchorElement.set(null)}
           anchorOrigin={{

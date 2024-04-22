@@ -84,7 +84,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       </div>
       <Popover
         id={open ? 'add-component-popover' : undefined}
-        open={open && studioMode.value == 'Advanced'}
+        open={open && studioMode.value === 'Advanced'}
         anchorEl={anchorEl.value}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
