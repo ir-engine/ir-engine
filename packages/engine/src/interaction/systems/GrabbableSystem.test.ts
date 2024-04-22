@@ -54,7 +54,7 @@ import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { SceneState } from '../../scene/SceneState'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
-import { dropEntity, grabEntity } from './GrabbableSystem'
+import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 
 // @TODO this needs to be re-thought
 
