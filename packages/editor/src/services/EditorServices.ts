@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
@@ -54,7 +54,7 @@ export const EditorState = defineState({
   },
   get rootEntity() {
     /** @todo this can be simplified once .scene.json support is removed */
-    const gltfRootEntity = getState(GLTFState)[getState(EditorState).scenePath!]?.entity
+    const gltfRootEntity = getState(GLTFSourceState)[getState(EditorState).scenePath!]?.entity
     return gltfRootEntity || SceneState.getRootEntity(getState(EditorState).scenePath!) || UndefinedEntity
   }
 })

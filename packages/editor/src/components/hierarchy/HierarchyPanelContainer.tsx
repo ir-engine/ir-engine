@@ -44,7 +44,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import config from '@etherealengine/common/src/config'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -533,7 +533,7 @@ const fileServer = config.client.fileServer
 
 const GLTFHierarchy = (props: { sceneID: string }) => {
   const sceneState = useHookstate(getMutableState(SceneState)).value
-  const gltfEntity = useHookstate(getMutableState(GLTFState)[fileServer + '/' + props.sceneID]).value?.entity
+  const gltfEntity = useHookstate(getMutableState(GLTFSourceState)[fileServer + '/' + props.sceneID]).value?.entity
 
   if (!gltfEntity) return null
 

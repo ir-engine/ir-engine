@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
-import { GLTFState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -40,7 +40,7 @@ export const SceneServices = {
   setCurrentScene: (sceneURL: string, overrideLocation = false) => {
     const isGLTF = sceneURL.endsWith('.gltf')
     if (isGLTF) {
-      const gltfEntity = GLTFState.load(fileServer + '/' + sceneURL)
+      const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       if (overrideLocation) {
@@ -50,7 +50,7 @@ export const SceneServices = {
       }
 
       return () => {
-        GLTFState.unload(fileServer + '/' + sceneURL, gltfEntity)
+        GLTFSourceState.unload(fileServer + '/' + sceneURL, gltfEntity)
       }
     }
 

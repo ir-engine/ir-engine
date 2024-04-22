@@ -43,7 +43,7 @@ import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
 import { getModelSceneID } from './functions/loaders/ModelFunctions'
 
-export const GLTFState = defineState({
+export const GLTFSourceState = defineState({
   name: 'GLTFState',
   initial: {} as Record<
     string,
@@ -62,7 +62,7 @@ export const GLTFState = defineState({
     setComponent(entity, ModelComponent, { src: source })
     const sourceID = getModelSceneID(entity)
     setComponent(entity, SourceComponent, sourceID)
-    getMutableState(GLTFState)[source].set({ entity })
+    getMutableState(GLTFSourceState)[source].set({ entity })
     return entity
   },
 
