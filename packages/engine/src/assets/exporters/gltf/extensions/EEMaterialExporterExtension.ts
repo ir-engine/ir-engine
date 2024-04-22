@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { CubeTexture, Material, Texture } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import { setMaterialToDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -107,13 +106,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
+    const materialComponent = getComponent(
+      UUIDComponent.getEntityByUUID(material.uuid as EntityUUID),
+      MaterialComponent
+    )
+    const prototype = getComponent(UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid), MaterialComponent)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,
       name: material.name,
-      prototype: materialEntry?.prototype ?? material.userData.type ?? material.type,
-      plugins: materialEntry?.plugins ?? material.userData.plugins ?? [],
+      prototype: material.userData.type ?? prototype.prototypeName,
+      plugins: [] /**@TODO PLUGINS */,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

@@ -38,7 +38,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import {
-  createMaterial,
+  createMaterialEntity,
   getMaterialSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
@@ -104,7 +104,7 @@ export async function addMediaNode(
           if (!mesh?.isMesh) return
           const src = getMaterialSource(mesh.material as Material)
           if (!src) return
-          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterial(material, src)
+          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, src)
           const materialComponent = getMutableComponent(mesh.entity, MaterialComponent)
           materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
           //if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {

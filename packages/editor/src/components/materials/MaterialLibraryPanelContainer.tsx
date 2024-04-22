@@ -38,7 +38,7 @@ import { Not } from 'bitecs'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { createMaterial } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
@@ -122,7 +122,7 @@ export default function MaterialLibraryPanel() {
           <Stack direction={'column'} spacing={2}>
             <Button
               onClick={() => {
-                createMaterial(new MeshBasicMaterial(), '')
+                createMaterialEntity(new MeshBasicMaterial(), '')
                 nodeChanges.set(nodeChanges.get() + 1)
               }}
             >

@@ -82,12 +82,12 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
       material.customProgramCacheKey = () =>
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
     }
-    createMaterial(material, path)
+    createMaterialEntity(material, path)
   }
   materialComponent.instances.set([...materialComponent.instances.value, sourceEntity])
 }
 
-export const createMaterial = (material: Material, path: string) => {
+export const createMaterialEntity = (material: Material, path: string) => {
   const materialEntity = createEntity()
 
   setComponent(materialEntity, MaterialComponent, { material })
@@ -110,7 +110,7 @@ export const createMaterial = (material: Material, path: string) => {
   return materialEntity
 }
 
-export const removeMaterial = (entity: Entity) => {
+export const removeMaterialEntity = (entity: Entity) => {
   delete MaterialComponent.materialByName[getComponent(entity, NameComponent)]
   delete MaterialComponent.materialByHash[
     hashMaterial(getComponent(entity, SourceComponent), getComponent(entity, NameComponent))
@@ -123,10 +123,12 @@ export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) =>
   const sourceMaterial = getComponent(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]), MaterialComponent)
   const instances = sourceMaterial.instances.filter((instance) => instance !== sourceEntity)
   if (instances.length === 0) {
-    removeMaterial(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]))
+    removeMaterialEntity(UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex]))
   }
   return instances.length
 }
+
+export const createMaterialFromPrototype = (prototypeName: string, source: string, name: string) => {}
 
 /**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
@@ -198,7 +200,10 @@ export function injectDefaults(defaultArgs, values) {
 
 export const setMaterialToDefaults = (materialUUID: string) => {
   const material = getComponent(UUIDComponent.getEntityByUUID(materialUUID as EntityUUID), MaterialComponent)
-  const prototype = getComponent(UUIDComponent.getEntityByUUID(material.prototypeUuid as EntityUUID), MaterialComponent)
+  const prototype = getComponent(
+    UUIDComponent.getEntityByUUID(material.prototypeUuid as EntityUUID),
+    MaterialComponent
+  ).prototypeArguments
   return injectDefaults(prototype, material.parameters)
 }
 
