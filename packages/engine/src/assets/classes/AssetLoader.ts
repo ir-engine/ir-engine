@@ -269,7 +269,7 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad, onProgress, onError) => {
+  load: (src, onLoad, onProgress, onError, signal?) => {
     const gltfLoader = getState(AssetLoaderState).gltfLoader
     gltfLoader.ktx2Loader!.load(
       src,

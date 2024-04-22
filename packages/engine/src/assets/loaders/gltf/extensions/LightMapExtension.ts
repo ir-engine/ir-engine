@@ -46,13 +46,13 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
   loadMaterial(materialIndex) {
     const parser = this.parser
     const json = parser.json
-    const materialDef = json.materials[materialIndex]
+    const materialDef = json.materials![materialIndex]
 
     if (!materialDef.extensions || !materialDef.extensions[this.name]) {
       return null
     }
 
-    const extensionDef: MOZ_lightmap = materialDef.extensions[this.name]
+    const extensionDef: MOZ_lightmap = materialDef.extensions[this.name] as any
 
     const pending: any[] = []
 
