@@ -61,6 +61,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
 
   useEffect(() => {
+    console.log('debug1 calling use effect of add edit location modal')
     AdminSceneService.fetchAdminScenes()
     const sceneId = location?.sceneId || ''
     if (sceneId) {

@@ -47,9 +47,11 @@ export const AdminSceneState = defineState({
 
 export const AdminSceneService = {
   fetchAdminScenes: async () => {
+    console.log('debug1 fetch admin scenes adminsceneservice')
     const scenes = (await Engine.instance.api
       .service(scenePath)
       .find({ query: { paginate: false } })) as any as SceneDataType[]
+    console.log('debug1 now the scenes were', scenes)
     getMutableState(AdminSceneState).merge({
       scenes: scenes,
       retrieving: false,
