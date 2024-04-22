@@ -48,7 +48,7 @@ import {
   VignetteEffect,
   VignetteTechnique
 } from 'postprocessing'
-import { SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
+import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
@@ -102,7 +102,7 @@ export const EffectMap = {
   [Effects.SSGIEffect]: SSGIEffect,
   [Effects.TRAAEffect]: TRAAEffect,
   [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
-  // [Effects.MotionBlurEffect]: MotionBlurEffect,
+  [Effects.MotionBlurEffect]: MotionBlurEffect,
   [Effects.ColorAverageEffect]: ColorAverageEffect,
   [Effects.DotScreenEffect]: DotScreenEffect,
   [Effects.TiltShiftEffect]: TiltShiftEffect,
