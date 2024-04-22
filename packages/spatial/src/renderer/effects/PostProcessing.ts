@@ -42,6 +42,7 @@ import {
   SMAAEffect,
   SMAAPreset,
   SSAOEffect,
+  TiltShiftEffect,
   ToneMappingEffect,
   ToneMappingMode,
   VignetteEffect,
@@ -70,7 +71,7 @@ export const Effects = {
   MotionBlurEffect: 'MotionBlurEffect' as const,
   ColorAverageEffect: 'ColorAverageEffect' as const,
   DotScreenEffect: 'DotScreenEffect' as const,
-  // TiltShiftEffect: 'TiltShiftEffect' as const,
+  TiltShiftEffect: 'TiltShiftEffect' as const,
   // GlitchEffect: 'GlitchEffect' as const,
   // GodRaysEffect: 'GodRaysEffect' as const,
   // GridEffect: 'GridEffect' as const,
@@ -104,7 +105,7 @@ export const EffectMap = {
   // [Effects.MotionBlurEffect]: MotionBlurEffect,
   [Effects.ColorAverageEffect]: ColorAverageEffect,
   [Effects.DotScreenEffect]: DotScreenEffect,
-  // [Effects.TiltShiftEffect]: TiltShiftEffect,
+  [Effects.TiltShiftEffect]: TiltShiftEffect,
   // [Effects.GlitchEffect]: GlitchEffect,
   // [Effects.GodRaysEffect]: GodRaysEffect,
   // [Effects.GridEffect]: GridEffect,
@@ -408,7 +409,7 @@ export type EffectPropsSchema = {
   [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
   [Effects.ColorAverageEffect]: ColorAverageEffectProps
   [Effects.DotScreenEffect]: DotScreenEffectProps
-  // [Effects.TiltShiftEffect]: TiltShiftEffectProps
+  [Effects.TiltShiftEffect]: TiltShiftEffectProps
   // [Effects.GlitchEffect]: GlitchEffectProps
   // [Effects.GodRaysEffect]: GodRaysEffectProps
   // [Effects.GridEffect]: GridEffectProps
@@ -596,19 +597,19 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     angle: 1.57,
     scale: 1.0
   },
-  // [Effects.TiltShiftEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   offset: 0.0,
-  //   rotation: 0.0,
-  //   focusArea: 0.4,
-  //   feather: 0.3,
-  //   bias: 0.06,
-  //   kernelSize: KernelSize.MEDIUM,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE
-  // },
+  [Effects.TiltShiftEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    offset: 0.0,
+    rotation: 0.0,
+    focusArea: 0.4,
+    feather: 0.3,
+    bias: 0.06,
+    kernelSize: KernelSize.MEDIUM,
+    resolutionScale: 0.5,
+    resolutionX: Resolution.AUTO_SIZE,
+    resolutionY: Resolution.AUTO_SIZE
+  },
   // [Effects.GlitchEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.NORMAL,

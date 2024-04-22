@@ -97,6 +97,18 @@ const EffectsOptions: EffectOptionsType = {
     angle: { propertyType: PropertyTypes.Number, name: 'Angle', min: 0, max: 360, step: 0.1 },
     scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 }
   },
+  TiltShiftEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
+    rotation: { propertyType: PropertyTypes.Number, name: 'Rotation', min: 0, max: 360, step: 0.1 },
+    focusArea: { propertyType: PropertyTypes.Number, name: 'Focus Area', min: 0, max: 10, step: 0.1 },
+    feather: { propertyType: PropertyTypes.Number, name: 'Feather', min: 0, max: 10, step: 0.1 },
+    bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: 0, max: 10, step: 0.1 },
+    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kerne Size', min: 1, max: 5, step: 1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
+    //resolutionX: Resolution.AUTO_SIZE,
+    //resolutionY: Resolution.AUTO_SIZE
+  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
