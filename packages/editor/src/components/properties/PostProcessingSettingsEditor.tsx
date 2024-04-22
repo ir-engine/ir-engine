@@ -70,7 +70,6 @@ const EffectsOptions: EffectOptionsType = {
   ColorAverageEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
   },
-
   OutlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
@@ -87,6 +86,11 @@ const EffectsOptions: EffectOptionsType = {
     //resolutionY: Resolution.AUTO_SIZE,
     //width: Resolution.AUTO_SIZE,
     //height: 480,
+  },
+  ChromaticAberrationEffect: {
+    //offset?: Vector2
+    radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
+    modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
   },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },

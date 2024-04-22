@@ -28,6 +28,7 @@ import {
   BloomEffect,
   BloomEffectOptions,
   BrightnessContrastEffect,
+  ChromaticAberrationEffect,
   ColorAverageEffect,
   ColorDepthEffect,
   DepthOfFieldEffect,
@@ -51,7 +52,7 @@ import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
-  ç: 'SMAAEffect' as const,
+  SMAAEffect: 'SMAAEffect' as const,
   OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
@@ -64,7 +65,7 @@ export const Effects = {
   LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
   SSGIEffect: 'SSGIEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,
-  // ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
+  ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
   ColorAverageEffect: 'ColorAverageEffect' as const,
   // DotScreenEffect: 'DotScreenEffect' as const,
@@ -98,7 +99,7 @@ export const EffectMap = {
   [Effects.LinearTosRGBEffect]: LinearTosRGBEffect,
   [Effects.SSGIEffect]: SSGIEffect,
   [Effects.TRAAEffect]: TRAAEffect,
-  // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
+  [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
   // [Effects.MotionBlurEffect]: MotionBlurEffect,
   [Effects.ColorAverageEffect]: ColorAverageEffect,
   // [Effects.DotScreenEffect]: DotScreenEffect,
@@ -289,7 +290,6 @@ export type MotionBlurEffectProps = EffectProps & {
 }
 
 export type ChromaticAberrationEffectProps = EffectProps & {
-  blendFunction?: BlendFunction
   offset?: Vector2
   radialModulation: boolean
   modulationOffset: number
@@ -404,7 +404,7 @@ export type EffectPropsSchema = {
   [Effects.SSGIEffect]: SSGIEffectProps
   [Effects.TRAAEffect]: TRAAEffectProps
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
-  // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
+  [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
   [Effects.ColorAverageEffect]: ColorAverageEffectProps
   // [Effects.DotScreenEffect]: DotScreenEffectProps
   // [Effects.TiltShiftEffect]: TiltShiftEffectProps
@@ -579,13 +579,12 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     jitter: 1,
     samples: 16
   },
-  // [Effects.ChromaticAberrationEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   offset: undefined,
-  //   radialModulation: false,
-  //   modulationOffset: 0.15
-  // },
+  [Effects.ChromaticAberrationEffect]: {
+    isActive: false,
+    offset: undefined,
+    radialModulation: false,
+    modulationOffset: 0.15
+  },
   [Effects.ColorAverageEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL
@@ -685,7 +684,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
 export const effectInOrder = [
   /** 1. input aliasing */
   Effects.SMAAEffect,
-  // Effects.OutlineEffect,
+  Effects.OutlineEffect,
 
   /** 2. world effects */
   // Effects.PaniniProjection,
@@ -698,7 +697,7 @@ export const effectInOrder = [
   /** 3. camera effects */
   // Effects.LensDistortionEffect,
   //Effects.LensFlareEffect,
-  // Effects.ChromaticAberrationEffect,
+  Effects.ChromaticAberrationEffect,
   Effects.MotionBlurEffect,
   Effects.BloomEffect,
   Effects.VignetteEffect,
