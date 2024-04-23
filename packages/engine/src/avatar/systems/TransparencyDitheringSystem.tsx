@@ -37,9 +37,9 @@ import {
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { isArray } from 'lodash'
 import React, { useEffect } from 'react'
-import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { MaterialLibraryState } from '../../scene/materials/MaterialLibrary'
 import {

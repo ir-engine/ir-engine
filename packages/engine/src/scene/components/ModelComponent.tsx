@@ -51,6 +51,7 @@ import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React from 'react'
@@ -67,7 +68,6 @@ import { EnvmapComponent } from './EnvmapComponent'
 import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { ShadowComponent } from './ShadowComponent'
-import { SourceComponent } from './SourceComponent'
 
 /**
  * ModelComponent is an entity/object hierarchy loaded from a resource

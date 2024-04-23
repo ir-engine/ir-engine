@@ -30,9 +30,9 @@ import {
   serializeComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
-import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

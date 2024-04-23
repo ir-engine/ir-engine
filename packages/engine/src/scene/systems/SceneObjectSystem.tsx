@@ -57,6 +57,7 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import {
@@ -66,7 +67,6 @@ import {
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
-import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID } from '../functions/loaders/ModelFunctions'
 import { MaterialLibraryState } from '../materials/MaterialLibrary'
