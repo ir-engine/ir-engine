@@ -121,27 +121,21 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
   if (context.data && context.data.project) {
-    if (!context.data.projectId) {
-      const projectResult = (await context.app
-        .service(projectPath)
-        .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
-
-      if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
-
-      context.data.projectId = projectResult.data[0].id
-    } else {
-      delete context.data.projectId
-    }
+    const projectResult = (await context.app
+      .service(projectPath)
+      .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
+    if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
+    context.data.projectId = projectResult.data[0].id
   }
 }
 
-const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
+export const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
 }
 
-const removeNameField = async (context: HookContext<AssetService>) => {
+export const removeNameField = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.name
@@ -151,17 +145,11 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
   if (Array.isArray(context.params.query)) throw new BadRequest('Array is not supported')
 
   if (context.params.query && context.params.query.project) {
-    if (!context.params.query.projectId) {
-      const projectResult = (await context.app
-        .service(projectPath)
-        .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
-
-      if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
-
-      context.params.query.projectId = projectResult.data[0].id
-    } else {
-      delete context.params.query.projectId
-    }
+    const projectResult = (await context.app
+      .service(projectPath)
+      .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
+    if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
+    context.params.query.projectId = projectResult.data[0].id
     delete context.params.query.project
   }
 }
@@ -171,7 +159,7 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
  * @param context Hook context
  * @returns
  */
-const ensureUniqueName = async (context: HookContext<AssetService>) => {
+export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -211,7 +199,7 @@ const setDirectoryFromData = async (context: HookContext<AssetService>) => {
  * @param context Hook context
  * @returns
  */
-const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
+export const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -281,7 +269,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   data.assetURL = `projects/${data.project}/${data.name}.scene.json`
 }
 
-const renameAsset = async (context: HookContext<AssetService>) => {
+export const renameAsset = async (context: HookContext<AssetService>) => {
   if (!context.data || !(context.method === 'patch' || context.method === 'update')) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -394,5 +382,5 @@ export default createSkippableHooks(
       remove: []
     }
   },
-  ['find']
+  ['create', 'update', 'patch']
 )
