@@ -206,7 +206,7 @@ export const LinkComponent = defineComponent({
           const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
 
           /* this used to return if (getState(InputState).capturingEntity !== entity). However this was not working as expected afaik.
-           * capturing entity is 0 on hover, or viewer entity (3) on clic
+           * capturing entity is 0 on hover, or viewer entity (3) on click
            * changed this to check if capturing entity is not null (0), otherwise it runs the logic for the link */
 
           if (getState(InputState).capturingEntity !== UndefinedEntity) return

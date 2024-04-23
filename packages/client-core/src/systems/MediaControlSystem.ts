@@ -38,7 +38,6 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { addInteractableUI } from '@etherealengine/engine/src/interaction/systems/InteractableSystem'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -55,6 +54,9 @@ import { createMediaControlsView } from './ui/MediaControlsUI'
 
 const scaleVector = new Vector3()
 let clicking = false
+const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
+const mediaQuery = defineQuery([MediaComponent])
+
 export const createMediaControlsUI = (entity: Entity) => {
   const ui = createMediaControlsView(entity)
 
@@ -69,10 +71,9 @@ export const createMediaControlsUI = (entity: Entity) => {
   return ui
 }
 
-export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
-
-const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
-  const xrui = getComponent(mediaControls.entity, XRUIComponent)
+const onUpdate = (entity: Entity) => {
+  const mediaComponent = getComponent(entity, MediaComponent)
+  const xrui = getComponent(mediaComponent.xruiEntity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('#button')
 
@@ -112,7 +113,7 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   } else {
     transition.setState('OUT')
   }
-  const uiTransform = getComponent(mediaControls.entity, TransformComponent)
+  const uiTransform = getComponent(mediaComponent.xruiEntity, TransformComponent)
   const transform = getComponent(entity, TransformComponent)
 
   if (hasComponent(entity, MediaComponent)) {
@@ -136,21 +137,25 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   })
 }
 
-const mediaQuery = defineQuery([MediaComponent])
-
 const execute = () => {
   if (getState(EngineState).isEditor || !isClient) return
 
   for (const entity of mediaQuery.enter()) {
-    console.log('entity is ' + entity + ' controls is ' + getComponent(entity, MediaComponent).controls)
-    if (!getComponent(entity, MediaComponent).controls) continue
+    const mediaComponent = getComponent(entity, MediaComponent)
+    if (!mediaComponent.controls) continue
+
     const transition = createTransitionState(0.25, 'IN')
     MediaFadeTransitions.set(entity, transition)
-    addInteractableUI(entity, createMediaControlsUI(entity), onUpdate)
+    mediaComponent.xruiEntity = createMediaControlsUI(entity).entity
+    setComponent(mediaComponent.xruiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   }
 
   for (const entity of mediaQuery.exit()) {
     if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+  }
+
+  for (const entity of mediaQuery()) {
+    onUpdate(entity)
   }
 }
 

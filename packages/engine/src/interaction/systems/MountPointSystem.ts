@@ -203,7 +203,7 @@ const vec3_1 = new Vector3()
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))
   useEffect(() => {
-    //temporary logic for setting visibility of hints until interactable system is refactored
+    // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
     for (const mountEntity of mountPointQuery()) {
       setVisibleComponent(
         InteractableUI.get(mountEntity)!.xrui.entity!,

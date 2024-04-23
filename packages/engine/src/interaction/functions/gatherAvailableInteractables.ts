@@ -25,13 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4 } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
+import { getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
   compareDistanceToLocalClient,
   DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractableState } from '../systems/InteractableSystem'
 
 const mat4 = new Matrix4()
@@ -46,14 +48,22 @@ const mat4 = new Matrix4()
 // const frustum = new Frustum()
 
 /**
+ * Checks if entity is in range based on its own threshold
+ * @param entity
+ * @constructor
+ */
+const InRangeToInteract = (entity: Entity): boolean => {
+  const interactable = getComponent(entity, InteractableComponent)
+  const maxDistanceSquare = interactable.activationDistance * interactable.activationDistance
+  return DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare
+}
+
+/**
  * Checks if entity can interact with any of entities listed in 'interactable' array, checking distance, guards and raycast
  * sorts the interactables by closest to the player
  * @param {Entity[]} interactables
  */
-
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
-  const maxDistance = getState(InteractableState).maxDistance
-  const maxDistanceSquare = maxDistance * maxDistance
   const availableInteractable = getMutableState(InteractableState).available
   // const camera = getComponent(controller.cameraEntity, CameraComponent)
 
@@ -67,8 +77,6 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
   // }
 
   availableInteractable.set(
-    [...interactables]
-      .filter((entity) => DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare)
-      .sort(compareDistanceToLocalClient)
+    [...interactables].filter((entity) => InRangeToInteract(entity)).sort(compareDistanceToLocalClient)
   )
 }

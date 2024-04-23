@@ -30,7 +30,7 @@ import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'thr
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine } from '@etherealengine/ecs'
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -136,7 +136,8 @@ export const MediaComponent = defineComponent({
       controls: false,
       synchronize: true,
       autoplay: true,
-      uiOffset: new Vector3(0, 0, 0),
+      uiOffset: new Vector3(),
+      xruiEntity: UndefinedEntity,
       volume: 1,
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,

@@ -68,7 +68,7 @@ import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctio
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'
 import { createInteractUI } from '../functions/interactUI'
-import { InteractableState, InteractableTransitions } from './InteractableSystem'
+import { InteractableTransitions } from './InteractableSystem'
 
 export const GrabbableState = defineState({
   name: 'ee.engine.grabbables.GrabbableState',
@@ -209,14 +209,14 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
     if (selfAvatarEntity) {
       getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
       const distance = vec3.distanceToSquared(xruiTransform.position)
-      const inRange = distance < getState(InteractableState).maxDistance
-      if (transition.state === 'OUT' && inRange) {
-        transition.setState('IN')
-        setComponent(xrui.entity, VisibleComponent)
-      }
-      if (transition.state === 'IN' && !inRange) {
-        transition.setState('OUT')
-      }
+      // const inRange = distance < getState(InteractableState).maxDistance
+      // if (transition.state === 'OUT' && inRange) {
+      //   transition.setState('IN')
+      //   setComponent(xrui.entity, VisibleComponent)
+      // }
+      // if (transition.state === 'IN' && !inRange) {
+      //   transition.setState('OUT')
+      // }
     }
   }
   const deltaSeconds = getState(ECSState).deltaSeconds

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
@@ -65,9 +65,8 @@ export const InteractableState = defineState({
   initial: () => {
     return {
       /**
-       * closest interactable to the player, in view of the camera, sorted by distance
+       * all interactables within threshold range, in view of the camera, sorted by distance
        */
-      maxDistance: 2,
       available: [] as Entity[]
     }
   }
@@ -82,7 +81,6 @@ export const InteractableUI = new Map<Entity, InteractableType>()
 export const InteractableTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 const vec3 = new Vector3()
-const flip = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const xruiTransform = getComponent(xrui.entity, TransformComponent)
@@ -103,10 +101,11 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
 
   vec3.copy(selfAvatarRigidBodyComponent.position)
   vec3.y += avatar.avatarHeight
-  // getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3) //uses normalizedRig which does not update at this time - Apr 12 2024
 
   const distance = vec3.distanceToSquared(xruiTransform.position)
-  let thresh = getState(InteractableState).maxDistance
+  const interactable = getComponent(entity, InteractableComponent)
+
+  let thresh = interactable.activationDistance
   thresh *= thresh //squared for dist squared comparison
   const inRange = distance < thresh
   if (transition.state === 'OUT' && inRange) {
@@ -222,32 +221,30 @@ const executeInput = () => {
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
   if (!inputPointerEntity) return
 
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   const buttons = InputSourceComponent.getMergedButtons()
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
   for (const entity of nonCapturedInputSource) {
     const inputSource = getComponent(entity, InputSourceComponent)
     if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down) {
-      interactWithClosestInteractable()
+      interactWithInteractablesInRange()
     }
   }
 }
 
-const interactWithClosestInteractable = () => {
-  const closestInteractableEntity = getState(InteractableState).available[0]
-  if (closestInteractableEntity) {
-    const interactable = getOptionalComponent(closestInteractableEntity, InteractableComponent)
-    if (interactable) {
-      for (const callback of interactable.callbacks) {
-        if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-        const targetEntity = callback.target
-          ? UUIDComponent.getEntityByUUID(callback.target)
-          : closestInteractableEntity
-        if (targetEntity && callback.callbackID) {
-          const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-          if (!callbacks) continue
-          callbacks.get(callback.callbackID)?.(closestInteractableEntity, targetEntity)
+const interactWithInteractablesInRange = () => {
+  for (const interactableEntity of getState(InteractableState).available) {
+    if (interactableEntity) {
+      const interactable = getOptionalComponent(interactableEntity, InteractableComponent)
+      if (interactable) {
+        for (const callback of interactable.callbacks) {
+          if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+          const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : interactableEntity
+          if (targetEntity && callback.callbackID) {
+            const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+            if (!callbacks) continue
+            callbacks.get(callback.callbackID)?.(interactableEntity, targetEntity)
+          }
         }
       }
     }

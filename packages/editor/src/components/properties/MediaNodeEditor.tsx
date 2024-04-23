@@ -97,7 +97,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
-      <InputGroup name="UI Offset" label={t('editor:properties.media.ui-offset')}>
+      <InputGroup name="UI Offset" label={t('editor:properties.media.lbl-ui-offset')}>
         <Vector3Input
           value={media.uiOffset.value}
           onChange={updateProperty(MediaComponent, 'uiOffset')}

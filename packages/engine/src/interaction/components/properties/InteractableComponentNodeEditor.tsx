@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
 import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import StringInput from '@etherealengine/editor/src/components/inputs/StringInput'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
@@ -116,8 +118,25 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(InteractableComponent, 'label')}
         />
       </InputGroup>
+      <InputGroup name="ActivationDistance" label={t('editor:properties.interactable.lbl-activationDistance')}>
+        <NumericInput
+          value={interactableComponent.activationDistance.value}
+          onChange={updateProperty(InteractableComponent, 'activationDistance')}
+          onRelease={commitProperty(InteractableComponent, 'activationDistance')}
+        />
+      </InputGroup>
+      <InputGroup
+        name="ClickInteract"
+        label={t('editor:properties.interactable.lbl-allowClicks')}
+        info={t('editor:properties.interactable.info-allowClicks')}
+      >
+        <BooleanInput
+          value={interactableComponent.clickInteract.value}
+          onChange={commitProperty(InteractableComponent, 'clickInteract')}
+        />
+      </InputGroup>
       <PropertiesPanelButton type="submit" onClick={addCallback}>
-        {t('editor:properties.interactable.addcallbacktitle')}
+        {t('editor:properties.interactable.lbl-addcallback')}
       </PropertiesPanelButton>
 
       <div id={`callback-list`}>
@@ -156,7 +175,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
               </InputGroup>
 
               <PropertiesPanelButton type="submit" onClick={() => removeCallback(index)}>
-                {t('editor:properties.interactable.removecallbacktitle')}
+                {t('editor:properties.interactable.lbl-removecallback')}
               </PropertiesPanelButton>
             </div>
           )

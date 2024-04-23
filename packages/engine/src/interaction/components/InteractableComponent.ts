@@ -23,17 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
 
+enum XRUIVisibilityOverride {
+  none = 0,
+  on = 1,
+  off = 2
+}
+enum XRUIActivationType {
+  proximity = 0,
+  hover = 1
+}
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
   onInit: () => {
     return {
+      //TODO make clickInteract work, base it off of MediaControls clicking...refactor mediacontrols, separate mediacontrols from interactables
+      //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+      uiEntity: UndefinedEntity,
       label: null as string | null,
+      uiVisibilityOverride: XRUIVisibilityOverride.none,
+      uiActivationType: XRUIActivationType.proximity,
+      activationDistance: 2,
+      clickInteract: false,
       callbacks: [] as Array<{
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
@@ -50,6 +66,11 @@ export const InteractableComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.label) component.label.set(json.label)
+    if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
+      component.uiActivationType.set(json.uiActivationType)
+    if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
+      component.clickInteract.set(json.clickInteract)
+    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (
       matches
         .arrayOf(
@@ -67,6 +88,9 @@ export const InteractableComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       label: component.label.value,
+      clickInteract: component.clickInteract.value,
+      activationDistance: component.activationDistance.value,
+      uiActivationType: component.uiActivationType.value,
       callbacks: component.callbacks.get(NO_PROXY)
     }
   }

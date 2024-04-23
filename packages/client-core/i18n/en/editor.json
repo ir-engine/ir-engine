@@ -229,8 +229,11 @@
       "name": "Interactable",
       "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
       "lbl-label" : "Label",
-      "addcallbacktitle" : "Add Callback",
-      "removecallbacktitle": "Remove Callback",
+      "lbl-activationDistance": "Activation Distance",
+      "lbl-addcallback" : "Add Callback",
+      "lbl-removecallback": "Remove Callback",
+      "lbl-clickInteract": "Click to Interact",
+      "info-clickInteract": "Enables clicking to interact with the object",
       "callbacks" :
       {
         "lbl-target" : "Target",
@@ -249,6 +252,7 @@
       "playtitle": "Play",
       "pausetitle": "Pause",
       "resettitle": "Reset",
+      "lbl-ui-offset": "UI Offset",
       "lbl-controls": "controls",
       "lbl-paused": "Paused",
       "info-paused": "Toggle media playback",
