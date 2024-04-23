@@ -36,7 +36,7 @@ const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) 
   return (
     <Input
       containerClassname="w-44 h-7 bg-[#1A1A1A] rounded"
-      className="w-full text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
+      className="text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
       value={value}
       onChange={(e) => {
         onChange?.(e.target.value)
@@ -89,8 +89,8 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   return (
     <Input
       ref={ref}
-      containerClassname="w-[246px] h-[30px] bg-zinc-900 rounded-[5px]"
-      className="w-[220px] text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
+      containerClassname="w-60 h-7 bg-[#1A1A1A] rounded"
+      className="text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
       value={value ?? ''}
       onChange={(e) => {
         onChangeValue(e.target.value)

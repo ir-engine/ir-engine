@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
@@ -40,12 +40,13 @@ export interface SelectProps<T extends OptionValueType> {
   className?: string
   error?: string
   description?: string
-  options: { label: string; value: T; disabled?: boolean }[]
+  options: { label: string; value: T; disabled?: boolean; icon?: JSX.Element }[]
   value: T
   onChange: (value: T) => void
   placeholder?: string
   disabled?: boolean
   menuClassname?: string
+  menuContainerClassName?: string
   arrowClassname?: string
 }
 
@@ -59,6 +60,7 @@ const Select = <T extends OptionValueType>({
   onChange,
   placeholder,
   disabled,
+  menuContainerClassName,
   menuClassname,
   arrowClassname
 }: SelectProps<T>) => {
@@ -97,8 +99,9 @@ const Select = <T extends OptionValueType>({
         label={label}
         description={description}
         error={error}
-        className="cursor-pointer"
+        className="cursor-pointer rounded-none"
         placeholder={placeholder || t('common:select.selectOption')}
+        startComponent={options.find((opt) => opt.label === selectLabel.value)?.icon}
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={() => {
@@ -115,17 +118,19 @@ const Select = <T extends OptionValueType>({
         )}
       />
       <div
-        className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
-          showOptions.value ? 'visible' : 'hidden'
-        }`}
+        className={twMerge(
+          'border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border',
+          showOptions.value ? 'visible' : 'hidden',
+          menuContainerClassName
+        )}
       >
         <ul className={twMerge('max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2', menuClassname)}>
-          {filteredOptions.value.map((option) => (
+          {filteredOptions.get(NO_PROXY).map((option) => (
             <li
               key={option.value}
               value={option.value}
               className={twMerge(
-                'text-theme-secondary cursor-pointer px-4 py-2',
+                'text-theme-secondary flex cursor-pointer items-center gap-2 px-4 py-2',
                 option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight'
               )}
               onClick={() => {
@@ -134,7 +139,7 @@ const Select = <T extends OptionValueType>({
                 onChange(option.value)
               }}
             >
-              {option.label}
+              {option.icon} {option.label}
             </li>
           ))}
         </ul>

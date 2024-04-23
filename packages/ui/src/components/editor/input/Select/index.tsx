@@ -29,14 +29,11 @@ import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
 // make new component instead
 
-const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) => {
+const SelectInput = ({ ...rest }: SelectProps<string>) => {
   return (
     <Select
-      options={options}
-      className="flex-column w-[200px] items-center rounded bg-neutral-900 px-4 py-2"
-      arrowClassname="text-neutral-400 absolute right-3 top-2"
-      value={value}
-      onChange={onChange!}
+      className="text-theme-primary h-10 w-72 bg-[#212226]"
+      menuContainerClassName="border-none mt-0 rounded-none"
       {...rest}
     />
   )
@@ -45,11 +42,11 @@ const SelectInput = ({ options, value, onChange }: SelectProps<any>, ...rest) =>
 SelectInput.displayName = 'SelectInput'
 SelectInput.defaultProps = {
   options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch size="1.5em" /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump size="1.5em" /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower size="1.5em" /> }
+    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
+    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
+    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
   ],
-  currentValue: 'a',
+  value: 'a',
   onChange: () => {}
 }
 
