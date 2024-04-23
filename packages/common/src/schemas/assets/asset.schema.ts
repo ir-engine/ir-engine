@@ -29,7 +29,7 @@ export const scenePath = assetPath
 
 export const assetMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
-export const assetDataSchema = Type.Object(
+export const assetSchema = Type.Object(
   {
     id: Type.String(),
     assetURL: Type.String(),
@@ -38,12 +38,12 @@ export const assetDataSchema = Type.Object(
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'AssetData', additionalProperties: false }
+  { $id: 'Asset', additionalProperties: false }
 )
-export interface AssetDataType extends Static<typeof assetDataSchema> {}
+export interface AssetType extends Static<typeof assetSchema> {}
 
 // Schema for creating new entries
-export const assetCreateDataSchema = Type.Object(
+export const assetDataSchema = Type.Object(
   {
     id: Type.Optional(Type.String()),
     name: Type.Optional(Type.String()),
@@ -52,9 +52,9 @@ export const assetCreateDataSchema = Type.Object(
     project: Type.Optional(Type.String()),
     projectId: Type.Optional(Type.String())
   },
-  { $id: 'AssetCreateData', additionalProperties: false }
+  { $id: 'AssetData', additionalProperties: false }
 )
-export interface AssetCreateData extends Static<typeof assetCreateDataSchema> {}
+export interface AssetData extends Static<typeof assetDataSchema> {}
 
 // Schema for updated entries
 export const assetUpdateSchema = Type.Object(
@@ -100,5 +100,7 @@ export const assetQuerySchema = Type.Intersect(
 )
 export interface AssetQuery extends Static<typeof assetQuerySchema> {}
 
+export const assetValidator = /* @__PURE__ */ getValidator(assetSchema, dataValidator)
 export const assetDataValidator = /* @__PURE__ */ getValidator(assetDataSchema, dataValidator)
+export const assetPatchValidator = /* @__PURE__ */ getValidator(assetPatchSchema, dataValidator)
 export const assetQueryValidator = /* @__PURE__ */ getValidator(assetQuerySchema, queryValidator)

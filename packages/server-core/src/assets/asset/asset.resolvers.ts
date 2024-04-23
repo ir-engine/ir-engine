@@ -30,17 +30,17 @@ import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { AssetDataType, AssetQuery } from '@etherealengine/common/src/schema.type.module'
+import { AssetQuery, AssetType } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
-export const assetResolver = resolve<AssetDataType, HookContext>({
+export const assetResolver = resolve<AssetType, HookContext>({
   createdAt: virtual(async (asset) => fromDateTimeSql(asset.createdAt)),
   updatedAt: virtual(async (asset) => fromDateTimeSql(asset.updatedAt))
 })
 
-export const assetExternalResolver = resolve<AssetDataType, HookContext>({})
+export const assetExternalResolver = resolve<AssetType, HookContext>({})
 
-export const assetDataResolver = resolve<AssetDataType, HookContext>({
+export const assetDataResolver = resolve<AssetType, HookContext>({
   id: async () => {
     return v4()
   },
@@ -48,7 +48,7 @@ export const assetDataResolver = resolve<AssetDataType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const assetPatchResolver = resolve<AssetDataType, HookContext>({
+export const assetPatchResolver = resolve<AssetType, HookContext>({
   updatedAt: getDateTimeSql
 })
 

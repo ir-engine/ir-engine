@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetDataType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
+import { AssetType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -41,8 +41,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
         const projectPath = `projects/${project.name}`
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
         const sceneJSONAssets = projectAssets.filter(
-          (asset) =>
-            asset.endsWith('.scene.json') && !assets.data.find((item: AssetDataType) => item.assetURL === asset)
+          (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
         )
         if (!sceneJSONAssets.length) return
         return sceneJSONAssets.map((asset) => ({

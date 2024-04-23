@@ -35,7 +35,7 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import config from '@etherealengine/common/src/config'
-import { AssetDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -67,7 +67,7 @@ export default function ScenesPanel() {
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [loadedScene, setLoadedScene] = useState<AssetDataType | null>(null)
+  const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
   const sceneState = useHookstate(getMutableState(SceneState))
   const scenesLoading = scenesQuery.status === 'pending'
 
@@ -75,7 +75,7 @@ export default function ScenesPanel() {
     await onNewScene()
   }
 
-  const onClickExisting = async (e, scene: AssetDataType) => {
+  const onClickExisting = async (e, scene: AssetType) => {
     e.preventDefault()
     getMutableState(EditorState).scenePath.set(scene.assetURL)
   }
@@ -167,7 +167,7 @@ export default function ScenesPanel() {
           </div>
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-            {scenes.map((scene: AssetDataType) => (
+            {scenes.map((scene: AssetType) => (
               <div className={styles.sceneContainer} key={scene.assetURL}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
