@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshPhongMaterial as Phong } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, EmissiveMapArgs, EnvMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, FloatArg } from '../DefaultArgs'
 
@@ -42,11 +41,10 @@ export const MeshPhongArguments = {
   shininess: { ...FloatArg, default: 30 }
 }
 
-export const MeshPhongMaterial: MaterialPrototypeComponentType = {
+export const MeshPhongMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshPhongMaterial',
-  baseMaterial: Phong,
-  arguments: MeshPhongArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Phong(),
+  arguments: MeshPhongArguments
 }
 
 export default MeshPhongMaterial

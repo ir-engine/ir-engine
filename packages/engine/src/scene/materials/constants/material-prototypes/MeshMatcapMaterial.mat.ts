@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshMatcapMaterial as Matcap } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, TextureArg } from '../DefaultArgs'
 
@@ -39,16 +38,15 @@ export const MeshMatcapArguments = {
   ...DisplacementMapArgs
 }
 
-export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
+export const MeshMatcapMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshMatcapMaterial',
-  baseMaterial: Matcap,
+  baseMaterial: new Matcap(),
   arguments: MeshMatcapArguments,
   onBeforeCompile: (shader, renderer) => {
     ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
       (arg) => (shader.uniforms[arg] = { value: null })
     )
-  },
-  src: { type: SourceType.BUILT_IN, path: '' }
+  }
 }
 
 export default MeshMatcapMaterial

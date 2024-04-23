@@ -33,7 +33,6 @@ import {
   EntityUUID,
   UUIDComponent,
   createEntity,
-  defineQuery,
   generateEntityUUID,
   getComponent,
   getMutableComponent,
@@ -44,7 +43,6 @@ import {
 } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
   MaterialComponent,
   PrototypeArgument,
@@ -93,16 +91,15 @@ export const createMaterialEntity = (material: Material, path: string) => {
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, path as SceneID)
-  const prototypeUUID = MaterialComponent.prototypeByName[material.type]
+  const prototypeEntity = MaterialComponent.prototypeByName[material.type]
   setComponent(materialEntity, MaterialComponent, {
     material,
-    prototypeUuid: prototypeUUID,
+    prototypeEntity,
     parameters: Object.fromEntries(
-      Object.keys(
-        extractDefaults(
-          getComponent(UUIDComponent.getEntityByUUID(prototypeUUID), MaterialComponent).prototypeArguments
-        )
-      ).map((k) => [k, material[k]])
+      Object.keys(extractDefaults(getComponent(prototypeEntity, MaterialComponent).prototypeArguments)).map((k) => [
+        k,
+        material[k]
+      ])
     )
   })
   setMaterialName(materialEntity, material.name)
@@ -126,7 +123,14 @@ export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) =>
   return instances.length
 }
 
-export const createMaterialFromPrototype = (prototypeName: string, source: string, name: string) => {}
+export const createMaterialFromPrototype = (prototypeName: string, source: string, name: string) => {
+  const prototypeEntity = MaterialComponent.prototypeByName[prototypeName]
+  const baseMaterial = getComponent(prototypeEntity, MaterialComponent).material
+  const newMaterial = {} as Material
+  Object.assign(newMaterial, baseMaterial)
+  newMaterial.uuid = generateEntityUUID() as string
+  createMaterialEntity(newMaterial, source)
+}
 
 /**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
@@ -160,12 +164,7 @@ const uniqueSuffix = (name: string) => {
   return `${name}${materialSuffix}${i}`
 }
 
-export const createPrototype = (
-  name: string,
-  prototypeArguments: PrototypeArgument,
-  material: Material,
-  source: string
-) => {
+export const createPrototype = (name: string, prototypeArguments: PrototypeArgument, material: Material) => {
   const prototypeEntity = createEntity()
   setComponent(prototypeEntity, MaterialComponent, {
     material,
@@ -174,10 +173,9 @@ export const createPrototype = (
   })
   setComponent(prototypeEntity, NameComponent, name)
   setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
-  setComponent(prototypeEntity, SourceComponent, source as SceneID)
   /**@todo handle duplicate prototype names */
   if (MaterialComponent.prototypeByName[name]) throw new Error('Prototype already exists')
-  MaterialComponent.prototypeByName[name] = getComponent(prototypeEntity, UUIDComponent)
+  MaterialComponent.prototypeByName[name] = prototypeEntity
 }
 
 export function injectDefaults(defaultArgs, values) {
@@ -198,10 +196,7 @@ export function injectDefaults(defaultArgs, values) {
 
 export const setMaterialToDefaults = (materialUUID: string) => {
   const material = getComponent(UUIDComponent.getEntityByUUID(materialUUID as EntityUUID), MaterialComponent)
-  const prototype = getComponent(
-    UUIDComponent.getEntityByUUID(material.prototypeUuid as EntityUUID),
-    MaterialComponent
-  ).prototypeArguments
+  const prototype = getComponent(material.prototypeEntity, MaterialComponent).prototypeArguments
   return injectDefaults(prototype, material.parameters)
 }
 
@@ -257,31 +252,6 @@ export function getMaterialSource(material: Material): string | null {
   if (!matEntry) return null
   return matEntry.src.path
 }
-
-// export function removeMaterialSource(src: MaterialSource): boolean {
-//   const materialLibrary = getMutableState(MaterialLibraryState)
-//   const materialSelectionState = getMutableState(MaterialSelectionState)
-//   const srcId = hashMaterialSource(src)
-//   if (materialLibrary.sources[srcId].value) {
-//     const srcComp = materialLibrary.sources[srcId].value
-//     srcComp.entries.map((matId) => {
-//       const toDelete = materialFromId(matId)
-//       if (materialSelectionState.selectedMaterial.value === matId) {
-//         materialSelectionState.selectedMaterial.set(null)
-//       }
-//       Object.values(toDelete.parameters)
-//         .filter((val) => (val as Texture)?.isTexture)
-//         .map((val: Texture) => val.dispose())
-//       toDelete.material.dispose()
-//       materialLibrary.materials[matId].set(none)
-//     })
-//     materialLibrary.sources[srcId].set(none)
-
-//     return true
-//   } else return false
-// }
-
-const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 export function replaceMaterial(material: Material, nuMat: Material) {
   // for (const entity of sceneMeshQuery()) {

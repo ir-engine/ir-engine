@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, ShaderMaterial as Shader } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { ColorArg, ObjectArg, ShaderArg } from '../DefaultArgs'
 
 export const ShaderMaterialArguments = {
@@ -40,9 +39,8 @@ export const ShaderMaterialArguments = {
   fragmentShader: ShaderArg
 }
 
-export const ShaderMaterial: MaterialPrototypeComponentType = {
+export const ShaderMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'ShaderMaterial',
-  baseMaterial: Shader,
-  arguments: ShaderMaterialArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Shader(),
+  arguments: ShaderMaterialArguments
 }

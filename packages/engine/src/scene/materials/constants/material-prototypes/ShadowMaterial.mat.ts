@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, ShadowMaterial as Shadow } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { BoolArg, ColorArg } from '../DefaultArgs'
 
 export const ShadowMaterialArguments = {
@@ -35,9 +34,8 @@ export const ShadowMaterialArguments = {
   transparent: { ...BoolArg, default: true }
 }
 
-export const ShadowMaterial: MaterialPrototypeComponentType = {
+export const ShadowMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'ShadowMaterial',
-  baseMaterial: Shadow,
-  arguments: ShadowMaterialArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Shadow(),
+  arguments: ShadowMaterialArguments
 }

@@ -25,30 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import { MaterialSource, SourceType } from './MaterialSource'
+import { PrototypeArgument } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
+export type MaterialPrototypeDefinition = {
   prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
-  }
-  src: MaterialSource
+  readonly baseMaterial: Material
+  arguments: PrototypeArgument
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
-}
-
-export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
-  prototypeId: 'unavailable',
-  baseMaterial: Material,
-  arguments: {},
-  src: {
-    type: SourceType.BUILT_IN,
-    path: 'UNAVAILABLE'
-  }
 }

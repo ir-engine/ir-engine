@@ -71,7 +71,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }))
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
-  const selectedPlugin = useHookstate('')
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {
@@ -129,7 +128,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const entity = UUIDComponent.getEntityByUUID(materialID)
   const materialComponent = getComponent(entity, MaterialComponent)
-  const prototypeEntity = UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid)
+  const prototypeEntity = materialComponent.prototypeEntity
   const prototype = getComponent(prototypeEntity, MaterialComponent)
 
   return (

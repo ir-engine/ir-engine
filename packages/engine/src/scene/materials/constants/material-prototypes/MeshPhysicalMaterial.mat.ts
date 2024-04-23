@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshPhysicalMaterial as Physical } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 import { MeshStandardArguments as StandardDefaults } from './MeshStandardMaterial.mat'
 
@@ -57,11 +56,10 @@ export const MeshPhysicalArguments = {
   transmissionMap: TextureArg
 }
 
-export const MeshPhysicalMaterial: MaterialPrototypeComponentType = {
+export const MeshPhysicalMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshPhysicalMaterial',
-  baseMaterial: Physical,
-  arguments: MeshPhysicalArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Physical(),
+  arguments: MeshPhysicalArguments
 }
 
 export default MeshPhysicalMaterial

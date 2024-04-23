@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshStandardMaterial as Standard } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import {
   AoMapArgs,
   BasicArgs,
@@ -53,11 +52,10 @@ export const MeshStandardArguments = {
   ...LightMapArgs
 }
 
-export const MeshStandardMaterial: MaterialPrototypeComponentType = {
+export const MeshStandardMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshStandardMaterial',
-  baseMaterial: Standard,
-  arguments: MeshStandardArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Standard(),
+  arguments: MeshStandardArguments
 }
 
 export default MeshStandardMaterial

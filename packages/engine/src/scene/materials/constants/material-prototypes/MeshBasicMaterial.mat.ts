@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshBasicMaterial as Basic } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
+import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
 import { TextureArg } from '../DefaultArgs'
 
@@ -39,11 +38,10 @@ export const MeshBasicArguments = {
   specularMap: TextureArg
 }
 
-export const MeshBasicMaterial: MaterialPrototypeComponentType = {
+export const MeshBasicMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshBasicMaterial',
-  baseMaterial: Basic,
-  arguments: MeshBasicArguments,
-  src: { type: SourceType.BUILT_IN, path: '' }
+  baseMaterial: new Basic(),
+  arguments: MeshBasicArguments
 }
 
 export default MeshBasicMaterial

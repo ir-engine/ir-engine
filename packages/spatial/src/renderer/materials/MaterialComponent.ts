@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Shader } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs'
-import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
@@ -67,7 +67,7 @@ export const MaterialComponent = defineComponent({
       parameters: {},
       instances: [] as Entity[],
       plugins: [] as string[],
-      prototypeUuid: '' as EntityUUID,
+      prototypeEntity: UndefinedEntity as Entity,
       // shared prototype state
       prototypeName: '',
       prototypeArguments: {} as PrototypeArgument
@@ -76,7 +76,8 @@ export const MaterialComponent = defineComponent({
 
   materialByHash: {} as Record<string, EntityUUID>,
   materialByName: {} as Record<string, EntityUUID>,
-  prototypeByName: {} as Record<string, EntityUUID>,
+
+  prototypeByName: {} as Record<string, Entity>,
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -85,7 +86,7 @@ export const MaterialComponent = defineComponent({
     if (json.parameters) component.parameters.set(json.parameters)
     if (json.instances) component.instances.set(json.instances)
     if (json.plugins) component.plugins.set(json.plugins)
-    if (json.prototypeUuid) component.prototypeUuid.set(json.prototypeUuid)
+    if (json.prototypeEntity) component.prototypeEntity.set(json.prototypeEntity)
     if (json.prototypeName) component.prototypeName.set(json.prototypeName)
     if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)
   },
