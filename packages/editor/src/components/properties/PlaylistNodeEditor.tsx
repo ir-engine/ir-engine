@@ -127,7 +127,11 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
   }
 
   useEffect(() => {
-    if (component.tracks.length === 0) return
+    if (component.tracks.length === 0) {
+      component.currentTrackUUID.set('')
+      currentTrackIndex.set(-1)
+      return
+    }
 
     const index = findTrack(component.currentTrackUUID.value).index
 
