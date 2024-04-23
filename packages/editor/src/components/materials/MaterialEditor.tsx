@@ -41,7 +41,7 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
 import { Box, Divider, Stack } from '@mui/material'
 
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

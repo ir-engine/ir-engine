@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import {
@@ -38,6 +37,7 @@ import {
   SpotLight,
   SpotLightHelper
 } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const LightHelperComponent = defineComponent({

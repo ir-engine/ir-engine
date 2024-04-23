@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
 import { matchesColor, matchesVector3 } from '../functions/MatchesUtils'
 import { useHelperEntity } from './DebugComponentUtils'
 

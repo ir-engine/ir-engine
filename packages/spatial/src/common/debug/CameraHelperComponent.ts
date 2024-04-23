@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { Camera, CameraHelper } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const CameraHelperComponent = defineComponent({

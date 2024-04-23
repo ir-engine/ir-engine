@@ -34,9 +34,9 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../resources/resourceHooks'
 import { RendererState } from '../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 

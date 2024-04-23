@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { useEntityContext } from '@etherealengine/ecs'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Geometry } from '@etherealengine/engine/src/assets/constants/Geometry'
-import { useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { Geometry } from '../../common/constants/Geometry'
 import { matchesGeometry } from '../../common/functions/MatchesUtils'
+import { useResource } from '../../resources/resourceHooks'
 
 export const GeometryComponent = defineComponent({
   name: 'Geometry Component',

@@ -28,8 +28,8 @@ import { Material } from 'three'
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { useEntityContext } from '@etherealengine/ecs'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matchesMeshMaterial } from '../../common/functions/MatchesUtils'
+import { useResource } from '../../resources/resourceHooks'
 
 export const MaterialComponent = defineComponent({
   name: 'Material Component',

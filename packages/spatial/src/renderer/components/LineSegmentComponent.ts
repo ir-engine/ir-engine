@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useDisposable, useResource } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { BufferGeometry, Color, ColorRepresentation, LineBasicMaterial, LineSegments, Material } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { matchesColor, matchesGeometry, matchesMaterial } from '../../common/functions/MatchesUtils'
+import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'

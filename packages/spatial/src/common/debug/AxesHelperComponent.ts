@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { AxesHelper } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const AxesHelperComponent = defineComponent({

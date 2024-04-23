@@ -55,7 +55,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import { useGLTF, useTexture } from '../../assets/functions/resourceHooks'
+import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import getFirstMesh from '../util/meshUtils'
 
 export const ParticleState = defineState({

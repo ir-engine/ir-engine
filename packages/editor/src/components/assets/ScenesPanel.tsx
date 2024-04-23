@@ -23,22 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import multiLogger from '@etherealengine/common/src/logger'
+import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
-
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { deleteScene, getScenes, onNewScene, renameScene, setSceneInState } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'

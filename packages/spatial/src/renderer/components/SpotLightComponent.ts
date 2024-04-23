@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, ConeGeometry, DoubleSide, MeshBasicMaterial, SpotLight, TorusGeometry } from 'three'
+import { Color, SpotLight } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -36,21 +36,20 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useDisposable } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { matches } from '@etherealengine/hyperflux'
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
 import { useUpdateLight } from '../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
-const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
-coneGeom.translate(0, -0.25, 0)
-coneGeom.rotateX(-Math.PI / 2)
-const geom = mergeBufferGeometries([ringGeom, coneGeom])!
-const helperMaterial = new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+// const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
+// const coneGeom = new ConeGeometry(0.25, 0.5, 8, 1, true)
+// coneGeom.translate(0, -0.25, 0)
+// coneGeom.rotateX(-Math.PI / 2)
+// const geom = mergeBufferGeometries([ringGeom, coneGeom])!
+// const helperMaterial = new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
 
 export const SpotLightComponent = defineComponent({
   name: 'SpotLightComponent',

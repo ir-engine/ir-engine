@@ -27,9 +27,9 @@ import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
+import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, LineBasicMaterial, MathUtils } from 'three'
-import { useDisposable, useResource } from '../../assets/functions/resourceHooks'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
