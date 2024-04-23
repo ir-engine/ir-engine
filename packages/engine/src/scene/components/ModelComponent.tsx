@@ -46,6 +46,10 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React from 'react'
@@ -95,7 +99,7 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
-
+    console.log('json', json)
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
@@ -117,6 +121,7 @@ function ModelReactor(): JSX.Element {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
+  console.log('ModelReactor', entity)
   const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
@@ -230,7 +235,11 @@ function ModelReactor(): JSX.Element {
       })
     }
     return () => {
-      SceneState.unloadScene(uuid)
+      SceneState.unloadScene(uuid, false)
+      const children = getComponent(entity, EntityTreeComponent).children
+      for (const child of children) {
+        removeEntityNodeRecursively(child)
+      }
     }
   }, [modelComponent.scene])
 

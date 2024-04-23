@@ -155,7 +155,10 @@ describe('EditorControlFunctions', () => {
 
           await act(() => rerender(sceneTag))
 
-          const newComponent = getComponent(child2_1Entity, FogSettingsComponent)
+          const child2_1Entity_2 = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
+          console.log(child2_1Entity_2)
+
+          const newComponent = getComponent(child2_1Entity_2, FogSettingsComponent)
           assert.deepStrictEqual(newComponent, prop)
 
           unmount()

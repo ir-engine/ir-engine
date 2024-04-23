@@ -40,6 +40,7 @@ export const createEntity = (): Entity => {
 export const removeEntity = (entity: Entity) => {
   if (!entity || !entityExists(entity)) return [] ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
+  console.trace(`[removeEntity]: ${entity}`)
   removeAllComponents(entity)
 
   bitECS.removeEntity(HyperFlux.store, entity)

@@ -29,7 +29,11 @@ import {
   UUIDComponent,
   UndefinedEntity,
   createEntity,
+  defineQuery,
+  getComponent,
+  removeComponent,
   removeEntity,
+  serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import {
@@ -188,8 +192,24 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
 
   useLayoutEffect(() => {
     // update gltf state with the current snapshot
-    getMutableState(GLTFDocumentState)[props.source].set(gltfState.snapshots[gltfState.index.value].get(NO_PROXY))
+    const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
+    getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
+    // force model components to re-load gltf until we have a new loader
+
+    // setTimeout(() => {
+    for (const entity of modelQuery()) {
+      if (getComponent(entity, ModelComponent).src === props.source) {
+        console.log('reloading model', entity, props.source)
+        /** force reload of the component */
+        const data = serializeComponent(entity, ModelComponent)
+        removeComponent(entity, ModelComponent)
+        setComponent(entity, ModelComponent, data)
+      }
+    }
+    // }, 0)
   }, [gltfState.index])
 
   return null
 }
+
+const modelQuery = defineQuery([ModelComponent])
