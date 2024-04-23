@@ -24,21 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  assetCreateDataSchema,
   assetDataSchema,
   assetPatchSchema,
   assetQuerySchema,
+  assetSchema,
   assetUpdateSchema
 } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    assetDataSchema: assetDataSchema,
-    assetCreateDataSchema: assetCreateDataSchema,
-    assetUpdateSchema: assetUpdateSchema,
-    assetPatchSchema: assetPatchSchema,
-    assetQuerySchema: assetQuerySchema
+    assetSchema,
+    assetDataSchema,
+    assetUpdateSchema,
+    assetPatchSchema,
+    assetQuerySchema
   },
   docs: {
     description: 'Asset service description',

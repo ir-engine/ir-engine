@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetDataType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { AssetType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -72,7 +72,7 @@ export async function up(knex: Knex): Promise<void> {
               projectId,
               createdAt: await getDateTimeSql(),
               updatedAt: await getDateTimeSql()
-            } as AssetDataType
+            } as AssetType
           })
           .filter(Boolean)
       )

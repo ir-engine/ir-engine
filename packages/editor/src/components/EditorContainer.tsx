@@ -27,7 +27,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AssetDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -182,7 +182,7 @@ const onSaveAs = async () => {
         getMutableState(SceneState).sceneModified.set(false)
         const [newSceneData] = (await Engine.instance.api
           .service(scenePath)
-          .find({ query: { assetURL: getState(EditorState).scenePath! } })) as any as AssetDataType[]
+          .find({ query: { assetURL: getState(EditorState).scenePath! } })) as any as AssetType[]
         getMutableState(EditorState).scenePath.set(newSceneData.assetURL as any)
       }
     }

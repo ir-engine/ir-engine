@@ -19,7 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Static, Type, querySyntax } from '@feathersjs/typebox'
-import { assetDataSchema } from '../assets/asset.schema'
+import { assetSchema } from '../assets/asset.schema'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
@@ -29,7 +29,7 @@ export const sceneDataMethods = ['get', 'find'] as const
 
 export const sceneDataServiceSchema = Type.Object(
   {
-    data: Type.Array(Type.Ref(assetDataSchema))
+    data: Type.Array(Type.Ref(assetSchema))
   },
   { $id: 'SceneDataService', additionalProperties: false }
 )
