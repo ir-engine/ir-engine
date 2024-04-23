@@ -23,11 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AssetPatch,
-  assetDataValidator,
-  assetQueryValidator
-} from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { AssetPatch } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -48,7 +44,7 @@ import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.t
 import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { AssetService } from './asset.class'
-import { assetDataResolver, assetExternalResolver, assetQueryResolver, assetResolver } from './asset.resolvers'
+import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
 
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
@@ -168,7 +164,6 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
 
   if (!context.data.project) throw new BadRequest('Project is required')
 
-  const data = context.data
   const name = context.data.name ?? NEW_SCENE_NAME
   context.data.name = name
   const storageProvider = getStorageProvider()
@@ -320,12 +315,11 @@ export default createSkippableHooks(
       all: [schemaHooks.resolveExternal(assetExternalResolver), schemaHooks.resolveResult(assetResolver)]
     },
     before: {
-      all: [() => schemaHooks.validateQuery(assetQueryValidator), schemaHooks.resolveQuery(assetQueryResolver)],
+      all: [],
       find: [enableClientPagination(), resolveProjectIdForAssetQuery],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         setDirectoryFromData,
@@ -337,7 +331,6 @@ export default createSkippableHooks(
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
@@ -346,7 +339,6 @@ export default createSkippableHooks(
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
