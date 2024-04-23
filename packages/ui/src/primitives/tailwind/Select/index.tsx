@@ -31,7 +31,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-type OptionValueType = string | number
+export type OptionValueType = string | number
 
 export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
 
@@ -46,6 +46,11 @@ export interface SelectProps<T extends OptionValueType> {
   placeholder?: string
   disabled?: boolean
   menuClassname?: string
+  menuItemClassName?: string
+  labelClassName?: string
+  inputVariant?: 'outlined' | 'underlined' | 'onboarding'
+  inputClassName?: string
+  errorBorder?: boolean
 }
 
 const Select = <T extends OptionValueType>({
@@ -58,13 +63,22 @@ const Select = <T extends OptionValueType>({
   onChange,
   placeholder,
   disabled,
-  menuClassname
+  menuClassname,
+  menuItemClassName,
+  labelClassName,
+  inputVariant,
+  inputClassName,
+  errorBorder
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
   const filteredOptions = useHookstate(options)
+
+  const toggleDropdown = () => {
+    showOptions.set((v) => !v)
+  }
   useEffect(() => {
     filteredOptions.set(options)
   }, [options])
@@ -93,21 +107,23 @@ const Select = <T extends OptionValueType>({
       <Input
         disabled={disabled}
         label={label}
+        labelClassname={labelClassName}
+        variant={inputVariant}
         description={description}
         error={error}
-        className="cursor-pointer"
+        errorBorder={errorBorder}
+        className={`cursor-pointer ${inputClassName}`}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
-        onClick={() => {
-          showOptions.set((v) => !v)
-        }}
+        onClick={toggleDropdown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
         className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
           label ? 'top-8' : 'top-2'
         }`}
+        onClick={toggleDropdown}
       />
       <div
         className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
@@ -121,7 +137,8 @@ const Select = <T extends OptionValueType>({
               value={option.value}
               className={twMerge(
                 'text-theme-secondary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight'
+                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
+                menuItemClassName
               )}
               onClick={() => {
                 if (option.disabled) return
