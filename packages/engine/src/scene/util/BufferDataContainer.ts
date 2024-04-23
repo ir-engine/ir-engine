@@ -40,12 +40,10 @@ type CommonBufferDataType = {
 }[]
 
 class BufferData {
-  private timeUnit: number
   public bufferedRange: BufferedDataType
   public pendingRange: PendingBufferDataType
 
-  constructor(timeUnit = 600) {
-    this.timeUnit = timeUnit
+  constructor() {
     this.bufferedRange = []
     this.pendingRange = []
   }
@@ -113,10 +111,6 @@ class BufferData {
     }
   }
 
-  /**
-   * All the arguments passed to this function are in seconds.
-   * But internally, startTime & endTime are converted to custom timeUnit.
-   */
   public addRange(startTime: number, endTime: number, fetchTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (startTime >= endTime) {
@@ -127,8 +121,6 @@ class BufferData {
       this.removeRange(startTime, endTime, true)
     }
 
-    startTime *= this.timeUnit
-    endTime *= this.timeUnit
     const length = array.length
 
     const lb = this.lowerBound(array, startTime)
@@ -176,8 +168,6 @@ class BufferData {
     if (startTime >= endTime) {
       return
     }
-    startTime *= this.timeUnit
-    endTime *= this.timeUnit
 
     const length = array.length
 
@@ -256,9 +246,6 @@ class BufferData {
   }
 
   private getInterSectionDurationInternal(array: CommonBufferDataType, startTime: number, endTime: number) {
-    startTime *= this.timeUnit
-    endTime *= this.timeUnit
-
     if (
       array.length === 0 ||
       startTime >= endTime ||
@@ -281,12 +268,8 @@ class BufferData {
 
     let duration = 0
 
-    if (lb < ub) {
-      for (let i = lb; i <= ub; i++) {
-        duration += Math.min(array[i].endTime, endTime) - Math.max(array[i].startTime, startTime)
-      }
-    } else {
-      duration = Math.min(array[lb].endTime, endTime) - Math.max(array[lb].startTime, startTime)
+    for (let i = lb; i <= ub; i++) {
+      duration += Math.min(array[i].endTime, endTime) - Math.max(array[i].startTime, startTime)
     }
 
     return duration
@@ -295,12 +278,12 @@ class BufferData {
   public getIntersectionDuration(startTime: number, endTime: number) {
     const bufferedDuration = this.getInterSectionDurationInternal(this.bufferedRange, startTime, endTime),
       pendingDuration = this.getInterSectionDurationInternal(this.pendingRange, startTime, endTime),
-      missingDuration = (endTime - startTime) * this.timeUnit - bufferedDuration - pendingDuration
+      missingDuration = endTime - startTime - bufferedDuration - pendingDuration
 
     return {
-      bufferedDuration: bufferedDuration / this.timeUnit,
-      pendingDuration: pendingDuration / this.timeUnit,
-      missingDuration: missingDuration / this.timeUnit
+      bufferedDuration: bufferedDuration,
+      pendingDuration: pendingDuration,
+      missingDuration: missingDuration
     }
   }
 }
