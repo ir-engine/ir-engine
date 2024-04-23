@@ -83,7 +83,7 @@ const EffectsOptions: EffectOptionsType = {
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'ResolutionScale', min: 0, max: 10, step: 0.01 },
     blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
     xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' },
-    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kernel Size', min: 1, max: 5, step: 1 }
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' }
     //resolutionX: Resolution.AUTO_SIZE,
     //resolutionY: Resolution.AUTO_SIZE,
     //width: Resolution.AUTO_SIZE,
@@ -106,7 +106,7 @@ const EffectsOptions: EffectOptionsType = {
     focusArea: { propertyType: PropertyTypes.Number, name: 'Focus Area', min: 0, max: 10, step: 0.1 },
     feather: { propertyType: PropertyTypes.Number, name: 'Feather', min: 0, max: 10, step: 0.1 },
     bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: 0, max: 10, step: 0.1 },
-    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kerne Size', min: 1, max: 5, step: 1 },
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
     //resolutionX: Resolution.AUTO_SIZE,
     //resolutionY: Resolution.AUTO_SIZE
@@ -137,7 +137,7 @@ const EffectsOptions: EffectOptionsType = {
     intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
     fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -10, max: 10, step: 0.01 },
-    kernelSize: { propertyType: PropertyTypes.Number, name: 'Kerne Size', min: 1, max: 5, step: 1 },
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
     blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
   },
   SSREffect: {
@@ -261,6 +261,27 @@ const EffectsOptions: EffectOptionsType = {
     dtSize: { propertyType: PropertyTypes.Number, name: 'DT Size', min: 0, max: 10, step: 0.1 },
     columns: { propertyType: PropertyTypes.Number, name: 'Columns', min: 0, max: 10, step: 0.1 },
     ratio: { propertyType: PropertyTypes.Number, name: 'Ratio', min: 0, max: 10, step: 0.1 }
+  },
+  GodRaysEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 0, max: 10, step: 0.1 },
+    density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.1 },
+    decay: { propertyType: PropertyTypes.Number, name: 'Decay', min: 0, max: 10, step: 0.1 },
+    weight: { propertyType: PropertyTypes.Number, name: 'Weight', min: 0, max: 10, step: 0.1 },
+    exposure: { propertyType: PropertyTypes.Number, name: 'Exposure', min: 0, max: 10, step: 0.1 },
+    clampMax: { propertyType: PropertyTypes.Number, name: 'Clamp Max', min: 0, max: 10, step: 0.1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 },
+    //resolutionX?: number
+    //resolutionY?: number
+    //width?: number
+    //height?: number
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
+    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
+  },
+  GridEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 },
+    lineWidth: { propertyType: PropertyTypes.Number, name: 'Line Width', min: 0, max: 10, step: 0.1 }
   }
 }
 
