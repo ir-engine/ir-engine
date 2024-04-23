@@ -33,7 +33,8 @@ export const PlaylistComponent = defineComponent({
   onInit: (entity) => {
     return {
       tracks: [] as { uuid: string; src: string }[],
-      currentTrackUUID: 'eb34a19f-c2ab-4829-bdbb-30f03433e74a',
+      currentTrackUUID: '',
+      paused: false,
       playMode: PlayMode.loop
     }
   },

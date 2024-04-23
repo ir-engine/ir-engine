@@ -23,31 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
-import { NO_PROXY, State, none } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, none, useHookstate } from '@etherealengine/hyperflux'
+import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import PauseIcon from '@mui/icons-material/Pause'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import SkipNextIcon from '@mui/icons-material/SkipNext'
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious'
 import VideocamIcon from '@mui/icons-material/Videocam'
+import IconButton from '@mui/material/IconButton'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import 'react-scrubber/lib/scrubber.css'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '../inputs/Button'
-import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import { EditorComponentType, commitProperty } from './Util'
 
 const PlayModeOptions = [
-  {
-    label: 'Single',
-    value: PlayMode.single
-  },
   {
     label: 'Random',
     value: PlayMode.random
@@ -81,6 +83,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const component = useComponent(props.entity, PlaylistComponent)
+  const currentTrackIndex = useHookstate(-1)
 
   const addTrack = () => {
     component.tracks.merge([
@@ -92,13 +95,6 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
   }
 
   const findTrack = (trackUUID: string) => {
-    const track = component.tracks.get(NO_PROXY).find((track) => track.uuid === trackUUID)
-    console.log('findTrack: ', trackUUID, track)
-    // return {
-    //   track,
-    //   index: track ? component.tracks.get(NO_PROXY).indexOf(track) : -1
-    // }
-
     for (let i = 0; i < component.tracks.length; i++) {
       if (component.tracks[i].uuid.value === trackUUID) {
         return {
@@ -126,24 +122,134 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
 
   const [, drop] = useDrop(() => ({ accept: ItemType.track }))
 
-  console.log('component.tracks: ', component.get(NO_PROXY).tracks.length, component.get(NO_PROXY))
+  const togglePause = () => {
+    component.paused.set(!component.paused.value)
+  }
+
+  useEffect(() => {
+    if (component.tracks.length === 0) return
+
+    const index = findTrack(component.currentTrackUUID.value).index
+
+    if (index === -1) {
+      component.currentTrackUUID.set(component.tracks[0].uuid.value)
+      currentTrackIndex.set(0)
+      return
+    }
+
+    currentTrackIndex.set(index)
+  }, [component.currentTrackUUID, component.tracks])
+
+  const getNextTrack = (delta: number) => {
+    const tracksCount = component.tracks.value.length
+
+    if (tracksCount === 0) return
+
+    if (tracksCount === 1 || component.playMode.value === PlayMode.singleloop) {
+      const newUUID = uuidv4()
+      component.tracks[currentTrackIndex.value].uuid.set(newUUID)
+      component.currentTrackUUID.set(newUUID)
+      return
+    }
+
+    if (component.playMode.value === PlayMode.loop) {
+      const previousTrackIndex = (currentTrackIndex.value + delta + tracksCount) % tracksCount
+      component.currentTrackUUID.set(component.tracks[previousTrackIndex].uuid.value)
+    } else if (component.playMode.value === PlayMode.random) {
+      let randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
+
+      // Ensure that the random index is different from the current track index
+      while (randomIndex === currentTrackIndex.value) {
+        randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
+      }
+
+      component.currentTrackUUID.set(component.tracks[randomIndex].uuid.value)
+    }
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div ref={drop}>
+      <div
+        ref={drop}
+        style={{
+          width: '100%',
+          paddingLeft: '20px',
+          paddingRight: '10px'
+        }}
+      >
         {component.tracks.length > 0 ? (
           <>
-            {component.tracks.map((track, index) => {
-              return <Track track={track} moveTrack={moveTrack} findTrack={findTrack} key={index} />
+            {component.tracks.value.map((track, index) => {
+              return (
+                <Track
+                  track={component.tracks[index]}
+                  moveTrack={moveTrack}
+                  findTrack={findTrack}
+                  key={track.uuid}
+                  active={track.uuid === component.currentTrackUUID.value}
+                />
+              )
             })}
-            <Button onClick={addTrack}>Add track</Button>
-          </>
-        ) : (
-          <div>
-            <div>
-              <Button onClick={addTrack}>Add track</Button>
-              <div>
-                <label>{t('PlayMode')}</label>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '8px',
+                alignItems: 'center'
+              }}
+            >
+              <div
+                style={{
+                  gridColumn: 'span 1 / span 1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'start'
+                }}
+              >
+                <IconButton onClick={() => getNextTrack(-1)}>
+                  <SkipPreviousIcon
+                    style={{
+                      color: 'white'
+                    }}
+                  />
+                </IconButton>
+                <IconButton onClick={togglePause}>
+                  {component.paused.value ? (
+                    <PlayArrowIcon
+                      style={{
+                        color: 'white'
+                      }}
+                    />
+                  ) : (
+                    <PauseIcon
+                      style={{
+                        color: 'white'
+                      }}
+                    />
+                  )}
+                </IconButton>
+                <IconButton onClick={() => getNextTrack(1)}>
+                  <SkipNextIcon
+                    style={{
+                      color: 'white'
+                    }}
+                  />
+                </IconButton>
+                <IconButton onClick={addTrack}>
+                  <AddIcon
+                    style={{
+                      color: 'white'
+                    }}
+                  />
+                </IconButton>
+              </div>
+
+              <div
+                style={{
+                  gridColumn: 'span 2 / span 2'
+                }}
+              >
                 <SelectInput
                   options={PlayModeOptions}
                   value={component.playMode.value}
@@ -151,7 +257,9 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                 />
               </div>
             </div>
-          </div>
+          </>
+        ) : (
+          <Button onClick={addTrack}>Add track</Button>
         )}
       </div>
     </DndProvider>
@@ -160,73 +268,81 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
 
 const Track = ({
   track,
+  active,
   moveTrack,
   findTrack
 }: {
   track: State<Track>
+  active: boolean
   moveTrack: (trackUUID: string, atIndex: number) => void
   findTrack: (trackUUID: string) => {
     track: Track | undefined
     index: number
   }
 }) => {
-  const id = track.uuid.value
-  const originalIndex = findTrack(id).index
-  const [{ isDragging }, drag] = useDrag(
-    () => ({
-      type: ItemType.track,
-      item: { uuid: id, index: originalIndex },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging()
-      })
-      // end: (item, monitor) => {
-      //   const { uuid: droppedId, index } = item
-      //   const didDrop = monitor.didDrop()
-      //   if (!didDrop) {
-      //     moveTrack(droppedId, index)
-      //   }
-      // }
-    }),
-    []
-  )
+  const originalIndex = findTrack(track.uuid.value).index
+  const [{ opacity }, dragSourceRef, previewRef] = useDrag({
+    type: ItemType.track,
+    item: { uuid: track.uuid.value, index: originalIndex },
+    collect: (monitor) => ({
+      opacity: monitor.isDragging() ? 0 : 1
+    })
+  })
 
-  const [, drop] = useDrop(
-    () => ({
-      accept: ItemType.track,
-      hover({ uuid: draggedtrackUUID }: { uuid: string; index: number }) {
-        if (draggedtrackUUID !== id) {
-          console.log(draggedtrackUUID, 'is hovering over track: ', id)
-          const { index: overIndex } = findTrack(id)
-          moveTrack(draggedtrackUUID, overIndex)
-        }
+  const [, connectDrop] = useDrop({
+    accept: ItemType.track,
+    hover({ uuid: draggedtrackUUID }: { uuid: string; index: number }) {
+      if (draggedtrackUUID !== track.uuid.value) {
+        const { index: overIndex } = findTrack(track.uuid.value)
+        moveTrack(draggedtrackUUID, overIndex)
       }
-    }),
-    []
-  )
-
-  const opacity = isDragging ? 0 : 1
+    }
+  })
 
   return (
     <div
-      ref={(node) => drag(drop(node))}
-      style={{ cursor: 'move', backgroundColor: opacity === 1 ? 'transparent' : 'red' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+
+        opacity
+      }}
+      ref={(node) => connectDrop(previewRef(node))}
     >
-      <InputGroup name={`Track ${originalIndex}`}>
-        <ControlledStringInput
-          type="text"
-          value={track.src.value}
-          onRelease={(e) => {
-            track.src.set(e)
+      <ControlledStringInput
+        type="text"
+        value={track.src.value}
+        onRelease={(e) => {
+          track.src.set(e)
+        }}
+        style={{
+          border: active ? '2px solid black' : ''
+        }}
+      />
+      <IconButton
+        ref={dragSourceRef}
+        style={{
+          cursor: 'move'
+        }}
+      >
+        <DragIndicatorIcon
+          style={{
+            color: 'white'
           }}
         />
-        <Button
-          onClick={() => {
-            track.set(none)
+      </IconButton>
+      <IconButton
+        onClick={() => {
+          track.set(none)
+        }}
+      >
+        <DeleteIcon
+          style={{
+            color: 'white'
           }}
-        >
-          <DeleteIcon />
-        </Button>
-      </InputGroup>
+        />
+      </IconButton>
     </div>
   )
 }
