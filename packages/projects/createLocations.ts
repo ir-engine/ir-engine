@@ -46,12 +46,15 @@ export const createLocations = async (app: Application, projectName: string, sce
       const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
       /** @todo use .gltf instead */
-      const scene = await app.service(assetPath).create({
-        id: sceneId,
-        assetURL,
-        thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.jpg').replace('.gltf', '.thumbnail.jpg'),
-        project: projectName
-      })
+      const scene = await app.service(assetPath).create(
+        {
+          id: sceneId,
+          assetURL,
+          thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.jpg').replace('.gltf', '.thumbnail.jpg'),
+          project: projectName
+        },
+        { isInternal: true }
+      )
 
       const locationName = toCapitalCase(sceneName.replace('-', ' '))
       const locationSetting = {
