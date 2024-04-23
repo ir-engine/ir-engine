@@ -97,6 +97,8 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
   return null
 }
 
+const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
   insert: { before: TransformSystem },
@@ -206,7 +208,6 @@ export const ClickPlacementSystem = defineSystem({
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
     const buttons = InputSourceComponent.getMergedButtons()
-    const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
     const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -257,7 +258,6 @@ export const ClickPlacementSystem = defineSystem({
       break
     }
     if (!targetIntersection || !placementEntity) return
-    const placementTransform = getComponent(placementEntity, TransformComponent)
     const position = targetIntersection.point
     let rotation = new Quaternion().setFromUnitVectors(new Vector3(), targetIntersection.normal ?? new Vector3(0, 1, 0))
     const offset = new Quaternion().setFromEuler(
