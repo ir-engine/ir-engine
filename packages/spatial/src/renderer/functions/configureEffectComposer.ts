@@ -218,14 +218,26 @@ export const configureEffectComposer = (entity: Entity): void => {
       //  const eff = new EffectClass(camera, lightsource, effectOptions)
       //  composer[key] = eff
       //  effects.push(eff)
-      //} else if (key == Effects.LUT1DEffect) {
-      //  let lut = effectOptions.lut
-      //  if (lut == undefined) {
-      //    lut = null
-      //  }
-      //  const eff = new EffectClass(lut, effectOptions)
-      //  composer[key] = eff
-      //  effects.push(eff)
+    } else if (key == Effects.LUT1DEffect) {
+      let lutPath = effectOptions.lut
+      if (lutPath == undefined) {
+        lutPath = null
+      }
+      let lut: Texture | null = null
+      if (lutPath != null) {
+        let textLoad = new TextureLoader()
+        //have to wait for the texture's image to load and then add the pass to the composer
+        lut = textLoad.load(lutPath, (texture) => {
+          const eff = new EffectClass(texture, effectOptions)
+          composer[key] = eff
+          effects.push(eff)
+          AddPass()
+        })
+      } else {
+        const eff = new EffectClass(lut, effectOptions)
+        composer[key] = eff
+        effects.push(eff)
+      }
     } else if (key == Effects.LUT3DEffect) {
       let lutPath = effectOptions.lut
       if (lutPath == undefined) {

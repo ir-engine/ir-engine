@@ -249,10 +249,10 @@ const EffectsOptions: EffectOptionsType = {
     scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 },
     lineWidth: { propertyType: PropertyTypes.Number, name: 'Line Width', min: 0, max: 10, step: 0.1 }
   },
-  //LUT1DEffect: {
-  //  blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-  //  lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
-  //},
+  LUT1DEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
+  },
   LUT3DEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     lut: { propertyType: PropertyTypes.Texture, name: 'LUT' },

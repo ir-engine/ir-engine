@@ -39,7 +39,7 @@ import {
   GridEffect,
   HueSaturationEffect,
   KernelSize,
-  //LUT1DEffect,
+  LUT1DEffect,
   LUT3DEffect,
   OutlineEffect,
   PredicationMode,
@@ -80,7 +80,7 @@ export const Effects = {
   GlitchEffect: 'GlitchEffect' as const,
   //GodRaysEffect: 'GodRaysEffect' as const,
   GridEffect: 'GridEffect' as const,
-  //LUT1DEffect: 'LUT1DEffect' as const,
+  LUT1DEffect: 'LUT1DEffect' as const,
   LUT3DEffect: 'LUT3DEffect' as const,
   // NoiseEffect: 'NoiseEffect' as const,
   // PixelationEffect: 'PixelationEffect' as const,
@@ -114,7 +114,7 @@ export const EffectMap = {
   [Effects.GlitchEffect]: GlitchEffect,
   //[Effects.GodRaysEffect]: GodRaysEffect,
   [Effects.GridEffect]: GridEffect,
-  //[Effects.LUT1DEffect]: LUT1DEffect,
+  [Effects.LUT1DEffect]: LUT1DEffect,
   [Effects.LUT3DEffect]: LUT3DEffect,
   // [Effects.NoiseEffect]: NoiseEffect,
   // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
@@ -354,10 +354,10 @@ export type GridEffectProps = EffectProps & {
   scale?: number
   lineWidth?: number
 }
-//export type LUT1DEffectProps = EffectProps & {
-//  blendFunction?: BlendFunction
-//  lut?: Texture | null
-//}
+export type LUT1DEffectProps = EffectProps & {
+  blendFunction?: BlendFunction
+  lut?: Texture | null
+}
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
@@ -421,7 +421,7 @@ export type EffectPropsSchema = {
   [Effects.GlitchEffect]: GlitchEffectProps
   //[Effects.GodRaysEffect]: GodRaysEffectProps
   [Effects.GridEffect]: GridEffectProps
-  //[Effects.LUT1DEffect]: LUT1DEffectProps
+  [Effects.LUT1DEffect]: LUT1DEffectProps
   [Effects.LUT3DEffect]: LUT3DEffectProps
   // [Effects.NoiseEffect]: NoiseEffectProps
   // [Effects.PixelationEffect]: PixelationEffectProps
@@ -653,11 +653,11 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     scale: 1.0,
     lineWidth: 0.0
   },
-  //[Effects.LUT1DEffect]: {
-  //  isActive: false,
-  //  blendFunction: BlendFunction.SET,
-  //  lut: null
-  //},
+  [Effects.LUT1DEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SET,
+    lut: null
+  },
   [Effects.LUT3DEffect]: {
     isActive: false,
     blendFunction: BlendFunction.SET,
@@ -733,7 +733,7 @@ export const effectInOrder = [
   Effects.BrightnessContrastEffect,
   Effects.HueSaturationEffect,
   Effects.ColorDepthEffect,
-  //Effects.LUT1DEffect,
+  Effects.LUT1DEffect,
   Effects.LUT3DEffect,
 
   /** 5. final fix, aliasing and noise passes */
