@@ -40,7 +40,7 @@ const lightTheme = {
 
   'bg-tag-green': '#10B981',
   'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#744364',
+  'bg-tag-red': '#D1004B',
   'bg-tag-yellow': '#FEF3C7',
 
   'text-primary': '#262626',
@@ -65,7 +65,7 @@ const darkTheme = {
 
   'bg-tag-green': '#064E3B',
   'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#FEE2E2',
+  'bg-tag-red': '#B30911',
   'bg-tag-yellow': '#CA8A04',
 
   'text-primary': '#F5F5F5',
@@ -87,7 +87,7 @@ const themes = {
 export const ThemeState = defineState({
   name: 'ThemeState',
   initial: {
-    theme: 'light' as 'light' | 'dark' | 'custom'
+    theme: 'dark' as 'light' | 'dark' | 'custom'
   },
 
   setTheme: (theme: 'light' | 'dark' | 'custom') => {

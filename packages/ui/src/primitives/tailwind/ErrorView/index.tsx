@@ -24,31 +24,39 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import { useTranslation } from 'react-i18next'
+import { HiOutlineXCircle } from 'react-icons/hi2'
+import Button from '../Button'
+import Text from '../Text'
 
-// make new component instead
+interface ErrorViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
+}
 
-const SelectInput = ({ ...rest }: SelectProps<string>) => {
+export default function ErrorView({ title, description, retryButtonText, onRetry }: ErrorViewProps) {
+  const { t } = useTranslation()
   return (
-    <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none"
-      {...rest}
-    />
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1">
+      <HiOutlineXCircle className="h-8 w-8 text-red-500" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+      {onRetry && (
+        <Button
+          variant="danger"
+          size="small"
+          className="border border-red-500 bg-transparent text-red-500"
+          onClick={onRetry}
+        >
+          {retryButtonText ? retryButtonText : t('common:components.retry')}
+        </Button>
+      )}
+    </div>
   )
 }
-
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
-}
-
-export default SelectInput
