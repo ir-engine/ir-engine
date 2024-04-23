@@ -23,34 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { FocusEvent, useEffect, useRef, useState } from 'react'
-import Input from '../../../../primitives/tailwind/Input'
+import React, { useEffect, useRef, useState } from 'react'
+import Input, { InputProps } from '../../../../primitives/tailwind/Input'
 
-export interface StringInputProps {
-  id?: string
-  value?: string
-  onChange?: (e: string) => void
-  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
-  onRelease?: any
-  onFocus?: any
-  required?: boolean
-  pattern?: string
-  title?: string
-  error?: boolean
-  canDrop?: boolean
-  onKeyUp?: any
-  type?: string
-  placeholder?: string
-  disabled?: boolean
+export interface StringInputProps extends Omit<InputProps, 'onChange'> {
+  value: string
+  onChange?: (value: string) => void
+  onRelease?: (value: string) => void
 }
 
 const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) => {
-  const { error, canDrop, disabled, placeholder, type, onFocus, ...other } = rest
   return (
     <Input
-      containerClassname="w-[178px] h-[30px] bg-zinc-900 rounded-[5px]"
-      className="w-full text-ellipsis bg-inherit font-['Figtree'] text-xs font-normal text-neutral-400"
-      value={value ?? ''}
+      containerClassname="w-44 h-7 bg-[#1A1A1A] rounded"
+      className="w-full text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
+      value={value}
       onChange={(e) => {
         onChange?.(e.target.value)
       }}
@@ -60,9 +47,7 @@ const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) 
       onFocus={(e) => {
         onRelease?.(e.target.value)
       }}
-      disabled={disabled}
-      type={type}
-      placeholder={placeholder}
+      {...rest}
     />
   )
 }
@@ -99,7 +84,6 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
 
   const onFocus = () => {
     inputRef.current?.select()
-    if (rest.onFocus) rest.onFocus()
   }
 
   return (
@@ -125,6 +109,5 @@ ControlledStringInput.displayName = 'ControlledStringInput'
 ControlledStringInput.defaultProps = {
   value: '',
   onChange: () => {},
-  type: 'text',
-  required: false
+  type: 'text'
 }

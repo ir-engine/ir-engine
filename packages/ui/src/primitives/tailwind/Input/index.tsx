@@ -91,32 +91,29 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       containerClassname
     )
 
-    const containerClass = variant === 'outlined' ? 'bg-inherit relative w-full' : ' relative w-full'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'
 
     return (
       <div className={twcontainerClassName}>
         {label && <Label className={`self-stretch ${labelClass}`}>{label}</Label>}
-        <div className={containerClass}>
-          {startComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 start-0 flex items-center ps-3.5">
-              {startComponent}
-            </div>
-          )}
-          <input
-            ref={ref}
-            disabled={disabled}
-            type={type}
-            className={twClassname}
-            value={value}
-            onChange={onChange}
-            {...props}
-          />
+        {startComponent && (
+          <div className="pointer-events-auto absolute inset-y-0 start-0 flex items-center ps-3.5">
+            {startComponent}
+          </div>
+        )}
+        <input
+          ref={ref}
+          disabled={disabled}
+          type={type}
+          className={twClassname}
+          value={value}
+          onChange={onChange}
+          {...props}
+        />
 
-          {endComponent && (
-            <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
-          )}
-        </div>
+        {endComponent && (
+          <div className="pointer-events-auto absolute inset-y-0 end-0 flex items-center">{endComponent}</div>
+        )}
         {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
         {error && (
           <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
