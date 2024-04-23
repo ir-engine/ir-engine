@@ -44,13 +44,15 @@ export const PlaylistComponent = defineComponent({
     if (json.tracks) component.tracks.set(json.tracks)
     if (json.currentTrackUUID) component.currentTrackUUID.set(json.currentTrackUUID)
     if (json.playMode) component.playMode.set(json.playMode)
+    if (json.paused) component.paused.set(json.paused)
   },
 
   toJSON: (entity, component) => {
     return {
       tracks: component.tracks.value,
       currentTrackUUID: component.currentTrackUUID.value,
-      playMode: component.playMode.value
+      playMode: component.playMode.value,
+      paused: component.paused.value
     }
   }
 })
