@@ -39,7 +39,16 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, RGBAFormat, Scene, UnsignedIntType, WebGLRenderTarget } from 'three'
+import {
+  DepthTexture,
+  NearestFilter,
+  RGBAFormat,
+  Scene,
+  Texture,
+  TextureLoader,
+  UnsignedIntType,
+  WebGLRenderTarget
+} from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -110,6 +119,26 @@ export const configureEffectComposer = (entity: Entity): void => {
     normalBuffer: normalPass.texture,
     resolutionScale: 0.5
   })
+
+  const AddPass = () => {
+    if (effects.length) {
+      if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
+
+      if (useDepthDownsamplingPass) {
+        composer.addPass(normalPass)
+        composer.addPass(depthDownsamplingPass)
+        const textureEffect = new TextureEffect({
+          blendFunction: BlendFunction.SKIP,
+          texture: depthDownsamplingPass.texture
+        })
+        effects.push(textureEffect)
+      }
+
+      composer.EffectPass = new EffectPass(camera, ...effects)
+      composer.addPass(composer.EffectPass)
+    }
+    if (getState(EngineState).isEditor) changeRenderMode()
+  }
 
   const SDFSetting = getState(SDFSettingsState)
   if (SDFSetting.enabled) {
@@ -189,32 +218,40 @@ export const configureEffectComposer = (entity: Entity): void => {
       //  const eff = new EffectClass(camera, lightsource, effectOptions)
       //  composer[key] = eff
       //  effects.push(eff)
-    } else if (key == Effects.LUT1DEffect) {
-      const lut = effectOptions.lut
-      const eff = new EffectClass(lut, effectOptions)
-      composer[key] = eff
-      effects.push(camera, eff)
+      //} else if (key == Effects.LUT1DEffect) {
+      //  let lut = effectOptions.lut
+      //  if (lut == undefined) {
+      //    lut = null
+      //  }
+      //  const eff = new EffectClass(lut, effectOptions)
+      //  composer[key] = eff
+      //  effects.push(eff)
+    } else if (key == Effects.LUT3DEffect) {
+      let lutPath = effectOptions.lut
+      if (lutPath == undefined) {
+        lutPath = null
+      }
+      let lut: Texture | null = null
+      if (lutPath != null) {
+        let textLoad = new TextureLoader()
+        //have to wait for the texture's image to load and then add the pass to the composer
+        lut = textLoad.load(lutPath, (texture) => {
+          const eff = new EffectClass(texture, effectOptions)
+          composer[key] = eff
+          effects.push(eff)
+          AddPass()
+        })
+      } else {
+        const eff = new EffectClass(lut, effectOptions)
+        composer[key] = eff
+        effects.push(eff)
+      }
     } else {
       const eff = new EffectClass(effectOptions)
       composer[key] = eff
       effects.push(eff)
     }
   }
-  if (effects.length) {
-    if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
-    if (useDepthDownsamplingPass) {
-      composer.addPass(normalPass)
-      composer.addPass(depthDownsamplingPass)
-      const textureEffect = new TextureEffect({
-        blendFunction: BlendFunction.SKIP,
-        texture: depthDownsamplingPass.texture
-      })
-      effects.push(textureEffect)
-    }
-
-    composer.EffectPass = new EffectPass(camera, ...effects)
-    composer.addPass(composer.EffectPass)
-  }
-  if (getState(EngineState).isEditor) changeRenderMode()
+  AddPass()
 }

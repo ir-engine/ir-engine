@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BlendFunction, SMAAPreset, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
+import { Color, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
@@ -54,6 +54,7 @@ enum PropertyTypes {
   Number,
   Boolean,
   Color,
+  ColorSpace,
   KernelSize,
   SMAAPreset,
   EdgeDetectionMode,
@@ -248,9 +249,14 @@ const EffectsOptions: EffectOptionsType = {
     scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 },
     lineWidth: { propertyType: PropertyTypes.Number, name: 'Line Width', min: 0, max: 10, step: 0.1 }
   },
-  LUT1DEffect: {
+  //LUT1DEffect: {
+  //  blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+  //  lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
+  //},
+  LUT3DEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
+    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' },
+    inputColorSpace: { propertyType: PropertyTypes.ColorSpace, name: 'Input Color Space' }
   },
   MotionBlurEffect: {
     intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
@@ -302,6 +308,14 @@ const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) =
 const VignetteTechniqueSelect = Object.entries(VignetteTechnique).map(([label, value]) => {
   return { label, value }
 })
+
+const ColorSpaceSelect = [
+  { label: 'NONE', value: '' },
+  { label: 'SRGB', value: SRGBColorSpace },
+  { label: 'SRGB LINEAR', value: LinearSRGBColorSpace },
+  { label: 'DISPLAY P3', value: DisplayP3ColorSpace },
+  { label: 'DISPLAY P3 LINEAR', value: LinearDisplayP3ColorSpace }
+]
 
 const KernelSizeSelect = [
   { label: 'VERY_SMALL', value: 0 },
@@ -428,6 +442,16 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={KernelSizeSelect}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            value={effectSettingState.value}
+          />
+        )
+        break
+
+      case PropertyTypes.ColorSpace:
+        renderVal = (
+          <SelectInput
+            options={ColorSpaceSelect}
             onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             value={effectSettingState.value}
           />

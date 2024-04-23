@@ -39,7 +39,8 @@ import {
   GridEffect,
   HueSaturationEffect,
   KernelSize,
-  LUT1DEffect,
+  //LUT1DEffect,
+  LUT3DEffect,
   OutlineEffect,
   PredicationMode,
   Resolution,
@@ -53,7 +54,7 @@ import {
   VignetteTechnique
 } from 'postprocessing'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
-import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
+import { Color, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
@@ -79,8 +80,8 @@ export const Effects = {
   GlitchEffect: 'GlitchEffect' as const,
   //GodRaysEffect: 'GodRaysEffect' as const,
   GridEffect: 'GridEffect' as const,
-  LUT1DEffect: 'LUT1DEffect' as const,
-  // LUT3DEffect: 'LUT3DEffect' as const,
+  //LUT1DEffect: 'LUT1DEffect' as const,
+  LUT3DEffect: 'LUT3DEffect' as const,
   // NoiseEffect: 'NoiseEffect' as const,
   // PixelationEffect: 'PixelationEffect' as const,
   // ScanlineEffect: 'ScanlineEffect' as const,
@@ -113,8 +114,8 @@ export const EffectMap = {
   [Effects.GlitchEffect]: GlitchEffect,
   //[Effects.GodRaysEffect]: GodRaysEffect,
   [Effects.GridEffect]: GridEffect,
-  [Effects.LUT1DEffect]: LUT1DEffect,
-  // [Effects.LUT3DEffect]: LUT3DEffect,
+  //[Effects.LUT1DEffect]: LUT1DEffect,
+  [Effects.LUT3DEffect]: LUT3DEffect,
   // [Effects.NoiseEffect]: NoiseEffect,
   // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
   // [Effects.ScanlineEffect]: ScanlineEffect,
@@ -353,15 +354,15 @@ export type GridEffectProps = EffectProps & {
   scale?: number
   lineWidth?: number
 }
-export type LUT1DEffectProps = EffectProps & {
-  blendFunction?: BlendFunction
-  lut?: Texture
-}
+//export type LUT1DEffectProps = EffectProps & {
+//  blendFunction?: BlendFunction
+//  lut?: Texture | null
+//}
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
-  inputEncoding?: TextureEncoding
   inputColorSpace?: ColorSpace
+  lut?: Texture | null
 }
 export type NoiseEffectProps = EffectProps & {
   blendFunction?: BlendFunction
@@ -420,8 +421,8 @@ export type EffectPropsSchema = {
   [Effects.GlitchEffect]: GlitchEffectProps
   //[Effects.GodRaysEffect]: GodRaysEffectProps
   [Effects.GridEffect]: GridEffectProps
-  [Effects.LUT1DEffect]: LUT1DEffectProps
-  // [Effects.LUT3DEffect]: LUT3DEffectProps
+  //[Effects.LUT1DEffect]: LUT1DEffectProps
+  [Effects.LUT3DEffect]: LUT3DEffectProps
   // [Effects.NoiseEffect]: NoiseEffectProps
   // [Effects.PixelationEffect]: PixelationEffectProps
   // [Effects.ScanlineEffect]: ScanlineEffectProps
@@ -652,11 +653,18 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     scale: 1.0,
     lineWidth: 0.0
   },
-  [Effects.LUT1DEffect]: {
+  //[Effects.LUT1DEffect]: {
+  //  isActive: false,
+  //  blendFunction: BlendFunction.SET,
+  //  lut: null
+  //},
+  [Effects.LUT3DEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.SET
+    blendFunction: BlendFunction.SET,
+    tetrahedralInterpolation: false,
+    inputColorSpace: SRGBColorSpace,
+    lut: null
   },
-  // [Effects.LUT3DEffect]: { isActive: false, blendFunction: BlendFunction.SET, tetrahedralInterpolation: false, inputEncoding: sRGBEncoding, inputColorSpace: SRGBColorSpace },
   // [Effects.NoiseEffect]: { isActive: false, blendFunction: BlendFunction.SCREEN, premultiply: false },
   // [Effects.PixelationEffect]: { isActive: false, granularity: 30 },
   // [Effects.ScanlineEffect]: { isActive: false, blendFunction: BlendFunction.OVERLAY, density: 1.25},
@@ -725,8 +733,8 @@ export const effectInOrder = [
   Effects.BrightnessContrastEffect,
   Effects.HueSaturationEffect,
   Effects.ColorDepthEffect,
-  Effects.LUT1DEffect,
-  // Effects.LUT3DEffect,
+  //Effects.LUT1DEffect,
+  Effects.LUT3DEffect,
 
   /** 5. final fix, aliasing and noise passes */
   Effects.LinearTosRGBEffect, // should this just be always on?
