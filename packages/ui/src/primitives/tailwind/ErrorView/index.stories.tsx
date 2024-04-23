@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -23,26 +22,26 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import ErrorView from './index'
 
+const argTypes: ArgTypes = {}
 
-import { BufferGeometry, Loader, LoadingManager } from 'three'
+export default {
+  title: 'Primitives/Tailwind/ErrorView',
+  component: ErrorView,
+  parameters: {
+    componentSubtitle: 'ErrorView',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
 
-export class DRACOLoader extends Loader {
-  constructor(manager?: LoadingManager)
-
-  load(
-    url: string,
-    onLoad: (geometry: BufferGeometry) => void,
-    onProgress?: (event: ProgressEvent) => void,
-    onError?: (event: ErrorEvent) => void,
-    signal?: AbortSignal
-  ): void
-  setDecoderPath(path: string): DRACOLoader
-  setDecoderConfig(config: object): DRACOLoader
-  setWorkerLimit(workerLimit: number): DRACOLoader
-  getDecoderModule(): Promise<any>
-  getEncoderModule(): Promise<any>
-  preload(): DRACOLoader
-  dispose(): DRACOLoader
-  decodeDracoFile(arrayBuffer: ArrayBuffer, callback: (geometry: BufferGeometry) => void, attributeIDs, attributeTypes): void
+export const Default = {
+  args: {
+    className: ''
+  }
 }

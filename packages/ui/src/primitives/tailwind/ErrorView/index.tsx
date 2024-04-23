@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,25 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiOutlineXCircle } from 'react-icons/hi2'
+import Button from '../Button'
+import Text from '../Text'
 
-import { BufferGeometry, Loader, LoadingManager } from 'three'
+interface ErrorViewProps {
+  title: string
+  description?: string
+  retryButtonText?: string
+  onRetry?: () => void
+}
 
-export class DRACOLoader extends Loader {
-  constructor(manager?: LoadingManager)
-
-  load(
-    url: string,
-    onLoad: (geometry: BufferGeometry) => void,
-    onProgress?: (event: ProgressEvent) => void,
-    onError?: (event: ErrorEvent) => void,
-    signal?: AbortSignal
-  ): void
-  setDecoderPath(path: string): DRACOLoader
-  setDecoderConfig(config: object): DRACOLoader
-  setWorkerLimit(workerLimit: number): DRACOLoader
-  getDecoderModule(): Promise<any>
-  getEncoderModule(): Promise<any>
-  preload(): DRACOLoader
-  dispose(): DRACOLoader
-  decodeDracoFile(arrayBuffer: ArrayBuffer, callback: (geometry: BufferGeometry) => void, attributeIDs, attributeTypes): void
+export default function ErrorView({ title, description, retryButtonText, onRetry }: ErrorViewProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center space-y-1">
+      <HiOutlineXCircle className="h-8 w-8 text-red-500" />
+      <Text>{title}</Text>
+      {description && (
+        <Text fontSize="sm" theme="secondary">
+          {description}
+        </Text>
+      )}
+      {onRetry && (
+        <Button
+          variant="danger"
+          size="small"
+          className="border border-red-500 bg-transparent text-red-500"
+          onClick={onRetry}
+        >
+          {retryButtonText ? retryButtonText : t('common:components.retry')}
+        </Button>
+      )}
+    </div>
+  )
 }
