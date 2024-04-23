@@ -122,8 +122,8 @@ export default function MaterialLibraryPanel() {
           <Stack direction={'column'} spacing={2}>
             <Button
               onClick={() => {
-                createMaterialEntity(new MeshBasicMaterial(), '')
-                nodeChanges.set(nodeChanges.get() + 1)
+                const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
+                createMaterialEntity(newMaterial, '')
               }}
             >
               New

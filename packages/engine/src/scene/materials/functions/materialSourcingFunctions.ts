@@ -43,11 +43,7 @@ import {
 } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import {
-  MaterialComponent,
-  PrototypeArgument,
-  materialSuffix
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, PrototypeArgument } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
@@ -140,15 +136,14 @@ export const setMaterialName = (entity: Entity, name: string) => {
   if (oldName) {
     const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
     const preexistingMaterial = MaterialComponent.materialByHash[oldHash]
-    //if the preexisting material is us then only update the hash
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
       delete MaterialComponent.materialByHash[oldHash]
       delete MaterialComponent.materialByName[oldName]
     }
-    //if the preexisting material is not us, then we need to update the hash and add a suffix to the name
-    if (preexistingMaterial && preexistingMaterial !== getComponent(entity, UUIDComponent)) {
-      name = uniqueSuffix(name)
-    }
+  }
+
+  if (MaterialComponent.materialByName[name]) {
+    name = uniqueSuffix(name)
   }
 
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
@@ -160,8 +155,8 @@ export const setMaterialName = (entity: Entity, name: string) => {
 
 const uniqueSuffix = (name: string) => {
   let i = 0
-  while (MaterialComponent.materialByName[`${name}${materialSuffix}${i}`]) i++
-  return `${name}${materialSuffix}${i}`
+  while (MaterialComponent.materialByName[`${name}${i}`]) i++
+  return `${name}${i}`
 }
 
 export const createPrototype = (name: string, prototypeArguments: PrototypeArgument, material: Material) => {
