@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { SceneState } from '../../src/scene/SceneState'
 
 export const loadEmptyScene = () => {
-  return SceneState.loadScene('test' as SceneID, {
+  return SceneState.loadScene('test', {
     name: '',
     thumbnailUrl: '',
     project: '',
-    scenePath: 'test' as SceneID,
     scene: {
       entities: {
         ['root' as EntityUUID]: {

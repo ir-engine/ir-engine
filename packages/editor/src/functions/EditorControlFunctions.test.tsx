@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -53,10 +53,10 @@ const testScene = {
   name: '',
   thumbnailUrl: '',
   project: '',
-  scenePath: 'test' as SceneID,
+  scenePath: 'test',
   scene: testSceneJson as unknown as SceneJsonType
-} as SceneDataType
-const sceneID = 'test' as SceneID
+}
+const sceneID = 'test'
 
 /** @todo rewrite all these tests */
 describe('EditorControlFunctions', () => {
@@ -96,7 +96,7 @@ describe('EditorControlFunctions', () => {
       // assertions
 
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
@@ -150,7 +150,7 @@ describe('EditorControlFunctions', () => {
     it('will execute the command', async () => {
       // load scene
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       // force re-render
       applyIncomingActions()
@@ -200,7 +200,7 @@ describe('EditorControlFunctions', () => {
   describe('createObjectFromSceneElement', () => {
     it('creates components from given ID', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       applyIncomingActions()
 
@@ -261,7 +261,7 @@ describe('EditorControlFunctions', () => {
 
     it('places created entity before passed entity', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       applyIncomingActions()
 
@@ -345,7 +345,7 @@ describe('EditorControlFunctions', () => {
 
     it('creates unique name for each newly created objects', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       applyIncomingActions()
 
@@ -434,7 +434,7 @@ describe('EditorControlFunctions', () => {
   describe('groupObjects', () => {
     it('will execute command', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       applyIncomingActions()
 
@@ -567,7 +567,7 @@ describe('EditorControlFunctions', () => {
   describe('removeObjects', () => {
     it('Removes given nodes', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
       applyIncomingActions()
 
       const { rerender, unmount } = render(sceneTag)
@@ -609,7 +609,7 @@ describe('EditorControlFunctions', () => {
 
     it('will not remove root node', async () => {
       SceneState.loadScene(sceneID, testScene)
-      getMutableState(EditorState).sceneID.set(sceneID)
+      getMutableState(EditorState).scenePath.set(sceneID)
 
       applyIncomingActions()
 

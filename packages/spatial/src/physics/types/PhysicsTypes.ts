@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Vector3 } from 'three'
+import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3 } from 'three'
 import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {
@@ -137,3 +137,11 @@ export const OldShapeTypes = {
   [2]: 'capsule',
   [6]: 'mesh'
 }
+
+/** Maps Three.js geometry types to physics shapes */
+export const ThreeToPhysics = {
+  [SphereGeometry.prototype.type]: 'sphere',
+  [CapsuleGeometry.prototype.type]: 'capsule',
+  [CylinderGeometry.prototype.type]: 'cylinder',
+  [BoxGeometry.prototype.type]: 'box'
+} as Record<string, Shape>

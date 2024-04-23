@@ -33,8 +33,10 @@ import {
   EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
+  OutlineEffect,
   PredicationMode,
   Resolution,
+  SMAAEffect,
   SMAAPreset,
   SSAOEffect,
   ToneMappingEffect,
@@ -42,14 +44,13 @@ import {
   VignetteEffect,
   VignetteTechnique
 } from 'postprocessing'
-import { SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
-  // SMAAEffect: 'SMAAEffect' as const,
-  // OutlineEffect: 'OutlineEffect' as const,
+  SMAAEffect: 'SMAAEffect' as const,
+  OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
@@ -82,10 +83,9 @@ export const Effects = {
 }
 
 export const EffectMap = {
-  // [Effects.SMAAEffect]: SMAAEffect,
-  // [Effects.OutlineEffect]: OutlineEffect,
+  [Effects.SMAAEffect]: SMAAEffect,
+  [Effects.OutlineEffect]: OutlineEffect,
   [Effects.SSAOEffect]: SSAOEffect,
-  [Effects.SSREffect]: SSREffect,
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
   [Effects.BloomEffect]: BloomEffect,
   [Effects.ToneMappingEffect]: ToneMappingEffect,
@@ -93,26 +93,26 @@ export const EffectMap = {
   [Effects.HueSaturationEffect]: HueSaturationEffect,
   [Effects.ColorDepthEffect]: ColorDepthEffect,
   [Effects.LinearTosRGBEffect]: LinearTosRGBEffect,
-  [Effects.SSGIEffect]: SSGIEffect,
-  [Effects.TRAAEffect]: TRAAEffect,
-  // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
-  // [Effects.MotionBlurEffect]: MotionBlurEffect,
-  // [Effects.ColorAverageEffect]: ColorAverageEffect,
-  // [Effects.DotScreenEffect]: DotScreenEffect,
-  // [Effects.TiltShiftEffect]: TiltShiftEffect,
-  // [Effects.GlitchEffect]: GlitchEffect,
-  // [Effects.GodRaysEffect]: GodRaysEffect,
-  // [Effects.GridEffect]: GridEffect,
-  // [Effects.LUT1DEffect]: LUT1DEffect,
-  // [Effects.LUT3DEffect]: LUT3DEffect,
-  // [Effects.NoiseEffect]: NoiseEffect,
-  // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
-  // [Effects.ScanlineEffect]: ScanlineEffect,
-  // [Effects.ShockWaveEffect]: ShockWaveEffect,
-  // [Effects.FXAAEffect]: FXAAEffect,
-  // [Effects.TextureEffect]: TextureEffect,
   [Effects.VignetteEffect]: VignetteEffect
-  // [Effects.LensDistortionEffect]: LensDistortionEffect
+}
+
+declare module 'postprocessing' {
+  interface EffectComposer {
+    // passes
+    EffectPass: EffectPass
+    // effects
+    SMAAEffect: SMAAEffect
+    OutlineEffect: OutlineEffect
+    SSAOEffect: SSAOEffect
+    DepthOfFieldEffect: DepthOfFieldEffect
+    BloomEffect: BloomEffect
+    ToneMappingEffect: ToneMappingEffect
+    BrightnessContrastEffect: BrightnessContrastEffect
+    HueSaturationEffect: HueSaturationEffect
+    ColorDepthEffect: ColorDepthEffect
+    LinearTosRGBEffect: LinearTosRGBEffect
+    VignetteEffect: VignetteEffect
+  }
 }
 
 export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
