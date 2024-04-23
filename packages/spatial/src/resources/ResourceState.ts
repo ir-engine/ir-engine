@@ -41,6 +41,7 @@ import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/comp
 import { useEffect } from 'react'
 import { Cache, CompressedTexture, Material, Mesh, Object3D, Scene, SkinnedMesh, Texture } from 'three'
 import { Geometry } from '../common/constants/Geometry'
+import iterateObject3D from '../common/functions/iterateObject3D'
 
 export interface DisposableObject {
   uuid: string
@@ -586,10 +587,10 @@ const tryUnloadObj = (obj: DisposableObject) => {
   if (!entity || !obj3D.isObject3D) return
 
   removeObjectFromGroup(entity, obj3D)
-  // unloadObj(obj3D, getOptionalComponent(entity, SourceComponent))
+  unloadObj(obj3D)
 }
 
-const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => {
+const unloadObj = <T extends Object3D>(obj: T, sceneID?: SceneID) => {
   const remove = (obj: Object3D) => {
     ResourceState.debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
     const disposable = obj as DisposableObject // anything with dispose function
@@ -599,7 +600,7 @@ const unloadObj = <T extends Object3D>(obj: T, sceneID: SceneID | undefined) => 
   if (obj.isProxified) {
     remove(obj)
   } else {
-    // iterateObject3D(obj, remove, (obj: Object3D) => getOptionalComponent(obj.entity, SourceComponent) === sceneID)
+    iterateObject3D(obj, remove)
   }
 }
 
