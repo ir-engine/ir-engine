@@ -44,9 +44,9 @@ import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/Colli
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SourceComponent } from './SourceComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',

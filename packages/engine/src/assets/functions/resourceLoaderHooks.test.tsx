@@ -161,7 +161,8 @@ describe('ResourceLoaderHooks', () => {
           assert(gltf)
           lastID = gltf.scene.id
           url.set(gltfURL2)
-        } else if (updatedCount >= 2 && gltf) {
+        } else if (updatedCount == 2) {
+          assert(gltf)
           assert(gltf.scene.id !== lastID)
           done()
         }

@@ -27,7 +27,7 @@ import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useEffect } from 'react'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'

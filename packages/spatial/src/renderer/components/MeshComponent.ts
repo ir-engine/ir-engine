@@ -34,13 +34,13 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { useResource } from '../../resources/resourceHooks'
 import { GeometryComponent } from './GeometryComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MaterialComponent } from './MaterialComponent'
-import { SourceComponent } from './SourceComponent'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',

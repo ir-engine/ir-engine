@@ -52,8 +52,8 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 
 import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
-import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'

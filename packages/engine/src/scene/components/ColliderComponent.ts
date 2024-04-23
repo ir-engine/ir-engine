@@ -57,7 +57,6 @@ import {
 } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
@@ -69,6 +68,7 @@ import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({

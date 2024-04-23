@@ -52,12 +52,12 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
-import { SourceComponent } from '@etherealengine/spatial/src/renderer/components/SourceComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
