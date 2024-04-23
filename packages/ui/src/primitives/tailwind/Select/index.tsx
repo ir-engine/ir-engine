@@ -31,7 +31,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Input from '../Input'
 
-type OptionValueType = string | number
+export type OptionValueType = string | number
 
 export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
 
@@ -47,7 +47,12 @@ export interface SelectProps<T extends OptionValueType> {
   disabled?: boolean
   menuClassname?: string
   menuContainerClassName?: string
+  menuItemClassName?: string
   arrowClassname?: string
+  labelClassName?: string
+  inputVariant?: 'outlined' | 'underlined' | 'onboarding'
+  inputClassName?: string
+  errorBorder?: boolean
 }
 
 const Select = <T extends OptionValueType>({
@@ -60,15 +65,24 @@ const Select = <T extends OptionValueType>({
   onChange,
   placeholder,
   disabled,
-  menuContainerClassName,
   menuClassname,
-  arrowClassname
+  menuContainerClassName,
+  menuItemClassName,
+  labelClassName,
+  inputVariant,
+  inputClassName,
+  arrowClassname,
+  errorBorder
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
   const filteredOptions = useHookstate(options)
+
+  const toggleDropdown = () => {
+    showOptions.set((v) => !v)
+  }
   useEffect(() => {
     filteredOptions.set(options)
   }, [options])
@@ -97,16 +111,17 @@ const Select = <T extends OptionValueType>({
       <Input
         disabled={disabled}
         label={label}
+        labelClassname={labelClassName}
+        variant={inputVariant}
         description={description}
         error={error}
-        className="cursor-pointer rounded-none"
+        errorBorder={errorBorder}
+        className={twMerge('cursor-pointer', inputClassName)}
         placeholder={placeholder || t('common:select.selectOption')}
         startComponent={options.find((opt) => opt.label === selectLabel.value)?.icon}
         value={selectLabel.value}
         onChange={handleSearch}
-        onClick={() => {
-          showOptions.set((v) => !v)
-        }}
+        onClick={toggleDropdown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
@@ -116,6 +131,7 @@ const Select = <T extends OptionValueType>({
           }`,
           arrowClassname
         )}
+        onClick={toggleDropdown}
       />
       <div
         className={twMerge(
@@ -131,7 +147,8 @@ const Select = <T extends OptionValueType>({
               value={option.value}
               className={twMerge(
                 'text-theme-secondary flex cursor-pointer items-center gap-2 px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight'
+                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
+                menuItemClassName
               )}
               onClick={() => {
                 if (option.disabled) return

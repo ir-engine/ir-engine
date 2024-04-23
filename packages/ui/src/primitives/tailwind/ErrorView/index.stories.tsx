@@ -22,33 +22,26 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
+import ErrorView from './index'
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+const argTypes: ArgTypes = {}
 
-// make new component instead
-
-const SelectInput = ({ ...rest }: SelectProps<string>) => {
-  return (
-    <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none"
-      {...rest}
-    />
-  )
+export default {
+  title: 'Primitives/Tailwind/ErrorView',
+  component: ErrorView,
+  parameters: {
+    componentSubtitle: 'ErrorView',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
+export const Default = {
+  args: {
+    className: ''
+  }
 }
-
-export default SelectInput
