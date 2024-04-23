@@ -35,7 +35,7 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { Color } from 'three'
-import ColorInput from '../../../../../primitives/tailwind/ColorInput'
+import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
