@@ -103,7 +103,7 @@ const reactor = () => {
     setComponent(entity, NameComponent, mesh.name)
     addObjectToGroup(entity, mesh)
     mesh.renderOrder = 1
-    setObjectLayers(mesh, ObjectLayers.Scene)
+    setObjectLayers(mesh, ObjectLayers.Camera)
     const transition = createTransitionState(0.25, 'OUT')
 
     getMutableState(CameraFadeBlackEffectSystemState).set({

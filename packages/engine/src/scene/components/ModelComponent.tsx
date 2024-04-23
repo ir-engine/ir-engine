@@ -42,7 +42,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -51,6 +51,7 @@ import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React from 'react'
@@ -245,7 +246,11 @@ function ModelReactor(): JSX.Element {
       })
     }
     return () => {
-      SceneState.unloadScene(uuid)
+      SceneState.unloadScene(uuid, false)
+      const children = getComponent(entity, EntityTreeComponent).children
+      for (const child of children) {
+        removeEntity(child)
+      }
     }
   }, [modelComponent.scene])
 

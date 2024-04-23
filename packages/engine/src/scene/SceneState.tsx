@@ -93,14 +93,15 @@ export const SceneState = defineState({
     }
   },
 
-  unloadScene: (sceneID: SceneID) => {
+  unloadScene: (sceneID: SceneID, remove = true) => {
     console.log('unloadScene', sceneID)
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
+    getMutableState(SceneState).scenes[sceneID].set(none)
+    if (!remove) return
     const root = sceneData.scene.root
     const rootEntity = UUIDComponent.getEntityByUUID(root)
     removeEntity(rootEntity)
-    getMutableState(SceneState).scenes[sceneID].set(none)
   },
 
   getRootEntity: (sceneID: SceneID) => {

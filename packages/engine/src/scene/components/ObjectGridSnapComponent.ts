@@ -145,7 +145,7 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(helper, TransformComponent)
       setComponent(helper, UUIDComponent, generateEntityUUID())
       setComponent(helper, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
+      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper | ObjectLayers.Scene)
 
       setComponent(entity, ObjectGridSnapComponent, { helper })
       return () => {

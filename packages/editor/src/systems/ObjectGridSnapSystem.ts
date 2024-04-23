@@ -51,12 +51,13 @@ const objectGridQuery = defineQuery([ObjectGridSnapComponent])
 
 function isParentSelected(entity: Entity) {
   let walker: Entity | null = entity
-
-  const placementEntity = getState(ClickPlacementState).placementEntity
+  const clickState = getState(ClickPlacementState)
+  const snapState = getState(ObjectGridSnapState)
+  const placementEntity = snapState.entitiesToSnap.length > 0 ? snapState.entitiesToSnap : [clickState.placementEntity]
 
   const selectedEntities = SelectionState.getSelectedEntities()
   while (walker) {
-    if (walker === placementEntity || selectedEntities.includes(walker)) return walker
+    if (placementEntity.includes(walker) || selectedEntities.includes(walker)) return walker
     walker = getOptionalComponent(walker, EntityTreeComponent)?.parentEntity ?? null
   }
   return false
@@ -188,7 +189,8 @@ export const ObjectGridSnapState = defineState({
   name: 'ObjectGridSnapState',
   initial: {
     enabled: false,
-    apply: false
+    apply: false,
+    entitiesToSnap: [] as Entity[]
   }
 })
 
@@ -292,7 +294,7 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
       const selectedSnapComponent = getComponent(selectedEntity, ObjectGridSnapComponent)
-      const commitNoOp = () => {
+      const resetHelper = () => {
         const helperEntity = selectedSnapComponent.helper
         if (helperEntity) {
           //reset helper bbox if exists
@@ -302,9 +304,13 @@ export const ObjectGridSnapSystem = defineSystem({
             scale: new Vector3(1, 1, 1)
           })
         }
+      }
+      const commitNoOp = () => {
+        resetHelper()
         if (getState(ObjectGridSnapState).apply) {
           EditorControlFunctions.commitTransformSave([selectedParent])
           getMutableState(ObjectGridSnapState).apply.set(false)
+          getMutableState(ObjectGridSnapState).entitiesToSnap.set([])
         }
       }
       if (closestEntities.length === 0) {
@@ -369,8 +375,10 @@ export const ObjectGridSnapSystem = defineSystem({
       dstMatrixWorld.multiply(new Matrix4().makeTranslation(translation))
       TransformComponent.updateFromWorldMatrix(dstEntity)
       if (getState(ObjectGridSnapState).apply) {
+        resetHelper()
         EditorControlFunctions.commitTransformSave([dstEntity])
         getMutableState(ObjectGridSnapState).apply.set(false)
+        getMutableState(ObjectGridSnapState).entitiesToSnap.set([])
       }
       break
     }
