@@ -593,7 +593,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write')),
         () => schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
-        discardQuery('studio'),
+        discardQuery('action'),
         checkIfProjectExists,
         checkIfNameIsValid,
         uploadLocalProject,
@@ -611,7 +611,7 @@ export default createSkippableHooks(
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        discardQuery('studio'),
+        discardQuery('action'),
         getProjectName,
         runProjectUninstallScript,
         removeProjectFiles,

@@ -117,9 +117,10 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
   if (context.data && context.data.project) {
-    const projectResult = (await context.app
-      .service(projectPath)
-      .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
+    const projectResult = (await context.app.service(projectPath).find({
+      query: { name: context.data.project, $limit: 1 },
+      isInternal: context.params.isInternal
+    })) as Paginated<ProjectType>
     if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
     context.data.projectId = projectResult.data[0].id
   }
