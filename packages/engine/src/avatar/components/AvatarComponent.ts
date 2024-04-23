@@ -25,10 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { defineComponent, getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent } from '@etherealengine/network'
 
 export const AvatarComponent = defineComponent({
   name: 'AvatarComponent',
@@ -76,12 +74,18 @@ export const AvatarComponent = defineComponent({
    * @returns
    */
   getUserAvatarEntity(userId: UserID) {
-    return avatarNetworkObjectQuery().find((eid) => getComponent(eid, NetworkObjectComponent).ownerId === userId)!
+    return UUIDComponent.getEntityByUUID((userId + '_avatar') as EntityUUID)
   },
 
   getSelfAvatarEntity() {
     return UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
+  },
+
+  useUserAvatarEntity(userId: UserID) {
+    return UUIDComponent.useEntityByUUID((userId + '_avatar') as EntityUUID)
+  },
+
+  useSelfAvatarEntity() {
+    return UUIDComponent.useEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
   }
 })
-
-const avatarNetworkObjectQuery = defineQuery([NetworkObjectComponent, AvatarComponent])
