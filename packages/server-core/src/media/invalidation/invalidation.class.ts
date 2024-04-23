@@ -23,29 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import {
+  InvalidationData,
+  InvalidationQuery,
+  InvalidationType
+} from '@etherealengine/common/src/schemas/media/invalidation.schema'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+export interface InvalidationParams extends KnexAdapterParams<InvalidationQuery> {}
 
-interface Props extends Record<string, unknown> {
-  className?: string
-  textClassName?: string
-  title?: React.ReactNode
-  description?: string
-  fullHeight?: boolean
-}
-
-const LoadingView = ({ className, title, description, textClassName, fullHeight = true }: Props) => {
-  return (
-    <div className={`flex w-full flex-col items-center justify-center ${fullHeight ? 'h-full' : 'h-24'} ${className}`}>
-      <LoadingCircle className="mb-1 h-6 w-6" />
-
-      {title && <Text className={textClassName}>{title}</Text>}
-
-      {description && <Text className="opacity-65">{description}</Text>}
-    </div>
-  )
-}
-
-export default LoadingView
+export class InvalidationService<
+  T = InvalidationType,
+  ServiceParams extends Params = InvalidationParams
+> extends KnexService<InvalidationType, InvalidationData, InvalidationParams> {}

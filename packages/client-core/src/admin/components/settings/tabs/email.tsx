@@ -30,7 +30,7 @@ import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordIn
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
@@ -230,7 +230,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
             className="col-span-1"
             fullWidth
             onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
+            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           >
             {t('admin:components.common.save')}
           </Button>

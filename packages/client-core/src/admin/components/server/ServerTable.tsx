@@ -28,7 +28,7 @@ import { useMutation } from '@etherealengine/spatial/src/common/functions/Feathe
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@etherealengine/ui/src/primitives/tailwind/ToolTip'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { HiTrash } from 'react-icons/hi2'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
@@ -108,7 +108,7 @@ export default function ServerTable({
             {t('admin:components.server.viewLogs')}
           </Button>
           <Button
-            rounded
+            rounded="full"
             variant="outline"
             className="h-8 w-8"
             onClick={() => {

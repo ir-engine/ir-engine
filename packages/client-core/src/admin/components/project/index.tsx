@@ -23,10 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
+import config, { isDev } from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
+import { ProjectState } from '../../../common/services/ProjectService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
 import BuildStatusTable from './build-status/BuildStatusTable'
@@ -34,23 +38,60 @@ import BuildStatusTable from './build-status/BuildStatusTable'
 export default function AdminProject() {
   const { t } = useTranslation()
 
+  const projectState = useHookstate(getMutableState(ProjectState))
+
   return (
-    <Tabs
-      tabsData={[
-        {
-          title: t('admin:components.project.project'),
-          tabLabel: t('admin:components.common.all'),
-          rightComponent: <ProjectTopMenu />,
-          bottomComponent: <ProjectTable />
-        },
-        {
-          title: t('admin:components.buildStatus.buildStatus'),
-          tabLabel: t('admin:components.project.buildStatus'),
-          bottomComponent: <BuildStatusTable />,
-          disabled: config.client.localBuildOrDev
-        }
-      ]}
-      tabcontainerClassName="bg-theme-primary"
-    />
+    <>
+      <div className="mb-2 flex justify-start gap-3">
+        {projectState.builderInfo.engineVersion.value && (
+          <Badge
+            label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`}
+            variant="neutral"
+            className="py-2"
+          />
+        )}
+
+        {projectState.builderInfo.engineCommit.value && (
+          <Badge
+            label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`}
+            variant="neutral"
+            className="py-2"
+          />
+        )}
+      </div>
+      <Tabs
+        tabsData={[
+          {
+            title: t('admin:components.project.project'),
+            tabLabel: t('admin:components.common.all'),
+            rightComponent: <ProjectTopMenu />,
+            bottomComponent: <ProjectTable />
+          },
+          {
+            title: t('admin:components.buildStatus.buildStatus'),
+            tabLabel: (
+              <span className="flex items-center gap-5">
+                {t('admin:components.project.buildStatus')}
+                {!isDev && (
+                  <div
+                    className={twMerge(
+                      'inline h-3 w-3 rounded-full',
+                      projectState.succeeded.value === true
+                        ? 'bg-green-500'
+                        : projectState.failed.value === true
+                        ? 'bg-red-500'
+                        : 'bg-yellow-400'
+                    )}
+                  />
+                )}
+              </span>
+            ),
+            bottomComponent: <BuildStatusTable />,
+            disabled: config.client.localBuildOrDev
+          }
+        ]}
+        tabcontainerClassName="bg-theme-primary"
+      />
+    </>
   )
 }

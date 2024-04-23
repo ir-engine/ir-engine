@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import Capture from './capture'
@@ -35,10 +35,10 @@ import Capture from './capture'
 const LocationRoutes = () => {
   const projectsLoaded = useEngineInjection()
 
-  if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />
+  if (!projectsLoaded) return <LoadingView title={t('common:loader.loadingProjects')} />
 
   return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+    <Suspense fallback={<LoadingView title={t('common:loader.loadingLocation')} />}>
       <Routes>
         <Route path=":locationName" element={<Capture />} />
         <Route path="/" element={<Capture />} />

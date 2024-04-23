@@ -224,7 +224,8 @@
             "csm": true,
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
-            "shadowMapType": 2
+            "shadowMapType": 2,
+            "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11"
           }
         },
         {
@@ -356,7 +357,7 @@
         {
           "name": "EE_ground_plane",
           "props": {
-            "color": 8311585,
+            "color": "#587F36",
             "visible": true
           }
         },
