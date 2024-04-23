@@ -89,25 +89,25 @@ export const GLTFDocumentState = defineState({
 
 export class GLTFSnapshotAction {
   static createSnapshot = defineAction({
-    type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
+    type: 'ee.gltf.snapshot.CREATE_SNAPSHOT' as const,
     source: matches.string as Validator<unknown, string>,
     data: matches.object as Validator<unknown, GLTF.IGLTF>
   })
 
   static undo = defineAction({
-    type: 'ee.scene.snapshot.UNDO' as const,
+    type: 'ee.gltf.snapshot.UNDO' as const,
     source: matches.string as Validator<unknown, string>,
     count: matches.number
   })
 
   static redo = defineAction({
-    type: 'ee.scene.snapshot.REDO' as const,
+    type: 'ee.gltf.snapshot.REDO' as const,
     source: matches.string as Validator<unknown, string>,
     count: matches.number
   })
 
   static clearHistory = defineAction({
-    type: 'ee.scene.snapshot.CLEAR_HISTORY' as const,
+    type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
     source: matches.string as Validator<unknown, string>
   })
 }
@@ -184,13 +184,12 @@ export const GLTFSnapshotState = defineState({
 export const EditorTopic = 'editor' as Topic
 
 const GLTFSnapshotReactor = (props: { source: string }) => {
-  const sceneState = useHookstate(getMutableState(GLTFSnapshotState)[props.source])
+  const gltfState = useHookstate(getMutableState(GLTFSnapshotState)[props.source])
 
   useLayoutEffect(() => {
-    if (!sceneState.index.value) return
     // update gltf state with the current snapshot
-    getMutableState(GLTFDocumentState)[props.source].set(sceneState.snapshots[sceneState.index.value].get(NO_PROXY))
-  }, [sceneState.index])
+    getMutableState(GLTFDocumentState)[props.source].set(gltfState.snapshots[gltfState.index.value].get(NO_PROXY))
+  }, [gltfState.index])
 
   return null
 }

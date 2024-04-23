@@ -119,7 +119,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
   const onRecoverableError = (err) => {
-    console.error(err, reactorRoot)
+    // console.error(err, reactorRoot)
     reactorRoot.errors.merge([err])
   }
 
