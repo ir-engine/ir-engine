@@ -23,11 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AssetPatch,
-  assetDataValidator,
-  assetQueryValidator
-} from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { AssetPatch } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -48,7 +44,7 @@ import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.t
 import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { AssetService } from './asset.class'
-import { assetDataResolver, assetExternalResolver, assetQueryResolver, assetResolver } from './asset.resolvers'
+import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
 
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
@@ -121,27 +117,21 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
   if (context.data && context.data.project) {
-    if (!context.data.projectId) {
-      const projectResult = (await context.app
-        .service(projectPath)
-        .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
-
-      if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
-
-      context.data.projectId = projectResult.data[0].id
-    } else {
-      delete context.data.projectId
-    }
+    const projectResult = (await context.app
+      .service(projectPath)
+      .find({ query: { name: context.data.project, $limit: 1 } })) as Paginated<ProjectType>
+    if (projectResult.data.length === 0) throw new Error(`No project named ${context.data.project} exists`)
+    context.data.projectId = projectResult.data[0].id
   }
 }
 
-const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
+export const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
 }
 
-const removeNameField = async (context: HookContext<AssetService>) => {
+export const removeNameField = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.name
@@ -151,17 +141,11 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
   if (Array.isArray(context.params.query)) throw new BadRequest('Array is not supported')
 
   if (context.params.query && context.params.query.project) {
-    if (!context.params.query.projectId) {
-      const projectResult = (await context.app
-        .service(projectPath)
-        .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
-
-      if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
-
-      context.params.query.projectId = projectResult.data[0].id
-    } else {
-      delete context.params.query.projectId
-    }
+    const projectResult = (await context.app
+      .service(projectPath)
+      .find({ query: { name: context.params.query.project, $limit: 1 } })) as Paginated<ProjectType>
+    if (projectResult.data.length === 0) throw new Error(`No project named ${context.params.query.project} exists`)
+    context.params.query.projectId = projectResult.data[0].id
     delete context.params.query.project
   }
 }
@@ -171,7 +155,7 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
  * @param context Hook context
  * @returns
  */
-const ensureUniqueName = async (context: HookContext<AssetService>) => {
+export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -180,7 +164,6 @@ const ensureUniqueName = async (context: HookContext<AssetService>) => {
 
   if (!context.data.project) throw new BadRequest('Project is required')
 
-  const data = context.data
   const name = context.data.name ?? NEW_SCENE_NAME
   context.data.name = name
   const storageProvider = getStorageProvider()
@@ -211,7 +194,7 @@ const setDirectoryFromData = async (context: HookContext<AssetService>) => {
  * @param context Hook context
  * @returns
  */
-const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
+export const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -281,7 +264,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   data.assetURL = `projects/${data.project}/${data.name}.scene.json`
 }
 
-const renameAsset = async (context: HookContext<AssetService>) => {
+export const renameAsset = async (context: HookContext<AssetService>) => {
   if (!context.data || !(context.method === 'patch' || context.method === 'update')) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -332,12 +315,11 @@ export default createSkippableHooks(
       all: [schemaHooks.resolveExternal(assetExternalResolver), schemaHooks.resolveResult(assetResolver)]
     },
     before: {
-      all: [() => schemaHooks.validateQuery(assetQueryValidator), schemaHooks.resolveQuery(assetQueryResolver)],
+      all: [],
       find: [enableClientPagination(), resolveProjectIdForAssetQuery],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         setDirectoryFromData,
@@ -349,7 +331,6 @@ export default createSkippableHooks(
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
@@ -358,7 +339,6 @@ export default createSkippableHooks(
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        () => schemaHooks.validateData(assetDataValidator),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
@@ -394,5 +374,5 @@ export default createSkippableHooks(
       remove: []
     }
   },
-  ['find']
+  ['create', 'update', 'patch']
 )

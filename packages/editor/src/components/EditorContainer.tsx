@@ -27,7 +27,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AssetDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -180,10 +180,10 @@ const onSaveAs = async () => {
       if (result?.name && projectName) {
         await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
-        const [newSceneData] = (await Engine.instance.api
-          .service(scenePath)
-          .find({ query: { assetURL: getState(EditorState).scenePath! } })) as any as AssetDataType[]
-        getMutableState(EditorState).scenePath.set(newSceneData.assetURL as any)
+        const newSceneData = await Engine.instance.api
+          .service(assetPath)
+          .find({ query: { assetURL: getState(EditorState).scenePath! } })
+        getMutableState(EditorState).scenePath.set(newSceneData.data[0].assetURL as any)
       }
     }
   } catch (error) {
@@ -368,7 +368,7 @@ const tabs = [
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath: sceneID } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
-  const sceneQuery = useFind(scenePath, { query: { assetURL: sceneID.value ?? '' } }).data
+  const sceneQuery = useFind(assetPath, { query: { assetURL: sceneID.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
 
   const sceneLoading = sceneID.value && !sceneLoaded.value

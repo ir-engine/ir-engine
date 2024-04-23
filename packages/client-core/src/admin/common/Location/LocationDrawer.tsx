@@ -43,7 +43,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { AssetDataType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -111,7 +111,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           label: `${sceneName} (${projectName})`
         }
       ]
-    : scenes.data.map((el: AssetDataType) => {
+    : scenes.data.map((el: AssetType) => {
         const split = el.id.split('/')
         const project = split.at(1)
         const name = split.at(-1)
