@@ -35,10 +35,11 @@ import {
   DotScreenEffect,
   EdgeDetectionMode,
   GlitchEffect,
-  GodRaysEffect,
+  //GodRaysEffect,
   GridEffect,
   HueSaturationEffect,
   KernelSize,
+  LUT1DEffect,
   OutlineEffect,
   PredicationMode,
   Resolution,
@@ -76,9 +77,9 @@ export const Effects = {
   DotScreenEffect: 'DotScreenEffect' as const,
   TiltShiftEffect: 'TiltShiftEffect' as const,
   GlitchEffect: 'GlitchEffect' as const,
-  GodRaysEffect: 'GodRaysEffect' as const,
+  //GodRaysEffect: 'GodRaysEffect' as const,
   GridEffect: 'GridEffect' as const,
-  // LUT1DEffect: 'LUT1DEffect' as const,
+  LUT1DEffect: 'LUT1DEffect' as const,
   // LUT3DEffect: 'LUT3DEffect' as const,
   // NoiseEffect: 'NoiseEffect' as const,
   // PixelationEffect: 'PixelationEffect' as const,
@@ -110,9 +111,9 @@ export const EffectMap = {
   [Effects.DotScreenEffect]: DotScreenEffect,
   [Effects.TiltShiftEffect]: TiltShiftEffect,
   [Effects.GlitchEffect]: GlitchEffect,
-  [Effects.GodRaysEffect]: GodRaysEffect,
+  //[Effects.GodRaysEffect]: GodRaysEffect,
   [Effects.GridEffect]: GridEffect,
-  // [Effects.LUT1DEffect]: LUT1DEffect,
+  [Effects.LUT1DEffect]: LUT1DEffect,
   // [Effects.LUT3DEffect]: LUT3DEffect,
   // [Effects.NoiseEffect]: NoiseEffect,
   // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
@@ -331,28 +332,31 @@ export type GlitchEffectProps = EffectProps & {
   columns?: number
   ratio?: number
 }
-export type GodRaysEffectProps = EffectProps & {
-  blendFunction?: BlendFunction
-  samples?: number
-  density?: number
-  decay?: number
-  weight?: number
-  exposure?: number
-  clampMax?: number
-  resolutionScale?: number
-  resolutionX?: number
-  resolutionY?: number
-  width?: number
-  height?: number
-  kernelSize?: KernelSize
-  blur?: boolean
-}
+//export type GodRaysEffectProps = EffectProps & {
+//  blendFunction?: BlendFunction
+//  samples?: number
+//  density?: number
+//  decay?: number
+//  weight?: number
+//  exposure?: number
+//  clampMax?: number
+//  resolutionScale?: number
+//  resolutionX?: number
+//  resolutionY?: number
+//  width?: number
+//  height?: number
+//  kernelSize?: KernelSize
+//  blur?: boolean
+//}
 export type GridEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   scale?: number
   lineWidth?: number
 }
-export type LUT1DEffectProps = EffectProps & { blendFunction?: BlendFunction }
+export type LUT1DEffectProps = EffectProps & {
+  blendFunction?: BlendFunction
+  lut?: Texture
+}
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
@@ -414,9 +418,9 @@ export type EffectPropsSchema = {
   [Effects.DotScreenEffect]: DotScreenEffectProps
   [Effects.TiltShiftEffect]: TiltShiftEffectProps
   [Effects.GlitchEffect]: GlitchEffectProps
-  [Effects.GodRaysEffect]: GodRaysEffectProps
+  //[Effects.GodRaysEffect]: GodRaysEffectProps
   [Effects.GridEffect]: GridEffectProps
-  // [Effects.LUT1DEffect]: LUT1DEffectProps
+  [Effects.LUT1DEffect]: LUT1DEffectProps
   // [Effects.LUT3DEffect]: LUT3DEffectProps
   // [Effects.NoiseEffect]: NoiseEffectProps
   // [Effects.PixelationEffect]: PixelationEffectProps
@@ -625,30 +629,33 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     columns: 0.05,
     ratio: 0.85
   },
-  [Effects.GodRaysEffect]: {
-    isActive: false,
-    blendFunction: BlendFunction.SCREEN,
-    samples: 60.0,
-    density: 0.96,
-    decay: 0.9,
-    weight: 0.4,
-    exposure: 0.6,
-    clampMax: 1.0,
-    resolutionScale: 0.5,
-    resolutionX: Resolution.AUTO_SIZE,
-    resolutionY: Resolution.AUTO_SIZE,
-    width: Resolution.AUTO_SIZE,
-    height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.SMALL,
-    blur: true
-  },
+  //[Effects.GodRaysEffect]: {
+  //  isActive: false,
+  //  blendFunction: BlendFunction.SCREEN,
+  //  samples: 60.0,
+  //  density: 0.96,
+  //  decay: 0.9,
+  //  weight: 0.4,
+  //  exposure: 0.6,
+  //  clampMax: 1.0,
+  //  resolutionScale: 0.5,
+  //  resolutionX: Resolution.AUTO_SIZE,
+  //  resolutionY: Resolution.AUTO_SIZE,
+  //  width: Resolution.AUTO_SIZE,
+  //  height: Resolution.AUTO_SIZE,
+  //  kernelSize: KernelSize.SMALL,
+  //  blur: true
+  //},
   [Effects.GridEffect]: {
     isActive: false,
     blendFunction: BlendFunction.OVERLAY,
     scale: 1.0,
     lineWidth: 0.0
   },
-  // [Effects.LUT1DEffect]: { isActive: false, blendFunction: BlendFunction.SET },
+  [Effects.LUT1DEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SET
+  },
   // [Effects.LUT3DEffect]: { isActive: false, blendFunction: BlendFunction.SET, tetrahedralInterpolation: false, inputEncoding: sRGBEncoding, inputColorSpace: SRGBColorSpace },
   // [Effects.NoiseEffect]: { isActive: false, blendFunction: BlendFunction.SCREEN, premultiply: false },
   // [Effects.PixelationEffect]: { isActive: false, granularity: 30 },
@@ -702,7 +709,7 @@ export const effectInOrder = [
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
   Effects.SSGIEffect,
-  Effects.GodRaysEffect,
+  //Effects.GodRaysEffect,
 
   /** 3. camera effects */
   // Effects.LensDistortionEffect,
@@ -718,7 +725,7 @@ export const effectInOrder = [
   Effects.BrightnessContrastEffect,
   Effects.HueSaturationEffect,
   Effects.ColorDepthEffect,
-  // Effects.LUT1DEffect,
+  Effects.LUT1DEffect,
   // Effects.LUT3DEffect,
 
   /** 5. final fix, aliasing and noise passes */

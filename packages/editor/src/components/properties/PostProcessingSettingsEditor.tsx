@@ -43,6 +43,7 @@ import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import Vector2Input from '../inputs/Vector2Input'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
@@ -57,6 +58,7 @@ enum PropertyTypes {
   SMAAPreset,
   EdgeDetectionMode,
   PredicationMode,
+  Texture,
   Vector2,
   VignetteTechnique
 }
@@ -66,51 +68,6 @@ type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
-  SMAAEffect: {
-    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
-  },
-  ColorAverageEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
-  },
-  OutlineEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
-    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: 0, max: 10, step: 0.01 },
-    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: 0, max: 10, step: 0.01 },
-    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
-    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
-    multisampling: { propertyType: PropertyTypes.Number, name: 'Multisampling', min: 0, max: 10, step: 0.01 },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'ResolutionScale', min: 0, max: 10, step: 0.01 },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-    xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' }
-    //resolutionX: Resolution.AUTO_SIZE,
-    //resolutionY: Resolution.AUTO_SIZE,
-    //width: Resolution.AUTO_SIZE,
-    //height: 480,
-  },
-  ChromaticAberrationEffect: {
-    offset: { propertyType: PropertyTypes.Vector2, name: 'Offset' },
-    radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
-    modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
-  },
-  DotScreenEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    angle: { propertyType: PropertyTypes.Number, name: 'Angle', min: 0, max: 360, step: 0.1 },
-    scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 }
-  },
-  TiltShiftEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
-    rotation: { propertyType: PropertyTypes.Number, name: 'Rotation', min: 0, max: 360, step: 0.1 },
-    focusArea: { propertyType: PropertyTypes.Number, name: 'Focus Area', min: 0, max: 10, step: 0.1 },
-    feather: { propertyType: PropertyTypes.Number, name: 'Feather', min: 0, max: 10, step: 0.1 },
-    bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: 0, max: 10, step: 0.1 },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
-    //resolutionX: Resolution.AUTO_SIZE,
-    //resolutionY: Resolution.AUTO_SIZE
-  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -239,11 +196,6 @@ const EffectsOptions: EffectOptionsType = {
     worldDistance: { propertyType: PropertyTypes.Number, name: 'World Distance', min: 0.01, max: 100, step: 0.01 },
     neighborhoodClamping: { propertyType: PropertyTypes.Boolean, name: 'Neighborhood Clamping' }
   },
-  MotionBlurEffect: {
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
-    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 10, step: 0.01 },
-    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 64, step: 1 }
-  },
   VignetteEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     technique: { propertyType: PropertyTypes.VignetteTechnique, name: 'Technique' },
@@ -251,37 +203,91 @@ const EffectsOptions: EffectOptionsType = {
     offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
     darkness: { propertyType: PropertyTypes.Number, name: 'Darkness', min: 0, max: 10, step: 0.1 }
   },
+  ChromaticAberrationEffect: {
+    offset: { propertyType: PropertyTypes.Vector2, name: 'Offset' },
+    radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
+    modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
+  },
+  ColorAverageEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
+  },
+  DotScreenEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    angle: { propertyType: PropertyTypes.Number, name: 'Angle', min: 0, max: 360, step: 0.1 },
+    scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 }
+  },
   GlitchEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     chromaticAberrationOffset: { propertyType: PropertyTypes.Vector2, name: 'Chromatic Aberration Offset' },
     delay: { propertyType: PropertyTypes.Vector2, name: 'Delay' },
     duration: { propertyType: PropertyTypes.Vector2, name: 'Duration' },
     strength: { propertyType: PropertyTypes.Vector2, name: 'Strength' },
-    //perturbationMap?: Texture
+    perturbationMap: { propertyType: PropertyTypes.Texture, name: 'Perturbation Map' },
     dtSize: { propertyType: PropertyTypes.Number, name: 'DT Size', min: 0, max: 10, step: 0.1 },
     columns: { propertyType: PropertyTypes.Number, name: 'Columns', min: 0, max: 10, step: 0.1 },
     ratio: { propertyType: PropertyTypes.Number, name: 'Ratio', min: 0, max: 10, step: 0.1 }
   },
-  GodRaysEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 0, max: 10, step: 0.1 },
-    density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.1 },
-    decay: { propertyType: PropertyTypes.Number, name: 'Decay', min: 0, max: 10, step: 0.1 },
-    weight: { propertyType: PropertyTypes.Number, name: 'Weight', min: 0, max: 10, step: 0.1 },
-    exposure: { propertyType: PropertyTypes.Number, name: 'Exposure', min: 0, max: 10, step: 0.1 },
-    clampMax: { propertyType: PropertyTypes.Number, name: 'Clamp Max', min: 0, max: 10, step: 0.1 },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 },
-    //resolutionX?: number
-    //resolutionY?: number
-    //width?: number
-    //height?: number
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
-  },
+  //GodRaysEffect: {
+  //  blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+  //  samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 0, max: 10, step: 0.1 },
+  //  density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.1 },
+  //  decay: { propertyType: PropertyTypes.Number, name: 'Decay', min: 0, max: 10, step: 0.1 },
+  //  weight: { propertyType: PropertyTypes.Number, name: 'Weight', min: 0, max: 10, step: 0.1 },
+  //  exposure: { propertyType: PropertyTypes.Number, name: 'Exposure', min: 0, max: 10, step: 0.1 },
+  //  clampMax: { propertyType: PropertyTypes.Number, name: 'Clamp Max', min: 0, max: 10, step: 0.1 },
+  //  resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 },
+  //resolutionX?: number
+  //resolutionY?: number
+  //width?: number
+  //height?: number
+  //  kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
+  //  blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
+  //},
   GridEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     scale: { propertyType: PropertyTypes.Number, name: 'Scale', min: 0, max: 10, step: 0.1 },
     lineWidth: { propertyType: PropertyTypes.Number, name: 'Line Width', min: 0, max: 10, step: 0.1 }
+  },
+  LUT1DEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
+  },
+  MotionBlurEffect: {
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
+    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 10, step: 0.01 },
+    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 64, step: 1 }
+  },
+  OutlineEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
+    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: 0, max: 10, step: 0.01 },
+    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: 0, max: 10, step: 0.01 },
+    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
+    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
+    multisampling: { propertyType: PropertyTypes.Number, name: 'Multisampling', min: 0, max: 10, step: 0.01 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'ResolutionScale', min: 0, max: 10, step: 0.01 },
+    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
+    xRay: { propertyType: PropertyTypes.Boolean, name: 'xRay' },
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' }
+    //resolutionX: Resolution.AUTO_SIZE,
+    //resolutionY: Resolution.AUTO_SIZE,
+    //width: Resolution.AUTO_SIZE,
+    //height: 480,
+  },
+  SMAAEffect: {
+    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
+  },
+  TiltShiftEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    offset: { propertyType: PropertyTypes.Number, name: 'Offset', min: 0, max: 10, step: 0.1 },
+    rotation: { propertyType: PropertyTypes.Number, name: 'Rotation', min: 0, max: 360, step: 0.1 },
+    focusArea: { propertyType: PropertyTypes.Number, name: 'Focus Area', min: 0, max: 10, step: 0.1 },
+    feather: { propertyType: PropertyTypes.Number, name: 'Feather', min: 0, max: 10, step: 0.1 },
+    bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: 0, max: 10, step: 0.1 },
+    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
+    //resolutionX: Resolution.AUTO_SIZE,
+    //resolutionY: Resolution.AUTO_SIZE
   }
 }
 
@@ -396,6 +402,14 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         )
         break
 
+      case PropertyTypes.Texture:
+        renderVal = (
+          <TexturePreviewInput
+            value={effectSettingState.value}
+            onRelease={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+          />
+        )
+        break
       case PropertyTypes.Color:
         renderVal = (
           <ColorInput

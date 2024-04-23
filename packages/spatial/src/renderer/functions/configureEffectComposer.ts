@@ -184,9 +184,14 @@ export const configureEffectComposer = (entity: Entity): void => {
       const eff = new EffectClass(scene, camera, effectOptions)
       composer[key] = eff
       effects.push(eff)
-    } else if (key == Effects.GodRaysEffect) {
-      const lightsource = null //tbd
-      const eff = new EffectClass(camera, lightsource, effectOptions)
+      //} else if (key == Effects.GodRaysEffect) {
+      //  const lightsource = null //tbd
+      //  const eff = new EffectClass(camera, lightsource, effectOptions)
+      //  composer[key] = eff
+      //  effects.push(eff)
+    } else if (key == Effects.LUT1DEffect) {
+      const lut = effectOptions.lut
+      const eff = new EffectClass(lut, effectOptions)
       composer[key] = eff
       effects.push(camera, eff)
     } else {
