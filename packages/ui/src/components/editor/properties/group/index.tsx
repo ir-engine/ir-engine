@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ArrowDropDown, ArrowRight, CloseRounded } from '@mui/icons-material'
 import React, { Fragment, useState } from 'react'
+import { BsArrowDown, BsArrowRight } from 'react-icons/bs'
+import { MdClear } from 'react-icons/md'
 import { PiCursor } from 'react-icons/pi'
 
 interface Props {
@@ -51,14 +52,14 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
             className="ml-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
             onPointerUp={() => handleMinimize(false)}
           >
-            <ArrowRight fontSize="inherit" />
+            <BsArrowRight fontSize="inherit" />
           </button>
         ) : (
           <button
             className="ml-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
             onPointerUp={() => handleMinimize(true)}
           >
-            <ArrowDropDown fontSize="inherit" />
+            <BsArrowDown fontSize="inherit" />
           </button>
         )}
         {icon}
@@ -68,7 +69,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
             className="m-auto mr-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
             onPointerUp={onClose}
           >
-            <CloseRounded fontSize="inherit" />
+            <MdClear fontSize="inherit" />
           </button>
         )}
       </div>
