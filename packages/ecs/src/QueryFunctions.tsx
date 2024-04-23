@@ -145,13 +145,6 @@ export const QueryReactor = memo((props: { Components: QueryComponents; ChildEnt
   )
 })
 
-/**
- * @deprecated use QueryReactor directly
- */
-export const createQueryReactor = (Components: QueryComponents, ChildEntityReactor: FC) => {
-  return () => <QueryReactor Components={Components} ChildEntityReactor={ChildEntityReactor} />
-}
-
 interface ErrorState {
   error: Error | null
 }

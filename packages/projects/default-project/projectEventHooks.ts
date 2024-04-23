@@ -25,8 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
+import packageJson from './package.json'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
+import { createLocations } from '@etherealengine/projects/createLocations'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -98,7 +100,12 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
 }
 
 const config = {
-  onInstall: (app: Application) => {
+  onInstall: async (app: Application) => {
+    await createLocations(app, packageJson.name, [
+      'apartment.scene.json',
+      'default.scene.json',
+      'sky-station.scene.json'
+    ])
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onUpdate: (app: Application) => {

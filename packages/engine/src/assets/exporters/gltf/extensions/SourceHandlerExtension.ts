@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -43,7 +42,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
 
   beforeParse(input: Object3D | Object3D[]) {
     //we allow saving of any object that has a source equal to or parent of the root's source
-    const validSrcs: Set<SceneID> = new Set()
+    const validSrcs: Set<string> = new Set()
     if (!this.writer.options.srcEntity) return
     validSrcs.add(getModelSceneID(this.writer.options.srcEntity!))
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
@@ -63,7 +62,7 @@ export default class SourceHandlerExtension extends ExporterExtension implements
       },
       (entity) => {
         const src = getComponent(entity, SourceComponent)
-        return src && !validSrcs.has(src)
+        return !!src && !validSrcs.has(src)
       }
     )
   }

@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { LocationType, SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -61,14 +60,13 @@ export default function LocationTable({ search }: { search: string }) {
         $like: `%${search}%`
       },
       sceneId: {
-        $like: `%${search}%` as SceneID
+        $like: `%${search}%`
       }
     },
     search
   )
 
   const adminLocationRemove = useMutation(locationPath).remove
-  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
