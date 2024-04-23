@@ -30,16 +30,15 @@ import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Application) => {
-  const knex = app.get('knexClient')
   const now = await getDateTimeSql()
   const storageProvider = getStorageProvider()
-  const assets = await app.service(assetPath).find()
 
   const sceneJSONAssetsData = (
     await Promise.all(
       projects.map(async (project) => {
         const projectPath = `projects/${project.name}`
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
+        const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
         const sceneJSONAssets = projectAssets.filter(
           (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
         )
@@ -58,5 +57,8 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
     .flat()
     .filter(Boolean)
 
+  if (!sceneJSONAssetsData.length) return
+
+  const knex = app.get('knexClient')
   await knex(assetPath).insert(sceneJSONAssetsData)
 }
