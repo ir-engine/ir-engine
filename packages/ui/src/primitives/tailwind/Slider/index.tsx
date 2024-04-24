@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export interface SliderProps {
   className?: string
@@ -31,33 +32,16 @@ export interface SliderProps {
   min?: number
   max?: number
   step?: number
+  width?: number
   onChange: (value: number) => void
   onRelease: (value: number) => void
 }
 
-const Slider = ({ value, min = 0, max = 100, step = 1, onChange, onRelease }: SliderProps) => {
-  useEffect(() => {
-    // no external css file, we cannot target ::-webkit-slider-thumb other wise
-    const style = document.createElement('style')
-    style.innerHTML = `
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 1rem;
-        height: 2rem;
-        background-color: #849ED6;
-        border-radius: 4px;
-        box-shadow: -2px 0 2px rgba(0, 0, 0, 0.2);
-      }
-    `
-    document.head.appendChild(style)
-
-    return () => {
-      document.head.removeChild(style)
-    }
-  }, [])
-
-  const handleInputChange = (event) => {
+/**
+ * @param props.width width of the slider in pixels
+ */
+const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease }: SliderProps) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = parseInt(event.target.value, 10)
     if (isNaN(newValue)) {
       newValue = min
@@ -67,7 +51,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange, onRelease }: Sl
     onChange(newValue)
   }
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseInt(event.target.value, 10)
     onChange(newValue)
   }
@@ -83,19 +67,47 @@ const Slider = ({ value, min = 0, max = 100, step = 1, onChange, onRelease }: Sl
         className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
-        type="range"
         min={min}
         max={max}
         value={value}
         onChange={handleChange}
         onBlur={() => onRelease(value)}
         step={step}
-        className="h-8 w-[200px] appearance-none rounded bg-neutral-900 accent-slate-400"
-        style={{
-          background: `linear-gradient(to right, #2563eb ${
-            ((value - min) / (max - min)) * 100 + (0.5 - (value - min) / (max - min)) * 10
-          }%, #111113  ${((value - min) / (max - min)) * 100}%, #111113  100%)`
-        }}
+        type="range"
+        className={twMerge(`w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden bg-red-500 focus:outline-none disabled:pointer-events-none disabled:opacity-50
+        
+        [&::-moz-range-progress]:bg-[#214AA6]
+        [&::-moz-range-track]:h-full
+        [&::-moz-range-track]:w-full
+        [&::-moz-range-track]:rounded
+        [&::-moz-range-track]:bg-[#111113]
+
+        [&::-webkit-slider-runnable-track]:h-full
+        [&::-webkit-slider-runnable-track]:w-full
+        [&::-webkit-slider-runnable-track]:rounded
+        [&::-webkit-slider-runnable-track]:bg-[#111113]
+        [&::-webkit-slider-thumb]:h-full
+        [&::-webkit-slider-thumb]:shadow-[-${width}px_0_0_${width}px_#214AA6]
+
+        [&::-moz-range-thumb]:h-full
+        [&::-moz-range-thumb]:w-4
+        [&::-moz-range-thumb]:appearance-none
+        [&::-moz-range-thumb]:rounded
+        [&::-moz-range-thumb]:bg-[#849ED6]
+
+        [&::-moz-range-thumb]:transition-all
+        [&::-moz-range-thumb]:duration-150
+        [&::-moz-range-thumb]:ease-in-out
+
+        [&::-webkit-slider-thumb]:w-4
+        [&::-webkit-slider-thumb]:appearance-none
+        [&::-webkit-slider-thumb]:rounded
+        [&::-webkit-slider-thumb]:bg-[#849ED6]
+
+        [&::-webkit-slider-thumb]:transition-all
+        [&::-webkit-slider-thumb]:duration-150
+        [&::-webkit-slider-thumb]:ease-in-out
+        `)}
       />
       <span className="ml-2">{value}</span>
     </div>

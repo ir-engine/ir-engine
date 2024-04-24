@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import '@etherealengine/engine/src/EngineModule'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -52,30 +51,30 @@ export const useStudioEditor = () => {
 
 export const EditorPage = () => {
   const [params] = useSearchParams()
-  const { sceneID, projectName } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')
-    if (sceneInParams) sceneID.set(sceneInParams as SceneID)
+    if (sceneInParams) scenePath.set(sceneInParams)
     const projectNameInParams = params.get('project')
-    if (projectNameInParams) projectName.set(projectNameInParams as SceneID)
+    if (projectNameInParams) projectName.set(projectNameInParams)
   }, [params])
 
   useEffect(() => {
-    if (!sceneID.value) return
+    if (!scenePath.value) return
 
     const parsed = new URL(window.location.href)
     const query = parsed.searchParams
 
-    query.set('scenePath', sceneID.value)
+    query.set('scenePath', scenePath.value)
 
     parsed.search = query.toString()
     if (typeof history.pushState !== 'undefined') {
       window.history.replaceState({}, '', parsed.toString())
     }
-  }, [sceneID])
+  }, [scenePath])
 
-  if (!sceneID.value && !projectName.value) return <ProjectPage />
+  if (!scenePath.value && !projectName.value) return <ProjectPage />
 
   return <EditorContainer />
 }

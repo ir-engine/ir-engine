@@ -77,7 +77,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   setComponent(entity, TransformComponent)
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
-  let sceneID = getState(EditorState).sceneID!
+  let sceneID = getState(EditorState).scenePath!
   if (hasComponent(parentEntity, SourceComponent)) {
     sceneID = getComponent(parentEntity, SourceComponent)
   }

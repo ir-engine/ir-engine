@@ -43,7 +43,7 @@ import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
 
-import { InstanceID, LocationID, RoomCode, SceneID } from '@etherealengine/common/src/schema.type.module'
+import { InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
@@ -95,13 +95,13 @@ export const WorldInstanceProvisioning = () => {
       LocationInstanceConnectionService.provisionExistingServerByRoomCode(
         locationID,
         roomCode as RoomCode,
-        currentLocation.sceneId.value as SceneID
+        currentLocation.sceneId.value
       )
     } else {
       LocationInstanceConnectionService.provisionServer(
         locationID,
         instanceId || undefined,
-        currentLocation.sceneId.value as SceneID,
+        currentLocation.sceneId.value,
         roomCode || undefined
       )
     }

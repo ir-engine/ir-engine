@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../types/TypeboxUtils'
-import { SceneID } from '../projects/scene.schema'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { InstanceID } from './instance.schema'
@@ -42,7 +41,7 @@ export const instanceAttendanceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sceneId: TypedString<SceneID>({
+    sceneId: Type.String({
       format: 'uuid'
     }),
     isChannel: Type.Boolean(),

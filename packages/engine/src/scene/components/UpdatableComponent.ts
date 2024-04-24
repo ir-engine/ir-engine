@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
+/** @deprecated - use a system instead */
 export const UpdatableComponent = defineComponent({ name: 'UpdatableComponent' })
 
+/** @deprecated - use a system instead */
 export const UpdatableCallback = 'xre.update'

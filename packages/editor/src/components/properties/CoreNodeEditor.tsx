@@ -72,13 +72,12 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
 
   const exportAsGLTF = () => {
     setComponent(props.entity, ModelComponent)
-    exportRelativeGLTF(props.entity, editorState.projectName.value!, editorState.sceneName.value + '-scene.gltf')
+    exportRelativeGLTF(props.entity, editorState.projectName.value!, editorState.sceneName.value + '.gltf')
     removeComponent(props.entity, ModelComponent)
   }
 
-  useOptionalComponent(props.entity, VisibleComponent)
   const [locked, setLocked] = useState(editorState.lockPropertiesPanel.value !== '')
-  const [visible, setVisible] = useState(hasComponent(props.entity, VisibleComponent))
+  const visible = useOptionalComponent(props.entity, VisibleComponent)
 
   useEffect(() => {
     const entities = getMutableState(SelectionState).selectedEntities.value
@@ -95,10 +94,10 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
     }
   }, [locked])
 
-  useEffect(() => {
+  const setVisible = (visible: boolean) => {
     const entities = SelectionState.getSelectedEntities()
     EditorControlFunctions.addOrRemoveComponent(entities, VisibleComponent, visible)
-  }, [visible])
+  }
 
   return (
     <div style={propertiesHeaderStyle}>
@@ -137,7 +136,10 @@ export const CoreNodeEditor = (props: { entity: Entity }) => {
               label={t('editor:properties.lbl-visible')}
               {...{ style: { visibleInputGroupStyle } }}
             >
-              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={setVisible} />
+              <BooleanInput
+                value={hasComponent(props.entity, VisibleComponent)}
+                onChange={() => setVisible(!visible?.value)}
+              />
             </InputGroup>
             <TransformPropertyGroup entity={props.entity} />
           </>

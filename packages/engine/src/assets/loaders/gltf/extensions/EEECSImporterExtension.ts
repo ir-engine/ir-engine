@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJSONIDMap, componentJsonDefaults } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
 import { GLTF } from '@gltf-transform/core'
 import { ComponentJsonType } from '../../../../scene/types/SceneTypes'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
@@ -59,14 +59,10 @@ export default class EEECSImporterExtension extends ImporterExtension implements
         }
 
         const compData = ecsExtensions[jsonID]
-        const parsedComponent: ComponentJsonType = {
+        componentJson.push({
           name: jsonID,
-          props: {
-            ...componentJsonDefaults(component),
-            ...compData
-          }
-        }
-        componentJson.push(parsedComponent)
+          props: compData
+        })
       }
       if (componentJson.length > 0) {
         nodeDef.extras ??= {}
