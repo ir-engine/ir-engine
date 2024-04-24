@@ -47,6 +47,7 @@ export interface DisposableObject {
   id: number
   entity?: Entity
   dispose?: () => void
+  disposed?: boolean
 }
 
 Cache.enabled = true
@@ -75,7 +76,15 @@ type GLTF = {
   scenes: Scene[]
 }
 
-export type ResourceAssetType = GLTF | Texture | CompressedTexture | Geometry | Material | Mesh | DisposableObject
+export type ResourceAssetType =
+  | GLTF
+  | Texture
+  | CompressedTexture
+  | Geometry
+  | Material
+  | Material[]
+  | Mesh
+  | DisposableObject
 
 type BaseMetadata = {
   size?: number
@@ -317,7 +326,11 @@ const resourceCallbacks = {
     onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+    onUnload: (
+      asset: Material | Material[],
+      resource: State<Resource>,
+      resourceState: State<typeof ResourceState._TYPE>
+    ) => {
       disposeMaterial(asset)
     }
   },
@@ -403,11 +416,13 @@ const dispose = (asset: ResourceAssetType) => {
   else if ((asset as Mesh).isMesh) disposeMesh(asset as Mesh)
   else {
     const disposable = asset as DisposableObject
-    if (typeof disposable.dispose == 'function') disposable.dispose()
+    if (!disposable.disposed && typeof disposable.dispose == 'function') disposable.dispose()
+    disposable.disposed = true
   }
 }
 
 const disposeGeometry = (asset: Geometry) => {
+  if ((asset as DisposableObject).disposed) return
   asset.dispose()
   for (const key in asset.attributes) {
     asset.deleteAttribute(key)
@@ -418,9 +433,11 @@ const disposeGeometry = (asset: Geometry) => {
 
   //@ts-ignore todo - figure out why check errors flags this
   if (asset.boundsTree) asset.disposeBoundsTree()
+  ;(asset as DisposableObject).disposed = true
 }
 
 const disposeMesh = (asset: Mesh) => {
+  if ((asset as DisposableObject).disposed) return
   const skinnedMesh = asset as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
     skinnedMesh.skeleton.dispose()
@@ -431,15 +448,25 @@ const disposeMesh = (asset: Mesh) => {
   if (typeof disposable.dispose === 'function') {
     disposable.dispose()
   }
+  ;(asset as DisposableObject).disposed = true
 }
 
-const disposeMaterial = (asset: Material) => {
-  for (const [key, val] of Object.entries(asset) as [string, Texture][]) {
-    if (val && typeof val.dispose === 'function') {
-      val.dispose()
+const disposeMaterial = (asset: Material | Material[]) => {
+  const dispose = (material: Material) => {
+    if ((material as DisposableObject).disposed) return
+    for (const [key, val] of Object.entries(material) as [string, Texture][]) {
+      if (val && typeof val.dispose === 'function') {
+        val.dispose()
+      }
     }
+    material.dispose()
+    ;(material as DisposableObject).disposed = true
   }
-  asset.dispose()
+  if (Array.isArray(asset)) {
+    for (const mat of asset) dispose(mat)
+  } else {
+    dispose(asset)
+  }
 }
 
 const checkBudgets = () => {
@@ -582,24 +609,30 @@ const unload = (id: string, entity: Entity, uuid?: string) => {
 
 const tryUnloadObj = (obj: DisposableObject) => {
   const obj3D = obj as Object3D
-  const entity = obj.entity
-  if (!entity || !obj3D.isObject3D) return
+  if (!obj3D.isObject3D) return
 
-  removeObjectFromGroup(entity, obj3D)
+  const entity = obj.entity
+  if (entity) removeObjectFromGroup(entity, obj3D)
   unloadObj(obj3D)
 }
 
-const unloadObj = (obj: Object3D, sceneID?: string) => {
-  const remove = (obj: Object3D) => {
-    ResourceState.debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
-    const disposable = obj as DisposableObject // anything with dispose function
-    if (typeof disposable.dispose === 'function') disposable.dispose()
-  }
+const disposeObj = (obj: Object3D, sceneID?: string) => {
+  ResourceState.debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
 
+  const mesh = obj as Mesh
+  if (mesh.geometry) disposeGeometry(mesh.geometry)
+  if (mesh.material) disposeMaterial(mesh.material)
+  if (mesh.isMesh) disposeMesh(mesh)
+
+  const disposable = obj as DisposableObject // anything with dispose function
+  if (typeof disposable.dispose === 'function') disposable.dispose()
+}
+
+const unloadObj = (obj: Object3D, sceneID?: string) => {
   if (obj.isProxified) {
-    remove(obj)
+    disposeObj(obj, sceneID)
   } else {
-    iterateObject3D(obj, remove)
+    iterateObject3D(obj, disposeObj)
   }
 }
 
