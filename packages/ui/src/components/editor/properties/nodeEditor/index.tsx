@@ -73,17 +73,11 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
   }
 }
 
-//declaring NodeEditorProps
 type NodeEditorProps = EditorPropType & {
   description?: string
   name?: string
 }
 
-/**
- * NodeEditor component used to render editor view.
- *
- * @type {class component}
- */
 export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   description,
   children,
