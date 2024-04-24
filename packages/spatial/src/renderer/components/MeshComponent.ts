@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BufferGeometry, Material, Mesh } from 'three'
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity, defineQuery, useEntityContext } from '@etherealengine/ecs'
+import { Entity, useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
   hasComponent,
@@ -34,7 +34,6 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NO_PROXY, State } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { useResource } from '../../resources/resourceHooks'
@@ -92,8 +91,6 @@ export const MeshComponent = defineComponent({
     return null
   }
 })
-
-export const sceneMeshQuery = defineQuery([MeshComponent, SourceComponent])
 
 /**
  *
