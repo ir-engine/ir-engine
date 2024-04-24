@@ -618,15 +618,8 @@ const tryUnloadObj = (obj: DisposableObject) => {
 
 const disposeObj = (obj: Object3D, sceneID?: string) => {
   ResourceState.debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
-
-  const mesh = obj as Mesh
-  if (mesh.geometry) disposeGeometry(mesh.geometry)
-  if (mesh.material) disposeMaterial(mesh.material)
-  if (mesh.isMesh) disposeMesh(mesh)
-
   const disposable = obj as DisposableObject // anything with dispose function
-  if (!disposable.disposed && typeof disposable.dispose === 'function') disposable.dispose()
-  disposable.disposed = true
+  if (typeof disposable.dispose === 'function') disposable.dispose()
 }
 
 const unloadObj = (obj: Object3D, sceneID?: string) => {

@@ -34,7 +34,6 @@ import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
-  getComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -46,7 +45,7 @@ import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFu
 import { matches } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -59,7 +58,6 @@ import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/componen
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
@@ -182,16 +180,14 @@ export const PortalComponent = defineComponent({
       if (!debugEnabled.value) {
         removeComponent(entity, ArrowHelperComponent)
       } else {
-        setComponent(entity, ArrowHelperComponent, { name: 'portal-helper', length: 1, color: 0x000000 })
+        setComponent(entity, ArrowHelperComponent, {
+          name: 'portal-helper',
+          length: 1,
+          dir: V_010,
+          color: 0x000000
+        })
       }
     }, [debugEnabled])
-
-    useEffect(() => {
-      if (!arrowHelper || !arrowHelper.entity.value) return
-      getComponent(arrowHelper.entity.value, TransformComponent).rotation.copy(
-        new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
-      )
-    }, [arrowHelper])
 
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
