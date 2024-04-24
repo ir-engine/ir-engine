@@ -2,8 +2,7 @@ set -e
 set -x
 
 # https://github.com/actions/runner-images/issues/5656#issuecomment-1143180054
-sudo rm -f /etc/apt/sources.list.d/archive_uri-*
-sudo apt-get -y update
+sudo apt-get -y update || true
 
 #install kubectl
 curl -LO "https://dl.k8s.io/release/v1.23.6/bin/linux/amd64/kubectl"
