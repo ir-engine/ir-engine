@@ -634,6 +634,57 @@ describe('EditorControlFunctions', () => {
           unmount()
         })
 
+        it('will remove children of specified nodes', async () => {
+          applyIncomingActions()
+
+          const { rerender, unmount } = render(sceneTag)
+          await act(() => rerender(sceneTag))
+
+          assert(rootEntity, 'root entity not found')
+          assert.equal(
+            hasComponent(rootEntity, EntityTreeComponent),
+            true,
+            'root entity does not have EntityTreeComponent'
+          )
+          assert.equal(
+            getComponent(rootEntity, EntityTreeComponent).parentEntity,
+            UndefinedEntity,
+            'root entity does not have parentEntity'
+          )
+
+          const child4Entity = UUIDComponent.getEntityByUUID('child_4' as EntityUUID)
+          assert(child4Entity, 'child_4 entity not found')
+          assert.equal(
+            hasComponent(child4Entity, EntityTreeComponent),
+            true,
+            'child_4 entity does not have EntityTreeComponent'
+          )
+
+          const child5Entity = UUIDComponent.getEntityByUUID('child_5' as EntityUUID)
+          assert(child5Entity, 'child_5 entity not found')
+          assert.equal(
+            hasComponent(child5Entity, EntityTreeComponent),
+            true,
+            'child_5 entity does not have EntityTreeComponent'
+          )
+          assert.equal(
+            getComponent(child5Entity, EntityTreeComponent).parentEntity,
+            child4Entity,
+            'child_5 entity does not have parentEntity as child0 entity'
+          )
+
+          const nodes = [child4Entity]
+          EditorControlFunctions.removeObject(nodes)
+
+          applyIncomingActions()
+          await act(() => rerender(sceneTag))
+
+          assert(!entityExists(child4Entity), 'child_4 entity was not removed')
+          assert(!entityExists(child5Entity), 'child_5 entity was not removed')
+
+          unmount()
+        })
+
         it('will not remove root node', async () => {
           applyIncomingActions()
 
@@ -659,9 +710,8 @@ describe('EditorControlFunctions', () => {
           applyIncomingActions()
           await act(() => rerender(sceneTag))
 
-          nodes.forEach((node: Entity) => {
-            assert(hasComponent(node, EntityTreeComponent))
-          })
+          assert(entityExists(rootEntity), 'root entity was removed')
+          assert(hasComponent(rootEntity, EntityTreeComponent), 'root entity does not have EntityTreeComponent')
 
           unmount()
         })
