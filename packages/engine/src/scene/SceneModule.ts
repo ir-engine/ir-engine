@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
+import { NoiseOffsetSystem } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
-import { NoiseOffsetSystem } from '../scene/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'

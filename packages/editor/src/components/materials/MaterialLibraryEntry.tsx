@@ -27,11 +27,9 @@ import { useHookstate } from '@hookstate/core'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
-import MaterialSourceIcon from '@mui/icons-material/YardTwoTone'
 import { Grid } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
@@ -45,7 +43,6 @@ import styles from '../hierarchy/styles.module.scss'
 export type MaterialLibraryEntryType = {
   uuid: EntityUUID
   path: string
-  type: LibraryEntryType
   selected?: boolean
 }
 
@@ -89,19 +86,11 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     item() {
       const selectedEntities = selectionState.selectedEntities.value
       const multiple = selectedEntities.length > 1
-      switch (node.type) {
-        case LibraryEntryType.MATERIAL:
-          return {
-            type: ItemTypes.Material,
-            multiple,
-            value: node.uuid
-          }
-        default:
-          return null
+      return {
+        type: ItemTypes.Material,
+        multiple,
+        value: node.uuid
       }
-    },
-    canDrag() {
-      return node.type === LibraryEntryType.MATERIAL
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -120,8 +109,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
         <Grid container columns={16} sx={{ flexWrap: 'unset' }}>
           <Grid item xs={1}>
             <div className={styles.nodeIcon}>
-              {node.type === LibraryEntryType.MATERIAL && <MaterialComponentIcon className={styles.nodeIcon} />}
-              {node.type === LibraryEntryType.MATERIAL_SOURCE && <MaterialSourceIcon className={styles.nodeIcon} />}
+              <MaterialComponentIcon className={styles.nodeIcon} />
             </div>
           </Grid>
           <div className={styles.spacer} />

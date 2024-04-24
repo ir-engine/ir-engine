@@ -46,6 +46,7 @@ import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFun
 import {
   MaterialComponent,
   MaterialPrototypeConstructor,
+  MaterialPrototypeObjectConstructor,
   PrototypeArgument
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -132,6 +133,12 @@ export const createMaterialFromPrototype = (prototypeName: string, source: strin
   createMaterialEntity(newMaterial, source)
 }
 
+export const getPrototypeConstructorFromName = (name: string) => {
+  const prototypeEntity = MaterialComponent.prototypeByName[name]
+  if (!prototypeEntity) return null
+  return getComponent(prototypeEntity, MaterialComponent).prototypeConstructor
+}
+
 /**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
   const materialComponent = getMutableComponent(entity, MaterialComponent)
@@ -168,9 +175,12 @@ export const createPrototype = (
   prototypeArguments: PrototypeArgument,
   prototypeConstructor: MaterialPrototypeConstructor
 ) => {
+  console.log(name, prototypeConstructor)
   const prototypeEntity = createEntity()
+  const prototypeObject = {} as MaterialPrototypeObjectConstructor
+  prototypeObject[name] = prototypeConstructor
   setComponent(prototypeEntity, MaterialComponent, {
-    prototypeConstructor: { name: prototypeConstructor },
+    prototypeConstructor: prototypeObject,
     prototypeArguments
   })
   setComponent(prototypeEntity, NameComponent, name)

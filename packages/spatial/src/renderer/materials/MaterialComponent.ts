@@ -23,19 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
-
 import { defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { Material, Shader, WebGLRenderer } from 'three'
+import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
+import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
+import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
+import MeshPhongMaterial from './prototypes/MeshPhongMaterial.mat'
+import MeshPhysicalMaterial from './prototypes/MeshPhysicalMaterial.mat'
+import MeshStandardMaterial from './prototypes/MeshStandardMaterial.mat'
+import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
+import { ShaderMaterial } from './prototypes/ShaderMaterial.mat'
+import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
 export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
 
 export type MaterialPrototypeConstructor = new (...args: any) => any
-type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
+export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
 export type MaterialPrototypeDefinition = {
   prototypeId: string
   prototypeConstructor: MaterialPrototypeConstructor
@@ -63,6 +71,18 @@ export type PrototypeArgument = {
 }
 
 export const materialSuffix = ' (Material)'
+
+export const MaterialPrototypeDefinitions = [
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  MeshMatcapMaterial,
+  MeshPhysicalMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshToonMaterial,
+  ShaderMaterial,
+  ShadowMaterial
+] as MaterialPrototypeDefinition[]
 
 export const MaterialComponent = defineComponent({
   name: 'MaterialComponent',

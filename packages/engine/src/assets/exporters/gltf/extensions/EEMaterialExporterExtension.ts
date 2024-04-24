@@ -53,7 +53,7 @@ export function isOldEEMaterial(extension: any) {
 }
 
 export type EEMaterialExtensionType = {
-  uuid: string
+  uuid: EntityUUID
   name: string
   prototype: string
   args: {
@@ -110,12 +110,12 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
       UUIDComponent.getEntityByUUID(material.uuid as EntityUUID),
       MaterialComponent
     )
-    const prototype = getComponent(UUIDComponent.getEntityByUUID(materialComponent.prototypeUuid), MaterialComponent)
+    const prototype = getComponent(materialComponent.prototypeEntity, MaterialComponent)
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,
       name: material.name,
-      prototype: material.userData.type ?? prototype.prototypeName,
+      prototype: material.userData.type ?? Object.keys(prototype.prototypeConstructor!)[0],
       plugins: [] /**@TODO PLUGINS */,
       args: result
     }

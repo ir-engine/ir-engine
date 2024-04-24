@@ -32,10 +32,10 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { MaterialPluginType } from '@etherealengine/engine/src/scene/materials/components/MaterialPluginComponent'
+import { SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
+import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
-import { MaterialPluginType } from '../../components/MaterialPluginComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { MaterialLibraryState } from '../../MaterialLibrary'
 
 export type NoiseOffsetParameters = {
   noiseTexture: DataTexture | null
@@ -148,7 +148,7 @@ const reactor = () => {
 }
 
 export const NoiseOffsetSystem = defineSystem({
-  uuid: 'ee.engine.material.NoiseOffsetSystem',
+  uuid: 'ee.spatial.material.NoiseOffsetSystem',
   insert: { before: PresentationSystemGroup },
   execute,
   reactor

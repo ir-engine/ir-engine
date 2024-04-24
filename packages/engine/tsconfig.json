@@ -34,5 +34,5 @@
     "../engine/**/*",
     "./**/*.ts",
     "./**/*.tsx"
-  ]
+, "../spatial/src/renderer/materials/prototypes", "../spatial/src/renderer/materials/constants"  ]
 }

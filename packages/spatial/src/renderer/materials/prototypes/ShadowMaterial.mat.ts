@@ -23,28 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshPhongMaterial as Phong } from 'three'
+import { Color, ShadowMaterial as Shadow } from 'three'
 
-import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, EmissiveMapArgs, EnvMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, FloatArg } from '../DefaultArgs'
+import { BoolArg, ColorArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const MeshPhongArguments = {
-  ...BasicArgs,
-  ...BumpMapArgs,
-  ...DisplacementMapArgs,
-  dithering: { ...BoolArg, default: true },
-  ...EmissiveMapArgs,
-  ...NormalMapArgs,
-  fog: BoolArg,
-  ...EnvMapArgs,
-  shininess: { ...FloatArg, default: 30 }
+export const ShadowMaterialArguments = {
+  color: { ...ColorArg, default: new Color('#000') },
+  fog: { ...BoolArg, default: true },
+  transparent: { ...BoolArg, default: true }
 }
 
-export const MeshPhongMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshPhongMaterial',
-  prototypeConstructor: Phong,
-  arguments: MeshPhongArguments
+export const ShadowMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'ShadowMaterial',
+  prototypeConstructor: Shadow,
+  arguments: ShadowMaterialArguments
 }
-
-export default MeshPhongMaterial

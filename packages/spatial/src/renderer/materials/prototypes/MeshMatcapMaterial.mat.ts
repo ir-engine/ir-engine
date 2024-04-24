@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshMatcapMaterial as Matcap } from 'three'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, TextureArg } from '../DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../constants/BasicArgs'
+import { BoolArg, TextureArg } from '../constants/DefaultArgs'
 
 export const MeshMatcapArguments = {
   ...BasicArgs,

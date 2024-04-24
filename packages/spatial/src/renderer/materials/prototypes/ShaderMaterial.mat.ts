@@ -23,25 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshBasicMaterial as Basic } from 'three'
+import { Color, ShaderMaterial as Shader } from 'three'
 
-import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
-import { TextureArg } from '../DefaultArgs'
+import { ColorArg, ObjectArg, ShaderArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const MeshBasicArguments = {
-  ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...LightMapArgs,
-  ...AoMapArgs,
-  ...EnvMapArgs,
-  specularMap: TextureArg
+export const ShaderMaterialArguments = {
+  uniforms: {
+    ...ObjectArg,
+    default: {
+      color: { ...ColorArg, default: new Color('#f00') }
+    }
+  },
+  vertexShader: ShaderArg,
+  fragmentShader: ShaderArg
 }
 
-export const MeshBasicMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshBasicMaterial',
-  prototypeConstructor: Basic,
-  arguments: MeshBasicArguments
+export const ShaderMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'ShaderMaterial',
+  prototypeConstructor: Shader,
+  arguments: ShaderMaterialArguments
 }
-
-export default MeshBasicMaterial

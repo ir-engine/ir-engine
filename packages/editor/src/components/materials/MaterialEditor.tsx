@@ -162,7 +162,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={prototype.prototypeName}
+          value={Object.keys(prototype.prototypeConstructor!)[0]}
           options={prototypes}
           onChange={(protoId) => {
             //const nuMat = changeMaterialPrototype(material, protoId)

@@ -23,39 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshStandardMaterial as Standard } from 'three'
+import { MeshPhongMaterial as Phong } from 'three'
 
-import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  AoMapArgs,
   BasicArgs,
   BumpMapArgs,
   DisplacementMapArgs,
   EmissiveMapArgs,
   EnvMapArgs,
-  LightMapArgs,
-  MetalnessMapArgs,
-  NormalMapArgs,
-  RoughhnessMapArgs
-} from '../BasicArgs'
+  NormalMapArgs
+} from '../constants/BasicArgs'
+import { BoolArg, FloatArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const MeshStandardArguments = {
+export const MeshPhongArguments = {
   ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...EnvMapArgs,
-  ...NormalMapArgs,
   ...BumpMapArgs,
   ...DisplacementMapArgs,
-  ...RoughhnessMapArgs,
-  ...MetalnessMapArgs,
-  ...AoMapArgs,
-  ...LightMapArgs
+  dithering: { ...BoolArg, default: true },
+  ...EmissiveMapArgs,
+  ...NormalMapArgs,
+  fog: BoolArg,
+  ...EnvMapArgs,
+  shininess: { ...FloatArg, default: 30 }
 }
 
-export const MeshStandardMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshStandardMaterial',
-  prototypeConstructor: Standard,
-  arguments: MeshStandardArguments
+export const MeshPhongMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshPhongMaterial',
+  prototypeConstructor: Phong,
+  arguments: MeshPhongArguments
 }
 
-export default MeshStandardMaterial
+export default MeshPhongMaterial

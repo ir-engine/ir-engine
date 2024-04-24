@@ -29,7 +29,6 @@ import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
 import { getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
@@ -65,8 +64,7 @@ export default function MaterialLibraryPanel() {
       return [
         {
           uuid: uuid,
-          path: source,
-          type: LibraryEntryType.MATERIAL
+          path: source
         }
       ]
     })

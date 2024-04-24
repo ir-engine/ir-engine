@@ -29,9 +29,9 @@ import {
   MaterialComponentType,
   MaterialPrototypeDefinition
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { NoiseOffsetPlugin } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialSourceComponentType } from './components/MaterialSource'
-import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 
 export const MaterialLibraryState = defineState({

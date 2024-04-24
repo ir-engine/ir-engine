@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { MeshToonMaterial as Toon } from 'three'
-import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, TextureArg } from '../DefaultArgs'
+import { MeshBasicMaterial as Basic } from 'three'
 
-export const MeshToonArguments = {
+import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../constants/BasicArgs'
+import { TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
+export const MeshBasicArguments = {
   ...BasicArgs,
-  ...DisplacementMapArgs,
   ...EmissiveMapArgs,
-  fog: BoolArg,
-  gradientMap: TextureArg,
-  ...NormalMapArgs
+  ...LightMapArgs,
+  ...AoMapArgs,
+  ...EnvMapArgs,
+  specularMap: TextureArg
 }
 
-export const MeshToonMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshToonMaterial',
-  prototypeConstructor: Toon,
-  arguments: MeshToonArguments
+export const MeshBasicMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshBasicMaterial',
+  prototypeConstructor: Basic,
+  arguments: MeshBasicArguments
 }
 
-export default MeshToonMaterial
+export default MeshBasicMaterial
