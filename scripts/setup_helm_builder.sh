@@ -1,12 +1,9 @@
 set -e
 set -x
 
-# https://askubuntu.com/a/980632/1558816
-sudo apt-get -y clean
-sudo rm -rf /var/lib/apt/lists/*
-sudo apt-get -y clean
+# https://github.com/actions/runner-images/issues/5656#issuecomment-1143180054
+sudo rm -f /etc/apt/sources.list.d/archive_uri-*
 sudo apt-get -y update
-sudo apt-get -y upgrade
 
 #install kubectl
 curl -LO "https://dl.k8s.io/release/v1.23.6/bin/linux/amd64/kubectl"
