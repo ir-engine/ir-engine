@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -38,6 +37,7 @@ import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -63,7 +63,7 @@ type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: n
 type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
-const EffectsOptions: EffectOptionsType = {
+const EffectsOptions: Partial<EffectOptionsType> = {
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -374,7 +374,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     )
   }
 
-  const renderEffectsTypes = (effectName: keyof typeof Effects) => {
+  const renderEffectsTypes = (effectName) => {
     const effect = EffectsOptions[effectName]
     return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], effectName, prop, index))
   }

@@ -42,3 +42,10 @@ export type SceneJsonType = {
   root: EntityUUID
   version: number
 }
+
+export type SceneJSONDataType = {
+  name: string
+  scene: SceneJsonType
+  thumbnailUrl: string
+  project: string
+}

@@ -33,7 +33,6 @@ import {
   InstanceActiveType,
   InstanceID,
   LocationID,
-  SceneID,
   instanceActivePath,
   instanceProvisionPath
 } from '@etherealengine/common/src/schema.type.module'
@@ -47,7 +46,7 @@ export const EditorActiveInstanceState = defineState({
     fetching: false
   }),
 
-  provisionServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: SceneID) => {
+  provisionServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
     const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
@@ -71,7 +70,7 @@ export const EditorActiveInstanceState = defineState({
     }
   },
 
-  getActiveInstances: async (sceneId: SceneID) => {
+  getActiveInstances: async (sceneId: string) => {
     getMutableState(EditorActiveInstanceState).merge({ fetching: true })
     const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
       query: { sceneId }

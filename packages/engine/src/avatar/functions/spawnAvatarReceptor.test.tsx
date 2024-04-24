@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { SystemDefinitions } from '@etherealengine/ecs'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -96,7 +96,7 @@ describe('spawnAvatarReceptor', () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

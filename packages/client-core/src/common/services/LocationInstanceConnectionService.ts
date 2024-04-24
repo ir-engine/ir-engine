@@ -37,8 +37,7 @@ import {
   instanceProvisionPath,
   InstanceType,
   LocationID,
-  RoomCode,
-  SceneID
+  RoomCode
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -48,7 +47,7 @@ export type InstanceState = {
   ipAddress: string
   port: string
   locationId?: LocationID
-  sceneId?: SceneID
+  sceneId?: string
   roomCode: RoomCode
 }
 
@@ -77,7 +76,7 @@ export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: LocationID,
     instanceId?: InstanceID,
-    sceneId?: SceneID,
+    sceneId?: string,
     roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
@@ -121,7 +120,7 @@ export const LocationInstanceConnectionService = {
       }, 1000)
     }
   },
-  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: SceneID) => {
+  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await Engine.instance.api.service(instancePath).find({
@@ -162,7 +161,7 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: SceneID) => {
+  provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: string) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await Engine.instance.api.service(instancePath).find({

@@ -72,7 +72,7 @@ const PlayModeTool = () => {
       const avatarDetails = authState.user.avatar.value
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
-      const currentScene = getState(SceneState).scenes[getState(EditorState).sceneID!].scene.root
+      const currentScene = getState(SceneState).scenes[getState(EditorState).scenePath!].scene.root
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({

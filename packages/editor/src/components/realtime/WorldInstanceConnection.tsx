@@ -65,7 +65,7 @@ export const WorldInstanceConnection = () => {
   )
 
   const editorState = useHookstate(getMutableState(EditorState))
-  const sceneId = editorState.sceneID.value!
+  const sceneId = editorState.scenePath.value!
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
