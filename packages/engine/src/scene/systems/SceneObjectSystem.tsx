@@ -39,28 +39,50 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { AnimationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { RendererState } from '../../renderer/RendererState'
-import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, GroupQueryReactor } from '../components/GroupComponent'
-import { ModelComponent } from '../components/ModelComponent'
+import { useEntityContext } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  serializeComponent,
+  setComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import {
+  DistanceFromCameraComponent,
+  FrustumCullCameraComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { ResourceManager } from '../../assets/state/ResourceState'
+import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
+import { EnvmapComponent } from '../components/EnvmapComponent'
+import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { getModelSceneID } from '../functions/loaders/ModelFunctions'
-import iterateObject3D from '../util/iterateObject3D'
+import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { MaterialLibraryState } from '../materials/MaterialLibrary'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-export const disposeMaterial = (material: Material) => {
+const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
     if (val && typeof val.dispose === 'function') {
       val.dispose()
@@ -71,7 +93,6 @@ export const disposeMaterial = (material: Material) => {
 
 export const disposeObject3D = (obj: Object3D) => {
   const mesh = obj as Mesh<any, any>
-
   if (mesh.material) {
     if (Array.isArray(mesh.material)) {
       mesh.material.forEach(disposeMaterial)
@@ -96,6 +117,7 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
+/**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
 export function setupObject(obj: Object3D, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
 
@@ -104,9 +126,16 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
     const shouldMakeBasic =
       (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
     if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
+      const prevEntry = unregisterMaterial(child.material)
       child.material = child.userData.lastMaterial
+      prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
       delete child.userData.lastMaterial
     } else if (shouldMakeBasic && !child.userData.lastMaterial) {
+      const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
+      if (basicMaterial) {
+        child.material = basicMaterial.material
+        return
+      }
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
       const prevMatEntry = unregisterMaterial(prevMaterial)
@@ -123,12 +152,15 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 
       child.material = nuMaterial
       child.userData.lastMaterial = prevMaterial
+
+      nuMaterial.uuid = `basic-${prevMaterial.uuid}`
       prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
     }
   }
 }
 
 const groupQuery = defineQuery([GroupComponent])
+const renderOrder = defineQuery([RenderOrderComponent, GroupComponent, VisibleComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
@@ -142,15 +174,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
       ? getModelSceneID(entity)
       : getOptionalComponent(entity, SourceComponent)
     return () => {
-      if (obj.isProxified) {
-        disposeObject3D(obj)
-      } else {
-        iterateObject3D(
-          obj,
-          disposeObject3D,
-          (obj: Object3D) => getOptionalComponent(obj.entity, SourceComponent) === source
-        )
-      }
+      ResourceManager.unloadObj(obj, source)
     }
   }, [])
 
@@ -164,7 +188,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const execute = () => {
-  const delta = getState(EngineState).deltaSeconds
+  const delta = getState(ECSState).deltaSeconds
   for (const entity of updatableQuery()) {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
@@ -184,10 +208,99 @@ const execute = () => {
 
     for (const obj of group) obj.visible = visible
   }
+
+  for (const entity of renderOrder()) {
+    const group = getComponent(entity, GroupComponent)
+    for (const obj of group) obj.renderOrder = RenderOrderComponent.renderOrder[entity]
+  }
+}
+
+const SceneObjectEntityReactor = () => {
+  const entity = useEntityContext()
+  const isMeshOrModel = useMeshOrModel(entity)
+
+  useEffect(() => {
+    if (!isMeshOrModel) return
+
+    setComponent(entity, InputComponent, { highlight: getState(EngineState).isEditing })
+    return () => {
+      removeComponent(entity, InputComponent)
+    }
+  }, [isMeshOrModel])
+
+  return null
+}
+
+const ModelEntityReactor = () => {
+  const entity = useEntityContext()
+  const modelSceneID = useModelSceneID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelSceneID])
+
+  return (
+    <>
+      {childEntities.value?.map((childEntity: Entity) => (
+        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
+      ))}
+    </>
+  )
+}
+
+const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+
+  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (shadowComponent)
+      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
+
+  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (envmapComponent)
+      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
+    else removeComponent(props.entity, EnvmapComponent)
+  }, [
+    isMesh,
+    envmapComponent,
+    envmapComponent?.envMapIntensity,
+    envmapComponent?.envmap,
+    envmapComponent?.envMapSourceColor,
+    envmapComponent?.envMapSourceURL,
+    envmapComponent?.envMapTextureType,
+    envmapComponent?.envMapSourceEntityUUID
+  ])
+
+  useEffect(() => {
+    if (!isModelColliders || !isMesh) return
+
+    const geometry = getComponent(props.entity, MeshComponent).geometry
+
+    const shape = ThreeToPhysics[geometry.type]
+
+    if (!shape) return
+
+    setComponent(props.entity, ColliderComponent, { shape })
+
+    return () => {
+      removeComponent(props.entity, ColliderComponent)
+    }
+  }, [isModelColliders, isMesh])
+
+  return null
 }
 
 const reactor = () => {
-  return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+  return (
+    <>
+      <QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
+      <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+    </>
+  )
 }
 
 export const SceneObjectSystem = defineSystem({

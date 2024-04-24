@@ -41,6 +41,49 @@ export const clientSocialLinkSchema = Type.Object(
 )
 export interface ClientSocialLinkType extends Static<typeof clientSocialLinkSchema> {}
 
+export const audioSettingsSchema = Type.Object(
+  {
+    maxBitrate: Type.Number()
+  },
+  { $id: 'AudioSettingsSchema', additionalProperties: false }
+)
+
+export interface AudioSettingsType extends Static<typeof audioSettingsSchema> {}
+
+export const videoSettingsSchema = Type.Object(
+  {
+    codec: Type.String(),
+    maxResolution: Type.String(),
+    lowResMaxBitrate: Type.Number(),
+    midResMaxBitrate: Type.Number(),
+    highResMaxBitrate: Type.Number()
+  },
+  { $id: 'VideoSettingsSchema', additionalProperties: false }
+)
+
+export const screenshareSettingsSchema = Type.Object(
+  {
+    codec: Type.String(),
+    lowResMaxBitrate: Type.Number(),
+    midResMaxBitrate: Type.Number(),
+    highResMaxBitrate: Type.Number()
+  },
+  { $id: 'ScreenshareSettingsSchema', additionalProperties: false }
+)
+
+export interface VideoSettingsType extends Static<typeof videoSettingsSchema> {}
+
+export const mediaSettingsSchema = Type.Object(
+  {
+    audio: Type.Ref(audioSettingsSchema),
+    video: Type.Ref(videoSettingsSchema),
+    screenshare: Type.Ref(screenshareSettingsSchema)
+  },
+  { $id: 'MediaSettingsSchema', additionalProperties: false }
+)
+
+export interface MediaSettingsType extends Static<typeof mediaSettingsSchema> {}
+
 export const clientThemeOptionsSchema = Type.Object(
   {
     textColor: Type.String(),
@@ -119,7 +162,8 @@ export const clientSettingSchema = Type.Object(
     homepageLinkButtonRedirect: Type.String(),
     homepageLinkButtonText: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    updatedAt: Type.String({ format: 'date-time' }),
+    mediaSettings: Type.Ref(mediaSettingsSchema)
   },
   { $id: 'ClientSetting', additionalProperties: false }
 )
@@ -160,7 +204,8 @@ export const clientSettingDataSchema = Type.Pick(
     'privacyPolicy',
     'homepageLinkButtonEnabled',
     'homepageLinkButtonRedirect',
-    'homepageLinkButtonText'
+    'homepageLinkButtonText',
+    'mediaSettings'
   ],
   {
     $id: 'ClientSettingData'
@@ -213,6 +258,10 @@ export const clientSettingQuerySchema = Type.Intersect(
 )
 export interface ClientSettingQuery extends Static<typeof clientSettingQuerySchema> {}
 
+export const audioSettingsValidator = /* @__PURE__ */ getValidator(audioSettingsSchema, dataValidator)
+export const videoSettingsValidator = /* @__PURE__ */ getValidator(videoSettingsSchema, dataValidator)
+export const screenshareSettingsValidator = /* @__PURE__ */ getValidator(screenshareSettingsSchema, dataValidator)
+export const mediaSettingsValidator = /* @__PURE__ */ getValidator(mediaSettingsSchema, dataValidator)
 export const clientSocialLinkValidator = /* @__PURE__ */ getValidator(clientSocialLinkSchema, dataValidator)
 export const clientThemeOptionsValidator = /* @__PURE__ */ getValidator(clientThemeOptionsSchema, dataValidator)
 export const clientSettingValidator = /* @__PURE__ */ getValidator(clientSettingSchema, dataValidator)

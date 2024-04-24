@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
@@ -77,13 +77,13 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
-    return v4() as LocationID
+    return uuidv4() as LocationID
   },
   locationSetting: async (value, location) => {
     return {
       ...location.locationSetting,
-      id: v4(),
-      locationType: location.locationSetting.locationType || 'private',
+      id: uuidv4(),
+      locationType: location.locationSetting.locationType || 'public',
       locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
@@ -92,7 +92,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
   locationAdmin: async (value, location) => {
     return {
       ...location.locationAdmin,
-      id: v4(),
+      id: uuidv4(),
       locationId: '' as LocationID,
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),

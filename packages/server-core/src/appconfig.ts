@@ -332,7 +332,8 @@ const aws = {
       : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
-    s3DevMode: process.env.STORAGE_S3_DEV_MODE!
+    s3DevMode: process.env.STORAGE_S3_DEV_MODE!,
+    roleArn: process.env.STORAGE_AWS_ROLE_ARN
   },
   cloudfront: {
     domain:
@@ -344,7 +345,8 @@ const aws = {
   },
   eks: {
     accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET!
+    secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET!,
+    roleArn: process.env.EKS_AWS_ROLE_ARN
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,
@@ -413,7 +415,10 @@ const config = {
   },
   noSSL: process.env.NOSSL === 'true',
   localBuild: process.env.VITE_LOCAL_BUILD === 'true',
-  testEnabled
+  testEnabled,
+  /** @todo when project versioning is fully implemented, remove 'undefined' check here */
+  allowOutOfDateProjects:
+    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true'
 }
 
 chargebeeInst.configure({

@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/ecs'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 import { LayoutData } from 'rc-dock'
 
 interface IExpandedNodes {
-  [scene: SceneID]: {
+  [scene: string]: {
     [entity: Entity]: true
   }
 }
@@ -40,13 +41,20 @@ export const EditorState = defineState({
   initial: () => ({
     projectName: null as string | null,
     sceneName: null as string | null,
-    sceneID: null as SceneID | null,
-    sceneModified: false,
+    /** the url of the current scene file */
+    scenePath: null as string | null,
+    /** just used to store the id of the current scene asset */
+    sceneAssetID: null as string | null,
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorState, ['expandedNodes'])
+  },
+  get rootEntity() {
+    /** @todo this can be simplified once .scene.json support is removed */
+    const gltfRootEntity = getState(GLTFSourceState)[getState(EditorState).scenePath!]?.entity
+    return gltfRootEntity || SceneState.getRootEntity(getState(EditorState).scenePath!) || UndefinedEntity
   }
 })

@@ -29,25 +29,27 @@ import { Vector3 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
+import {
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState,
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag,
+  NetworkState,
+  webcamAudioDataChannelType
+} from '@etherealengine/network'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { ComponentType, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { createQueryReactor, defineQuery } from '../../ecs/functions/QueryFunctions'
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/SystemGroups'
-import { MediaSettingsState } from '../../networking/MediaSettingsState'
-import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
-import {
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '../../networking/systems/MediasoupMediaProducerConsumerState'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioState } from '../AudioState'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
@@ -153,7 +155,7 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
+  const endTime = audioContext.currentTime + getState(ECSState).deltaSeconds
 
   /**
    * Update panner nodes
@@ -209,20 +211,19 @@ const execute = () => {
   // audioContext.listener.upZ.linearRampToValueAtTime(camera.up.z, endTime)
 }
 
-const PositionalAudioPanner = createQueryReactor(
-  [PositionalAudioComponent, TransformComponent],
-  function PositionalAudioPannerReactor(props) {
-    const entity = useEntityContext()
-    const mediaElement = useComponent(entity, MediaElementComponent)
-    const positionalAudio = useComponent(entity, PositionalAudioComponent)
-    useEffect(() => {
-      const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
-      addPannerNode(audioGroup, positionalAudio.value)
-      return () => removePannerNode(audioGroup)
-    }, [mediaElement, positionalAudio])
-    return null
-  }
-)
+function PositionalAudioPannerReactor() {
+  const entity = useEntityContext()
+  const mediaElement = useComponent(entity, MediaElementComponent)
+  const positionalAudio = useComponent(entity, PositionalAudioComponent)
+
+  useEffect(() => {
+    const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+    addPannerNode(audioGroup, positionalAudio.value)
+    return () => removePannerNode(audioGroup)
+  }, [mediaElement, positionalAudio])
+
+  return null
+}
 
 const reactor = () => {
   const mediaStreamVolume = useHookstate(getMutableState(AudioState).mediaStreamVolume)
@@ -242,7 +243,12 @@ const reactor = () => {
     }
   }, [mediaStreamVolume])
 
-  return <PositionalAudioPanner />
+  return (
+    <QueryReactor
+      Components={[PositionalAudioComponent, TransformComponent]}
+      ChildEntityReactor={PositionalAudioPannerReactor}
+    />
+  )
 }
 
 export const PositionalAudioSystem = defineSystem({

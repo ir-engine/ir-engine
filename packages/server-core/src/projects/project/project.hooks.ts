@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
@@ -45,7 +45,6 @@ import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubCon
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
@@ -57,8 +56,10 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
@@ -68,9 +69,8 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
 import { cleanString } from '../../util/cleanString'
-import { getDateTimeSql } from '../../util/datetime-sql'
-import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
@@ -98,12 +98,33 @@ const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/t
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
+const filterDisabledProjects = (context: HookContext<ProjectService>) => {
+  if (config.allowOutOfDateProjects) return
+  if (context.params.query) context.params.query.enabled = true
+  else context.params.query = { enabled: true }
+}
+
+/**
+ * Hook used to check if request data only has enabled.
+ * @param context
+ */
+export const checkEnabled = async (context: HookContext) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+  const data: ProjectPatch = context.data as ProjectPatch
+
+  return data.enabled !== undefined && Object.keys(data).length === 2
+}
+
 /**
  * Checks whether the user has push access to the project
  * @param context
  * @returns
  */
 const ensurePushStatus = async (context: HookContext<ProjectService>) => {
+  if (context.params.query?.populateProjectPermissions)
+    context.params.populateProjectPermissions = context.params.query.populateProjectPermissions
   context.projectPushIds = []
   if (context.params?.query?.allowed) {
     // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -243,7 +264,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  context.projectName = cleanString(data[0].name!)
+  context.projectName = cleanString(data[0].name!).toLowerCase()
 
   const projectExists = (await context.service._find({
     query: { name: context.projectName, $limit: 1 }
@@ -389,7 +410,7 @@ const removeProjectFiles = async (context: HookContext<ProjectService>) => {
   }
 
   logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
-  await deleteProjectFilesInStorageProvider(context.name)
+  await deleteProjectFilesInStorageProvider(context.app, context.name)
 }
 
 /**
@@ -423,7 +444,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
-        $like: `${context.name}/%` as SceneID
+        $like: `${context.name}/%`
       }
     }
   })
@@ -542,6 +563,7 @@ const updateProjectJob = async (context: HookContext) => {
       if (result.total > 0) returned = result.data[0]
       else throw new BadRequest('Project did not exist after update')
       returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+      returned.hasLocalChanges = false
       context.result = returned
     } catch (err) {
       console.log('Error: project did not exist after completing update', projectName, err)
@@ -558,13 +580,20 @@ export default createSkippableHooks(
 
     before: {
       all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
-      find: [enableClientPagination(), discardQuery('action'), ensurePushStatus, addLimitToParams],
+      find: [
+        enableClientPagination(),
+        iffElse(isAction('admin'), [], filterDisabledProjects),
+        discardQuery('action'),
+        ensurePushStatus,
+        discardQuery('populateProjectPermissions'),
+        addLimitToParams
+      ],
       get: [],
       create: [
         iff(isProvider('external'), verifyScope('editor', 'write')),
         () => schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
-        discardQuery('studio'),
+        discardQuery('action'),
         checkIfProjectExists,
         checkIfNameIsValid,
         uploadLocalProject,
@@ -578,11 +607,11 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         () => schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
-        iff(isProvider('external'), linkGithubToProject)
+        iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        discardQuery('studio'),
+        discardQuery('action'),
         getProjectName,
         runProjectUninstallScript,
         removeProjectFiles,

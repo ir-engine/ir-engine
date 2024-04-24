@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import {
   Mesh,
   MeshLambertMaterial,
@@ -36,29 +36,35 @@ import {
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
   envmapReplaceLambert,
   worldposReplace
 } from '../classes/BPCEMShader'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
-  jsonID: 'envmapbake',
+  jsonID: 'EE_envmapbake',
 
   onInit: (entity) => {
     return {
@@ -104,7 +110,7 @@ export const EnvMapBakeComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const bake = useComponent(entity, EnvMapBakeComponent)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!debugEnabled.value) return
 
       const helper = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
@@ -120,6 +126,7 @@ export const EnvMapBakeComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, EnvMapBakeComponent)) return
         bake.helperEntity.set(none)
       }
     }, [debugEnabled])

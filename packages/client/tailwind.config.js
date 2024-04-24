@@ -27,20 +27,51 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   mode: 'jit',
-  content: ['../**/*.{tsx,ts}'],
-  darkMode: 'class',
+  content: ['../**/*.{ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
-  theme: ['default'],
-  daisyui: {
-    themes: ['default', 'dark', 'vaporwave'],
-    // daisyUI config (optional)
-    styled: true,
-    base: false,
-    utils: true,
-    logs: false,
-    rtl: false,
-    prefix: '',
-    darkTheme: 'dark'
-  },
-  plugins: [require('daisyui')]
+  theme: {
+    extend: {
+      backgroundImage: {
+        'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
+        'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
+        'button-gradient-onboarding': 'linear-gradient(96deg, #375DAF 57.63%, #6481C1 100%)'
+      },
+      textColor: {
+        theme: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          highlight: 'var(--text-highlight)',
+          iconGreen: 'var(--icon-green)',
+          iconRed: 'var(--icon-red)'
+        }
+      },
+      backgroundColor: {
+        theme: {
+          primary: 'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          highlight: 'var(--bg-highlight)',
+          surfaceInput: 'var(--bg-surface-input)',
+          'surface-main': 'var(--bg-surface-main)',
+          'table-secondary': 'var(--bg-table-secondary)',
+          'blue-secondary': 'var(--bg-blue-secondary)',
+          buttonTertiary: 'var(--bg-button-tertiary)',
+          bannerInformative: 'var(--bg-banner-informative)',
+          tagGreen: 'var(--bg-tag-green)',
+          tagLime: 'var(--bg-tag-lime)',
+          tagRed: 'var(--bg-tag-red)',
+          tagYellow: 'var(--bg-tag-yellow)',
+          selection: 'var(--selection)'
+        }
+      },
+      borderColor: {
+        theme: {
+          primary: 'var(--border-primary)'
+        }
+      },
+      colors: {
+        'blue-primary': '#375DAF'
+      }
+    }
+  }
 }

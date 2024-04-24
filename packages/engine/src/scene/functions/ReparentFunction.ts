@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { GroupComponent } from '../components/GroupComponent'
+import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export const reparentObject3D = (node: Entity, parent: Entity, before?: Entity): void => {
   const _node = getComponent(node, EntityTreeComponent)
@@ -41,10 +40,7 @@ export const reparentObject3D = (node: Entity, parent: Entity, before?: Entity):
   const group = getOptionalComponent(node, GroupComponent)
   if (!group) return
   const obj3d = group[0]
-  const parentObj3d =
-    _parent.parentEntity && hasComponent(parent, GroupComponent)
-      ? getComponent(parent, GroupComponent)[0]
-      : Engine.instance.scene
+  const parentObj3d = getComponent(parent, GroupComponent)[0]
 
   if (obj3d.parent && obj3d.parent !== parentObj3d) {
     // Maintain world position when reparenting.

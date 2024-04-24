@@ -30,10 +30,10 @@
   },
   "exclude": [
     "**/node_modules/**",
-    "./packages/server/upload/**"
+    "./packages/server/upload/**",
+    "./packages/**"
   ],
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx"
+    "scripts/*.ts"
   ]
 }

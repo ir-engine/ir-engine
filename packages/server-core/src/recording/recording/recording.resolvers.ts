@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
@@ -41,7 +41,7 @@ import {
   RecordingType
 } from '@etherealengine/common/src/schemas/recording/recording.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
   let schema = JSON.parse(rawData.schema) as RecordingSchemaType
@@ -91,7 +91,7 @@ export const recordingExternalResolver = resolve<RecordingType, HookContext>({})
 export const recordingDataResolver = resolve<RecordingDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4() as RecordingID
+      return uuidv4() as RecordingID
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

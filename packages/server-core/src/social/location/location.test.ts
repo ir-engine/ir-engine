@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -51,15 +51,22 @@ describe('location.test', () => {
   })
 
   it('should create a new location', async () => {
-    const name = `Test Location ${v1()}`
-    const sceneId = `test-scene-${v1()}` as SceneID
+    const name = `Test Location ${uuidv4()}`
+
+    const scene = await app.service(assetPath).create({
+      id: uuidv4(),
+      name,
+      assetURL: 'projects/default-project/test.scene.json',
+      thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
+      project: 'default-project'
+    })
 
     const item = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
-        sceneId,
-        maxUsersPerInstance: 30,
+        sceneId: scene.id,
+        maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
           locationType: 'public',
@@ -92,7 +99,7 @@ describe('location.test', () => {
   })
 
   it('should be able to update the location', async () => {
-    const newName = `Update Test Location ${v1()}`
+    const newName = `Update Test Location ${uuidv4()}`
     const locationSetting = await app.service(locationSettingPath).create({
       locationType: 'public',
       audioEnabled: true,

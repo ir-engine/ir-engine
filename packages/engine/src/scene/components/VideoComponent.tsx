@@ -24,32 +24,41 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
+import {
+  DoubleSide,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  Side,
+  SphereGeometry,
+  Vector2,
+  VideoTexture
+} from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { isMobile } from '../../common/functions/isMobile'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
-import { addObjectToGroup } from './GroupComponent'
-import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
+import { PLANE_GEO, SPHERE_GEO, resizeImageMesh } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { NameComponent } from './NameComponent'
-import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',
@@ -63,8 +72,7 @@ export const VideoTexturePriorityQueueState = defineState({
   }
 })
 
-class VideoTexturePriorityQueue extends Texture {
-  isVideoTexture = true
+class VideoTexturePriorityQueue extends VideoTexture {
   constructor(video) {
     super(video)
     this.minFilter = LinearFilter
@@ -76,15 +84,19 @@ class VideoTexturePriorityQueue extends Texture {
 
 export const VideoComponent = defineComponent({
   name: 'EE_video',
-  jsonID: 'video',
+  jsonID: 'EE_video',
 
   onInit: (entity) => {
-    const videoMesh = new Mesh(PLANE_GEO.clone(), new MeshBasicMaterial())
+    const videoMesh: Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial> = new Mesh(
+      PLANE_GEO.clone(),
+      new MeshBasicMaterial()
+    )
     videoMesh.name = `video-group-${entity}`
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
       fit: 'contain' as ContentFitType,
+      projection: 'Flat' as 'Flat' | 'Equirectangular360',
       mediaUUID: '' as EntityUUID,
       // internal
       videoMesh,
@@ -101,7 +113,8 @@ export const VideoComponent = defineComponent({
       mediaUUID: component.mediaUUID.value,
       side: component.side.value,
       size: component.size.value,
-      fit: component.fit.value
+      fit: component.fit.value,
+      projection: component.projection.value
     }
   },
 
@@ -111,6 +124,8 @@ export const VideoComponent = defineComponent({
     if (typeof json.side === 'number') component.side.set(json.side)
     if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
     if (typeof json.fit === 'string') component.fit.set(json.fit)
+    if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
+      component.projection.set(json.projection)
   },
 
   onRemove: (entity, component) => {
@@ -132,8 +147,6 @@ function VideoReactor() {
   const visible = useOptionalComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
-
-  console.log({ mediaEntity })
 
   useEffect(() => {
     const videoEntity = createEntity()
@@ -172,9 +185,11 @@ function VideoReactor() {
   }, [video.size, video.fit, video.texture])
 
   useEffect(() => {
+    video.videoMesh.value.geometry = video.projection.value === 'Flat' ? PLANE_GEO.clone() : SPHERE_GEO.clone()
+    video.videoMesh.value.geometry.attributes.position.needsUpdate = true
     video.videoMesh.value.material.map = video.texture.value
     video.videoMesh.value.material.needsUpdate = true
-  }, [video.texture])
+  }, [video.texture, video.projection])
 
   return <VideoMediaSourceReactor mediaEntity={mediaEntity} key={mediaEntity} />
 }

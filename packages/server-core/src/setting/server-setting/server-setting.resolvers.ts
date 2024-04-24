@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   ServerHubType,
@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSettingType => {
   let hub = JSON.parse(rawData.hub) as ServerHubType
@@ -70,7 +70,7 @@ export const serverSettingExternalResolver = resolve<ServerSettingType, HookCont
 export const serverSettingDataResolver = resolve<ServerSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

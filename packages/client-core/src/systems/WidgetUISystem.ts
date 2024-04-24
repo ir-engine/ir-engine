@@ -27,34 +27,11 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { V_001, V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
-import {
-  RegisteredWidgets,
-  WidgetAppActions,
-  WidgetAppService,
-  WidgetAppState
-} from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   defineActionQueue,
   defineState,
@@ -63,14 +40,31 @@ import {
   getState,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_001, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+import {
+  RegisteredWidgets,
+  WidgetAppActions,
+  WidgetAppService,
+  WidgetAppState
+} from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
-import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -89,7 +83,8 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    /** @todo is originEntity is the correct parent? */
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(widgetMenuUI.entity, TransformComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
     setComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -161,7 +156,7 @@ const execute = () => {
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
 
@@ -177,7 +172,7 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
       setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
@@ -192,9 +187,9 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.cameraEntity, () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.viewerEntity, () => {
+        const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
         const distance = camera.near * 1.1 // 10% in front of camera
         ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
       })

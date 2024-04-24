@@ -28,9 +28,8 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
-import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -38,6 +37,7 @@ import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -63,7 +63,7 @@ type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: n
 type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
-const EffectsOptions: EffectOptionsType = {
+const EffectsOptions: Partial<EffectOptionsType> = {
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -96,28 +96,21 @@ const EffectsOptions: EffectOptionsType = {
   SSREffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
     thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
-    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
-    maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
-    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
     denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
     denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
     denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
     denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
-    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: 0, max: 50, step: 0.01 },
+    phi: { propertyType: PropertyTypes.Number, name: 'Phi', min: 0, max: 50, step: 0.01 },
+    lumaPhi: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'luminosity Phi', min: 0, max: 15, step: 0.001 },
     normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
     roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    specularPhi: { propertyType: PropertyTypes.Number, name: 'Specular Phi', min: 0, max: 50, step: 0.01 },
     envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
     importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
-    directLightMultiplier: {
-      propertyType: PropertyTypes.Number,
-      name: 'Direct Light Multiplier',
-      min: 0.001,
-      max: 10,
-      step: 0.01
-    },
     steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
     refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
-    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
     missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
@@ -171,28 +164,21 @@ const EffectsOptions: EffectOptionsType = {
   SSGIEffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
     thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
-    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
-    maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
-    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
     denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
     denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
     denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
     denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
-    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: 0, max: 50, step: 0.01 },
+    phi: { propertyType: PropertyTypes.Number, name: 'Phi', min: 0, max: 50, step: 0.01 },
+    lumaPhi: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'luminosity Phi', min: 0, max: 15, step: 0.001 },
     normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
     roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    specularPhi: { propertyType: PropertyTypes.Number, name: 'Specular Phi', min: 0, max: 50, step: 0.01 },
     envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
     importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
-    directLightMultiplier: {
-      propertyType: PropertyTypes.Number,
-      name: 'Direct Light Multiplier',
-      min: 0.001,
-      max: 10,
-      step: 0.01
-    },
     steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
     refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
-    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
     missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
@@ -388,7 +374,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     )
   }
 
-  const renderEffectsTypes = (effectName: keyof typeof Effects) => {
+  const renderEffectsTypes = (effectName) => {
     const effect = EffectsOptions[effectName]
     return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], effectName, prop, index))
   }

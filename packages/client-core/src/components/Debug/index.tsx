@@ -26,22 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import {
-  HyperFlux,
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -65,16 +56,14 @@ export const DebugTabs = {
 }
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
-  useHookstate(getMutableState(EngineState).frameTime).value
+  useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useHookstate(getMutableState(RendererState))
   const activeTab = useHookstate(getMutableState(DebugState).activeTab)
 
   const { t } = useTranslation()
-  const hasActiveControlledAvatar =
-    !!Engine.instance.localClientEntity && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const onClickRespawn = (): void => {
-    Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
+    respawnAvatar(AvatarComponent.getSelfAvatarEntity())
   }
 
   const toggleDebug = () => {
@@ -111,6 +100,14 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             </button>
             <button
               type="button"
+              onClick={() => rendererState.bvhDebug.set(!rendererState.bvhDebug.value)}
+              className={styles.flagBtn + (rendererState.bvhDebug.value ? ' ' + styles.active : '')}
+              title={t('common:debug.debug')}
+            >
+              <Icon type="AllOutIcon" fontSize="small" />
+            </button>
+            <button
+              type="button"
               onClick={toggleAvatarDebug}
               className={styles.flagBtn + (rendererState.avatarDebug.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
@@ -141,11 +138,9 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             >
               <Icon type="FormatColorReset" fontSize="small" />
             </button>
-            {hasActiveControlledAvatar && (
-              <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
-                <Icon type="Refresh" />
-              </button>
-            )}
+            <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
+              <Icon type="Refresh" />
+            </button>
           </div>
         </div>
       </div>
@@ -187,7 +182,6 @@ export const DebugToggle = () => {
       if (keyCode === 192) {
         showingStateRef.current = !showingStateRef.current
         setShowing(showingStateRef.current)
-        HyperFlux.store.systemPerformanceProfilingEnabled = showingStateRef.current
       }
     }
     window.addEventListener('keydown', downHandler)

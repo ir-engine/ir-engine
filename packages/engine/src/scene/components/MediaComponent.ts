@@ -23,17 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Hls from 'hls.js'
+import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/PositionalAudioFunctions'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Engine } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -44,19 +41,24 @@ import {
   setComponent,
   useComponent,
   useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ObjectLayers } from '../constants/ObjectLayers'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { useTexture } from '../../assets/functions/resourceHooks'
+import { AudioState } from '../../audio/AudioState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { setVisibleComponent } from './VisibleComponent'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
@@ -124,8 +126,8 @@ export const MediaElementComponent = defineComponent({
 })
 
 export const MediaComponent = defineComponent({
-  name: 'EE_media',
-  jsonID: 'media',
+  name: 'MediaComponent',
+  jsonID: 'EE_media',
 
   onInit: (entity) => {
     return {
@@ -246,6 +248,7 @@ export function MediaReactor() {
   if (!isClient) return null
 
   useEffect(() => {
+    const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
@@ -261,16 +264,16 @@ export function MediaReactor() {
       window.removeEventListener('touchend', handleAutoplay)
       document.body.removeEventListener('pointerup', handleAutoplay)
       document.body.removeEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
     window.addEventListener('pointerup', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
     window.addEventListener('touchend', handleAutoplay)
     document.body.addEventListener('pointerup', handleAutoplay)
     document.body.addEventListener('touchend', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+    renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
       window.removeEventListener('pointerup', handleAutoplay)
@@ -278,8 +281,8 @@ export function MediaReactor() {
       window.removeEventListener('touchend', handleAutoplay)
       document.body.removeEventListener('pointerup', handleAutoplay)
       document.body.removeEventListener('touchend', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+      renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
   }, [])
 
@@ -481,15 +484,16 @@ export function MediaReactor() {
   )
 
   const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+  const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
     if (!debugEnabled.value) return
 
     const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
     helper.name = `audio-helper-${entity}`
-    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
-      helper.material.map = AUDIO_HELPER_TEXTURE
-    })
+    if (audioHelperTexture) {
+      helper.material.map = audioHelperTexture
+    }
 
     const helperEntity = createEntity()
     addObjectToGroup(helperEntity, helper)
@@ -503,7 +507,7 @@ export function MediaReactor() {
       removeEntity(helperEntity)
       media.helperEntity.set(none)
     }
-  }, [debugEnabled])
+  }, [debugEnabled, audioHelperTexture])
 
   return null
 }

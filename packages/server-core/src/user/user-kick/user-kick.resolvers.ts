@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/common/src/schemas/user/user-kick.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userKickResolver = resolve<UserKickType, HookContext>({
   duration: virtual(async (userKick) => fromDateTimeSql(userKick.duration)),
@@ -42,7 +42,7 @@ export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
 
 export const userKickDataResolver = resolve<UserKickType, HookContext>({
   id: async () => {
-    return v4() as UserKickID
+    return uuidv4() as UserKickID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

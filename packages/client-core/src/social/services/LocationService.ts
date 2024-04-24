@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { locationBanPath, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { locationBanPath, UserID } from '@etherealengine/common/src/schema.type.module'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -38,7 +38,7 @@ export const LocationSeed: LocationType = {
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
-  sceneId: '' as SceneID,
+  sceneId: '',
   isLobby: false,
   isFeatured: false,
   locationSetting: {

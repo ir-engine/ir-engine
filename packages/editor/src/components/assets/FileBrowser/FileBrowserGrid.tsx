@@ -29,15 +29,16 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import DescriptionIcon from '@mui/icons-material/Description'
-import FolderIcon from '@mui/icons-material/Folder'
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
+import { FileIcon } from './FileIcon'
 
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
@@ -69,6 +70,12 @@ const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChan
     </Paper>
   )
 }
+
+export const canDropItemOverFolder = (folderName: string) =>
+  folderName.endsWith('/assets') ||
+  folderName.indexOf('/assets/') !== -1 ||
+  folderName.endsWith('/public') ||
+  folderName.indexOf('/public/') !== -1
 
 /**
  * if `wrap` is enabled, wraps the `children` inside a `TableBody` with Table Heading and Table Component attached
@@ -127,16 +134,14 @@ export const FileTableListBody = ({
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
+
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+
   const tableColumns = {
     name: (
       <span className={styles.cellName}>
-        {file.isFolder ? (
-          <FolderIcon fontSize="inherit" />
-        ) : file.Icon ? (
-          <file.Icon fontSize="inherit" />
-        ) : (
-          <DescriptionIcon fontSize="inherit" />
-        )}
+        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
       </span>
     ),
@@ -175,6 +180,8 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
+  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
       className={styles.fileListItemContainer}
@@ -194,16 +201,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           fontSize: iconSize
         }}
       >
-        {props.item.isFolder ? (
-          <FolderIcon fontSize={'inherit'} />
-        ) : props.item.Icon ? (
-          <props.item.Icon fontSize={'inherit'} />
-        ) : (
-          <>
-            <DescriptionIcon fontSize={'inherit'} />
-            <span className={styles.extensionRibbon}>{props.item.type}</span>
-          </>
-        )}
+        <FileIcon thumbnailURL={thumbnailURL} type={props.item.type} isFolder={props.item.isFolder} showRibbon />
       </div>
       {props.isRenaming ? (
         <RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />
@@ -384,10 +382,10 @@ export function FileBrowserItem({
     : useDrop({
         accept: [...SupportedFileTypes],
         drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        canDrop: (dropItem: Record<string, unknown>) =>
+          item.isFolder && ('key' in dropItem || canDropItemOverFolder(item.key)),
         collect: (monitor) => ({
-          isOver: monitor.isOver(),
-          canDrop: !!monitor.canDrop(),
-          moni: monitor.getItemType()
+          isOver: monitor.canDrop() && monitor.isOver()
         })
       })
 
@@ -412,7 +410,7 @@ export function FileBrowserItem({
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: item.isFolder ? (isOver ? '3px solid #ccc' : '') : '' }}>
+        <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
               <FileGridItem

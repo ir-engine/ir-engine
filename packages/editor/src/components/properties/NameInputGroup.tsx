@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getOptionalComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -54,14 +54,14 @@ const styledNameInputGroupStyle = {
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {
-  const nameComponent = useComponent(props.entity, NameComponent)
-
+  const nameComponent = useOptionalComponent(props.entity, NameComponent)
   // temp name is used to store the name of the entity, which is then updated upon onBlur event
   const tempName = useHookstate('')
 
   useEffect(() => {
+    if (!nameComponent) return
     tempName.set(nameComponent.value)
-  }, [nameComponent.value])
+  }, [nameComponent?.value])
 
   const focusedNode = useHookstate<Entity | undefined>(undefined)
   const { t } = useTranslation()
@@ -76,12 +76,14 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   //function called when element get focused
   const onFocus = () => {
+    if (!nameComponent) return
     focusedNode.set(props.entity)
     tempName.set(nameComponent.value)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
+    if (!nameComponent) return
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
     if (nameComponent.value !== tempName.value && props.entity === focusedNode.value) {

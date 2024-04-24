@@ -26,7 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
+import { UUIDComponent } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -34,21 +43,20 @@ import {
   ResourceID,
   ResourceTransforms
 } from '../../../assets/classes/ModelTransform'
-import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, getOptionalComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
-import { MeshComponent } from '../../components/MeshComponent'
 import { ModelComponent } from '../../components/ModelComponent'
-import { UUIDComponent } from '../../components/UUIDComponent'
 
-export function getModelSceneID(entity: Entity): SceneID {
-  if (!hasComponent(entity, ModelComponent)) {
-    throw new Error('Entity does not have a ModelComponent')
+export function getModelSceneID(entity: Entity): string {
+  if (!hasComponent(entity, ModelComponent) || !hasComponent(entity, UUIDComponent)) {
+    return ''
   }
-  if (!hasComponent(entity, UUIDComponent)) {
-    throw new Error('Entity does not have a UUIDComponent')
-  }
-  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SceneID
+  return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
+}
+
+export function useModelSceneID(entity: Entity): string {
+  const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+  const model = useOptionalComponent(entity, ModelComponent)?.value
+  if (!uuid || !model) return ''
+  return uuid + '-' + model.src
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {

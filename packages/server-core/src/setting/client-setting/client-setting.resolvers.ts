@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   ClientSettingDatabaseType,
@@ -36,7 +36,7 @@ import {
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../../../common/src/utils/datetime-sql'
 
 export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
   let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
@@ -62,6 +62,8 @@ export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSett
   if (typeof themeModes === 'string') {
     themeModes = JSON.parse(themeModes)
   }
+
+  if (typeof rawData.mediaSettings === 'string') rawData.mediaSettings = JSON.parse(rawData.mediaSettings)
 
   return {
     ...rawData,
@@ -89,7 +91,7 @@ export const clientSettingExternalResolver = resolve<ClientSettingType, HookCont
 export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
@@ -101,7 +103,8 @@ export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, Hook
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
         themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
+        themeModes: JSON.stringify(rawData.themeModes),
+        mediaSettings: JSON.stringify(rawData.mediaSettings)
       }
     }
   }
@@ -118,7 +121,8 @@ export const clientSettingPatchResolver = resolve<ClientSettingType, HookContext
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
         themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
+        themeModes: JSON.stringify(rawData.themeModes),
+        mediaSettings: JSON.stringify(rawData.mediaSettings)
       }
     }
   }

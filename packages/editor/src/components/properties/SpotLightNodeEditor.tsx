@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
 

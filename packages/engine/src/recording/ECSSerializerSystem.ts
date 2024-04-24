@@ -23,24 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-
-import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag } from '../networking/serialization/DataReader'
-import { SerializationSchema } from '../networking/serialization/Utils'
+import { Entity, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  ViewCursor,
+  checkBitflag,
   createViewCursor,
   readUint32,
   readUint8,
   rewindViewCursor,
+  SerializationSchema,
   sliceViewCursor,
   spaceUint32,
-  spaceUint8
-} from '../networking/serialization/ViewCursor'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
+  spaceUint8,
+  ViewCursor
+} from '@etherealengine/network'
 
 export type SerializedChunk = {
   startTimecode: number
@@ -108,9 +103,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
         data.entities.push(uuid)
       }
 
-      // reuse networkid as temp hack to reuse writeEntity
-      // maybe we should rename networkid to entityid in writeEntity args?
-      const entityIndex = data.entities.indexOf(uuid) as NetworkId
+      const entityIndex = data.entities.indexOf(uuid)
 
       count += writeEntity(view, entityIndex, entity, schema) ? 1 : 0
     }
@@ -158,7 +151,7 @@ export type ECSSerializer = ReturnType<typeof createSerializer>
 export const ActiveSerializers = new Set<ECSSerializer>()
 
 export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationSchema: SerializationSchema[]) => {
-  const entityIndex = readUint32(v) as NetworkId
+  const entityIndex = readUint32(v)
   const changeMask = readUint8(v)
 
   const entity = UUIDComponent.getEntityByUUID(entities[entityIndex])

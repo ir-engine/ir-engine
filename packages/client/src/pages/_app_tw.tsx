@@ -33,13 +33,18 @@ import { defaultAction } from '@etherealengine/client-core/src/common/components
 import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import PublicRouter, { CenteredLoadingCircle } from '../route/public_tw'
-import { ThemeContextProvider } from '../themes/themeContext'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
+import PublicRouter from '../route/public_tw'
 
+import {
+  AdminClientSettingsState,
+  ClientSettingService
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { useTranslation } from 'react-i18next'
 import '../themes/base.css'
 import '../themes/components.css'
@@ -59,7 +64,7 @@ const AppPage = () => {
   }, [])
 
   useEffect(() => {
-    if (!isLoggedIn.value || projectComponents) return
+    if (!isLoggedIn.value || projectComponents.length) return
     loadWebappInjection().then((result) => {
       setProjectComponents(result)
     })
@@ -70,7 +75,7 @@ const AppPage = () => {
   }, [selfUser.id])
 
   if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
-    return <CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (
@@ -84,25 +89,30 @@ const AppPage = () => {
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useHookstate(getMutableState(NotificationState))
-
-  NotificationState.useNotifications()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
 
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
+  useEffect(() => {
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
+  }, [clientSettingState?.updateNeeded?.value])
+
   return (
-    <ThemeContextProvider>
-      <SnackbarProvider
-        ref={notistackRef as any}
-        maxSnack={7}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        action={defaultAction}
-      >
-        <AppPage />
-        <Debug />
-      </SnackbarProvider>
-    </ThemeContextProvider>
+    <>
+      <ThemeProvider>
+        <SnackbarProvider
+          ref={notistackRef as any}
+          maxSnack={7}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          action={defaultAction}
+        >
+          <AppPage />
+          <Debug />
+        </SnackbarProvider>
+      </ThemeProvider>
+    </>
   )
 }
 

@@ -27,24 +27,29 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
-  getComponent,
+  getOptionalComponent,
   hasComponent,
+  removeComponent,
+  setComponent,
   useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { Entity, EntityUUID } from '@etherealengine/ecs'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
+import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import { PanelIcon } from '../layout/Panel'
+import { ConvertOldCollider } from './ConvertOldCollider'
 import NameInputGroup from './NameInputGroup'
 import TransformPropertyGroup from './TransformPropertyGroup'
 
@@ -61,13 +66,18 @@ const visibleInputGroupStyle = {
   }
 }
 
-export const CoreNodeEditor = (props) => {
+export const CoreNodeEditor = (props: { entity: Entity }) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
 
-  useOptionalComponent(props.entity, VisibleComponent)
+  const exportAsGLTF = () => {
+    setComponent(props.entity, ModelComponent)
+    exportRelativeGLTF(props.entity, editorState.projectName.value!, editorState.sceneName.value + '.gltf')
+    removeComponent(props.entity, ModelComponent)
+  }
+
   const [locked, setLocked] = useState(editorState.lockPropertiesPanel.value !== '')
-  const [visible, setVisible] = useState(hasComponent(props.entity, VisibleComponent))
+  const visible = useOptionalComponent(props.entity, VisibleComponent)
 
   useEffect(() => {
     const entities = getMutableState(SelectionState).selectedEntities.value
@@ -79,17 +89,15 @@ export const CoreNodeEditor = (props) => {
       }
     } else {
       if (currentEntity) {
-        getMutableState(EditorState).lockPropertiesPanel.set(
-          typeof currentEntity === 'string' ? (currentEntity as EntityUUID) : getComponent(currentEntity, UUIDComponent)
-        )
+        getMutableState(EditorState).lockPropertiesPanel.set(currentEntity)
       }
     }
   }, [locked])
 
-  useEffect(() => {
-    const nodes = getMutableState(SelectionState).selectedEntities.value
-    EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, visible)
-  }, [visible])
+  const setVisible = (visible: boolean) => {
+    const entities = SelectionState.getSelectedEntities()
+    EditorControlFunctions.addOrRemoveComponent(entities, VisibleComponent, visible)
+  }
 
   return (
     <div style={propertiesHeaderStyle}>
@@ -116,18 +124,26 @@ export const CoreNodeEditor = (props) => {
       </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} />
-        {!hasComponent(props.entity, SceneTagComponent) && (
+        {!getOptionalComponent(props.entity, EntityTreeComponent)?.parentEntity ? (
           <>
+            <PropertiesPanelButton onClick={exportAsGLTF}>Export as GLTF</PropertiesPanelButton>
+          </>
+        ) : (
+          <>
+            <ConvertOldCollider entity={props.entity} />
             <InputGroup
               name="Visible"
               label={t('editor:properties.lbl-visible')}
               {...{ style: { visibleInputGroupStyle } }}
             >
-              <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={setVisible} />
+              <BooleanInput
+                value={hasComponent(props.entity, VisibleComponent)}
+                onChange={() => setVisible(!visible?.value)}
+              />
             </InputGroup>
+            <TransformPropertyGroup entity={props.entity} />
           </>
         )}
-        <TransformPropertyGroup entity={props.entity} />
       </div>
     </div>
   )

@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
+import { createTestLocation } from '../../../tests/util/createTestLocation'
 import { createFeathersKoaApp } from '../../createApp'
 
 describe('invite.service', () => {
@@ -47,8 +47,8 @@ describe('invite.service', () => {
   })
 
   before(async () => {
-    const name = ('test-invite-user-name-' + v1()) as UserName
-    const avatarName = 'test-invite-avatar-name-' + v1()
+    const name = ('test-invite-user-name-' + uuidv4()) as UserName
+    const avatarName = 'test-invite-avatar-name-' + uuidv4()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -61,28 +61,7 @@ describe('invite.service', () => {
       scopes: []
     })
 
-    testLocation = await app.service(locationPath).create(
-      {
-        name: `test-location-name-${v1()}`,
-        slugifiedName: '',
-        sceneId: `test-invite-scene-${v1()}` as SceneID,
-        maxUsersPerInstance: 30,
-        locationSetting: {
-          id: '',
-          locationType: 'public',
-          audioEnabled: true,
-          videoEnabled: true,
-          faceStreamingEnabled: false,
-          screenSharingEnabled: false,
-          locationId: '' as LocationID,
-          createdAt: '',
-          updatedAt: ''
-        },
-        isLobby: false,
-        isFeatured: false
-      },
-      { isInternal: true }
-    )
+    testLocation = await createTestLocation(app)
   })
 
   after(async () => {
@@ -93,7 +72,7 @@ describe('invite.service', () => {
   inviteTypes.forEach((inviteType) => {
     it(`should create an invite with type ${inviteType}`, async () => {
       const inviteType = 'friend'
-      const token = `${v1()}@etherealengine.io`
+      const token = `${uuidv4()}@etherealengine.io`
       const identityProviderType = 'email'
 
       const createdInvite = await app.service(invitePath).create(

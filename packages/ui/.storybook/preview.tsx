@@ -23,20 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ArgsTable, Description, Primary, PRIMARY_STORY, Stories, Subtitle, Title } from '@storybook/addon-docs'
+import { Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs'
 import { Preview } from '@storybook/react'
-import React from 'react'
+import React, { lazy } from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
-import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
+import '../../client/src/themes/base.css'
+import '../../client/src/themes/components.css'
+import '../../client/src/themes/utilities.css'
+const Engine = lazy(() => import('@etherealengine/client/src/engine'))
 
 export const decorators = [
   withRouter,
   (Story) => {
     return (
-      <ThemeContextProvider>
-        <Story />
-      </ThemeContextProvider>
+      <Engine>
+        <ThemeProvider>
+          <Story />
+        </ThemeProvider>
+      </Engine>
     )
   }
 ]
@@ -47,37 +53,35 @@ const preview: Preview = {
       description: 'Ethereal Engine',
       defaultValue: false
     }
+  },
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/
+      }
+    },
+    options: {
+      storySort: {
+        order: ['Pages', 'Admin', 'Components', 'Primitives', 'Addons', 'Expermiental']
+      }
+    },
+    docs: {
+      source: {
+        type: 'code'
+      },
+      page: () => (
+        <>
+          <Title />
+          <Subtitle />
+          <Description />
+          <Primary />
+          <Stories />
+        </>
+      )
+    },
+    actions: { argTypesRegex: '^on[A-Z].*' }
   }
 }
 
 export default preview
-
-export const parameters = {
-  controls: {
-    matchers: {
-      color: /(background|color)$/i,
-      date: /Date$/
-    }
-  },
-  options: {
-    storySort: {
-      order: ['Pages', 'Admin', 'Components', 'Primitives', 'Addons', 'Expermiental']
-    }
-  },
-  docs: {
-    source: {
-      type: 'code'
-    },
-    page: () => (
-      <>
-        <Title />
-        <Subtitle />
-        <Description />
-        <Primary />
-        <ArgsTable story={PRIMARY_STORY} />
-        <Stories />
-      </>
-    )
-  },
-  actions: { argTypesRegex: '^on[A-Z].*' }
-}

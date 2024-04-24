@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { matches } from '@etherealengine/hyperflux'
 
 export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',

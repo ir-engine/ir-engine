@@ -23,181 +23,137 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { ReactNode, useEffect } from 'react'
+import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
-import Table from '@etherealengine/ui/src/primitives/mui/Table'
-import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
-import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
-import TableContainer from '@etherealengine/ui/src/primitives/mui/TableContainer'
-import TableHead from '@etherealengine/ui/src/primitives/mui/TableHead'
-import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePagination'
-import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
-import TableSortLabel from '@etherealengine/ui/src/primitives/mui/TableSortLabel'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import Table, {
+  TableBody,
+  TableCell,
+  TableHeadRow,
+  TableHeaderCell,
+  TablePagination,
+  TableRow
+} from '@etherealengine/ui/src/primitives/tailwind/Table'
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import { useHookstate } from '@hookstate/core'
+import { useTranslation } from 'react-i18next'
 
-import { FeathersOrder, useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import styles from '../styles/table.module.scss'
-
-const SortDirection = {
-  '-1': 'desc',
-  0: 'asc',
-  1: 'asc'
-} as const
-
-interface Props {
-  query: ReturnType<typeof useFind>
-  rows: any
-  column: any
-  allowSort?: boolean
-}
-
-interface Data {
-  calories: number
-  carbs: number
-  fat: number
-  name: string
-  protein: number
-}
-
-interface HeadCell {
-  disablePadding: boolean
-  id: keyof Data
-  label: string
-  align?: 'right'
-  minWidth: any
+export interface ITableHeadCell {
+  id: string | number
+  label: string | JSX.Element
   sortable?: boolean
+  className?: string
 }
 
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1
-  }
-  return 0
-}
-
-function getComparator<Key extends keyof any>(
-  order: FeathersOrder,
-  orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-  return order === -1 ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy)
-}
-
-function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0])
-    if (order !== 0) {
-      return order
-    }
-    return a[1] - b[1]
-  })
-  return stabilizedThis.map((el) => el[0])
-}
-
-interface EnhancedTableProps {
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data, order: FeathersOrder) => void
+interface TableHeadProps {
+  onRequestSort: (property: string | number, order: FeathersOrder) => void
   order: FeathersOrder
-  orderBy: string
-  rowCount: number
-  columns: HeadCell[]
+  orderBy: string | number
+  columns: ITableHeadCell[]
 }
 
-const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedTableProps) => {
-  const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property, order)
+const TableHead = ({ order, orderBy, onRequestSort, columns }: TableHeadProps) => {
+  const SortArrow = ({ columnId }: { columnId: string | number }) => {
+    if (columnId === orderBy) {
+      if (order === 1) {
+        return <HiArrowSmallUp onClick={() => onRequestSort(columnId, -1)} />
+      }
+      return <HiArrowSmallDown onClick={() => onRequestSort(columnId, 1)} />
+    }
+    return <HiArrowSmallUp className={'opacity-0 hover:opacity-50'} />
   }
 
   return (
-    <TableHead>
-      <TableRow>
-        {columns.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.align}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? SortDirection[order] : false}
-            className={styles.tableCellHeader}
-            style={{ minWidth: headCell.minWidth }}
-          >
-            {(headCell.id as any) === 'action' || (headCell.id as any) === 'select' ? (
-              <span>{headCell.label} </span>
-            ) : typeof headCell.sortable === 'undefined' || headCell.sortable === true ? (
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? SortDirection[order] : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-                classes={{ icon: styles.spanWhite, active: styles.spanWhite }}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <span style={{ display: 'none', border: 0, clip: 'rect(0 0 0 0)' }}>
-                    {order === -1 ? 'sorted descending' : 'sorted ascending'}
-                  </span>
-                ) : null}
-              </TableSortLabel>
-            ) : (
-              <div className={styles.spanWhite}>{headCell.label}</div>
-            )}
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
+    <TableHeadRow>
+      {columns.map((column) => (
+        <TableHeaderCell key={column.id} className={column.className}>
+          {column.sortable ? (
+            <span className="flex items-center gap-2">
+              {column.label}
+              {<SortArrow columnId={column.id} />}
+            </span>
+          ) : (
+            column.label
+          )}
+        </TableHeaderCell>
+      ))}
+    </TableHeadRow>
   )
 }
 
-const TableComponent = ({ rows, column, allowSort, query }: Props) => {
-  const [orderBy, order] = (Object.entries(query.sort)[0] as [keyof Data, FeathersOrder]) ?? []
+type RowType = Record<string | 'className' | 'id', string | ReactNode>
 
-  const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data, order: FeathersOrder) => {
-    query.setSort({ [property]: order === 1 ? -1 : 1 })
-  }
+interface DataTableProps {
+  query: ReturnType<typeof useFind>
+  rows: RowType[]
+  columns: ITableHeadCell[]
+}
 
-  return (
-    <React.Fragment>
-      <TableContainer className={styles.tableContainer}>
-        <Table stickyHeader aria-label="sticky table">
-          <EnhancedTableHead
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            rowCount={rows.length}
-            columns={column}
-          />
-          <TableBody>
-            {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows).map((row, index) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
-                  {column.map((column, index) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={index} align={column.align} className={styles.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+const DataTable = ({ query, columns, rows }: DataTableProps) => {
+  const { t } = useTranslation()
+  const [orderBy, order] = (Object.entries(query.sort)[0] as [string | number, FeathersOrder]) ?? ['', 0]
+
+  const storedRows = useHookstate<{ fetched: boolean; rows: RowType[] }>({ fetched: false, rows: [] })
+
+  useEffect(() => {
+    if (['success', 'error'].includes(query.status)) {
+      storedRows.set({ fetched: true, rows })
+    }
+  }, [rows, query.status])
+
+  return !storedRows.fetched.value ? (
+    <div className="flex animate-pulse flex-col gap-2">
+      {Array.from({ length: 20 }, (_, i) => i).map((idx) => (
+        <div
+          key={idx}
+          className="h-12 w-full odd:bg-gray-300 even:bg-gray-200 dark:odd:bg-gray-800 dark:even:bg-gray-700"
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="relative h-full">
+      {query.status === 'pending' && (
+        <div className="absolute left-1/2 top-1/2 flex h-8 -translate-x-1/2 -translate-y-1/2 items-center">
+          <LoadingView className="mx-1 h-8 w-8" />
+          <Text className="mx-1">{t('common:table.refetching')}</Text>
+        </div>
+      )}
+      <Table containerClassName={`${query.status === 'pending' && 'opacity-50'} h-[calc(100%_-_160px)]`}>
+        <TableHead
+          order={order}
+          orderBy={orderBy}
+          onRequestSort={(property, order) => query.setSort({ [property]: order })}
+          columns={columns}
+        />
+        <TableBody>
+          {storedRows.rows.length === 0 && (
+            <TableRow>
+              <TableCell {...{ colSpan: columns.length }} className="text-center italic">
+                {t('common:table.noData')}
+              </TableCell>
+            </TableRow>
+          )}
+          {storedRows.rows.get(NO_PROXY).map((row, rowIdx) => (
+            <TableRow key={typeof row['id'] === 'string' ? row['id'] : rowIdx}>
+              {columns.map((column, columnIdx) => (
+                <TableCell key={columnIdx} className={column.className}>
+                  {row[column.id]}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <TablePagination
-        rowsPerPage={query.limit}
-        rowsPerPageOptions={[20]}
-        // rowsPerPageOptions={[10, 20, 50, 100]}
-        onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          query.setLimit(parseInt(event.target.value, 10))
-        }}
-        component="div"
-        count={query.total}
-        page={query.page}
-        onPageChange={(event, page) => query.setPage(page)}
-        className={styles.tableFooter}
+        totalPages={Math.ceil(query.total / query.limit)}
+        currentPage={query.page}
+        onPageChange={(newPage) => query.setPage(newPage)}
       />
-    </React.Fragment>
+    </div>
   )
 }
 
-export default TableComponent
+export default DataTable

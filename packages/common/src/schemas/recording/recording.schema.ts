@@ -19,12 +19,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { TypedRecord, TypedString } from '../../types/TypeboxUtils'
+import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -38,7 +36,7 @@ export type RecordingID = OpaqueType<'RecordingID'> & string
 export const recordingSchemaType = Type.Object(
   {
     user: Type.Array(Type.String()),
-    peers: TypedRecord(TypedString<PeerID>({ format: 'uuid' }), Type.Array(TypedString<DataChannelType>()))
+    peers: Type.Record(Type.String(), Type.Array(Type.String()))
   },
   { $id: 'RecordingSchema', additionalProperties: false }
 )

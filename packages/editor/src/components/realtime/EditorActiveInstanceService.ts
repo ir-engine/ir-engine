@@ -28,16 +28,15 @@ import {
   LocationInstanceState
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import logger from '@etherealengine/common/src/logger'
 import {
   InstanceActiveType,
   InstanceID,
   LocationID,
-  SceneID,
   instanceActivePath,
   instanceProvisionPath
 } from '@etherealengine/common/src/schema.type.module'
-import logger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({
@@ -47,7 +46,7 @@ export const EditorActiveInstanceState = defineState({
     fetching: false
   }),
 
-  provisionServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: SceneID) => {
+  provisionServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
     const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
@@ -71,7 +70,7 @@ export const EditorActiveInstanceState = defineState({
     }
   },
 
-  getActiveInstances: async (sceneId: SceneID) => {
+  getActiveInstances: async (sceneId: string) => {
     getMutableState(EditorActiveInstanceState).merge({ fetching: true })
     const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
       query: { sceneId }

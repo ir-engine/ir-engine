@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
-
 import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   InstanceAttendanceType,
@@ -47,7 +46,7 @@ import {
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserAvatarType, userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { UserSettingType, userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -114,6 +113,19 @@ export const userExternalResolver = resolve<UserType, HookContext>({
         return {}
       }
   }),
+  identityProviders: virtual(async (user, context) => {
+    return (
+      (await context.app.service(identityProviderPath).find({
+        query: {
+          userId: user.id
+        },
+        paginate: false
+      })) as IdentityProviderType[]
+    ).map((ip) => {
+      const { oauthToken, ...returned } = ip
+      return returned
+    })
+  }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
       query: {
@@ -155,7 +167,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({
 
 export const userDataResolver = resolve<UserType, HookContext>({
   id: async (id) => {
-    return id || (v4() as UserID)
+    return id || (uuidv4() as UserID)
   },
   name: async (name) => {
     return name || (('Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)) as UserName)

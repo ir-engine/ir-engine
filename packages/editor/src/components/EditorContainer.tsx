@@ -23,34 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
+import multiLogger from '@etherealengine/common/src/logger'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Dialog from '@mui/material/Dialog'
+import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
-
 import 'rc-dock/dist/rc-dock.css'
-
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-
-import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import Dialog from '@mui/material/Dialog'
-
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
-import { SceneServices, SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import { t } from 'i18next'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
+import { onNewScene, saveSceneGLTF, saveSceneJSON } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
+import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
+import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
@@ -63,12 +62,12 @@ import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
-import { GraphPanelTab } from './graph/GraphPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
+import { VisualScriptPanelTab } from './visualScript/VisualScriptPanel'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
@@ -89,7 +88,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -142,9 +141,10 @@ const onEditorError = (error) => {
 
 const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
-  editorState.sceneModified.set(false)
+  const sceneState = getMutableState(SceneState)
+  sceneState.sceneModified.set(false)
   editorState.projectName.set(null)
-  editorState.sceneID.set(null)
+  editorState.scenePath.set(null)
   editorState.sceneName.set(null)
   RouterState.navigate('/studio')
 
@@ -161,9 +161,8 @@ const onCloseProject = () => {
 }
 
 const onSaveAs = async () => {
-  const { projectName, sceneName } = getState(EditorState)
-  const editorState = getMutableState(EditorState)
-  const sceneLoaded = getState(EngineState).sceneLoaded
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
+  const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
   if (!sceneLoaded) {
@@ -173,20 +172,18 @@ const onSaveAs = async () => {
 
   const abortController = new AbortController()
   try {
-    if (sceneName || editorState.sceneModified.value) {
+    if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
-        DialogState.setDialog(
-          <SaveNewSceneDialog initialName={Engine.instance.scene.name} onConfirm={resolve} onCancel={resolve} />
-        )
+        DialogState.setDialog(<SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />)
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveScene(projectName, result.name, abortController.signal)
-        editorState.sceneModified.set(false)
+        await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
+        getMutableState(SceneState).sceneModified.set(false)
         const newSceneData = await Engine.instance.api
-          .service(scenePath)
-          .get(null, { query: { project: projectName, name: result.name, metadataOnly: true } })
-        setSceneInState(newSceneData.scenePath)
+          .service(assetPath)
+          .find({ query: { assetURL: getState(EditorState).scenePath! } })
+        getMutableState(EditorState).scenePath.set(newSceneData.data[0].assetURL as any)
       }
     }
   } catch (error) {
@@ -197,16 +194,25 @@ const onSaveAs = async () => {
   }
 }
 
+const onImportSettings = () => {
+  DialogState.setDialog(<ImportSettingsPanel />)
+}
+
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
-  if (projectName) await inputFileWithAddToScene({ projectName })
+  if (projectName) {
+    try {
+      await inputFileWithAddToScene({ projectName })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
 }
 
-const onSaveScene = async () => {
-  const { projectName, sceneName } = getState(EditorState)
-  const { sceneModified } = getState(EditorState)
-  const { sceneLoaded } = getState(EngineState)
+const onSaveScene = async (gltf = false) => {
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
+  const { sceneModified, sceneLoaded } = getState(SceneState)
 
   if (!projectName) return
 
@@ -249,9 +255,13 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    await saveScene(projectName, sceneName, abortController.signal)
+    if (gltf) {
+      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+    } else {
+      await saveSceneJSON(sceneAssetID, projectName, sceneName, abortController.signal)
+    }
 
-    getMutableState(EditorState).sceneModified.set(false)
+    getMutableState(SceneState).sceneModified.set(false)
 
     DialogState.setDialog(null)
   } catch (error) {
@@ -270,13 +280,22 @@ const generateToolbarMenu = () => {
       action: onNewScene
     },
     {
-      name: t('editor:menubar.saveScene'),
+      name: t('editor:menubar.saveSceneJSON'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: onSaveScene
+      action: () => onSaveScene(false)
     },
+    /** @todo - support GLTF scenes in studio */
+    // {
+    //   name: t('editor:menubar.saveSceneGLTF'),
+    //   action: () => onSaveScene(true)
+    // },
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
+    },
+    {
+      name: t('editor:menubar.importSettings'),
+      action: onImportSettings
     },
     {
       name: t('editor:menubar.importAsset'),
@@ -325,7 +344,7 @@ const defaultLayout: LayoutData = {
             tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
           },
           {
-            tabs: [PropertiesPanelTab, GraphPanelTab]
+            tabs: [PropertiesPanelTab, VisualScriptPanelTab]
           }
         ]
       }
@@ -336,7 +355,7 @@ const defaultLayout: LayoutData = {
 const tabs = [
   HierarchyPanelTab,
   PropertiesPanelTab,
-  GraphPanelTab,
+  VisualScriptPanelTab,
   MaterialLibraryPanelTab,
   ViewportPanelTab,
   ProjectBrowserPanelTab,
@@ -347,9 +366,10 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneName, projectName, sceneID, sceneModified } = useHookstate(getMutableState(EditorState))
-  const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
+  const { sceneAssetID, sceneName, projectName, scenePath: sceneID } = useHookstate(getMutableState(EditorState))
+  const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
+  const sceneQuery = useFind(assetPath, { query: { assetURL: sceneID.value ?? '' } }).data
+  const sceneURL = sceneQuery?.[0]?.assetURL
 
   const sceneLoading = sceneID.value && !sceneLoaded.value
 
@@ -387,7 +407,7 @@ const EditorContainer = () => {
     }
   })
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
+  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene())
 
   useEffect(() => {
     if (!sceneModified.value) return
@@ -405,16 +425,19 @@ const EditorContainer = () => {
   }, [sceneModified])
 
   useEffect(() => {
-    if (!sceneID.value) return
-    return SceneServices.setCurrentScene(sceneID.value)
-  }, [sceneID])
+    if (!sceneURL) return
+    const [_, project, scene] = sceneID.value?.split('/') ?? []
+    sceneName.set(scene ?? null)
+    projectName.set(project ?? null)
+    sceneAssetID.set(sceneQuery[0].id)
+    return SceneServices.setCurrentScene(sceneURL)
+  }, [sceneURL])
 
   useEffect(() => {
-    if (!activeScene.value) return
-    const scene = getState(SceneState).scenes[activeScene.value]
-    sceneName.set(scene.metadata.name)
-    projectName.set(scene.metadata.project)
-  }, [activeScene])
+    return () => {
+      getMutableState(SelectionState).selectedEntities.set([])
+    }
+  }, [sceneID])
 
   useEffect(() => {
     if (!dockPanelRef.current) return

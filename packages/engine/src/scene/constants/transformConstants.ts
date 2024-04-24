@@ -44,7 +44,9 @@ export const TransformAxis = {
   XY: 'XY' as const,
   YZ: 'YZ' as const,
   XZ: 'XZ' as const,
-  XYZ: 'XYZ' as const
+  XYZ: 'XYZ' as const,
+  XYZE: 'XYZE' as const,
+  E: 'E' as const
 }
 export const TransformAxisConstraints = {
   X: new Vector3(1, 0, 0),

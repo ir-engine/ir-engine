@@ -1,0 +1,308 @@
+{
+  "nodes": [
+    {
+      "id": "5556f608-9c64-4ecb-b1ba-1b76af0e5e97",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "943.9152643785044",
+        "positionY": "-1406.6597741695232"
+      },
+      "parameters": {
+        "text": {
+          "value": "flip on"
+        }
+      }
+    },
+    {
+      "id": "cf77ce07-8857-43bf-8639-003247a0b6f0",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "942.7363828108191",
+        "positionY": "-1245.1366865871448"
+      },
+      "parameters": {
+        "text": {
+          "value": "flip off"
+        }
+      }
+    },
+    {
+      "id": "5e739a30-eff1-45da-bf57-6c9795a03e8a",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "924.572069966819",
+        "positionY": "-810.0974077732378"
+      },
+      "parameters": {
+        "text": {
+          "value": "switch int 2"
+        }
+      }
+    },
+    {
+      "id": "55dcae13-fbb1-40d4-986e-364cc29adc1b",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "933.9746521070185",
+        "positionY": "-1081.4933546414165"
+      },
+      "parameters": {
+        "text": {
+          "value": "switch string one"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "fb2f4330-775f-4ee9-8001-163e33ed3d33",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "4269bf17-d4f2-4a7d-9a1e-fcf278c3c085",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "226.5041735003543",
+        "positionY": "-875.4339612910497"
+      },
+      "parameters": {
+        "text": {
+          "value": "sequence 3"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "f6718e64-6c93-4cf6-9b45-5909fa47b76a",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "f70e573e-c6dd-4fcf-a259-9eeffc25889d",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "227.24875893950173",
+        "positionY": "-1049.9384766259373"
+      },
+      "parameters": {
+        "text": {
+          "value": "sequence 2"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "434e3471-40bf-4bb6-80da-3859163e6152",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "36f3024e-0a61-42aa-a46c-25183250984f",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "228.89055116619267",
+        "positionY": "-1215.4007399579905"
+      },
+      "parameters": {
+        "text": {
+          "value": "sequence 1"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "434e3471-40bf-4bb6-80da-3859163e6152",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "393.8814547918079",
+        "positionY": "-1404.3707457051596"
+      },
+      "parameters": {
+        "text": {
+          "value": "test failed"
+        },
+        "severity": {
+          "value": "error"
+        }
+      }
+    },
+    {
+      "id": "bd3e8158-0858-4665-b697-9b5bda1f6051",
+      "type": "debug/log",
+      "metadata": {
+        "positionX": "-313.7346571886949",
+        "positionY": "-1276.2237911602447"
+      },
+      "parameters": {
+        "text": {
+          "value": "branch true"
+        }
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "f857ea8d-329d-4288-a5d0-0bebe995f21f",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "f857ea8d-329d-4288-a5d0-0bebe995f21f",
+      "type": "flow/decision/sequence",
+      "metadata": {
+        "positionX": "-55.5989227632597",
+        "positionY": "-1284.9192450671562"
+      },
+      "configuration": {
+        "numOutputs": 3
+      },
+      "flows": {
+        "1": {
+          "nodeId": "36f3024e-0a61-42aa-a46c-25183250984f",
+          "socket": "flow"
+        },
+        "2": {
+          "nodeId": "f70e573e-c6dd-4fcf-a259-9eeffc25889d",
+          "socket": "flow"
+        },
+        "3": {
+          "nodeId": "4269bf17-d4f2-4a7d-9a1e-fcf278c3c085",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "f6718e64-6c93-4cf6-9b45-5909fa47b76a",
+      "type": "flow/decision/switch/string",
+      "metadata": {
+        "positionX": "584.7074020035554",
+        "positionY": "-1090.3842308668509"
+      },
+      "configuration": {
+        "numCases": 2
+      },
+      "parameters": {
+        "1": {
+          "value": "one"
+        },
+        "2": {
+          "value": "two"
+        },
+        "selection": {
+          "value": "one"
+        }
+      },
+      "flows": {
+        "1": {
+          "nodeId": "55dcae13-fbb1-40d4-986e-364cc29adc1b",
+          "socket": "flow"
+        },
+        "2": {
+          "nodeId": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+          "socket": "flow"
+        },
+        "default": {
+          "nodeId": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "fb2f4330-775f-4ee9-8001-163e33ed3d33",
+      "type": "flow/decision/switch/integer",
+      "metadata": {
+        "positionX": "573.2310448888344",
+        "positionY": "-804.2107228237328"
+      },
+      "configuration": {
+        "numCases": 2
+      },
+      "parameters": {
+        "1": {
+          "value": "1"
+        },
+        "2": {
+          "value": "2"
+        },
+        "selection": {
+          "value": "2"
+        }
+      },
+      "flows": {
+        "1": {
+          "nodeId": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+          "socket": "flow"
+        },
+        "2": {
+          "nodeId": "5e739a30-eff1-45da-bf57-6c9795a03e8a",
+          "socket": "flow"
+        },
+        "default": {
+          "nodeId": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "434e3471-40bf-4bb6-80da-3859163e6152",
+      "type": "flow/decision/flipFlop",
+      "metadata": {
+        "positionX": "750.0387235035943",
+        "positionY": "-1309.5336209448742"
+      },
+      "flows": {
+        "on": {
+          "nodeId": "5556f608-9c64-4ecb-b1ba-1b76af0e5e97",
+          "socket": "flow"
+        },
+        "off": {
+          "nodeId": "cf77ce07-8857-43bf-8639-003247a0b6f0",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "0447fb4e-147e-4c88-a1a0-b21e4b5ba2b2",
+      "type": "flow/decision/branch",
+      "metadata": {
+        "positionX": "-598.4021707150275",
+        "positionY": "-1115.063684605178"
+      },
+      "parameters": {
+        "condition": {
+          "value": true
+        }
+      },
+      "flows": {
+        "false": {
+          "nodeId": "029ab607-8b6a-4cde-b91c-8819bacc39a8",
+          "socket": "flow"
+        },
+        "true": {
+          "nodeId": "bd3e8158-0858-4665-b697-9b5bda1f6051",
+          "socket": "flow"
+        }
+      }
+    },
+    {
+      "id": "e9a2f6d7-ecf6-41a2-a6cd-fd501dcdbd21",
+      "type": "flow/lifecycle/onStart",
+      "metadata": {
+        "positionX": "-761.9401173296015",
+        "positionY": "-1123.4804730622259"
+      },
+      "flows": {
+        "flow": {
+          "nodeId": "0447fb4e-147e-4c88-a1a0-b21e4b5ba2b2",
+          "socket": "flow"
+        }
+      }
+    }
+  ],
+  "variables": [],
+  "customEvents": []
+}

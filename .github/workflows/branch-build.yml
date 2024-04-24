@@ -36,6 +36,7 @@ jobs:
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
       - run: cp .env.local.default .env.local
+      - run: sed -i 's/localhost/127.0.0.1/g' .env.local
       - name: Config npm registry token
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
         env:
@@ -106,4 +107,5 @@ jobs:
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
       - run: npm run test

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
@@ -34,7 +34,7 @@ import {
   RecordingResourceQuery,
   RecordingResourceType
 } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {
@@ -49,7 +49,7 @@ export const recordingResourceExternalResolver = resolve<RecordingResourceType, 
 
 export const recordingResourceDataResolver = resolve<RecordingResourceType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

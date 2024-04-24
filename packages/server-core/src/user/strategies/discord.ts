@@ -127,7 +127,7 @@ export class DiscordStrategy extends CustomOAuthStrategy {
       redirectConfig = {}
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
-    redirectDomain = `${redirectDomain}/auth/oauth/discord` || config.authentication.callback.discord
+    redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/discord` : config.authentication.callback.discord
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

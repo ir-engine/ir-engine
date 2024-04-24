@@ -2,10 +2,17 @@
   "components": {
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "back": "Back",
+    "configure": "Configure",
+    "continue": "Continue",
     "select": "Select",
     "enter": "Enter",
     "processing": "Processing",
-    "retry": "Retry"
+    "retry": "Retry",
+    "close": "Close",
+    "submit": "Submit",
+    "search": "Search",
+    "copyText": "Copy Text"
   },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
@@ -118,5 +125,21 @@
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
   },
-  "exploreRedirect": "Explore Worlds"
+  "table": {
+    "refetching": "Refetching Data...",
+    "noData": "Data is Empty"
+  },
+  "multiEmailInput": {
+    "placeholder": "Type or paste email addresses and press `Enter`...",
+    "alreadyAdded": "{{email}} has already been added!",
+    "invalidEmail": "{{email}} is not a valid email address!"
+  },
+  "exploreRedirect": "Explore Worlds",
+  "select": {
+    "fetching": "Fetching options...",
+    "filter": "Filter options",
+    "selectOption": "Select Option",
+    "selectOptions": "Select Options"
+  },
+  "timeAgo": "{{time}} ago"
 }

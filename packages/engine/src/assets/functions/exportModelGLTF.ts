@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import createGLTFExporter from './createGLTFExporter'
 
@@ -36,7 +36,8 @@ export default async function exportModelGLTF(
     relativePath: '',
     binary: true,
     includeCustomExtensions: true,
-    embedImages: true
+    embedImages: true,
+    onlyVisible: false
   }
 ) {
   const scene = getComponent(entity, ModelComponent).scene ?? getComponent(entity, GroupComponent)[0]

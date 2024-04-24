@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { CanvasTexture, Texture } from 'three'
-import { isClient } from '../../../../common/functions/getEnvironment'
-import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
@@ -44,9 +44,9 @@ export class KHRMaterialsPBRSpecularGlossinessExtension extends ImporterExtensio
   extendMaterialParams(materialIndex: number, materialParams: { [key: string]: any }): Promise<void> {
     if (!isClient) return Promise.resolve()
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
-    const extension: KHRMaterialsPBRSpecularGlossiness = materialDef.extensions[this.name]
+    const extension: KHRMaterialsPBRSpecularGlossiness = materialDef.extensions[this.name] as any
     const assignDiffuse = async () => {
       if (!extension.diffuseTexture) return
       return parser.assignTexture(materialParams, 'map', extension.diffuseTexture)

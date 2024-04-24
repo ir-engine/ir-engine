@@ -25,16 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   StaticResourceDatabaseType,
   StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { nanoid } from 'nanoid'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
   let metadata = JSON.parse(rawData.metadata) as any
@@ -87,7 +87,7 @@ export const staticResourceExternalResolver = resolve<StaticResourceType, HookCo
 export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
   {
     id: async () => {
-      return v4()
+      return uuidv4()
     },
     sid: async () => {
       return nanoid(8)

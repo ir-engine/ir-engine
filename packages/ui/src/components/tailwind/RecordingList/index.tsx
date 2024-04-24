@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React from 'react'
+import { HiPlay, HiPlusCircle, HiStop } from 'react-icons/hi2'
 import Icon from '../../../primitives/mui/Icon'
 import IconButtonWithTooltip from '../../../primitives/mui/IconButtonWithTooltip'
 
@@ -112,15 +112,15 @@ const RecordingsList = (props: {
                   })
                 }}
               >
-                <StopIcon className="block min-w-6 min-h-6" />
+                <HiStop className="block min-h-6 min-w-6" />
               </button>
             ) : (
               <>
                 <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
-                  <PlayIcon className="block min-w-6 min-h-6" />
+                  <HiPlay className="block min-h-6 min-w-6" />
                 </button>
                 <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
-                  <PlusCircleIcon className="block min-w-6 min-h-6" />
+                  <HiPlusCircle className="block min-h-6 min-w-6" />
                 </button>
               </>
             )}
@@ -131,7 +131,7 @@ const RecordingsList = (props: {
   }
 
   return (
-    <div className="w-full aspect-video">
+    <div className="aspect-video w-full">
       <table className="table w-full">
         {/* head */}
         <thead>

@@ -27,54 +27,58 @@ import { startCase } from 'lodash'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
-import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
+import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { VisualScriptComponent } from '@etherealengine/engine'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
-import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
-import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { usePopoverContextClose } from './PopoverContext'
@@ -86,57 +90,68 @@ export type SceneElementType = {
   type: typeof ItemTypes.Component
 }
 
-export const ComponentShelfCategories: Record<string, Component[]> = {
-  Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [
-    PrimitiveGeometryComponent,
-    GroundPlaneComponent,
-    GroupComponent,
-    ColliderComponent,
-    VariantComponent,
-    SceneDynamicLoadTagComponent,
-    ObjectGridSnapComponent
-  ],
-  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
-  Lighting: [
-    AmbientLightComponent,
-    PointLightComponent,
-    SpotLightComponent,
-    DirectionalLightComponent,
-    HemisphereLightComponent
-  ],
-  FX: [
-    LoopAnimationComponent,
-    ShadowComponent,
-    ParticleSystemComponent,
-    EnvmapComponent,
-    SDFComponent,
-    PostProcessingComponent
-  ],
-  Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [
-    SceneSettingsComponent,
-    EnvMapBakeComponent,
-    CameraSettingsComponent,
-    ScenePreviewCameraComponent,
-    SkyboxComponent,
-    SplineTrackComponent,
-    SplineComponent,
-    TextComponent
-  ]
-}
+export const ComponentShelfCategoriesState = defineState({
+  name: 'ee.editor.ComponentShelfCategories',
+  initial: () => {
+    return {
+      Files: [
+        ModelComponent,
+        VolumetricComponent,
+        PositionalAudioComponent,
+        AudioAnalysisComponent,
+        VideoComponent,
+        ImageComponent
+      ],
+      'Scene Composition': [
+        PrimitiveGeometryComponent,
+        GroundPlaneComponent,
+        GroupComponent,
+        VariantComponent,
+        SceneDynamicLoadTagComponent
+      ],
+      Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
+      Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
+      Lighting: [
+        AmbientLightComponent,
+        PointLightComponent,
+        SpotLightComponent,
+        DirectionalLightComponent,
+        HemisphereLightComponent
+      ],
+      FX: [
+        LoopAnimationComponent,
+        ShadowComponent,
+        ParticleSystemComponent,
+        EnvmapComponent,
+        SDFComponent,
+        PostProcessingComponent
+      ],
+      Scripting: [SystemComponent, VisualScriptComponent],
+      Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
+      Misc: [
+        EnvMapBakeComponent,
+        ScenePreviewCameraComponent,
+        SkyboxComponent,
+        SplineTrackComponent,
+        SplineComponent,
+        TextComponent
+      ]
+    } as Record<string, Component[]>
+  }
+})
 
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
-  const Icon = EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon
+  useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
+  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PlaceHolderIcon
   const handleClosePopover = usePopoverContextClose()
 
   return (
     <ListItemButton
       sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
       onClick={() => {
-        const nodes = getMutableState(SelectionState).selectedEntities.value
-        EditorControlFunctions.addOrRemoveComponent(nodes, item, true)
+        const entities = SelectionState.getSelectedEntities()
+        EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         handleClosePopover()
       }}
     >
@@ -196,14 +211,16 @@ const SceneElementListItem = ({
   )
 }
 
-const filterComponentShelfCategories = (search: string) => {
+const useComponentShelfCategories = (search: string) => {
+  useHookstate(getMutableState(ComponentShelfCategoriesState)).value
+
   if (!search) {
-    return Object.entries(ComponentShelfCategories)
+    return Object.entries(getState(ComponentShelfCategoriesState))
   }
 
   const searchRegExp = new RegExp(search, 'gi')
 
-  return Object.entries(ComponentShelfCategories)
+  return Object.entries(getState(ComponentShelfCategoriesState))
     .map(([category, items]) => {
       const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
       return [category, filteredItems] as [string, Component[]]
@@ -215,6 +232,8 @@ export function ElementList() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const shelves = useComponentShelfCategories(search.query.value)
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -241,7 +260,7 @@ export function ElementList() {
         </div>
       }
     >
-      {filterComponentShelfCategories(search.query.value).map(([category, items]) => (
+      {shelves.map(([category, items]) => (
         <SceneElementListItem
           key={category}
           categoryTitle={category}

@@ -24,23 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { projectsPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadEngineInjection = async () => {
   const projects = await Engine.instance.api.service(projectsPath).find()
   return Promise.all(
-    projects
-      .map(async (project) => {
-        try {
-          const projectConfig = (await loadConfigForProject(project))!
-          if (typeof projectConfig.worldInjection !== 'function') return null!
-          return (await projectConfig.worldInjection()).default()
-        } catch (e) {
-          console.error(`Failed to import world load event for project ${project} with reason ${e}`)
-          return null!
-        }
-      })
-      .filter(($) => !!$)
+    projects.map(async (project) => {
+      try {
+        const projectConfig = (await loadConfigForProject(project))!
+        if (typeof projectConfig.worldInjection !== 'function') return null!
+        return (await projectConfig.worldInjection()).default?.()
+      } catch (e) {
+        console.error(`Failed to import world load event for project ${project} with reason ${e}`)
+        return null!
+      }
+    })
   )
 }

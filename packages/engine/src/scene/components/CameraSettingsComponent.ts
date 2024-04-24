@@ -27,13 +27,13 @@ import { useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { CameraSettingsState } from '../../camera/CameraSceneMetadata'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { CameraSettingsState } from '@etherealengine/spatial/src/camera/CameraSceneMetadata'
 
 export const CameraSettingsComponent = defineComponent({
   name: 'CameraSettingsComponent',
-  jsonID: 'camera-settings',
+  jsonID: 'EE_camera_settings',
 
   onInit(entity): typeof CameraSettingsState._TYPE {
     return typeof CameraSettingsState.initial === 'function'

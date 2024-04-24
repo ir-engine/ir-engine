@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   IdentityProviderQuery,
@@ -33,18 +33,20 @@ import {
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const identityProviderResolver = resolve<IdentityProviderType, HookContext>({
   createdAt: virtual(async (identityProvider) => fromDateTimeSql(identityProvider.createdAt)),
   updatedAt: virtual(async (identityProvider) => fromDateTimeSql(identityProvider.updatedAt))
 })
 
-export const identityProviderExternalResolver = resolve<IdentityProviderType, HookContext>({})
+export const identityProviderExternalResolver = resolve<IdentityProviderType, HookContext>({
+  oauthToken: async () => undefined
+})
 
 export const identityProviderDataResolver = resolve<IdentityProviderType, HookContext>({
   id: async () => {
-    return v4()
+    return uuidv4()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

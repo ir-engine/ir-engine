@@ -26,25 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 import { Spark } from 'primus'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { EntityUUID } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { Action, getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
+import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { localConfig } from '@etherealengine/server-core/src/config'
+import { config as mediaConfig } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 import {
   identityProviderPath,
@@ -56,14 +52,16 @@ import {
   messagePath,
   UserID,
   userKickPath,
+  userPath,
   UserType
 } from '@etherealengine/common/src/schema.type.module'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
+import { NetworkState } from '@etherealengine/network'
+import { SpawnPoseState } from '@etherealengine/spatial'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -85,24 +83,24 @@ export const setupIPs = async () => {
     : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
 
   // @todo put this in hyperflux state
-  localConfig.mediasoup.webRtcTransport.listenIps = [
+  mediaConfig.mediasoup.webRtcTransport.listenIps = [
     {
       ip: '0.0.0.0',
       announcedIp
     }
   ]
 
-  localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
+  mediaConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
     listenInfo.announcedIp = announcedIp
     listenInfo.ip = '0.0.0.0'
   })
 
-  localConfig.mediasoup.plainTransport.listenIp = {
+  mediaConfig.mediasoup.plainTransport.listenIp = {
     ip: '0.0.0.0',
     announcedIp
   }
 
-  localConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
+  mediaConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
@@ -212,7 +210,7 @@ export const handleConnectingPeer = (
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, user.name)
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
   const networkState = getMutableState(NetworkState).networks[network.id]
   networkState.peers[peerID].merge({
@@ -221,13 +219,15 @@ export const handleConnectingPeer = (
     lastSeenTs: Date.now()
   })
 
-  updatePeers(network)
+  const updatePeersAction = updatePeers(network)
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
-    return _.cloneDeep(action)
-  })
+  const cachedActions = ([updatePeersAction] as Required<Action>[])
+    .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
+    .map((action) => {
+      return _.cloneDeep(action)
+    })
 
   const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
@@ -235,8 +235,9 @@ export const handleConnectingPeer = (
   return {
     routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex[peerID]!,
-    cachedActions
-  }
+    cachedActions,
+    hostPeerID: network.hostPeerID
+  } as Omit<AuthTask, 'status'>
 }
 
 const getUserSpawnFromInvite = async (
@@ -267,7 +268,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
+        const selfAvatarEntity = AvatarComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -278,7 +279,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
+        const inviterUserAvatarEntity = AvatarComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -298,7 +299,7 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          const spawnPose = getState(SpawnPoseState)[user.id as any as EntityUUID]
           spawnPose.spawnPosition.copy(inviterUserObject3d.position)
           spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
@@ -318,34 +319,47 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (peerID === disconnectedClient?.peerID) {
-    const state = getMutableState(WorldState)
-    const userName = state.userNames[userId].value
-
     const instanceServerState = getState(InstanceServerState)
     const app = Engine.instance.api as Application
 
-    if (!instanceServerState.isMediaInstance)
-      app.service(messagePath).create(
-        {
-          instanceId: instanceServerState.instance.id,
-          text: `${userName} left`,
-          isNotification: true,
-          senderId: userId
-        },
-        {
-          [identityProviderPath]: {
-            userId: userId
-          }
-        } as any
-      )
-
+    if (!instanceServerState.isMediaInstance) {
+      app
+        .service(userPath)
+        .get(userId)
+        .then((user) => {
+          app.service(messagePath).create(
+            {
+              instanceId: instanceServerState.instance.id,
+              text: `${user.name} left`,
+              isNotification: true,
+              senderId: userId
+            },
+            {
+              [identityProviderPath]: {
+                userId: userId
+              }
+            } as any
+          )
+        })
+        .catch((err) => {
+          app.service(messagePath).create(
+            {
+              instanceId: instanceServerState.instance.id,
+              text: `A user left`,
+              isNotification: true,
+              senderId: undefined
+            },
+            {
+              [identityProviderPath]: {
+                userId: userId
+              }
+            } as any
+          )
+        })
+    }
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
-    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
-    if (recvTransport) recvTransport.close()
-    if (sendTransport) sendTransport.close()
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }

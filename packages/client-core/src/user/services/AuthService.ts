@@ -26,13 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
-import { v1 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
-import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 
 import {
   AvatarID,
@@ -59,8 +65,9 @@ import {
   userPath,
   userSettingPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { EntityUUID } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -106,7 +113,8 @@ export const UserSeed: UserType = {
   locationBans: [],
   instanceAttendance: [],
   createdAt: '',
-  updatedAt: ''
+  updatedAt: '',
+  lastLogin: null
 }
 
 const resolveWalletUser = (credentials: any): UserType => {
@@ -161,7 +169,7 @@ async function _resetToGuestToken(options = { reset: true }) {
   }
   const newProvider = await Engine.instance.api.service(identityProviderPath).create({
     type: 'guest',
-    token: v1(),
+    token: uuidv4(),
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
@@ -517,9 +525,17 @@ export const AuthService = {
 
     try {
       await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
-      NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
+      const message = {
+        email: 'email-sent-msg',
+        sms: 'sms-sent-msg',
+        default: 'success-msg'
+      }
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+        variant: 'success'
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      throw new Error(err)
     } finally {
       authState.merge({ isProcessing: false, error: '' })
     }
@@ -642,6 +658,7 @@ export const AuthService = {
       .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
+    dispatchAction(AvatarNetworkAction.setName({ entityUUID: (userId + '_avatar') as EntityUUID, name: updatedName }))
   },
 
   async createLoginToken() {
@@ -656,11 +673,6 @@ export const AuthService = {
         if (!user.id) return
 
         const selfUser = getMutableState(AuthState).user
-
-        if (user.name) {
-          const worldState = getMutableState(WorldState)
-          worldState.userNames[user.id].set(user.name)
-        }
 
         if (selfUser.id.value === user.id) {
           getMutableState(AuthState).user.merge(user)

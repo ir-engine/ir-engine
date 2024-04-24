@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { UserType } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
 
@@ -51,14 +52,15 @@ export const projectSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
+    enabled: Type.Boolean(),
     thumbnail: Type.Optional(Type.String()),
     repositoryPath: Type.String(),
     version: Type.Optional(Type.String()),
-    branchName: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
     settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     needsRebuild: Type.Boolean(),
+    hasLocalChanges: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
     updateType: StringEnum(projectUpdateTypes),
@@ -95,12 +97,14 @@ export interface ProjectPatch extends Static<typeof projectPatchSchema> {}
 export const projectQueryProperties = Type.Pick(projectSchema, [
   'id',
   'name',
+  'enabled',
   'thumbnail',
   'repositoryPath',
   'version',
   'engineVersion',
   'description',
   'needsRebuild',
+  'hasLocalChanges',
   'sourceRepo',
   'sourceBranch',
   'updateType',
@@ -120,15 +124,16 @@ export const projectQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
+        paginate: Type.Optional(Type.Boolean()),
         action: Type.Optional(Type.String()),
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),
         existingProject: Type.Optional(Type.Boolean()),
         inputProjectURL: Type.Optional(Type.String()),
-        branchName: Type.Optional(Type.String()),
         selectedSHA: Type.Optional(Type.String()),
         allowed: Type.Optional(Type.Boolean()),
-        reset: Type.Optional(Type.Boolean())
+        reset: Type.Optional(Type.Boolean()),
+        populateProjectPermissions: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
@@ -143,3 +148,10 @@ export const projectValidator = /* @__PURE__ */ getValidator(projectSchema, data
 export const projectDataValidator = /* @__PURE__ */ getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = /* @__PURE__ */ getValidator(projectPatchSchema, dataValidator)
 export const projectQueryValidator = /* @__PURE__ */ getValidator(projectQuerySchema, queryValidator)
+
+export type ProjectUpdateParams = {
+  user?: UserType
+  isJob?: boolean
+  jobId?: string
+  populateProjectPermissions?: boolean
+}

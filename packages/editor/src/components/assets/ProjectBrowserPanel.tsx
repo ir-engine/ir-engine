@@ -76,7 +76,7 @@ export default function ProjectBrowserPanel() {
           ]
         },
         {
-          size: 3,
+          size: 5,
           tabs: [
             {
               id: 'previewPanel',

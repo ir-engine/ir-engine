@@ -30,24 +30,25 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { getComponent, getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { EditorCameraState } from '../../classes/EditorCameraState'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import config from '@etherealengine/common/src/config'
+import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
@@ -58,15 +59,12 @@ import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
-import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
 /**
- * uploadOption initializing object containing Properties multiple, accepts.
- *
- * @type {Object}
+ * initializes object containing Properties multiple, accepts.
  */
 const uploadOptions = {
   multiple: true,
@@ -75,10 +73,9 @@ const uploadOptions = {
 
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
- *
- * @constructor
  */
-function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID }) {
+function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID }) {
+  const { sceneURL, rootEntityUUID } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -88,16 +85,14 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
-  const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
+  const entityHierarchy = useHookstate<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
-  const [searchHierarchy, setSearchHierarchy] = useState<string>('')
+  const searchHierarchy = useHookstate('')
 
-  const activeScene = useHookstate(getMutableState(SceneState).activeScene)
-  const uuidQuery = useQuery([UUIDComponent, SceneObjectComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const index = SceneState.useSnapshotIndex(activeScene.value!)
+  const index = SceneSnapshotState.useSnapshotIndex(sceneURL)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -107,64 +102,49 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         onContextMenu={onContextMenu}
       />
     ),
-    [nodes]
+    [entityHierarchy]
   )
 
-  if (searchHierarchy.length > 0) {
-    const condition = new RegExp(searchHierarchy.toLowerCase())
-    nodes.forEach((node) => {
+  if (searchHierarchy.value.length > 0) {
+    const condition = new RegExp(searchHierarchy.value.toLowerCase())
+    entityHierarchy.value.forEach((node) => {
       if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
         nodeSearch.push(node)
     })
   }
 
   useEffect(() => {
-    if (!expandedNodes.value[activeScene.value!]) {
-      expandedNodes.set({ [activeScene.value!]: { [rootEntity]: true } })
+    if (!expandedNodes.value[sceneURL]) {
+      expandedNodes.set({ [sceneURL]: { [rootEntity]: true } })
     }
-  }, [rootEntity])
+  }, [])
 
   useEffect(() => {
-    if (!activeScene.value) return
-    setNodes(
-      Array.from(
-        heirarchyTreeWalker(
-          activeScene.value,
-          SceneState.getRootEntity(getState(SceneState).activeScene!),
-          selectionState.selectedEntities.value
-        )
-      )
-    )
-  }, [expandedNodes, index, uuidQuery.length, activeScene, selectionState.selectedEntities])
+    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, SceneState.getRootEntity(sceneURL))))
+  }, [expandedNodes, index])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
-      if (!scene) return
-      expandedNodes[scene][node.entity].set(true)
+      expandedNodes[sceneURL][node.entity].set(true)
     },
-    [expandedNodes, activeScene]
+    [expandedNodes]
   )
 
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
-      if (!scene) return
-      expandedNodes[scene][node.entity].set(none)
+      expandedNodes[sceneURL][node.entity].set(none)
     },
-    [expandedNodes, activeScene]
+    [expandedNodes]
   )
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
-      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        expandedNodes[scene][child].set(true)
+        expandedNodes[sceneURL][child].set(true)
       })
     },
     [expandedNodes]
@@ -172,11 +152,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = activeScene.get(NO_PROXY)
-      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        expandedNodes[scene][child].set(none)
+        expandedNodes[sceneURL][child].set(none)
       })
     },
     [expandedNodes]
@@ -187,23 +165,26 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     (e: MouseEvent, node: HeirarchyTreeNodeType) => {
       if (e.detail === 1) {
         if (e.ctrlKey) {
-          EditorControlFunctions.toggleSelection([node.entity])
+          EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
           setSelectedNode(null)
         } else if (e.shiftKey && prevClickedNode) {
-          const startIndex = nodes.findIndex((n) => n.entity === prevClickedNode.entity)
-          const endIndex = nodes.findIndex((n) => n.entity === node.entity)
-          const range = nodes.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
-          const entityUuids = range.filter((n) => n.entity).map((n) => n.entity!)
+          const startIndex = entityHierarchy.value.findIndex((n) => n.entity === prevClickedNode.entity)
+          const endIndex = entityHierarchy.value.findIndex((n) => n.entity === node.entity)
+          const range = entityHierarchy.value.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
+          const entityUuids = range.filter((n) => n.entity).map((n) => getComponent(n.entity!, UUIDComponent))
           EditorControlFunctions.replaceSelection(entityUuids)
           setSelectedNode(node)
-        } else if (!node.selected) {
-          EditorControlFunctions.replaceSelection([node.entity])
-          setSelectedNode(node)
+        } else {
+          const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+          if (!selected) {
+            EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
+            setSelectedNode(node)
+          }
         }
         setPrevClickedNode(node)
       }
     },
-    [prevClickedNode, nodes]
+    [prevClickedNode, entityHierarchy]
   )
 
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HeirarchyTreeNodeType) => {
@@ -226,34 +207,33 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      const editorCameraState = getMutableState(EditorCameraState)
-      editorCameraState.focusedObjects.set([node.entity])
+      const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+      editorCameraState.focusedEntities.set([node.entity])
       editorCameraState.refocus.set(true)
     }
   }, [])
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
-      if (!activeScene.value) return
-      if (expandedNodes.value[activeScene.value][node.entity]) collapseNode(node)
+      if (expandedNodes.value[sceneURL][node.entity]) collapseNode(node)
       else expandNode(node)
     },
-    [activeScene, expandedNodes, expandNode, collapseNode]
+    [expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent, node: HeirarchyTreeNodeType) => {
-      const nodeIndex = nodes.indexOf(node)
+      const nodeIndex = entityHierarchy.value.indexOf(node)
       const entityTree = getComponent(node.entity, EntityTreeComponent)
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
 
-          const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1]
+          const nextNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex + 1]
           if (!nextNode) return
 
           if (e.shiftKey) {
-            EditorControlFunctions.addToSelection([nextNode.entity])
+            EditorControlFunctions.addToSelection([getComponent(nextNode.entity, UUIDComponent)])
           }
 
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
@@ -266,11 +246,11 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
         case 'ArrowUp': {
           e.preventDefault()
 
-          const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1]
+          const prevNode = nodeIndex !== -1 && entityHierarchy.value[nodeIndex - 1]
           if (!prevNode) return
 
           if (e.shiftKey) {
-            EditorControlFunctions.addToSelection([prevNode.entity])
+            EditorControlFunctions.addToSelection([getComponent(prevNode.entity, UUIDComponent)])
           }
 
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
@@ -296,10 +276,10 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
         case 'Enter':
           if (e.shiftKey) {
-            EditorControlFunctions.toggleSelection([node.entity])
+            EditorControlFunctions.toggleSelection([getComponent(node.entity, UUIDComponent)])
             setSelectedNode(null)
           } else {
-            EditorControlFunctions.replaceSelection([node.entity])
+            EditorControlFunctions.replaceSelection([getComponent(node.entity, UUIDComponent)])
             setSelectedNode(node)
           }
           break
@@ -310,29 +290,54 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
           break
       }
     },
-    [nodes, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
+    [entityHierarchy, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
   )
 
   const onDeleteNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
     EditorControlFunctions.removeObject(objs)
   }, [])
 
   const onDuplicateNode = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
     EditorControlFunctions.duplicateObject(objs)
   }, [])
 
   const onGroupNodes = useCallback((node: HeirarchyTreeNodeType) => {
     handleClose()
 
-    const objs = node.selected ? getState(SelectionState).selectedEntities : [node.entity]
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const objs = selected ? SelectionState.getSelectedEntities() : [node.entity]
 
     EditorControlFunctions.groupObjects(objs)
+  }, [])
+
+  const onCopyNode = useCallback((node: HeirarchyTreeNodeType) => {
+    handleClose()
+
+    const selected = getState(SelectionState).selectedEntities.includes(getComponent(node.entity, UUIDComponent))
+    const nodes = selected ? SelectionState.getSelectedEntities() : [node.entity]
+    CopyPasteFunctions.copyEntities(nodes)
+  }, [])
+
+  const onPasteNode = useCallback(async (node: HeirarchyTreeNodeType) => {
+    handleClose()
+
+    CopyPasteFunctions.getPastedEntities()
+      .then((nodeComponentJSONs) => {
+        nodeComponentJSONs.forEach((componentJSONs) => {
+          EditorControlFunctions.createObjectFromSceneElement(componentJSONs, undefined, node.entity)
+        })
+      })
+      .catch(() => {
+        NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes'), { variant: 'error' })
+      })
   }, [])
   /* Event handlers */
 
@@ -355,9 +360,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
-      updateProperties(NameComponent, name, [node.entity])
-      const groups = getOptionalComponent(node.entity, GroupComponent)
-      if (groups) for (const obj of groups) if (obj) obj.name = name
+      EditorControlFunctions.modifyName([node.entity], name)
     }
 
     setRenamingNode(null)
@@ -401,11 +404,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
-      if (!getState(SceneState).activeScene) return false
-
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(getState(SceneState).activeScene!)
+        const sceneEntity = SceneState.getRootEntity(sceneURL)
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -415,9 +416,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     }
   })
 
-  if (!activeScene) return <></>
-
-  let validNodes = nodeSearch?.length > 0 ? nodeSearch : nodes
+  let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
 
   const HierarchyList = ({ height, width }) => (
@@ -449,7 +448,7 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     <>
       <div className={styles.panelContainer}>
         <div className={styles.dockableTabButtons}>
-          <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
+          <Search elementsName="hierarchy" handleInputChange={searchHierarchy.set} />
         </div>
         <div style={{ height: '100%' }}>
           <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
@@ -497,6 +496,32 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
             <div>{cmdOrCtrlString + ' + g'}</div>
           </MenuItem>
         </Hotkeys>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+c'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onCopyNode(selectedNode)
+          }}
+        >
+          <MenuItem onClick={() => onCopyNode(contextSelectedItem!)}>
+            {t('editor:hierarchy.lbl-copy')}
+            <div>{cmdOrCtrlString + ' + c'}</div>
+          </MenuItem>
+        </Hotkeys>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+v'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onPasteNode(selectedNode)
+          }}
+        >
+          <MenuItem onClick={() => onPasteNode(contextSelectedItem!)}>
+            {t('editor:hierarchy.lbl-paste')}
+            <div>{cmdOrCtrlString + ' + v'}</div>
+          </MenuItem>
+        </Hotkeys>
         <MenuItem onClick={() => onDeleteNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
         <MenuItem onClick={() => expandChildren(contextSelectedItem!)}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
         <MenuItem onClick={() => collapseChildren(contextSelectedItem!)}>
@@ -507,12 +532,46 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   )
 }
 
+const fileServer = config.client.fileServer
+
+const GLTFHierarchy = (props: { sceneID: string }) => {
+  const sceneState = useHookstate(getMutableState(SceneState)).value
+  const gltfEntity = useHookstate(getMutableState(GLTFSourceState)[fileServer + '/' + props.sceneID]).value?.entity
+
+  if (!gltfEntity) return null
+
+  const GLTFHierarchySub = () => {
+    const scenePath = useModelSceneID(gltfEntity)
+
+    const sceneJson = SceneState.getScene(scenePath!)?.scene
+    const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
+
+    if (!scenePath || !sceneState.scenes[scenePath] || !sceneJson || !snapshots[scenePath]) return null
+
+    return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={scenePath} />
+  }
+
+  return <GLTFHierarchySub />
+}
+
+const JSONHierarchy = (props: { sceneID: string }) => {
+  const { sceneID } = props
+  const sceneState = useHookstate(getMutableState(SceneState)).value
+
+  const sceneJson = SceneState.getScene(sceneID!)?.scene
+  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
+
+  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+
+  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={sceneID} />
+}
+
 export default function HierarchyPanel() {
-  const editorState = useHookstate(getMutableState(EditorState))
-  const sceneState = useHookstate(getMutableState(SceneState))
-
-  const sceneJson = SceneState.getScene(editorState.sceneID.value!)
-
-  if (!editorState.sceneID.value || !sceneState.scenes[editorState.sceneID.value] || !sceneJson) return null
-  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
+  if (!sceneID) return null
+  return sceneID.endsWith('.json') ? (
+    <JSONHierarchy sceneID={sceneID} key={sceneID} />
+  ) : (
+    <GLTFHierarchy sceneID={sceneID} key={sceneID} />
+  )
 }

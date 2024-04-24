@@ -23,110 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
+import { createEntity, getComponent, setComponent } from '@etherealengine/ecs'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import React, { useEffect } from 'react'
 
-import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { defineSystem, destroySystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-
-const initialize3D = () => {
-  const camera = new PerspectiveCamera(60, 1, 0.25, 100000)
-  camera.position.set(0, 1.75, 0.5)
-  camera.layers.set(ObjectLayers.Panel)
-
-  const scene = new Scene()
-
-  const backLight = new DirectionalLight(0xfafaff, 0.5)
-  backLight.position.set(1, 3, -1)
-  backLight.target.position.set(0, 1.5, 0)
-  const frontLight = new DirectionalLight(0xfafaff, 0.4)
-  frontLight.position.set(-1, 3, 1)
-  frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xffffff, 0xffffff, 1)
-  scene.add(backLight)
-  scene.add(backLight.target)
-  scene.add(frontLight)
-  scene.add(frontLight.target)
-  scene.add(hemi)
-
-  scene.traverse((obj) => {
-    obj.layers.set(ObjectLayers.Panel)
-  })
-  const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.outputColorSpace = SRGBColorSpace
-
-  const controls = getOrbitControls(camera, renderer.domElement)
-
-  controls.minDistance = 0.1
-  controls.maxDistance = 10000
-  controls.target.set(0, 1.65, 0)
-  controls.update()
-  const entity = createEntity()
-  setComponent(entity, NameComponent, '3D Preview Entity')
-
-  return {
-    controls,
-    scene,
-    camera,
-    renderer,
-    entity
-  }
-}
-
-let i = 0
-
-export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElement>) {
-  const state = useHookstateFromFactory(initialize3D)
-
-  const resize = () => {
-    if (!panel.current || !state.camera.value) return
-    const bounds = panel.current.getBoundingClientRect()!
-    state.camera.value.aspect = bounds.width / bounds.height
-    state.camera.value.updateProjectionMatrix()
-    state.renderer.value.setSize(bounds.width, bounds.height)
-  }
+export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
+  const panelState = useHookstate(() => ({
+    cameraEntity: createEntity(),
+    sceneEntity: createEntity()
+  }))
 
   useEffect(() => {
-    window.addEventListener('resize', resize)
-    resize()
-
-    const AvatarSelectRenderSystem = defineSystem({
-      uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
-      insert: { after: PresentationSystemGroup },
-      execute: () => {
-        // only render if this menu is open
-        if (!!panel.current && state.renderer.value) {
-          state.controls.value.update()
-          state.renderer.value.render(state.scene.value, state.camera.value)
-        }
-      }
-    })
-
+    const { cameraEntity, sceneEntity } = panelState.value
     return () => {
-      destroySystem(AvatarSelectRenderSystem)
-      // todo - do we need to remove the system defintion?
-      removeEntity(state.entity.value)
-      window.removeEventListener('resize', resize)
+      // cleanup entities and state associated with this 3d panel
+      removeEntityNodeRecursively(cameraEntity)
+      removeEntityNodeRecursively(sceneEntity)
     }
   }, [])
 
   useEffect(() => {
-    if (!panel.current || !state.renderer.value) return
-    const bounds = panel.current.getBoundingClientRect()
-    state.renderer.value.setSize(bounds.width, bounds.height)
-    panel.current.appendChild(state.renderer.value.domElement)
-    resize()
-    return () => {
-      if (panel.current) panel.current.removeChild(state.renderer.value.domElement)
-    }
-  }, [panel.current, state])
+    if (!canvas.current) return
 
-  return { state, resize }
+    const { cameraEntity, sceneEntity } = panelState.value
+    setComponent(cameraEntity, CameraComponent)
+    setComponent(cameraEntity, TransformComponent)
+    setComponent(cameraEntity, VisibleComponent)
+    setComponent(cameraEntity, NameComponent, '3D Preview Camera for ' + canvas.current.id)
+    setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
+    setComponent(cameraEntity, RendererComponent, { canvas: canvas.current })
+    getComponent(cameraEntity, RendererComponent).initialize()
+    setComponent(cameraEntity, SceneComponent, { children: [sceneEntity] })
+    setComponent(cameraEntity, InputComponent)
+  }, [canvas.current])
+
+  return panelState.value
 }

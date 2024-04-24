@@ -31,14 +31,19 @@ import path from 'path/posix'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -123,18 +128,26 @@ export class FileBrowserService
     checkDirectoryInsideNesting(directory, params.nestingDirectory)
 
     let result = await storageProvider.listFolderContent(directory)
-    const total = result.length
+    let total = result.length
 
     result = result.slice(skip, skip + limit)
+    result.forEach((file) => {
+      file.url = getCachedURL(file.key, storageProvider.cacheDomain)
+    })
 
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
-      const projectPermissions = await knexClient
-        .from(projectPermissionPath)
-        .join('project', `${projectPermissionPath}.projectId`, 'project.id')
-        .where(`${projectPermissionPath}.userId`, params.user!.id)
-        .select()
-        .options({ nestTables: true })
+      const projectPermissions: { 'project-permission': ProjectPermissionType; project: ProjectType }[] =
+        await knexClient
+          .from(projectPermissionPath)
+          .join(projectPath, `${projectPermissionPath}.projectId`, `${projectPath}.id`)
+          .where(`${projectPermissionPath}.userId`, params.user!.id)
+          .select()
+          .options({ nestTables: true })
+
+      if (directory === 'projects/') {
+        total = projectPermissions.length
+      }
 
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
       result = result.filter((item) => {
@@ -173,7 +186,10 @@ export class FileBrowserService
       isDirectory: true
     })
 
-    await storageProvider.createInvalidation([keyPath])
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: keyPath
+      })
 
     if (isDev && PROJECT_FILE_REGEX.test(directory))
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
@@ -195,7 +211,15 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    await storageProvider.createInvalidation([_oldPath, _newPath])
+    if (!isDev)
+      await this.app.service(invalidationPath).create([
+        {
+          path: _oldPath + data.oldName
+        },
+        {
+          path: _newPath + fileName
+        }
+      ])
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
@@ -265,7 +289,7 @@ export class FileBrowserService
       fs.writeFileSync(filePath, data.body)
     }
 
-    const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
+    const hash = createStaticResourceHash(data.body)
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 
@@ -289,7 +313,11 @@ export class FileBrowserService
         },
         { isInternal: true }
       )
-      await storageProvider.createInvalidation([key])
+
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     } else {
       await this.app.service(staticResourcePath).create(
         {
@@ -301,10 +329,14 @@ export class FileBrowserService
         },
         { isInternal: true }
       )
-      await storageProvider.createInvalidation([key])
+
+      if (!isDev)
+        await this.app.service(invalidationPath).create({
+          path: key
+        })
     }
 
-    return url
+    return getCachedURL(key, storageProvider.cacheDomain)
   }
 
   /**
@@ -319,7 +351,11 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
-    await storageProvider.createInvalidation([key])
+
+    if (!isDev)
+      await this.app.service(invalidationPath).create({
+        path: key
+      })
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {

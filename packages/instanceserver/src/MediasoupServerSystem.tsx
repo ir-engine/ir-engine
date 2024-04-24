@@ -22,35 +22,33 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import React, { useEffect } from 'react'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/SystemGroups'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
-import {
-  MediasoupDataConsumerActions,
-  MediasoupDataProducerActions
-} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import {
-  MediaProducerActions,
-  MediasoupMediaConsumerActions
-} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  DataChannelRegistryState,
+  DataChannelType,
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerActions,
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerActions,
+  MediasoupTransportActions,
+  NetworkState,
+  NetworkTopics
+} from '@etherealengine/network'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
+  handleCloseConsumer,
+  handleCloseProducer,
   handleConsumeData,
   handleConsumerSetLayers,
   handleProduceData,
   handleRequestConsumer,
   handleRequestProducer,
-  handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
@@ -58,7 +56,9 @@ import {
 /** @todo replace this with event sourcing */
 const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
-const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
+const requestProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.requestProducer.matches)
+const closeProducerActionQueue = defineActionQueue(MediasoupMediaProducerActions.producerClosed.matches)
+const closeConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerClosed.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
@@ -68,9 +68,6 @@ const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportA
 const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
-  // queues will accumulate actions until the scene is loaded, then they will be processed
-  if (!getState(EngineState).sceneLoaded) return
-
   for (const action of requestConsumerActionQueue()) {
     handleRequestConsumer(action)
   }
@@ -79,6 +76,12 @@ const execute = () => {
   }
   for (const action of requestProducerActionQueue()) {
     handleRequestProducer(action)
+  }
+  for (const action of closeConsumerActionQueue()) {
+    handleCloseConsumer(action)
+  }
+  for (const action of closeProducerActionQueue()) {
+    handleCloseProducer(action)
   }
 
   for (const action of dataRequestProducerActionQueue()) {
@@ -93,9 +96,6 @@ const execute = () => {
   }
   for (const action of requestTransportConnectActionQueue()) {
     handleWebRtcTransportConnect(action)
-  }
-  for (const action of transportCloseActionQueue()) {
-    handleWebRtcTransportClose(action)
   }
 }
 

@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { getDateTimeSql } from '../../util/datetime-sql'
 
 describe('api job service', () => {
   let app: Application
@@ -45,10 +45,6 @@ describe('api job service', () => {
   it('should register the service', () => {
     const service = app.service(apiJobPath)
     assert.ok(service, 'Registered the service')
-  })
-
-  it('find service', () => {
-    assert.doesNotThrow(async () => await app.service(apiJobPath).get(''))
   })
 
   let jobId

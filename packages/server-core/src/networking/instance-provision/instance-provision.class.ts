@@ -45,13 +45,13 @@ import {
 } from '@etherealengine/common/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { toDateTimeSql } from '../../util/datetime-sql'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
@@ -120,7 +120,7 @@ export async function getFreeInstanceserver({
       returned = returned && releaseMatch != null && releaseMatch[1] === config.server.releaseName
     if (returned && provisionConstraints) {
       const keys = Object.keys(provisionConstraints)
-      for (let key of keys) {
+      for (const key of keys) {
         const constraint = provisionConstraints[key]
         const provisionFunction = Object.keys(constraint)[0]
         const provisionValue = constraint[provisionFunction]
@@ -462,7 +462,9 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
-export interface InstanceProvisionParams extends KnexAdapterParams {}
+export interface InstanceProvisionParams extends KnexAdapterParams {
+  serverSize?: string
+}
 
 /**
  * A class for Instance Provision service
@@ -633,7 +635,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       const roomCode = params.query?.roomCode as RoomCode
       const createPrivateRoom = params.query?.createPrivateRoom
       const token = params.query?.token
-      const provisionConstraints = params.query?.provisionConstraints
+      const provisionConstraints = params.serverSize ? { 'metadata.labels.serverSize': params.serverSize } : undefined
       logger.info('instance-provision find %s %s %s %s', locationId, instanceId, channelId, roomCode)
       if (!token) throw new NotAuthenticated('No token provided')
       // Check if JWT resolves to a user

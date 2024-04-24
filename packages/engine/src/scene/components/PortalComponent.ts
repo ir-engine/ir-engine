@@ -23,56 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
-import {
-  ArrowHelper,
-  BackSide,
-  Euler,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  SphereGeometry,
-  Texture,
-  Vector3
-} from 'three'
+import { ArrowHelper, BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { portalPath } from '@etherealengine/common/src/schema.type.module'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { V_100 } from '../../common/constants/MathConstants'
-import { matches } from '../../common/functions/MatchesUtils'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentType,
-  SerializedComponentType,
   defineComponent,
   getComponent,
   hasComponent,
   setComponent,
   useComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { RendererState } from '../../renderer/RendererState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { enableObjectLayer, setObjectLayers } from '../functions/setObjectLayers'
-import { setCallback } from './CallbackComponent'
-import { ColliderComponent } from './ColliderComponent'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { NameComponent } from './NameComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SceneObjectComponent } from './SceneObjectComponent'
-import { UUIDComponent } from './UUIDComponent'
-import { VisibleComponent, setVisibleComponent } from './VisibleComponent'
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { matches } from '@etherealengine/hyperflux'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import {
+  enableObjectLayer,
+  setObjectLayers
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { useTexture } from '../../assets/functions/resourceHooks'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -83,23 +72,6 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
-
-export const portalColliderValues: SerializedComponentType<typeof ColliderComponent> = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: true,
-  removeMesh: true,
-  collisionLayer: CollisionGroups.Trigger,
-  collisionMask: CollisionGroups.Avatars,
-  restitution: 0,
-  triggers: [
-    {
-      onEnter: 'teleport',
-      onExit: null,
-      target: '' as EntityUUID
-    }
-  ]
-}
 
 export const PortalState = defineState({
   name: 'PortalState',
@@ -113,7 +85,7 @@ export const PortalState = defineState({
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
-  jsonID: 'portal',
+  jsonID: 'EE_portal',
 
   onInit: (entity) => {
     return {
@@ -149,13 +121,6 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
-
-    if (
-      !getState(EngineState).sceneLoaded &&
-      hasComponent(entity, SceneObjectComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON: (entity, component) => {
@@ -186,13 +151,31 @@ export const PortalComponent = defineComponent({
     const portalComponent = useComponent(entity, PortalComponent)
 
     useEffect(() => {
-      setCallback(entity, 'teleport', () => {
+      setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {
+        if (otherEntity !== AvatarComponent.getSelfAvatarEntity()) return
         const now = Date.now()
         const { lastPortalTimeout, portalTimeoutDuration, activePortalEntity } = getState(PortalState)
         if (activePortalEntity || lastPortalTimeout + portalTimeoutDuration > now) return
         getMutableState(PortalState).activePortalEntity.set(entity)
       })
-      setComponent(entity, ColliderComponent, JSON.parse(JSON.stringify(portalColliderValues)))
+
+      /** Allow scene data populating rigidbody component too */
+      if (hasComponent(entity, RigidBodyComponent)) return
+      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      setComponent(entity, ColliderComponent, {
+        shape: Shapes.Sphere,
+        collisionLayer: CollisionGroups.Trigger,
+        collisionMask: CollisionGroups.Avatars
+      })
+      setComponent(entity, TriggerComponent, {
+        triggers: [
+          {
+            onEnter: 'teleport',
+            onExit: null,
+            target: '' as EntityUUID
+          }
+        ]
+      })
     }, [])
 
     useEffect(() => {
@@ -215,6 +198,7 @@ export const PortalComponent = defineComponent({
 
       return () => {
         removeEntity(helperEntity)
+        if (!hasComponent(entity, PortalComponent)) return
         portalComponent.helperEntity.set(none)
       }
     }, [debugEnabled])
@@ -222,71 +206,32 @@ export const PortalComponent = defineComponent({
     useEffect(() => {
       if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
 
-      const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+      const portalMesh = new Mesh(new SphereGeometry(1, 32, 32), new MeshBasicMaterial({ side: BackSide }))
       enableObjectLayer(portalMesh, ObjectLayers.Camera, true)
-      portalMesh.geometry.translate(0, 1.5, 0)
       portalComponent.mesh.set(portalMesh)
       addObjectToGroup(entity, portalMesh)
 
       return () => {
         removeObjectFromGroup(entity, portalMesh)
-        portalComponent.mesh.set(null)
       }
     }, [portalComponent.previewType])
 
-    const portalDetails = useHookstate<null | {
-      spawnPosition: Vector3
-      spawnRotation: Quaternion
-      previewImageURL: string
-    }>(null)
+    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
+
+    const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
 
     useEffect(() => {
-      if (!portalDetails.value?.previewImageURL) return
-      portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
-      portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
-      AssetLoader.loadAsync(portalDetails.value.previewImageURL).then((texture: Texture) => {
-        if (!portalComponent.mesh.value || aborted) return
-        portalComponent.mesh.value.material.map = texture
-        portalComponent.mesh.value.material.needsUpdate = true
-      })
-      let aborted = false
-      return () => {
-        aborted = true
-      }
-    }, [portalDetails, portalComponent.mesh])
+      if (!texture || !portalComponent.mesh.value) return
+
+      portalComponent.mesh.value.material.map = texture
+      portalComponent.mesh.value.material.needsUpdate = true
+    }, [texture, portalComponent.mesh])
 
     useEffect(() => {
-      if (!isClient) return
-      if (!portalComponent.mesh.value) return
-
-      const linkedPortalExists = UUIDComponent.getEntityByUUID(portalComponent.linkedPortalId.value)
-
-      if (linkedPortalExists) {
-        /** Portal is in the scene already */
-        const linkedPortalDetails = getComponent(linkedPortalExists, PortalComponent)
-        if (linkedPortalDetails)
-          portalDetails.set({
-            spawnPosition: linkedPortalDetails.spawnPosition,
-            spawnRotation: linkedPortalDetails.spawnRotation,
-            previewImageURL: linkedPortalDetails.previewImageURL
-          })
-      } else {
-        /** Portal is not in the scene yet */
-        Engine.instance.api
-          .service(portalPath)
-          .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
-          .then((data) => {
-            if (data && !aborted) portalDetails.set(data)
-          })
-          .catch((e) => {
-            console.error('Error getting portal', e)
-          })
-      }
-      let aborted = false
-      return () => {
-        aborted = true
-      }
-    }, [portalComponent.linkedPortalId])
+      if (!portalDetails.data) return
+      portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
+      portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
+    }, [portalDetails])
 
     return null
   },

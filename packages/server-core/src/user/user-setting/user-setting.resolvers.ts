@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   UserSettingDatabaseType,
@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/common/src/schemas/user/user-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingType => {
   let themeModes
@@ -76,7 +76,7 @@ export const userSettingExternalResolver = resolve<UserSettingType, HookContext>
 export const userSettingDataResolver = resolve<UserSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return v4() as UserSettingID
+      return uuidv4() as UserSettingID
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

@@ -28,9 +28,11 @@
   "loadingScenes": "Loading Scenes",
   "menubar": {
     "newScene": "New Scene",
-    "saveScene": "Save Scene",
+    "saveSceneJSON": "Save Scene JSON",
+    "saveSceneGLTF": "Save Scene GLTF",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
+    "importSettings": "Import Settings",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
@@ -292,9 +294,14 @@
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
-      "lbl-removeMesh": "Remove Mesh",
       "lbl-shape": "Shape",
-      "lbl-type": "Body Type"
+      "lbl-type": "Body Type",
+      "lbl-mass": "Mass",
+      "lbl-massCenter":"Mass Center",
+      "lbl-friction":"Friction",
+      "lbl-restitution":"Restitution",
+      "lbl-collisionLayer":"Collision Layer",
+      "lbl-collisionMask":"Collision Mask"
     },
     "camera": {
       "name": "Camera",
@@ -316,7 +323,6 @@
       "lbl-cameraBottom": "Camera Bottom",
       "lbl-cameraLeft": "Camera Left",
       "lbl-cameraRight": "Camera Right",
-      "lbl-useInCSM": "Use in CSM",
       "lbl-castShadow": "Cast Shadow",
       "lbl-disableForCSM": "Disabled when CSM is enabled",
       "lbl-shadowmapResolution": "Shadow Map Resolution",
@@ -344,11 +350,17 @@
       "device": "Device",
       "device-mobile": "Mobile",
       "device-desktop": "Desktop",
+      "device-xr": "XR",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
       "heuristic-device": "Device",
+      "heuristic-budget": "Budget",
+      "useDistance": "Use Distance",
+      "textureSize": "Texture Size: ",
+      "vertexCount": "Vertices: ",
+      "preview": "Preview",
       "minDistance": "Minimum Distance",
       "maxDistance": "Maximum Distance",
       "src": "Source"
@@ -374,7 +386,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-convertToVRM": "Convert to VRM",
+      "lbl-convertToVRM": "Force VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
@@ -396,10 +408,13 @@
         "dst": "File Name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
+        "simplifyRatio": "Simplify Ratio",
+        "simplifyErrorThreshold": "Simplify Error Threshold",
         "flatten": "Flatten Scene Graph",
         "join": "Join Meshes",
         "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "linear": "Linear Color Space",
         "flipYTooltip": "If checked, the source images will be Y flipped before compression",
         "instance": "Instance Identical Meshes",
         "srgb": "Linear Color Space",
@@ -667,6 +682,15 @@
       "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
       "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
     },
+    "audioAnalysis": {
+      "name": "Audio Analysis",
+      "lbl-bassEnabled": "Bass Enabled",
+      "lbl-trebleEnabled": "Treble Enabled",
+      "lbl-midEnabled": "Mid Enabled",
+      "lbl-bassMultiplier": "Bass Multiplier",
+      "lbl-trebleMultiplier": "Treble Multiplier",
+      "lbl-midMultiplier": "Mid Multiplier"
+    },
     "renderSettings": {
       "name": "Render Settings",
       "description": "Customise the scene renderer settings",
@@ -678,8 +702,12 @@
       "info-usePostProcessing": "Enables post processing",
       "lbl-useShadows": "Use Shadows",
       "info-useShadows": "Enables shadows",
+      "lbl-primaryLight": "Primary Light",
+      "info-primaryLight": "Set the primary light for the scene",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
+      "lbl-csm-cascades": "Cascades",
+      "info-csm-cascades": "Smaller the size of the scene. More efficient to have less cascades.",
       "lbl-toneMapping": "Tone Mapping",
       "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
       "lbl-toneMappingExposure": "Tone Mapping Exposure",
@@ -696,7 +724,8 @@
       "save": "Save",
       "lbl-loading": "Loading Screen",
       "info-loading": "Change the loading screen",
-      "lbl-colors": "Colors"
+      "lbl-colors": "Colors",
+      "lbl-killHeight": "Kill Height"
     },
     "scene": {
       "name": "Scene",
@@ -767,7 +796,8 @@
       "lbl-fit": "Video Fit",
       "lbl-fit-info": "How the video should be stretched within the given canvas size",
       "lbl-media-info": "An entity w/ a media component that should be sourced for display",
-      "description": "Display a video"
+      "description": "Display a video",
+      "lbl-projection": "Projection"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -911,8 +941,61 @@
       "lbl-newProject": "New Project"
     }
   },
-  "graphPanel":{
-    "addGraph" : "Add Behave Graph"
+  "visualScript":{
+    "panel": {
+      "title": "Visual Script",
+      "addVisualScript" : "Add Visual Script"
+    
+    },
+    "picker":{
+      "title" : "Add Node"
+    },
+    "modal": {
+      "clear": {  
+        "title":"Clear Visual Script",
+        "confirm": "Are you sure?"
+      },
+      "help": {
+        "title":"Help",
+        "addNodeHelp":" Right click anywhere to add a new node.",
+        "addConnectionHelp":"Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
+        "deleteNodeHelp":"Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
+      },
+      "load": {
+        "title":"Load Visual Script",
+        "examples":  "Select an example"
+      },
+      "save":"Save Visual Script",
+      "buttons": {
+        "clear": "Clear",
+        "cancel": "Cancel",
+        "load": "Load",
+        "close": "Close",
+        "copy": {
+          "done": "Copied!",
+          "begin": "Copy"
+        }
+      }
+    },
+    "sidePanel":{
+      "title": "Graph Utilities",
+      "node":{
+        "name": "Nodes",
+        "description": "Individual logic units connected together to create a graph"
+        },
+      "template":{
+        "name": "Templates",
+        "description": "Reusable graphs that can be added to other graphs."
+        },
+      "variables":{
+        "name": "Variables",
+        "description": "Variables that can be used in the graph.",
+        "add": "Add Variable"
+        }
+      },
+    "editorPanel":{
+      "makeTemplate": "Make into template"
+    }
   },
   "layout": {
     "assetGrid": {
@@ -941,7 +1024,7 @@
         "hemisphere-light": "A light which illuminates the scene from directly overhead.",
         "particle-system": "Creates a particle emitter.",
         "system": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
-        "BehaveGraph": "Customizes state and behavior of entities through a node graph connection.",
+        "visual-script": "Customizes state and behavior of entities through a visual node connections.",
         "envmapbake": "Add Env Mapbake to your scene.",
         "scene-preview-camera": "A preview camera which generates a scene thumbnail and the starting position.",
         "skybox": "Sets the area outside your map (skybox) with a specific sky type.",
@@ -1015,12 +1098,17 @@
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
+    "lbl-copy": "Copy",
+    "lbl-paste": "Paste",
     "lbl-delete": "Delete",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "issues": "Issues"
+    "issues": "Issues",
+    "copy-paste": {
+      "no-hierarchy-nodes": "No hierarchy nodes found"
+    }
   },
   "materialLibrary": {
     "lbl": "Material Library",

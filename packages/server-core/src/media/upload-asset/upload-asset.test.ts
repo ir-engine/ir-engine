@@ -29,7 +29,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
@@ -88,7 +88,7 @@ describe('upload-asset', () => {
         mimetype: 'application/json',
         size: buffer.byteLength
       } as UploadFile
-      const hash = createStaticResourceHash(buffer, { mimeType: 'application/json', name: 'test.json' })
+      const hash = createStaticResourceHash(buffer)
 
       const args = {
         hash,
@@ -120,7 +120,7 @@ describe('upload-asset', () => {
       // todo - serve this file from a local server
       const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/default.scene.json')
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(assetPath, { mimeType: 'application/json', name })
+      const hash = createStaticResourceHash(assetPath)
 
       const file = await downloadResourceAndMetadata(assetPath, true)
       const args = {
@@ -150,7 +150,7 @@ describe('upload-asset', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(url, { mimeType: 'application/json', name })
+      const hash = createStaticResourceHash(url)
 
       const file = await downloadResourceAndMetadata(url, true)
       const args = {

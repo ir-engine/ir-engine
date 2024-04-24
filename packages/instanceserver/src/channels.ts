@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
+import commonConfig from '@etherealengine/common/src/config'
 import { decode } from 'jsonwebtoken'
 
 import {
@@ -38,10 +39,10 @@ import {
   InstanceID,
   InstanceType,
   LocationID,
-  SceneID,
   UserID,
   UserKickType,
   UserType,
+  assetPath,
   channelPath,
   channelUserPath,
   identityProviderPath,
@@ -52,20 +53,26 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { NetworkConnectionParams, NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { HyperFlux, State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  NetworkConnectionParams,
+  NetworkPeerFunctions,
+  NetworkState,
+  NetworkTopics,
+  addNetwork,
+  updatePeers
+} from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
@@ -261,7 +268,7 @@ const initializeInstance = async ({
  * @param headers
  */
 
-const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: SceneID; headers?: object }) => {
+const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: string; headers?: object }) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -270,7 +277,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   HyperFlux.store.forwardingTopics.add(topic)
 
   await setupIPs()
-  const network = await initializeNetwork(app, hostId, hostId, topic)
+  const network = await initializeNetwork(app, hostId, Engine.instance.store.peerID, topic)
 
   addNetwork(network)
 
@@ -279,51 +286,56 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     Engine.instance.store.peerID,
     network.peerIndexCount++,
     hostId,
-    network.userIndexCount++,
-    'server-' + hostId
+    network.userIndexCount++
   )
 
   await loadEngineInjection()
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    dispatchAction(EngineActions.sceneLoaded({}))
+    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = await app
-        .service(scenePath)
-        .get(null, { query: { sceneKey: sceneId, metadataOnly: false }, headers })
-      SceneState.loadScene(sceneId, sceneData)
-      getMutableState(SceneState).activeScene.set(sceneId)
+      const scene = await app.service(assetPath).get(sceneId, { headers })
+      const sceneURL = scene.assetURL
+      const isGLTF = sceneURL.endsWith('.gltf')
+      if (isGLTF) {
+        GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
+      } else {
+        const storage = getStorageProvider()
+        const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
+        const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
+        SceneState.loadScene(sceneURL, {
+          scene: parseStorageProviderURLs(sceneJSON),
+          name: sceneURL.split('/')[2],
+          thumbnailUrl: `${commonConfig.client.fileServer}/${sceneURL.replace('.scene.json', '.thumbnail.jpg')}`,
+          project: sceneURL.split('/')[1]
+        })
+      }
+
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(EngineState).sceneLoaded) {
+          if (getState(SceneState).sceneLoaded) {
             clearInterval(interval)
             resolve()
           }
         }, 100)
       })
     }
-    const userUpdatedListener = async (user) => {
-      const worldState = getMutableState(WorldState)
-      if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
-    }
+
     app.service(scenePath).on('updated', sceneUpdatedListener)
-    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
   }
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
-  networkState.authenticated.set(true)
-  networkState.connected.set(true)
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)
@@ -417,7 +429,7 @@ const createOrUpdateInstance = async ({
   status: InstanceserverStatus
   locationId: LocationID
   channelId: ChannelID
-  sceneId?: SceneID
+  sceneId?: string
   headers: object
   userId?: UserID
 }) => {
@@ -449,6 +461,8 @@ const createOrUpdateInstance = async ({
         })
       const instance = await app.service(instancePath).get(instanceServerState.instance.id, { headers })
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
+
+      logger.info(`Authorized user ${userId} to join server`)
       await serverState.agonesSDK.allocate()
       await app.service(instancePath).patch(
         instanceServerState.instance.id,
@@ -513,7 +527,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID, headers:
     }
     await serverState.agonesSDK.shutdown()
   } else {
-    restartInstanceServer()
+    restartInstanceServer(() => Promise.resolve())
   }
 }
 
@@ -521,7 +535,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID, headers:
 const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   const activeClients = Object.entries(getServerNetwork(app).peers)
   const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
+    ([id, client]) => client.peerID !== Engine.instance.store.peerID && client.userId !== userToIgnore.id
   )
   return activeUsers.length
 }
@@ -656,21 +670,22 @@ export const onConnection = (app: Application) => async (connection: PrimusConne
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
-    await app.service(instancePath).patch(
-      instanceServerState.instance.id,
-      {
-        ended: true
-      },
-      { headers: connection.headers }
-    )
-    try {
-      if (instanceServerState.instance.channelId) {
-        await app.service(channelPath).remove(instanceServerState.instance.channelId)
+    restartInstanceServer(async () => {
+      try {
+        await app.service(instancePath).patch(
+          instanceServerState.instance.id,
+          {
+            ended: true
+          },
+          { headers: connection.headers }
+        )
+        if (instanceServerState.instance.channelId) {
+          await app.service(channelPath).remove(instanceServerState.instance.channelId)
+        }
+      } catch (e) {
+        //
       }
-    } catch (e) {
-      //
-    }
-    restartInstanceServer()
+    })
     return
   }
 
@@ -789,7 +804,7 @@ export default (app: Application): void => {
       podName,
       locationId,
       sceneId
-    }: { id; ipAddress; podName; locationId: LocationID; sceneId: SceneID } = params
+    }: { id; ipAddress; podName; locationId: LocationID; sceneId: string } = params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)

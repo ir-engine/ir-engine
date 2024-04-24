@@ -31,38 +31,28 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import $404 from '../pages/404'
 import $503 from '../pages/503'
 
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 
-export const CenteredLoadingCircle = ({ message }: { message: string }) => {
-  return (
-    <div className="absolute w-screen h-screen flex justify-center items-center">
-      <LoadingCircle className={`block w-12 h-12`} message={message} />
-    </div>
-  )
-}
-
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
   const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
 
   if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
-    return <CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<CenteredLoadingCircle message={t('common:loader.loadingRoutes')} />}>
+      <Suspense
+        fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
+      >
         <Routes>
-          <Route
-            key={'custom'}
-            path={'/*'}
-            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
-          />
+          <Route key={'custom'} path={'/*'} element={<$custom customRoutes={customRoutes} />} />
           {customRoutes
             .filter((c) => c.route === '/')
             .map(({ component: Element, props }) => (

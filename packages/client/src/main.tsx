@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 
 import './pages/styles.scss'
 // tslint:disable:ordered-imports
@@ -43,18 +44,26 @@ const AppPage = lazy(() => import('./pages/_app'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
 const App = () => {
+  useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    const redirectUrl = urlSearchParams.get('redirectUrl')
+    if (redirectUrl) {
+      history.push(redirectUrl)
+    }
+  }, [])
+
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter history={history}>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
-            key="admin"
-            path="/admin/*"
+            key="adminold"
+            path="/adminold/*"
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
-                  <AppPage route={'admin'} />
+                  <AppPage route={'adminold'} />
                 </Engine>
               </Suspense>
             }

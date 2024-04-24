@@ -28,8 +28,8 @@ import { CubeTexture, Material, Texture } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import { materialToDefaultArgs } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
+import { materialToDefaultArgs } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -76,6 +76,8 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
+    const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
+    if (!materialEntry) return
     const argData = materialToDefaultArgs(material)
     if (!argData) return
     const result: any = {}
@@ -107,7 +109,6 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,

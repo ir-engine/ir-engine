@@ -24,7 +24,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import Inventory2Icon from '@mui/icons-material/Inventory2'
-import WebAssetIcon from '@mui/icons-material/WebAsset'
 import { CircularProgress } from '@mui/material'
 import { t } from 'i18next'
 import { debounce } from 'lodash'
@@ -58,11 +57,8 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import ImageNodeEditor from '../properties/ImageNodeEditor'
-import ModelNodeEditor from '../properties/ModelNodeEditor'
-import PositionalAudioNodeEditor from '../properties/PositionalAudioNodeEditor'
-import VideoNodeEditor from '../properties/VideoNodeEditor'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import { FileIcon } from './FileBrowser/FileIcon'
 import styles from './styles.module.scss'
 
 export type PrefabricatedComponentsType = {
@@ -162,7 +158,6 @@ const StaticResourceItem = ({ resource }: { resource: StaticResourceType }) => {
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const ResourceIcon = ResourceIcons[AssetLoader.getAssetClass(resource.key)] || WebAssetIcon
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
     item: {
@@ -199,7 +194,9 @@ const StaticResourceItem = ({ resource }: { resource: StaticResourceType }) => {
         cursor: 'pointer'
       }}
     >
-      <ResourceIcon style={{ marginBottom: '5px', height: '70px', width: '70px' }} />
+      <span style={{ marginBottom: '5px', height: '70px', width: '70px', fontSize: 70 }}>
+        <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
+      </span>
       <span>{name}</span>
     </div>
   )

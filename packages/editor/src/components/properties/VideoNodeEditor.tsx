@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
-import { useQuery } from '@etherealengine/engine/src/ecs/functions/QueryFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'
@@ -47,6 +48,11 @@ const fitOptions = [
   { label: 'Contain', value: 'contain' },
   { label: 'Vertical', value: 'vertical' },
   { label: 'Horizontal', value: 'horizontal' }
+]
+
+const projectionOptions = [
+  { label: 'Flat', value: 'Flat' },
+  { label: 'Equirectangular360', value: 'Equirectangular360' }
 ]
 
 /**
@@ -68,6 +74,13 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
     })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
+
+  useEffect(() => {
+    if (!hasComponent(props.entity, MediaComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
+    }
+  }, [])
 
   return (
     <NodeEditor
@@ -97,6 +110,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           value={video.size.value}
           onChange={updateProperty(VideoComponent, 'size')}
           onRelease={commitProperty(VideoComponent, 'size')}
+        />
+      </InputGroup>
+
+      <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
+        <SelectInput
+          value={video.projection.value}
+          onChange={commitProperty(VideoComponent, 'projection')}
+          options={projectionOptions}
         />
       </InputGroup>
 

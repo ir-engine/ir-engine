@@ -28,13 +28,12 @@ import nock from 'nock'
 
 import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { LocationSettingType } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
@@ -109,8 +108,8 @@ describe.skip('matchmaking match-instance service', () => {
     location = await app.service(locationPath).create({
       name: `game-${gameMode}`,
       slugifiedName: `game-${gameMode}`,
-      maxUsersPerInstance: 30,
-      sceneId: `test/game-${gameMode}` as SceneID,
+      maxUsersPerInstance: 20,
+      sceneId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false

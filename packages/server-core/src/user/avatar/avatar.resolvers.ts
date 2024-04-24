@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
@@ -37,24 +37,11 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
-  updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt))
-})
-
-export const avatarExternalResolver = resolve<AvatarType, HookContext>({
-  user: virtual(async (avatar, context) => {
-    if (context.params?.actualQuery?.skipUser) return {}
-    if (avatar.userId) {
-      try {
-        return await context.app.service(userPath).get(avatar.userId, { query: { skipAvatar: true } })
-      } catch (err) {
-        return {}
-      }
-    }
-  }),
+  updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt)),
   modelResource: virtual(async (avatar, context) => {
     if (context.event !== 'removed' && avatar.modelResourceId)
       try {
@@ -73,9 +60,22 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
   })
 })
 
+export const avatarExternalResolver = resolve<AvatarType, HookContext>({
+  user: virtual(async (avatar, context) => {
+    if (context.params?.actualQuery?.skipUser) return {}
+    if (avatar.userId) {
+      try {
+        return await context.app.service(userPath).get(avatar.userId, { query: { skipAvatar: true } })
+      } catch (err) {
+        return {}
+      }
+    }
+  })
+})
+
 export const avatarDataResolver = resolve<AvatarDatabaseType, HookContext>({
   id: async () => {
-    return v4() as AvatarID
+    return uuidv4() as AvatarID
   },
   isPublic: async (isPublic) => {
     return isPublic ?? true

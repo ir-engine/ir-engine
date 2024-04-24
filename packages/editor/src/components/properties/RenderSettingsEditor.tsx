@@ -37,9 +37,11 @@ import {
   VSMShadowMap
 } from 'three'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityUUID, UUIDComponent, useQuery } from '@etherealengine/ecs'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -107,11 +109,36 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
 
+  const directionalLightOptions = [
+    {
+      label: 'None',
+      value: '' as EntityUUID
+    }
+  ].concat(
+    useQuery([DirectionalLightComponent]).map((entity) => {
+      return {
+        label: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent)
+      }
+    })
+  )
+
   return (
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
+      <InputGroup
+        name="Primary Light"
+        label={t('editor:properties.renderSettings.lbl-primaryLight')}
+        info={t('editor:properties.renderSettings.info-primaryLight')}
+      >
+        <SelectInput
+          options={directionalLightOptions}
+          value={rendererSettingsState.primaryLight.value}
+          onChange={commitProperty(RenderSettingsComponent, 'primaryLight')}
+        />
+      </InputGroup>
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
@@ -122,6 +149,24 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'csm')}
         />
       </InputGroup>
+      {rendererSettingsState.csm.value === true ? (
+        <InputGroup
+          name="Cascades"
+          label={t('editor:properties.renderSettings.lbl-csm-cascades')}
+          info={t('editor:properties.renderSettings.info-csm-cascades')}
+        >
+          <CompoundNumericInput
+            min={1}
+            max={5}
+            step={1}
+            value={rendererSettingsState.cascades.value}
+            onChange={updateProperty(RenderSettingsComponent, 'cascades')}
+            onRelease={commitProperty(RenderSettingsComponent, 'cascades')}
+          />
+        </InputGroup>
+      ) : (
+        <></>
+      )}
       <InputGroup
         name="Tone Mapping"
         label={t('editor:properties.renderSettings.lbl-toneMapping')}

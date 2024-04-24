@@ -28,7 +28,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  FileLoader,
   Group,
   LOD,
   Material,
@@ -44,20 +43,21 @@ import {
   TextureLoader
 } from 'three'
 
+import { FileLoader } from '../loaders/base/FileLoader'
+
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
-import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { iOS } from '../../common/functions/isMobile'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
-import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTexture'
-import iterateObject3D from '../../scene/util/iterateObject3D'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
+import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { SourceType } from '../../scene/materials/components/MaterialSource'
+import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { initializeKTX2Loader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -88,14 +88,6 @@ const onUploadDropBuffer = () =>
     this.array = new this.array.constructor(1)
   }
 
-const onTextureUploadDropSource = () =>
-  function (this: Texture) {
-    // source.data can't be null because the WebGLRenderer checks for it
-    this.source.data = { width: this.source.data.width, height: this.source.data.height, __deleted: true }
-    this.mipmaps.map((b) => delete b.data)
-    this.mipmaps = []
-  }
-
 export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
   if (getState(EngineState).isEditor || !child.isMesh) return
   const geo = child.geometry as BufferGeometry
@@ -105,9 +97,6 @@ export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
     for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
     if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
   }
-  Object.entries(mat)
-    .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-    .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource()))
 }
 
 const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
@@ -280,9 +269,8 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad, onProgress, onError) => {
+  load: (src, onLoad, onProgress, onError, signal?) => {
     const gltfLoader = getState(AssetLoaderState).gltfLoader
-    if (!gltfLoader.ktx2Loader) initializeKTX2Loader(gltfLoader)
     gltfLoader.ktx2Loader!.load(
       src,
       (texture) => {
@@ -370,9 +358,9 @@ const assetLoadCallback =
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-type LoadingArgs = {
+export type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
-  forceAssetType?: AssetType
+  forceAssetType?: AssetType | null
   assetRoot?: Entity
 }
 
@@ -381,7 +369,8 @@ const load = async (
   args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  signal?: AbortSignal
 ) => {
   if (!_url) {
     onError(new Error('URL is empty'))
@@ -432,7 +421,7 @@ const load = async (
   const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
-    return loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }
@@ -454,6 +443,8 @@ export const AssetLoader = {
   isSupported,
   getLoader,
   assetLoadCallback,
+  /** @deprecated Use hooks from resourceHooks.ts instead **/
   load,
+  /** @deprecated Use hooks from resourceHooks.ts instead **/
   loadAsync
 }

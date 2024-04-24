@@ -33,12 +33,18 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
-import { ChannelID, ChannelType, UserID, UserName, channelPath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import {
+  ChannelID,
+  ChannelType,
+  UserID,
+  UserName,
+  channelPath,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -62,7 +68,6 @@ interface Props {
 
 interface DisplayedUserInterface {
   id: UserID
-  name: UserName
   relationType?: 'friend' | 'requested' | 'blocking' | 'pending' | 'blocked'
 }
 
@@ -89,11 +94,9 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const channels = useFind(channelPath)
 
-  const worldState = useHookstate(getMutableState(WorldState))
   const friendState = useHookstate(getMutableState(FriendState))
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const userId = selfUser.id.value
-  const userNames = worldState.userNames.get({ noproxy: true })
 
   const privateChannels = channels.data.filter((channel) => !channel.instanceId)
 
@@ -183,7 +186,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       : []
     displayList.push(
       ...cloneDeep(layerPeers).map((peer) => {
-        return { id: peer.userId, name: userNames[peer.userId] }
+        return { id: peer.userId }
       })
     )
 
@@ -206,12 +209,13 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const Friend = (props: { user: DisplayedUserInterface }) => {
     const { user } = props
+    const userName = useGet(userPath, props.user.id).data?.name ?? 'User'
     const thumbnail = useUserAvatarThumbnail(user.id as UserID)
     return (
       <Box key={user.id} display="flex" alignItems="center" m={2} gap={1.5}>
-        <Avatar alt={user.name} imageSrc={thumbnail} size={50} />
+        <Avatar alt={userName} imageSrc={thumbnail} size={50} />
 
-        <Text flex={1}>{user.name}</Text>
+        <Text flex={1}>{userName}</Text>
 
         {user.relationType === 'friend' && (
           <IconButton

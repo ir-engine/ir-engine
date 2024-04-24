@@ -27,8 +27,8 @@ import React, { useImperativeHandle } from 'react'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
@@ -47,6 +47,7 @@ const assetHeadingStyles = {
 
 interface Props {
   hideHeading?: boolean
+  previewPanelProps?: any
 }
 
 type ResourceProps = {
@@ -62,7 +63,7 @@ export type AssetSelectionChangePropsType = ResourceProps & {
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  */
-export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
+export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelProps, ...props }: Props, ref) => {
   useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const previewPanel = useHookstate({
     PreviewSource: null as ((props: { resourceProps: ResourceProps }) => JSX.Element) | null,
@@ -84,10 +85,13 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
   }
 
   const renderPreview = (props) => {
+    console.log('props, contentType: ', props.contentType)
     switch (props.contentType) {
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
+      case AssetType.VRM:
+      case 'model/vrm':
       case AssetType.glB:
       case AssetType.glTF:
       case 'gltf-binary':
@@ -175,7 +179,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
             `${previewPanel.resourceProps.name.value} (${previewPanel.resourceProps.size.value})`}
         </div>
       )}
-      {PreviewSource && <PreviewSource resourceProps={previewPanel.resourceProps.value} />}
+      {PreviewSource && <PreviewSource resourceProps={previewPanel.resourceProps.value} {...previewPanelProps} />}
     </>
   )
 })

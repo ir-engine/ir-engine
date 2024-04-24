@@ -38,7 +38,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/network'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
@@ -65,10 +65,11 @@ export const WorldInstanceConnection = () => {
   )
 
   const editorState = useHookstate(getMutableState(EditorState))
-  const sceneId = editorState.sceneID.value!
+  const sceneId = editorState.scenePath.value!
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
+      /** @todo reassess if this is still necessary */
       if (worldNetworkHostId) leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
       return
     }
@@ -84,8 +85,8 @@ export const WorldInstanceConnection = () => {
 
   const getIcon = () => {
     if (networkState?.value) {
-      if (networkState.connected.value) return <DoneIcon fontSize="small" />
       if (!networkState.ready.value) return <LoadingCircle message={t('common:loader.connectingToWorld')} />
+      return <DoneIcon fontSize="small" />
     }
     return <DirectionsRun fontSize="small" />
   }
