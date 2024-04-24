@@ -37,13 +37,12 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
 import { ControlledStringInput } from '../../input/String'
 import NodeEditor from '../nodeEditor'
 
 /**
  * LinkNodeEditor component used to provide the editor view to customize link properties.
- *
- * @type {Class component}
  */
 export const LinkNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -79,18 +78,20 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         //linkComponent.sceneNav.value
         // eslint-disable-next-line no-constant-condition
         true ? (
-          <>
-            <InputGroup name="Location" label={t('editor:properties.linkComp.lbl-locaiton')}>
-              <ControlledStringInput
-                value={
-                  ''
-                  //linkComponent.location.value
-                }
-                onChange={updateProperty(LinkComponent, 'location')}
-                onRelease={commitProperty(LinkComponent, 'location')}
-              />
-            </InputGroup>
-          </>
+          <InputGroup
+            name="Location"
+            label="abcd"
+            // label={t('editor:properties.linkComp.lbl-locaiton')}
+          >
+            <ControlledStringInput
+              value={
+                ''
+                //linkComponent.location.value
+              }
+              onChange={updateProperty(LinkComponent, 'location')}
+              onRelease={commitProperty(LinkComponent, 'location')}
+            />
+          </InputGroup>
         ) : (
           <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
             <ControlledStringInput
@@ -104,6 +105,20 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
           </InputGroup>
         )
       }
+      <InputGroup name="Decay" label={t('editor:properties.spotLight.lbl-decay')}>
+        <NumericInput
+          min={0}
+          max={10}
+          smallStep={0.1}
+          mediumStep={1}
+          value={
+            //lightComponent.decay
+            0
+          }
+          onChange={updateProperty(LinkComponent, 'decay' as any)}
+          onRelease={commitProperty(LinkComponent, 'decay' as any)}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

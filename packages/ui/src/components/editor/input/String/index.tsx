@@ -77,9 +77,9 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
     onRelease?.(tempValue)
   }
 
-  const onChangeValue = (e) => {
-    setTempValue(e.target.value)
-    onChange?.(e.target.value)
+  const onChangeValue = (value: string) => {
+    setTempValue(value)
+    onChange?.(value)
   }
 
   const onFocus = () => {
@@ -90,7 +90,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
     <Input
       ref={ref}
       containerClassname="w-60 h-7 bg-[#1A1A1A] rounded"
-      className="text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
+      className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value ?? ''}
       onChange={(e) => {
         onChangeValue(e.target.value)
