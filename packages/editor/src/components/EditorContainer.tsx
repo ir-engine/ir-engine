@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -42,7 +41,7 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveSceneGLTF, saveSceneJSON } from '../functions/sceneFunctions'
+import { onNewScene, saveSceneGLTF, saveSceneJSON, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -365,12 +364,12 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath: sceneID } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
-  const sceneQuery = useFind(assetPath, { query: { assetURL: sceneID.value ?? '' } }).data
+  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
 
-  const sceneLoading = sceneID.value && !sceneLoaded.value
+  const sceneLoading = scenePath.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -425,18 +424,18 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!sceneURL) return
-    const [_, project, scene] = sceneID.value?.split('/') ?? []
+    const [_, project, scene] = scenePath.value?.split('/') ?? []
     sceneName.set(scene ?? null)
     projectName.set(project ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return SceneServices.setCurrentScene(sceneURL)
+    return setCurrentEditorScene(sceneURL)
   }, [sceneURL])
 
   useEffect(() => {
     return () => {
       getMutableState(SelectionState).selectedEntities.set([])
     }
-  }, [sceneID])
+  }, [scenePath])
 
   useEffect(() => {
     if (!dockPanelRef.current) return
@@ -455,7 +454,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneID.value ? { background: 'transparent' } : {}}
+        style={scenePath.value ? { background: 'transparent' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />

@@ -184,19 +184,13 @@
       ],
       "name": "Child 0",
       "extensions": {
-        "EE_uuid": "child_0",
-        "EE_model": {
-          "src": "/packages/projects/default-project/assets/collisioncube.glb",
-          "cameraOcclusion": true,
-          "convertToVRM": false
-        }
+        "EE_uuid": "child_0"
       }
     }
   ],
   "extensionsUsed": [
     "EE_uuid",
     "EE_ecs",
-    "EE_fog",
-    "EE_model"
+    "EE_fog"
   ]
 }

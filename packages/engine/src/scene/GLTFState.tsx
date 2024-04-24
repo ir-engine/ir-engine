@@ -60,12 +60,7 @@ import { getModelSceneID } from './functions/loaders/ModelFunctions'
 
 export const GLTFSourceState = defineState({
   name: 'GLTFState',
-  initial: {} as Record<
-    string,
-    {
-      entity: Entity
-    }
-  >,
+  initial: {} as Record<string, Entity>,
 
   load: (source: string, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
@@ -77,11 +72,13 @@ export const GLTFSourceState = defineState({
     setComponent(entity, ModelComponent, { src: source })
     const sourceID = getModelSceneID(entity)
     setComponent(entity, SourceComponent, sourceID)
-    getMutableState(GLTFSourceState)[source].set({ entity })
+    getMutableState(GLTFSourceState)[sourceID].set(entity)
     return entity
   },
 
-  unload: (source: string, entity: Entity) => {
+  unload: (entity: Entity) => {
+    const sourceID = getModelSceneID(entity)
+    getMutableState(GLTFSourceState)[sourceID].set(entity)
     removeEntity(entity)
   }
 })
@@ -176,9 +173,12 @@ export const GLTFSnapshotState = defineState({
     return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
   },
 
-  cloneCurrentSnapshot: (source: string) => {
-    const state = getState(GLTFSnapshotState)[source]
-    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
+  // Source Instance => ModelComponent => Source Document
+  cloneCurrentSnapshot: (sourceInstance: string) => {
+    const modelEntity = getState(GLTFSourceState)[sourceInstance]
+    const src = getComponent(modelEntity, ModelComponent).src
+    const state = getState(GLTFSnapshotState)[src]
+    return JSON.parse(JSON.stringify({ source: src, data: state.snapshots[state.index] })) as {
       data: GLTF.IGLTF
       source: string
     }
@@ -196,17 +196,14 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
     // force model components to re-load gltf until we have a new loader
 
-    // setTimeout(() => {
     for (const entity of modelQuery()) {
       if (getComponent(entity, ModelComponent).src === props.source) {
-        console.log('reloading model', entity, props.source)
         /** force reload of the component */
         const data = serializeComponent(entity, ModelComponent)
         removeComponent(entity, ModelComponent)
         setComponent(entity, ModelComponent, data)
       }
     }
-    // }, 0)
   }, [gltfState.index])
 
   return null

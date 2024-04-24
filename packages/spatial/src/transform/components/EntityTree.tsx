@@ -276,11 +276,13 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 export function findAncestorWithComponent(
   entity: Entity,
   component: ComponentType<any>,
-  closest = true
+  closest = true,
+  includeSelf = true
 ): Entity | undefined {
   let result: Entity | undefined
-  if (closest && hasComponent(entity, component)) return entity
+  if (includeSelf && closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
+    if (closest && result) return
     if (hasComponent(parent, component)) {
       result = parent
     }

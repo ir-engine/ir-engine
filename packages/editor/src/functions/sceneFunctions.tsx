@@ -25,16 +25,26 @@ Ethereal Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
@@ -210,5 +220,45 @@ export const createNewScene = async (projectName: string, params?: AssetParams) 
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error
+  }
+}
+
+const fileServer = config.client.fileServer
+
+export const setCurrentEditorScene = (sceneURL: string) => {
+  const isGLTF = sceneURL.endsWith('.gltf')
+  if (isGLTF) {
+    const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    getMutableState(EditorState).rootEntity.set(gltfEntity)
+    return () => {
+      getMutableState(EditorState).rootEntity.set(UndefinedEntity)
+      GLTFSourceState.unload(gltfEntity)
+    }
+  }
+
+  let unmounted = false
+
+  const sceneID = sceneURL.endsWith('.scene.json') ? sceneURL : sceneURL + '.scene.json'
+
+  fetch(`${fileServer}/${sceneID}`).then(async (data) => {
+    if (unmounted) return
+    const sceneJSON = await data.json()
+    if (unmounted) return
+    const sceneRoot = SceneState.loadScene(sceneID, {
+      scene: parseStorageProviderURLs(sceneJSON),
+      name: sceneID.split('/')[2],
+      thumbnailUrl: `${fileServer}/${sceneID.replace('.scene.json', '.thumbnail.jpg')}`,
+      project: sceneID.split('/')[1]
+    })
+    if (sceneRoot) {
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
+      getMutableState(EditorState).rootEntity.set(sceneRoot)
+    }
+  })
+
+  return () => {
+    unmounted = true
+    SceneState.unloadScene(sceneID)
   }
 }
