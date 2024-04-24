@@ -3,7 +3,7 @@ set -x
 
 # https://askubuntu.com/a/980632/1558816
 sudo apt-get -y clean
-rm -rf /var/lib/apt/lists/*
+sudo rm -rf /var/lib/apt/lists/*
 sudo apt-get -y clean
 sudo apt-get -y update
 sudo apt-get -y upgrade
