@@ -25,11 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Material, SRGBColorSpace } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import matches from 'ts-matches'
 import { PrototypeNotFoundError } from '../../../../scene/materials/functions/materialSourcingFunctions'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
 import {
   EEMaterialExtensionType,
   isOldEEMaterial,
@@ -74,16 +71,15 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
     }
-    const materialLibrary = getState(MaterialLibraryState)
     const materialComponent = materialLibrary.materials[extension.uuid]
     let defaultArgs: { [_: string]: any } = {}
     let foundPrototype = false
     if (materialComponent) {
       foundPrototype = !!materialLibrary.prototypes[materialComponent.prototype]
-      //defaultArgs = materialIdToDefaultArgs(extension.uuid)!
+      defaultArgs = materialIdToDefaultArgs(extension.uuid)!
     } else {
       try {
-        //defaultArgs = prototypeFromId(extension.prototype).arguments
+        defaultArgs = prototypeFromId(extension.prototype).arguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

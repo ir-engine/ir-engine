@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, ShaderMaterial as Shader } from 'three'
 
-import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ColorArg, ObjectArg, ShaderArg } from '../DefaultArgs'
 
 export const ShaderMaterialArguments = {
@@ -41,6 +41,6 @@ export const ShaderMaterialArguments = {
 
 export const ShaderMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'ShaderMaterial',
-  baseMaterial: new Shader(),
+  prototypeConstructor: Shader,
   arguments: ShaderMaterialArguments
 }

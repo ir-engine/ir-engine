@@ -29,7 +29,18 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialLibraryState } from '../MaterialLibrary'
+import MeshBasicMaterial from '../constants/material-prototypes/MeshBasicMaterial.mat'
+import MeshLambertMaterial from '../constants/material-prototypes/MeshLambertMaterial.mat'
+import MeshMatcapMaterial from '../constants/material-prototypes/MeshMatcapMaterial.mat'
+import MeshPhongMaterial from '../constants/material-prototypes/MeshPhongMaterial.mat'
+import MeshPhysicalMaterial from '../constants/material-prototypes/MeshPhysicalMaterial.mat'
+import MeshStandardMaterial from '../constants/material-prototypes/MeshStandardMaterial.mat'
+import MeshToonMaterial from '../constants/material-prototypes/MeshToonMaterial.mat'
+import { ShaderMaterial } from '../constants/material-prototypes/ShaderMaterial.mat'
+import { ShadowMaterial } from '../constants/material-prototypes/ShadowMaterial.mat'
+import { createPrototype } from '../functions/materialSourcingFunctions'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -52,7 +63,19 @@ import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibr
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    initializeMaterialLibrary()
+    ;[
+      MeshBasicMaterial,
+      MeshStandardMaterial,
+      MeshMatcapMaterial,
+      MeshPhysicalMaterial,
+      MeshLambertMaterial,
+      MeshPhongMaterial,
+      MeshToonMaterial,
+      ShaderMaterial,
+      ShadowMaterial
+    ].map((prototype: MaterialPrototypeDefinition) =>
+      createPrototype(prototype.prototypeId, prototype.arguments, prototype.prototypeConstructor)
+    )
     return () => {
       const materialLibraryState = getMutableState(MaterialLibraryState)
       // todo, to make extensible only clear those initialized in initializeMaterialLibrary

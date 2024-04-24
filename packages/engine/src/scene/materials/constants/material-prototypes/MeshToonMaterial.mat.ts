@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshToonMaterial as Toon } from 'three'
-
-import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, TextureArg } from '../DefaultArgs'
 
@@ -40,7 +39,7 @@ export const MeshToonArguments = {
 
 export const MeshToonMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshToonMaterial',
-  baseMaterial: new Toon(),
+  prototypeConstructor: Toon,
   arguments: MeshToonArguments
 }
 

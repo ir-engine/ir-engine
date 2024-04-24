@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshMatcapMaterial as Matcap } from 'three'
-
-import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
 import { BoolArg, TextureArg } from '../DefaultArgs'
 
@@ -40,8 +39,8 @@ export const MeshMatcapArguments = {
 
 export const MeshMatcapMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshMatcapMaterial',
-  baseMaterial: new Matcap(),
   arguments: MeshMatcapArguments,
+  prototypeConstructor: Matcap,
   onBeforeCompile: (shader, renderer) => {
     ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
       (arg) => (shader.uniforms[arg] = { value: null })

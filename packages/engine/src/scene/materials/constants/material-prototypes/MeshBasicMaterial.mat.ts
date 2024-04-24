@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshBasicMaterial as Basic } from 'three'
 
-import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
 import { TextureArg } from '../DefaultArgs'
 
@@ -40,7 +40,7 @@ export const MeshBasicArguments = {
 
 export const MeshBasicMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshBasicMaterial',
-  baseMaterial: new Basic(),
+  prototypeConstructor: Basic,
   arguments: MeshBasicArguments
 }
 

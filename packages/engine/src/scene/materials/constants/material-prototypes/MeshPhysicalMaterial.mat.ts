@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshPhysicalMaterial as Physical } from 'three'
 
-import { MaterialPrototypeDefinition } from '../../components/MaterialPrototypeComponent'
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 import { MeshStandardArguments as StandardDefaults } from './MeshStandardMaterial.mat'
 
@@ -58,7 +58,7 @@ export const MeshPhysicalArguments = {
 
 export const MeshPhysicalMaterial: MaterialPrototypeDefinition = {
   prototypeId: 'MeshPhysicalMaterial',
-  baseMaterial: new Physical(),
+  prototypeConstructor: Physical,
   arguments: MeshPhysicalArguments
 }
 

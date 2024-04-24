@@ -25,22 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { MaterialComponentType } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponentType,
+  MaterialPrototypeDefinition
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
-import { MaterialPrototypeDefinition } from './components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from './components/MaterialSource'
-import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
-import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
-import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
-import MeshPhongMaterial from './constants/material-prototypes/MeshPhongMaterial.mat'
-import MeshPhysicalMaterial from './constants/material-prototypes/MeshPhysicalMaterial.mat'
-import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMaterial.mat'
-import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
-import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
-import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
-import { createPrototype } from './functions/materialSourcingFunctions'
 
 export const MaterialLibraryState = defineState({
   name: 'MaterialLibraryState',
@@ -57,18 +49,6 @@ export function initializeMaterialLibrary() {
   const materialLibrary = getState(MaterialLibraryState)
   //load default prototypes from source
   if (!materialLibrary.initialized) {
-    ;[
-      MeshBasicMaterial,
-      MeshStandardMaterial,
-      MeshMatcapMaterial,
-      MeshPhysicalMaterial,
-      MeshLambertMaterial,
-      MeshPhongMaterial,
-      MeshToonMaterial,
-      ShaderMaterial,
-      ShadowMaterial
-    ].map((prototype) => createPrototype(prototype.prototypeId, prototype.arguments, prototype.baseMaterial))
-
     //load default plugins from source
     ;[NoiseOffsetPlugin].map(registerMaterialPlugin)
     getMutableState(MaterialLibraryState).initialized.set(true)

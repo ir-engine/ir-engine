@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader } from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -34,6 +34,14 @@ export type MaterialWithEntity = Material & { entity: Entity }
 
 export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
 
+export type MaterialPrototypeConstructor = new (...args: any) => any
+type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
+export type MaterialPrototypeDefinition = {
+  prototypeId: string
+  prototypeConstructor: MaterialPrototypeConstructor
+  arguments: PrototypeArgument
+  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
+}
 export type MaterialComponentType = {
   prototype: string
   material: Material
@@ -69,8 +77,8 @@ export const MaterialComponent = defineComponent({
       plugins: [] as string[],
       prototypeEntity: UndefinedEntity as Entity,
       // shared prototype state
-      prototypeName: '',
-      prototypeArguments: {} as PrototypeArgument
+      prototypeArguments: {} as PrototypeArgument,
+      prototypeConstructor: null as null | MaterialPrototypeObjectConstructor
     }
   },
 
@@ -87,8 +95,8 @@ export const MaterialComponent = defineComponent({
     if (json.instances) component.instances.set(json.instances)
     if (json.plugins) component.plugins.set(json.plugins)
     if (json.prototypeEntity) component.prototypeEntity.set(json.prototypeEntity)
-    if (json.prototypeName) component.prototypeName.set(json.prototypeName)
     if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)
+    if (json.prototypeConstructor) component.prototypeConstructor.set(json.prototypeConstructor)
   },
 
   onRemove: (entity, component) => {

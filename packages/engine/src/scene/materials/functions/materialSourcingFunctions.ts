@@ -43,7 +43,11 @@ import {
 } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
-import { MaterialComponent, PrototypeArgument } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponent,
+  MaterialPrototypeConstructor,
+  PrototypeArgument
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
@@ -159,11 +163,14 @@ const uniqueSuffix = (name: string) => {
   return `${name}${i}`
 }
 
-export const createPrototype = (name: string, prototypeArguments: PrototypeArgument, material: Material) => {
+export const createPrototype = (
+  name: string,
+  prototypeArguments: PrototypeArgument,
+  prototypeConstructor: MaterialPrototypeConstructor
+) => {
   const prototypeEntity = createEntity()
   setComponent(prototypeEntity, MaterialComponent, {
-    material,
-    prototypeName: name,
+    prototypeConstructor: { name: prototypeConstructor },
     prototypeArguments
   })
   setComponent(prototypeEntity, NameComponent, name)
