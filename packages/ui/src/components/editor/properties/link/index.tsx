@@ -56,15 +56,13 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.linkComp.title')}
       description={t('editor:properties.linkComp.description')}
     >
-      {errors ? (
-        Object.entries(errors).map(([err, message]) => (
-          <div key={err} style={{ marginTop: 2, color: '#FF8C00' }}>
-            {'Error: ' + err + '--' + message}
-          </div>
-        ))
-      ) : (
-        <></>
-      )}
+      {errors
+        ? Object.entries(errors).map(([err, message]) => (
+            <div key={err} style={{ marginTop: 2, color: '#FF8C00' }}>
+              {'Error: ' + err + '--' + message}
+            </div>
+          ))
+        : null}
       <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
         <BooleanInput
           value={
@@ -74,13 +72,27 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(LinkComponent, 'sceneNav')}
         />
       </InputGroup>
-      {
+      <InputGroup
+        name="Location"
+        label="abcdefghijklm"
+        // label={t('editor:properties.linkComp.lbl-locaiton')}
+      >
+        <ControlledStringInput
+          value={
+            ''
+            //linkComponent.location.value
+          }
+          onChange={updateProperty(LinkComponent, 'location')}
+          onRelease={commitProperty(LinkComponent, 'location')}
+        />
+      </InputGroup>
+      {/* {
         //linkComponent.sceneNav.value
         // eslint-disable-next-line no-constant-condition
         true ? (
           <InputGroup
             name="Location"
-            label="abcd"
+            label="abcdefghijklm"
             // label={t('editor:properties.linkComp.lbl-locaiton')}
           >
             <ControlledStringInput
@@ -104,7 +116,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
         )
-      }
+      } */}
       <InputGroup name="Decay" label={t('editor:properties.spotLight.lbl-decay')}>
         <NumericInput
           min={0}

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Input, { InputProps } from '../../../../primitives/tailwind/Input'
 
 export interface StringInputProps extends Omit<InputProps, 'onChange'> {
@@ -36,7 +36,7 @@ const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) 
   return (
     <Input
       containerClassname="w-44 h-7 bg-[#1A1A1A] rounded"
-      className="text-ellipsis rounded border-none bg-inherit px-5 text-xs font-normal text-[#8B8B8D]"
+      className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value}
       onChange={(e) => {
         onChange?.(e.target.value)
@@ -66,7 +66,6 @@ export default StringInput
 // do we really need a controlled string input? we could easily integrate this with string input itself
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
   const { onChange, onRelease, value, placeholder, disabled, type, ...rest } = values
-  const inputRef = useRef<HTMLInputElement>()
   const [tempValue, setTempValue] = useState(value)
 
   useEffect(() => {
@@ -82,21 +81,16 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
     onChange?.(value)
   }
 
-  const onFocus = () => {
-    inputRef.current?.select()
-  }
-
   return (
     <Input
       ref={ref}
-      containerClassname="w-60 h-7 bg-[#1A1A1A] rounded"
+      containerClassname="w-[200px] h-7 bg-[#1A1A1A] rounded"
       className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value ?? ''}
       onChange={(e) => {
         onChangeValue(e.target.value)
       }}
       onBlur={onBlur}
-      onFocus={onFocus}
       disabled={disabled}
       placeholder={placeholder}
       type="text"
