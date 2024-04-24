@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
 import {
   NO_PROXY,
@@ -590,7 +589,7 @@ const tryUnloadObj = (obj: DisposableObject) => {
   unloadObj(obj3D)
 }
 
-const unloadObj = <T extends Object3D>(obj: T, sceneID?: SceneID) => {
+const unloadObj = (obj: Object3D, sceneID?: string) => {
   const remove = (obj: Object3D) => {
     ResourceState.debugLog(`ResourceManager:unloadObj Unloading Object3D: ${obj.name} for scene: ${sceneID}`)
     const disposable = obj as DisposableObject // anything with dispose function

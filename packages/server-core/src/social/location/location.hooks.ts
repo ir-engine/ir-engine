@@ -254,7 +254,7 @@ const updateLocationSetting = async (context: HookContext<LocationService>) => {
         audioEnabled: data.locationSetting.audioEnabled,
         faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
         screenSharingEnabled: data.locationSetting.screenSharingEnabled,
-        locationType: data.locationSetting.locationType || 'private'
+        locationType: data.locationSetting.locationType || 'public'
       })
       .where({ id: context.oldLocation.locationSetting.id })
   }

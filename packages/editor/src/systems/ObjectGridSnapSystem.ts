@@ -24,15 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  Entity,
+  Not,
+  UndefinedEntity,
+  defineQuery,
+  defineSystem,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+  setComponent,
+  useQuery
+} from '@etherealengine/ecs'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import {
   BoundingBoxHelperComponent,
   ObjectGridSnapComponent
@@ -222,6 +227,7 @@ export const ObjectGridSnapSystem = defineSystem({
   reactor: () => {
     const snapState = useHookstate(getMutableState(ObjectGridSnapState))
     const selectionState = useHookstate(getMutableState(SelectionState))
+    const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
       if (!snapState.enabled.value) {
@@ -244,6 +250,10 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
     }, [selectionState.selectedEntities])
+
+    useEffect(() => {
+      for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
+    }, [])
 
     return null
   },

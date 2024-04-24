@@ -94,7 +94,9 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (key: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailType = 'automatic'
-  const thumbnailKey = `${key.replace(/^.*?\/projects\//, '').replaceAll('/', '-')}-thumbnail.png`
+  const thumbnailKey = `${decodeURI(key.replace(/^.*?\/projects\//, ''))
+    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
+    .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
   const path = `projects/${projectName}/thumbnails`
   const upload: Promise<string[]> = uploadToFeathersService(fileBrowserUploadPath, [file], {

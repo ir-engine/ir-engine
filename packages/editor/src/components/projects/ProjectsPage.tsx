@@ -199,6 +199,7 @@ const ProjectsPage = () => {
   const projectFindQuery = useFind(projectPath, {
     query: {
       paginate: false,
+      action: 'studio',
       allowed: true,
       ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),
       $sort: { name: 1 }

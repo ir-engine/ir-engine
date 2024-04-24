@@ -69,7 +69,7 @@ export const PositionalAudioComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
+    if (typeof json.distanceModel === 'string' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
     if (typeof json.rolloffFactor === 'number' && component.rolloffFactor.value !== json.rolloffFactor)
       component.rolloffFactor.set(json.rolloffFactor)

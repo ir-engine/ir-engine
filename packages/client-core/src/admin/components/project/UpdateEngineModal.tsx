@@ -139,6 +139,7 @@ export default function UpdateEngineModal() {
       errors.set(err.message)
     }
     modalProcessing.set(false)
+    PopoverState.hidePopupover()
   }
 
   useEffect(() => {

@@ -38,7 +38,8 @@ const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.HighlightEffect?.selection.set(
+  // @ts-ignore @todo why does typescript freak out here?
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect?.selection.set(
     highlightQuery().map((entity) => getComponent(entity, MeshComponent))
   )
 }

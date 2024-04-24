@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
@@ -41,7 +42,6 @@ import { MediaComponent } from './components/MediaComponent'
 import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
-import { PostProcessingComponent } from './components/PostProcessingComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
@@ -62,7 +62,6 @@ import { EnvironmentSystem } from './systems/EnvironmentSystem'
 import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
-import { SDFSystem } from './systems/SDFSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
@@ -124,7 +123,6 @@ export {
   SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
-  SDFSystem,
   ShadowSystem,
   VariantSystem
 }

@@ -33,7 +33,7 @@ import { FixedSizeList } from 'react-window'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { NO_PROXY, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
@@ -41,10 +41,11 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import config from '@etherealengine/common/src/config'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -73,7 +74,8 @@ const uploadOptions = {
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
-function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID }) {
+function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID }) {
+  const { sceneURL, rootEntityUUID } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -89,10 +91,8 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
 
-  const uuidQuery = useQuery([UUIDComponent, SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID)
-  const index = SceneSnapshotState.useSnapshotIndex(sceneID.value!)
+  const index = SceneSnapshotState.useSnapshotIndex(sceneURL)
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -114,53 +114,37 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   }
 
   useEffect(() => {
-    if (!sceneID.value) return
-    if (!expandedNodes.value[sceneID.value]) {
-      expandedNodes.set({ [sceneID.value]: { [rootEntity]: true } })
+    if (!expandedNodes.value[sceneURL]) {
+      expandedNodes.set({ [sceneURL]: { [rootEntity]: true } })
     }
-  }, [rootEntity, sceneID.value])
+  }, [])
 
   useEffect(() => {
-    if (!sceneID.value) return
-    entityHierarchy.set(
-      Array.from(
-        heirarchyTreeWalker(
-          sceneID.value,
-          SceneState.getRootEntity(sceneID.value),
-          SelectionState.getSelectedEntities()
-        )
-      )
-    )
-  }, [expandedNodes, index, uuidQuery.length, sceneID, selectionState.selectedEntities])
+    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, SceneState.getRootEntity(sceneURL))))
+  }, [expandedNodes, index])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = sceneID.get(NO_PROXY)
-      if (!scene) return
-      expandedNodes[scene][node.entity].set(true)
+      expandedNodes[sceneURL][node.entity].set(true)
     },
-    [expandedNodes, sceneID]
+    [expandedNodes]
   )
 
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = sceneID.get(NO_PROXY)
-      if (!scene) return
-      expandedNodes[scene][node.entity].set(none)
+      expandedNodes[sceneURL][node.entity].set(none)
     },
-    [expandedNodes, sceneID]
+    [expandedNodes]
   )
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = sceneID.get(NO_PROXY)
-      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        expandedNodes[scene][child].set(true)
+        expandedNodes[sceneURL][child].set(true)
       })
     },
     [expandedNodes]
@@ -168,11 +152,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      const scene = sceneID.get(NO_PROXY)
-      if (!scene) return
       handleClose()
       traverseEntityNode(node.entity, (child) => {
-        expandedNodes[scene][child].set(none)
+        expandedNodes[sceneURL][child].set(none)
       })
     },
     [expandedNodes]
@@ -233,11 +215,10 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
-      if (!sceneID.value) return
-      if (expandedNodes.value[sceneID.value][node.entity]) collapseNode(node)
+      if (expandedNodes.value[sceneURL][node.entity]) collapseNode(node)
       else expandNode(node)
     },
-    [sceneID, expandedNodes, expandNode, collapseNode]
+    [expandedNodes, expandNode, collapseNode]
   )
 
   const onKeyDown = useCallback(
@@ -420,11 +401,9 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
-      if (!sceneID.value) return false
-
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(sceneID.value!)
+        const sceneEntity = SceneState.getRootEntity(sceneURL)
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -433,8 +412,6 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
       return true
     }
   })
-
-  if (!sceneID) return <></>
 
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
@@ -552,8 +529,30 @@ function HierarchyPanelContents({ rootEntityUUID }: { rootEntityUUID: EntityUUID
   )
 }
 
-export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID).value
+const fileServer = config.client.fileServer
+
+const GLTFHierarchy = (props: { sceneID: string }) => {
+  const sceneState = useHookstate(getMutableState(SceneState)).value
+  const gltfEntity = useHookstate(getMutableState(GLTFSourceState)[fileServer + '/' + props.sceneID]).value?.entity
+
+  if (!gltfEntity) return null
+
+  const GLTFHierarchySub = () => {
+    const scenePath = useModelSceneID(gltfEntity)
+
+    const sceneJson = SceneState.getScene(scenePath!)?.scene
+    const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
+
+    if (!scenePath || !sceneState.scenes[scenePath] || !sceneJson || !snapshots[scenePath]) return null
+
+    return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={scenePath} />
+  }
+
+  return <GLTFHierarchySub />
+}
+
+const JSONHierarchy = (props: { sceneID: string }) => {
+  const { sceneID } = props
   const sceneState = useHookstate(getMutableState(SceneState)).value
 
   const sceneJson = SceneState.getScene(sceneID!)?.scene
@@ -561,5 +560,15 @@ export default function HierarchyPanel() {
 
   if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
 
-  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} />
+  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={sceneID} />
+}
+
+export default function HierarchyPanel() {
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
+  if (!sceneID) return null
+  return sceneID.endsWith('.json') ? (
+    <JSONHierarchy sceneID={sceneID} key={sceneID} />
+  ) : (
+    <GLTFHierarchy sceneID={sceneID} key={sceneID} />
+  )
 }

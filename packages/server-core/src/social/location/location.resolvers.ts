@@ -83,7 +83,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
     return {
       ...location.locationSetting,
       id: uuidv4(),
-      locationType: location.locationSetting.locationType || 'private',
+      locationType: location.locationSetting.locationType || 'public',
       locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()

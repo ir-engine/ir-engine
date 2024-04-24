@@ -27,10 +27,10 @@ import { useEffect } from 'react'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
-import { portalPath } from '@etherealengine/common/src/schema.type.module'
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -41,7 +41,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
@@ -207,13 +206,9 @@ export const PortalComponent = defineComponent({
       }
     }, [portalComponent.previewType])
 
-    const portalDetails = useHookstate<null | {
-      spawnPosition: Vector3
-      spawnRotation: Quaternion
-      previewImageURL: string
-    }>(null)
+    const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)
 
-    const [texture] = useTexture(portalDetails.value?.previewImageURL || '', entity)
+    const [texture] = useTexture(portalDetails.data?.previewImageURL || '', entity)
 
     useEffect(() => {
       if (!texture || !portalComponent.mesh.value) return
@@ -223,43 +218,10 @@ export const PortalComponent = defineComponent({
     }, [texture, portalComponent.mesh])
 
     useEffect(() => {
-      if (!portalDetails.value?.previewImageURL) return
-      portalComponent.remoteSpawnPosition.value.copy(portalDetails.value.spawnPosition)
-      portalComponent.remoteSpawnRotation.value.copy(portalDetails.value.spawnRotation)
+      if (!portalDetails.data) return
+      portalComponent.remoteSpawnPosition.value.copy(portalDetails.data.position as Vector3)
+      portalComponent.remoteSpawnRotation.value.copy(portalDetails.data.rotation as Quaternion)
     }, [portalDetails])
-
-    useEffect(() => {
-      if (!isClient) return
-      if (!portalComponent.mesh.value) return
-
-      const linkedPortalExists = UUIDComponent.getEntityByUUID(portalComponent.linkedPortalId.value)
-
-      if (linkedPortalExists) {
-        /** Portal is in the scene already */
-        const linkedPortalDetails = getComponent(linkedPortalExists, PortalComponent)
-        if (linkedPortalDetails)
-          portalDetails.set({
-            spawnPosition: linkedPortalDetails.spawnPosition,
-            spawnRotation: linkedPortalDetails.spawnRotation,
-            previewImageURL: linkedPortalDetails.previewImageURL
-          })
-      } else {
-        /** Portal is not in the scene yet */
-        Engine.instance.api
-          .service(portalPath)
-          .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
-          .then((data) => {
-            if (data && !aborted) portalDetails.set(data)
-          })
-          .catch((e) => {
-            console.error('Error getting portal', e)
-          })
-      }
-      let aborted = false
-      return () => {
-        aborted = true
-      }
-    }, [portalComponent.linkedPortalId])
 
     return null
   },

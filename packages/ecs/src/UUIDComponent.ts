@@ -30,10 +30,13 @@ import { createEntity } from './EntityFunctions'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
+  jsonID: 'EE_uuid',
 
   onInit: () => '' as EntityUUID,
 
   onSet: (entity, component, uuid: EntityUUID) => {
+    if (!uuid) throw new Error('UUID cannot be empty')
+
     if (component.value === uuid) return
 
     // throw error if uuid is already in use
@@ -43,12 +46,18 @@ export const UUIDComponent = defineComponent({
     }
 
     // remove old uuid
-    const currentUUID = component.value
-    _getUUIDState(currentUUID).set(UndefinedEntity)
+    if (component.value) {
+      const currentUUID = component.value
+      _getUUIDState(currentUUID).set(UndefinedEntity)
+    }
 
     // set new uuid
     component.set(uuid)
     _getUUIDState(uuid).set(entity)
+  },
+
+  toJSON(entity, component) {
+    return component.value
   },
 
   onRemove: (entity, component) => {
@@ -76,7 +85,7 @@ export const UUIDComponent = defineComponent({
   }
 })
 
-function _getUUIDState(uuid) {
+function _getUUIDState(uuid: EntityUUID) {
   let entityState = UUIDComponent.entitiesByUUIDState[uuid]
   if (!entityState) {
     entityState = hookstate(UndefinedEntity)
@@ -84,3 +93,4 @@ function _getUUIDState(uuid) {
   }
   return entityState
 }
+globalThis.UUIDComponent = UUIDComponent
