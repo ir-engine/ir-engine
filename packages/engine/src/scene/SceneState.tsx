@@ -55,9 +55,6 @@ export interface SceneSnapshotInterface {
   data: SceneJsonType
 }
 
-/**
- * @todo GLTFDocumentState
- */
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({

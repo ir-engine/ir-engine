@@ -15,6 +15,14 @@
             "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
             "scale": { "x": 1, "y": 1, "z": 1 }
           }
+        },
+        {
+          "name": "EE_model",
+          "props": {
+            "src": "/packages/projects/default-project/assets/collisioncube.glb",
+            "cameraOcclusion": true,
+            "convertToVRM": false
+          }
         }
       ],
       "parent": "root"

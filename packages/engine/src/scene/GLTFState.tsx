@@ -36,17 +36,7 @@ import {
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import {
-  NO_PROXY,
-  Topic,
-  Validator,
-  defineAction,
-  defineState,
-  getMutableState,
-  getState,
-  matches,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { NO_PROXY, Topic, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -54,6 +44,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
+import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
 import { getModelSceneID } from './functions/loaders/ModelFunctions'
@@ -82,36 +73,6 @@ export const GLTFSourceState = defineState({
     removeEntity(entity)
   }
 })
-
-export const GLTFDocumentState = defineState({
-  name: 'GLTFDocumentState',
-  initial: {} as Record<string, GLTF.IGLTF>
-})
-
-export class GLTFSnapshotAction {
-  static createSnapshot = defineAction({
-    type: 'ee.gltf.snapshot.CREATE_SNAPSHOT' as const,
-    source: matches.string as Validator<unknown, string>,
-    data: matches.object as Validator<unknown, GLTF.IGLTF>
-  })
-
-  static undo = defineAction({
-    type: 'ee.gltf.snapshot.UNDO' as const,
-    source: matches.string as Validator<unknown, string>,
-    count: matches.number
-  })
-
-  static redo = defineAction({
-    type: 'ee.gltf.snapshot.REDO' as const,
-    source: matches.string as Validator<unknown, string>,
-    count: matches.number
-  })
-
-  static clearHistory = defineAction({
-    type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
-    source: matches.string as Validator<unknown, string>
-  })
-}
 
 /**@todo rename to GLTFSnapshotState */
 export const GLTFSnapshotState = defineState({

@@ -40,7 +40,7 @@ import {
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { GLTF as GLTFDocument } from '@gltf-transform/core'
-import { GLTFDocumentState, GLTFSnapshotAction } from '../../../scene/GLTFState'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../../../scene/GLTFDocumentState'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
