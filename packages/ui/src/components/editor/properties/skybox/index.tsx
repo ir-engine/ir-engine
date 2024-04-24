@@ -50,27 +50,22 @@ import NodeEditor from '../nodeEditor'
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
 
-/**
- * Types of skyboxes
- *
- * @type {Array}
- */
-const SkyOption = [
+const SkyOptions = [
   {
     label: 'Color',
-    value: SkyTypeEnum.color
+    value: SkyTypeEnum.color.toString()
   },
   {
     label: 'Skybox',
-    value: SkyTypeEnum.skybox
+    value: SkyTypeEnum.skybox.toString()
   },
   {
     label: 'Cubemap',
-    value: SkyTypeEnum.cubemap
+    value: SkyTypeEnum.cubemap.toString()
   },
   {
     label: 'Equirectangular',
-    value: SkyTypeEnum.equirectangular
+    value: SkyTypeEnum.equirectangular.toString()
   }
 ]
 
@@ -109,9 +104,9 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={24}
           convertFrom={radiansToHours}
           convertTo={hoursToRadians}
-          value={skyboxComponent.skyboxProps.azimuth.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)}
+          value={radiansToHours(skyboxComponent.skyboxProps.azimuth.value)}
+          onChange={(value) => updateProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)(hoursToRadians(value))}
+          onRelease={(value) => commitProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)(hoursToRadians(value))}
           unit="h"
         />
       </InputGroup>
@@ -228,9 +223,9 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput
           key={props.entity}
-          options={SkyOption}
-          value={skyboxComponent.backgroundType.value}
-          onChange={commitProperty(SkyboxComponent, 'backgroundType')}
+          options={SkyOptions}
+          value={skyboxComponent.backgroundType.value.toString()}
+          onChange={(value) => commitProperty(SkyboxComponent, 'backgroundType')(parseInt(value, 10))}
         />
       </InputGroup>
       {renderSkyBoxProps()}

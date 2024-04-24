@@ -40,7 +40,7 @@ export interface SliderProps {
 /**
  * @param props.width width of the slider in pixels
  */
-const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease }: SliderProps) => {
+const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease, className }: SliderProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = parseInt(event.target.value, 10)
     if (isNaN(newValue)) {
@@ -74,7 +74,8 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         onBlur={() => onRelease(value)}
         step={step}
         type="range"
-        className={twMerge(`w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden bg-red-500 focus:outline-none disabled:pointer-events-none disabled:opacity-50
+        className={twMerge(
+          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden bg-red-500 focus:outline-none disabled:pointer-events-none disabled:opacity-50
         
         [&::-moz-range-progress]:bg-[#214AA6]
         [&::-moz-range-track]:h-full
@@ -107,7 +108,9 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         [&::-webkit-slider-thumb]:transition-all
         [&::-webkit-slider-thumb]:duration-150
         [&::-webkit-slider-thumb]:ease-in-out
-        `)}
+        `,
+          className
+        )}
       />
       <span className="ml-2">{value}</span>
     </div>
