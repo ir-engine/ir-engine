@@ -625,7 +625,8 @@ const disposeObj = (obj: Object3D, sceneID?: string) => {
   if (mesh.isMesh) disposeMesh(mesh)
 
   const disposable = obj as DisposableObject // anything with dispose function
-  if (typeof disposable.dispose === 'function') disposable.dispose()
+  if (!disposable.disposed && typeof disposable.dispose === 'function') disposable.dispose()
+  disposable.disposed = true
 }
 
 const unloadObj = (obj: Object3D, sceneID?: string) => {
