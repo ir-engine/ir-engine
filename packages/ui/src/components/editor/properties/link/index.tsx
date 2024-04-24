@@ -37,7 +37,6 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
-import NumericInput from '../../input/Numeric'
 import { ControlledStringInput } from '../../input/String'
 import NodeEditor from '../nodeEditor'
 
@@ -76,25 +75,12 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         name="Location"
         label="abcdefghijklm"
         // label={t('editor:properties.linkComp.lbl-locaiton')}
-      >
-        <ControlledStringInput
-          value={
-            ''
-            //linkComponent.location.value
-          }
-          onChange={updateProperty(LinkComponent, 'location')}
-          onRelease={commitProperty(LinkComponent, 'location')}
-        />
-      </InputGroup>
-      {/* {
+      ></InputGroup>
+      {
         //linkComponent.sceneNav.value
         // eslint-disable-next-line no-constant-condition
         true ? (
-          <InputGroup
-            name="Location"
-            label="abcdefghijklm"
-            // label={t('editor:properties.linkComp.lbl-locaiton')}
-          >
+          <InputGroup name="Location" label={t('editor:properties.linkComp.lbl-locaiton')}>
             <ControlledStringInput
               value={
                 ''
@@ -116,21 +102,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
         )
-      } */}
-      <InputGroup name="Decay" label={t('editor:properties.spotLight.lbl-decay')}>
-        <NumericInput
-          min={0}
-          max={10}
-          smallStep={0.1}
-          mediumStep={1}
-          value={
-            //lightComponent.decay
-            0
-          }
-          onChange={updateProperty(LinkComponent, 'decay' as any)}
-          onRelease={commitProperty(LinkComponent, 'decay' as any)}
-        />
-      </InputGroup>
+      }
     </NodeEditor>
   )
 }
