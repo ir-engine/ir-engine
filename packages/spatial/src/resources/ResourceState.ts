@@ -134,7 +134,7 @@ export const ResourceState = defineState({
   },
 
   debugLog: (...data: any[]) => {
-    if (getState(ResourceState).debug) console.log(data)
+    if (getState(ResourceState).debug) console.log(...data)
   }
 })
 

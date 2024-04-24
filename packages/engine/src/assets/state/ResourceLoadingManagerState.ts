@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { ResourceManager, ResourceState, ResourceStatus } from '@etherealengine/spatial/src/resources/ResourceState'
 import { useEffect } from 'react'
 import { DefaultLoadingManager, LoadingManager } from 'three'
@@ -31,11 +31,13 @@ import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 
 export const ResourceLoadingManagerState = defineState({
   name: 'ResourceLoadingManagerState',
-  initial: () => ({}),
+  initial: () => new ResourceLoadingManager(onItemStart, onStart, onLoad, onProgress, onError),
   reactor: () => {
+    const resourceLoadingManager = useMutableState(ResourceLoadingManagerState)
+
     useEffect(() => {
-      setDefaultLoadingManager()
-    }, [])
+      setDefaultLoadingManager(resourceLoadingManager.value as LoadingManager)
+    }, [resourceLoadingManager])
   }
 })
 
