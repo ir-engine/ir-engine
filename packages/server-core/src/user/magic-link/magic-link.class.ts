@@ -141,19 +141,20 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       })
     ).data
 
-    const guestIdentityProvider = identityProviders.find((identityProvider) => identityProvider.type === 'guest')
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: data.accessToken },
+      {}
+    )
 
-    if (guestIdentityProvider) {
-      await identityProviderService.remove(guestIdentityProvider.id)
-    }
+    const identityProviderGuest = authResult[identityProviderPath]
 
-    if (identityProviders.length === 0 || guestIdentityProvider) {
+    if (identityProviders.length === 0) {
       identityProvider = await identityProviderService.create(
         {
           token: token,
           type: data.type,
           accountIdentifier: token,
-          userId: data.userId
+          userId: identityProviderGuest.userId
         },
         params as any
       )
