@@ -24,11 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { useEffect } from 'react'
 import { BufferGeometry, Material, MeshBasicMaterial } from 'three'
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const MeshHelperComponent = defineComponent({
@@ -39,6 +42,7 @@ export const MeshHelperComponent = defineComponent({
       name: 'mesh-helper',
       geometry: null! as BufferGeometry,
       material: new MeshBasicMaterial() as Material,
+      layerMask: ObjectLayerMasks.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -50,17 +54,22 @@ export const MeshHelperComponent = defineComponent({
     if (matchesGeometry.test(json.geometry)) component.geometry.set(json.geometry)
     else throw new Error('MeshHelperComponent: Geometry required for MeshHelperComponent')
     if (matchesMaterial.test(json.material)) component.material.set(json.material)
+    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
   },
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, MeshHelperComponent)
+    const helperEntity = useHelperEntity(entity, component)
     const [mesh, geometryState, materialState] = useMeshComponent(
-      entity,
+      helperEntity,
       component.geometry.value,
       component.material.value
     )
-    useHelperEntity(entity, component, mesh)
+
+    useEffect(() => {
+      setComponent(helperEntity, ObjectLayerMaskComponent, component.layerMask.value)
+    }, [component.layerMask])
 
     useDidMount(() => {
       const geo = component.geometry.get(NO_PROXY)
