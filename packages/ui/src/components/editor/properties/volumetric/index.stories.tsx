@@ -23,32 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import Component from './index'
 
-// make new component instead
+const argTypes = {}
 
-const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
-  return (
-    <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none"
-      {...rest}
-    />
-  )
+export default {
+  title: 'Editor/Properties/Volumetric',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'VolumetricNodeEditor',
+    jest: '',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
-}
-
-export default SelectInput
+export const Default = { args: {} }
