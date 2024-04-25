@@ -36,7 +36,10 @@ import { Box, Divider, Stack } from '@mui/material'
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import {
+  setMaterialName,
+  setMaterialPrototype
+} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
@@ -165,7 +168,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={Object.keys(prototype.prototypeConstructor!)[0]}
           options={prototypes}
           onChange={(protoId) => {
-            //const nuMat = changeMaterialPrototype(material, protoId)
+            const nuMat = setMaterialPrototype(entity, protoId)
             //materialComponent.set(materialFromId(nuMat!.uuid))
             // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
           }}

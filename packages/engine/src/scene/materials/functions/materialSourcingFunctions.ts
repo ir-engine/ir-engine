@@ -247,16 +247,17 @@ export function replaceMaterial(material: Material, nuMat: Material) {
 export const setMaterialPrototype = (materialEntity: Entity, prototypeName: string) => {
   const materialComponent = getComponent(materialEntity, MaterialComponent)
   const prototype = MaterialComponent.prototypeByName[prototypeName]
-  const prototypeConstructor = getComponent(prototype, MaterialComponent).prototypeConstructor![prototypeName]
+  const prototypeComponent = getComponent(prototype, MaterialComponent)
+  const prototypeConstructor = prototypeComponent.prototypeConstructor![prototypeName]
   if (materialComponent.prototypeEntity === prototype || !prototypeConstructor) return
   const material = materialComponent.material!
   const matKeys = Object.keys(material)
   const commonParms = Object.fromEntries(
-    Object.keys(prototypeConstructor.arguments)
+    Object.keys(prototypeComponent.prototypeArguments)
       .filter((key) => matKeys.includes(key))
       .map((key) => [key, material[key]])
   )
-  const fullParms = { ...extractDefaults(prototypeConstructor.arguments), ...commonParms }
+  const fullParms = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParms }
   const nuMat = new prototypeConstructor(fullParms)
   if (nuMat.plugins) {
     nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
@@ -272,6 +273,10 @@ export const setMaterialPrototype = (materialEntity: Entity, prototypeName: stri
     ...nuMat.userData,
     ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
   }
-  materialComponent.prototypeEntity = prototype
+  setComponent(materialEntity, MaterialComponent, {
+    material: nuMat,
+    prototypeEntity: prototype,
+    parameters: fullParms
+  })
   return nuMat
 }
