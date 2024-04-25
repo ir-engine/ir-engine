@@ -31,12 +31,10 @@ import { getState } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dropEntity, grabEntity, grabbableInteractMessage } from '../functions/grabbableFunctions'
-import { InteractableUI, removeInteractableUI } from '../systems/InteractableSystem'
-import { InteractableComponent } from './InteractableComponent'
+import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'
 
 /**
  * GrabbableComponent
@@ -62,13 +60,6 @@ export const GrabbableComponent = defineComponent({
             }
           ]
         })
-
-        //addInteractableUI(entity, createInteractUI(entity, grabbableInteractMessage), onGrabbableInteractUpdate)
-      }
-
-      //unmount
-      return () => {
-        removeInteractableUI(entity)
       }
     }, [])
     return null
@@ -80,14 +71,12 @@ const grabCallback = (targetEntity: Entity) => {
   for (const entity of nonCapturedInputSources) {
     const inputSource = getComponent(entity, InputSourceComponent)
     onGrab(targetEntity, inputSource.source.handedness === 'left' ? 'left' : 'right')
-    updateUI(targetEntity)
   }
 }
 const updateUI = (entity: Entity) => {
   const isGrabbed = hasComponent(entity, GrabbedComponent)
-  if (isGrabbed) {
-    setVisibleComponent(InteractableUI.get(entity)!.xrui.entity!, !isGrabbed)
-  }
+  const interactable = getComponent(entity, InteractableComponent)
+  interactable.uiVisibilityOverride = isGrabbed ? XRUIVisibilityOverride.off : XRUIVisibilityOverride.none
 }
 
 const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferredHand) => {
@@ -101,6 +90,7 @@ const onGrab = (targetEntity: Entity, handedness = getState(InputState).preferre
   } else {
     grabEntity(selfAvatarEntity, targetEntity, handedness)
   }
+  updateUI(targetEntity)
 }
 export const onDrop = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()

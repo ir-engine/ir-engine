@@ -30,12 +30,19 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { createInteractiveModalView } from '../ui/InteractiveModalView'
+import { createModalView } from '../ui/InteractiveModalView'
 
-export function createInteractUI(entity: Entity, interactMessage: string) {
-  const ui = createInteractiveModalView(entity, interactMessage)
+/**
+ * Creates and returns an xrUI on the specified entity
+ * (this replaces createInteractUI and createNonInteractUI (by adding a bool isInteractable optional param)
+ * @param entity  entity to add the xrUI to
+ * @param uiMessage  text to display on the UI
+ * @param isInteractable  (optional, default = true) sets whether the UI is interactable or not
+ */
+export function createUI(entity: Entity, uiMessage: string, isInteractable: boolean = true) {
+  const ui = createModalView(entity, uiMessage, isInteractable)
   const nameComponent = getComponent(entity, NameComponent)
-  setComponent(ui.entity, NameComponent, 'interact-ui-' + interactMessage + '-' + nameComponent)
+  setComponent(ui.entity, NameComponent, 'interact-ui-' + uiMessage + '-' + nameComponent)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
@@ -47,5 +54,3 @@ export function createInteractUI(entity: Entity, interactMessage: string) {
 
   return ui
 }
-
-export const updateInteractUI = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {}

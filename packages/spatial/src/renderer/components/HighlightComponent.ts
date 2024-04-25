@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, defineQuery, defineSystem } from '@etherealengine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
+import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 

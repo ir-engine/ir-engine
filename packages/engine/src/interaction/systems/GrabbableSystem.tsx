@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -40,9 +39,7 @@ import {
 import {
   defineQuery,
   defineSystem,
-  ECSState,
   Engine,
-  Entity,
   entityExists,
   getComponent,
   getOptionalComponent,
@@ -58,17 +55,10 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'
-import { createInteractUI } from '../functions/interactUI'
-import { InteractableTransitions } from './InteractableSystem'
 
 export const GrabbableState = defineState({
   name: 'ee.engine.grabbables.GrabbableState',
@@ -177,69 +167,13 @@ export function transferAuthorityOfObjectReceptor(
   }
 }
 
-const vec3 = new Vector3()
-
-export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const xruiTransform = getComponent(xrui.entity, TransformComponent)
-  if (!xruiTransform) return
-
-  TransformComponent.getWorldPosition(entity, xruiTransform.position)
-
-  if (hasComponent(xrui.entity, VisibleComponent)) {
-    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
-    if (boundingBox) {
-      const boundingBoxHeight = boundingBox.box.max.y - boundingBox.box.min.y
-      xruiTransform.position.y += boundingBoxHeight * 2
-    } else {
-      xruiTransform.position.y += 0.5
-    }
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    xruiTransform.rotation.copy(cameraTransform.rotation)
-  }
-
-  const transition = InteractableTransitions.get(entity)!
-  const isGrabbed = hasComponent(entity, GrabbedComponent)
-  if (isGrabbed) {
-    if (transition.state === 'IN') {
-      transition.setState('OUT')
-      removeComponent(xrui.entity, VisibleComponent)
-    }
-  } else {
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-    if (selfAvatarEntity) {
-      getAvatarBoneWorldPosition(selfAvatarEntity, VRMHumanBoneName.Chest, vec3)
-      const distance = vec3.distanceToSquared(xruiTransform.position)
-      // const inRange = distance < getState(InteractableState).maxDistance
-      // if (transition.state === 'OUT' && inRange) {
-      //   transition.setState('IN')
-      //   setComponent(xrui.entity, VisibleComponent)
-      // }
-      // if (transition.state === 'IN' && !inRange) {
-      //   transition.setState('OUT')
-      // }
-    }
-  }
-  const deltaSeconds = getState(ECSState).deltaSeconds
-  transition.update(deltaSeconds, (opacity) => {
-    if (opacity === 0) {
-      removeComponent(xrui.entity, VisibleComponent)
-    }
-    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
-      const mat = layer.contentMesh.material as MeshBasicMaterial
-      mat.opacity = opacity
-    })
-  })
-}
-
 /**
  * @todo refactor this into i18n and configurable
  */
 
 /** @todo replace this with event sourcing */
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
-const grabbableQuery = defineQuery([GrabbableComponent])
 
 const execute = () => {
   if (getState(EngineState).isEditor) return

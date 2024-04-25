@@ -127,8 +127,8 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="ClickInteract"
-        label={t('editor:properties.interactable.lbl-allowClicks')}
-        info={t('editor:properties.interactable.info-allowClicks')}
+        label={t('editor:properties.interactable.lbl-clickInteract')}
+        info={t('editor:properties.interactable.info-clickInteract')}
       >
         <BooleanInput
           value={interactableComponent.clickInteract.value}

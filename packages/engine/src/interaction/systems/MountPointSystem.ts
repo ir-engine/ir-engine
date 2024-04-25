@@ -39,7 +39,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -56,9 +55,9 @@ import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationCompo
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractableComponent, XRUIVisibilityOverride } from '../components/InteractableComponent'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
-import { InteractableState, InteractableUI } from './InteractableSystem'
+import { InteractableState } from './InteractableSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -205,10 +204,11 @@ const reactor = () => {
   useEffect(() => {
     // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
     for (const mountEntity of mountPointQuery()) {
-      setVisibleComponent(
-        InteractableUI.get(mountEntity)!.xrui.entity!,
-        !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
-      )
+      const interactableComponent = getComponent(mountEntity, InteractableComponent)
+      if (!interactableComponent) continue
+      interactableComponent.uiVisibilityOverride = mountedEntities[getComponent(mountEntity, UUIDComponent)].value
+        ? XRUIVisibilityOverride.off
+        : XRUIVisibilityOverride.none
     }
   }, [mountedEntities])
 
