@@ -29,7 +29,7 @@ import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 import { Not } from 'bitecs'
@@ -37,7 +37,10 @@ import { Not } from 'bitecs'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import {
+  createMaterialEntity,
+  getMaterialsFromSource
+} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
@@ -49,6 +52,7 @@ import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
+import { SelectionState } from '../../services/SelectionServices'
 
 export default function MaterialLibraryPanel() {
   const nodeChanges = useState(0)
@@ -56,9 +60,11 @@ export default function MaterialLibraryPanel() {
 
   const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
   const nodes = useState([] as MaterialLibraryEntryType[])
-
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   useEffect(() => {
-    const materials = Object.values(MaterialComponent.materialByHash)
+    const materials = selected.value.length
+      ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
+      : Object.values(MaterialComponent.materialByHash)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
@@ -69,7 +75,7 @@ export default function MaterialLibraryPanel() {
       ]
     })
     nodes.set(result)
-  }, [nodeChanges, materialQuery])
+  }, [nodeChanges, materialQuery, selected])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)

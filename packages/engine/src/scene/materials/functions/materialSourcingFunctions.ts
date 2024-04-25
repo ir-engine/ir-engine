@@ -27,7 +27,6 @@ import { Material } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   Entity,
   EntityUUID,
@@ -51,6 +50,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
+import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
@@ -61,6 +61,23 @@ export function MaterialNotFoundError(message) {
 export function PrototypeNotFoundError(message) {
   this.name = 'PrototypeNotFound'
   this.message = message
+}
+
+/**Gets all materials used by child and self entity */
+export const getMaterialsFromSource = (source: Entity) => {
+  const sceneInstanceID = getModelSceneID(source)
+  const childEntities = SourceComponent.entitiesBySource[sceneInstanceID] ?? ([] as Entity[])
+  childEntities.push(source)
+  const materials = {} as Record<EntityUUID, Entity>
+  for (const entity of childEntities) {
+    if (hasComponent(entity, MaterialComponent)) {
+      const materialComponent = getComponent(entity, MaterialComponent)
+      for (const mat of materialComponent.uuid) {
+        materials[mat] = entity
+      }
+    }
+  }
+  return Object.keys(materials) as any as EntityUUID[]
 }
 
 /** Creates and uses a new material entity from a GLTF. If a material from the GLTF path already exists in-scene, uses preexisting entity instead. */
@@ -81,9 +98,10 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
       material.customProgramCacheKey = () =>
         material.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
     }
-    createMaterialEntity(material, path)
+    const materialEntity = createMaterialEntity(material, path)
+    const materialEntityComponent = getMutableComponent(materialEntity, MaterialComponent)
+    materialEntityComponent.instances.set([...materialEntityComponent.instances.value, sourceEntity])
   }
-  materialComponent.instances.set([...materialComponent.instances.value, sourceEntity])
 }
 
 export const createMaterialEntity = (material: Material, path: string) => {
@@ -91,7 +109,7 @@ export const createMaterialEntity = (material: Material, path: string) => {
 
   setComponent(materialEntity, MaterialComponent, { material })
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, path as SceneID)
+  setComponent(materialEntity, SourceComponent, path)
   const prototypeEntity = MaterialComponent.prototypeByName[material.type]
   setComponent(materialEntity, MaterialComponent, {
     material,
