@@ -44,7 +44,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -97,29 +97,28 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
-  const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
+  const selectedSceneData = useGet(assetPath, selectedScene!)
+  console.log(selectedSceneData)
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
   }, [selectedScene])
 
-  const sceneMenu: InputMenuItem[] = selectedScene
+  const sceneMenu: InputMenuItem[] = selectedSceneData.data
     ? [
         {
-          value: `${projectName}/${sceneName}`,
-          label: `${sceneName} (${projectName})`
+          value: selectedSceneData.data.id,
+          label: selectedSceneData.data.assetURL
         }
       ]
     : scenes.data.map((el: AssetType) => {
-        const split = el.id.split('/')
-        const project = split.at(1)
-        const name = split.at(-1)
         return {
-          value: `${project}/${name}`,
-          label: `${name} (${project})`
+          value: el.id,
+          label: el.assetURL
         }
       })
+
+  console.log({ sceneMenu }, scenes.data)
 
   // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
   //   return {
@@ -138,9 +137,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
         ...defaultState,
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
-        scene: selectedLocation.sceneId
-          .replace(`${selectedLocation.sceneId.split('/', 1)[0]}/`, '')
-          .replace('.scene.json', ''),
+        scene: selectedLocation.sceneId,
         type: selectedLocation.locationSetting?.locationType,
         videoEnabled: selectedLocation.locationSetting?.videoEnabled,
         audioEnabled: selectedLocation.locationSetting?.audioEnabled,
@@ -191,7 +188,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
     const data: LocationData = {
       name: state.name.value,
       slugifiedName: '',
-      sceneId: `projects/${state.scene.value}.scene.json`,
+      sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',
