@@ -42,6 +42,11 @@ export const assetSchema = Type.Object(
 )
 export interface AssetType extends Static<typeof assetSchema> {}
 
+export const assetDatabaseSchema = Type.Partial(assetSchema, {
+  $id: 'AssetDatabaseType'
+})
+export interface AssetDatabaseType extends Static<typeof assetDatabaseSchema> {}
+
 // Schema for creating new entries
 export const assetDataSchema = Type.Object(
   {
