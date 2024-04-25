@@ -40,12 +40,20 @@ type CommonBufferDataType = {
 }[]
 
 class BufferData {
-  public bufferedRange: BufferedDataType
-  public pendingRange: PendingBufferDataType
+  private bufferedRange: BufferedDataType
+  private pendingRange: PendingBufferDataType
+  private metrics: {
+    fetchTime: number
+    playTime: number
+  }
 
   constructor() {
     this.bufferedRange = []
     this.pendingRange = []
+    this.metrics = {
+      fetchTime: 0,
+      playTime: 0
+    }
   }
 
   private lowerBound(array: CommonBufferDataType, value: number, property: 'startTime' | 'endTime' = 'startTime') {
@@ -119,6 +127,8 @@ class BufferData {
 
     if (!pending) {
       this.removeRange(startTime, endTime, true)
+      this.metrics.fetchTime += fetchTime
+      this.metrics.playTime += endTime - startTime
     }
 
     const length = array.length
@@ -165,14 +175,13 @@ class BufferData {
 
   public removeRange(startTime: number, endTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
-    if (startTime >= endTime) {
-      return
-    }
-
-    const length = array.length
-
-    if (length === 0 || endTime <= array[0].startTime || startTime >= array[length - 1].endTime) {
-      return
+    if (
+      array.length === 0 ||
+      startTime >= endTime ||
+      endTime <= array[0].startTime ||
+      startTime >= array[array.length - 1].endTime
+    ) {
+      return 0
     }
 
     startTime = Math.max(startTime, array[0].startTime)
@@ -182,7 +191,7 @@ class BufferData {
     const lb = this.lowerBound(array, startTime, 'startTime')
     let ub = this.upperBound(array, endTime, 'startTime')
     if (ub === -1) {
-      ub = length - 1
+      ub = array.length - 1
     } else {
       ub--
     }
@@ -285,5 +294,10 @@ class BufferData {
       pendingDuration: pendingDuration,
       missingDuration: missingDuration
     }
+  }
+
+  public resetMetrics() {
+    this.metrics.fetchTime = 0
+    this.metrics.playTime = 0
   }
 }
