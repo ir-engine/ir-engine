@@ -55,7 +55,7 @@ class BufferData {
       index = -1
     while (low <= high) {
       const mid = Math.floor((low + high) / 2)
-      if (array[mid].startTime <= value) {
+      if (array[mid][property] <= value) {
         index = mid
         low = mid + 1
       } else {
@@ -73,7 +73,7 @@ class BufferData {
       index = -1
     while (low <= high) {
       const mid = Math.floor((low + high) / 2)
-      if (array[mid].endTime > value) {
+      if (array[mid][property] > value) {
         index = mid
         high = mid - 1
       } else {
