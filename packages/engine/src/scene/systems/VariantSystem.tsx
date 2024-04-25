@@ -32,7 +32,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
+import { useGPUPerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
@@ -84,7 +84,7 @@ function execute() {
 }
 
 function reactor() {
-  const performanceOffset = usePerformanceOffset()
+  const performanceOffset = useGPUPerformanceOffset()
   const sceneState = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {

@@ -27,24 +27,46 @@ import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { PerformanceState } from '../PerformanceState'
 
-export const usePerformanceTier = (): State<number> => {
+export const useGPUPerformanceTier = (): State<number> => {
   const performanceState = useMutableState(PerformanceState)
-  const performanceTier = useHookstate(performanceState.tier.value)
+  const performanceTier = useHookstate(performanceState.gpuTier.value)
 
   useEffect(() => {
-    performanceTier.set(performanceState.tier.value)
-  }, [performanceState.tier])
+    performanceTier.set(performanceState.gpuTier.value)
+  }, [performanceState.gpuTier])
 
   return performanceTier
 }
 
-export const usePerformanceOffset = (): State<number> => {
+export const useCPUPerformanceTier = (): State<number> => {
   const performanceState = useMutableState(PerformanceState)
-  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+  const performanceTier = useHookstate(performanceState.cpuTier.value)
 
   useEffect(() => {
-    performanceOffset.set(performanceState.performanceOffset.value)
-  }, [performanceState.performanceOffset])
+    performanceTier.set(performanceState.cpuTier.value)
+  }, [performanceState.cpuTier])
+
+  return performanceTier
+}
+
+export const useGPUPerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.gpuPerformanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.gpuPerformanceOffset.value)
+  }, [performanceState.gpuPerformanceOffset])
+
+  return performanceOffset
+}
+
+export const useCPUPerformanceOffset = (): State<number> => {
+  const performanceState = useMutableState(PerformanceState)
+  const performanceOffset = useHookstate(performanceState.cpuPerformanceOffset.value)
+
+  useEffect(() => {
+    performanceOffset.set(performanceState.cpuPerformanceOffset.value)
+  }, [performanceState.cpuPerformanceOffset])
 
   return performanceOffset
 }

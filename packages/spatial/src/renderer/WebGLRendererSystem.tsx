@@ -224,12 +224,10 @@ const changeQualityLevel = (renderer: EngineRenderer) => {
   renderer.movingAverage.update(Math.min(delta, 50))
   const averageDelta = renderer.movingAverage.mean
 
-  if (averageDelta > renderer.maxRenderDelta) {
-    PerformanceManager.decrementPerformance()
-    if (newQualityLevel > 1) newQualityLevel--
-  } else if (averageDelta < renderer.minRenderDelta) {
-    PerformanceManager.incrementPerformance()
-    if (newQualityLevel < renderer.maxQualityLevel) newQualityLevel++
+  if (averageDelta > renderer.maxRenderDelta && newQualityLevel > 1) {
+    newQualityLevel--
+  } else if (averageDelta < renderer.minRenderDelta && newQualityLevel < renderer.maxQualityLevel) {
+    newQualityLevel++
   }
 
   if (newQualityLevel !== qualityLevel) {
@@ -289,15 +287,11 @@ export const render = (
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
     for (const c of camera.cameras) c.layers.mask = camera.layers.mask
     renderer.renderer.clear()
-    const end = PerformanceManager.startGPUTiming(renderer, delta)
     renderer.renderer.render(scene, camera)
-    end()
   } else {
     renderer.effectComposer.setMainScene(scene)
     renderer.effectComposer.setMainCamera(camera)
-    const end = PerformanceManager.startGPUTiming(renderer, delta)
     renderer.effectComposer.render(delta)
-    end()
   }
 
   EngineRenderer.activeRender = false
@@ -318,6 +312,7 @@ export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(en
 const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
 
+  const onRenderEnd = PerformanceManager.profileGPURender(deltaSeconds)
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
@@ -356,6 +351,7 @@ const execute = () => {
 
     render(renderer, _scene, camera, deltaSeconds)
   }
+  onRenderEnd()
 }
 
 const rendererReactor = () => {
