@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { BsPlusSquare } from 'react-icons/bs'
 import { MdClear } from 'react-icons/md'
 import { Quaternion, Vector3 } from 'three'
+import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
@@ -51,10 +52,10 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.spawnPoint.name')}
       description={t('editor:properties.spawnPoint.description')}
     >
-      <div className="flex-strech flex w-full flex-row items-center gap-2 py-1">
-        <div className="flex w-full justify-center font-['Figtree'] text-xs font-normal text-neutral-50">
+      <div className="flex w-full items-center gap-2 py-1">
+        <Text fontSize="xs" className="ml-14 w-full">
           {'Assets'}
-        </div>
+        </Text>
         <div className="flex w-full justify-end px-8">
           <BsPlusSquare
             onClick={() => {
@@ -66,7 +67,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
               ]
               //commitProperty(, 'elements')(newElements)
             }}
-          ></BsPlusSquare>
+          />
         </div>
       </div>
       {elements.map(
@@ -77,12 +78,12 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
           <div key={index}>
             <div className="flex-end border-t-2 border-zinc-900 py-2">
               <div className="flex w-full flex-row px-10">
-                <div className="flex w-full justify-start font-['Figtree'] text-xs font-normal text-neutral-50">
+                <Text fontSize="xs" className="w-full">
                   {`Asset ${index + 1}`}
-                </div>
+                </Text>
                 <div className="flex w-full justify-end">
                   <MdClear
-                    className="text-neutral-700"
+                    className="text-[#444444]"
                     onClick={() => {
                       const newElements = [...elements].filter((_, i) => i !== index)
                       //commitProperty(, 'elements')(newElements)
