@@ -23,39 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Matrix4 } from 'three'
+import { Frustum, Matrix4, Vector3 } from 'three'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { getComponent } from '@etherealengine/ecs'
+import { Engine, getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { TransformComponent } from '@etherealengine/spatial'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
-  compareDistanceToLocalClient,
-  DistanceFromLocalClientComponent
+  DistanceFromLocalClientComponent,
+  compareDistanceToLocalClient
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractableState } from '../systems/InteractableSystem'
 
+const worldPosVec3 = new Vector3()
 const mat4 = new Matrix4()
-// const projectionMatrix = new Matrix4().makePerspective(
-//   -0.1, // x1
-//   0.1, // x2
-//   -0.1, // y1
-//   0.1, // y2
-//   0.1, // near
-//   2 // far
-// )
-// const frustum = new Frustum()
+const frustum = new Frustum()
 
 /**
  * Checks if entity is in range based on its own threshold
  * @param entity
  * @constructor
  */
-const InRangeToInteract = (entity: Entity): boolean => {
+const inRangeAndFrustumToInteract = (entity: Entity): boolean => {
   const interactable = getComponent(entity, InteractableComponent)
   const maxDistanceSquare = interactable.activationDistance * interactable.activationDistance
-  return DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare
+  let inRangeAndFrustum = DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare
+  if (inRangeAndFrustum) {
+    inRangeAndFrustum = inFrustum(entity)
+  }
+  return inRangeAndFrustum
+}
+
+export const inFrustum = (entity: Entity): boolean => {
+  TransformComponent.getWorldPosition(entity, worldPosVec3)
+  return frustum.containsPoint(worldPosVec3)
 }
 
 /**
@@ -65,18 +69,13 @@ const InRangeToInteract = (entity: Entity): boolean => {
  */
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
   const availableInteractable = getMutableState(InteractableState).available
-  // const camera = getComponent(controller.cameraEntity, CameraComponent)
 
-  // mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
-  // frustum.setFromProjectionMatrix(mat4)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
 
-  // const available = [] as Entity[]
-  // for (const entityIn of interactables) {
-  //   const targetTransform = getComponent(entityIn, TransformComponent)
-  //   available.push(entityIn)
-  // }
+  mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+  frustum.setFromProjectionMatrix(mat4)
 
   availableInteractable.set(
-    [...interactables].filter((entity) => InRangeToInteract(entity)).sort(compareDistanceToLocalClient)
+    [...interactables].filter((entity) => inRangeAndFrustumToInteract(entity)).sort(compareDistanceToLocalClient)
   )
 }

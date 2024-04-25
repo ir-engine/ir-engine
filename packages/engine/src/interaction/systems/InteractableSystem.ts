@@ -68,7 +68,7 @@ import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/T
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIActivationType, XRUIVisibilityOverride } from '../components/InteractableComponent'
-import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
+import { gatherAvailableInteractables, inFrustum } from '../functions/interactableFunctions'
 
 export const InteractableState = defineState({
   name: 'InteractableState',
@@ -130,23 +130,27 @@ export const onInteractableUpdate = (entity: Entity) => {
   const transition = InteractableTransitions.get(entity)!
   let activateUI = false
 
+  const inCameraFrustum = inFrustum(entity)
   let hovering = false
-  if (interactable.uiVisibilityOverride === XRUIVisibilityOverride.none) {
-    if (interactable.uiActivationType === XRUIActivationType.proximity) {
-      //proximity
-      let thresh = interactable.activationDistance
-      thresh *= thresh //squared for dist squared comparison
-      activateUI = distance < thresh
-    } else if (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract) {
-      //hover
-      const input = getOptionalComponent(entity, InputComponent)
-      if (input) {
-        hovering = input.inputSources.length > 0
-        activateUI = hovering
+
+  if (inCameraFrustum) {
+    if (interactable.uiVisibilityOverride === XRUIVisibilityOverride.none) {
+      if (interactable.uiActivationType === XRUIActivationType.proximity) {
+        //proximity
+        let thresh = interactable.activationDistance
+        thresh *= thresh //squared for dist squared comparison
+        activateUI = distance < thresh
+      } else if (interactable.uiActivationType === XRUIActivationType.hover || interactable.clickInteract) {
+        //hover
+        const input = getOptionalComponent(entity, InputComponent)
+        if (input) {
+          hovering = input.inputSources.length > 0
+          activateUI = hovering
+        }
       }
+    } else {
+      activateUI = interactable.uiVisibilityOverride !== XRUIVisibilityOverride.off //could be more explicit, needs to be if we add more enum options
     }
-  } else {
-    activateUI = interactable.uiVisibilityOverride !== XRUIVisibilityOverride.off //could be more explicit, needs to be if we add more enum options
   }
 
   //highlight if hovering OR if closest, otherwise turn off highlight
