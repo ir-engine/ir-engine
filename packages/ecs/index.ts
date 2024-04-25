@@ -98,6 +98,7 @@ globalThis.ECS = ECS
 
 export default ECS
 
+export { Not } from 'bitecs'
 export * from './src/ComponentFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'

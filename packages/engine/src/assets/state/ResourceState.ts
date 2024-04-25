@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, Entity, getOptionalComponent } from '@etherealengine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
@@ -122,6 +121,19 @@ export const ResourceState = defineState({
   })
 })
 
+// add type override for itemEndFor
+declare module 'three/src/loaders/LoadingManager' {
+  export interface LoadingManager {
+    // itemEndFor: <T extends AssetType>(
+    //   url: string,
+    //   resourceType: ResourceType,
+    //   id: string,
+    //   asset: T
+    // ) => void
+    itemEndFor: any
+  }
+}
+
 const setDefaultLoadingManager = (
   loadingManager: LoadingManager = new ResourceLoadingManager(
     onItemStart,
@@ -139,7 +151,6 @@ const setDefaultLoadingManager = (
   DefaultLoadingManager.addHandler = loadingManager.addHandler
   DefaultLoadingManager.removeHandler = loadingManager.removeHandler
   DefaultLoadingManager.getHandler = loadingManager.getHandler
-  //@ts-ignore
   DefaultLoadingManager.itemEndFor = onItemLoadedFor
 }
 
@@ -566,7 +577,7 @@ const unload = (url: string, entity: Entity, uuid?: string) => {
   }
 }
 
-const unloadObj = (obj: Object3D, sceneID: SceneID | undefined) => {
+const unloadObj = (obj: Object3D, sceneID: string | undefined) => {
   const remove = (obj: Object3D) => {
     debugLog('ResourceManager:unloadObj Unloading Object3D: ' + obj.name + ' for scene: ' + sceneID)
     const light = obj as Light // anything with dispose function

@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/ecs'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { haveCommonAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { EnvmapComponent, updateEnvMap } from '../components/EnvmapComponent'
 import { EnvMapSourceType } from '../constants/EnvMapEnum'
@@ -44,6 +45,8 @@ const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
   const groupComponent = useComponent(entity, GroupComponent)
 
   useEffect(() => {
+    // TODO use spatial queries
+    if (!haveCommonAncestor(entity, props.backgroundEntity)) return
     if (envmapComponent.type.value !== EnvMapSourceType.Skybox) return
     for (const obj of groupComponent.value) {
       updateEnvMap(obj as any, backgroundComponent.value as any)

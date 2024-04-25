@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { FC, useEffect } from 'react'
-import { AnimationMixer, BoxGeometry, CapsuleGeometry, CylinderGeometry, Group, Scene, SphereGeometry } from 'three'
+import { AnimationMixer, Group, Scene } from 'three'
 
 import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -34,8 +34,6 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
-  serializeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -45,9 +43,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { Shape } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
@@ -58,15 +53,11 @@ import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { EnvmapComponent } from './EnvmapComponent'
-import { ObjectGridSnapComponent } from './ObjectGridSnapComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -212,16 +203,10 @@ function ModelReactor(): JSX.Element {
         root: getComponent(entity, UUIDComponent),
         version: 0
       },
-      scenePath: uuid,
       name: '',
       project: '',
       thumbnailUrl: ''
     })
-
-    if (!hasComponent(entity, AvatarRigComponent)) {
-      //if this is not an avatar, add bbox snap
-      setComponent(entity, ObjectGridSnapComponent)
-    }
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -261,66 +246,12 @@ function ModelReactor(): JSX.Element {
 }
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
-  const modelComponent = useComponent(props.parentEntity, ModelComponent)
-  const isMesh = useOptionalComponent(props.entity, MeshComponent)
-  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
-
   useEffect(() => {
     SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
     SceneAssetPendingTagComponent.removeResource(props.parentEntity, ModelComponent.jsonID)
   }, [])
-
-  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
-  useEffect(() => {
-    if (!isMesh) return
-    if (shadowComponent)
-      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
-    else removeComponent(props.entity, ShadowComponent)
-  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
-
-  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
-  useEffect(() => {
-    if (!isMesh) return
-    if (envmapComponent)
-      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
-    else removeComponent(props.entity, EnvmapComponent)
-  }, [
-    isMesh,
-    envmapComponent,
-    envmapComponent?.envMapIntensity,
-    envmapComponent?.envmap,
-    envmapComponent?.envMapSourceColor,
-    envmapComponent?.envMapSourceURL,
-    envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
-  ])
-
-  useEffect(() => {
-    if (!isModelColliders || !isMesh) return
-
-    const geometry = getComponent(props.entity, MeshComponent).geometry
-
-    const shape = ThreeToPhysics[geometry.type]
-
-    if (!shape) return
-
-    setComponent(props.entity, ColliderComponent, { shape })
-
-    return () => {
-      removeComponent(props.entity, ColliderComponent)
-    }
-  }, [isModelColliders, isMesh])
-
   return null
 }
-
-/** Maps Three.js geometry types to physics shapes */
-const ThreeToPhysics = {
-  [SphereGeometry.prototype.type]: 'sphere',
-  [CapsuleGeometry.prototype.type]: 'capsule',
-  [CylinderGeometry.prototype.type]: 'cylinder',
-  [BoxGeometry.prototype.type]: 'box'
-} as Record<string, Shape>
 
 /**
  * Returns true if the entity is a mesh not a part of a model, or a model

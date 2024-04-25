@@ -49,9 +49,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
 
   getMaterialType(materialIndex: number) {
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return null
-    const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name]
+    const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
     let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
       constructor = getPrototypeConstructorFromName(eeMaterial.prototype)
@@ -64,10 +64,6 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     return constructor
       ? (function (args) {
-          console.log(args)
-          console.log(constructor)
-          console.log(eeMaterial.prototype)
-          console.log(constructor![eeMaterial.prototype])
           const material = new constructor![eeMaterial.prototype](args)
           typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
           return material
@@ -77,9 +73,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
 
   extendMaterialParams(materialIndex: number, materialParams: { [_: string]: any }) {
     const parser = this.parser
-    const materialDef = parser.json.materials[materialIndex]
+    const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
-    const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
+    const extension: EEMaterialExtensionType = materialDef.extensions[this.name] as any
     if (extension.plugins) {
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
@@ -107,7 +103,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     //if we found a prototype, we populate the materialParams as normal.
     //if we didn't find a prototype, we populate the materialDef.extras.args to hold for later.
-    const parseTarget = foundPrototype ? materialParams : materialDef.extras.args
+    const parseTarget = foundPrototype ? materialParams : (materialDef.extras!.args as any)
     if (isOldEEMaterial(extension)) {
       const oldExtension: OldEEMaterialExtensionType = extension
       return Promise.all(

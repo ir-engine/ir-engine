@@ -38,23 +38,30 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useEntityContext } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  serializeComponent,
+  setComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
@@ -62,10 +69,12 @@ import {
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { ResourceManager } from '../../assets/state/ResourceState'
+import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { getModelSceneID } from '../functions/loaders/ModelFunctions'
+import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
@@ -196,29 +205,89 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = (props: { entity: Entity }) => {
-  const isMeshOrModel = useMeshOrModel(props.entity)
+const SceneObjectEntityReactor = () => {
+  const entity = useEntityContext()
+  const isMeshOrModel = useMeshOrModel(entity)
 
   useEffect(() => {
     if (!isMeshOrModel) return
 
-    setComponent(props.entity, InputComponent, { highlight: getState(EngineState).isEditing })
+    setComponent(entity, InputComponent, { highlight: getState(EngineState).isEditing })
     return () => {
-      removeComponent(props.entity, InputComponent)
+      removeComponent(entity, InputComponent)
     }
   }, [isMeshOrModel])
 
   return null
 }
 
-const reactor = () => {
-  const sceneObjectEntities = useQuery([SourceComponent])
+const ModelEntityReactor = () => {
+  const entity = useEntityContext()
+  const modelSceneID = useModelSceneID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelSceneID])
 
   return (
     <>
-      {sceneObjectEntities.map((entity) => (
-        <SceneObjectEntityReactor key={entity} entity={entity} />
+      {childEntities.value?.map((childEntity: Entity) => (
+        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
       ))}
+    </>
+  )
+}
+
+const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
+  const isMesh = useOptionalComponent(props.entity, MeshComponent)
+  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
+
+  const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (shadowComponent)
+      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
+    else removeComponent(props.entity, ShadowComponent)
+  }, [isMesh, shadowComponent?.cast, shadowComponent?.receive])
+
+  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
+  useEffect(() => {
+    if (!isMesh) return
+    if (envmapComponent)
+      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
+    else removeComponent(props.entity, EnvmapComponent)
+  }, [
+    isMesh,
+    envmapComponent,
+    envmapComponent?.envMapIntensity,
+    envmapComponent?.envmap,
+    envmapComponent?.envMapSourceColor,
+    envmapComponent?.envMapSourceURL,
+    envmapComponent?.envMapTextureType,
+    envmapComponent?.envMapSourceEntityUUID
+  ])
+
+  useEffect(() => {
+    if (!isModelColliders || !isMesh) return
+
+    const geometry = getComponent(props.entity, MeshComponent).geometry
+
+    const shape = ThreeToPhysics[geometry.type]
+
+    if (!shape) return
+
+    setComponent(props.entity, ColliderComponent, { shape })
+
+    return () => {
+      removeComponent(props.entity, ColliderComponent)
+    }
+  }, [isModelColliders, isMesh])
+
+  return null
+}
+
+const reactor = () => {
+  return (
+    <>
+      <QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
+      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
       <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
     </>
   )
