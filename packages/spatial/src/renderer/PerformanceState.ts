@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ECSState } from '@etherealengine/ecs'
 import { profile } from '@etherealengine/ecs/src/Timer'
 import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -32,7 +33,6 @@ import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, Scene } from 'three'
 import { EngineState } from '../EngineState'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
@@ -69,6 +69,24 @@ const tieredSettings = {
   }
 }
 
+type ExponentialMovingAverage = {
+  mean: number
+  multiplier: number
+}
+
+const createExponentialMovingAverage = (timePeriods = 10, startingMean = 16): ExponentialMovingAverage => {
+  return {
+    mean: startingMean,
+    multiplier: 2 / (timePeriods + 1)
+  }
+}
+
+const updateExponentialMovingAverage = (average: State<ExponentialMovingAverage>, newValue: number) => {
+  const meanIncrement = average.multiplier.value * (newValue - average.mean.value)
+  const newMean = average.mean.value + meanIncrement
+  average.mean.set(newMean)
+}
+
 export const PerformanceState = defineState({
   name: 'PerformanceState',
   initial: () => ({
@@ -87,12 +105,12 @@ export const PerformanceState = defineState({
     // 180 = 3 * 60 = 3 seconds @ 60fps
     // 35 = 28fps
     // 18 = 55fps
-    averageRenderTime: new ExponentialMovingAverage(180 as const),
+    averageRenderTime: createExponentialMovingAverage(180 as const),
     maxRenderTime: 35 as const,
     minRenderTime: 18 as const,
 
     // System timings and constants
-    averageSystemTime: new ExponentialMovingAverage(180 as const),
+    averageSystemTime: createExponentialMovingAverage(180 as const),
     maxSystemTime: 35 as const,
     minSystemTime: 18 as const,
 
@@ -110,6 +128,7 @@ export const PerformanceState = defineState({
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)
     const engineSettings = useMutableState(RendererState)
+    const ecsState = useMutableState(ECSState)
     const isEditing = getState(EngineState).isEditing
 
     useEffect(() => {
@@ -124,23 +143,33 @@ export const PerformanceState = defineState({
     useEffect(() => {
       if (isEditing) return
 
-      const { averageRenderTime, maxRenderTime, minRenderTime } = performanceState.value
-      const mean = averageRenderTime.mean
+      const { averageRenderTime, maxRenderTime, minRenderTime, averageSystemTime, maxSystemTime, minSystemTime } =
+        performanceState.value
 
-      if (mean > maxRenderTime) {
+      console.log()
+      const renderMean = averageRenderTime.mean
+      if (renderMean > maxRenderTime) {
         decrementGPUPerformance()
-      } else if (mean < minRenderTime) {
+      } else if (renderMean < minRenderTime) {
+        incrementGPUPerformance()
+      }
+
+      const systemMean = averageSystemTime.mean
+      if (systemMean > maxSystemTime) {
+        decrementGPUPerformance()
+      } else if (renderMean < minSystemTime) {
         incrementGPUPerformance()
       }
     }, [performanceState.averageRenderTime])
+
+    useEffect(() => {
+      if (isEditing) return
+
+      const lastDuration = ecsState.lastSystemExecutionDuration.value
+      updateExponentialMovingAverage(performanceState.averageSystemTime, lastDuration)
+    }, [ecsState.lastSystemExecutionDuration])
   }
 })
-
-const updateExponentialMovingAverage = (average: State<ExponentialMovingAverage>, newValue: number) => {
-  const meanIncrement = average.multiplier.value * (newValue - average.mean.value)
-  const newMean = average.mean.value + meanIncrement
-  average.mean.set(newMean)
-}
 
 const timeBeforeCheck = 3
 let timeAccum = 0
