@@ -39,7 +39,7 @@ import { createModalView } from '../ui/InteractiveModalView'
  * @param uiMessage  text to display on the UI
  * @param isInteractable  (optional, default = true) sets whether the UI is interactable or not
  */
-export function createUI(entity: Entity, uiMessage: string, isInteractable: boolean = true) {
+export function createUI(entity: Entity, uiMessage: string, isInteractable = true) {
   const ui = createModalView(entity, uiMessage, isInteractable)
   const nameComponent = getComponent(entity, NameComponent)
   setComponent(ui.entity, NameComponent, 'interact-ui-' + uiMessage + '-' + nameComponent)

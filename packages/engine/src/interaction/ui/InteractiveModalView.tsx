@@ -34,7 +34,7 @@ export interface InteractiveModalState {
   interactMessage: string
 }
 
-export const createModalView = (entity: Entity, interactMessage: string, isInteractable: boolean = true) => {
+export const createModalView = (entity: Entity, interactMessage: string, isInteractable = true) => {
   const ui = createXRUI(
     InteractiveModalView,
     createState({
