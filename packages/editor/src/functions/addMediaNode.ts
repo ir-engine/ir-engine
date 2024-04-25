@@ -37,10 +37,8 @@ import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/Compo
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import {
-  createMaterialEntity,
-  getMaterialSource
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -96,11 +94,11 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
-        if (UUIDComponent.getEntityByUUID(material.uuid as EntityUUID))
-          material = getMaterial(material.uuid as EntityUUID)!
+        const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
+        if (materialEntity) material = getMaterial(material.uuid as EntityUUID)!
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const src = getMaterialSource(mesh.material as Material)
+          const src = getComponent(materialEntity, SourceComponent)
           if (!src) return
           if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, src)
           const materialComponent = getMutableComponent(mesh.entity, MaterialComponent)

@@ -30,7 +30,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { changeMaterialPrototype } from './materialSourcingFunctions'
+import { setMaterialPrototype } from './materialSourcingFunctions'
 
 export default async function bakeToVertices<T extends Material>(
   entity: Entity,
@@ -107,7 +107,7 @@ export default async function bakeToVertices<T extends Material>(
     )
   }
   await Promise.all(pending)
-  const nuMat = changeMaterialPrototype(material, nuPrototype)
+  const nuMat = setMaterialPrototype(entity, nuPrototype)
   if (nuMat) {
     nuMat.vertexColors = true
     nuMat.defines = nuMat.defines ?? {}

@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import {
   Entity,
   EntityUUID,
@@ -51,7 +49,6 @@ import {
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
-import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -230,18 +227,6 @@ export const hashMaterial = (source: string, name: string) => {
   return `${stringHash(source) ^ stringHash(name)}`
 }
 
-// export function getSourceItems(src: MaterialSource): string[] | undefined {
-//   const materialLibrary = getState(MaterialLibraryState)
-//   return materialLibrary.sources[hashMaterialSource(src)]?.entries
-// }
-
-export function getMaterialSource(material: Material): string | null {
-  const materialLibrary = getState(MaterialLibraryState)
-  const matEntry = materialLibrary.materials[material.uuid]
-  if (!matEntry) return null
-  return matEntry.src.path
-}
-
 export function replaceMaterial(material: Material, nuMat: Material) {
   // for (const entity of sceneMeshQuery()) {
   //   const mesh = getComponent(entity, MeshComponent)
@@ -259,34 +244,34 @@ export function replaceMaterial(material: Material, nuMat: Material) {
   // }
 }
 
-export function changeMaterialPrototype(material: Material, protoId: string) {
-  // const materialEntry = materialFromId(material.uuid)
-  // if (materialEntry.prototype === protoId) return
-  // const prototype = prototypeFromId(protoId)
-  // const factory = protoIdToFactory(protoId)
-  // const matKeys = Object.keys(material)
-  // const commonParms = Object.fromEntries(
-  //   Object.keys(prototype.arguments)
-  //     .filter((key) => matKeys.includes(key))
-  //     .map((key) => [key, material[key]])
-  // )
-  // const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
-  // const nuMat = factory(fullParms)
-  // if (nuMat.plugins) {
-  //   nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
-  // }
-  // replaceMaterial(material, nuMat)
-  // nuMat.uuid = material.uuid
-  // nuMat.name = material.name
-  // if (material.defines?.['USE_COLOR']) {
-  //   nuMat.defines = nuMat.defines ?? {}
-  //   nuMat.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
-  // }
-  // nuMat.userData = {
-  //   ...nuMat.userData,
-  //   ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
-  // }
-  // materialEntry.plugins.map((pluginId: string) => {})
-  // registerMaterial(nuMat, materialEntry.src)
-  // return nuMat
+export const setMaterialPrototype = (materialEntity: Entity, prototypeName: string) => {
+  const materialComponent = getComponent(materialEntity, MaterialComponent)
+  const prototype = MaterialComponent.prototypeByName[prototypeName]
+  const prototypeConstructor = getComponent(prototype, MaterialComponent).prototypeConstructor![prototypeName]
+  if (materialComponent.prototypeEntity === prototype || !prototypeConstructor) return
+  const material = materialComponent.material!
+  const matKeys = Object.keys(material)
+  const commonParms = Object.fromEntries(
+    Object.keys(prototypeConstructor.arguments)
+      .filter((key) => matKeys.includes(key))
+      .map((key) => [key, material[key]])
+  )
+  const fullParms = { ...extractDefaults(prototypeConstructor.arguments), ...commonParms }
+  const nuMat = new prototypeConstructor(fullParms)
+  if (nuMat.plugins) {
+    nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
+  }
+  replaceMaterial(material, nuMat)
+  nuMat.uuid = material.uuid
+  nuMat.name = material.name
+  if (material.defines?.['USE_COLOR']) {
+    nuMat.defines = nuMat.defines ?? {}
+    nuMat.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
+  }
+  nuMat.userData = {
+    ...nuMat.userData,
+    ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
+  }
+  materialComponent.prototypeEntity = prototype
+  return nuMat
 }
