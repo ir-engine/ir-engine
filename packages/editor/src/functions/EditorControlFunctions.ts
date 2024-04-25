@@ -275,11 +275,12 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity
 ) => {
   const scenes = getSourcesForEntities([parentEntity])
-  const name = 'New Object'
   const entityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
+    // gltf loader sanitizers names...
+    const name = getState(GLTFSourceState)[sceneID] ? 'New_Object' : 'New Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -374,7 +375,9 @@ const createObjectFromSceneElement = (
     /** Temporary until GLTF loader refactored */
     const entity = createEntity()
     setComponent(entity, UUIDComponent, entityUUID)
-    setComponent(entity, EntityTreeComponent, { parentEntity })
+    const parentEntityTree = getComponent(parentEntity, EntityTreeComponent)
+    const childIndex = beforeEntity ? parentEntityTree.children.indexOf(beforeEntity) : parentEntityTree.children.length
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, NameComponent, name)
     setComponent(entity, VisibleComponent)
     setComponent(entity, SourceComponent, sceneID)
@@ -437,10 +440,10 @@ const duplicateObject = (entities: Entity[]) => {
           gltf.data.scenes![sceneIndex].nodes.push(newIndex)
         } else {
           const parentEntity = getComponent(rootEntity, EntityTreeComponent).parentEntity
-          if (!parentEntity) continue
+          if (!parentEntity) throw new Error('Root entity must have a parent')
           const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
           const parentNode = getParentNodeByUUID(gltf.data, parentEntityUUID)
-          if (!parentNode) continue
+          if (!parentNode) throw new Error('Parent node not found')
           if (!parentNode.children) parentNode.children = []
           parentNode.children.push(newIndex)
         }
@@ -495,8 +498,9 @@ const duplicateObject = (entities: Entity[]) => {
     const data = serializeEntity(oldEntity)
     const newEntity = createEntity()
     setComponent(newEntity, SourceComponent, getComponent(oldEntity, SourceComponent))
-    console.log(data)
     setComponent(newEntity, UUIDComponent, newEntityUUID)
+    const parent = getComponent(oldEntity, EntityTreeComponent).parentEntity
+    setComponent(newEntity, EntityTreeComponent, { parentEntity: parent })
     for (const comp of data) {
       if (comp.name === UUIDComponent.jsonID) continue
       setComponent(newEntity, ComponentJSONIDMap.get(comp.name)!, comp.props)

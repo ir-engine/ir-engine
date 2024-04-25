@@ -225,6 +225,8 @@ export const proxifyParentChildRelationships = (obj: Object3D) => {
 export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, entityJson?: EntityJsonType) => {
   if (!obj.uuid) throw new Error('Object3D must have a UUID')
 
+  console.log(obj.uuid, obj.userData, entityJson)
+
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity

@@ -31,9 +31,7 @@ import {
   createEntity,
   defineQuery,
   getComponent,
-  removeComponent,
   removeEntity,
-  serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { NO_PROXY, Topic, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -157,14 +155,15 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
     // force model components to re-load gltf until we have a new loader
 
-    for (const entity of modelQuery()) {
-      if (getComponent(entity, ModelComponent).src === props.source) {
-        /** force reload of the component */
-        const data = serializeComponent(entity, ModelComponent)
-        removeComponent(entity, ModelComponent)
-        setComponent(entity, ModelComponent, data)
-      }
-    }
+    /** re-enable for testing purposes */
+    // for (const entity of modelQuery()) {
+    //   if (getComponent(entity, ModelComponent).src === props.source) {
+    //     /** force reload of the component */
+    //     const data = serializeComponent(entity, ModelComponent)
+    //     removeComponent(entity, ModelComponent)
+    //     setComponent(entity, ModelComponent, data)
+    //   }
+    // }
   }, [gltfState.index])
 
   return null

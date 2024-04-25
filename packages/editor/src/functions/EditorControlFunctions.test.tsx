@@ -67,7 +67,7 @@ let sceneID: string
 /** @todo rewrite all these tests */
 describe('EditorControlFunctions', () => {
   overrideFileLoaderLoad()
-  for (const format of ['.scene.json', '.gltf']) {
+  for (const format of ['.gltf', '.scene.json']) {
     describe(format, () => {
       beforeEach(() => {
         createEngine()
@@ -193,8 +193,8 @@ describe('EditorControlFunctions', () => {
         )
 
         EditorControlFunctions.duplicateObject([child0Entity])
-        applyIncomingActions()
 
+        applyIncomingActions()
         await act(() => rerender(sceneTag))
 
         assert(rootEntity, 'root entity not found')
