@@ -37,8 +37,6 @@ import NodeEditor from '../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- *
- * @type {Class component}
  */
 export const GalleryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

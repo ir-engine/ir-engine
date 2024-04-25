@@ -23,36 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-import Checkbox from '../../../../primitives/tailwind/Checkbox'
+import Component from './index'
 
-export interface BooleanInputProp {
-  value: boolean
-  onChange: (value: boolean) => void
-  onRelease?: (value: boolean) => void
-  disabled?: boolean
-  className?: string
+const argTypes = {}
+
+export default {
+  title: 'Editor/Properties/TriggerProperties',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'TriggerPropertiesNodeEditor',
+    jest: 'TriggerPropertiesNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
-
-export const BooleanInput = (props: BooleanInputProp) => {
-  const onBlur = () => {
-    if (props.onRelease) props.onRelease(props.value)
-  }
-
-  return (
-    <Checkbox
-      containerClassName="w-[200px]"
-      className={twMerge(
-        'rounded-sm border border-none bg-black px-1 py-1 dark:bg-[#1A1A1A]',
-        'hover:border-blue-800 hover:bg-zinc-900',
-        props.disabled ? 'cursor-[initial] opacity-80 grayscale-[0.8]' : 'cursor-pointer',
-        props.className
-      )}
-      onBlur={onBlur}
-      {...props}
-    />
-  )
-}
-
-export default BooleanInput
+export const Default = { args: {} }

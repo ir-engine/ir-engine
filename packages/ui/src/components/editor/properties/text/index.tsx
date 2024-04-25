@@ -82,13 +82,9 @@ const SelectOptions = {
 
 /**
  * @description Default fallback value for when when text.lineheight is not set to 'normal'
- * @default 1.2
  */
 const LineHeightNumericDefault = 1.2 as TroikaTextLineHeight
 
-/**
- * @description Object holding all of the UI's `info` descriptions.
- */
 const HoverInfo = {
   FontFamily: `
 URL of a custom font to be used. Font files can be in .ttf, .otf, or .woff (not .woff2) formats. Defaults to Noto Sans when empty.
@@ -127,8 +123,7 @@ Only useful for hardware that has no GPU acceleration support.
 }
 
 /**
- * @description TextNodeEditor component used to provide the editor a view to customize text properties.
- * @type {Class component}
+ * TextNodeEditor component used to provide the editor a view to customize text properties.
  */
 export const TextNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

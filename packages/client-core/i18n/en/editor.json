@@ -302,7 +302,8 @@
       "lbl-friction":"Friction",
       "lbl-restitution":"Restitution",
       "lbl-collisionLayer":"Collision Layer",
-      "lbl-collisionMask":"Collision Mask"
+      "lbl-collisionMask":"Collision Mask",
+      "lbl-removeMesh": "Remove Mesh"
     },
     "camera": {
       "name": "Camera",
@@ -781,6 +782,7 @@
       "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
+      "name": "Trigger",
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
