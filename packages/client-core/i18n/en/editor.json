@@ -921,7 +921,19 @@
       "clippingMax": "clip.max",
       "glyphResolution": "glyph.resolution",
       "glyphDetail": "glyph.detail",
-      "gpuAccelerated": "GPU Accelerated"
+      "gpuAccelerated": "GPU Accelerated" 
+    },
+    "textBox": {
+      "name": "Textbox Component",
+      "description": "An XRUI text box component",
+      "lbl-text": "Text",
+      "lbl-family": "Family",
+      "lbl-size": "Size",
+      "lbl-fontStroke": "Font Stroke",
+      "lbl-fontColor": "Font Color",
+      "lbl-cornerRadius": "Corner Radius",
+      "lbl-backgroundColor": "Background Color",
+      "lbl-opacity": "Opacity"
     }
   },
   "projects": {

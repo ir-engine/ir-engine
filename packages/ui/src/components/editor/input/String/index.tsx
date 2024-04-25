@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 import Input, { InputProps } from '../../../../primitives/tailwind/Input'
 
 export interface StringInputProps extends Omit<InputProps, 'onChange'> {
@@ -35,7 +36,7 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
 const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) => {
   return (
     <Input
-      containerClassname="w-44 h-7 bg-[#1A1A1A] rounded"
+      containerClassname="w-[200px] h-7 bg-[#1A1A1A] rounded"
       className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value}
       onChange={(e) => {
@@ -65,7 +66,7 @@ export default StringInput
 
 // do we really need a controlled string input? we could easily integrate this with string input itself
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
-  const { onChange, onRelease, value, placeholder, disabled, type, ...rest } = values
+  const { onChange, onRelease, value, placeholder, disabled, type, containerClassname, ...rest } = values
   const [tempValue, setTempValue] = useState(value)
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   return (
     <Input
       ref={ref}
-      containerClassname="w-[200px] h-7 bg-[#1A1A1A] rounded"
+      containerClassname={twMerge('h-7 w-[200px] rounded bg-[#1A1A1A]', containerClassname)}
       className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value ?? ''}
       onChange={(e) => {

@@ -27,12 +27,14 @@ import { EditorComponentType } from '@etherealengine/editor/src/components/prope
 import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import NodeEditor from '../nodeEditor'
+import ColorInput from '../../../../../primitives/tailwind/Color'
+import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
+import StringInput, { ControlledStringInput } from '../../../input/String'
+import NodeEditor from '../../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- *
- * @type {Class component}
  */
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -42,9 +44,42 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.spawnPoint.name')}
-      description={t('editor:properties.spawnPoint.description')}
-    ></NodeEditor>
+      name={t('editor:properties.textBox.name')}
+      description={t('editor:properties.textBox.description')}
+    >
+      <InputGroup name="Text" label={t('editor:properties.textBox.lbl-text')}>
+        <ControlledStringInput
+          containerClassname="w-56"
+          value=""
+          // value={text.text.value}
+          // onChange={updateProperty(TextComponent, 'text')}
+          // onRelease={commitProperty(TextComponent, 'text')}
+        />
+      </InputGroup>
+      <InputGroup name="Family" label={t('editor:properties.textBox.lbl-family')}>
+        <StringInput />
+      </InputGroup>
+      <InputGroup name="Size" label={t('editor:properties.textBox.lbl-size')}>
+        <NumericInput value={0.2} displayPrecision={2} onChange={() => {}} unit="em" />
+      </InputGroup>
+      <div className="mt-5" />
+      <InputGroup name="Font Stroke" label={t('editor:properties.textBox.lbl-fontStroke')}>
+        <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="px" />
+      </InputGroup>
+      <InputGroup name="Font Color" label={t('editor:properties.textBox.lbl-fontColor')}>
+        <ColorInput />
+      </InputGroup>
+      <div className="mt-5" />
+      <InputGroup name="Corner Radius" label={t('editor:properties.textBox.lbl-cornerRadius')}>
+        <NumericInput value={5.2} displayPrecision={2} onChange={() => {}} unit="rem" />
+      </InputGroup>
+      <InputGroup name="Background Color" label={t('editor:properties.textBox.lbl-backgroundColor')}>
+        <ColorInput />
+      </InputGroup>
+      <InputGroup name="Opacity" label={t('editor:properties.textBox.lbl-opacity')}>
+        <NumericInput value={100.0} displayPrecision={2} onChange={() => {}} unit="pc" />
+      </InputGroup>
+    </NodeEditor>
   )
 }
 
