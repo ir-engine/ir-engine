@@ -39,6 +39,7 @@ export default function AdminProject() {
   const { t } = useTranslation()
 
   const projectState = useHookstate(getMutableState(ProjectState))
+  console.log('debug1 the project state', projectState)
 
   return (
     <>
