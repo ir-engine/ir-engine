@@ -46,7 +46,7 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { Vector3 } from 'three'
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
-const scaleVector = new Vector3()
+const controlsUiPosVec3 = new Vector3()
 let clicking = false
 const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 const mediaQuery = defineQuery([MediaComponent])
@@ -88,11 +88,6 @@ const onUpdate = (entity: Entity) => {
       clicking = !!buttons //clicking on our boundingbox this frame
 
       mediaComponent.paused.set(!mediaComponent.paused.value)
-      // const mediaElement = getMutableComponent(entity, MediaElementComponent)
-      // if (mediaElement) {
-      //    mediaElement.element.paused.set(!mediaElement.element.paused.value)
-      //   //TODO move button element, see how to get it to change icons properly
-      // }
     }
   }
 
@@ -111,16 +106,15 @@ const onUpdate = (entity: Entity) => {
   const uiTransform = getComponent(mediaComponent.xruiEntity.value, TransformComponent)
   const transform = getComponent(entity, TransformComponent)
 
-  //if (hasComponent(entity, MediaComponent)) {
-  if (buttonLayer) {
-    let buttonOffset = buttonLayer.domSize.y * xrui.rootLayer.domSize.y * 1.2 //HACK 1.2 is a magic number here to include the button border (10px on a 100px button)
-    scaleVector.set(transform.scale.x * 0.5 - buttonOffset, -transform.scale.y * 0.5 - buttonOffset, 0)
-  }
-  //const mediaComponent = getComponent(entity, MediaComponent)
-  scaleVector.add(mediaComponent.uiOffset.value)
-  scaleVector.add(transform.position)
-  uiTransform.position.copy(scaleVector)
-  //}
+  //logic for positioning the controls on the border of the video no matter the resolution/scale
+  // if (buttonLayer) {
+  //   let buttonOffset = buttonLayer.domSize.y * xrui.rootLayer.domSize.y * 1.2 //HACK 1.2 is a magic number here to include the button border (10px on a 100px button)
+  //   controlsUiPosVec3.set(transform.scale.x * 0.5 - buttonOffset, -transform.scale.y * 0.5 - buttonOffset, 0)
+  // }
+
+  controlsUiPosVec3.copy(mediaComponent.uiOffset.value) //used to add - might be nice to allow for some pre-placed anchor positions
+  controlsUiPosVec3.add(transform.position)
+  uiTransform.position.copy(controlsUiPosVec3)
 
   const deltaSeconds = getState(ECSState).deltaSeconds
   transition.update(deltaSeconds, (opacity) => {

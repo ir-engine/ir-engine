@@ -30,7 +30,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
@@ -45,7 +45,7 @@ type MediaControlsProps = {
 }
 
 const MediaControlsView = (props: MediaControlsProps) => {
-  const mediaComponent = useHookstate(getComponent(props.entity, MediaComponent))
+  const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
 
   const buttonClick = () => {
     const mediaElement = getComponent(props.entity, MediaElementComponent)
