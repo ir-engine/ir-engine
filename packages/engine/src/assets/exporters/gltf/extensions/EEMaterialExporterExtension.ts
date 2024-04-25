@@ -28,7 +28,7 @@ import { CubeTexture, Material, Texture } from 'three'
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
-import { setMaterialToDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
+import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -75,7 +75,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const argData = setMaterialToDefaults(material.uuid)
+    const argData = injectMaterialDefaults(material.uuid)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {

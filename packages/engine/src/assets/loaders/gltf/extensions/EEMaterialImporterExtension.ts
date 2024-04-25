@@ -33,8 +33,8 @@ import {
 import matches from 'ts-matches'
 import {
   getPrototypeConstructorFromName,
-  PrototypeNotFoundError,
-  setMaterialToDefaults
+  injectMaterialDefaults,
+  PrototypeNotFoundError
 } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import {
   EEMaterialExtensionType,
@@ -85,18 +85,13 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       materialDef.extras['plugins'] = extension.plugins
     }
     const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialComponent)
-    let defaultArgs: { [_: string]: any } = {}
     let foundPrototype = false
     if (materialComponent) {
       foundPrototype = !!materialComponent.prototypeConstructor
-      defaultArgs = setMaterialToDefaults(extension.uuid)
+      injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        console.log(extension.prototype)
-        defaultArgs = getComponent(
-          MaterialComponent.prototypeByName[extension.prototype],
-          MaterialComponent
-        ).prototypeArguments
+        getComponent(MaterialComponent.prototypeByName[extension.prototype], MaterialComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

@@ -190,12 +190,6 @@ export const createPrototype = (
   MaterialComponent.prototypeByName[name] = prototypeEntity
 }
 
-export function injectDefaults(defaultArgs, values) {
-  return Object.fromEntries(
-    Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, { ...v, default: values[k] }])
-  )
-}
-
 // export function registerMaterialPlugin(component: MaterialPluginType) {
 //   const materialLibrary = getMutableState(MaterialLibraryState)
 //   const src = component.src
@@ -206,52 +200,17 @@ export function injectDefaults(defaultArgs, values) {
 //   materialLibrary.plugins[component.plugin.id].set(component)
 // }
 
-export const setMaterialToDefaults = (materialUUID: string) => {
+export const injectMaterialDefaults = (materialUUID: string) => {
   const material = getComponent(UUIDComponent.getEntityByUUID(materialUUID as EntityUUID), MaterialComponent)
   const prototype = getComponent(material.prototypeEntity, MaterialComponent).prototypeArguments
-  return injectDefaults(prototype, material.parameters)
+  return Object.fromEntries(
+    Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters[k] }])
+  )
 }
-
-// export function protoIdToFactory(protoId: string): (parms: any) => Material {
-//   const prototype = prototypeFromId(protoId)
-//   return (parms) => {
-//     const defaultParms = extractDefaults(prototype.arguments)
-//     const formattedParms = { ...defaultParms, ...parms }
-//     const result = new prototype.baseMaterial(formattedParms)
-//     if (prototype.onBeforeCompile) {
-//       result.onBeforeCompile = prototype.onBeforeCompile
-//       result.needsUpdate = true
-//     }
-//     return result
-//   }
-// }
-
-// export function materialIdToFactory(matId: string): (parms: any) => Material {
-//   const material = materialFromId(matId)
-//   const prototype = prototypeFromId(material.prototype)
-//   return (parms) => {
-//     const formattedParms = { ...material.parameters, ...parms }
-//     const result = new prototype.baseMaterial(formattedParms)
-//     if (prototype.onBeforeCompile) {
-//       result.onBeforeCompile = prototype.onBeforeCompile
-//       result.needsUpdate = true
-//     }
-//     return result
-//   }
-// }
 
 export const hashMaterial = (source: string, name: string) => {
   return `${stringHash(source) ^ stringHash(name)}`
 }
-
-// export function addMaterialSource(src: MaterialSource): boolean {
-//   const materialLibrary = getMutableState(MaterialLibraryState)
-//   const srcId = hashMaterialSource(src)
-//   if (!materialLibrary.sources[srcId].value) {
-//     materialLibrary.sources[srcId].set({ src, entries: [] })
-//     return true
-//   } else return false
-// }
 
 // export function getSourceItems(src: MaterialSource): string[] | undefined {
 //   const materialLibrary = getState(MaterialLibraryState)
@@ -313,17 +272,3 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   // registerMaterial(nuMat, materialEntry.src)
   // return nuMat
 }
-
-// export function entryId(
-//   entry: MaterialComponentType | MaterialPrototypeComponentType | MaterialSourceComponentType,
-//   type: LibraryEntryType
-// ) {
-//   switch (type) {
-//     case LibraryEntryType.MATERIAL:
-//       return (entry as MaterialComponentType).material.uuid
-//     case LibraryEntryType.MATERIAL_PROTOTYPE:
-//       return (entry as MaterialPrototypeComponentType).prototypeId
-//     case LibraryEntryType.MATERIAL_SOURCE:
-//       return hashMaterialSource((entry as MaterialSourceComponentType).src)
-//   }
-// }
