@@ -28,36 +28,27 @@ import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
-  DepthPass,
   EdgeDetectionMode,
   EffectComposer,
   EffectPass,
   OutlineEffect,
   RenderPass,
   SMAAEffect,
-  ShaderPass,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { DepthTexture, NearestFilter, RGBAFormat, Scene, UnsignedIntType, WebGLRenderTarget } from 'three'
+import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import {
-  EffectComposerWithSchema,
-  PostProcessingSettingsState,
-  RenderSettingsState,
-  RendererComponent
-} from '../WebGLRendererSystem'
-import { EffectMap, EffectPropsSchema, Effects } from '../effects/PostProcessing'
-import { SDFSettingsState } from '../effects/sdf/SDFSettingsState'
-import { SDFShader } from '../effects/sdf/SDFShader'
+import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
+import { EffectMap, Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (entity: Entity): void => {
+export const configureEffectComposer = (entity: Entity, schema?: typeof defaultPostProcessingSchema): void => {
   const renderer = getComponent(entity, RendererComponent)
   const camera = getComponent(entity, CameraComponent)
   if (!renderer || !camera) return
@@ -69,11 +60,11 @@ export const configureEffectComposer = (entity: Entity): void => {
     renderer.renderPass = null!
   }
 
-  const composer = new EffectComposer(renderer.renderer) as EffectComposerWithSchema
+  const composer = new EffectComposer(renderer.renderer)
   renderer.effectComposer = composer
 
   // we always want to have at least the render pass enabled
-  const renderPass = new RenderPass(scene, camera)
+  const renderPass = new RenderPass()
   renderer.effectComposer.addPass(renderPass)
   renderer.renderPass = renderPass
 
@@ -91,16 +82,12 @@ export const configureEffectComposer = (entity: Entity): void => {
 
   const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
   outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-  composer.HighlightEffect = outlineEffect
+  composer.OutlineEffect = outlineEffect
 
   const SmaaEffectPass = new EffectPass(camera, smaaEffect)
   const OutlineEffectPass = new EffectPass(camera, outlineEffect)
   composer.addPass(OutlineEffectPass) //outlines don't follow camera
   composer.addPass(SmaaEffectPass)
-
-  const postprocessingSettings = getState(PostProcessingSettingsState)
-
-  const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
 
   const effectKeys = Object.keys(EffectMap)
 
@@ -111,35 +98,14 @@ export const configureEffectComposer = (entity: Entity): void => {
     resolutionScale: 0.5
   })
 
-  const SDFSetting = getState(SDFSettingsState)
-  if (SDFSetting.enabled) {
-    const depthRenderTarget = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
-    depthRenderTarget.texture.minFilter = NearestFilter
-    depthRenderTarget.texture.magFilter = NearestFilter
-    depthRenderTarget.texture.generateMipmaps = false
-    depthRenderTarget.stencilBuffer = false
-    depthRenderTarget.depthBuffer = true
-    depthRenderTarget.depthTexture = new DepthTexture(window.innerWidth, window.innerHeight)
-    depthRenderTarget.texture.format = RGBAFormat
-    depthRenderTarget.depthTexture.type = UnsignedIntType
+  if (!schema) return
 
-    const depthPass = new DepthPass(scene, camera, {
-      renderTarget: depthRenderTarget
-    })
-
-    composer.addPass(depthPass)
-
-    SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
-    const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')
-    composer.addPass(SDFPass)
-  }
-  if (!postprocessingSettings.enabled) return
   const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
   let useVelocityDepthNormalPass = false
   let useDepthDownsamplingPass = false
 
   for (const key of effectKeys) {
-    const effectOptions = postProcessingEffects[key]
+    const effectOptions = schema[key]
 
     if (!effectOptions || !effectOptions.isActive) continue
     const EffectClass = EffectMap[key]

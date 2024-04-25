@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJSONIDMap, componentJsonDefaults } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
+import { GLTF } from '@gltf-transform/core'
 import { ComponentJsonType } from '../../../../scene/types/SceneTypes'
-import { GLTFJson } from '../../../constants/GLTF'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
@@ -38,11 +38,11 @@ export default class EEECSImporterExtension extends ImporterExtension implements
 
   beforeRoot() {
     const parser = this.parser
-    const json: GLTFJson = parser.json
+    const json: GLTF.IGLTF = parser.json
     const useVisible = !!json.extensionsUsed?.includes(this.name) || !!json.extensionsUsed?.includes('EE_visible')
     const nodeCount = json.nodes?.length || 0
     for (let nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++) {
-      const nodeDef = json.nodes[nodeIndex]
+      const nodeDef = json.nodes![nodeIndex]
 
       if (useVisible) {
         nodeDef.extras ??= {}
@@ -59,14 +59,10 @@ export default class EEECSImporterExtension extends ImporterExtension implements
         }
 
         const compData = ecsExtensions[jsonID]
-        const parsedComponent: ComponentJsonType = {
+        componentJson.push({
           name: jsonID,
-          props: {
-            ...componentJsonDefaults(component),
-            ...compData
-          }
-        }
-        componentJson.push(parsedComponent)
+          props: compData
+        })
       }
       if (componentJson.length > 0) {
         nodeDef.extras ??= {}
@@ -76,7 +72,7 @@ export default class EEECSImporterExtension extends ImporterExtension implements
 
       // LEGACY ECS EXTENSION FORMAT //
       if (!nodeDef.extensions?.[this.name]) continue
-      const extensionDef: EE_ecs = nodeDef.extensions[this.name]
+      const extensionDef: EE_ecs = nodeDef.extensions[this.name] as any
       const containsECSData = !!extensionDef.data && extensionDef.data.some(([k]) => k.startsWith('xrengine.'))
       if (!containsECSData) continue
       nodeDef.extras ??= {}

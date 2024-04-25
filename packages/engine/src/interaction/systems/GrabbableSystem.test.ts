@@ -27,7 +27,7 @@ import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import {
   PeerID,
@@ -85,7 +85,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),

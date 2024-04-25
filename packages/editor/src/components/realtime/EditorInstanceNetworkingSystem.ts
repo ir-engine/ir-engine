@@ -39,13 +39,13 @@ let accumulator = 0
 
 const execute = () => {
   const editorState = getState(EditorState)
-  if (!editorState.sceneID) return
+  if (!editorState.scenePath) return
 
   accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator > 5) {
     accumulator = 0
-    EditorActiveInstanceState.getActiveInstances(editorState.sceneID)
+    EditorActiveInstanceState.getActiveInstances(editorState.scenePath as any)
   }
 }
 
