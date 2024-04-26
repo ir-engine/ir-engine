@@ -52,6 +52,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
@@ -154,6 +155,7 @@ function VideoReactor() {
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, video.videoMesh.value.name)
     video.videoEntity.set(videoEntity)
+    setComponent(videoEntity, MeshComponent, video.videoMesh.value)
     return () => {
       removeEntity(videoEntity)
       video.videoEntity.set(UndefinedEntity)
