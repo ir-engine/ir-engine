@@ -189,7 +189,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
     return (item: any, monitor): void => {
-      if (parentNode && typeof parentNode !== 'string' && typeof beforeNode !== 'string') {
+      if (parentNode) {
         if (item.files) {
           const dndItem: any = monitor.getItem()
           const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
@@ -295,12 +295,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={
-          styles.treeNodeContainer +
-          (node.depth === 0 ? ' ' + styles.rootNode : '') +
-          (selected ? ' ' + styles.selected : '') +
-          (node.active ? ' ' + styles.active : '')
-        }
+        className={styles.treeNodeContainer + (selected ? ' ' + styles.selected : '')}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -50,7 +49,7 @@ import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from './functions/migrateSceneSettings'
 import { serializeEntity } from './functions/serializeWorld'
-import { EntityJsonType, SceneJsonType } from './types/SceneTypes'
+import { EntityJsonType, SceneJSONDataType, SceneJsonType } from './types/SceneTypes'
 
 export interface SceneSnapshotInterface {
   data: SceneJsonType
@@ -62,21 +61,21 @@ export interface SceneSnapshotInterface {
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<SceneID, Omit<SceneDataType, 'scene'> & { scene: SceneJsonType }>,
+    scenes: {} as Record<string, SceneJSONDataType>,
     sceneLoaded: false,
     loadingProgress: 0,
     sceneModified: false
   }),
 
-  getScene: (sceneID: SceneID) => {
+  getScene: (sceneID: string) => {
     return getState(SceneState).scenes[sceneID]
   },
 
-  useScene: (sceneID: SceneID) => {
+  useScene: (sceneID: string) => {
     return useHookstate(getMutableState(SceneState).scenes[sceneID]).scene
   },
 
-  loadScene: (sceneID: SceneID, sceneData: SceneDataType) => {
+  loadScene: (sceneID: string, sceneData: SceneJSONDataType) => {
     const data: SceneJsonType = sceneData.scene
 
     migrateOldComponentJSONIDs(data)
@@ -95,8 +94,7 @@ export const SceneState = defineState({
     }
   },
 
-  unloadScene: (sceneID: SceneID) => {
-    console.log('unloadScene', sceneID)
+  unloadScene: (sceneID: string) => {
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
     const root = sceneData.scene.root
@@ -105,7 +103,7 @@ export const SceneState = defineState({
     getMutableState(SceneState).scenes[sceneID].set(none)
   },
 
-  getRootEntity: (sceneID: SceneID) => {
+  getRootEntity: (sceneID: string) => {
     if (!getState(SceneState).scenes[sceneID]) return UndefinedEntity
     const scene = getState(SceneState).scenes[sceneID].scene
     return UUIDComponent.getEntityByUUID(scene.root)
@@ -115,14 +113,14 @@ export const SceneState = defineState({
 export class SceneSnapshotAction {
   static createSnapshot = defineAction({
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>,
+    sceneID: matches.string as Validator<unknown, string>,
     // selectedEntities: matches.array as Validator<unknown, Array<EntityUUID>>,
     data: matches.object as Validator<unknown, SceneJsonType>
   })
 
   static undo = defineAction({
     type: 'ee.scene.snapshot.UNDO' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>,
+    sceneID: matches.string as Validator<unknown, string>,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
@@ -130,7 +128,7 @@ export class SceneSnapshotAction {
 
   static redo = defineAction({
     type: 'ee.scene.snapshot.REDO' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>,
+    sceneID: matches.string as Validator<unknown, string>,
     count: matches.number
     // $topic: EditorTopic,
     // $cache: true
@@ -138,7 +136,7 @@ export class SceneSnapshotAction {
 
   static clearHistory = defineAction({
     type: 'ee.scene.snapshot.CLEAR_HISTORY' as const,
-    sceneID: matches.string as Validator<unknown, SceneID>
+    sceneID: matches.string as Validator<unknown, string>
   })
 }
 
@@ -146,7 +144,7 @@ export class SceneSnapshotAction {
 export const SceneSnapshotState = defineState({
   name: 'SceneSnapshotState',
   initial: {} as Record<
-    SceneID,
+    string,
     {
       snapshots: Array<SceneSnapshotInterface>
       index: number
@@ -194,26 +192,26 @@ export const SceneSnapshotState = defineState({
     const state = useHookstate(getMutableState(SceneSnapshotState))
     return (
       <>
-        {state.keys.map((sceneID: SceneID) => (
+        {state.keys.map((sceneID: string) => (
           <SceneSnapshotReactor sceneID={sceneID} key={sceneID} />
         ))}
       </>
     )
   },
 
-  useSnapshotIndex(sceneID: SceneID) {
+  useSnapshotIndex(sceneID: string) {
     return useHookstate(getMutableState(SceneSnapshotState)[sceneID].index)
   },
 
-  cloneCurrentSnapshot: (sceneID: SceneID) => {
+  cloneCurrentSnapshot: (sceneID: string) => {
     const state = getState(SceneSnapshotState)[sceneID]
     return JSON.parse(JSON.stringify({ sceneID, ...state.snapshots[state.index] })) as SceneSnapshotInterface & {
-      sceneID: SceneID
+      sceneID: string
     }
   },
 
   /** @todo reserved for future use */
-  snapshotFromECS: (sceneID: SceneID) => {
+  snapshotFromECS: (sceneID: string) => {
     const entities = SourceComponent.entitiesBySource[sceneID] ?? []
     const serializedEntities: [EntityUUID, EntityJsonType][] = entities.map((entity) => {
       const components = serializeEntity(entity)
@@ -253,7 +251,7 @@ export const SceneSnapshotState = defineState({
 
 export const EditorTopic = 'editor' as Topic
 
-const SceneSnapshotReactor = (props: { sceneID: SceneID }) => {
+const SceneSnapshotReactor = (props: { sceneID: string }) => {
   const sceneState = useHookstate(getMutableState(SceneSnapshotState)[props.sceneID])
 
   useLayoutEffect(() => {
@@ -268,10 +266,9 @@ const SceneSnapshotReactor = (props: { sceneID: SceneID }) => {
   return null
 }
 
-const createRootEntity = (sceneID: SceneID, sceneData: SceneJsonType) => {
+const createRootEntity = (sceneID: string, sceneData: SceneJsonType) => {
   const entityState = sceneData.entities[sceneData.root]
   const entity = createEntity()
-  console.log('createRootEntity', sceneID, entityState.name)
   setComponent(entity, UUIDComponent, sceneData.root)
   setComponent(entity, NameComponent, entityState.name)
   setComponent(entity, VisibleComponent, true)

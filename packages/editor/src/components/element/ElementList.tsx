@@ -60,21 +60,23 @@ import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { VisualScriptComponent } from '@etherealengine/engine'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
-import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
@@ -108,11 +110,17 @@ export const ComponentShelfCategoriesState = defineState({
         GroundPlaneComponent,
         GroupComponent,
         VariantComponent,
-        SceneDynamicLoadTagComponent,
-        ObjectGridSnapComponent
+        SceneDynamicLoadTagComponent
       ],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
+      Interaction: [
+        SpawnPointComponent,
+        PortalComponent,
+        LinkComponent,
+        MountPointComponent,
+        InteractableComponent,
+        GrabbableComponent
+      ],
       Lighting: [
         AmbientLightComponent,
         PointLightComponent,
@@ -136,7 +144,8 @@ export const ComponentShelfCategoriesState = defineState({
         SkyboxComponent,
         SplineTrackComponent,
         SplineComponent,
-        TextComponent
+        TextComponent,
+        ScreenshareTargetComponent
       ]
     } as Record<string, Component[]>
   }

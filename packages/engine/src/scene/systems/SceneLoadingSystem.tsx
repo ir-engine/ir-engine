@@ -37,7 +37,6 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   Entity,
@@ -89,7 +88,7 @@ export const SceneLoadingReactor = () => {
         Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SourceComponent, Not(GLTFLoadedComponent)]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
-      {Object.keys(scenes.value).map((sceneID: SceneID) => (
+      {Object.keys(scenes.value).map((sceneID: string) => (
         <SceneReactor key={sceneID} sceneID={sceneID} />
       ))}
     </>
@@ -125,7 +124,7 @@ const NetworkedSceneObjectReactor = () => {
   return null
 }
 
-const SceneReactor = (props: { sceneID: SceneID }) => {
+const SceneReactor = (props: { sceneID: string }) => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
@@ -195,7 +194,7 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   )
 }
 
-const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
+const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: string }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
   return (
@@ -219,7 +218,7 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
 const EntityChildLoadReactor = (props: {
   parentEntity: Entity
   entityUUID: EntityUUID
-  sceneID: SceneID
+  sceneID: string
   entityJSONState: State<EntityJsonType>
 }) => {
   const parentEntity = props.parentEntity

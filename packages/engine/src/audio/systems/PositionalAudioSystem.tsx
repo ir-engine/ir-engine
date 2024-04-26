@@ -33,7 +33,7 @@ import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/s
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { createQueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
@@ -211,20 +211,19 @@ const execute = () => {
   // audioContext.listener.upZ.linearRampToValueAtTime(camera.up.z, endTime)
 }
 
-const PositionalAudioPanner = createQueryReactor(
-  [PositionalAudioComponent, TransformComponent],
-  function PositionalAudioPannerReactor(props) {
-    const entity = useEntityContext()
-    const mediaElement = useComponent(entity, MediaElementComponent)
-    const positionalAudio = useComponent(entity, PositionalAudioComponent)
-    useEffect(() => {
-      const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
-      addPannerNode(audioGroup, positionalAudio.value)
-      return () => removePannerNode(audioGroup)
-    }, [mediaElement, positionalAudio])
-    return null
-  }
-)
+function PositionalAudioPannerReactor() {
+  const entity = useEntityContext()
+  const mediaElement = useComponent(entity, MediaElementComponent)
+  const positionalAudio = useComponent(entity, PositionalAudioComponent)
+
+  useEffect(() => {
+    const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+    addPannerNode(audioGroup, positionalAudio.value)
+    return () => removePannerNode(audioGroup)
+  }, [mediaElement, positionalAudio])
+
+  return null
+}
 
 const reactor = () => {
   const mediaStreamVolume = useHookstate(getMutableState(AudioState).mediaStreamVolume)
@@ -244,7 +243,12 @@ const reactor = () => {
     }
   }, [mediaStreamVolume])
 
-  return <PositionalAudioPanner />
+  return (
+    <QueryReactor
+      Components={[PositionalAudioComponent, TransformComponent]}
+      ChildEntityReactor={PositionalAudioPannerReactor}
+    />
+  )
 }
 
 export const PositionalAudioSystem = defineSystem({
