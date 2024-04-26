@@ -39,14 +39,14 @@ export default function AdminProject() {
   const { t } = useTranslation()
 
   const projectState = useHookstate(getMutableState(ProjectState))
-  console.log('debug1 the project state', projectState)
-
   return (
     <>
       <div className="mb-2 flex justify-start gap-3">
         {projectState.builderInfo.engineVersion.value && (
           <Badge
-            label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`}
+            label={t('admin:components.project.currentEngineVersion', {
+              version: projectState.builderInfo.engineVersion.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -54,7 +54,9 @@ export default function AdminProject() {
 
         {projectState.builderInfo.engineCommit.value && (
           <Badge
-            label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`}
+            label={t('admin:components.project.currentEngineCommit', {
+              commit: projectState.builderInfo.engineCommit.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -81,7 +83,7 @@ export default function AdminProject() {
                         ? 'bg-green-500'
                         : projectState.failed.value === true
                         ? 'bg-red-500'
-                        : 'bg-yellow-400'
+                        : ''
                     )}
                   />
                 )}
