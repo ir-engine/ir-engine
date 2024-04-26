@@ -99,10 +99,11 @@ export const HemisphereLightComponent = defineComponent({
     }, [hemisphereLightComponent.intensity])
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, LightHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
       }
     }, [debugEnabled])
 

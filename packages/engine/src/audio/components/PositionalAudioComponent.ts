@@ -25,15 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { defineComponent, removeComponent, setComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -104,13 +98,15 @@ export const PositionalAudioComponent = defineComponent({
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, PositionalAudioHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         if (!mediaElement || !mediaElement.element.value) return
         const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
         if (!audioNodes) return
         setComponent(entity, PositionalAudioHelperComponent, { audio: audioNodes })
+      }
+
+      return () => {
+        removeComponent(entity, PositionalAudioHelperComponent)
       }
     }, [debugEnabled, mediaElement?.element])
 

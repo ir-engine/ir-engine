@@ -67,14 +67,16 @@ export const AvatarIKTargetComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, AxesHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, AxesHelperComponent, {
           name: 'avatar-ik-helper',
           size: 0.5,
           layerMask: ObjectLayerMasks.AvatarHelper
         })
+      }
+
+      return () => {
+        removeComponent(entity, AxesHelperComponent)
       }
     }, [debugEnabled])
 

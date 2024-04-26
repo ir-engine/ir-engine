@@ -69,10 +69,11 @@ export const MountPointComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, ArrowHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
+      }
+      return () => {
+        removeComponent(entity, ArrowHelperComponent)
       }
     }, [debugEnabled])
 

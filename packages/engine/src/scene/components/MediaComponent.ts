@@ -481,10 +481,7 @@ export function MediaReactor() {
   const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (!debugEnabled.value) {
-      removeComponent(entity, MeshHelperComponent)
-    } else {
-      if (!audioHelperTexture) return
+    if (debugEnabled.value && audioHelperTexture) {
       const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
       material.map = audioHelperTexture
       setComponent(entity, MeshHelperComponent, {
@@ -492,6 +489,10 @@ export function MediaReactor() {
         geometry: new PlaneGeometry(),
         material: material
       })
+    }
+
+    return () => {
+      removeComponent(entity, MeshHelperComponent)
     }
   }, [debugEnabled, audioHelperTexture])
 

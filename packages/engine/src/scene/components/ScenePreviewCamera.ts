@@ -94,13 +94,14 @@ export const ScenePreviewCameraComponent = defineComponent({
     }, [previewCameraTransform])
 
     useLayoutEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, CameraHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, CameraHelperComponent, {
           name: 'scene-preview-helper',
           camera: previewCamera.camera.value
         })
+      }
+      return () => {
+        removeComponent(entity, CameraHelperComponent)
       }
     }, [debugEnabled])
 

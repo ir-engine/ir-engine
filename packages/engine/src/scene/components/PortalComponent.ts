@@ -177,15 +177,16 @@ export const PortalComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, ArrowHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, ArrowHelperComponent, {
           name: 'portal-helper',
           length: 1,
           dir: V_010,
           color: 0x000000
         })
+      }
+      return () => {
+        removeComponent(entity, ArrowHelperComponent)
       }
     }, [debugEnabled])
 

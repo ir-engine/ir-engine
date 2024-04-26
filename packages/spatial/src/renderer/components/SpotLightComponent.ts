@@ -164,10 +164,11 @@ export const SpotLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, LightHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, LightHelperComponent, { name: 'spot-light-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
       }
     }, [debugEnabled])
 

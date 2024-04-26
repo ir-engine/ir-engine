@@ -106,14 +106,16 @@ export const EnvMapBakeComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
     useLayoutEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, MeshHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, MeshHelperComponent, {
           name: 'envmap-bake-helper',
           geometry: sphereGeometry,
           material: helperMeshMaterial
         })
+      }
+
+      return () => {
+        removeComponent(entity, MeshHelperComponent)
       }
     }, [debugEnabled])
 

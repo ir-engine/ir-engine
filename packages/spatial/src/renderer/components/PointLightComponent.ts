@@ -142,10 +142,11 @@ export const PointLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, LightHelperComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, LightHelperComponent, { name: 'pointlight-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
       }
     }, [debugEnabled])
 

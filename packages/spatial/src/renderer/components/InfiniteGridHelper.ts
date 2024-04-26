@@ -27,7 +27,6 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  ColorRepresentation,
   DoubleSide,
   LineBasicMaterial,
   NormalBlending,
@@ -128,53 +127,44 @@ void main() {
 }
 `
 
-export const InfiniteGridHelperComponent = defineComponent({
-  name: 'InfiniteGridHelperComponent',
-
-  onInit: (entity) => {
+export const InfiniteGridComponent = defineComponent({
+  name: 'Infinite Grid',
+  onInit(entity) {
     return {
-      name: 'infinite-grid-helper',
-      size1: 1,
-      size2: 10,
-      color: new Color('white') as ColorRepresentation,
-      distance: 8000,
-      gridHeight: 0
+      size: 1,
+      color: new Color('white'),
+      distance: 8000
     }
   },
 
-  onSet: (entity, component, json) => {
+  onSet(
+    entity,
+    component,
+    json: Partial<{
+      size: number
+      color: string | Color
+      distance: number
+    }>
+  ) {
     if (!json) return
 
-    if (typeof json.name == 'string') component.name.set(json.name)
-    if (typeof json.size1 == 'number') component.size1.set(json.size1)
-    if (typeof json.size2 == 'number') component.size2.set(json.size2)
-    // if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.distance == 'number') component.distance.set(json.distance)
-    if (typeof json.gridHeight == 'number') component.gridHeight.set(json.gridHeight)
+    if (typeof json.size === 'number') component.size.set(json.size)
+    if (typeof json.color === 'string') component.color.set(new Color(json.color))
+    if (json.color instanceof Color) component.color.set(json.color)
+    if (typeof json.distance === 'number') component.distance.set(json.distance)
   },
 
-  reactor: function () {
+  reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, InfiniteGridHelperComponent)
+
+    const component = useComponent(entity, InfiniteGridComponent)
+    const engineRendererSettings = useHookstate(getMutableState(RendererState))
     const [mesh, geometry, material] = useMeshComponent(
       entity,
       new PlaneGeometry(2, 2, 1, 1),
       new ShaderMaterial({
         side: DoubleSide,
-        uniforms: {
-          uSize1: {
-            value: component.size1.value
-          },
-          uSize2: {
-            value: component.size2.value
-          },
-          uColor: {
-            value: component.color.value
-          },
-          uDistance: {
-            value: component.distance.value
-          }
-        },
+        uniforms: {},
         transparent: true,
         vertexShader: vertexShaderGrid,
         fragmentShader: fragmentShaderGrid,
@@ -189,18 +179,25 @@ export const InfiniteGridHelperComponent = defineComponent({
     const [plane] = useResource(new Plane(mesh.up), entity)
 
     useEffect(() => {
-      mesh.name = component.name.value
-      mesh.frustumCulled = false
-    }, [])
+      mesh.position.y = engineRendererSettings.gridHeight.value
+      mesh.updateMatrixWorld(true)
+    }, [engineRendererSettings.gridHeight])
 
     useEffect(() => {
+      material.uniforms.uColor.set({
+        value: component.color.value
+      })
+    }, [component.color])
+
+    useEffect(() => {
+      const size = component.size.value
       material.uniforms.uSize1.set({
-        value: component.size1.value
+        value: size
       })
       material.uniforms.uSize2.set({
-        value: component.size2.value
+        value: size * 10
       })
-    }, [component.size1, component.size2])
+    }, [component.size])
 
     useEffect(() => {
       material.uniforms.uDistance.set({
@@ -240,80 +237,6 @@ export const InfiniteGridHelperComponent = defineComponent({
       return () => {
         for (const lineEntity of lineEntities) removeEntity(lineEntity)
       }
-    }, [component.distance])
-
-    useEffect(() => {
-      material.uniforms.uColor.set({
-        value: component.color.value
-      })
-    }, [component.color])
-
-    useEffect(() => {
-      mesh.position.y = component.gridHeight.value
-      mesh.updateMatrixWorld(true)
-    }, [component.gridHeight])
-
-    return null
-  }
-})
-
-export const InfiniteGridComponent = defineComponent({
-  name: 'Infinite Grid',
-  onInit(entity) {
-    return {
-      size: 1,
-      color: new Color('white'),
-      distance: 8000
-    }
-  },
-
-  onSet(
-    entity,
-    component,
-    json: Partial<{
-      size: number
-      color: string | Color
-      distance: number
-    }>
-  ) {
-    if (!json) return
-
-    if (typeof json.size === 'number') component.size.set(json.size)
-    if (typeof json.color === 'string') component.color.set(new Color(json.color))
-    if (json.color instanceof Color) component.color.set(json.color)
-    if (typeof json.distance === 'number') component.distance.set(json.distance)
-
-    setComponent(entity, InfiniteGridHelperComponent, {
-      size1: component.size.value,
-      size2: component.size.value * 10,
-      color: component.color.value,
-      distance: component.distance.value
-    })
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-
-    const component = useComponent(entity, InfiniteGridComponent)
-    const engineRendererSettings = useHookstate(getMutableState(RendererState))
-    const helper = useComponent(entity, InfiniteGridHelperComponent)
-
-    useEffect(() => {
-      helper.gridHeight.set(engineRendererSettings.gridHeight.value)
-    }, [engineRendererSettings.gridHeight])
-
-    useEffect(() => {
-      helper.color.set(component.color.value)
-    }, [component.color])
-
-    useEffect(() => {
-      const size = component.size.value
-      helper.size1.set(size)
-      helper.size2.set(size * 10)
-    }, [component.size])
-
-    useEffect(() => {
-      helper.distance.set(component.distance.value)
     }, [component.distance])
 
     return null
