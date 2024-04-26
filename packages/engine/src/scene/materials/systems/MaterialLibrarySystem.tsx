@@ -43,10 +43,8 @@ import {
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterial, setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { isArray } from 'lodash'
-import { Mesh } from 'three'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { createPrototype } from '../functions/materialSourcingFunctions'
@@ -148,12 +146,8 @@ const MaterialGroupReactor = () => {
   const entity = useEntityContext()
   const materialComponent = useComponent(entity, MaterialComponent)
   useEffect(() => {
-    const mesh = getComponent(entity, GroupComponent)[0] as Mesh
-    if (!mesh.material || !materialComponent.uuid) return
-    if (!isArray(mesh.material)) mesh.material = getMaterial(materialComponent.uuid.value[0])!
-    else mesh.material = materialComponent.uuid.value.map((uuid) => getMaterial(uuid)!)
+    setGroupMaterial(entity, materialComponent.uuid.value)
   }, [materialComponent.uuid])
-
   return null
 }
 
