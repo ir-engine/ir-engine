@@ -38,7 +38,9 @@ import {
 } from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { GLTF as GLTFDocument } from '@gltf-transform/core'
+import { GLTFDocumentState } from '../../../scene/GLTFState'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
@@ -268,6 +270,11 @@ export class GLTFLoader extends Loader {
       if (onError) onError(new Error('THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.'))
       return
     }
+
+    /** store copy of raw GLTF in state */
+    getMutableState(GLTFDocumentState).merge({
+      [url]: JSON.parse(JSON.stringify(json))
+    })
 
     // Populate storage provider URLs
     parseStorageProviderURLs(json)

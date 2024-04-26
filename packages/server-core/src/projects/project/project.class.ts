@@ -46,6 +46,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
+import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
@@ -188,5 +189,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         await super._remove(id)
       }
     }
+
+    const refetchedData = (await super._find({ paginate: false })) as ProjectType[]
+
+    await syncAllSceneJSONAssets(refetchedData, this.app)
   }
 }

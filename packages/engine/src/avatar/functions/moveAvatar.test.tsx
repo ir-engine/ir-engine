@@ -29,7 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/ecs'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AvatarID, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -96,7 +96,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -137,7 +137,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -180,7 +180,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,
@@ -220,7 +220,7 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        parentUUID: SceneState.getScene('test' as SceneID).scene.root,
+        parentUUID: SceneState.getScene('test').scene.root,
         position: new Vector3(),
         rotation: new Quaternion(),
         entityUUID: Engine.instance.userID as string as EntityUUID,

@@ -189,12 +189,6 @@ export const DirectionalLightComponent = defineComponent({
     }, [directionalLightComponent.intensity])
 
     useEffect(() => {
-      directionalLightComponent.light.value.castShadow =
-        directionalLightComponent.castShadow.value &&
-        renderState.csm.value?.sourceLight !== directionalLightComponent.light.value
-    }, [directionalLightComponent.castShadow, renderState.csm])
-
-    useEffect(() => {
       directionalLightComponent.light.value.shadow.camera.far = directionalLightComponent.cameraFar.value
       directionalLightComponent.light.shadow.camera.value.updateProjectionMatrix()
     }, [directionalLightComponent.cameraFar])

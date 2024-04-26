@@ -67,9 +67,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
-import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
-import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
@@ -77,6 +75,7 @@ import { ShadowComponent } from '@etherealengine/engine/src/scene/components/Sha
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
@@ -112,8 +111,7 @@ export const ComponentShelfCategoriesState = defineState({
         GroundPlaneComponent,
         GroupComponent,
         VariantComponent,
-        SceneDynamicLoadTagComponent,
-        ObjectGridSnapComponent
+        SceneDynamicLoadTagComponent
       ],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
       Interaction: [SpawnPointComponent, PortalComponent, LinkComponent, MountPointComponent],
