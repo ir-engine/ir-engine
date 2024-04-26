@@ -112,6 +112,8 @@ export const saveSceneJSON = async (
 
   const relativePath = sceneName.endsWith('.scene.json') ? sceneName : `${sceneName}.scene.json`
 
+  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
+
   const blob = [JSON.stringify(sceneData, null, 2)]
   const file = new File(blob, relativePath)
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
@@ -121,7 +123,7 @@ export const saveSceneJSON = async (
   if (sceneAssetID) {
     const result = await Engine.instance.api
       .service(assetPath)
-      .patch(sceneAssetID, { name: sceneName, assetURL, project: projectName })
+      .patch(sceneAssetID, { name: sceneNameWithoutExtension, assetURL, project: projectName })
 
     getMutableState(EditorState).merge({
       sceneName,
@@ -134,7 +136,7 @@ export const saveSceneJSON = async (
   }
   const result = await Engine.instance.api
     .service(assetPath)
-    .create({ name: sceneName, assetURL, project: projectName })
+    .create({ name: sceneNameWithoutExtension, assetURL, project: projectName })
 
   getMutableState(EditorState).merge({
     sceneName,
@@ -170,10 +172,12 @@ export const saveSceneGLTF = async (
 
   const absolutePath = `projects/${projectName}/${relativePath}`
 
+  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
+
   if (sceneAssetID) {
     const result = await Engine.instance.api
       .service(assetPath)
-      .patch(sceneAssetID, { name: sceneName, assetURL: absolutePath, project: projectName })
+      .patch(sceneAssetID, { name: sceneNameWithoutExtension, assetURL: absolutePath, project: projectName })
 
     getMutableState(EditorState).merge({
       sceneName,
@@ -186,7 +190,7 @@ export const saveSceneGLTF = async (
   }
   const result = await Engine.instance.api
     .service(assetPath)
-    .create({ name: sceneName, assetURL: absolutePath, project: projectName })
+    .create({ name: sceneNameWithoutExtension, assetURL: absolutePath, project: projectName })
 
   getMutableState(EditorState).merge({
     sceneName,
