@@ -27,12 +27,27 @@ import React, { ReactElement, useEffect } from 'react'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
+  Not,
+  PresentationSystemGroup,
+  QueryReactor,
+  UUIDComponent,
+  getComponent,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import {
+  MaterialComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { getMaterial, setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { isArray } from 'lodash'
+import { Mesh } from 'three'
+import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
 import { createPrototype } from '../functions/materialSourcingFunctions'
 
@@ -92,8 +107,16 @@ const reactor = (): ReactElement => {
   //   }
   // }, [materialLibrary.prototypes])
 
-  return <></>
-  // return <GroupQueryReactor GroupChildReactor={MaterialGroupReactor} Components={[VisibleComponent]} />
+  return (
+    <>
+      {<QueryReactor Components={[MaterialComponent, GroupComponent]} ChildEntityReactor={MaterialGroupReactor} />}
+      <QueryReactor
+        Components={[MaterialComponent, UUIDComponent, SourceComponent, Not(GroupComponent)]}
+        ChildEntityReactor={MaterialEntityReactor}
+      />
+    </>
+  )
+
   // const plugins = materialLibrary.plugins
   // return (
   //   <>
@@ -107,11 +130,32 @@ const reactor = (): ReactElement => {
   // )
 }
 
-// const MaterialGroupReactor = ({ obj, entity }: GroupReactorProps) => {
-//   useEffect(() => {}, [])
+const MaterialEntityReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useComponent(entity, MaterialComponent)
+  useEffect(() => {
+    for (const sourceEntity of materialComponent.instances.value) {
+      iterateEntityNode(sourceEntity, (childEntity) => {
+        const uuid = getComponent(childEntity, MaterialComponent).uuid
+        setGroupMaterial(childEntity, uuid)
+      })
+    }
+  }, [materialComponent.material])
+  return null
+}
 
-//   return null
-// }
+const MaterialGroupReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useComponent(entity, MaterialComponent)
+  useEffect(() => {
+    const mesh = getComponent(entity, GroupComponent)[0] as Mesh
+    if (!mesh.material || !materialComponent.uuid) return
+    if (!isArray(mesh.material)) mesh.material = getMaterial(materialComponent.uuid.value[0])!
+    else mesh.material = materialComponent.uuid.value.map((uuid) => getMaterial(uuid)!)
+  }, [materialComponent.uuid])
+
+  return null
+}
 
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',

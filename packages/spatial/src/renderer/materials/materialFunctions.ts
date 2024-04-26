@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { cloneDeep } from 'lodash'
-import { Color, Texture } from 'three'
+import { cloneDeep, isArray } from 'lodash'
+import { Color, Mesh, Texture } from 'three'
+import { GroupComponent } from '../components/GroupComponent'
 import { MaterialComponent } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
@@ -69,6 +70,14 @@ export const createMaterialFromPrototype = (prototypeEntity: Entity) => {
   }
 }
 
-export const getMaterial = (uuid: string) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialComponent).material
+export const getMaterial = (uuid: EntityUUID) => {
+  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent)?.material
+}
+
+export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
+  const mesh = getComponent(groupEntity, GroupComponent)[0] as Mesh
+  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])! ?? mesh.material
+  else
+    for (let i = 0; i < mesh.material.length; i++)
+      mesh.material[i] = getMaterial(newMaterialUUIDs[i])! ?? mesh.material[i]
 }

@@ -147,12 +147,9 @@ export default function MaterialLibraryPanel() {
                 const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
                   binary: false,
                   relativePath
-                })!) as /*ArrayBuffer*/ { [key: string]: any }
+                })!) as { [key: string]: any }
                 const blob = [JSON.stringify(gltf)]
                 const file = new File(blob, libraryName)
-                /*const pName = editorState.projectName.value!
-                const blob = [gltf]
-                const file = new File(blob, "material-test.glb")*/
                 const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
                 console.log('exported material data to ', ...urls)
               }}

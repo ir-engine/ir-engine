@@ -227,7 +227,7 @@ export const hashMaterial = (source: string, name: string) => {
   return `${stringHash(source) ^ stringHash(name)}`
 }
 
-export function replaceMaterial(material: Material, nuMat: Material) {
+export const replaceMaterial = (material: EntityUUID, newMaterial: EntityUUID) => {
   // for (const entity of sceneMeshQuery()) {
   //   const mesh = getComponent(entity, MeshComponent)
   //   if (Array.isArray(mesh.material)) {
@@ -257,12 +257,11 @@ export const setMaterialPrototype = (materialEntity: Entity, prototypeName: stri
       .filter((key) => matKeys.includes(key))
       .map((key) => [key, material[key]])
   )
-  const fullParms = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParms }
-  const nuMat = new prototypeConstructor(fullParms)
+  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParms }
+  const nuMat = new prototypeConstructor(fullParameters)
   if (nuMat.plugins) {
     nuMat.customProgramCacheKey = () => nuMat.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
   }
-  replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name
   if (material.defines?.['USE_COLOR']) {
@@ -276,7 +275,7 @@ export const setMaterialPrototype = (materialEntity: Entity, prototypeName: stri
   setComponent(materialEntity, MaterialComponent, {
     material: nuMat,
     prototypeEntity: prototype,
-    parameters: fullParms
+    parameters: fullParameters
   })
   return nuMat
 }
