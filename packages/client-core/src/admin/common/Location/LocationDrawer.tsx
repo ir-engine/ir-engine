@@ -98,7 +98,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
   const selectedSceneData = useGet(assetPath, selectedScene!)
-  console.log(selectedSceneData)
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
@@ -117,8 +116,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           label: el.assetURL
         }
       })
-
-  console.log({ sceneMenu }, scenes.data)
 
   // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
   //   return {

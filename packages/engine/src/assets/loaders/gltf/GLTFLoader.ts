@@ -175,13 +175,11 @@ export class GLTFLoader extends Loader {
     /** If we alraedy have this document loaded, load the current version of it */
     const gltfState = getState(GLTFDocumentState)[url]
     if (gltfState) {
-      console.log('loading from snapshot', url)
       try {
         scope.parse(
           gltfState,
           resourcePath,
           function (gltf) {
-            console.log('loaded from snapshot', url)
             onLoad(gltf)
 
             scope.manager.itemEnd(url)
