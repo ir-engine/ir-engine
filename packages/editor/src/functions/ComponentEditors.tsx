@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { VisualScriptComponent } from '@etherealengine/engine'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -45,6 +47,7 @@ import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/compon
 import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -76,10 +79,12 @@ import DirectionalLightNodeEditor from '../components/properties/DirectionalLigh
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
 import { FogSettingsEditor } from '../components/properties/FogSettingsEditor'
+import { GrabbableComponentNodeEditor } from '../components/properties/GrabbableComponentNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import { InstancingNodeEditor } from '../components/properties/InstancingNodeEditor'
+import InteractableComponentNodeEditor from '../components/properties/InteractableComponentNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
@@ -99,6 +104,7 @@ import RigidBodyComponentEditor from '../components/properties/RigidbodyComponen
 import SDFEditor from '../components/properties/SDFEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
+import ScreenshareTargetNodeEditor from '../components/properties/ScreenshareTargetNodeEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
@@ -161,6 +167,9 @@ export const ComponentEditorsState = defineState({
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
+      [InteractableComponent.name]: InteractableComponentNodeEditor,
+      [GrabbableComponent.name]: GrabbableComponentNodeEditor,
+      [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor
     } as Record<string, EditorComponentType>
   }

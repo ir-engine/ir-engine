@@ -30,14 +30,14 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
-  return createXRUI(MediaControls)
+  return createXRUI(MediaControls, null, { interactable: false })
 }
 
 type MediaControlsProps = {
@@ -45,7 +45,7 @@ type MediaControlsProps = {
 }
 
 const MediaControlsView = (props: MediaControlsProps) => {
-  const mediaComponent = useHookstate(getComponent(props.entity, MediaComponent))
+  const mediaComponent = useHookstate(getMutableComponent(props.entity, MediaComponent))
 
   const buttonClick = () => {
     const mediaElement = getComponent(props.entity, MediaElementComponent)
@@ -55,6 +55,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
 
   return (
     <div
+      xr-layer="true"
       id="container"
       style={{
         width: '100px',
@@ -70,7 +71,7 @@ const MediaControlsView = (props: MediaControlsProps) => {
           fontFamily: "'Roboto', sans-serif",
           border: '10px solid grey',
           boxShadow: '#fff2 0 0 30px',
-          color: 'lighgrey',
+          color: 'lightgrey',
           fontSize: '25px',
           width: '100px',
           height: '100px',
