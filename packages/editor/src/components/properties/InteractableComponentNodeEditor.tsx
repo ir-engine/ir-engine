@@ -39,6 +39,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -46,7 +47,6 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { InteractableComponent } from '../InteractableComponent'
 
 type OptionsType = Array<{
   callbacks: Array<{

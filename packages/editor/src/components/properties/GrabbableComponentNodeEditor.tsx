@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useComponent } from '@etherealengine/ecs'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { GrabbableComponent } from '../GrabbableComponent'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

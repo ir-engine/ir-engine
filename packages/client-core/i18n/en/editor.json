@@ -208,6 +208,18 @@
       "name": "Environment Map",
       "description": "environment map properties"
     },
+    "trigger": {
+      "name": "Trigger",
+      "description": "A trigger component fires callbacks on the target when a collider enters and exits the trigger volume collider.",
+      "lbl-target": "Target",
+      "lbl-onenter": "On Enter",
+      "lbl-onexit": "On Exit"
+    },
+    "rigidbody": {
+      "name": "Rigidbody",
+      "description": "A rigidbody component that allows the entity to be affected by physics.",
+      "lbl-type": "Body Type"
+    },
     "prefab": {
       "name": "Prefab",
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",
