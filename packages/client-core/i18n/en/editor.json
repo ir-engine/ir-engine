@@ -933,7 +933,8 @@
       "lbl-fontColor": "Font Color",
       "lbl-cornerRadius": "Corner Radius",
       "lbl-backgroundColor": "Background Color",
-      "lbl-opacity": "Opacity"
+      "lbl-opacity": "Opacity",
+      "lbl-padding": "Padding"
     }
   },
   "projects": {

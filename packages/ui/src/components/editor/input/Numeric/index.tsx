@@ -126,7 +126,7 @@ const NumericInput = ({
     >
       {prefix}
       <input
-        className="w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none"
+        className="w-full bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
         value={toPrecisionString(value, displayPrecision)}
         onKeyUp={handleKeyPress}
         onChange={handleChange}
@@ -134,7 +134,7 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#8B8B8D]">
+        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#444444]">
           {unit}
         </Text>
       )}

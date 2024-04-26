@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import InfoOutlined from '@mui/icons-material/InfoOutlined'
+import { CiCircleInfo } from 'react-icons/ci'
 import { twMerge } from 'tailwind-merge'
+import Label from '../../../../primitives/tailwind/Label'
+import Tooltip from '../../../../primitives/tailwind/Tooltip'
 import { InfoTooltip } from '../../layout/Tooltip'
 
 /**
@@ -111,50 +113,31 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
   )
 }
 
-/**
- * Declaring proptypes for InputGroupInfo Component.
- */
-export type InputGroupProps = React.PropsWithChildren<
-  {
-    name: string
-    disabled?: boolean
-    label?: string
-    value?: any
-    labelClasses?: string
-    contentClasses?: string
-  } & Partial<InputGroupInfoProp>
->
+export interface InputGroupProps {
+  name?: string
+  label: string
+  info?: string
+  disabled?: boolean
+  children: React.ReactNode
+  className?: string
+  labelClassName?: string
+  infoClassName?: string
+}
 
 /**
  * InputGroup used to render the view of component.
  */
-export function InputGroup({
-  children,
-  disabled,
-  info,
-  label,
-  labelClasses,
-  contentClasses,
-  ...rest
-}: InputGroupProps) {
+export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
   return (
-    <InputGroupContainer disabled={disabled} {...rest}>
-      <div className="grid grid-cols-12">
-        <div className="col-span-4 flex items-center justify-end">
-          <label className={twMerge(`text-right text-xs font-normal text-neutral-400 ${labelClasses}`)}>{label}</label>
-
-          {info && (
-            <InfoTooltip title={info}>
-              <InfoOutlined className="ml-[5px] h-[16px] w-[auto] text-neutral-400" />
-            </InfoTooltip>
-          )}
-        </div>
-
-        <div className="col-span-8 flex items-center justify-start">
-          <InputGroupContent extraClassName={contentClasses}>{children}</InputGroupContent>
-        </div>
-      </div>
-    </InputGroupContainer>
+    <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
+      <Label className={twMerge('mr-2.5 text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+      {info && (
+        <Tooltip title={info}>
+          <CiCircleInfo className={twMerge('-ml-0.5 mr-2.5 h-3.5 w-3.5 text-[#A0A1A2]', infoClassName)} />
+        </Tooltip>
+      )}
+      {children}
+    </div>
   )
 }
 
