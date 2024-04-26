@@ -24,10 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  AnimationSystemGroup,
   defineComponent,
   hasComponent,
   setComponent,
+  useComponent,
   useEntityContext,
+  useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
@@ -44,7 +47,13 @@ export const NewVolumetricComponent = defineComponent({
     useVideoTexture: false,
     useLoadingEffect: true,
     hasAudio: false,
-    volume: 1
+    volume: 1,
+    time: {
+      start: 0,
+      checkpointAbs: performance.now(),
+      checkpointRelative: 0
+    },
+    paused: true
   }),
   onSet: (entity, component, json) => {
     if (!json) return
@@ -75,6 +84,7 @@ function NewVolumetricComponentReactor() {
   const entity = useEntityContext()
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
   const manifest = useHookstate<OldManifestSchema | ManifestSchema | Record<string, never>>({})
+  const component = useComponent(entity, NewVolumetricComponent)
 
   useEffect(() => {
     if (!hasComponent(entity, PlaylistComponent)) {
@@ -85,7 +95,16 @@ function NewVolumetricComponentReactor() {
     }
   }, [])
 
-  const cleanupTrack = () => {}
+  const cleanupTrack = () => {
+    component.merge({
+      time: {
+        start: 0,
+        checkpointAbs: performance.now(),
+        checkpointRelative: 0
+      },
+      paused: true
+    })
+  }
 
   useEffect(() => {
     cleanupTrack()
@@ -125,8 +144,33 @@ function NewVolumetricComponentReactor() {
   }, [playlistComponent?.currentTrackUUID])
 
   useEffect(() => {
-    console.log('Paused: ', playlistComponent?.paused.value)
+    if (playlistComponent?.paused.value) {
+      const currentTimeRelative =
+        component.time.checkpointRelative.value + performance.now() - component.time.checkpointAbs.value
+      const currentTimeAbs = performance.now()
+
+      component.time.merge({
+        checkpointAbs: currentTimeAbs,
+        checkpointRelative: currentTimeRelative
+      })
+    } else {
+      const currentTimeAbs = performance.now()
+      component.time.checkpointAbs.set(currentTimeAbs)
+    }
+
+    component.paused.set(!!playlistComponent?.paused.value)
   }, [playlistComponent?.paused])
+
+  useExecute(
+    () => {
+      const currentTime = component.paused.value
+        ? component.time.checkpointRelative.value
+        : component.time.checkpointRelative.value + performance.now() - component.time.checkpointAbs.value
+    },
+    {
+      with: AnimationSystemGroup
+    }
+  )
 
   return null
 }

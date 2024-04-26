@@ -31,28 +31,28 @@ export const PlaylistComponent = defineComponent({
   name: 'PlaylistComponent',
   jsonID: 'EE_playlist',
 
-  onInit: (entity) => {
-    return {
-      tracks: [] as { uuid: string; src: string }[],
-      currentTrackUUID: '',
-      currentTrackIndex: -1,
-      paused: true,
-      playMode: PlayMode.loop
-    }
-  },
+  onInit: (entity) => ({
+    tracks: [] as { uuid: string; src: string }[],
+    currentTrackUUID: '',
+    currentTrackIndex: -1,
+    paused: true,
+    playMode: PlayMode.loop
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.tracks) component.tracks.set(json.tracks)
-    if (json.currentTrackUUID) component.currentTrackUUID.set(json.currentTrackUUID)
-    if (json.playMode) component.playMode.set(json.playMode)
-    if (json.paused) component.paused.set(json.paused)
+    if (json.tracks && Array.isArray(json.tracks)) component.tracks.set(json.tracks)
+    if (typeof json.currentTrackUUID === 'string') component.currentTrackUUID.set(json.currentTrackUUID)
+    if (typeof json.currentTrackIndex === 'number') component.currentTrackIndex.set(json.currentTrackIndex)
+    if (typeof json.playMode === 'string') component.playMode.set(json.playMode)
+    if (typeof json.paused === 'boolean') component.paused.set(json.paused)
   },
 
   toJSON: (entity, component) => {
     return {
       tracks: component.tracks.value,
       currentTrackUUID: component.currentTrackUUID.value,
+      currentTrackIndex: component.currentTrackIndex.value,
       playMode: component.playMode.value,
       paused: component.paused.value
     }
