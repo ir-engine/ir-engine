@@ -24,6 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GrabbableSystem } from './systems/GrabbableSystem'
-import { InteractiveSystem } from './systems/InteractiveSystem'
+import { InteractableSystem } from './systems/InteractableSystem'
 
-export { GrabbableSystem, InteractiveSystem }
+export { GrabbableSystem, InteractableSystem }

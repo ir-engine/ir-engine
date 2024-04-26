@@ -23,6 +23,146 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import {
+  Engine,
+  EntityUUID,
+  getComponent,
+  removeComponent,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext,
+  useOptionalComponent
+} from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import { useEffect } from 'react'
+import matches from 'ts-matches'
 
-export const InteractableComponent = defineComponent({ name: 'InteractableComponent' })
+/**
+ * Visibility override for XRUI, none is default behavior, on or off forces that state
+ *
+ * NOTE - if more states are added we need to modify logic in InteractableSystem.ts for state other than "none"
+ */
+export enum XRUIVisibilityOverride {
+  none = 0,
+  on = 1,
+  off = 2
+}
+export enum XRUIActivationType {
+  proximity = 0,
+  hover = 1
+}
+export const InteractableComponent = defineComponent({
+  name: 'InteractableComponent',
+  jsonID: 'EE_interactable',
+  onInit: () => {
+    return {
+      //TODO reimpliment the frustum culling for interactables
+
+      //TODO check if highlight works properly on init and with non clickInteract
+      //TODO simplify button logic in inputUpdate
+
+      //TODO after that is done, get rid of custom updates and add a state bool for "interactable" or "showUI"...think about best name
+
+      //TODO canInteract for grabbed state on grabbable?
+      uiInteractable: true,
+      uiEntity: UndefinedEntity,
+      label: null as string | null,
+      uiVisibilityOverride: XRUIVisibilityOverride.none as XRUIVisibilityOverride,
+      uiActivationType: XRUIActivationType.proximity as XRUIActivationType,
+      activationDistance: 2,
+      clickInteract: false,
+      highlighted: false,
+      callbacks: [] as Array<{
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+         */
+        callbackID: null | string
+        /**
+         * empty string represents self
+         */
+        target: null | EntityUUID
+      }>
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.label) component.label.set(json.label)
+    if (typeof json.uiActivationType === 'number' && component.uiActivationType.value !== json.uiActivationType)
+      component.uiActivationType.set(json.uiActivationType)
+    if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
+      component.clickInteract.set(json.clickInteract)
+    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
+    if (
+      matches
+        .arrayOf(
+          matches.shape({
+            callbackID: matches.nill.orParser(matches.string),
+            target: matches.nill.orParser(matches.string)
+          })
+        )
+        .test(json.callbacks)
+    ) {
+      component.callbacks.set(json.callbacks)
+    }
+
+    if (component.uiActivationType.value === XRUIActivationType.hover || component.clickInteract.value) {
+      setComponent(entity, InputComponent)
+      setComponent(entity, BoundingBoxComponent)
+    }
+  },
+
+  onRemove: (entity, component) => {
+    if (component.uiEntity.value !== UndefinedEntity) {
+      removeEntity(component.uiEntity.value)
+    }
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      label: component.label.value,
+      clickInteract: component.clickInteract.value,
+      activationDistance: component.activationDistance.value,
+      uiActivationType: component.uiActivationType.value,
+      callbacks: component.callbacks.get(NO_PROXY)
+    }
+  },
+
+  reactor: () => {
+    if (!isClient) return null
+    const entity = useEntityContext()
+    const interactable = useComponent(entity, InteractableComponent)
+    const input = useOptionalComponent(entity, InputComponent)
+
+    useEffect(() => {
+      if (getState(EngineState).isEditor || !input) return
+      const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
+      console.log('setting cursor type!')
+      if (input.inputSources.length > 0) {
+        canvas.style.cursor = 'pointer'
+      }
+      return () => {
+        canvas.style.cursor = 'auto'
+      }
+    }, [input?.inputSources])
+
+    //handle highlighting when state is set
+    useEffect(() => {
+      if (!interactable.highlighted.value) return
+      setComponent(entity, HighlightComponent)
+      return () => {
+        removeComponent(entity, HighlightComponent)
+      }
+    }, [interactable.highlighted])
+    return null
+  }
+})
