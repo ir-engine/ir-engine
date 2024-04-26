@@ -227,23 +227,6 @@ export const hashMaterial = (source: string, name: string) => {
   return `${stringHash(source) ^ stringHash(name)}`
 }
 
-export const replaceMaterial = (material: EntityUUID, newMaterial: EntityUUID) => {
-  // for (const entity of sceneMeshQuery()) {
-  //   const mesh = getComponent(entity, MeshComponent)
-  //   if (Array.isArray(mesh.material)) {
-  //     mesh.material.map((meshMat, i) => {
-  //       if (material.uuid === meshMat.uuid) {
-  //         mesh.material[i] = nuMat
-  //       }
-  //     })
-  //   } else {
-  //     if (mesh.material.uuid === material.uuid) {
-  //       mesh.material = nuMat
-  //     }
-  //   }
-  // }
-}
-
 export const setMaterialPrototype = (materialEntity: Entity, prototypeName: string) => {
   const materialComponent = getComponent(materialEntity, MaterialComponent)
   const prototype = MaterialComponent.prototypeByName[prototypeName]
