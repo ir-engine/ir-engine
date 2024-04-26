@@ -29,8 +29,9 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
+import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
-import { NO_PROXY, State, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, none } from '@etherealengine/hyperflux'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
@@ -83,7 +84,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const component = useComponent(props.entity, PlaylistComponent)
-  const currentTrackIndex = useHookstate(-1)
+  // const currentTrackIndex = useHookstate(-1)
 
   const addTrack = () => {
     component.tracks.merge([
@@ -128,48 +129,18 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     if (component.tracks.length === 0) {
-      component.currentTrackUUID.set('')
-      currentTrackIndex.set(-1)
+      component.merge({
+        currentTrackUUID: '',
+        currentTrackIndex: -1
+      })
       return
     }
+  }, [component.tracks])
 
+  useEffect(() => {
     const index = findTrack(component.currentTrackUUID.value).index
-
-    if (index === -1) {
-      component.currentTrackUUID.set(component.tracks[0].uuid.value)
-      currentTrackIndex.set(0)
-      return
-    }
-
-    currentTrackIndex.set(index)
+    component.currentTrackIndex.set(index)
   }, [component.currentTrackUUID, component.tracks])
-
-  const getNextTrack = (delta: number) => {
-    const tracksCount = component.tracks.value.length
-
-    if (tracksCount === 0) return
-
-    if (tracksCount === 1 || component.playMode.value === PlayMode.singleloop) {
-      const newUUID = uuidv4()
-      component.tracks[currentTrackIndex.value].uuid.set(newUUID)
-      component.currentTrackUUID.set(newUUID)
-      return
-    }
-
-    if (component.playMode.value === PlayMode.loop) {
-      const previousTrackIndex = (currentTrackIndex.value + delta + tracksCount) % tracksCount
-      component.currentTrackUUID.set(component.tracks[previousTrackIndex].uuid.value)
-    } else if (component.playMode.value === PlayMode.random) {
-      let randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
-
-      // Ensure that the random index is different from the current track index
-      while (randomIndex === currentTrackIndex.value) {
-        randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
-      }
-
-      component.currentTrackUUID.set(component.tracks[randomIndex].uuid.value)
-    }
-  }
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -191,6 +162,25 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                   findTrack={findTrack}
                   key={track.uuid}
                   active={track.uuid === component.currentTrackUUID.value}
+                  onChange={() => {
+                    if (track.uuid === component.currentTrackUUID.value) {
+                      const newUUID = uuidv4()
+                      component.tracks[index].uuid.set(newUUID)
+                      component.currentTrackUUID.set(newUUID)
+                    }
+                  }}
+                  playing={track.uuid === component.currentTrackUUID.value && !component.paused.value}
+                  togglePlay={() => {
+                    if (track.uuid === component.currentTrackUUID.value) {
+                      component.paused.set((p) => !p)
+                    } else {
+                      component.merge({
+                        currentTrackUUID: track.uuid,
+                        currentTrackIndex: index,
+                        paused: false
+                      })
+                    }
+                  }}
                 />
               )
             })}
@@ -211,7 +201,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                   justifyContent: 'start'
                 }}
               >
-                <IconButton onClick={() => getNextTrack(-1)}>
+                <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, -1)}>
                   <SkipPreviousIcon
                     style={{
                       color: 'white'
@@ -233,7 +223,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                     />
                   )}
                 </IconButton>
-                <IconButton onClick={() => getNextTrack(1)}>
+                <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, 1)}>
                   <SkipNextIcon
                     style={{
                       color: 'white'
@@ -263,7 +253,14 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
             </div>
           </>
         ) : (
-          <Button onClick={addTrack}>Add track</Button>
+          <Button
+            style={{
+              width: '100%'
+            }}
+            onClick={addTrack}
+          >
+            Add track
+          </Button>
         )}
       </div>
     </DndProvider>
@@ -273,16 +270,22 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
 const Track = ({
   track,
   active,
+  playing,
   moveTrack,
-  findTrack
+  findTrack,
+  onChange,
+  togglePlay
 }: {
   track: State<Track>
   active: boolean
+  playing: boolean
   moveTrack: (trackUUID: string, atIndex: number) => void
   findTrack: (trackUUID: string) => {
     track: Track | undefined
     index: number
   }
+  onChange: () => void
+  togglePlay: () => void
 }) => {
   const originalIndex = findTrack(track.uuid.value).index
   const [{ opacity }, dragSourceRef, previewRef] = useDrag({
@@ -303,6 +306,8 @@ const Track = ({
     }
   })
 
+  const previousTrackSource = usePrevious(track.src)
+
   return (
     <div
       style={{
@@ -318,7 +323,10 @@ const Track = ({
         type="text"
         value={track.src.value}
         onRelease={(e) => {
-          track.src.set(e)
+          if (e !== previousTrackSource) {
+            track.src.set(e)
+            onChange()
+          }
         }}
         style={{
           border: active ? '2px solid black' : ''
@@ -335,6 +343,21 @@ const Track = ({
             color: 'white'
           }}
         />
+      </IconButton>
+      <IconButton onClick={togglePlay}>
+        {playing ? (
+          <PauseIcon
+            style={{
+              color: 'white'
+            }}
+          />
+        ) : (
+          <PlayArrowIcon
+            style={{
+              color: 'white'
+            }}
+          />
+        )}
       </IconButton>
       <IconButton
         onClick={() => {

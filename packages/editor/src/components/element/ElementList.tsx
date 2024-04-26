@@ -66,6 +66,7 @@ import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/Env
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
 import { ObjectGridSnapComponent } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
@@ -99,6 +100,7 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [
         ModelComponent,
         VolumetricComponent,
+        NewVolumetricComponent,
         PositionalAudioComponent,
         AudioAnalysisComponent,
         VideoComponent,

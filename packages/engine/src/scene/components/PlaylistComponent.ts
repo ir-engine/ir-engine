@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { v4 as uuidv4 } from 'uuid'
 import { PlayMode } from '../constants/PlayMode'
 
 export const PlaylistComponent = defineComponent({
@@ -34,7 +35,8 @@ export const PlaylistComponent = defineComponent({
     return {
       tracks: [] as { uuid: string; src: string }[],
       currentTrackUUID: '',
-      paused: false,
+      currentTrackIndex: -1,
+      paused: true,
       playMode: PlayMode.loop
     }
   },
@@ -53,6 +55,35 @@ export const PlaylistComponent = defineComponent({
       currentTrackUUID: component.currentTrackUUID.value,
       playMode: component.playMode.value,
       paused: component.paused.value
+    }
+  },
+
+  playNextTrack: (entity, delta: number) => {
+    const component = getMutableComponent(entity, PlaylistComponent)
+    const tracksCount = component.tracks.value.length
+
+    if (tracksCount === 0) return
+
+    if (tracksCount === 1 || component.playMode.value === PlayMode.singleloop) {
+      const newUUID = uuidv4()
+      component.tracks[component.currentTrackIndex.value].uuid.set(newUUID)
+      component.currentTrackUUID.set(newUUID)
+
+      return
+    }
+
+    if (component.playMode.value === PlayMode.loop) {
+      const previousTrackIndex = (component.currentTrackIndex.value + delta + tracksCount) % tracksCount
+      component.currentTrackUUID.set(component.tracks[previousTrackIndex].uuid.value)
+    } else if (component.playMode.value === PlayMode.random) {
+      let randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
+
+      // Ensure that the random index is different from the current track index
+      while (randomIndex === component.currentTrackIndex.value) {
+        randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
+      }
+
+      component.currentTrackUUID.set(component.tracks[randomIndex].uuid.value)
     }
   }
 })

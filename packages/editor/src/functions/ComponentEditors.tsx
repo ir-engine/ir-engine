@@ -38,6 +38,7 @@ import { MediaComponent } from '@etherealengine/engine/src/scene/components/Medi
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
@@ -88,6 +89,7 @@ import { MediaSettingsEditor } from '../components/properties/MediaSettingsEdito
 import { MeshNodeEditor } from '../components/properties/MeshNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
+import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import PlaylistNodeEditor from '../components/properties/PlaylistNodeEditor'
@@ -153,6 +155,7 @@ export const ComponentEditorsState = defineState({
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
+      [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
       [SystemComponent.name]: SystemNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
