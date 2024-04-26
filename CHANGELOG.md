@@ -216,7 +216,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Reverts
 
-* Revert "Fix some interactable system errors while scene is loading" ([126fef5](https://github.com/xrfoundation/XREngine/commit/126fef5e884e4c4cf7087ad0c49d7ba0b90ddca0))
+* Revert "Fix some interactive system errors while scene is loading" ([126fef5](https://github.com/xrfoundation/XREngine/commit/126fef5e884e4c4cf7087ad0c49d7ba0b90ddca0))
 
 
 
