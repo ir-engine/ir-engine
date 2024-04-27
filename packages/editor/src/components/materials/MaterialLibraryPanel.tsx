@@ -30,6 +30,7 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import DockLayout, { DockMode, TabData } from 'rc-dock'
 import { useTranslation } from 'react-i18next'
 import { DockContainer } from '../EditorContainer'
+import { MaterialPreviewPanel } from '../assets/AssetPreviewPanels/MaterialPreviewPanel'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import MaterialLibraryPanel from './MaterialLibraryPanelContainer'
 
@@ -55,24 +56,24 @@ export const MaterialLibraryPanelTitle = () => {
               tabs: [
                 {
                   id: 'materialLibraryPanel',
-                  title: t('editor:layout.filebrowser.tab-name'),
+                  title: t('editor:materialLibrary.tab-materials'),
                   content: <MaterialLibraryPanel />
                 }
               ]
             }
           ]
+        },
+        {
+          size: 5,
+          tabs: [
+            {
+              id: 'previewPanel',
+              title: t('editor:layout.scene-assets.preview'),
+              cached: true,
+              content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
+            }
+          ]
         }
-        // {
-        //   size: 5,
-        //   tabs: [
-        //     {
-        //       id: 'previewPanel',
-        //       title: t('editor:layout.scene-assets.preview'),
-        //       cached: true,
-        //       content: <MaterialPreviewPanel ref={materialPreviewPanelRef} />
-        //     }
-        //   ]
-        // }
       ]
     }
   }

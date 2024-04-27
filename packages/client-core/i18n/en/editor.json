@@ -1143,6 +1143,7 @@
   },
   "materialLibrary": {
     "lbl": "Material Library",
+    "tab-materials": "Materials",
     "info": "Location of an assets materials and where you can select and edit them."
   },
   "dnd": {
