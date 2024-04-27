@@ -23,19 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import { useComponent } from '@etherealengine/ecs'
+import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
+import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { getHandTarget } from '../components/AvatarIKComponents'
+export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
 
-export const interactableReachDistance = 3
+  const grabbableComponent = useComponent(props.entity, GrabbableComponent)
 
-export const getInteractiveIsInReachDistance = (
-  entityUser: Entity,
-  interactablePosition: Vector3,
-  side: XRHandedness
-): boolean => {
-  const target = getHandTarget(entityUser, side)
-  if (!target) return false
-  return target.position.distanceTo(interactablePosition) < interactableReachDistance
+  return (
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.grabbable.name')}
+      description={t('editor:properties.grabbable.description')}
+    >
+      <div id={'grabbable-component'}></div>
+    </NodeEditor>
+  )
 }
