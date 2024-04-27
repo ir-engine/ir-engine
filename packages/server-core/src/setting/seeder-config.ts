@@ -31,6 +31,7 @@ import * as chargebeeSeed from './chargebee-setting/chargebee-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
 import * as coilSeed from './coil-setting/coil-setting.seed'
 import * as emailSeed from './email-setting/email-setting.seed'
+import * as featureFlagSeed from './feature-flag-setting/feature-flag-setting.seed'
 import * as helmSeed from './helm-setting/helm-setting.seed'
 import * as instanceServerSeed from './instance-server-setting/instance-server-setting.seed'
 import * as redisSeed from './redis-setting/redis-setting.seed'
@@ -46,6 +47,7 @@ export const settingSeeds: Array<KnexSeed> = [
   instanceServerSeed,
   coilSeed,
   emailSeed,
+  featureFlagSeed,
   redisSeed,
   awsSeed,
   helmSeed

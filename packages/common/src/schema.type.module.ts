@@ -75,6 +75,7 @@ export type * from './schemas/setting/chargebee-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
+export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
@@ -223,6 +224,8 @@ export const awsSettingPath = 'aws-setting'
 export const taskServerSettingPath = 'task-server-setting'
 
 export const emailSettingPath = 'email-setting'
+
+export const featureFlagSettingPath = 'feature-flag-setting'
 
 export const instanceServerSettingPath = 'instance-server-setting'
 
