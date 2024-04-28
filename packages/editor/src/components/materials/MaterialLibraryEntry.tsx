@@ -33,7 +33,6 @@ import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
 import { Grid } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -59,7 +58,6 @@ export type MaterialLibraryEntryProps = {
 }
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  const path = getComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), SourceComponent)
   return getComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialComponent).material?.name
 }
 
@@ -81,7 +79,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
     [node, data.onCollapse]
   )
 
-  const [_dragProps, drag, preview] = useDrag({
+  const [_dragProps, drag] = useDrag({
     type: ItemTypes.Material,
     item() {
       const selectedEntities = selectionState.selectedEntities.value

@@ -128,7 +128,7 @@ export const PropertiesPanelContainer = () => {
       }}
     >
       {materialID ? (
-        <MaterialEditor materialUUID={materialID} />
+        <MaterialEditor />
       ) : uuid ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (

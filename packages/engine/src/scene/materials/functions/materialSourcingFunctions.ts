@@ -128,6 +128,7 @@ export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) =>
   const materialComponent = getComponent(sourceEntity, MaterialComponent)
   const materialEntity = UUIDComponent.getEntityByUUID(materialComponent.uuid[atIndex])
   const sourceMaterial = getComponent(materialEntity, MaterialComponent)
+  if (!sourceMaterial.instances.length) return
   const instances = sourceMaterial.instances.filter((instance) => instance !== sourceEntity)
   if (instances.length === 0) {
     delete MaterialComponent.materialByName[getComponent(materialEntity, NameComponent)]

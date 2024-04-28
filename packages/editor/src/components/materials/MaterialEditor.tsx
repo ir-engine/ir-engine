@@ -23,25 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 
-import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import {
   setMaterialName,
   setMaterialPrototype
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { InputGroup } from '../inputs/InputGroup'
@@ -64,14 +64,16 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor(props: { materialUUID: EntityUUID }) {
+export function MaterialEditor() {
   const { t } = useTranslation()
-  const { materialUUID: materialID } = props
-  const material = getMaterial(materialID)!
   const prototypes = Object.keys(MaterialComponent.prototypeByName).map((prototype) => ({
     label: prototype,
     value: prototype
   }))
+  const selected = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
+  const entity = UUIDComponent.getEntityByUUID(selected.value!)
+  const materialComponent = getComponent(entity, MaterialComponent)
+  const material = materialComponent.material!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
 
@@ -125,22 +127,20 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     thumbnails.set({})
   }, [])
 
-  // useEffect(() => {
-  //   clearThumbs().then(createThumbnails).then(checkThumbs)
-  // }, [materialComponent.uuid])
+  const e = UUIDComponent.getEntityByUUID(selected.value!)
+  const u = getComponent(e, MaterialComponent)
 
-  const entity = UUIDComponent.getEntityByUUID(materialID)
-  const materialComponent = getComponent(entity, MaterialComponent)
+  useEffect(() => {
+    clearThumbs().then(createThumbnails).then(checkThumbs)
+  }, [selected])
+
   const prototypeEntity = materialComponent.prototypeEntity
   const prototype = getComponent(prototypeEntity, MaterialComponent)
 
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput
-          value={materialComponent.material!.name}
-          onChange={(name) => setMaterialName(UUIDComponent.getEntityByUUID(materialID as EntityUUID), name)}
-        />
+        <StringInput value={materialComponent.material!.name} onChange={(name) => setMaterialName(entity, name)} />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
@@ -168,9 +168,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={Object.keys(prototype.prototypeConstructor!)[0]}
           options={prototypes}
           onChange={(protoId) => {
-            const nuMat = setMaterialPrototype(entity, protoId)
-            //materialComponent.set(materialFromId(nuMat!.uuid))
-            // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+            setMaterialPrototype(entity, protoId)
           }}
         />
       </InputGroup>
@@ -195,7 +193,9 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           } else {
             prop = val
           }
-          EditorControlFunctions.modifyMaterial([materialID], materialComponent.material!.uuid, [{ [k]: prop }])
+          EditorControlFunctions.modifyMaterial([materialComponent.material!.uuid], materialComponent.material!.uuid, [
+            { [k]: prop }
+          ])
           materialComponent.parameters[k].set(prop)
         }}
         defaults={materialComponent.prototypeArguments.value}
