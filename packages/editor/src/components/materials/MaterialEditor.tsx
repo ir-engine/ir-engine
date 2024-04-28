@@ -40,7 +40,11 @@ import {
   setMaterialName,
   setMaterialPrototype
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  prototypeByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { InputGroup } from '../inputs/InputGroup'
@@ -65,13 +69,13 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
 
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const prototypes = Object.keys(MaterialComponent.prototypeByName).map((prototype) => ({
+  const prototypes = Object.keys(prototypeByName).map((prototype) => ({
     label: prototype,
     value: prototype
   }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  const materialComponent = getComponent(entity, MaterialComponent)
+  const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.MaterialState])
   const material = materialComponent.material!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
@@ -134,8 +138,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     console.log(materialName.value)
   }, [materialName, prototypeName])
 
-  const prototypeEntity = materialComponent.prototypeEntity
-  const prototype = getComponent(prototypeEntity, MaterialComponent)
+  const prototypeEntity = materialComponent.prototypeEntity!
+  const prototype = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.MaterialPrototype])
 
   materialName.set(material.name)
   prototypeName.set(material.type)
@@ -179,10 +183,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <Divider className={styles.divider} />
       <ParameterInput
         entity={props.materialUUID}
-        values={materialComponent.parameters}
+        values={materialComponent.parameters!}
         onChange={(k) => async (val) => {
           let prop
-          if (prototype.prototypeArguments[k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -200,9 +204,9 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           EditorControlFunctions.modifyMaterial([materialComponent.material!.uuid], materialComponent.material!.uuid, [
             { [k]: prop }
           ])
-          materialComponent.parameters[k].set(prop)
+          materialComponent.parameters![k].set(prop)
         }}
-        defaults={materialComponent.prototypeArguments.value}
+        defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />

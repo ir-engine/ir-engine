@@ -34,7 +34,7 @@ import { Grid } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -58,7 +58,10 @@ export type MaterialLibraryEntryProps = {
 }
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  return getComponent(UUIDComponent.getEntityByUUID(node.uuid as EntityUUID), MaterialComponent).material?.name
+  return getComponent(
+    UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
+    MaterialComponent[MaterialComponents.MaterialState]
+  ).material?.name
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {

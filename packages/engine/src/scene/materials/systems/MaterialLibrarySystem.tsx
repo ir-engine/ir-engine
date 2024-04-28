@@ -40,14 +40,14 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import {
   MaterialComponent,
+  MaterialComponents,
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createPrototype, setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { SourceComponent } from '../../components/SourceComponent'
 import { MaterialLibraryState } from '../MaterialLibrary'
-import { createPrototype } from '../functions/materialSourcingFunctions'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -70,7 +70,6 @@ import { createPrototype } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    console.log(MaterialPrototypeDefinitions)
     MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) =>
       createPrototype(prototype.prototypeId, prototype.arguments, prototype.prototypeConstructor)
     )
@@ -130,24 +129,25 @@ const reactor = (): ReactElement => {
 
 const MaterialEntityReactor = () => {
   const entity = useEntityContext()
-  const materialComponent = useComponent(entity, MaterialComponent)
+  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.MaterialState])
   useEffect(() => {
-    for (const sourceEntity of materialComponent.instances.value) {
-      iterateEntityNode(sourceEntity, (childEntity) => {
-        const uuid = getComponent(childEntity, MaterialComponent).uuid
-        setGroupMaterial(childEntity, uuid)
-      })
-    }
+    if (materialComponent.instances.value)
+      for (const sourceEntity of materialComponent.instances.value) {
+        iterateEntityNode(sourceEntity, (childEntity) => {
+          const uuid = getComponent(childEntity, MaterialComponent[MaterialComponents.MaterialInstance]).uuid
+          if (uuid) setGroupMaterial(childEntity, uuid)
+        })
+      }
   }, [materialComponent.material])
   return null
 }
 
 const MaterialGroupReactor = () => {
   const entity = useEntityContext()
-  const materialComponent = useComponent(entity, MaterialComponent)
+  const uuid = useComponent(entity, MaterialComponent[MaterialComponents.MaterialInstance]).uuid
   useEffect(() => {
-    setGroupMaterial(entity, materialComponent.uuid.value)
-  }, [materialComponent.uuid])
+    if (uuid.value) setGroupMaterial(entity, uuid.value)
+  }, [uuid])
   return null
 }
 

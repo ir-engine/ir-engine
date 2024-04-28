@@ -77,7 +77,6 @@ export function getDefaultType(value) {
 }
 
 export function generateDefaults(value) {
-  Object.entries(value).filter(([k, v]) => console.log(k, v))
   return Object.fromEntries(
     Object.entries(value)
       .filter(([k, v]) => getDefaultType(v))

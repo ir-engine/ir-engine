@@ -42,7 +42,7 @@ import {
   getMaterialsFromSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, materialByHash } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -55,7 +55,6 @@ import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exp
 import { SelectionState } from '../../services/SelectionServices'
 
 export default function MaterialLibraryPanel() {
-  const nodeChanges = useState(0)
   const srcPath = useState('/mat/material-test')
 
   const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
@@ -64,7 +63,7 @@ export default function MaterialLibraryPanel() {
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : Object.values(MaterialComponent.materialByHash)
+      : Object.values(materialByHash)
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [

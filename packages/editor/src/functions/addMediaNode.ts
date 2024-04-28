@@ -46,7 +46,7 @@ import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterat
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -101,8 +101,12 @@ export async function addMediaNode(
           const src = getComponent(materialEntity, SourceComponent)
           if (!src) return
           if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, src)
-          const materialComponent = getMutableComponent(mesh.entity, MaterialComponent)
-          materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
+          const materialComponent = getMutableComponent(
+            mesh.entity,
+            MaterialComponent[MaterialComponents.MaterialState]
+          )
+          if (materialComponent.instances.value)
+            materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
           //if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
           //  unregisterMaterial(mesh.material as Material)
           //}

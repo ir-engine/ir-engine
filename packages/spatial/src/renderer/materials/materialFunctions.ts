@@ -23,11 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { cloneDeep, isArray } from 'lodash'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  createEntity,
+  generateEntityUUID,
+  getComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { isArray } from 'lodash'
 import { Color, Mesh, Texture } from 'three'
+import { NameComponent } from '../../common/NameComponent'
+import { PluginObjectType } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
-import { MaterialComponent } from './MaterialComponent'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  MaterialPrototypeConstructor,
+  MaterialPrototypeObjectConstructor,
+  PrototypeArgument,
+  prototypeByName
+} from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
   return formatMaterialArgs(
@@ -61,17 +78,30 @@ export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
   )
 }
 
-export const createMaterialFromPrototype = (prototypeEntity: Entity) => {
-  const prototype = getComponent(prototypeEntity, MaterialComponent)
-  return (parms) => {
-    const defaultParms = extractDefaults(prototype.prototypeArguments)
-    const result = cloneDeep(prototype.material)
-    return result
-  }
+export const createPrototype = (
+  name: string,
+  prototypeArguments: PrototypeArgument,
+  prototypeConstructor: MaterialPrototypeConstructor
+) => {
+  const prototypeEntity = createEntity()
+  const prototypeObject = {} as MaterialPrototypeObjectConstructor
+  prototypeObject[name] = prototypeConstructor
+  setComponent(prototypeEntity, MaterialComponent[MaterialComponents.MaterialPrototype], {
+    prototypeConstructor: prototypeObject,
+    prototypeArguments
+  })
+  setComponent(prototypeEntity, NameComponent, name)
+  setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
+  /**@todo handle duplicate prototype names */
+  if (prototypeByName[name]) throw new Error('Prototype already exists')
+  prototypeByName[name] = prototypeEntity
 }
 
+export const createPlugin = (plugin: PluginObjectType) => {}
+
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent)?.material
+  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.MaterialState])
+    .material!
 }
 
 export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {

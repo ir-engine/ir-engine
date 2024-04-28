@@ -84,46 +84,77 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialComponent = defineComponent({
-  name: 'MaterialComponent',
-  onInit: (entity) => {
-    return {
-      // materialUUID points to entities with MaterialComponent holding state
-      uuid: [] as EntityUUID[],
-      // material & material specific data
-      material: null as null | Material,
-      parameters: {},
-      instances: [] as Entity[],
-      plugins: [] as string[],
-      prototypeEntity: UndefinedEntity as Entity,
-      // shared prototype state
-      prototypeArguments: {} as PrototypeArgument,
-      prototypeConstructor: null as null | MaterialPrototypeObjectConstructor
+export enum MaterialComponents {
+  MaterialInstance,
+  MaterialState,
+  MaterialPrototype,
+  MaterialPlugin
+}
+
+export const materialByHash = {} as Record<string, EntityUUID>
+export const materialByName = {} as Record<string, EntityUUID>
+export const prototypeByName = {} as Record<string, Entity>
+
+export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
+  return defineComponent({
+    name: `${MaterialComponents[i]}Component`,
+    onInit: (entity) => {
+      switch (i) {
+        case MaterialComponents.MaterialInstance:
+          return {
+            // materialUUID points to entities with MaterialComponent holding state
+            uuid: [] as EntityUUID[]
+          }
+        case MaterialComponents.MaterialState:
+          return {
+            // material & material specific data
+            material: {} as Material,
+            parameters: {},
+            instances: [] as Entity[],
+            pluginEntities: [] as Entity[],
+            prototypeEntity: UndefinedEntity as Entity
+          }
+        case MaterialComponents.MaterialPrototype:
+          return {
+            // prototype state
+            prototypeArguments: {} as PrototypeArgument,
+            prototypeConstructor: {} as MaterialPrototypeObjectConstructor
+          }
+        case MaterialComponents.MaterialPlugin:
+          return {
+            // plugin state
+            plugin: ''
+          }
+        default:
+          return {}
+      }
+    },
+
+    onSet: (entity, component, json) => {
+      if (!json) return
+
+      if (json.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
+      if (json.material && component.material.value !== undefined) component.material.set(json.material)
+      if (json.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
+      if (json.instances && component.instances.value !== undefined) component.instances.set(json.instances)
+      if (json.pluginEntities && component.pluginEntities.value !== undefined)
+        component.pluginEntities.set(json.pluginEntities)
+      if (json.prototypeEntity && component.prototypeEntity.value !== undefined)
+        component.prototypeEntity.set(json.prototypeEntity)
+      if (json.prototypeArguments && component.prototypeArguments.value !== undefined)
+        component.prototypeArguments.set(json.prototypeArguments)
+      if (json.prototypeConstructor && component.prototypeConstructor.value !== undefined)
+        component.prototypeConstructor.set(json.prototypeConstructor)
+      if (json.plugin && component.plugin.value !== undefined) component.plugin.set(json.plugin)
+    },
+
+    onRemove: (entity, component) => {
+      if (component.uuid.value)
+        for (let i = 0; i < component.uuid.value.length; i++) {
+          removeMaterialInstance(entity, i)
+        }
     }
-  },
-
-  materialByHash: {} as Record<string, EntityUUID>,
-  materialByName: {} as Record<string, EntityUUID>,
-
-  prototypeByName: {} as Record<string, Entity>,
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.uuid) component.uuid.set(json.uuid)
-    if (json.material) component.material.set(json.material)
-    if (json.parameters) component.parameters.set(json.parameters)
-    if (json.instances) component.instances.set(json.instances)
-    if (json.plugins) component.plugins.set(json.plugins)
-    if (json.prototypeEntity) component.prototypeEntity.set(json.prototypeEntity)
-    if (json.prototypeArguments) component.prototypeArguments.set(json.prototypeArguments)
-    if (json.prototypeConstructor) component.prototypeConstructor.set(json.prototypeConstructor)
-  },
-
-  onRemove: (entity, component) => {
-    for (let i = 0; i < component.uuid.value.length; i++) {
-      removeMaterialInstance(entity, i)
-    }
-  }
+  })
 })
 
 declare module 'three/src/materials/Material' {
