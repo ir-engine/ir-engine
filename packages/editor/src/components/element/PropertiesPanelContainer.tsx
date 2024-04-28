@@ -117,7 +117,7 @@ export const PropertiesPanelContainer = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   const { t } = useTranslation()
-  const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
+  const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
     <div
@@ -126,8 +126,8 @@ export const PropertiesPanelContainer = () => {
         height: '100%'
       }}
     >
-      {materialID ? (
-        <MaterialEditor />
+      {materialUUID ? (
+        <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (

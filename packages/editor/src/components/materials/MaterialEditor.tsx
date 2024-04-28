@@ -28,15 +28,14 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 
-import { NO_PROXY, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import {
   setMaterialName,
   setMaterialPrototype
@@ -64,15 +63,14 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor() {
+export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
   const prototypes = Object.keys(MaterialComponent.prototypeByName).map((prototype) => ({
     label: prototype,
     value: prototype
   }))
-  const selected = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const entity = UUIDComponent.getEntityByUUID(selected.value!)
 
+  const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
   const materialComponent = getComponent(entity, MaterialComponent)
   const material = materialComponent.material!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
@@ -128,15 +126,19 @@ export function MaterialEditor() {
     thumbnails.set({})
   }, [])
 
-  const prototypeName = useState('')
-  prototypeName.set(material.type)
+  const prototypeName = useHookstate('')
+  const materialName = useHookstate('')
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-  }, [selected, prototypeName])
+    console.log(materialName.value)
+  }, [materialName, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity
   const prototype = getComponent(prototypeEntity, MaterialComponent)
+
+  materialName.set(material.name)
+  prototypeName.set(material.type)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -176,7 +178,7 @@ export function MaterialEditor() {
       </InputGroup>
       <Divider className={styles.divider} />
       <ParameterInput
-        entity={selected.value!}
+        entity={props.materialUUID}
         values={materialComponent.parameters}
         onChange={(k) => async (val) => {
           let prop

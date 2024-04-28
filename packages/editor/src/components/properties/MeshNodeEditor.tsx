@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Material } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
 import GeometryEditor from '../geometry/GeometryEditor'
@@ -50,7 +51,7 @@ export const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) =
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </CollapsibleBlock>
       <CollapsibleBlock label={t('editor:properties.mesh.materialEditor')}>
-        <MaterialEditor />
+        <MaterialEditor materialUUID={((meshComponent?.material as Material).uuid as EntityUUID) ?? null} />
       </CollapsibleBlock>
     </NodeEditor>
   )
