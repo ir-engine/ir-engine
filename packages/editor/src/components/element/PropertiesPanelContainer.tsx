@@ -117,7 +117,6 @@ export const PropertiesPanelContainer = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   const { t } = useTranslation()
-
   const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (

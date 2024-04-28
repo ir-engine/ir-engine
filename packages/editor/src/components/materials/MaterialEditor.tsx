@@ -28,7 +28,7 @@ import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 
-import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
@@ -72,6 +72,7 @@ export function MaterialEditor() {
   }))
   const selected = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const entity = UUIDComponent.getEntityByUUID(selected.value!)
+
   const materialComponent = getComponent(entity, MaterialComponent)
   const material = materialComponent.material!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
@@ -127,12 +128,12 @@ export function MaterialEditor() {
     thumbnails.set({})
   }, [])
 
-  const e = UUIDComponent.getEntityByUUID(selected.value!)
-  const u = getComponent(e, MaterialComponent)
+  const prototypeName = useState('')
+  prototypeName.set(material.type)
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-  }, [selected])
+  }, [selected, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity
   const prototype = getComponent(prototypeEntity, MaterialComponent)
@@ -165,16 +166,17 @@ export function MaterialEditor() {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={Object.keys(prototype.prototypeConstructor!)[0]}
+          value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
             setMaterialPrototype(entity, protoId)
+            prototypeName.set(protoId)
           }}
         />
       </InputGroup>
       <Divider className={styles.divider} />
       <ParameterInput
-        entity={material.uuid}
+        entity={selected.value!}
         values={materialComponent.parameters}
         onChange={(k) => async (val) => {
           let prop

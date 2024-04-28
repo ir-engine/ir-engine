@@ -75,27 +75,12 @@ export default function MaterialLibraryPanel() {
       ]
     })
     nodes.set(result)
-  }, [nodeChanges, materialQuery, selected])
+  }, [materialQuery, selected])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
   }
 
-  // const onCollapse = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
-  //   const isCollapsed = collapsedNodes.value.has(node.uuid)
-  //   if (isCollapsed) {
-  //     collapsedNodes.merge((_collapsedNodes) => {
-  //       _collapsedNodes.delete(node.uuid)
-  //       return _collapsedNodes
-  //     })
-  //   } else {
-  //     collapsedNodes.merge((_collapsedNodes) => {
-  //       _collapsedNodes.add(node.uuid)
-  //       return _collapsedNodes
-  //     })
-  //   }
-  //   nodeChanges.set(nodeChanges.get() + 1)
-  // }, [])
   const MemoMatLibEntry = MaterialLibraryEntry
 
   return (
