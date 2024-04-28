@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Shader, WebGLRenderer } from 'three'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
@@ -123,7 +123,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
         case MaterialComponents.MaterialPlugin:
           return {
             // plugin state
-            plugin: ''
+            plugin: {} as PluginObjectType
           }
         default:
           return {}

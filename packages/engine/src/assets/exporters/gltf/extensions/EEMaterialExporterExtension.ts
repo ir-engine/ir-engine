@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { CubeTexture, Material, Texture } from 'three'
 
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { MaterialComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
@@ -75,7 +75,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const argData = injectMaterialDefaults(material.uuid)
+    const argData = injectMaterialDefaults(material.uuid as EntityUUID)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {
@@ -108,9 +108,12 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.emissiveFactor
     const materialComponent = getComponent(
       UUIDComponent.getEntityByUUID(material.uuid as EntityUUID),
-      MaterialComponent
+      MaterialComponent[MaterialComponents.MaterialState]
     )
-    const prototype = getComponent(materialComponent.prototypeEntity, MaterialComponent)
+    const prototype = getComponent(
+      materialComponent.prototypeEntity!,
+      MaterialComponent[MaterialComponents.MaterialPrototype]
+    )
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,

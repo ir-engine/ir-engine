@@ -97,7 +97,12 @@ export const createPrototype = (
   prototypeByName[name] = prototypeEntity
 }
 
-export const createPlugin = (plugin: PluginObjectType) => {}
+export const createPlugin = (plugin: PluginObjectType) => {
+  const pluginEntity = createEntity()
+  setComponent(pluginEntity, MaterialComponent[MaterialComponents.MaterialPlugin], { plugin: plugin })
+  setComponent(pluginEntity, NameComponent, plugin.id)
+  setComponent(pluginEntity, UUIDComponent, generateEntityUUID())
+}
 
 export const getMaterial = (uuid: EntityUUID) => {
   return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.MaterialState])

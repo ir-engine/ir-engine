@@ -28,7 +28,9 @@ import { Color, Material, SRGBColorSpace } from 'three'
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
   MaterialComponent,
-  MaterialPrototypeObjectConstructor
+  MaterialComponents,
+  MaterialPrototypeObjectConstructor,
+  prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
 import {
@@ -80,14 +82,18 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
     }
-    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialComponent)
+    const materialComponent = getComponent(
+      UUIDComponent.getEntityByUUID(extension.uuid),
+      MaterialComponent[MaterialComponents.MaterialState]
+    )
     let foundPrototype = false
     if (materialComponent) {
       foundPrototype = !!materialComponent.prototypeConstructor
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(MaterialComponent.prototypeByName[extension.prototype], MaterialComponent).prototypeArguments
+        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.MaterialPrototype])
+          .prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

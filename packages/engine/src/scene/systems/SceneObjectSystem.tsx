@@ -28,6 +28,7 @@ import {
   Light,
   Material,
   Mesh,
+  MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -38,7 +39,7 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useEntityContext } from '@etherealengine/ecs'
+import { UUIDComponent, useEntityContext } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -49,7 +50,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -64,10 +65,12 @@ import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/r
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ResourceManager } from '../../assets/state/ResourceState'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
@@ -75,8 +78,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-
-export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
+import { createMaterialEntity } from '../materials/functions/materialSourcingFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -113,40 +115,35 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
+export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
 export function setupObject(obj: Object3D, forceBasicMaterials = false) {
-  // const child = obj as any as Mesh<any, any>
-  // if (child.material) {
-  //   if (!child.userData) child.userData = {}
-  //   const shouldMakeBasic =
-  //     (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-  //   if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
-  //     const prevEntry = unregisterMaterial(child.material)
-  //     child.material = child.userData.lastMaterial
-  //     prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
-  //     delete child.userData.lastMaterial
-  //   } else if (shouldMakeBasic && !child.userData.lastMaterial) {
-  //     const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
-  //     if (basicMaterial) {
-  //       child.material = basicMaterial.material
-  //       return
-  //     }
-  //     const prevMaterial = child.material
-  //     const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-  //     const prevMatEntry = unregisterMaterial(prevMaterial)
-  //     const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
-  //     nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
-  //     if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
-  //     else nuMaterial.map = prevMaterial.map
-  //     nuMaterial.reflectivity = prevMaterial.metalness
-  //     nuMaterial.envMap = prevMaterial.envMap
-  //     nuMaterial.vertexColors = prevMaterial.vertexColors
-  //     child.material = nuMaterial
-  //     child.userData.lastMaterial = prevMaterial
-  //     nuMaterial.uuid = `basic-${prevMaterial.uuid}`
-  //     prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
-  //   }
-  // }
+  const child = obj as any as Mesh<any, any>
+  if (child.material) {
+    if (!child.userData) child.userData = {}
+    const shouldMakeBasic =
+      (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+    if (shouldMakeBasic && !child.userData.lastMaterial) {
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(`basic-${child.material.uuid}` as EntityUUID)
+      if (basicMaterialEntity) {
+        child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.MaterialState]).material
+        return
+      }
+      const prevMaterial = child.material
+      const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+      const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
+      newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+      if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
+      else newBasicMaterial.map = prevMaterial.map
+      newBasicMaterial.reflectivity = prevMaterial.metalness
+      newBasicMaterial.envMap = prevMaterial.envMap
+      newBasicMaterial.vertexColors = prevMaterial.vertexColors
+      child.material = newBasicMaterial
+      child.userData.lastMaterial = prevMaterial
+      newBasicMaterial.uuid = `basic-${prevMaterial.uuid}`
+      createMaterialEntity(newBasicMaterial, '')
+    }
+  }
 }
 
 const groupQuery = defineQuery([GroupComponent])

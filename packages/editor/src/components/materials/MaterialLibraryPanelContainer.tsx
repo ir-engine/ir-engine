@@ -32,7 +32,6 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
-import { Not } from 'bitecs'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
@@ -41,8 +40,11 @@ import {
   createMaterialEntity,
   getMaterialsFromSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialComponent, materialByHash } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  materialByHash
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -57,7 +59,7 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
 
-  const materialQuery = useQuery([MaterialComponent, UUIDComponent, SourceComponent, Not(VisibleComponent)])
+  const materialQuery = useQuery([MaterialComponent[MaterialComponents.MaterialState]])
   const nodes = useState([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   useEffect(() => {
