@@ -120,11 +120,11 @@ export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMateri
 export function setupObject(obj: Object3D, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
   if (child.material) {
-    if (!child.userData) child.userData = {}
     const shouldMakeBasic =
       (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-    if (shouldMakeBasic && !child.userData.lastMaterial) {
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(`basic-${child.material.uuid}` as EntityUUID)
+    if (shouldMakeBasic) {
+      const basicUUID = `basic-${child.material.uuid}` as EntityUUID
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
       if (basicMaterialEntity) {
         child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.MaterialState]).material
         return
@@ -140,8 +140,19 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       newBasicMaterial.vertexColors = prevMaterial.vertexColors
       child.material = newBasicMaterial
       child.userData.lastMaterial = prevMaterial
-      newBasicMaterial.uuid = `basic-${prevMaterial.uuid}`
+      newBasicMaterial.uuid = basicUUID
       createMaterialEntity(newBasicMaterial, '')
+    } else {
+      const UUID = child.material.uuid as EntityUUID
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUID)
+      if (!basicMaterialEntity) return
+
+      const nonBasicUUID = UUID.slice(6) as EntityUUID
+      const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
+      if (!materialEntity) return
+
+      const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.MaterialState])
+      child.material = materialComponent.material
     }
   }
 }
