@@ -33,13 +33,10 @@ import createReadableTexture from '@etherealengine/spatial/src/renderer/function
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, setComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import {
-  setMaterialName,
-  setMaterialPrototype
-} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import {
   MaterialComponent,
   MaterialComponents,
@@ -175,7 +172,9 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
-            setMaterialPrototype(entity, protoId)
+            setComponent(entity, MaterialComponent[MaterialComponents.MaterialState], {
+              prototypeEntity: prototypeByName[protoId]
+            })
             prototypeName.set(protoId)
           }}
         />
@@ -201,9 +200,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           } else {
             prop = val
           }
-          EditorControlFunctions.modifyMaterial([materialComponent.material!.uuid], materialComponent.material!.uuid, [
-            { [k]: prop }
-          ])
+          EditorControlFunctions.modifyMaterial(
+            [materialComponent.material!.uuid],
+            materialComponent.material!.uuid as EntityUUID,
+            [{ [k]: prop }]
+          )
           materialComponent.parameters![k].set(prop)
         }}
         defaults={prototype.prototypeArguments!.value}

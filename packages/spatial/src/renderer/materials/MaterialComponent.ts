@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent, defineQuery } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Shader, WebGLRenderer } from 'three'
@@ -76,7 +77,7 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = [NoiseOffsetPlugin]
+export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin]
 
 export enum MaterialComponents {
   MaterialInstance,

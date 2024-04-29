@@ -45,16 +45,14 @@ export type NoiseOffsetParameters = {
 
 let time: IUniform | null = null
 
-export const NoiseOffsetParameters = {
-  noiseTexture: null,
-  textureSize: 128,
-  frequency: 0.001
-}
-
 export const NoiseOffsetPlugin: PluginObjectType = {
   id: 'noiseOffset',
   priority: 0.4,
-  parameters: NoiseOffsetParameters,
+  parameters: {
+    noiseTexture: null,
+    textureSize: 128,
+    frequency: 0.001
+  },
   compile: (shader, renderer) => {
     const plugin = getComponent(
       getPluginByName(NoiseOffsetPlugin.id),

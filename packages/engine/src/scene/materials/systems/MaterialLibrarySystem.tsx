@@ -26,10 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactElement, useEffect } from 'react'
 
 import {
-  Not,
   PresentationSystemGroup,
   QueryReactor,
-  UUIDComponent,
   getComponent,
   useComponent,
   useEntityContext
@@ -44,12 +42,13 @@ import {
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  createPlugin,
-  createPrototype,
-  setGroupMaterial
+  applyMaterialPlugins,
+  createMaterialPlugin,
+  createMaterialPrototype,
+  setGroupMaterial,
+  updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { SourceComponent } from '../../components/SourceComponent'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -72,10 +71,9 @@ import { SourceComponent } from '../../components/SourceComponent'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createPrototype(prototype))
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
     MaterialPlugins.map((plugin) => {
-      createPlugin(plugin)
-      console.log(plugin)
+      createMaterialPlugin(plugin)
     })
   }, [])
 
@@ -104,7 +102,7 @@ const reactor = (): ReactElement => {
     <>
       {<QueryReactor Components={[MaterialComponent, GroupComponent]} ChildEntityReactor={MaterialGroupReactor} />}
       <QueryReactor
-        Components={[MaterialComponent, UUIDComponent, SourceComponent, Not(GroupComponent)]}
+        Components={[MaterialComponent[MaterialComponents.MaterialState]]}
         ChildEntityReactor={MaterialEntityReactor}
       />
     </>
@@ -135,6 +133,14 @@ const MaterialEntityReactor = () => {
         })
       }
   }, [materialComponent.material])
+
+  useEffect(() => {
+    if (materialComponent.pluginEntities) applyMaterialPlugins(entity)
+  }, [materialComponent.pluginEntities])
+
+  useEffect(() => {
+    if (materialComponent.prototypeEntity.value) updateMaterialPrototype(entity)
+  }, [materialComponent.prototypeEntity])
   return null
 }
 

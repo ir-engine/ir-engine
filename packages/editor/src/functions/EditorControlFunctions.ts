@@ -151,7 +151,7 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
-const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: string]: any }[]) => {
+const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
