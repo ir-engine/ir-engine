@@ -87,7 +87,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   if (!hasComponent(entity, RenderOrderComponent)) {
     setComponent(entity, RenderOrderComponent)
-    RenderOrderComponent.renderOrder[entity] = 0
+    RenderOrderComponent.renderOrder[entity] = obj.renderOrder
   }
   Object.defineProperty(obj, 'renderOrder', {
     get: () => RenderOrderComponent.renderOrder[entity],
