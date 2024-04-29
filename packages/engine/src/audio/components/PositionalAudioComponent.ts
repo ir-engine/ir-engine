@@ -27,9 +27,17 @@ import { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { defineComponent, removeComponent, setComponent, useComponent, useOptionalComponent } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
@@ -102,7 +110,11 @@ export const PositionalAudioComponent = defineComponent({
         if (!mediaElement || !mediaElement.element.value) return
         const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
         if (!audioNodes) return
-        setComponent(entity, PositionalAudioHelperComponent, { audio: audioNodes })
+        const name = getOptionalComponent(entity, NameComponent)
+        setComponent(entity, PositionalAudioHelperComponent, {
+          audio: audioNodes,
+          name: name ? `${name}-positional-audio-helper` : undefined
+        })
       }
 
       return () => {
