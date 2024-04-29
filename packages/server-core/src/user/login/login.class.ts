@@ -55,6 +55,7 @@ export class LoginService implements ServiceInterface {
    */
   async get(id: Id, params?: LoginParams) {
     try {
+      const identityProviderService = this.app.service(identityProviderPath)
       if (!id) {
         logger.info('Invalid login token id, cannot be null or undefined')
         return {
@@ -91,6 +92,20 @@ export class LoginService implements ServiceInterface {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
+
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: token },
+        {}
+      )
+
+      const identityProviderGuest = (await identityProviderService.find()).data.find(
+        (identityProvider) => identityProvider.userId === authResult[identityProviderPath].userId
+      )
+
+      if (identityProviderGuest?.type === 'guest') {
+        await identityProviderService.remove(identityProviderGuest?.id)
+      }
+
       await this.app.service(loginTokenPath).remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
