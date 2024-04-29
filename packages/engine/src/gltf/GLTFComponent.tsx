@@ -45,10 +45,12 @@ import {
   getMutableState,
   useHookstate
 } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect } from 'react'
+import { Matrix4 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
@@ -59,7 +61,12 @@ export const GLTFComponent = defineComponent({
 
   onInit(entity) {
     return {
-      src: ''
+      src: '',
+      // internals
+      document: null as GLTF.IGLTF | null,
+      extensions: {},
+      progress: 0,
+      errorVal: null
     }
   },
 
@@ -71,26 +78,7 @@ export const GLTFComponent = defineComponent({
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
 
-    const [resource, progress, error] = useGLTFDocument(gltfComponent.src.value)
-
-    console.log(gltfComponent.src.value)
-
-    useEffect(() => {
-      if (!resource) return
-
-      /** Add snapshot only off network load */
-      dispatchAction(
-        GLTFSnapshotAction.createSnapshot({
-          source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(resource)
-        })
-      )
-
-      console.log(resource)
-      return () => {
-        console.log('cleanup')
-      }
-    }, [resource])
+    useGLTFDocument(gltfComponent.src.value, entity)
 
     const source = useComponent(entity, SourceComponent).value
     const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState)[source])
@@ -111,12 +99,8 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
   console.log(event)
 }
 
-const useGLTFDocument = (url: string) => {
-  const state = useHookstate({
-    document: null as GLTF.IGLTF | null,
-    progress: 0,
-    errorVal: null
-  })
+const useGLTFDocument = (url: string, entity: Entity) => {
+  const state = useComponent(entity, GLTFComponent)
 
   useEffect(() => {
     if (!url) return
@@ -135,7 +119,6 @@ const useGLTFDocument = (url: string) => {
       function (data: string | ArrayBuffer | GLTF.IGLTF) {
         if (signal.aborted) return
 
-        const extensions = {}
         const textDecoder = new TextDecoder()
         let json: GLTF.IGLTF
 
@@ -147,13 +130,13 @@ const useGLTFDocument = (url: string) => {
           if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
             try {
               /** TODO we will need to refactor and persist this */
-              extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data)
+              state.extensions.merge({ [EXTENSIONS.KHR_BINARY_GLTF]: new GLTFBinaryExtension(data) })
             } catch (error) {
               if (onError) onError(error)
               return
             }
 
-            json = JSON.parse(extensions[EXTENSIONS.KHR_BINARY_GLTF].content)
+            json = JSON.parse(state.extensions.value[EXTENSIONS.KHR_BINARY_GLTF].content)
           } else {
             json = JSON.parse(textDecoder.decode(data))
           }
@@ -162,6 +145,13 @@ const useGLTFDocument = (url: string) => {
         }
 
         state.document.set(json)
+
+        dispatchAction(
+          GLTFSnapshotAction.createSnapshot({
+            source: getComponent(entity, SourceComponent),
+            data: parseStorageProviderURLs(json)
+          })
+        )
       },
       onProgress,
       onError,
@@ -169,19 +159,14 @@ const useGLTFDocument = (url: string) => {
     )
     return () => {
       abortController.abort()
-      state.set({
+      state.merge({
         document: null,
+        extensions: {},
         progress: 0,
         errorVal: null
       })
     }
   }, [url])
-
-  return [state.document.get(NO_PROXY), state.progress.value, state.errorVal.value] as [
-    GLTF.IGLTF | null,
-    number,
-    ErrorEvent | null
-  ]
 }
 
 const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
@@ -233,11 +218,23 @@ const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documen
   }, [parentEntity])
 
   useEffect(() => {
-    setComponent(entity.value, NameComponent, node.name.value)
+    setComponent(entity.value, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
   }, [node.name])
+
+  useEffect(() => {
+    setComponent(entity.value, TransformComponent)
+    if (!node.matrix.value) return
+
+    const mat4 = new Matrix4().fromArray(node.matrix.value)
+    const transform = getComponent(entity.value, TransformComponent)
+    mat4.decompose(transform.position, transform.rotation, transform.scale)
+  }, [node.matrix])
 
   return (
     <>
+      {/* {node.mesh.value && (
+        <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity.value} />
+      )} */}
       {node.children.value?.map((childIndex) => (
         <NodeReactor key={childIndex} nodeIndex={childIndex} parentUUID={uuid} documentID={props.documentID} />
       ))}
@@ -270,3 +267,44 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
 
   return null
 }
+
+// const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
+//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+//   const nodes = documentState.nodes! as State<GLTF.INode[]>
+//   const node = nodes[props.nodeIndex]!
+
+//   const mesh = documentState.meshes![node.mesh.value!] as State<GLTF.IMesh>
+
+//   return (
+//     <>
+//       {mesh.primitives.value.map((primitive, index) => (
+//         <PrimitiveReactor
+//           key={index}
+//           primitiveIndex={index}
+//           nodeIndex={props.nodeIndex}
+//           documentID={props.documentID}
+//           entity={props.entity}
+//         />
+//       ))}
+//     </>
+//   )
+// }
+
+// const PrimitiveReactor = (props: { primitiveIndex: number; nodeIndex: number; documentID: string; entity: Entity }) => {
+//   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+//   const nodes = documentState.nodes! as State<GLTF.INode[]>
+//   const node = nodes[props.nodeIndex]!
+
+//   const primitive = documentState.meshes![node.mesh.value!].primitives[props.primitiveIndex]
+
+//   useEffect(() => {
+//     /** TODO implement all mesh types */
+//   }, [primitive])
+
+//   return null
+// }
+
+/**
+ * TODO figure out how to support extensions that change the behaviour of these reactors
+ * - we pretty much have to add a new API for each dependency type, like how the GLTFLoader does
+ */
