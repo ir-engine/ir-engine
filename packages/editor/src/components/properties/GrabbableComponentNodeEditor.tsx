@@ -23,17 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useComponent } from '@etherealengine/ecs'
+import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
+import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import React from 'react'
-import { Navigate, Route } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
-/**
- *
- * @param {any} to
- * @param {any} rest
- * @returns
- */
-export function RedirectRoute({ to, ...rest }) {
-  return <Route {...rest} element={<Navigate to={to} />} />
+export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
+
+  const grabbableComponent = useComponent(props.entity, GrabbableComponent)
+
+  return (
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.grabbable.name')}
+      description={t('editor:properties.grabbable.description')}
+    >
+      <div id={'grabbable-component'}></div>
+    </NodeEditor>
+  )
 }
-
-export default RedirectRoute
