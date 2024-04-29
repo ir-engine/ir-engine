@@ -93,6 +93,8 @@ export default function AdminProject() {
                         ? 'bg-green-500'
                         : projectState.failed.value === true
                         ? 'bg-red-500'
+                        : projectState.rebuilding.value === true
+                        ? 'bg-yellow-500'
                         : ''
                     )}
                   />
