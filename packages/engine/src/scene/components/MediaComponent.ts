@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine } from '@etherealengine/ecs'
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -45,12 +45,14 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceHooks'
@@ -134,6 +136,8 @@ export const MediaComponent = defineComponent({
       controls: false,
       synchronize: true,
       autoplay: true,
+      uiOffset: new Vector3(),
+      xruiEntity: UndefinedEntity,
       volume: 1,
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
@@ -169,6 +173,7 @@ export const MediaComponent = defineComponent({
       autoplay: component.autoplay.value,
       resources: [...component.resources.value].filter(Boolean), // filter empty strings
       volume: component.volume.value,
+      uiOffset: component.uiOffset.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
       isMusic: component.isMusic.value,
@@ -192,6 +197,9 @@ export const MediaComponent = defineComponent({
         }
       }
 
+      if (typeof json.uiOffset === 'object') {
+        component.uiOffset.set(new Vector3(json.uiOffset.x, json.uiOffset.y, json.uiOffset.z))
+      }
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
         component.controls.set(json.controls)
 
@@ -248,6 +256,8 @@ export function MediaReactor() {
   if (!isClient) return null
 
   useEffect(() => {
+    setComponent(entity, BoundingBoxComponent)
+    setComponent(entity, InputComponent, { highlight: false, grow: false })
     const { renderer } = getComponent(Engine.instance.viewerEntity, RendererComponent)
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
