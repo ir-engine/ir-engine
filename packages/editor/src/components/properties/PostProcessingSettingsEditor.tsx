@@ -298,6 +298,9 @@ const EffectsOptions: EffectOptionsType = {
   NoiseEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     premultiply: { propertyType: PropertyTypes.Boolean, name: 'Premultiply' }
+  },
+  PixelationEffect: {
+    granularity: { propertyType: PropertyTypes.Number, name: 'granularity', min: 0, max: 1000, step: 1 }
   }
 }
 

@@ -43,6 +43,7 @@ import {
   LUT3DEffect,
   NoiseEffect,
   OutlineEffect,
+  PixelationEffect,
   PredicationMode,
   Resolution,
   SMAAEffect,
@@ -84,7 +85,7 @@ export const Effects = {
   LUT1DEffect: 'LUT1DEffect' as const,
   LUT3DEffect: 'LUT3DEffect' as const,
   NoiseEffect: 'NoiseEffect' as const,
-  // PixelationEffect: 'PixelationEffect' as const,
+  PixelationEffect: 'PixelationEffect' as const,
   // ScanlineEffect: 'ScanlineEffect' as const,
   // ShockWaveEffect: 'ShockWaveEffect' as const,
   // FXAAEffect: 'FXAAEffect' as const,
@@ -118,7 +119,7 @@ export const EffectMap = {
   [Effects.LUT1DEffect]: LUT1DEffect,
   [Effects.LUT3DEffect]: LUT3DEffect,
   [Effects.NoiseEffect]: NoiseEffect,
-  // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
+  [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
   // [Effects.ScanlineEffect]: ScanlineEffect,
   // [Effects.ShockWaveEffect]: ShockWaveEffect,
   // [Effects.FXAAEffect]: FXAAEffect,
@@ -425,7 +426,7 @@ export type EffectPropsSchema = {
   [Effects.LUT1DEffect]: LUT1DEffectProps
   [Effects.LUT3DEffect]: LUT3DEffectProps
   [Effects.NoiseEffect]: NoiseEffectProps
-  // [Effects.PixelationEffect]: PixelationEffectProps
+  [Effects.PixelationEffect]: PixelationEffectProps
   // [Effects.ScanlineEffect]: ScanlineEffectProps
   // [Effects.ShockWaveEffect]: ShockWaveEffectProps
   // [Effects.FXAAEffect]: FXAAEffectProps
@@ -671,7 +672,10 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     blendFunction: BlendFunction.SCREEN,
     premultiply: false
   },
-  // [Effects.PixelationEffect]: { isActive: false, granularity: 30 },
+  [Effects.PixelationEffect]: {
+    isActive: false,
+    granularity: 30
+  },
   // [Effects.ScanlineEffect]: { isActive: false, blendFunction: BlendFunction.OVERLAY, density: 1.25},
   // [Effects.ShockWaveEffect]: {
   //   isActive: false,
