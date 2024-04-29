@@ -85,10 +85,13 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   obj.layers = new Layer(entity)
   obj.frustumCulled = false
 
-  if (!hasComponent(entity, RenderOrderComponent)) setComponent(entity, RenderOrderComponent, obj.renderOrder)
+  if (!hasComponent(entity, RenderOrderComponent)) {
+    setComponent(entity, RenderOrderComponent)
+    RenderOrderComponent.renderOrder[entity] = 0
+  }
   Object.defineProperty(obj, 'renderOrder', {
     get: () => RenderOrderComponent.renderOrder[entity],
-    set: (val: number) => setComponent(entity, RenderOrderComponent, val)
+    set: (val: number) => (RenderOrderComponent.renderOrder[entity] = val)
   })
 
   Object.assign(obj, {
