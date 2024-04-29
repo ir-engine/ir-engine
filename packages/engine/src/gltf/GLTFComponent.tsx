@@ -63,7 +63,6 @@ export const GLTFComponent = defineComponent({
     return {
       src: '',
       // internals
-      document: null as GLTF.IGLTF | null,
       extensions: {},
       progress: 0,
       errorVal: null
@@ -92,11 +91,11 @@ export const GLTFComponent = defineComponent({
 })
 
 const onError = (error: ErrorEvent) => {
-  console.error(error)
+  // console.error(error)
 }
 
 const onProgress: (event: ProgressEvent) => void = (event) => {
-  console.log(event)
+  // console.log(event)
 }
 
 const useGLTFDocument = (url: string, entity: Entity) => {
@@ -144,8 +143,6 @@ const useGLTFDocument = (url: string, entity: Entity) => {
           json = data
         }
 
-        state.document.set(json)
-
         dispatchAction(
           GLTFSnapshotAction.createSnapshot({
             source: getComponent(entity, SourceComponent),
@@ -160,7 +157,6 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     return () => {
       abortController.abort()
       state.merge({
-        document: null,
         extensions: {},
         progress: 0,
         errorVal: null
