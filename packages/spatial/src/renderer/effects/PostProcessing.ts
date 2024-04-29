@@ -34,6 +34,7 @@ import {
   DepthOfFieldEffect,
   DotScreenEffect,
   EdgeDetectionMode,
+  FXAAEffect,
   GlitchEffect,
   //GodRaysEffect,
   GridEffect,
@@ -47,6 +48,7 @@ import {
   PredicationMode,
   Resolution,
   ScanlineEffect,
+  ShockWaveEffect,
   SMAAEffect,
   SMAAPreset,
   SSAOEffect,
@@ -57,7 +59,7 @@ import {
   VignetteTechnique
 } from 'postprocessing'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
-import { Color, SRGBColorSpace, Texture, Vector2 } from 'three'
+import { Color, SRGBColorSpace, Texture, Vector2, Vector3 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
@@ -88,8 +90,8 @@ export const Effects = {
   NoiseEffect: 'NoiseEffect' as const,
   PixelationEffect: 'PixelationEffect' as const,
   ScanlineEffect: 'ScanlineEffect' as const,
-  // ShockWaveEffect: 'ShockWaveEffect' as const,
-  // FXAAEffect: 'FXAAEffect' as const,
+  ShockWaveEffect: 'ShockWaveEffect' as const,
+  FXAAEffect: 'FXAAEffect' as const,
   // TextureEffect: 'TextureEffect' as const,
   VignetteEffect: 'VignetteEffect' as const
   // LensDistortionEffect: 'LensDistortionEffect' as const
@@ -122,8 +124,8 @@ export const EffectMap = {
   [Effects.NoiseEffect]: NoiseEffect,
   [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
   [Effects.ScanlineEffect]: ScanlineEffect,
-  // [Effects.ShockWaveEffect]: ShockWaveEffect,
-  // [Effects.FXAAEffect]: FXAAEffect,
+  [Effects.ShockWaveEffect]: ShockWaveEffect,
+  [Effects.FXAAEffect]: FXAAEffect,
   // [Effects.TextureEffect]: TextureEffect,
   [Effects.VignetteEffect]: VignetteEffect
   // [Effects.LensDistortionEffect]: LensDistortionEffect
@@ -377,6 +379,7 @@ export type ScanlineEffectProps = EffectProps & {
   density?: number
 }
 export type ShockWaveEffectProps = EffectProps & {
+  position?: Vector3
   speed?: number
   maxRadius?: number
   waveSize?: number
@@ -429,8 +432,8 @@ export type EffectPropsSchema = {
   [Effects.NoiseEffect]: NoiseEffectProps
   [Effects.PixelationEffect]: PixelationEffectProps
   [Effects.ScanlineEffect]: ScanlineEffectProps
-  // [Effects.ShockWaveEffect]: ShockWaveEffectProps
-  // [Effects.FXAAEffect]: FXAAEffectProps
+  [Effects.ShockWaveEffect]: ShockWaveEffectProps
+  [Effects.FXAAEffect]: FXAAEffectProps
   // [Effects.TextureEffect]: TextureEffectProps
   [Effects.VignetteEffect]: VignetteEffectProps
   // [Effects.LensDistortionEffect]: LensDistortionEffectProps
@@ -682,14 +685,18 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     blendFunction: BlendFunction.OVERLAY,
     density: 1.25
   },
-  // [Effects.ShockWaveEffect]: {
-  //   isActive: false,
-  //   speed: 2.0,
-  //   maxRadius: 1.0,
-  //   waveSize: 0.2,
-  //   amplitude: 0.05,
-  // },
-  // [Effects.FXAAEffect]: { isActive: false, blendFunction: BlendFunction.SRC },
+  [Effects.ShockWaveEffect]: {
+    isActive: false,
+    position: new Vector3(0, 0, 0),
+    speed: 2.0,
+    maxRadius: 1.0,
+    waveSize: 0.2,
+    amplitude: 0.05
+  },
+  [Effects.FXAAEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SRC
+  },
   // [Effects.TextureEffect]: {
   //   isActive: false,
   //   blendFunction: BlendFunction.NORMAL,
@@ -752,6 +759,6 @@ export const effectInOrder = [
 
   /** 5. final fix, aliasing and noise passes */
   Effects.LinearTosRGBEffect, // should this just be always on?
-  Effects.TRAAEffect
-  // Effects.FXAAEffect
+  Effects.TRAAEffect,
+  Effects.FXAAEffect
 ]

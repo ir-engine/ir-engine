@@ -262,6 +262,10 @@ export const configureEffectComposer = (entity: Entity): void => {
       const eff = new EffectClass(effectOptions.granularity)
       composer[key] = eff
       effects.push(eff)
+    } else if (key == Effects.ShockWaveEffect) {
+      const eff = new EffectClass(camera, effectOptions.position, effectOptions)
+      composer[key] = eff
+      effects.push(eff)
     } else {
       const eff = new EffectClass(effectOptions)
       composer[key] = eff

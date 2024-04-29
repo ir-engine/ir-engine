@@ -45,6 +45,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import Vector2Input from '../inputs/Vector2Input'
+import Vector3Input from '../inputs/Vector3Input'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
@@ -61,6 +62,7 @@ enum PropertyTypes {
   PredicationMode,
   Texture,
   Vector2,
+  Vector3,
   VignetteTechnique
 }
 
@@ -305,6 +307,16 @@ const EffectsOptions: EffectOptionsType = {
   ScanlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 }
+  },
+  ShockWaveEffect: {
+    position: { propertyType: PropertyTypes.Vector3, name: 'Position' },
+    speed: { propertyType: PropertyTypes.Number, name: 'Speed', min: 0, max: 10, step: 0.05 },
+    maxRadius: { propertyType: PropertyTypes.Number, name: 'Max Radius', min: 0, max: 10, step: 0.05 },
+    waveSize: { propertyType: PropertyTypes.Number, name: 'Wave Size', min: 0, max: 10, step: 0.05 },
+    amplitude: { propertyType: PropertyTypes.Number, name: 'Amplitude', min: 0, max: 10, step: 0.05 }
+  },
+  FXAAEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
   }
 }
 
@@ -421,6 +433,15 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       case PropertyTypes.Vector2:
         renderVal = (
           <Vector2Input
+            value={effectSettingState.value}
+            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+          />
+        )
+        break
+
+      case PropertyTypes.Vector3:
+        renderVal = (
+          <Vector3Input
             value={effectSettingState.value}
             onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
