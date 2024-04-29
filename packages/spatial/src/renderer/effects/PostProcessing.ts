@@ -41,6 +41,7 @@ import {
   KernelSize,
   LUT1DEffect,
   LUT3DEffect,
+  NoiseEffect,
   OutlineEffect,
   PredicationMode,
   Resolution,
@@ -82,7 +83,7 @@ export const Effects = {
   GridEffect: 'GridEffect' as const,
   LUT1DEffect: 'LUT1DEffect' as const,
   LUT3DEffect: 'LUT3DEffect' as const,
-  // NoiseEffect: 'NoiseEffect' as const,
+  NoiseEffect: 'NoiseEffect' as const,
   // PixelationEffect: 'PixelationEffect' as const,
   // ScanlineEffect: 'ScanlineEffect' as const,
   // ShockWaveEffect: 'ShockWaveEffect' as const,
@@ -116,7 +117,7 @@ export const EffectMap = {
   [Effects.GridEffect]: GridEffect,
   [Effects.LUT1DEffect]: LUT1DEffect,
   [Effects.LUT3DEffect]: LUT3DEffect,
-  // [Effects.NoiseEffect]: NoiseEffect,
+  [Effects.NoiseEffect]: NoiseEffect,
   // [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
   // [Effects.ScanlineEffect]: ScanlineEffect,
   // [Effects.ShockWaveEffect]: ShockWaveEffect,
@@ -423,7 +424,7 @@ export type EffectPropsSchema = {
   [Effects.GridEffect]: GridEffectProps
   [Effects.LUT1DEffect]: LUT1DEffectProps
   [Effects.LUT3DEffect]: LUT3DEffectProps
-  // [Effects.NoiseEffect]: NoiseEffectProps
+  [Effects.NoiseEffect]: NoiseEffectProps
   // [Effects.PixelationEffect]: PixelationEffectProps
   // [Effects.ScanlineEffect]: ScanlineEffectProps
   // [Effects.ShockWaveEffect]: ShockWaveEffectProps
@@ -665,7 +666,11 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     inputColorSpace: SRGBColorSpace,
     lut: null
   },
-  // [Effects.NoiseEffect]: { isActive: false, blendFunction: BlendFunction.SCREEN, premultiply: false },
+  [Effects.NoiseEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SCREEN,
+    premultiply: false
+  },
   // [Effects.PixelationEffect]: { isActive: false, granularity: 30 },
   // [Effects.ScanlineEffect]: { isActive: false, blendFunction: BlendFunction.OVERLAY, density: 1.25},
   // [Effects.ShockWaveEffect]: {

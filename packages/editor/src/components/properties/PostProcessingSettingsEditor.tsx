@@ -294,6 +294,10 @@ const EffectsOptions: EffectOptionsType = {
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
     //resolutionX: Resolution.AUTO_SIZE,
     //resolutionY: Resolution.AUTO_SIZE
+  },
+  NoiseEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    premultiply: { propertyType: PropertyTypes.Boolean, name: 'Premultiply' }
   }
 }
 
