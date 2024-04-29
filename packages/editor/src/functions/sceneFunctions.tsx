@@ -38,7 +38,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'

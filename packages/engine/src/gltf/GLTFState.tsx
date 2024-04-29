@@ -41,9 +41,9 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
+import { SourceComponent } from '../scene/components/SourceComponent'
+import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
-import { GLTFComponent } from './components/GLTFComponent'
-import { SourceComponent } from './components/SourceComponent'
 
 export const GLTFSourceState = defineState({
   name: 'GLTFState',

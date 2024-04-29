@@ -49,14 +49,10 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect } from 'react'
-import { FileLoader } from '../../assets/loaders/base/FileLoader'
-import {
-  BINARY_EXTENSION_HEADER_MAGIC,
-  EXTENSIONS,
-  GLTFBinaryExtension
-} from '../../assets/loaders/gltf/GLTFExtensions'
-import { GLTFDocumentState, GLTFSnapshotAction } from '../GLTFDocumentState'
-import { SourceComponent } from './SourceComponent'
+import { FileLoader } from '../assets/loaders/base/FileLoader'
+import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import { SourceComponent } from '../scene/components/SourceComponent'
+import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
@@ -270,7 +266,6 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
-    console.log('loaded extension', props.documentID, props.nodeIndex, props.extension)
   }, [extension])
 
   return null
