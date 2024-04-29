@@ -317,6 +317,11 @@ const EffectsOptions: EffectOptionsType = {
   },
   FXAAEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
+  },
+  TextureEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    texturePath: { propertyType: PropertyTypes.Texture, name: 'Texture' },
+    aspectCorrection: { propertyType: PropertyTypes.Boolean, name: 'Aspect Correction' }
   }
 }
 

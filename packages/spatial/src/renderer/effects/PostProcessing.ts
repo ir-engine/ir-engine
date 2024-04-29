@@ -52,6 +52,7 @@ import {
   SMAAEffect,
   SMAAPreset,
   SSAOEffect,
+  TextureEffect,
   TiltShiftEffect,
   ToneMappingEffect,
   ToneMappingMode,
@@ -92,7 +93,7 @@ export const Effects = {
   ScanlineEffect: 'ScanlineEffect' as const,
   ShockWaveEffect: 'ShockWaveEffect' as const,
   FXAAEffect: 'FXAAEffect' as const,
-  // TextureEffect: 'TextureEffect' as const,
+  TextureEffect: 'TextureEffect' as const,
   VignetteEffect: 'VignetteEffect' as const
   // LensDistortionEffect: 'LensDistortionEffect' as const
 }
@@ -126,7 +127,7 @@ export const EffectMap = {
   [Effects.ScanlineEffect]: ScanlineEffect,
   [Effects.ShockWaveEffect]: ShockWaveEffect,
   [Effects.FXAAEffect]: FXAAEffect,
-  // [Effects.TextureEffect]: TextureEffect,
+  [Effects.TextureEffect]: TextureEffect,
   [Effects.VignetteEffect]: VignetteEffect
   // [Effects.LensDistortionEffect]: LensDistortionEffect
 }
@@ -434,7 +435,7 @@ export type EffectPropsSchema = {
   [Effects.ScanlineEffect]: ScanlineEffectProps
   [Effects.ShockWaveEffect]: ShockWaveEffectProps
   [Effects.FXAAEffect]: FXAAEffectProps
-  // [Effects.TextureEffect]: TextureEffectProps
+  [Effects.TextureEffect]: TextureEffectProps
   [Effects.VignetteEffect]: VignetteEffectProps
   // [Effects.LensDistortionEffect]: LensDistortionEffectProps
 }
@@ -697,12 +698,12 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     isActive: false,
     blendFunction: BlendFunction.SRC
   },
-  // [Effects.TextureEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   texture: undefined,
-  //   aspectCorrection: false
-  // },
+  [Effects.TextureEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    texture: undefined,
+    aspectCorrection: false
+  },
   [Effects.VignetteEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,

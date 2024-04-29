@@ -266,6 +266,28 @@ export const configureEffectComposer = (entity: Entity): void => {
       const eff = new EffectClass(camera, effectOptions.position, effectOptions)
       composer[key] = eff
       effects.push(eff)
+    } else if (key == Effects.TextureEffect) {
+      let texturePath = effectOptions.texturePath
+      if (texturePath == undefined) {
+        texturePath = null
+      }
+      let texture: Texture | null = null
+      if (texturePath != null) {
+        let textLoad = new TextureLoader()
+        //have to wait for the texture's image to load and then add the pass to the composer
+        texture = textLoad.load(texturePath, (textureLoaded) => {
+          effectOptions.texture = textureLoaded
+          const eff = new EffectClass(effectOptions)
+          composer[key] = eff
+          effects.push(eff)
+          AddPass()
+        })
+      } else {
+        effectOptions.texture = texture
+        const eff = new EffectClass(effectOptions)
+        composer[key] = eff
+        effects.push(eff)
+      }
     } else {
       const eff = new EffectClass(effectOptions)
       composer[key] = eff
