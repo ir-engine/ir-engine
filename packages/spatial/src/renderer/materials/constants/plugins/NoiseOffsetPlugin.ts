@@ -54,10 +54,7 @@ export const NoiseOffsetPlugin: PluginObjectType = {
     frequency: 0.001
   },
   compile: (shader, renderer) => {
-    const plugin = getComponent(
-      getPluginByName(NoiseOffsetPlugin.id),
-      MaterialComponent[MaterialComponents.MaterialPlugin]
-    )
+    const plugin = getComponent(getPluginByName(NoiseOffsetPlugin.id), MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
     const parameters = plugin.parameters!
     shader.uniforms['textureSize'] = new Uniform(parameters.textureSize)
@@ -131,10 +128,7 @@ const execute = () => {
 const reactor = () => {
   if (!isClient) return null
 
-  const noiseOffset = useComponent(
-    getPluginByName(NoiseOffsetPlugin.id),
-    MaterialComponent[MaterialComponents.MaterialPlugin]
-  )
+  const noiseOffset = useComponent(getPluginByName(NoiseOffsetPlugin.id), MaterialComponent[MaterialComponents.Plugin])
 
   useEffect(() => {
     if (!noiseOffset?.value || noiseOffset.parameters['noiseTexture']) return

@@ -59,7 +59,7 @@ import { SelectionState } from '../../services/SelectionServices'
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
 
-  const materialQuery = useQuery([MaterialComponent[MaterialComponents.MaterialState]])
+  const materialQuery = useQuery([MaterialComponent[MaterialComponents.State]])
   const nodes = useState([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
   useEffect(() => {

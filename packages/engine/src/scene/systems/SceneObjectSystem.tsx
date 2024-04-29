@@ -117,7 +117,7 @@ export const disposeObject3D = (obj: Object3D) => {
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
-export function setupObject(obj: Object3D, forceBasicMaterials = false) {
+export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
   if (child.material) {
     const shouldMakeBasic =
@@ -126,7 +126,7 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       const basicUUID = `basic-${child.material.uuid}` as EntityUUID
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
       if (basicMaterialEntity) {
-        child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.MaterialState]).material
+        child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.State]).material
         return
       }
       const prevMaterial = child.material
@@ -138,10 +138,9 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       newBasicMaterial.reflectivity = prevMaterial.metalness
       newBasicMaterial.envMap = prevMaterial.envMap
       newBasicMaterial.vertexColors = prevMaterial.vertexColors
-      child.material = newBasicMaterial
-      child.userData.lastMaterial = prevMaterial
       newBasicMaterial.uuid = basicUUID
       createMaterialEntity(newBasicMaterial, '')
+      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUID)
@@ -151,9 +150,7 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
       const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
       if (!materialEntity) return
 
-      const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.MaterialState])
-      child.material = materialComponent.material
-      child.material.needsUpdate = true
+      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [nonBasicUUID] })
     }
   }
 }
@@ -178,7 +175,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   }, [])
 
   useEffect(() => {
-    setupObject(obj, forceBasicMaterials.value)
+    setupObject(obj, entity, forceBasicMaterials.value)
   }, [forceBasicMaterials])
 
   return null

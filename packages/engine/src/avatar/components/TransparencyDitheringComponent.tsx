@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, getComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, defineComponent, getComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -58,7 +58,7 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
         exponent: 2,
         calculationType: ditherCalculationType.worldTransformed,
         //internal
-        materialIds: [] as string[]
+        materialUUIDs: [] as EntityUUID[]
       }
     },
 
@@ -84,7 +84,7 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
   compile: (shader, renderer) => {
     const parameters = getComponent(
       getPluginByName(TransparencyDitheringPlugin.id),
-      MaterialComponent[MaterialComponents.MaterialPlugin]
+      MaterialComponent[MaterialComponents.Plugin]
     )?.parameters
     if (!parameters) return
     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {

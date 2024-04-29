@@ -80,27 +80,28 @@ export const MaterialPrototypeDefinitions = [
 export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin]
 
 export enum MaterialComponents {
-  MaterialInstance,
-  MaterialState,
-  MaterialPrototype,
-  MaterialPlugin
+  Instance,
+  State,
+  Prototype,
+  Plugin
 }
 
 export const materialByHash = {} as Record<string, EntityUUID>
 export const materialByName = {} as Record<string, EntityUUID>
 export const prototypeByName = {} as Record<string, Entity>
+export const pluginByName = {} as Record<string, Entity>
 
 export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
   return defineComponent({
-    name: `${MaterialComponents[i]}Component`,
+    name: `Material${MaterialComponents[i]}Component`,
     onInit: (entity) => {
       switch (i) {
-        case MaterialComponents.MaterialInstance:
+        case MaterialComponents.Instance:
           return {
             // materialUUID points to entities with MaterialComponent holding state
             uuid: [] as EntityUUID[]
           }
-        case MaterialComponents.MaterialState:
+        case MaterialComponents.State:
           return {
             // material & material specific data
             material: {} as Material,
@@ -109,13 +110,13 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
             pluginEntities: [] as Entity[],
             prototypeEntity: UndefinedEntity as Entity
           }
-        case MaterialComponents.MaterialPrototype:
+        case MaterialComponents.Prototype:
           return {
             // prototype state
             prototypeArguments: {} as PrototypeArgument,
             prototypeConstructor: {} as MaterialPrototypeObjectConstructor
           }
-        case MaterialComponents.MaterialPlugin:
+        case MaterialComponents.Plugin:
           return {
             // plugin state
             plugin: {} as PluginObjectType
@@ -152,7 +153,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
   })
 })
 
-export const pluginQuery = defineQuery([MaterialComponent[MaterialComponents.MaterialPlugin]])
+export const pluginQuery = defineQuery([MaterialComponent[MaterialComponents.Plugin]])
 
 declare module 'three/src/materials/Material' {
   export interface Material {

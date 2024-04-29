@@ -101,10 +101,7 @@ export async function addMediaNode(
           const src = getComponent(materialEntity, SourceComponent)
           if (!src) return
           if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, src)
-          const materialComponent = getMutableComponent(
-            mesh.entity,
-            MaterialComponent[MaterialComponents.MaterialState]
-          )
+          const materialComponent = getMutableComponent(mesh.entity, MaterialComponent[MaterialComponents.State])
           if (materialComponent.instances.value)
             materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
           //if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {

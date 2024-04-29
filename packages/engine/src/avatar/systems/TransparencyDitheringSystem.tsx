@@ -26,101 +26,94 @@ Ethereal Engine. All Rights Reserved.
 import {
   Entity,
   PresentationSystemGroup,
+  QueryReactor,
+  UUIDComponent,
   defineQuery,
   defineSystem,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import React, { useEffect } from 'react'
+import { SourceComponent } from '../../scene/components/SourceComponent'
+import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
+import {
+  TransparencyDitheringComponent,
+  TransparencyDitheringPlugin,
+  maxDitherPoints
+} from '../components/TransparencyDitheringComponent'
 
 const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0]])
 const execute = () => {
-  const basicMaterials = getState(RendererState).forceBasicMaterials
-  const useBasicPrefix = basicMaterials ? 'basic-' : ''
-
-  // for (const entity of TransparencyDitheringQuery()) {
-  //   const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
-  //   for (const id of ditherComponent.materialIds) {
-  //     const materialComponent = getState(MaterialLibraryState).materials[useBasicPrefix + id]
-  //     if (!materialComponent) continue
-  //     const material = materialComponent.material
-  //     for (let i = 0; i < maxDitherPoints; i++) {
-  //       const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
-  //       if (!ditherComponent) break
-  //       if (!material.shader) return
-  //       if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[i] = ditherComponent.center
-  //       if (material.shader.uniforms.exponents) material.shader.uniforms.exponents.value[i] = ditherComponent.exponent
-  //       if (material.shader.uniforms.distances) material.shader.uniforms.distances.value[i] = ditherComponent.distance
-  //       if (material.shader.uniforms.useWorldCalculation)
-  //         material.shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
-  //     }
-  //   }
-  // }
+  for (const entity of TransparencyDitheringQuery()) {
+    const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
+    for (const uuid of ditherComponent.materialUUIDs) {
+      const materialComponent = getComponent(
+        UUIDComponent.getEntityByUUID(uuid),
+        MaterialComponent[MaterialComponents.Instance]
+      )
+      const material = materialComponent.material
+      if (!material) continue
+      for (let i = 0; i < maxDitherPoints; i++) {
+        const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
+        if (!ditherComponent) break
+        if (!material.shader) return
+        if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[i] = ditherComponent.center
+        if (material.shader.uniforms.exponents) material.shader.uniforms.exponents.value[i] = ditherComponent.exponent
+        if (material.shader.uniforms.distances) material.shader.uniforms.distances.value[i] = ditherComponent.distance
+        if (material.shader.uniforms.useWorldCalculation)
+          material.shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
+      }
+    }
+  }
 }
 
 const reactor = () => {
-  // return <>{<QueryReactor Components={[TransparencyDitheringComponent[0]]} ChildEntityReactor={DitherReactor} />}</>
+  return <>{<QueryReactor Components={[TransparencyDitheringComponent[0]]} ChildEntityReactor={DitherReactor} />}</>
 }
 
 const DitherReactor = () => {
   const entity = useEntityContext()
-  // const sceneInstanceID = useModelSceneID(entity)
-  // const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
-  // return (
-  //   <>
-  //     {childEntities.value?.map((childEntity) => (
-  //       <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
-  //     ))}
-  //   </>
-  // )
+  const sceneInstanceID = useModelSceneID(entity)
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+  return (
+    <>
+      {childEntities.value?.map((childEntity) => (
+        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
+      ))}
+    </>
+  )
 }
 
+/**@todo rather than mutating the source materials, we should use clones for a specific entity to prevent unintended dithering */
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const { entity, rootEntity } = props
-  const basicMaterials = useHookstate(getMutableState(RendererState).forceBasicMaterials)
-  /**check if material library state entry for materials stored in the first dithering component changes */
-  const ditherComponent = useComponent(rootEntity, TransparencyDitheringComponent[0])
-  const matIds = useComponent(rootEntity, TransparencyDitheringComponent[0]).materialIds
-  // const materialState = useHookstate(getMutableState(MaterialLibraryState))
-  // const materialIds = useHookstate(
-  //   Object.keys(materialState.materials.value).filter((key) => matIds.value.includes(key.replace('basic-', '')))
-  // )
-  // useEffect(() => {
-  //   if (!matIds.length) return
-  //   for (const matId of materialIds.value) {
-  //     const material = materialState.materials.value[matId]
 
-  //     injectDitheringLogic(
-  //       material.material,
-  //       ditherComponent.center.value,
-  //       ditherComponent.distance.value,
-  //       ditherComponent.exponent.value
-  //     )
-  //   }
-  // }, [materialIds])
-
-  // useEffect(() => {
-  //   const meshComponent = getOptionalComponent(entity, MeshComponent)
-  //   if (!meshComponent) return
-  //   const material = meshComponent.material
-  //   const materialIds = ditherComponent.materialIds
-
-  //   if (!isArray(material)) {
-  //     /**remove basic- prefix if it exists*/
-  //     const id = material.uuid.replace('basic-', '')
-  //     if (!materialIds.value.find((uuid) => uuid === id))
-  //       ditherComponent.materialIds.set([...materialIds.value, material.uuid])
-
-  //     injectDitheringLogic(
-  //       material,
-  //       ditherComponent.center.value,
-  //       ditherComponent.distance.value,
-  //       ditherComponent.exponent.value
-  //     )
-  //   }
-  // }, [basicMaterials])
+  const materialUUIDs = useComponent(rootEntity, TransparencyDitheringComponent[0]).materialUUIDs
+  const materialComponentUUID = useOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
+  useEffect(() => {
+    console.log(materialComponentUUID?.value)
+    console.log(pluginByName)
+    if (!materialComponentUUID?.value) return
+    for (const materialUUID of materialComponentUUID.value) {
+      const material = UUIDComponent.getEntityByUUID(materialUUID)
+      const materialComponent = getMutableComponent(material, MaterialComponent[MaterialComponents.State])
+      if (materialComponent.pluginEntities.value)
+        materialComponent.pluginEntities.set([
+          ...materialComponent.pluginEntities.value,
+          pluginByName[TransparencyDitheringPlugin.id]
+        ])
+    }
+  }, [materialComponentUUID])
 
   return null
 }
@@ -128,6 +121,6 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 export const TransparencyDitheringSystem = defineSystem({
   uuid: 'TransparencyDitheringSystem',
   insert: { with: PresentationSystemGroup },
-  execute
-  // reactor
+  execute,
+  reactor
 })

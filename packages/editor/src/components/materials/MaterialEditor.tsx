@@ -72,7 +72,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.MaterialState])
+  const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
   const material = materialComponent.material!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
@@ -136,7 +136,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialName, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity!
-  const prototype = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.MaterialPrototype])
+  const prototype = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
 
   materialName.set(material.name)
   prototypeName.set(material.type)
@@ -172,7 +172,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
-            setComponent(entity, MaterialComponent[MaterialComponents.MaterialState], {
+            setComponent(entity, MaterialComponent[MaterialComponents.State], {
               prototypeEntity: prototypeByName[protoId]
             })
             prototypeName.set(protoId)

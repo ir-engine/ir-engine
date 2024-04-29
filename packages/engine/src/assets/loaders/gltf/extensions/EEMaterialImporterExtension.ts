@@ -84,7 +84,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     const materialComponent = getComponent(
       UUIDComponent.getEntityByUUID(extension.uuid),
-      MaterialComponent[MaterialComponents.MaterialState]
+      MaterialComponent[MaterialComponents.State]
     )
     let foundPrototype = false
     if (materialComponent) {
@@ -92,7 +92,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.MaterialPrototype])
+        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.Prototype])
           .prototypeArguments
         foundPrototype = true
       } catch (e) {

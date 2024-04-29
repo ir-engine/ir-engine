@@ -97,6 +97,10 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
   }
 }
 
+export const testst = {
+  setComponent: function () {}
+}
+
 const modifyName = (entities: Entity[], name: string) => {
   //cancelGrabOrPlacement()
 

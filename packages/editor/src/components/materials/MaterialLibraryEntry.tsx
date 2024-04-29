@@ -60,7 +60,7 @@ export type MaterialLibraryEntryProps = {
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
   return getComponent(
     UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
-    MaterialComponent[MaterialComponents.MaterialState]
+    MaterialComponent[MaterialComponents.State]
   ).material?.name
 }
 
