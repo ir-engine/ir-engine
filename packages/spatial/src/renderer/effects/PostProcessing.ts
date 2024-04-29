@@ -40,6 +40,7 @@ import {
   GridEffect,
   HueSaturationEffect,
   KernelSize,
+  LensDistortionEffect,
   LUT1DEffect,
   LUT3DEffect,
   NoiseEffect,
@@ -94,8 +95,8 @@ export const Effects = {
   ShockWaveEffect: 'ShockWaveEffect' as const,
   FXAAEffect: 'FXAAEffect' as const,
   TextureEffect: 'TextureEffect' as const,
-  VignetteEffect: 'VignetteEffect' as const
-  // LensDistortionEffect: 'LensDistortionEffect' as const
+  VignetteEffect: 'VignetteEffect' as const,
+  LensDistortionEffect: 'LensDistortionEffect' as const
 }
 
 export const EffectMap = {
@@ -128,8 +129,8 @@ export const EffectMap = {
   [Effects.ShockWaveEffect]: ShockWaveEffect,
   [Effects.FXAAEffect]: FXAAEffect,
   [Effects.TextureEffect]: TextureEffect,
-  [Effects.VignetteEffect]: VignetteEffect
-  // [Effects.LensDistortionEffect]: LensDistortionEffect
+  [Effects.VignetteEffect]: VignetteEffect,
+  [Effects.LensDistortionEffect]: LensDistortionEffect
 }
 
 export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
@@ -389,6 +390,7 @@ export type ShockWaveEffectProps = EffectProps & {
 export type FXAAEffectProps = EffectProps & { blendFunction?: BlendFunction }
 export type TextureEffectProps = EffectProps & {
   blendFunction?: BlendFunction
+  texturePath?: string
   texture?: Texture
   aspectCorrection?: boolean
 }
@@ -437,7 +439,7 @@ export type EffectPropsSchema = {
   [Effects.FXAAEffect]: FXAAEffectProps
   [Effects.TextureEffect]: TextureEffectProps
   [Effects.VignetteEffect]: VignetteEffectProps
-  // [Effects.LensDistortionEffect]: LensDistortionEffectProps
+  [Effects.LensDistortionEffect]: LensDistortionEffectProps
 }
 
 export type EffectPropsSchemaType = (typeof defaultPostProcessingSchema)[keyof typeof defaultPostProcessingSchema]
@@ -701,6 +703,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.TextureEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
+    texturePath: undefined,
     texture: undefined,
     aspectCorrection: false
   },
@@ -711,14 +714,14 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     eskil: false,
     offset: 0.5,
     darkness: 0.5
+  },
+  [Effects.LensDistortionEffect]: {
+    isActive: false,
+    distortion: new Vector2(0, 0),
+    principalPoint: new Vector2(0, 0),
+    focalLength: new Vector2(0, 0),
+    skew: 0
   }
-  // [Effects.LensDistortionEffect]: {
-  //   isActive: false,
-  //   distortion: new Vector2(0,0),
-  //   principalPoint: new Vector2(0,0),
-  //   focalLength: new Vector2(0,0),
-  //   skew: 0
-  // }
 }
 
 /**
@@ -742,7 +745,7 @@ export const effectInOrder = [
   //Effects.GodRaysEffect,
 
   /** 3. camera effects */
-  // Effects.LensDistortionEffect,
+  Effects.LensDistortionEffect,
   //Effects.LensFlareEffect,
   Effects.ChromaticAberrationEffect,
   Effects.MotionBlurEffect,

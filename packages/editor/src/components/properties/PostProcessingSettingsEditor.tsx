@@ -322,6 +322,12 @@ const EffectsOptions: EffectOptionsType = {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     texturePath: { propertyType: PropertyTypes.Texture, name: 'Texture' },
     aspectCorrection: { propertyType: PropertyTypes.Boolean, name: 'Aspect Correction' }
+  },
+  LensDistortionEffect: {
+    distortion: { propertyType: PropertyTypes.Vector2, name: 'Distortion' },
+    principalPoint: { propertyType: PropertyTypes.Vector2, name: 'Principal Point' },
+    focalLength: { propertyType: PropertyTypes.Vector2, name: 'Focal Length' },
+    skew: { propertyType: PropertyTypes.Number, name: 'Skew', min: 0, max: 10, step: 0.05 }
   }
 }
 
