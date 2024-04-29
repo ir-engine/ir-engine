@@ -38,7 +38,7 @@ const fileServer = config.client.fileServer
 export const SceneServices = {
   /** @todo this can be simplified once .scene.json support is dropped */
   setCurrentScene: (sceneURL: string, overrideLocation = false) => {
-    const isGLTF = sceneURL.endsWith('.gltf')
+    const isGLTF = sceneURL.endsWith('.gltf') || sceneURL.endsWith('.glb')
     if (isGLTF) {
       const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
