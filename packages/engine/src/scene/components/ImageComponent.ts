@@ -150,7 +150,7 @@ export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const [texture, error] = useTexture(image.source.value, entity)
-  const [mesh, geometry, material] = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
+  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
     entity,
     PLANE_GEO,
     new MeshBasicMaterial()
@@ -185,8 +185,8 @@ export function ImageReactor() {
       texture.colorSpace = SRGBColorSpace
       texture.minFilter = LinearMipmapLinearFilter
 
-      material.map.set(texture)
-      mesh.visible = true
+      mesh.material.map.set(texture)
+      mesh.visible.set(true)
 
       // upload to GPU immediately
       getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.initTexture(texture)
@@ -196,28 +196,28 @@ export function ImageReactor() {
 
   useEffect(
     function updateGeometry() {
-      if (!material.map.value) return
+      if (!mesh.material.map.value) return
 
-      const flippedTexture = material.map.value.flipY
+      const flippedTexture = mesh.material.map.value.flipY
       switch (image.projection.value) {
         case ImageProjection.Equirectangular360:
-          geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
-          mesh.scale.set(-1, 1, 1)
+          mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
+          mesh.scale.value.set(-1, 1, 1)
           break
         case ImageProjection.Flat:
         default:
-          geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
-          resizeImageMesh(mesh)
+          mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
+          resizeImageMesh(mesh.value)
       }
     },
-    [material.map, image.projection]
+    [mesh.material.map, image.projection]
   )
 
   useEffect(
     function updateMaterial() {
-      material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
-      material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
-      material.side.set(image.side.value)
+      mesh.material.transparent.set(image.alphaMode.value === ImageAlphaMode.Blend)
+      mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
+      mesh.material.side.set(image.side.value)
     },
     [image.alphaMode, image.alphaCutoff, image.side]
   )

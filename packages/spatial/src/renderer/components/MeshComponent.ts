@@ -34,12 +34,10 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { NO_PROXY, State } from '@etherealengine/hyperflux'
+import { State } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { useResource } from '../../resources/resourceHooks'
-import { GeometryComponent } from './GeometryComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { MaterialComponent } from './MaterialComponent'
 
 export const MeshComponent = defineComponent({
   name: 'Mesh Component',
@@ -50,21 +48,18 @@ export const MeshComponent = defineComponent({
   onSet: (entity, component, mesh: Mesh) => {
     if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
     component.set(mesh)
-    setComponent(entity, MaterialComponent, mesh.material)
-    setComponent(entity, GeometryComponent, mesh.geometry)
-  },
-
-  onRemove: (entity, component) => {
-    removeComponent(entity, MaterialComponent)
-    removeComponent(entity, GeometryComponent)
   },
 
   reactor: () => {
     const entity = useEntityContext()
-    const materialComponent = useComponent(entity, MaterialComponent)
-    const geometryComponent = useComponent(entity, GeometryComponent)
     const meshComponent = useComponent(entity, MeshComponent)
     const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
+    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
+    const [materialResource] = useResource<Material | Material[]>(
+      meshComponent.material.value,
+      entity,
+      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
+    )
 
     useDidMount(() => {
       meshResource.set(meshComponent.value)
@@ -72,21 +67,21 @@ export const MeshComponent = defineComponent({
 
     useEffect(() => {
       const mesh = meshComponent.value
-      const geo = geometryComponent.value
-      if (geo != mesh.geometry) mesh.geometry = geo
-    }, [geometryComponent])
+      if (mesh.geometry !== geometryResource.value) {
+        geometryResource.set(mesh.geometry)
+      }
+    }, [meshComponent.geometry])
 
     useEffect(() => {
       const mesh = meshComponent.value
-      const mat = materialComponent.value
-      if (mat != mesh.material) mesh.material = mat
+      if (mesh.material !== materialResource.value) materialResource.set(mesh.material)
 
       if (Array.isArray(mesh.material)) {
         for (const material of mesh.material) material.needsUpdate = true
       } else {
         mesh.material.needsUpdate = true
       }
-    }, [materialComponent])
+    }, [meshComponent.material])
 
     return null
   }
@@ -102,19 +97,15 @@ export const MeshComponent = defineComponent({
  * @param material a Material instance to add to the mesh
  * @returns [Mesh, State<Geometry>, State<Material>]
  */
-export function useMeshComponent<
-  TGeometry extends BufferGeometry = BufferGeometry,
-  TMaterial extends Material = Material
->(
+export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
   entity: Entity,
   geometry: TGeometry,
   material: TMaterial
-): [Mesh<TGeometry, TMaterial>, State<TGeometry>, State<TMaterial>] {
-  if (!hasComponent(entity, MeshComponent))
+): State<Mesh<TGeometry, TMaterial>> {
+  if (!hasComponent(entity, MeshComponent)) {
     setComponent(entity, MeshComponent, new Mesh<TGeometry, TMaterial>(geometry, material))
+  }
 
-  const geometryComponent = useComponent(entity, GeometryComponent)
-  const materialComponent = useComponent(entity, MaterialComponent)
   const meshComponent = useComponent(entity, MeshComponent)
 
   useEffect(() => {
@@ -126,9 +117,5 @@ export function useMeshComponent<
     }
   }, [])
 
-  return [
-    meshComponent.get(NO_PROXY) as Mesh<TGeometry, TMaterial>,
-    geometryComponent as State<TGeometry>,
-    materialComponent as State<TMaterial>
-  ]
+  return meshComponent as unknown as State<Mesh<TGeometry, TMaterial>>
 }

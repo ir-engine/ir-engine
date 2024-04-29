@@ -93,14 +93,15 @@ export const GroundPlaneComponent = defineComponent({
       return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
     }
 
-    const [mesh, geoState, matState] = useMeshComponent(entity, new PlaneGeometry(10000, 10000), getMaterial())
+    const mesh = useMeshComponent(entity, new PlaneGeometry(10000, 10000), getMaterial())
 
     useLayoutEffect(() => {
-      mesh.geometry.rotateX(-Math.PI / 2)
-      mesh.name = 'GroundPlaneMesh'
-      mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetFactor = -0.01
-      mesh.material.polygonOffsetUnits = 1
+      const meshVal = mesh.value
+      meshVal.geometry.rotateX(-Math.PI / 2)
+      meshVal.name = 'GroundPlaneMesh'
+      meshVal.material.polygonOffset = true
+      meshVal.material.polygonOffsetFactor = -0.01
+      meshVal.material.polygonOffsetUnits = 1
 
       setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
@@ -119,14 +120,14 @@ export const GroundPlaneComponent = defineComponent({
 
     useLayoutEffect(() => {
       const color = component.color.value
-      if (mesh.material.color == color) return
+      if (mesh.material.color.value == color) return
       mesh.material.color.set(component.color.value)
     }, [component.color])
 
     useLayoutEffect(() => {
       const mat = getMaterial()
       mat.color.set(component.color.value)
-      matState.set(mat)
+      mesh.material.set(mat)
     }, [component.visible])
 
     return null

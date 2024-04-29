@@ -61,11 +61,7 @@ export const MeshHelperComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, MeshHelperComponent)
     const helperEntity = useHelperEntity(entity, component)
-    const [mesh, geometryState, materialState] = useMeshComponent(
-      helperEntity,
-      component.geometry.value,
-      component.material.value
-    )
+    const mesh = useMeshComponent(helperEntity, component.geometry.value, component.material.value)
 
     useEffect(() => {
       setComponent(helperEntity, ObjectLayerMaskComponent, component.layerMask.value)
@@ -73,12 +69,12 @@ export const MeshHelperComponent = defineComponent({
 
     useDidMount(() => {
       const geo = component.geometry.get(NO_PROXY)
-      geometryState.set(geo)
+      mesh.geometry.set(geo)
     }, [component.geometry])
 
     useDidMount(() => {
       const mat = component.material.get(NO_PROXY)
-      materialState.set(mat)
+      mesh.material.set(mat)
     }, [component.material])
 
     return null

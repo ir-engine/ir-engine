@@ -159,7 +159,7 @@ export const InfiniteGridComponent = defineComponent({
 
     const component = useComponent(entity, InfiniteGridComponent)
     const engineRendererSettings = useHookstate(getMutableState(RendererState))
-    const [mesh, geometry, material] = useMeshComponent(
+    const mesh = useMeshComponent(
       entity,
       new PlaneGeometry(2, 2, 1, 1),
       new ShaderMaterial({
@@ -176,31 +176,31 @@ export const InfiniteGridComponent = defineComponent({
         }
       })
     )
-    const [plane] = useResource(new Plane(mesh.up), entity)
+    const [plane] = useResource(new Plane(mesh.up.value), entity)
 
     useEffect(() => {
-      mesh.position.y = engineRendererSettings.gridHeight.value
-      mesh.updateMatrixWorld(true)
+      mesh.position.y.set(engineRendererSettings.gridHeight.value)
+      mesh.value.updateMatrixWorld(true)
     }, [engineRendererSettings.gridHeight])
 
     useEffect(() => {
-      material.uniforms.uColor.set({
+      mesh.material.uniforms.uColor.set({
         value: component.color.value
       })
     }, [component.color])
 
     useEffect(() => {
       const size = component.size.value
-      material.uniforms.uSize1.set({
+      mesh.material.uniforms.uSize1.set({
         value: size
       })
-      material.uniforms.uSize2.set({
+      mesh.material.uniforms.uSize2.set({
         value: size * 10
       })
     }, [component.size])
 
     useEffect(() => {
-      material.uniforms.uDistance.set({
+      mesh.material.uniforms.uDistance.set({
         value: component.distance.value
       })
 
