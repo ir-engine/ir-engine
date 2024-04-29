@@ -314,10 +314,14 @@ export function isDeepChildOf(child: Entity, parent: Entity): boolean {
 
 export function getNestedChildren(entity: Entity, predicate?: (e: Entity) => boolean): Entity[] {
   const children: Entity[] = []
-  traverseEntityNode(entity, (child) => {
-    if (predicate && !predicate(child)) return
-    children.push(child)
-  })
+  iterateEntityNode(
+    entity,
+    (child) => {
+      children.push(child)
+    },
+    predicate,
+    true
+  )
   return children
 }
 
