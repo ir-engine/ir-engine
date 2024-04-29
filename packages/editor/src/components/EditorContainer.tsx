@@ -283,10 +283,10 @@ const generateToolbarMenu = () => {
       hotkey: `${cmdOrCtrlString}+s`,
       action: () => onSaveScene(false)
     },
-    // {
-    //   name: t('editor:menubar.saveSceneGLTF'),
-    //   action: () => onSaveScene(true)
-    // },
+    {
+      name: t('editor:menubar.saveSceneGLTF'),
+      action: () => onSaveScene(true)
+    },
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs

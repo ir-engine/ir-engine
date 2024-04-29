@@ -29,7 +29,6 @@ import {
   UUIDComponent,
   UndefinedEntity,
   createEntity,
-  defineQuery,
   getComponent,
   removeEntity,
   setComponent
@@ -43,9 +42,8 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
-import { ModelComponent } from './components/ModelComponent'
+import { GLTFComponent } from './components/GLTFComponent'
 import { SourceComponent } from './components/SourceComponent'
-import { getModelSceneID } from './functions/loaders/ModelFunctions'
 
 export const GLTFSourceState = defineState({
   name: 'GLTFState',
@@ -58,15 +56,14 @@ export const GLTFSourceState = defineState({
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    setComponent(entity, ModelComponent, { src: source })
-    const sourceID = getModelSceneID(entity)
+    const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
     setComponent(entity, SourceComponent, sourceID)
-    getMutableState(GLTFSourceState)[sourceID].set(entity)
+    setComponent(entity, GLTFComponent, { src: source })
     return entity
   },
 
   unload: (entity: Entity) => {
-    const sourceID = getModelSceneID(entity)
+    const sourceID = `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
     getMutableState(GLTFSourceState)[sourceID].set(entity)
     removeEntity(entity)
   }
@@ -132,12 +129,9 @@ export const GLTFSnapshotState = defineState({
     return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
   },
 
-  // Source Instance => ModelComponent => Source Document
-  cloneCurrentSnapshot: (sourceInstance: string) => {
-    const modelEntity = getState(GLTFSourceState)[sourceInstance]
-    const src = getComponent(modelEntity, ModelComponent).src
-    const state = getState(GLTFSnapshotState)[src]
-    return JSON.parse(JSON.stringify({ source: src, data: state.snapshots[state.index] })) as {
+  cloneCurrentSnapshot: (source: string) => {
+    const state = getState(GLTFSnapshotState)[source]
+    return JSON.parse(JSON.stringify({ source, data: state.snapshots[state.index] })) as {
       data: GLTF.IGLTF
       source: string
     }
@@ -153,20 +147,7 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
     // update gltf state with the current snapshot
     const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
-    // force model components to re-load gltf until we have a new loader
-
-    /** re-enable for testing purposes */
-    // for (const entity of modelQuery()) {
-    //   if (getComponent(entity, ModelComponent).src === props.source) {
-    //     /** force reload of the component */
-    //     const data = serializeComponent(entity, ModelComponent)
-    //     removeComponent(entity, ModelComponent)
-    //     setComponent(entity, ModelComponent, data)
-    //   }
-    // }
   }, [gltfState.index])
 
   return null
 }
-
-const modelQuery = defineQuery([ModelComponent])

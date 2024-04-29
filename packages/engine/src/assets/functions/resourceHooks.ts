@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { GLTF } from '@gltf-transform/core'
 import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 import { LoadingArgs } from '../classes/AssetLoader'
-import { GLTF } from '../loaders/gltf/GLTFLoader'
+import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
 
 function useLoader<T extends AssetType>(
@@ -215,8 +216,17 @@ export function useGLTF(
   entity?: Entity,
   params?: LoadingArgs,
   onUnload?: (url: string) => void
-): [GLTF | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<GLTF>(url, ResourceType.GLTF, entity, params, onUnload)
+): [GLTFAsset | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
+  return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, params, onUnload)
+}
+
+export function useGLTFDocument(
+  url: string,
+  entity?: Entity,
+  params?: LoadingArgs,
+  onUnload?: (url: string) => void
+): [GLTF.IGLTF | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
+  return useLoader<any>(url, ResourceType.Unknown, entity, params, onUnload)
 }
 
 /**
@@ -236,12 +246,12 @@ export function useBatchGLTF(
   entity?: Entity,
   params?: LoadingArgs
 ): [
-  State<(GLTF | null)[]>,
+  State<(GLTFAsset | null)[]>,
   State<(ErrorEvent | Error | null)[]>,
   State<(ProgressEvent<EventTarget> | null)[]>,
   () => void
 ] {
-  return useBatchLoader<GLTF>(urls, ResourceType.GLTF, entity, params)
+  return useBatchLoader<GLTFAsset>(urls, ResourceType.GLTF, entity, params)
 }
 
 /**
@@ -259,8 +269,8 @@ export async function getGLTFAsync(
   url: string,
   entity?: Entity,
   params?: LoadingArgs
-): Promise<[GLTF | null, () => void, ErrorEvent | Error | null]> {
-  return getLoader<GLTF>(url, ResourceType.GLTF, entity, params)
+): Promise<[GLTFAsset | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<GLTFAsset>(url, ResourceType.GLTF, entity, params)
 }
 
 /**

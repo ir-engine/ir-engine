@@ -154,8 +154,7 @@ export const DirectionalLightComponent = defineComponent({
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
       shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value,
-      helper: component.helper.value
+      shadowRadius: component.shadowRadius.value
     }
   },
 
