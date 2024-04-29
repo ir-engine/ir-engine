@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs'
+import { defineComponent, defineQuery } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Shader, WebGLRenderer } from 'three'
+import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -49,15 +50,6 @@ export type MaterialPrototypeDefinition = {
   prototypeConstructor: MaterialPrototypeConstructor
   arguments: PrototypeArgument
   onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
-}
-export type MaterialComponentType = {
-  prototype: string
-  material: Material
-  parameters: { [field: string]: any }
-  plugins: string[]
-  src: any
-  status: MaterialStatus
-  instances: Entity[]
 }
 
 export type PrototypeArgument = {
@@ -84,6 +76,8 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
+export const MaterialPlugins = [NoiseOffsetPlugin]
+
 export enum MaterialComponents {
   MaterialInstance,
   MaterialState,
@@ -109,7 +103,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
           return {
             // material & material specific data
             material: {} as Material,
-            parameters: {},
+            parameters: {} as { [key: string]: any },
             instances: [] as Entity[],
             pluginEntities: [] as Entity[],
             prototypeEntity: UndefinedEntity as Entity
@@ -156,6 +150,8 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
     }
   })
 })
+
+export const pluginQuery = defineQuery([MaterialComponent[MaterialComponents.MaterialPlugin]])
 
 declare module 'three/src/materials/Material' {
   export interface Material {

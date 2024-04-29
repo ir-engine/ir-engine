@@ -153,6 +153,7 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 
       const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.MaterialState])
       child.material = materialComponent.material
+      child.material.needsUpdate = true
     }
   }
 }

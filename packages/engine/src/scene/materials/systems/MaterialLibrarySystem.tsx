@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState } from '@etherealengine/hyperflux'
-
 import {
   Not,
   PresentationSystemGroup,
@@ -41,13 +39,17 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import {
   MaterialComponent,
   MaterialComponents,
+  MaterialPlugins,
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { createPrototype, setGroupMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import {
+  createPlugin,
+  createPrototype,
+  setGroupMaterial
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { SourceComponent } from '../../components/SourceComponent'
-import { MaterialLibraryState } from '../MaterialLibrary'
 
 // function MaterialReactor({ materialId }: { materialId: string }) {
 //   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -70,17 +72,11 @@ import { MaterialLibraryState } from '../MaterialLibrary'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) =>
-      createPrototype(prototype.prototypeId, prototype.arguments, prototype.prototypeConstructor)
-    )
-    return () => {
-      const materialLibraryState = getMutableState(MaterialLibraryState)
-      // todo, to make extensible only clear those initialized in initializeMaterialLibrary
-      materialLibraryState.materials.set({})
-      materialLibraryState.prototypes.set({})
-      materialLibraryState.sources.set({})
-      materialLibraryState.plugins.set({})
-    }
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createPrototype(prototype))
+    MaterialPlugins.map((plugin) => {
+      createPlugin(plugin)
+      console.log(plugin)
+    })
   }, [])
 
   // useEffect(() => {

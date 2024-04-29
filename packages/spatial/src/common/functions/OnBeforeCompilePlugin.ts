@@ -50,6 +50,7 @@ import {
 export type PluginObjectType = {
   id: string
   priority?: number
+  parameters?: Record<string, any>
   compile: typeof Material.prototype.onBeforeCompile
 }
 

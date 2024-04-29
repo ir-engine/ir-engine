@@ -40,9 +40,8 @@ import { GroupComponent } from '../components/GroupComponent'
 import {
   MaterialComponent,
   MaterialComponents,
-  MaterialPrototypeConstructor,
+  MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
-  PrototypeArgument,
   prototypeByName
 } from './MaterialComponent'
 
@@ -78,28 +77,22 @@ export const formatMaterialArgs = (args, defaultArgs: any = undefined) => {
   )
 }
 
-export const createPrototype = (
-  name: string,
-  prototypeArguments: PrototypeArgument,
-  prototypeConstructor: MaterialPrototypeConstructor
-) => {
+export const createPrototype = (prototype: MaterialPrototypeDefinition) => {
   const prototypeEntity = createEntity()
   const prototypeObject = {} as MaterialPrototypeObjectConstructor
-  prototypeObject[name] = prototypeConstructor
+  prototypeObject[prototype.prototypeId] = prototype.prototypeConstructor
   setComponent(prototypeEntity, MaterialComponent[MaterialComponents.MaterialPrototype], {
     prototypeConstructor: prototypeObject,
-    prototypeArguments
+    prototypeArguments: prototype.arguments
   })
-  setComponent(prototypeEntity, NameComponent, name)
+  setComponent(prototypeEntity, NameComponent, prototype.prototypeId)
   setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
-  /**@todo handle duplicate prototype names */
-  if (prototypeByName[name]) throw new Error('Prototype already exists')
-  prototypeByName[name] = prototypeEntity
+  prototypeByName[prototype.prototypeId] = prototypeEntity
 }
 
 export const createPlugin = (plugin: PluginObjectType) => {
   const pluginEntity = createEntity()
-  setComponent(pluginEntity, MaterialComponent[MaterialComponents.MaterialPlugin], { plugin: plugin })
+  setComponent(pluginEntity, MaterialComponent[MaterialComponents.MaterialPlugin], { plugin })
   setComponent(pluginEntity, NameComponent, plugin.id)
   setComponent(pluginEntity, UUIDComponent, generateEntityUUID())
 }
