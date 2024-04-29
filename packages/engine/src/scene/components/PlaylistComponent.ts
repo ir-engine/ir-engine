@@ -58,7 +58,7 @@ export const PlaylistComponent = defineComponent({
     }
   },
 
-  playNextTrack: (entity, delta: number) => {
+  playNextTrack: (entity, delta = 1) => {
     const component = getMutableComponent(entity, PlaylistComponent)
     const tracksCount = component.tracks.value.length
 

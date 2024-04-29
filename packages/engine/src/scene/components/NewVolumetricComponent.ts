@@ -33,27 +33,49 @@ import {
   useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
-import { PlayerManifest as ManifestSchema, OldManifestSchema } from '../constants/NewUVOLTypes'
-import { addError, removeError } from '../functions/ErrorFunctions'
+import {
+  BufferInfo,
+  GeometryFormatToType,
+  GeometryType,
+  PlayerManifest as ManifestSchema,
+  OldManifestSchema,
+  Pretrackbufferingcallback,
+  TextureType
+} from '../constants/NewUVOLTypes'
+import { addError, clearErrors } from '../functions/ErrorFunctions'
+import BufferDataContainer from '../util/BufferDataContainer'
 import { PlaylistComponent } from './PlaylistComponent'
 
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
   jsonID: 'EE_NewVolumetric',
   onInit: (entity) => ({
-    useVideoTexture: false,
+    useVideoTexture: false, // legacy for UVOL1
     useLoadingEffect: true,
     hasAudio: false,
     volume: 1,
+    manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
     time: {
       start: 0,
-      checkpointAbs: performance.now(),
+      checkpointAbsolute: -1,
       checkpointRelative: 0
     },
-    paused: true
+    geometry: {
+      bufferData: new BufferDataContainer(),
+      initialBufferLoaded: false,
+      firstFrameLoaded: false
+    } as BufferInfo,
+    geometryType: undefined as unknown as GeometryType,
+    texture: {} as Partial<Record<TextureType, BufferInfo>>,
+    textureInfo: {
+      textureTypes: [] as TextureType[],
+      initialBufferLoaded: {} as Partial<Record<TextureType, boolean>>,
+      firstFrameLoaded: {} as Partial<Record<TextureType, boolean>>
+    },
+    paused: true,
+    preTrackBufferingCallback: undefined as undefined | Pretrackbufferingcallback
   }),
   onSet: (entity, component, json) => {
     if (!json) return
@@ -76,14 +98,13 @@ export const NewVolumetricComponent = defineComponent({
     hasAudio: component.hasAudio.value,
     volume: component.volume.value
   }),
-  errors: ['INVALID_TRACK'],
+  errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
   reactor: NewVolumetricComponentReactor
 })
 
 function NewVolumetricComponentReactor() {
   const entity = useEntityContext()
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
-  const manifest = useHookstate<OldManifestSchema | ManifestSchema | Record<string, never>>({})
   const component = useComponent(entity, NewVolumetricComponent)
 
   useEffect(() => {
@@ -99,11 +120,94 @@ function NewVolumetricComponentReactor() {
     component.merge({
       time: {
         start: 0,
-        checkpointAbs: performance.now(),
+        checkpointAbsolute: -1,
         checkpointRelative: 0
       },
       paused: true
     })
+
+    // TODO: Dispose buffers before removing the data about the buffers
+
+    component.geometry.merge({
+      initialBufferLoaded: false,
+      firstFrameLoaded: false
+    })
+    component.geometryType.set(undefined as unknown as GeometryType)
+
+    component.texture.set({})
+    component.textureInfo.merge({
+      textureTypes: [],
+      initialBufferLoaded: {},
+      firstFrameLoaded: {}
+    })
+
+    clearErrors(entity, NewVolumetricComponent)
+  }
+
+  const readManifest = (manifest: OldManifestSchema | ManifestSchema) => {
+    try {
+      if (!manifest) {
+        addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Manifest is empty')
+        return false
+      }
+
+      if (
+        (manifest as OldManifestSchema).frameData !== undefined &&
+        (manifest as OldManifestSchema).frameRate !== undefined
+      ) {
+        component.useVideoTexture.set(true)
+        component.geometryType.set(GeometryType.Corto)
+        component.textureInfo.textureTypes.set(['baseColor'])
+      } else if ((manifest as ManifestSchema).duration !== undefined) {
+        const _manifest = manifest as ManifestSchema
+        if (_manifest.duration <= 0 || _manifest.duration > 10800) {
+          addError(entity, NewVolumetricComponent, 'INVALID_TRACK', `Invalid duration: ${_manifest.duration}`)
+          return false
+        }
+
+        component.useVideoTexture.set(false)
+        const geometryTargets = Object.keys(_manifest.geometry.targets)
+        if (geometryTargets.length === 0) {
+          addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
+          return false
+        }
+        const geometryType = GeometryFormatToType[_manifest.geometry.targets[geometryTargets[0]].format]
+        if (geometryType === undefined) {
+          addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'Invalid geometry format')
+          return false
+        }
+        component.geometryType.set(geometryType)
+
+        const textureTypes = Object.keys(_manifest.texture) as TextureType[]
+        if (textureTypes.length === 0) {
+          addError(entity, NewVolumetricComponent, 'TEXTURE_ERROR', 'No texture types found')
+          return false
+        }
+        if (!textureTypes.includes('baseColor')) {
+          addError(entity, NewVolumetricComponent, 'TEXTURE_ERROR', 'No baseColor texture found')
+          return false
+        }
+
+        component.textureInfo.textureTypes.set(textureTypes)
+        textureTypes.forEach((textureType) => {
+          component.texture.set({
+            [textureType]: {
+              bufferData: new BufferDataContainer(),
+              initialBufferLoaded: false,
+              firstFrameLoaded: false
+            }
+          })
+        })
+      }
+    } catch (err) {
+      addError(entity, NewVolumetricComponent, 'UNKNOWN_ERROR', 'Error in reading the manifest')
+      console.error('Error in reading the manifest: ', err)
+      return false
+    }
+
+    clearErrors(entity, NewVolumetricComponent)
+    console.log('Manifest read successfully')
+    return true
   }
 
   useEffect(() => {
@@ -128,44 +232,46 @@ function NewVolumetricComponentReactor() {
         return resp.json()
       })
       .then((data) => {
-        if ((data.frameData && data.frameRate) || data.duration) {
-          removeError(entity, NewVolumetricComponent, 'INVALID_TRACK')
-          manifest.set(data)
-          console.info('Manifest loaded: ', data)
-        } else {
-          throw new Error('Invalid manifest format')
+        if (!readManifest(data)) {
+          return
         }
       })
       .catch((err) => {
         addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')
         console.error(`Error in loading the manifest: ${track.src}: `, err)
-        return
       })
   }, [playlistComponent?.currentTrackUUID])
 
   useEffect(() => {
-    if (playlistComponent?.paused.value) {
+    const now = Date.now()
+
+    if (!playlistComponent || playlistComponent?.paused.value) {
+      component.paused.set(true)
+      const currentCheckpointAbsolute = component.time.checkpointAbsolute.value
+
       const currentTimeRelative =
-        component.time.checkpointRelative.value + performance.now() - component.time.checkpointAbs.value
-      const currentTimeAbs = performance.now()
+        currentCheckpointAbsolute !== -1
+          ? component.time.checkpointRelative.value + now - currentCheckpointAbsolute
+          : component.time.start.value
+      const newCheckpointAbsolute = now
 
       component.time.merge({
-        checkpointAbs: currentTimeAbs,
+        checkpointAbsolute: newCheckpointAbsolute,
         checkpointRelative: currentTimeRelative
       })
     } else {
-      const currentTimeAbs = performance.now()
-      component.time.checkpointAbs.set(currentTimeAbs)
+      const currentTimeAbs = now
+      component.time.checkpointAbsolute.set(currentTimeAbs)
+      component.paused.set(false)
     }
-
-    component.paused.set(!!playlistComponent?.paused.value)
   }, [playlistComponent?.paused])
 
   useExecute(
     () => {
+      const now = Date.now()
       const currentTime = component.paused.value
         ? component.time.checkpointRelative.value
-        : component.time.checkpointRelative.value + performance.now() - component.time.checkpointAbs.value
+        : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
     },
     {
       with: AnimationSystemGroup

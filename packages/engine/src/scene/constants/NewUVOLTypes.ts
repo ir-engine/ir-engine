@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ComponentType } from '@etherealengine/ecs'
+import { State } from '@etherealengine/hyperflux'
+import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
+import BufferDataContainer from '../util/BufferDataContainer'
+
 export interface FrameData {
   frameNumber: number
   keyframeNumber: number
@@ -446,3 +451,25 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   ktx2: '.ktx2',
   'astc/ktx2': '.ktx2'
 }
+
+export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
+export interface BufferInfo {
+  bufferData: BufferDataContainer
+  initialBufferLoaded: boolean
+  firstFrameLoaded: boolean
+}
+
+export enum GeometryType {
+  Corto, // legacy
+  Draco,
+  GLTF,
+  Unify
+}
+
+export const GeometryFormatToType = {
+  draco: GeometryType.Draco,
+  glb: GeometryType.GLTF,
+  'uniform-solve': GeometryType.Unify
+}
+
+export const TIME_UNIT_MULTIPLIER = 6000 // 1 second = 6000 time units

@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-type BufferedDataType = {
+export type BufferedDataType = {
   startTime: number // in custom timeUnits
   endTime: number // in custom timeUnits
   fetchTime: number // in seconds
 }[]
 
-type PendingBufferDataType = {
+export type PendingBufferDataType = {
   startTime: number
   endTime: number
 }[]
 
-type CommonBufferDataType = {
+export type CommonBufferDataType = {
   startTime: number
   endTime: number
 }[]
 
-class BufferData {
+export default class BufferData {
   private bufferedRange: BufferedDataType
   private pendingRange: PendingBufferDataType
   private metrics: {
