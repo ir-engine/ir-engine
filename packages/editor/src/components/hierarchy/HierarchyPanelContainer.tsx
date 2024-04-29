@@ -33,25 +33,26 @@ import { FixedSizeList } from 'react-window'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { EntityTreeComponent, traverseEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  isAncestor,
+  traverseEntityNode
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import config from '@etherealengine/common/src/config'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -529,15 +530,12 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 }
 
-const fileServer = config.client.fileServer
-
 const GLTFHierarchy = (props: { sceneID: string }) => {
-  const sceneState = useHookstate(getMutableState(SceneState)).value
-  const gltfEntity = useHookstate(getMutableState(GLTFSourceState)[fileServer + '/' + props.sceneID]).value?.entity
-
+  const gltfEntity = useMutableState(EditorState).rootEntity.value
   if (!gltfEntity) return null
 
   const GLTFHierarchySub = () => {
+    const sceneState = useHookstate(getMutableState(SceneState)).value
     const scenePath = useModelSceneID(gltfEntity)
 
     const sceneJson = SceneState.getScene(scenePath!)?.scene
