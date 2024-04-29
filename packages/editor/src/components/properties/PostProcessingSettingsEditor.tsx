@@ -300,7 +300,11 @@ const EffectsOptions: EffectOptionsType = {
     premultiply: { propertyType: PropertyTypes.Boolean, name: 'Premultiply' }
   },
   PixelationEffect: {
-    granularity: { propertyType: PropertyTypes.Number, name: 'granularity', min: 0, max: 1000, step: 1 }
+    granularity: { propertyType: PropertyTypes.Number, name: 'Granularity', min: 0, max: 1000, step: 1 }
+  },
+  ScanlineEffect: {
+    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+    density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 }
   }
 }
 
