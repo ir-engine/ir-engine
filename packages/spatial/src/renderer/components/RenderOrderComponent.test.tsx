@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -62,11 +61,10 @@ describe('RenderOrderComponent', () => {
     addObjectToGroup(entity, mesh)
 
     mesh.renderOrder = 2
-    assert.equal(getComponent(entity, RenderOrderComponent), 2)
     assert.equal(RenderOrderComponent.renderOrder[entity], 2)
     assert.equal(mesh.renderOrder, 2)
 
-    mesh.renderOrder = 42
+    RenderOrderComponent.renderOrder[entity] = 42
     assert.equal(RenderOrderComponent.renderOrder[entity], 42)
     assert.equal(mesh.renderOrder, 42)
   })
