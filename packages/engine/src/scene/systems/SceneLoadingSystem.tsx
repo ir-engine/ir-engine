@@ -35,7 +35,6 @@ import {
   getState,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import {
   ComponentJSONIDMap,
@@ -44,7 +43,6 @@ import {
   QueryReactor,
   UndefinedEntity,
   defineSystem,
-  destroySystem,
   entityExists,
   getComponent,
   hasComponent,
@@ -133,11 +131,8 @@ const SceneReactor = (props: { sceneID: string }) => {
   const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
-  const ready = useHookstate(false)
-  const systemsLoaded = useHookstate([] as SystemImportType[])
-
   useEffect(() => {
-    if (!ready.value || getState(SceneState).sceneLoaded) return
+    if (getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -155,41 +150,17 @@ const SceneReactor = (props: { sceneID: string }) => {
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
-  useEffect(() => {
-    const { project, scene } = getState(SceneState).scenes[props.sceneID]
-    const systemPromises = getSystemsFromSceneData(project, scene)
-    if (!systemPromises) {
-      ready.set(true)
-      return
-    }
-    systemPromises.then((systems) => {
-      systemsLoaded.set(systems)
-      ready.set(true)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!systemsLoaded.length) return
-    const systems = [...systemsLoaded.value]
-    return () => {
-      for (const system of systems) {
-        destroySystem(system.systemUUID)
-      }
-    }
-  }, [systemsLoaded.length])
-
   return (
     <>
-      {ready.value &&
-        Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
-          entityUUID === rootUUID ? null : (
-            <EntityLoadReactor
-              key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
-              sceneID={props.sceneID}
-              entityUUID={entityUUID as EntityUUID}
-            />
-          )
-        )}
+      {Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
+        entityUUID === rootUUID ? null : (
+          <EntityLoadReactor
+            key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
+            sceneID={props.sceneID}
+            entityUUID={entityUUID as EntityUUID}
+          />
+        )
+      )}
     </>
   )
 }
