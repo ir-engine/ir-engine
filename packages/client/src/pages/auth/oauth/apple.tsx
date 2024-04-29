@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { AppleCallback } from '@etherealengine/client-core/src/user/components/Oauth/AppleCallBack'
+import { AppleCallback } from '@etherealengine/client-core/src/user/components/Oauth/AppleCallback'
 
 export const AppleHomePage = () => <AppleCallback />
 
