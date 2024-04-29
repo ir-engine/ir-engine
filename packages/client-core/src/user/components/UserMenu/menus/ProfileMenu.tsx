@@ -557,9 +557,6 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                     {t('user:usermenu.profile.addSocial')}
                   </Text>
                 )}
-                {authState?.value?.apple && !oauthConnectedState.apple.value && (
-                  <IconButton id="apple" icon={<AppleIcon viewBox="0 0 40 40" />} onClick={handleOAuthServiceClick} />
-                )}
                 <div className={styles.socialContainer}>
                   {authState?.value?.discord && !oauthConnectedState.discord.value && (
                     <IconButton
@@ -574,6 +571,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       icon={<GoogleIcon viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
+                  )}
+                  {authState?.value?.apple && !oauthConnectedState.apple.value && (
+                    <IconButton id="apple" icon={<AppleIcon viewBox="0 0 40 40" />} onClick={handleOAuthServiceClick} />
                   )}
                   {authState?.value?.facebook && !oauthConnectedState.facebook.value && (
                     <IconButton
