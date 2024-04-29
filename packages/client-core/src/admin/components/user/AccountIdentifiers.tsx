@@ -37,6 +37,7 @@ import {
 } from 'react-icons/ri'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
+  const appleIp = user.identityProviders.find((ip) => ip.type === 'apple')
   const discordIp = user.identityProviders.find((ip) => ip.type === 'discord')
   const googleIp = user.identityProviders.find((ip) => ip.type === 'google')
   const facebookIp = user.identityProviders.find((ip) => ip.type === 'facebook')
@@ -48,6 +49,11 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
 
   return (
     <div className="flex items-center gap-2">
+      {appleIp ? (
+        <Tooltip title={appleIp.accountIdentifier!}>
+          <RiTwitterFill className="h-6 w-6" />
+        </Tooltip>
+      ) : null}
       {discordIp ? (
         <Tooltip title={discordIp.accountIdentifier!}>
           <RiDiscordFill className="h-6 w-6" />

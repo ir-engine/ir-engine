@@ -27,6 +27,7 @@ import { AuthenticationService } from '@feathersjs/authentication'
 import { oauth } from '@feathersjs/authentication-oauth'
 
 import { Application } from '../../declarations'
+import AppleStrategy from './strategies/apple'
 import DiscordStrategy from './strategies/discord'
 import FacebookStrategy from './strategies/facebook'
 import GithubStrategy from './strategies/github'
@@ -44,6 +45,7 @@ declare module '@etherealengine/common/declarations' {
 export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any)
   authentication.register('jwt', new MyJwtStrategy())
+  authentication.register('apple', new AppleStrategy(app) as any)
   authentication.register('discord', new DiscordStrategy(app) as any)
   authentication.register('google', new GoogleStrategy(app) as any)
   authentication.register('facebook', new FacebookStrategy(app) as any)

@@ -40,6 +40,7 @@ import { initialAuthState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 
 const OAUTH_TYPES = {
+  APPLE: 'apple',
   DISCORD: 'discord',
   FACEBOOK: 'facebook',
   GITHUB: 'github',
@@ -60,6 +61,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
+    apple: authSetting?.oauth?.apple,
     discord: authSetting?.oauth?.discord,
     github: authSetting?.oauth?.github,
     google: authSetting?.oauth?.google,
@@ -82,6 +84,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
       const tempKeySecret = JSON.parse(
         JSON.stringify({
+          apple: authSetting?.oauth?.apple,
           discord: authSetting?.oauth?.discord,
           github: authSetting?.oauth?.github,
           google: authSetting?.oauth?.google,
@@ -129,6 +132,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
     const tempKeySecret = JSON.parse(
       JSON.stringify({
+        apple: authSetting?.oauth?.apple,
         discord: authSetting?.oauth?.discord,
         github: authSetting?.oauth?.github,
         google: authSetting?.oauth?.google,
@@ -242,6 +246,34 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
       <hr className="border-theme-primary my-6 border" />
 
+      {holdAuth?.apple?.value && (
+        <div className="col-span-1">
+          <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
+            {t('admin:components.setting.apple')}
+          </Text>
+
+          <PasswordInput
+            label={t('admin:components.setting.key')}
+            value={keySecret?.value?.apple?.key || ''}
+            onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.APPLE)}
+          />
+
+          <PasswordInput
+            containerClassname="mt-2"
+            label={t('admin:components.setting.secret')}
+            value={keySecret?.value?.apple?.secret || ''}
+            onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.APPLE)}
+          />
+
+          <Input
+            containerClassname="mt-2"
+            label={t('admin:components.setting.callback')}
+            value={authSetting?.callback?.apple || ''}
+            disabled
+          />
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-4">
         {holdAuth?.discord?.value && (
           <div className="col-span-1">
@@ -327,9 +359,10 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           </div>
         )}
 
-        {(holdAuth?.discord?.value || holdAuth?.linkedin?.value || holdAuth?.facebook?.value) && (
-          <hr className="border-theme-primary col-span-full my-6 border" />
-        )}
+        {(holdAuth?.apple?.value ||
+          holdAuth?.discord?.value ||
+          holdAuth?.linkedin?.value ||
+          holdAuth?.facebook?.value) && <hr className="border-theme-primary col-span-full my-6 border" />}
 
         {holdAuth?.google?.value && (
           <div className="col-span-1">

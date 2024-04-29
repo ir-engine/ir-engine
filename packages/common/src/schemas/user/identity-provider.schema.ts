@@ -38,6 +38,7 @@ export const identityProviderTypes = [
   'email',
   'sms',
   'password',
+  'apple',
   'discord',
   'github',
   'google',
