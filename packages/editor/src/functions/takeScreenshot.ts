@@ -100,7 +100,7 @@ export async function previewScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: EditorState.rootEntity
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -185,7 +185,7 @@ export async function takeScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: EditorState.rootEntity
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
