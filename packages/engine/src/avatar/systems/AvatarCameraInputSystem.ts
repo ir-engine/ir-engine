@@ -108,6 +108,10 @@ const pointerMovement = new Vector2()
 
 const pointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
 
+const capturedByView = (): boolean => {
+  return getState(InputState).capturingEntity === Engine.instance.viewerEntity
+}
+
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
@@ -132,7 +136,7 @@ const execute = () => {
   if (buttons?.KeyF?.down) onKeyF()
   if (buttons?.KeyC?.down) onKeyC()
 
-  if (!inputPointer) return
+  if (!inputPointer || (getMutableState(InputState).capturingEntity && !capturedByView)) return
 
   const inputState = getState(InputState)
   pointerMovement.subVectors(inputPointer.position, lastPointerPosition)

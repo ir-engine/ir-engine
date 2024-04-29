@@ -43,6 +43,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
@@ -95,6 +96,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
+      <InputGroup name="UI Offset" label={t('editor:properties.media.lbl-ui-offset')}>
+        <Vector3Input
+          value={media.uiOffset.value}
+          onChange={updateProperty(MediaComponent, 'uiOffset')}
+          onRelease={commitProperty(MediaComponent, 'uiOffset')}
+        />
+      </InputGroup>
+
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <CompoundNumericInput
           min={0}
