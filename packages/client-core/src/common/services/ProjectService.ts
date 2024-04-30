@@ -128,7 +128,7 @@ export const ProjectService = {
     const result = await Engine.instance.api.service(projectBuildPath).find()
     logger.info({ result }, 'Check reload projects result')
     getMutableState(ProjectState).merge({
-      rebuilding: !result.succeeded && !result.failed,
+      rebuilding: result.running,
       succeeded: result.succeeded,
       failed: result.failed
     })

@@ -64,4 +64,5 @@ export const clearErrors = (entity: Entity, Component: Component) => {
   if (!hasComponent(entity, ErrorComponent)) return
   const errors = getMutableComponent(entity, ErrorComponent)
   errors[Component.name].set(none)
+  if (isEmpty(errors.value)) removeComponent(entity, ErrorComponent)
 }
