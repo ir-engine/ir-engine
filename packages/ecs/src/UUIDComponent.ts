@@ -82,6 +82,10 @@ export const UUIDComponent = defineComponent({
       setComponent(entity, UUIDComponent, uuid)
     }
     return state.value
+  },
+
+  generateUUID(): EntityUUID {
+    return crypto.randomUUID() as EntityUUID
   }
 })
 
