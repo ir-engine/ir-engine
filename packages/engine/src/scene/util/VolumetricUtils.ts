@@ -24,9 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getState } from '@etherealengine/hyperflux'
-import { BufferGeometry, CompressedTexture, Mesh, Vector2 } from 'three'
+import {
+  BufferGeometry,
+  CompressedTexture,
+  Mesh,
+  MeshStandardMaterialParameters,
+  ShaderLib,
+  ShaderMaterial,
+  UniformsLib,
+  UniformsUtils,
+  Vector2
+} from 'three'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { GeometryType, TextureType } from '../constants/NewUVOLTypes'
 import getFirstMesh from './meshUtils'
 
 export const loadCorto = (url: string, byteStart: number, byteEnd: number) => {
@@ -122,4 +133,137 @@ export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
       }
     )
   })
+}
+
+export const createMaterial = (
+  geometryType: GeometryType,
+  useVideoTexture: boolean,
+  hasNormals: boolean,
+  textureTypes: TextureType[],
+  overrideMaterialProperties?: MeshStandardMaterialParameters
+) => {
+  const DEFINES: Record<TextureType, object> = {
+    baseColor: {
+      USE_MAP: '',
+      MAP_UV: 'uv'
+    },
+    normal: {
+      USE_NORMALMAP: '',
+      NORMALMAP_UV: 'uv'
+    },
+    metallicRoughness: {
+      USE_METALNESSMAP: '',
+      METALNESSMAP_UV: 'uv',
+      USE_ROUGHNESSMAP: '',
+      ROUGHNESSMAP_UV: 'uv'
+    },
+    emissive: {
+      USE_EMISSIVEMAP: '',
+      EMISSIVEMAP_UV: 'uv'
+    },
+    occlusion: {
+      USE_AOMAP: '',
+      AOMAP_UV: 'uv'
+    }
+  }
+
+  const getShaderDefines = (textureTypes: TextureType[], useVideoTexture: boolean) => {
+    const defines = {}
+    textureTypes.forEach((type) => {
+      if (DEFINES[type]) {
+        Object.assign(defines, DEFINES[type])
+      }
+    })
+
+    if (useVideoTexture) {
+      defines['DECODE_VIDEO_TEXTURE'] = ''
+    }
+
+    return defines
+  }
+
+  const replaceSubstrings = (originalString: string, replacements: Record<string, string>) => {
+    let newString = originalString
+    for (const key in replacements) {
+      newString = newString.replace(key, replacements[key])
+    }
+    return newString
+  }
+
+  const defines = getShaderDefines(textureTypes, useVideoTexture)
+  const customUniforms = {}
+
+  if (overrideMaterialProperties) {
+    for (const key in overrideMaterialProperties) {
+      const propertyValue = overrideMaterialProperties[key]
+      if (typeof propertyValue === 'number' || typeof propertyValue === 'boolean') {
+        customUniforms[key] = {
+          value: propertyValue
+        }
+      } else if (typeof propertyValue === 'object') {
+        if (propertyValue.x !== undefined && propertyValue.y !== undefined) {
+          customUniforms[key] = {
+            value: new Vector2(propertyValue.x, propertyValue.y)
+          }
+        } else if (Array.isArray(propertyValue) && propertyValue.length === 2) {
+          customUniforms[key] = {
+            value: new Vector2(propertyValue[0], propertyValue[1])
+          }
+        }
+      }
+    }
+  }
+
+  const shaderName = hasNormals ? 'physical' : 'basic'
+  let vertexShader = ShaderLib[shaderName].vertexShader
+
+  const allUniforms = UniformsUtils.merge([ShaderLib[shaderName].uniforms, UniformsLib.lights, customUniforms])
+
+  if (geometryType === GeometryType.Unify) {
+    vertexShader = replaceSubstrings(ShaderLib[shaderName].vertexShader, {
+      '#include <clipping_planes_pars_vertex>': `#include <clipping_planes_pars_vertex>
+      attribute vec3 keyframeA;
+      attribute vec3 keyframeB;
+      attribute vec3 keyframeANormal;
+      attribute vec3 keyframeBNormal;
+      uniform float mixRatio;
+      uniform vec2 repeat;
+      uniform vec2 offset;
+      out vec2 custom_vUv;`,
+
+      '#include <begin_vertex>': `
+      vec3 transformed = vec3(position);
+      transformed.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
+      transformed.y += mix(keyframeA.y, keyframeB.y, mixRatio);
+      transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
+      
+      #ifdef USE_ALPHAHASH
+      
+        vPosition = vec3( transformed );
+      
+      #endif`,
+
+      '#include <beginnormal_vertex>': `
+      vec3 objectNormal = vec3( normal );
+      objectNormal.x += mix(keyframeANormal.x, keyframeBNormal.x, mixRatio);
+      objectNormal.y += mix(keyframeANormal.y, keyframeBNormal.y, mixRatio);
+      objectNormal.z += mix(keyframeANormal.z, keyframeBNormal.z, mixRatio);
+
+      #ifdef USE_TANGENT
+
+        vec3 objectTangent = vec3( tangent.xyz );
+
+      #endif`
+    })
+  }
+
+  const material = new ShaderMaterial({
+    vertexShader,
+    fragmentShader: ShaderLib[shaderName].fragmentShader,
+    uniforms: allUniforms,
+    defines,
+    lights: true
+  })
+
+  return material
 }
