@@ -23,17 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@etherealengine/ecs'
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
-import React from 'react'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
+import { grabbableInteractMessage } from '@etherealengine/engine/src/interaction/functions/grabbableFunctions'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const grabbableComponent = useComponent(props.entity, GrabbableComponent)
+  useEffect(() => {
+    if (isClient) {
+      if (!hasComponent(props.entity, InteractableComponent)) {
+        EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
+          label: grabbableInteractMessage,
+          callbacks: [
+            {
+              callbackID: GrabbableComponent.grabbableCallbackName,
+              target: getComponent(props.entity, UUIDComponent)
+            }
+          ]
+        })
+      }
+    }
+  }, [])
 
   return (
     <NodeEditor
