@@ -71,8 +71,6 @@ const SkyOptions = [
 
 /**
  * SkyboxNodeEditor component class used to render editor view to customize component property.
- *
- * @type {class component}
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -86,7 +84,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const onChangeCubemapPathOption = (path) => {
+  const onChangeCubemapPathOption = (path: string) => {
     const directory = path[path.length - 1] === '/' ? path.substring(0, path.length - 1) : path
     if (directory !== skyboxComponent.cubemapPath.value) {
       commitProperties(SkyboxComponent, { cubemapPath: directory })
@@ -102,8 +100,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           largeStep={1}
           min={0}
           max={24}
-          convertFrom={radiansToHours}
-          convertTo={hoursToRadians}
           value={radiansToHours(skyboxComponent.skyboxProps.azimuth.value)}
           onChange={(value) => updateProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)(hoursToRadians(value))}
           onRelease={(value) => commitProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)(hoursToRadians(value))}
@@ -225,7 +221,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={SkyOptions}
           value={skyboxComponent.backgroundType.value.toString()}
-          onChange={(value) => commitProperty(SkyboxComponent, 'backgroundType')(parseInt(value, 10))}
+          onChange={(value) => commitProperty(SkyboxComponent, 'backgroundType')(parseInt(value as string, 10))}
         />
       </InputGroup>
       {renderSkyBoxProps()}

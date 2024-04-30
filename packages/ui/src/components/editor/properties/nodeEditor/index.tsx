@@ -30,6 +30,7 @@ import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import Text from '../../../../primitives/tailwind/Text'
 import PropertyGroup from '../group'
 
 interface NodeErrorProps {
@@ -58,12 +59,10 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
   public render() {
     if (this.state.error) {
       return (
-        <div style={{ margin: 10, color: '#ff0000', overflow: 'auto', backgroundColor: '#222222' }}>
-          <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>
-            <b>
-              [{this.props.name}] {this.state.error.message}`
-            </b>
-          </h1>
+        <div className="m-2.5 overflow-auto bg-gray-600 text-red-500">
+          <Text fontWeight="bold" component="h1">
+            [{this.props.name}] {this.state.error.message}`
+          </Text>
           <pre>{this.state.error.stack}</pre>
         </div>
       )

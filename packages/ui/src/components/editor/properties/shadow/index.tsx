@@ -36,8 +36,7 @@ import NodeEditor from '../nodeEditor'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
- *
- * @type {class component}
+
  */
 export const ShadowNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

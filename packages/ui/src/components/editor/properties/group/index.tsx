@@ -24,9 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useState } from 'react'
-import { BsArrowDown, BsArrowRight } from 'react-icons/bs'
-import { MdClear } from 'react-icons/md'
+import { HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi'
+import { HiMiniXMark } from 'react-icons/hi2'
+import { MdDragIndicator } from 'react-icons/md'
 import { PiCursor } from 'react-icons/pi'
+import Button from '../../../../primitives/tailwind/Button'
+import Text from '../../../../primitives/tailwind/Text'
 
 interface Props {
   name?: string
@@ -40,49 +43,31 @@ interface Props {
 const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: Props) => {
   const [minimized, setMinimized] = useState(false)
 
-  const handleMinimize = (value) => {
-    setMinimized(value)
-  }
-
   return (
-    <div className="flex w-full flex-col rounded-[5px] border-t border-solid bg-neutral-800 px-2 py-1" {...rest}>
-      <div className="left-0 flex h-4 flex-row items-center gap-1 bg-neutral-800 px-2 py-1 font-['Figtree'] text-white">
-        {minimized ? (
-          <button
-            className="ml-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
-            onPointerUp={() => handleMinimize(false)}
-          >
-            <BsArrowRight fontSize="inherit" />
-          </button>
-        ) : (
-          <button
-            className="ml-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
-            onPointerUp={() => handleMinimize(true)}
-          >
-            <BsArrowDown fontSize="inherit" />
-          </button>
-        )}
+    <div className="flex w-full flex-col rounded border-t border-solid bg-[#242424] px-4 py-1.5">
+      <div className="flex items-center gap-2 text-[#FAFAFA]">
+        <Button
+          onClick={() => setMinimized(!minimized)}
+          variant="outline"
+          startIcon={minimized ? <HiOutlineChevronRight /> : <HiOutlineChevronDown />}
+          className="ml-0 h-4 border-0 p-0 text-[#444444]"
+        />
         {icon}
-        <span className="text-left">{name}</span>
-        {onClose && (
-          <button
-            className="m-auto mr-0 flex h-4 flex-row border-[none] text-base text-[#444444]"
-            onPointerUp={onClose}
-          >
-            <MdClear fontSize="inherit" />
-          </button>
-        )}
+        <Text>{name}</Text>
+        <div className="ml-auto mr-0 flex items-center gap-3 text-[#444444]">
+          <HiMiniXMark />
+          <MdDragIndicator className="rotate-90" />
+        </div>
       </div>
-
       {description && (
-        <div className="ml-8 py-2 font-['Figtree'] text-[10px] font-normal text-neutral-50">
-          {description.split('\\n').map((line, i) => (
-            <Fragment key={i}>
+        <Text fontSize="xs" className="ml-8 py-2">
+          {description.split('\\n').map((line, idx) => (
+            <Fragment key={idx}>
               {line}
               <br />
             </Fragment>
           ))}
-        </div>
+        </Text>
       )}
       {!minimized && <div className="flex flex-col py-2">{children}</div>}
     </div>

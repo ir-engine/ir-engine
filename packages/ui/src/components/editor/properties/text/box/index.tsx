@@ -87,7 +87,7 @@ export const TextBoxEditor: EditorComponentType = (props) => {
           // onRelease={commitProperty(TextComponent, 'text')}
         />
       </InputGroup>
-      <InputGroup name="Family" label={t('editor:properties.textBox.lbl-family')} info="ab dfd">
+      <InputGroup name="Family" label={t('editor:properties.textBox.lbl-family')} info="">
         <StringInput />
       </InputGroup>
       <InputGroup name="Size" label={t('editor:properties.textBox.lbl-size')}>
