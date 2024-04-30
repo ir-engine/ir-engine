@@ -33,8 +33,9 @@ import {
   useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { useEffect } from 'react'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { useEffect, useMemo, useRef } from 'react'
+import { BufferGeometry, Group, Mesh, ShaderMaterial, SphereGeometry } from 'three'
 import {
   BufferInfo,
   GeometryFormatToType,
@@ -42,10 +43,12 @@ import {
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   Pretrackbufferingcallback,
-  TextureType
+  TextureType,
+  UniformSolveEncodeOptions
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
+import { createMaterial, getSortedSupportedTargets } from '../util/VolumetricUtils'
 import { PlaylistComponent } from './PlaylistComponent'
 
 export const NewVolumetricComponent = defineComponent({
@@ -64,6 +67,7 @@ export const NewVolumetricComponent = defineComponent({
     },
     geometry: {
       bufferData: new BufferDataContainer(),
+      targets: [],
       initialBufferLoaded: false,
       firstFrameLoaded: false
     } as BufferInfo,
@@ -106,18 +110,32 @@ function NewVolumetricComponentReactor() {
   const entity = useEntityContext()
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
   const component = useComponent(entity, NewVolumetricComponent)
+  const material = useRef<ShaderMaterial | null>(null)
+  const mesh = useRef<Mesh | null>(null)
+  const group = useMemo(() => {
+    const _group = new Group()
+    addObjectToGroup(entity, _group)
+    return _group
+  }, [])
 
   useEffect(() => {
     if (!hasComponent(entity, PlaylistComponent)) {
       setComponent(entity, PlaylistComponent)
     }
-    if (!hasComponent(entity, GroupComponent)) {
-      setComponent(entity, GroupComponent)
+
+    return () => {
+      cleanupTrack()
+      removeObjectFromGroup(entity, group)
     }
   }, [])
 
   const cleanupTrack = () => {
+    if (mesh.current) {
+      group.remove(mesh.current)
+    }
+
     component.merge({
+      manifest: {},
       time: {
         start: 0,
         checkpointAbsolute: -1,
@@ -130,7 +148,8 @@ function NewVolumetricComponentReactor() {
 
     component.geometry.merge({
       initialBufferLoaded: false,
-      firstFrameLoaded: false
+      firstFrameLoaded: false,
+      targets: []
     })
     component.geometryType.set(undefined as unknown as GeometryType)
 
@@ -141,10 +160,15 @@ function NewVolumetricComponentReactor() {
       firstFrameLoaded: {}
     })
 
+    // TODO: Dispose all textures before disposing the material
+    if (material.current) {
+      material.current.dispose()
+    }
+
     clearErrors(entity, NewVolumetricComponent)
   }
 
-  const readManifest = (manifest: OldManifestSchema | ManifestSchema) => {
+  const validateManifest = (manifest: OldManifestSchema | ManifestSchema) => {
     try {
       if (!manifest) {
         addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Manifest is empty')
@@ -158,6 +182,14 @@ function NewVolumetricComponentReactor() {
         component.useVideoTexture.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
+        component.texture.set({
+          baseColor: {
+            bufferData: undefined as unknown as BufferDataContainer, // VideoTexture does not require BufferDataContainer
+            targets: [],
+            initialBufferLoaded: false,
+            firstFrameLoaded: false
+          }
+        })
       } else if ((manifest as ManifestSchema).duration !== undefined) {
         const _manifest = manifest as ManifestSchema
         if (_manifest.duration <= 0 || _manifest.duration > 10800) {
@@ -170,7 +202,27 @@ function NewVolumetricComponentReactor() {
         if (geometryTargets.length === 0) {
           addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
           return false
+        } else {
+          geometryTargets.sort((a, b) => {
+            const aData = _manifest.geometry.targets[a]
+            const bData = _manifest.geometry.targets[b]
+
+            // @ts-ignore
+            const aSimplificationRatio = aData.settings.simplificationRatio ?? 1
+
+            // @ts-ignore
+            const bSimplificationRatio = bData.settings.simplificationRatio ?? 1
+
+            const aMetric = aData.frameRate * aSimplificationRatio
+            const bMetric = bData.frameRate * bSimplificationRatio
+            return aMetric - bMetric
+          })
+          geometryTargets.forEach((target, index) => {
+            _manifest.geometry.targets[target].priority = index
+          })
+          component.geometry.targets.set(geometryTargets)
         }
+
         const geometryType = GeometryFormatToType[_manifest.geometry.targets[geometryTargets[0]].format]
         if (geometryType === undefined) {
           addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'Invalid geometry format')
@@ -190,13 +242,41 @@ function NewVolumetricComponentReactor() {
 
         component.textureInfo.textureTypes.set(textureTypes)
         textureTypes.forEach((textureType) => {
-          component.texture.set({
-            [textureType]: {
-              bufferData: new BufferDataContainer(),
-              initialBufferLoaded: false,
-              firstFrameLoaded: false
+          const targets = _manifest.texture[textureType]?.targets
+          if (targets) {
+            const targetKeys = Object.keys(targets)
+            if (targetKeys.length === 0) {
+              addError(
+                entity,
+                NewVolumetricComponent,
+                'TEXTURE_ERROR',
+                `No texture targets found for type: ${textureType}`
+              )
+              return false
             }
-          })
+
+            const supportedTargets = getSortedSupportedTargets(targets)
+            supportedTargets.forEach((target, index) => {
+              targets[target].priority = index
+            })
+
+            component.texture.set({
+              [textureType]: {
+                bufferData: new BufferDataContainer(),
+                targets: supportedTargets,
+                initialBufferLoaded: false,
+                firstFrameLoaded: false
+              }
+            })
+          } else {
+            addError(
+              entity,
+              NewVolumetricComponent,
+              'TEXTURE_ERROR',
+              `No texture targets found for type: ${textureType}`
+            )
+            return false
+          }
         })
       }
     } catch (err) {
@@ -207,7 +287,7 @@ function NewVolumetricComponentReactor() {
 
     clearErrors(entity, NewVolumetricComponent)
     console.log('Manifest read successfully')
-    return true
+    return manifest
   }
 
   useEffect(() => {
@@ -232,9 +312,42 @@ function NewVolumetricComponentReactor() {
         return resp.json()
       })
       .then((data) => {
-        if (!readManifest(data)) {
+        const manifest = validateManifest(data)
+
+        if (!manifest) {
           return
         }
+        component.manifest.set(data)
+
+        const preTrackBufferingCallback = component.preTrackBufferingCallback.value
+        if (preTrackBufferingCallback) {
+          preTrackBufferingCallback(component)
+        }
+        const firstGeometryTarget =
+          component.geometryType.value !== GeometryType.Corto ? component.geometry.targets[0].value : ''
+
+        const hasNormals =
+          component.geometryType.value === GeometryType.Unify &&
+          !((manifest as ManifestSchema).geometry.targets[firstGeometryTarget].settings as UniformSolveEncodeOptions)
+            .excludeNormals
+
+        const overrideMaterialProperties =
+          component.geometryType.value !== GeometryType.Corto
+            ? (manifest as ManifestSchema).materialProperties
+            : undefined
+
+        material.current = createMaterial(
+          component.geometryType.value,
+          component.useVideoTexture.value,
+          hasNormals,
+          component.textureInfo.textureTypes.value,
+          // @ts-ignore
+          overrideMaterialProperties
+        )
+        mesh.current = new Mesh(new SphereGeometry(3, 32, 32) as BufferGeometry, material.current)
+        group.add(mesh.current)
+
+        console.log('Material created successfully: ', material.current)
       })
       .catch((err) => {
         addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')

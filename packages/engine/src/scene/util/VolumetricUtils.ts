@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getState } from '@etherealengine/hyperflux'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
   CompressedTexture,
@@ -37,7 +39,13 @@ import {
 } from 'three'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
-import { GeometryType, TextureType } from '../constants/NewUVOLTypes'
+import {
+  ASTCTextureTarget,
+  GeometryType,
+  KTX2TextureTarget,
+  TextureTarget,
+  TextureType
+} from '../constants/NewUVOLTypes'
 import getFirstMesh from './meshUtils'
 
 export const loadCorto = (url: string, byteStart: number, byteEnd: number) => {
@@ -222,14 +230,14 @@ export const createMaterial = (
   if (geometryType === GeometryType.Unify) {
     vertexShader = replaceSubstrings(ShaderLib[shaderName].vertexShader, {
       '#include <clipping_planes_pars_vertex>': `#include <clipping_planes_pars_vertex>
-      attribute vec3 keyframeA;
-      attribute vec3 keyframeB;
-      attribute vec3 keyframeANormal;
-      attribute vec3 keyframeBNormal;
-      uniform float mixRatio;
-      uniform vec2 repeat;
-      uniform vec2 offset;
-      out vec2 custom_vUv;`,
+attribute vec3 keyframeA;
+attribute vec3 keyframeB;
+attribute vec3 keyframeANormal;
+attribute vec3 keyframeBNormal;
+uniform float mixRatio;
+uniform vec2 repeat;
+uniform vec2 offset;
+out vec2 custom_vUv;`,
 
       '#include <begin_vertex>': `
       vec3 transformed = vec3(position);
@@ -266,4 +274,32 @@ export const createMaterial = (
   })
 
   return material
+}
+
+export const getSortedSupportedTargets = (targets: Record<string, TextureTarget>) => {
+  const supportedTargets = [] as string[]
+
+  for (const key in targets) {
+    const targetData = targets[key]
+
+    if (targetData.format === 'astc/ktx2') {
+      if (isMobile || isMobileXRHeadset) {
+        supportedTargets.push(key)
+      }
+    } else {
+      supportedTargets.push(key)
+    }
+  }
+
+  supportedTargets.sort((a, b) => {
+    type TextureTargetType = KTX2TextureTarget | ASTCTextureTarget
+    const targetA = targets[a] as TextureTargetType
+    const targetB = targets[b] as TextureTargetType
+
+    const aPixelPerSec = targetA.frameRate * targetA.settings.resolution.width * targetA.settings.resolution.height
+    const bPixelPerSec = targetB.frameRate * targetB.settings.resolution.width * targetB.settings.resolution.height
+    return aPixelPerSec - bPixelPerSec
+  })
+
+  return supportedTargets
 }

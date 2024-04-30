@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { StateMethods } from '@hookstate/core'
 import { useEffect, useRef } from 'react'
 
-export const usePrevious = <T>(value: StateMethods<T, object>) => {
+export const usePrevious = <T>(state: StateMethods<T, object>) => {
   const ref = useRef(null as T | null)
   useEffect(() => {
-    ref.current = value.value
-  }, [value])
+    ref.current = state.value
+  }, [state])
   return ref.current
 }

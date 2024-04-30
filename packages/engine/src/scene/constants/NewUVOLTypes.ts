@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ComponentType } from '@etherealengine/ecs'
 import { State } from '@etherealengine/hyperflux'
+import { NormalMapTypes } from 'three'
 import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
 import BufferDataContainer from '../util/BufferDataContainer'
 
@@ -365,8 +366,11 @@ export interface EncoderManifest {
    */
   textureOutputPath: string
   materialProperties?: {
-    normalMapType?: number
-    normalScale?: [number, number]
+    normalMapType?: NormalMapTypes
+    normalScale?: {
+      x: number
+      y: number
+    }
     roughness?: number
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
@@ -401,8 +405,11 @@ export interface BasePlayerManifest {
     }
   }>
   materialProperties?: {
-    normalMapType?: number
-    normalScale?: [number, number]
+    normalMapType?: NormalMapTypes
+    normalScale?: {
+      x: number
+      y: number
+    }
     roughness?: number
     emissiveIntensity?: number
     aoMapIntensity?: number /* Occlusion */
@@ -455,6 +462,7 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
 export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
 export interface BufferInfo {
   bufferData: BufferDataContainer
+  targets: string[]
   initialBufferLoaded: boolean
   firstFrameLoaded: boolean
 }
