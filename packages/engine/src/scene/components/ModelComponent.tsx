@@ -40,7 +40,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -80,7 +80,8 @@ export const ModelComponent = defineComponent({
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      loadState: true
     }
   },
 
@@ -118,13 +119,15 @@ export const ModelComponent = defineComponent({
 })
 
 function ModelReactor(): JSX.Element {
-  const entity = useEntityContext()
+  let entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-
+  const loadState = modelComponent.loadState
   const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
+  const child = getComponent(entity, EntityTreeComponent).children[0]
+  // entity=child
 
   useEffect(() => {
     if (!progress) return
@@ -193,7 +196,7 @@ function ModelReactor(): JSX.Element {
   // update scene
   useEffect(() => {
     const { scene, asset, src } = getComponent(entity, ModelComponent)
-
+    console.log('Model', scene)
     if (!scene || !asset) return
 
     /**hotfix for gltf animations being stored in the root and not scene property */
@@ -214,7 +217,6 @@ function ModelReactor(): JSX.Element {
     })
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
-
     if (renderer)
       renderer.renderer
         .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent))
@@ -233,6 +235,31 @@ function ModelReactor(): JSX.Element {
         animations: scene.animations
       })
     }
+    //reparenting
+    if (loadState.value === true) {
+      const entityTreeComp = getComponent(entity, EntityTreeComponent)
+      if (!entityTreeComp) return
+      const parentEntity = entityTreeComp.parentEntity
+      if (!parentEntity) return
+      const children = entityTreeComp.children
+      const parentEntityTreeComp = getComponent(parentEntity, EntityTreeComponent)
+      if (!parentEntityTreeComp) return
+      for (const child of children) {
+        const childTreeComp = getComponent(child, EntityTreeComponent)
+        if (childTreeComp) {
+          childTreeComp.parentEntity = parentEntity
+          parentEntityTreeComp.children.push(child)
+        }
+      }
+      const index = parentEntityTreeComp.children.indexOf(entity)
+      if (index > -1) {
+        parentEntityTreeComp.children.splice(index, 1)
+      }
+
+      removeEntity(entity)
+      //removeEntityNodeRecursively(entity)
+    }
+
     return () => {
       SceneState.unloadScene(uuid, false)
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children

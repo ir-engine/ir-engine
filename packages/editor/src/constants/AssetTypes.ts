@@ -57,7 +57,8 @@ export const ItemTypes = {
   Node: 'Node',
   Material: 'Material',
   Component: 'Component',
-  PrefabComponents: 'PrefabComponents'
+  PrefabComponents: 'PrefabComponents',
+  Prefab: 'Prefab'
 }
 
 export const SupportedFileTypes = [

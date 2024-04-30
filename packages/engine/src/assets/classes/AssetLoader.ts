@@ -234,6 +234,10 @@ const getAssetClass = (assetFileName: string): AssetClass => {
       console.log('Material asset')
       return AssetClass.Material
     }
+    if (/\.(prefab.gltf)$/.test(assetFileName)) {
+      console.log('prefab asset')
+      return AssetClass.Prefab
+    }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
     return AssetClass.Image
@@ -343,6 +347,9 @@ const assetLoadCallback =
     if (assetClass === AssetClass.Material) {
       const material = asset as Material
       material.userData.type = assetType
+    }
+    if (assetClass === AssetClass.Prefab) {
+      //load prefab gltf without parent model
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
