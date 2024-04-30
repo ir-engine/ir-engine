@@ -156,7 +156,7 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
       const uuid =
         (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) ||
         (obj.uuid as EntityUUID) ||
-        (crypto.randomUUID() as EntityUUID)
+        UUIDComponent.generateUUID()
       obj.uuid = uuid
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson

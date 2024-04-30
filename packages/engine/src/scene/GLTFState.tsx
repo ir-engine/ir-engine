@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -41,7 +40,6 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
-import { MathUtils } from 'three'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
@@ -53,7 +51,7 @@ export const GLTFSourceState = defineState({
 
   load: (source: string, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
-    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
-  EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -55,7 +54,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { MathUtils, Scene, Vector3 } from 'three'
+import { Scene, Vector3 } from 'three'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -216,7 +215,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
 
     const entity = createEntity()
     setComponent(entity, NameComponent, 'thumbnail job asset ' + props.src)
-    const uuid = MathUtils.generateUUID() as EntityUUID
+    const uuid = UUIDComponent.generateUUID()
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, ModelComponent, { src: props.src, cameraOcclusion: false })
     setComponent(entity, VisibleComponent)
