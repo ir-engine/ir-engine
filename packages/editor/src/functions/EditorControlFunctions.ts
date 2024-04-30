@@ -819,13 +819,12 @@ const removeObject = (entities: Entity[]) => {
   getMutableState(SelectionState).selectedEntities.set([])
 
   const scenes = getSourcesForEntities(entities)
-  const entityUUIDsToDelete = [] as EntityUUID[]
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntity = SceneState.getRootEntity(sceneID)
-    const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
-
     if (getState(GLTFSourceState)[sceneID]) {
+      const rootEntity = getState(GLTFSourceState)[sceneID]
+      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
+
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
       for (let i = 0; i < removedParentNodes.length; i++) {
@@ -854,11 +853,13 @@ const removeObject = (entities: Entity[]) => {
 
           gltf.data.nodes!.splice(nodeIndex, 1)
         }
-        entityUUIDsToDelete.push(...uuidsToDelete)
       }
 
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
     } else {
+      const rootEntity = SceneState.getRootEntity(sceneID)
+      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
+
       const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
       for (let i = 0; i < removedParentNodes.length; i++) {
@@ -875,7 +876,6 @@ const removeObject = (entities: Entity[]) => {
         for (const uuid of uuidsToDelete) {
           delete newSnapshot.data.entities[uuid]
         }
-        entityUUIDsToDelete.push(...uuidsToDelete)
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))

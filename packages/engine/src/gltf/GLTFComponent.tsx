@@ -177,13 +177,14 @@ const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) 
   if (!documentState.value) return null
   if (!documentState.scenes.value) return null
 
-  const nodes = documentState.nodes! as State<GLTF.INode[]>
+  const nodes = documentState.scenes![documentState.scene.value!].nodes as State<number[]>
 
   return (
     <>
-      {nodes.get(NO_PROXY).map((node, nodeIndex) => (
+      {nodes.get(NO_PROXY).map((nodeIndex, childIndex) => (
         <NodeReactor
-          key={JSON.stringify(node)}
+          key={(documentState.nodes[nodeIndex].extensions![UUIDComponent.jsonID] as EntityUUID) ?? nodeIndex}
+          childIndex={childIndex}
           nodeIndex={nodeIndex}
           parentUUID={props.parentUUID}
           documentID={props.documentID}
@@ -193,7 +194,7 @@ const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) 
   )
 }
 
-const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documentID: string }) => {
+const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
   const nodes = documentState.nodes! as State<GLTF.INode[]>
 
@@ -221,7 +222,7 @@ const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documen
   useEffect(() => {
     if (!entity) return
 
-    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity])
 
   useEffect(() => {
@@ -250,8 +251,14 @@ const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documen
       {/* {node.mesh.value && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )} */}
-      {node.children.value?.map((childIndex) => (
-        <NodeReactor key={childIndex} nodeIndex={childIndex} parentUUID={uuid} documentID={props.documentID} />
+      {node.children.value?.map((nodeIndex, childIndex) => (
+        <NodeReactor
+          key={nodeIndex}
+          nodeIndex={nodeIndex}
+          childIndex={childIndex}
+          parentUUID={uuid}
+          documentID={props.documentID}
+        />
       ))}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
