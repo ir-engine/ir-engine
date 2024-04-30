@@ -208,6 +208,18 @@
       "name": "Environment Map",
       "description": "environment map properties"
     },
+    "trigger": {
+      "name": "Trigger",
+      "description": "A trigger component fires callbacks on the target when a collider enters and exits the trigger volume collider.",
+      "lbl-target": "Target",
+      "lbl-onenter": "On Enter",
+      "lbl-onexit": "On Exit"
+    },
+    "rigidbody": {
+      "name": "Rigidbody",
+      "description": "A rigidbody component that allows the entity to be affected by physics.",
+      "lbl-type": "Body Type"
+    },
     "prefab": {
       "name": "Prefab",
       "description": "A grouping of scene components which can be dynamically loaded and unloaded",
@@ -226,6 +238,25 @@
       "description": "Anchors this entity to a real life reference",
       "lbl-name": "Anchor Name"
     },
+    "interactable": {
+      "name": "Interactable",
+      "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
+      "lbl-label" : "Label",
+      "lbl-activationDistance": "Activation Distance",
+      "lbl-addcallback" : "Add Callback",
+      "lbl-removecallback": "Remove Callback",
+      "lbl-clickInteract": "Click to Interact",
+      "info-clickInteract": "Enables clicking to interact with the object",
+      "callbacks" :
+      {
+        "lbl-target" : "Target",
+        "lbl-callbackID" : "Callback ID"
+      }
+    },
+    "grabbable": {
+      "name": "Grabbable",
+        "description": "A grabbable component that can be picked up and manipulated by the user"
+    },
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
@@ -234,6 +265,7 @@
       "playtitle": "Play",
       "pausetitle": "Pause",
       "resettitle": "Reset",
+      "lbl-ui-offset": "UI Offset",
       "lbl-controls": "controls",
       "lbl-paused": "Paused",
       "info-paused": "Toggle media playback",

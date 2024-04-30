@@ -25,10 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Box3, Quaternion, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, UUIDComponent } from '@etherealengine/ecs'
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -39,9 +36,9 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -51,19 +48,16 @@ import { MountPoint, MountPointComponent } from '../../scene/components/MountPoi
 import { SittingComponent } from '../../scene/components/SittingComponent'
 
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { ClientInputSystem } from '@etherealengine/spatial'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
+import { InteractableComponent, XRUIVisibilityOverride } from '../components/InteractableComponent'
 import { MountPointActions, MountPointState } from '../functions/MountPointActions'
-import { createInteractUI } from '../functions/interactUI'
-import { InteractState, InteractiveUI, addInteractableUI } from './InteractiveSystem'
+import { InteractableState } from './InteractableSystem'
 
 /**
  * @todo refactor this into i18n and configurable
@@ -105,6 +99,9 @@ const unmountEntity = (entity: Entity) => {
 }
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  const mountedEntities = getState(MountPointState)
+  if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
+
   const avatarUUID = getComponent(avatarEntity, UUIDComponent)
   const mountPoint = getOptionalComponent(mountEntity, MountPointComponent)
   if (!mountPoint || mountPoint.type !== MountPoint.seat) return
@@ -141,7 +138,6 @@ const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
   for (const entity of mountPointQuery.enter()) {
@@ -152,9 +148,16 @@ const execute = () => {
         new Vector3(0.1, 0.1, 0.1)
       )
     })
-    if (isClient) {
-      addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
-    }
+    setCallback(entity, 'mountEntity', () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
+    setComponent(entity, InteractableComponent, {
+      label: mountPointInteractMessages[mountPoint.type],
+      callbacks: [
+        {
+          callbackID: 'mountEntity',
+          target: null
+        }
+      ]
+    })
   }
 
   /*Consider mocap inputs in the event we want to snap a real world seated person
@@ -162,7 +165,7 @@ const execute = () => {
   */
   const mocapInputSource = getOptionalComponent(selfAvatarEntity, MotionCapturePoseComponent)
   if (mocapInputSource) {
-    if (mocapInputSource.sitting?.begun) mountEntity(selfAvatarEntity, getState(InteractState).available[0])
+    if (mocapInputSource.sitting?.begun) mountEntity(selfAvatarEntity, getState(InteractableState).available[0])
     if (mocapInputSource.standing?.begun) unmountEntity(selfAvatarEntity)
   }
 
@@ -199,12 +202,13 @@ const vec3_1 = new Vector3()
 const reactor = () => {
   const mountedEntities = useHookstate(getMutableState(MountPointState))
   useEffect(() => {
-    //temporary logic for setting visibility of hints until interactive system is refactored
+    // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
     for (const mountEntity of mountPointQuery()) {
-      setVisibleComponent(
-        InteractiveUI.get(mountEntity)!.xrui.entity!,
-        !mountedEntities[getComponent(mountEntity, UUIDComponent)].value
-      )
+      const interactableComponent = getComponent(mountEntity, InteractableComponent)
+      if (!interactableComponent) continue
+      interactableComponent.uiVisibilityOverride = mountedEntities[getComponent(mountEntity, UUIDComponent)].value
+        ? XRUIVisibilityOverride.off
+        : XRUIVisibilityOverride.none
     }
   }, [mountedEntities])
 
@@ -216,25 +220,4 @@ export const MountPointSystem = defineSystem({
   insert: { with: AnimationSystemGroup },
   execute,
   reactor
-})
-
-const executeInput = () => {
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
-
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const buttons = InputSourceComponent.getMergedButtons()
-
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSource) {
-    const inputSource = getComponent(entity, InputSourceComponent)
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down)
-      mountEntity(selfAvatarEntity, getState(InteractState).available[0])
-  }
-}
-
-export const MountPointInputSystem = defineSystem({
-  uuid: 'ee.engine.MountPointInputSystem',
-  insert: { after: ClientInputSystem },
-  execute: executeInput
 })

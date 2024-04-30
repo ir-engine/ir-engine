@@ -29,28 +29,27 @@ import {
   UUIDComponent,
   UndefinedEntity,
   createEntity,
+  defineQuery,
+  getComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, Topic, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
+import React, { useLayoutEffect } from 'react'
 import { MathUtils } from 'three'
+import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ModelComponent } from './components/ModelComponent'
 import { SourceComponent } from './components/SourceComponent'
 import { getModelSceneID } from './functions/loaders/ModelFunctions'
 
 export const GLTFSourceState = defineState({
   name: 'GLTFState',
-  initial: {} as Record<
-    string,
-    {
-      entity: Entity
-    }
-  >,
+  initial: {} as Record<string, Entity>,
 
   load: (source: string, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
@@ -62,16 +61,112 @@ export const GLTFSourceState = defineState({
     setComponent(entity, ModelComponent, { src: source })
     const sourceID = getModelSceneID(entity)
     setComponent(entity, SourceComponent, sourceID)
-    getMutableState(GLTFSourceState)[source].set({ entity })
+    getMutableState(GLTFSourceState)[sourceID].set(entity)
     return entity
   },
 
-  unload: (source: string, entity: Entity) => {
+  unload: (entity: Entity) => {
+    const sourceID = getModelSceneID(entity)
+    getMutableState(GLTFSourceState)[sourceID].set(entity)
     removeEntity(entity)
   }
 })
 
-export const GLTFDocumentState = defineState({
-  name: 'GLTFDocumentState',
-  initial: {} as Record<string, GLTF.IGLTF>
+/**@todo rename to GLTFSnapshotState */
+export const GLTFSnapshotState = defineState({
+  name: 'GLTFSnapshotState',
+  initial: {} as Record<
+    string,
+    {
+      snapshots: Array<GLTF.IGLTF>
+      index: number
+    }
+  >,
+
+  receptors: {
+    onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
+      const { data } = action
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (!state.value) {
+        state.set({ index: 0, snapshots: [data] })
+        return
+      }
+      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+      state.index.set(state.index.value + 1)
+    }),
+
+    onUndo: GLTFSnapshotAction.undo.receive((action) => {
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (state.index.value <= 0) return
+      state.index.set(Math.max(state.index.value - action.count, 0))
+    }),
+
+    onRedo: GLTFSnapshotAction.redo.receive((action) => {
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (state.index.value >= state.snapshots.value.length - 1) return
+      state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
+    }),
+
+    onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
+      const state = getState(GLTFSnapshotState)[action.source]
+      const data = state.snapshots[0]
+      getMutableState(GLTFSnapshotState)[action.source].set({
+        index: 0,
+        snapshots: [data]
+      })
+    })
+  },
+
+  reactor: () => {
+    const state = useHookstate(getMutableState(GLTFSnapshotState))
+    return (
+      <>
+        {state.keys.map((source: string) => (
+          <GLTFSnapshotReactor source={source} key={source} />
+        ))}
+      </>
+    )
+  },
+
+  useSnapshotIndex(source: string) {
+    return useHookstate(getMutableState(GLTFSnapshotState)[source].index)
+  },
+
+  // Source Instance => ModelComponent => Source Document
+  cloneCurrentSnapshot: (sourceInstance: string) => {
+    const modelEntity = getState(GLTFSourceState)[sourceInstance]
+    const src = getComponent(modelEntity, ModelComponent).src
+    const state = getState(GLTFSnapshotState)[src]
+    return JSON.parse(JSON.stringify({ source: src, data: state.snapshots[state.index] })) as {
+      data: GLTF.IGLTF
+      source: string
+    }
+  }
 })
+
+export const EditorTopic = 'editor' as Topic
+
+const GLTFSnapshotReactor = (props: { source: string }) => {
+  const gltfState = useHookstate(getMutableState(GLTFSnapshotState)[props.source])
+
+  useLayoutEffect(() => {
+    // update gltf state with the current snapshot
+    const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
+    getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
+    // force model components to re-load gltf until we have a new loader
+
+    /** re-enable for testing purposes */
+    // for (const entity of modelQuery()) {
+    //   if (getComponent(entity, ModelComponent).src === props.source) {
+    //     /** force reload of the component */
+    //     const data = serializeComponent(entity, ModelComponent)
+    //     removeComponent(entity, ModelComponent)
+    //     setComponent(entity, ModelComponent, data)
+    //   }
+    // }
+  }, [gltfState.index])
+
+  return null
+}
+
+const modelQuery = defineQuery([ModelComponent])
