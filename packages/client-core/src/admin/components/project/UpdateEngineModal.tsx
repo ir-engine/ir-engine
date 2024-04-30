@@ -134,10 +134,12 @@ export default function UpdateEngineModal() {
           }
         })
       )
+      PopoverState.hidePopupover()
     } catch (err) {
       errors.set(err.message)
     }
     modalProcessing.set(false)
+    PopoverState.hidePopupover()
   }
 
   useEffect(() => {

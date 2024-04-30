@@ -35,9 +35,7 @@ import {
   getState,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   Entity,
@@ -45,7 +43,6 @@ import {
   QueryReactor,
   UndefinedEntity,
   defineSystem,
-  destroySystem,
   entityExists,
   getComponent,
   hasComponent,
@@ -89,7 +86,7 @@ export const SceneLoadingReactor = () => {
         Components={[EntityTreeComponent, TransformComponent, UUIDComponent, SourceComponent, Not(GLTFLoadedComponent)]}
         ChildEntityReactor={NetworkedSceneObjectReactor}
       />
-      {Object.keys(scenes.value).map((sceneID: SceneID) => (
+      {Object.keys(scenes.value).map((sceneID: string) => (
         <SceneReactor key={sceneID} sceneID={sceneID} />
       ))}
     </>
@@ -125,7 +122,7 @@ const NetworkedSceneObjectReactor = () => {
   return null
 }
 
-const SceneReactor = (props: { sceneID: SceneID }) => {
+const SceneReactor = (props: { sceneID: string }) => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
   const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
@@ -134,11 +131,8 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
   const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
 
-  const ready = useHookstate(false)
-  const systemsLoaded = useHookstate([] as SystemImportType[])
-
   useEffect(() => {
-    if (!ready.value || getState(SceneState).sceneLoaded) return
+    if (getState(SceneState).sceneLoaded) return
 
     const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
     if (entitiesCount <= 1) return
@@ -156,46 +150,22 @@ const SceneReactor = (props: { sceneID: SceneID }) => {
     }
   }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
-  useEffect(() => {
-    const { project, scene } = getState(SceneState).scenes[props.sceneID]
-    const systemPromises = getSystemsFromSceneData(project, scene)
-    if (!systemPromises) {
-      ready.set(true)
-      return
-    }
-    systemPromises.then((systems) => {
-      systemsLoaded.set(systems)
-      ready.set(true)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!systemsLoaded.length) return
-    const systems = [...systemsLoaded.value]
-    return () => {
-      for (const system of systems) {
-        destroySystem(system.systemUUID)
-      }
-    }
-  }, [systemsLoaded.length])
-
   return (
     <>
-      {ready.value &&
-        Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
-          entityUUID === rootUUID ? null : (
-            <EntityLoadReactor
-              key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
-              sceneID={props.sceneID}
-              entityUUID={entityUUID as EntityUUID}
-            />
-          )
-        )}
+      {Object.entries(sceneEntities.value).map(([entityUUID, data]) =>
+        entityUUID === rootUUID ? null : (
+          <EntityLoadReactor
+            key={props.sceneID + ' ' + entityUUID + ' ' + data.parent + ' ' + data.index}
+            sceneID={props.sceneID}
+            entityUUID={entityUUID as EntityUUID}
+          />
+        )
+      )}
     </>
   )
 }
 
-const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) => {
+const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: string }) => {
   const entityState = SceneState.useScene(props.sceneID).entities[props.entityUUID]
   const parentEntity = UUIDComponent.useEntityByUUID(entityState.value.parent!)
   return (
@@ -219,7 +189,7 @@ const EntityLoadReactor = (props: { entityUUID: EntityUUID; sceneID: SceneID }) 
 const EntityChildLoadReactor = (props: {
   parentEntity: Entity
   entityUUID: EntityUUID
-  sceneID: SceneID
+  sceneID: string
   entityJSONState: State<EntityJsonType>
 }) => {
   const parentEntity = props.parentEntity

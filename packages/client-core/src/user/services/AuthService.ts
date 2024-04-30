@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -489,6 +489,8 @@ export const AuthService = {
     const enableEmailMagicLink = authData?.emailMagicLink
     const enableSmsMagicLink = authData?.smsMagicLink
 
+    const storedToken = authState.authUser?.accessToken?.value
+
     if (linkType === 'email') {
       type = 'email'
       paramName = 'email'
@@ -524,16 +526,26 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
-      NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
+      await Engine.instance.api
+        .service(magicLinkPath)
+        .create({ type, [paramName]: emailPhone, accessToken: storedToken })
+      const message = {
+        email: 'email-sent-msg',
+        sms: 'sms-sent-msg',
+        default: 'success-msg'
+      }
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`), {
+        variant: 'success'
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      throw new Error(err)
     } finally {
       authState.merge({ isProcessing: false, error: '' })
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
+  async addConnectionByPassword(form: EmailLoginForm) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 

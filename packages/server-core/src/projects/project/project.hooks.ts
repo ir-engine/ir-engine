@@ -45,7 +45,6 @@ import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubCon
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
@@ -445,7 +444,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
-        $like: `${context.name}/%` as SceneID
+        $like: `${context.name}/%`
       }
     }
   })
@@ -594,7 +593,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write')),
         () => schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
-        discardQuery('studio'),
+        discardQuery('action'),
         checkIfProjectExists,
         checkIfNameIsValid,
         uploadLocalProject,
@@ -612,7 +611,7 @@ export default createSkippableHooks(
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
-        discardQuery('studio'),
+        discardQuery('action'),
         getProjectName,
         runProjectUninstallScript,
         removeProjectFiles,

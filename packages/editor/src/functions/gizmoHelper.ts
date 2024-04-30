@@ -32,7 +32,6 @@ import {
   getOptionalComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   TransformAxis,
   TransformMode,
@@ -50,7 +49,6 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
-import { EditorState } from '../services/EditorServices'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -448,21 +446,23 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = SceneState.getRootEntity(getState(EditorState).sceneID!) // we can always ensure scene entity is root parent even if entty tree component doesnt exist
+  let parentEntity = UndefinedEntity
   const parent = getComponent(targetEntity, EntityTreeComponent)
 
   if (parent && parent.parentEntity !== UndefinedEntity) {
     parentEntity = parent.parentEntity!
   }
 
-  _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
+  if (parentEntity) _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
+  else _parentScale.set(1, 1, 1)
 
   const currentMatrix = getComponent(targetEntity, TransformComponent).matrixWorld
   currentMatrix.decompose(_worldPosition, _worldQuaternion, _worldScale)
   gizmoControl.worldPosition.set(_worldPosition)
   gizmoControl.worldQuaternion.set(_worldQuaternion)
 
-  _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
+  if (parentEntity) _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
+  else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
   if ((camera as any).isOrthographicCamera) {

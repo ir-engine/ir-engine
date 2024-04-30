@@ -28,7 +28,6 @@ import { Scene, Vector3 } from 'three'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -75,7 +74,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === SceneState.getRootEntity(getState(EditorState).sceneID!)
+  const isSceneEntity = entity === getState(EditorState).rootEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {

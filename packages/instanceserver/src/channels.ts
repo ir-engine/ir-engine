@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
+import commonConfig from '@etherealengine/common/src/config'
 import { decode } from 'jsonwebtoken'
 
 import {
@@ -38,11 +39,10 @@ import {
   InstanceID,
   InstanceType,
   LocationID,
-  SceneDataType,
-  SceneID,
   UserID,
   UserKickType,
   UserType,
+  assetPath,
   channelPath,
   channelUserPath,
   identityProviderPath,
@@ -53,8 +53,11 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
+import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -69,6 +72,7 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
@@ -264,7 +268,7 @@ const initializeInstance = async ({
  * @param headers
  */
 
-const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: SceneID; headers?: object }) => {
+const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: string; headers?: object }) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -296,10 +300,23 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await app
-        .service(scenePath)
-        .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      SceneState.loadScene(sceneId, sceneData)
+      const scene = await app.service(assetPath).get(sceneId, { headers })
+      const sceneURL = scene.assetURL
+      const isGLTF = sceneURL.endsWith('.gltf')
+      if (isGLTF) {
+        GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
+      } else {
+        const storage = getStorageProvider()
+        const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
+        const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
+        SceneState.loadScene(sceneURL, {
+          scene: parseStorageProviderURLs(sceneJSON),
+          name: sceneURL.split('/')[2],
+          thumbnailUrl: `${commonConfig.client.fileServer}/${sceneURL.replace('.scene.json', '.thumbnail.jpg')}`,
+          project: sceneURL.split('/')[1]
+        })
+      }
+
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
@@ -412,7 +429,7 @@ const createOrUpdateInstance = async ({
   status: InstanceserverStatus
   locationId: LocationID
   channelId: ChannelID
-  sceneId?: SceneID
+  sceneId?: string
   headers: object
   userId?: UserID
 }) => {
@@ -787,7 +804,7 @@ export default (app: Application): void => {
       podName,
       locationId,
       sceneId
-    }: { id; ipAddress; podName; locationId: LocationID; sceneId: SceneID } = params
+    }: { id; ipAddress; podName; locationId: LocationID; sceneId: string } = params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)

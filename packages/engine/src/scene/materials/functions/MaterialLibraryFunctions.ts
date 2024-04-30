@@ -95,7 +95,10 @@ export function materialIsRegistered(material: Material): boolean {
 export function materialFromId(matId: string): MaterialComponentType {
   const materialLibrary = getState(MaterialLibraryState)
   const material = materialLibrary.materials[matId]
-  if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
+  if (!material) {
+    console.warn('could not find Material with ID ' + matId)
+    return null!
+  }
   return material
 }
 

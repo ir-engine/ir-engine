@@ -29,7 +29,13 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationData, LocationID, LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  LocationData,
+  LocationID,
+  LocationType,
+  assetPath,
+  locationPath
+} from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -37,12 +43,11 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
-import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import DrawerView from '../DrawerView'
 import { validateForm } from '../validation/formValidation'
 
@@ -56,7 +61,7 @@ interface Props {
   mode: LocationDrawerMode
   selectedLocation?: LocationType
   onClose: () => void
-  selectedScene?: SceneID | null
+  selectedScene?: string | null
 }
 
 const defaultState = {
@@ -83,7 +88,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
+  const scenes = useFind(assetPath)
   // const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
@@ -92,24 +97,23 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneName = selectedScene ? selectedScene.split('/')[1] : ''
-  const projectName = selectedScene ? selectedScene.split('/', 1)[0] : ''
+  const selectedSceneData = useGet(assetPath, selectedScene!)
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
   }, [selectedScene])
 
-  const sceneMenu: InputMenuItem[] = selectedScene
+  const sceneMenu: InputMenuItem[] = selectedSceneData.data
     ? [
         {
-          value: `${projectName}/${sceneName}`,
-          label: `${sceneName} (${projectName})`
+          value: selectedSceneData.data.id,
+          label: selectedSceneData.data.assetURL
         }
       ]
-    : scenes.get(NO_PROXY).map((el) => {
+    : scenes.data.map((el: AssetType) => {
         return {
-          value: `${el.project}/${el.name}`,
-          label: `${el.name} (${el.project})`
+          value: el.id,
+          label: el.assetURL
         }
       })
 
@@ -121,10 +125,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   // })
 
   useEffect(() => {
-    if (!selectedScene) AdminSceneService.fetchAdminScenes()
-  }, [])
-
-  useEffect(() => {
     loadSelectedLocation()
   }, [selectedLocation])
 
@@ -134,9 +134,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
         ...defaultState,
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
-        scene: selectedLocation.sceneId
-          .replace(`${selectedLocation.sceneId.split('/', 1)[0]}/`, '')
-          .replace('.scene.json', ''),
+        scene: selectedLocation.sceneId,
         type: selectedLocation.locationSetting?.locationType,
         videoEnabled: selectedLocation.locationSetting?.videoEnabled,
         audioEnabled: selectedLocation.locationSetting?.audioEnabled,
@@ -187,7 +185,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
     const data: LocationData = {
       name: state.name.value,
       slugifiedName: '',
-      sceneId: `projects/${state.scene.value}.scene.json` as SceneID,
+      sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',

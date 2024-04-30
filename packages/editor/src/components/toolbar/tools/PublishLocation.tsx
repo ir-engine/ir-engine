@@ -29,7 +29,7 @@ import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { SceneID, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { Button } from '@mui/material'
@@ -41,10 +41,8 @@ import * as styles from '../styles.module.scss'
 export const PublishLocation = () => {
   const { t } = useTranslation()
   const openLocationDrawer = useHookstate(false)
-  const sceneID = useHookstate(getMutableState(EditorState).sceneID)
-  const selectedScene = sceneID.value
-    ? (sceneID.value.replace('.scene.json', '').replace(`${sceneID.value.split('/', 1)[0]}/`, '') as SceneID)
-    : null
+  const sceneID = useHookstate(getMutableState(EditorState).sceneAssetID)
+  const scenePath = useHookstate(getMutableState(EditorState).scenePath)
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
   const user = useHookstate(getMutableState(AuthState).user)
@@ -56,7 +54,7 @@ export const PublishLocation = () => {
       $limit: 1,
       action: 'studio',
       sceneId: {
-        $like: `%${sceneID.value}%` as SceneID
+        $like: `%${scenePath.value}%`
       }
     }
   })
@@ -93,7 +91,7 @@ export const PublishLocation = () => {
         open={openLocationDrawer.value}
         mode={drawerMode.value}
         selectedLocation={existingLocation.data[0]}
-        selectedScene={selectedScene}
+        selectedScene={sceneID.value}
         onClose={handleCloseLocationDrawer}
       />
     </>

@@ -28,7 +28,6 @@ import {
   instanceProvisionPath
 } from '@etherealengine/common/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
 import { ChannelID } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
@@ -67,7 +66,7 @@ export default (app: Application): void => {
         ipAddress: data.ipAddress,
         port: data.port,
         locationId: data.locationId as LocationID,
-        sceneId: data.sceneId as SceneID,
+        sceneId: data.sceneId,
         channelId: data.channelId as ChannelID,
         instanceId: data.instanceId as InstanceID
       })

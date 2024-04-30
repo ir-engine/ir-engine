@@ -33,7 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
@@ -381,6 +381,7 @@ export default function AddEditProjectModal({
         PopoverState.hidePopupover()
       }}
       onSubmit={onSubmit}
+      submitLoading={processing}
     >
       <div className="grid gap-6">
         <div className="grid gap-2">
@@ -411,7 +412,7 @@ export default function AddEditProjectModal({
           {projectUpdateStatus.value?.destinationProcessing && (
             <div className="flex items-center gap-3">
               <div>
-                <LoadingCircle className="h-6 w-6" />
+                <LoadingView spinnerOnly className="h-6 w-6" />
               </div>
               <Text>{t('admin:components.project.destinationProcessing')}</Text>
             </div>
@@ -420,33 +421,34 @@ export default function AddEditProjectModal({
 
         <div className="grid gap-2">
           {hasGithubProvider ? (
-            <div className="flex items-end gap-2">
-              <Input
-                label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
-                placeholder="https://github.com/{user}/{repo}"
-                value={projectUpdateStatus.value?.sourceURL}
-                error={projectUpdateStatus.value?.sourceURLError}
-                onChange={handleChangeSource}
-                onBlur={handleChangeSourceRepo}
-                description={
-                  !projectUpdateStatus.value?.destinationProcessing &&
-                  projectUpdateStatus.value?.destinationProjectName.length > 0
-                    ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
-                        ?.destinationProjectName}`
-                    : undefined
-                }
-              />
-              <Button
-                title={t('admin:components.project.copyDestination')}
-                variant="outline"
-                className="p-3 [&>*]:m-0"
-                startIcon={<HiMiniClipboardDocumentList />}
-                onClick={() => {
-                  handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
-                  handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
-                }}
-              />
-            </div>
+            <Input
+              label={`${t('admin:components.project.source')} (${t('admin:components.project.githubUrl')})`}
+              placeholder="https://github.com/{user}/{repo}"
+              value={projectUpdateStatus.value?.sourceURL}
+              error={projectUpdateStatus.value?.sourceURLError}
+              onChange={handleChangeSource}
+              onBlur={handleChangeSourceRepo}
+              description={
+                !projectUpdateStatus.value?.destinationProcessing &&
+                projectUpdateStatus.value?.destinationProjectName.length > 0
+                  ? `${t('admin:components.project.sourceProjectName')}: ${projectUpdateStatus.value
+                      ?.destinationProjectName}`
+                  : undefined
+              }
+              endComponent={
+                <Button
+                  title={t('admin:components.project.copyDestination')}
+                  variant="outline"
+                  size="small"
+                  className="p-3 [&>*]:m-0"
+                  startIcon={<HiMiniClipboardDocumentList />}
+                  onClick={() => {
+                    handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
+                    handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
+                  }}
+                />
+              }
+            />
           ) : (
             <Text>{t('admin:components.project.needsGithubProvider')}</Text>
           )}
@@ -467,7 +469,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.branchProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.branchProcessing')}</Text>
           </div>
@@ -494,7 +496,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.commitsProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.commitsProcessing')}</Text>
           </div>
@@ -503,7 +505,7 @@ export default function AddEditProjectModal({
         {projectUpdateStatus.value?.sourceVsDestinationProcessing && (
           <div className="flex items-center gap-3">
             <div>
-              <LoadingCircle className="h-6 w-6" />
+              <LoadingView spinnerOnly className="h-6 w-6" />
             </div>
             <Text>{t('admin:components.project.sourceVsDestinationProcessing')}</Text>
           </div>
@@ -531,8 +533,8 @@ export default function AddEditProjectModal({
           <Text
             className={
               projectUpdateStatus.value?.destinationValid
-                ? 'text-green-400'
-                : 'text-red-700' + ' flex items-center gap-2'
+                ? 'flex items-center gap-2 text-green-400'
+                : 'flex items-center gap-2 text-red-700'
             }
           >
             {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}

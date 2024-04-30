@@ -27,7 +27,7 @@ import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/h
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
@@ -412,7 +412,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           variant="primary"
           className="col-span-1"
           onClick={handleSubmit}
-          startIcon={state.loading.value && <LoadingCircle className="h-6 w-6" />}
+          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           fullWidth
         >
           {t('admin:components.common.save')}

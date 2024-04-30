@@ -76,6 +76,7 @@ import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
@@ -204,10 +205,13 @@ export const updateBuilder = async (
   }
 }
 
-export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
+export const checkBuilderService = async (
+  app: Application
+): Promise<{ failed: boolean; succeeded: boolean; running: boolean }> => {
   const jobStatus = {
     failed: false,
-    succeeded: !config.kubernetes.enabled // if no k8s, assume success
+    succeeded: !config.kubernetes.enabled, // if no k8s, assume success
+    running: false
   }
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -233,8 +237,6 @@ export const checkBuilderService = async (app: Application): Promise<{ failed: b
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
-
-        return jobStatus
       } else {
         const containerName = 'etherealengine-builder'
 
@@ -270,8 +272,7 @@ export const checkBuilderService = async (app: Application): Promise<{ failed: b
           )
 
           jobStatus.succeeded = builderLogs.body.includes('sleep infinity')
-
-          return jobStatus
+          jobStatus.running = true
         }
       }
     } catch (e) {
@@ -1590,6 +1591,12 @@ export const updateProject = async (
   if (projectConfig.onEvent) {
     await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
+
+  // sync assets with latest query data
+
+  const latestProjectResult = await app.service(projectPath).get(returned.id)
+
+  await syncAllSceneJSONAssets([latestProjectResult], app)
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
