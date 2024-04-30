@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, defineComponent, getComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, defineComponent, getMutableComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -71,22 +71,22 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
     }
   })
 })
-
+const defaultParameters = {
+  exponent: 1,
+  distance: 1,
+  center: new Vector3(),
+  calculationType: ditherCalculationType.worldTransformed
+}
 export const TransparencyDitheringPlugin: PluginObjectType = {
   id: 'TransparencyDithering',
   priority: 10,
-  parameters: {
-    exponent: 2,
-    distance: 2,
-    center: new Vector3(),
-    calculationType: ditherCalculationType.worldTransformed
-  },
   compile: (shader, renderer) => {
-    const parameters = getComponent(
-      getPluginByName(TransparencyDitheringPlugin.id),
-      MaterialComponent[MaterialComponents.Plugin]
-    )?.parameters
-    if (!parameters) return
+    const pluginEntity = getPluginByName(TransparencyDitheringPlugin.id)
+    const plugin = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+    if (!plugin) return
+
+    plugin.shader[(shader as any).shaderName].set(shader)
+
     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
       shader.vertexShader = shader.vertexShader.replace(
         /#include <common>/,
@@ -106,8 +106,8 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
     shader.uniforms.centers = {
       value: Array.from({ length: maxDitherPoints }, () => new Vector3())
     }
-    shader.uniforms.exponents = { value: Array.from({ length: maxDitherPoints }, () => parameters.exponent) }
-    shader.uniforms.distances = { value: Array.from({ length: maxDitherPoints }, () => parameters.distance) }
+    shader.uniforms.exponents = { value: Array.from({ length: maxDitherPoints }, () => 1) }
+    shader.uniforms.distances = { value: Array.from({ length: maxDitherPoints }, () => 1) }
     shader.uniforms.useWorldCalculation = { value: Array.from({ length: maxDitherPoints }, () => 1) }
     shader.uniforms.maxDitherPoints = { value: 1 }
   }

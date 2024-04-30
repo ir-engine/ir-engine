@@ -119,7 +119,8 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
         case MaterialComponents.Plugin:
           return {
             // plugin state
-            plugin: {} as PluginObjectType
+            plugin: {} as PluginObjectType,
+            shader: {} as Record<string, Shader>
           }
         default:
           return {}

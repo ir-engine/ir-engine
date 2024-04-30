@@ -44,6 +44,7 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
+import { FrontSide } from 'three'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
@@ -54,24 +55,27 @@ import {
 
 const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0]])
 const execute = () => {
+  const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
+  const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+
   for (const entity of TransparencyDitheringQuery()) {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
     for (const uuid of ditherComponent.materialUUIDs) {
       const materialComponent = getComponent(
         UUIDComponent.getEntityByUUID(uuid),
-        MaterialComponent[MaterialComponents.Instance]
+        MaterialComponent[MaterialComponents.State]
       )
       const material = materialComponent.material
       if (!material) continue
       for (let i = 0; i < maxDitherPoints; i++) {
         const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
         if (!ditherComponent) break
-        if (!material.shader) return
-        if (material.shader.uniforms.centers) material.shader.uniforms.centers.value[i] = ditherComponent.center
-        if (material.shader.uniforms.exponents) material.shader.uniforms.exponents.value[i] = ditherComponent.exponent
-        if (material.shader.uniforms.distances) material.shader.uniforms.distances.value[i] = ditherComponent.distance
-        if (material.shader.uniforms.useWorldCalculation)
-          material.shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
+        if (!material.shader || !pluginComponent.shader) break
+        const shader = pluginComponent.shader[material.name]
+        shader.uniforms.centers.value[i] = ditherComponent.center
+        shader.uniforms.exponents.value[i] = ditherComponent.exponent
+        shader.uniforms.distances.value[i] = ditherComponent.distance
+        shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
       }
     }
   }
@@ -101,8 +105,6 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const materialUUIDs = useComponent(rootEntity, TransparencyDitheringComponent[0]).materialUUIDs
   const materialComponentUUID = useOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
   useEffect(() => {
-    console.log(materialComponentUUID?.value)
-    console.log(pluginByName)
     if (!materialComponentUUID?.value) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
@@ -112,6 +114,10 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
           ...materialComponent.pluginEntities.value,
           pluginByName[TransparencyDitheringPlugin.id]
         ])
+      materialComponent.material.value!.alphaTest = 0.5
+      materialComponent.material.value!.side = FrontSide
+      const ditheringComponent = getMutableComponent(rootEntity, TransparencyDitheringComponent[0])
+      ditheringComponent.materialUUIDs.set([...ditheringComponent.materialUUIDs.value, materialUUID])
     }
   }, [materialComponentUUID])
 

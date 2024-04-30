@@ -155,7 +155,7 @@ export const getPrototypeConstructorFromName = (name: string) => {
 }
 
 export const getPluginByName = (name: string) => {
-  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === 'noiseOffset')[0]
+  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === name)[0]
 }
 
 /**Sets a unique name and source hash for a given material entity */

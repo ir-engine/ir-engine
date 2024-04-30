@@ -35,12 +35,7 @@ import {
 import { isArray } from 'lodash'
 import { Color, Mesh, Texture } from 'three'
 import { NameComponent } from '../../common/NameComponent'
-import {
-  PluginObjectType,
-  addOBCPlugin,
-  hasOBCPlugin,
-  removeOBCPlugin
-} from '../../common/functions/OnBeforeCompilePlugin'
+import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
 import {
   MaterialComponent,
@@ -117,8 +112,7 @@ export const applyMaterialPlugins = (materialEntity: Entity) => {
   for (const pluginEntity of materialComponent.pluginEntities) {
     const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (pluginComponent.plugin) {
-      if (hasOBCPlugin(materialComponent.material, pluginComponent.plugin))
-        removeOBCPlugin(materialComponent.material, pluginComponent.plugin)
+      if (hasOBCPlugin(materialComponent.material, pluginComponent.plugin)) return
       addOBCPlugin(materialComponent.material, pluginComponent.plugin)
     }
   }
@@ -144,7 +138,8 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const prototypeComponent = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
   const prototypeConstructor = prototypeComponent.prototypeConstructor![prototypeName]
   if (!prototypeConstructor || !prototypeComponent.prototypeArguments) return
-  const material = materialComponent.material!
+  const material = materialComponent.material
+  if (!material || material.type === prototypeName) return
   const matKeys = Object.keys(material)
   const commonParms = Object.fromEntries(
     Object.keys(prototypeComponent.prototypeArguments)
