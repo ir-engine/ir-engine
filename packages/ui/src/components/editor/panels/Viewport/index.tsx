@@ -37,6 +37,21 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { twMerge } from 'tailwind-merge'
+import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+
+export const ViewportPanelTitle = () => {
+  const { t } = useTranslation()
+
+  return (
+    <div>
+      <PanelDragContainer>
+        <PanelTitle>
+          <span>{'Viewport'}</span>
+        </PanelTitle>
+      </PanelDragContainer>
+    </div>
+  )
+}
 
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
@@ -86,6 +101,6 @@ const ViewPortPanelContent = () => {
 export const ViewportPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
-  title: 'Viewport',
+  title: <ViewportPanelTitle />,
   content: <ViewPortPanelContent />
 }
