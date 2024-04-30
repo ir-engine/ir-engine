@@ -42,7 +42,7 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveSceneGLTF, saveSceneJSON, setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -188,7 +188,7 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
+        await saveSceneGLTF(sceneAssetID, projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
         const newSceneData = await Engine.instance.api
           .service(assetPath)
@@ -220,7 +220,7 @@ const onImportAsset = async () => {
   }
 }
 
-const onSaveScene = async (gltf = false) => {
+const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName } = getState(EditorState)
   const { sceneModified, sceneLoaded } = getState(SceneState)
 
@@ -265,11 +265,7 @@ const onSaveScene = async (gltf = false) => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    if (gltf) {
-      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
-    } else {
-      await saveSceneJSON(sceneAssetID, projectName, sceneName, abortController.signal)
-    }
+    await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
 
     getMutableState(SceneState).sceneModified.set(false)
 
@@ -290,13 +286,9 @@ const generateToolbarMenu = () => {
       action: onNewScene
     },
     {
-      name: t('editor:menubar.saveSceneJSON'),
+      name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: () => onSaveScene(false)
-    },
-    {
-      name: t('editor:menubar.saveSceneGLTF'),
-      action: () => onSaveScene(true)
+      action: () => onSaveScene()
     },
     {
       name: t('editor:menubar.saveAs'),

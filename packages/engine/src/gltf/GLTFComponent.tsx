@@ -54,7 +54,9 @@ import { Matrix4 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { SceneJsonType } from '../scene/types/SceneTypes'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
@@ -119,7 +121,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
         if (signal.aborted) return
 
         const textDecoder = new TextDecoder()
-        let json: GLTF.IGLTF
+        let json: GLTF.IGLTF | SceneJsonType
 
         if (typeof data === 'string') {
           json = JSON.parse(data)
@@ -141,6 +143,11 @@ const useGLTFDocument = (url: string, entity: Entity) => {
           }
         } else {
           json = data
+        }
+
+        /** Migrate old scene json format */
+        if ('entities' in json && 'root' in json) {
+          json = migrateSceneJSONToGLTF(json)
         }
 
         dispatchAction(

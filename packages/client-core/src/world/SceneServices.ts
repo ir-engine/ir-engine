@@ -24,11 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { Engine, getMutableComponent } from '@etherealengine/ecs'
+import { Engine, UUIDComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { LocationState } from '../social/services/LocationService'
@@ -36,51 +33,19 @@ import { LocationState } from '../social/services/LocationService'
 const fileServer = config.client.fileServer
 
 export const SceneServices = {
-  /** @todo this can be simplified once .scene.json support is dropped */
   setCurrentScene: (sceneURL: string, overrideLocation = false) => {
-    const isGLTF = sceneURL.endsWith('.gltf') || sceneURL.endsWith('.glb')
-    if (isGLTF) {
-      const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    const source = fileServer + '/' + sceneURL
+    const gltfEntity = GLTFSourceState.load(source)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
-      if (overrideLocation) {
-        const sceneID = getModelSceneID(gltfEntity)
-        LocationState.setLocationName(sceneID)
-        getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
-      }
-
-      return () => {
-        GLTFSourceState.unload(gltfEntity)
-      }
+    if (overrideLocation) {
+      const sourceID = `${getComponent(gltfEntity, UUIDComponent)}-${source}`
+      LocationState.setLocationName(sourceID)
+      getMutableState(LocationState).currentLocation.location.sceneId.set(sourceID)
     }
 
-    let unmounted = false
-
-    const sceneID = sceneURL.endsWith('.scene.json') ? sceneURL : sceneURL + '.scene.json'
-
-    fetch(`${fileServer}/${sceneID}`).then(async (data) => {
-      if (unmounted) return
-      const sceneJSON = await data.json()
-      if (unmounted) return
-      const sceneRoot = SceneState.loadScene(sceneID, {
-        scene: parseStorageProviderURLs(sceneJSON),
-        name: sceneID.split('/')[2],
-        thumbnailUrl: `${fileServer}/${sceneID.replace('.scene.json', '.thumbnail.jpg')}`,
-        project: sceneID.split('/')[1]
-      })
-      if (sceneRoot) {
-        getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
-
-        if (overrideLocation) {
-          LocationState.setLocationName(sceneID)
-          getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
-        }
-      }
-    })
-
     return () => {
-      unmounted = true
-      SceneState.unloadScene(sceneID)
+      GLTFSourceState.unload(gltfEntity)
     }
   }
 }

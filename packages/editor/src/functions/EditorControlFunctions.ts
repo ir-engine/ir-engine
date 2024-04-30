@@ -279,8 +279,7 @@ const createObjectFromSceneElement = (
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    // gltf loader sanitizers names...
-    const name = getState(GLTFSourceState)[sceneID] ? 'New_Object' : 'New Object'
+    const name = 'New Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
       console.log(gltf, gltf.data.nodes)

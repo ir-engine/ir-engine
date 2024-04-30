@@ -483,10 +483,7 @@ describe('EditorControlFunctions', () => {
           const newChildren = getComponent(child2Entity2, EntityTreeComponent).children
           assert.notEqual(newChildren, child2Children)
 
-          const newEntity =
-            format === '.gltf'
-              ? NameComponent.entitiesByName['New_Object'][0] // yes... the threejs loader sanitizes all names just for the animation tracks
-              : NameComponent.entitiesByName['New Object'][0]
+          const newEntity = NameComponent.entitiesByName['New Object'][0]
           const child3Entity2 = UUIDComponent.getEntityByUUID('child_3' as EntityUUID)
           const child2_1Entity2 = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
           const expectedOrder = [child3Entity2, newEntity, child2_1Entity2]
