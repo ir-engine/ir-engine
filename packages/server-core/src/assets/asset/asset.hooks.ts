@@ -261,12 +261,11 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   const asset = await context.app.service(assetPath).get(context.id!)
 
   const data = context.data! as AssetPatch
-  if (!asset.assetURL.endsWith('.scene.json')) return
 
   const format = asset.assetURL.endsWith('.scene.json') ? '.scene.json' : '.gltf'
 
   const storageProvider = getStorageProvider()
-  const oldName = asset.assetURL!.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
+  const oldName = asset.assetURL!.split('/').pop()!.replace(format, '')
   const newName = data.name
 
   if (newName && newName !== oldName) {
