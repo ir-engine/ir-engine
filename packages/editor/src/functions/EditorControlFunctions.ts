@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, UUIDComponent, createEntity, generateEntityUUID, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -32,7 +32,6 @@ import {
   componentJsonDefaults,
   getComponent,
   hasComponent,
-  removeComponent,
   serializeComponent,
   setComponent,
   updateComponent
@@ -43,12 +42,10 @@ import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/g
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -127,14 +124,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      if (add) {
-        setComponent(entity, component)
-      } else {
-        removeComponent(entity, component)
-      }
-    }
   }
 }
 
@@ -164,11 +153,6 @@ const modifyName = (entities: Entity[], name: string) => {
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
-    }
-
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      setComponent(entity, NameComponent, name)
     }
   }
 }
@@ -223,11 +207,6 @@ const modifyProperty = <C extends Component<any, any>>(
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
-    }
-
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      setComponent(entity, component, properties)
     }
   }
 }
@@ -384,19 +363,6 @@ const createObjectFromSceneElement = (
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-
-    /** Temporary until GLTF loader refactored */
-    const entity = createEntity()
-    setComponent(entity, UUIDComponent, entityUUID)
-    const parentEntityTree = getComponent(parentEntity, EntityTreeComponent)
-    const childIndex = beforeEntity ? parentEntityTree.children.indexOf(beforeEntity) : parentEntityTree.children.length
-    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
-    setComponent(entity, NameComponent, name)
-    setComponent(entity, VisibleComponent)
-    setComponent(entity, SourceComponent, sceneID)
-    for (const comp of componentJson) {
-      setComponent(entity, ComponentJSONIDMap.get(comp.name)!, comp.props)
-    }
   }
 }
 
@@ -502,21 +468,6 @@ const duplicateObject = (entities: Entity[]) => {
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
-    }
-  }
-
-  /** Temporary until GLTF loader refactored */
-  for (const [oldEntityUUID, newEntityUUID] of Object.entries(copyMap)) {
-    const oldEntity = UUIDComponent.getEntityByUUID(oldEntityUUID as EntityUUID)
-    const data = serializeEntity(oldEntity)
-    const newEntity = createEntity()
-    setComponent(newEntity, SourceComponent, getComponent(oldEntity, SourceComponent))
-    setComponent(newEntity, UUIDComponent, newEntityUUID)
-    const parent = getComponent(oldEntity, EntityTreeComponent).parentEntity
-    setComponent(newEntity, EntityTreeComponent, { parentEntity: parent })
-    for (const comp of data) {
-      if (comp.name === UUIDComponent.jsonID) continue
-      setComponent(newEntity, ComponentJSONIDMap.get(comp.name)!, comp.props)
     }
   }
 }
@@ -747,22 +698,6 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
-
-  /** Temporary until GLTF loader refactored */
-  for (const entity of entities) {
-    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTreeComponent.parentEntity
-    const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
-
-    if (before) {
-      setComponent(entity, EntityTreeComponent, {
-        parentEntity,
-        childIndex: parentEntityTreeComponent.children.indexOf(before)
-      })
-    } else {
-      setComponent(entity, EntityTreeComponent, { parentEntity })
-    }
-  }
 }
 
 /** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
@@ -877,17 +812,6 @@ const groupObjects = (entities: Entity[]) => {
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
-
-  /** Temporary until GLTF loader refactored */
-  for (const [sceneID, groupUUID] of Object.entries(newGroupUUIDs)) {
-    const entity = createEntity()
-    setComponent(entity, UUIDComponent, groupUUID)
-    setComponent(entity, NameComponent, 'New Group')
-    setComponent(entity, TransformComponent)
-    setComponent(entity, VisibleComponent, true)
-    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EditorState).rootEntity })
-    setComponent(entity, SourceComponent, sceneID)
-  }
 }
 
 const removeObject = (entities: Entity[]) => {
@@ -956,12 +880,6 @@ const removeObject = (entities: Entity[]) => {
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-  }
-
-  /** Temporary until GLTF loader refactored */
-  for (const entityUUID of entityUUIDsToDelete) {
-    const entity = UUIDComponent.getEntityByUUID(entityUUID)
-    removeEntity(entity)
   }
 }
 
