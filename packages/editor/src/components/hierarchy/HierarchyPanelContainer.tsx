@@ -554,21 +554,25 @@ const GLTFHierarchy = (props: { sourcePath: string }) => {
 const JSONHierarchy = (props: { sceneID: string }) => {
   const { sceneID } = props
   const sceneState = useHookstate(getMutableState(SceneState)).value
-
-  const sceneJson = SceneState.getScene(sceneID!)?.scene
   const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
-  const index = SceneSnapshotState.useSnapshotIndex(sceneID)
 
-  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+  if (!sceneID || !sceneState.scenes[sceneID] || !snapshots[sceneID]) return null
 
-  return (
-    <HierarchyPanelContents
-      key={sceneJson.root}
-      rootEntityUUID={sceneJson.root}
-      sceneURL={sceneID}
-      index={index.value}
-    />
-  )
+  const SceneHierarchySub = () => {
+    const sceneJson = SceneState.useScene(sceneID).value
+    const index = SceneSnapshotState.useSnapshotIndex(sceneID)
+
+    return (
+      <HierarchyPanelContents
+        key={sceneJson.root}
+        rootEntityUUID={sceneJson.root}
+        sceneURL={sceneID}
+        index={index.value}
+      />
+    )
+  }
+
+  return <SceneHierarchySub />
 }
 
 export default function HierarchyPanel() {
