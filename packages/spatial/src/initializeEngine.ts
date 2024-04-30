@@ -90,15 +90,16 @@ export const createEngine = (canvas?: HTMLCanvasElement) => {
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
 
+  setComponent(Engine.instance.viewerEntity, SceneComponent)
+  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
+    Engine.instance.originEntity,
+    Engine.instance.viewerEntity,
+    Engine.instance.localFloorEntity
+  ])
+
   if (canvas) {
     setComponent(Engine.instance.viewerEntity, RendererComponent, { canvas })
     getComponent(Engine.instance.viewerEntity, RendererComponent).initialize()
-    setComponent(Engine.instance.viewerEntity, SceneComponent)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([
-      Engine.instance.originEntity,
-      Engine.instance.viewerEntity,
-      Engine.instance.localFloorEntity
-    ])
   }
   getMutableState(ECSState).timer.set(
     Timer(

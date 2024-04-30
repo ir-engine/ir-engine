@@ -49,10 +49,10 @@ import {
   instanceAttendancePath,
   instancePath,
   locationPath,
-  scenePath,
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
+import { getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -71,6 +71,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -299,7 +300,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
-      GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
+      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -313,7 +315,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       })
     }
 
-    app.service(scenePath).on('updated', sceneUpdatedListener)
+    app.service(assetPath).on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')

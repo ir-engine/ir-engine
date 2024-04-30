@@ -35,7 +35,8 @@ import {
   removeEntity,
   setComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useQuery
 } from '@etherealengine/ecs'
 import {
   NO_PROXY,
@@ -47,12 +48,14 @@ import {
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect } from 'react'
 import { Matrix4 } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import { SceneAssetPendingTagComponent } from '../scene/components/SceneAssetPendingTagComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -66,8 +69,7 @@ export const GLTFComponent = defineComponent({
       src: '',
       // internals
       extensions: {},
-      progress: 0,
-      errorVal: null
+      progress: 0
     }
   },
 
@@ -164,26 +166,38 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     return () => {
       abortController.abort()
       state.merge({
-        extensions: {},
-        progress: 0,
-        errorVal: null
+        extensions: {}
       })
     }
   }, [url])
 }
 
+const useGlTFParseProgress = (entity: Entity) => {
+  const uuidComponent = useComponent(entity, UUIDComponent)
+  const SelfSceneComponent = useHookstate(SceneComponent.sceneState[uuidComponent.value])
+  const query = useQuery([SceneAssetPendingTagComponent, SelfSceneComponent])
+
+  useEffect(() => {
+    console.log('useGlTFParseProgress', query.length)
+  }, [query])
+}
+
 const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
+  const entity = useEntityContext()
+  useGlTFParseProgress(entity)
+
   const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  if (!documentState.value) return null
   if (!documentState.scenes.value) return null
 
   const nodes = documentState.scenes![documentState.scene.value!].nodes as State<number[]>
+
+  const document = documentState.get(NO_PROXY)
 
   return (
     <>
       {nodes.get(NO_PROXY).map((nodeIndex, childIndex) => (
         <NodeReactor
-          key={(documentState.nodes[nodeIndex].extensions![UUIDComponent.jsonID] as EntityUUID) ?? nodeIndex}
+          key={(document.nodes![nodeIndex].extensions![UUIDComponent.jsonID] as EntityUUID) ?? nodeIndex}
           childIndex={childIndex}
           nodeIndex={nodeIndex}
           parentUUID={props.parentUUID}

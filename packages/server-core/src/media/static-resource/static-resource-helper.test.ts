@@ -77,7 +77,7 @@ describe('static-resource-helper', () => {
       const res = await downloadResourceAndMetadata(url)
       assert(res.buffer)
       assert.equal(res.originalname, name)
-      assert.equal(res.mimetype, 'application/json')
+      assert.equal(res.mimetype, 'model/gltf')
       assert(res.size)
     })
   })

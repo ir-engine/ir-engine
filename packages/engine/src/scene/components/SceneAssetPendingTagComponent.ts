@@ -48,6 +48,7 @@ export const SceneAssetPendingTagComponent = defineComponent({
   },
 
   addResource: (entity: Entity, resource: string) => {
+    console.log('addResource', entity, resource)
     if (!hasComponent(entity, SceneAssetPendingTagComponent)) setComponent(entity, SceneAssetPendingTagComponent)
     if (!getComponent(entity, SceneAssetPendingTagComponent).includes(resource)) {
       getMutableComponent(entity, SceneAssetPendingTagComponent).merge([resource])
