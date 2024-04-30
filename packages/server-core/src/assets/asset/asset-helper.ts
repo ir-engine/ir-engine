@@ -44,7 +44,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
         )
         if (!sceneJSONAssets.length) return
         return sceneJSONAssets.map((asset) => ({
-          id: self.crypto.randomUUID(),
+          id: crypto.randomUUID(),
           assetURL: asset,
           projectId: project.id,
           thumbnailURL: asset.replace('.scene.json', '.thumbnail.jpg'),

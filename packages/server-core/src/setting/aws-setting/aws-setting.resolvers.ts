@@ -99,7 +99,7 @@ export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>({
 export const awsSettingDataResolver = resolve<AwsSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

@@ -330,7 +330,7 @@ export const dispatchAction = <A extends Action>(_action: A) => {
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false
-  action.$uuid = action.$uuid ?? self.crypto.randomUUID()
+  action.$uuid = action.$uuid ?? crypto.randomUUID()
   const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)
 
   if (process.env.APP_ENV === 'development' && !action.$stack) {

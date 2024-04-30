@@ -69,7 +69,7 @@ export const useSelectionHandler = ({
 
     const nodeIdMap = new Map<string, string>()
     const newNodes = nodes.map((node) => {
-      nodeIdMap[node.id] = self.crypto.randomUUID()
+      nodeIdMap[node.id] = crypto.randomUUID()
       return {
         ...node,
         id: nodeIdMap[node.id],
@@ -85,7 +85,7 @@ export const useSelectionHandler = ({
         type: 'add',
         item: {
           ...edge,
-          id: self.crypto.randomUUID(),
+          id: crypto.randomUUID(),
           source: nodeIdMap[edge.source],
           target: nodeIdMap[edge.target]
         }
@@ -99,7 +99,7 @@ export const useSelectionHandler = ({
 
     if (groupNodes) {
       const newGroup: Node = {
-        id: self.crypto.randomUUID(),
+        id: crypto.randomUUID(),
         type: 'group',
         position: { x: nodeBoundingPositions.right + 10, y: nodeBoundingPositions.top - 20 },
         data: { label: groupName, configuration: {}, values: {} },

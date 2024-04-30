@@ -90,7 +90,7 @@ export const recordingExternalResolver = resolve<RecordingType, HookContext>({})
 export const recordingDataResolver = resolve<RecordingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID() as RecordingID
+      return crypto.randomUUID() as RecordingID
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

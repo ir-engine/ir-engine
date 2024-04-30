@@ -46,7 +46,7 @@ export const instanceExternalResolver = resolve<InstanceType, HookContext>({})
 
 export const instanceDataResolver = resolve<InstanceType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as InstanceID
+    return crypto.randomUUID() as InstanceID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

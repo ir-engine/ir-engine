@@ -106,7 +106,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   writeImage(image: HTMLImageElement | HTMLCanvasElement, imageDef: { [key: string]: any }) {
     //only execute when images are not embedded
     if (this.writer.options.embedImages) return
-    const name = self.crypto.randomUUID()
+    const name = crypto.randomUUID()
     const projectName = this.projectName
     const modelName = this.modelName
     let buffer: ArrayBuffer

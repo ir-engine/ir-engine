@@ -43,7 +43,7 @@ export const chargebeeSettingExternalResolver = resolve<ChargebeeSettingType, Ho
 
 export const chargebeeSettingDataResolver = resolve<ChargebeeSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

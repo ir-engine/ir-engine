@@ -43,7 +43,7 @@ export const locationSettingExternalResolver = resolve<LocationSettingType, Hook
 
 export const locationSettingDataResolver = resolve<LocationSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

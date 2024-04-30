@@ -83,7 +83,7 @@ cli.main(async () => {
             .first()
           if (existingScope == null) {
             await knexClient.from<ScopeTypeInterface>(scopePath).insert({
-              id: self.crypto.randomUUID() as ScopeID,
+              id: crypto.randomUUID() as ScopeID,
               userId: options.id,
               type,
               createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),

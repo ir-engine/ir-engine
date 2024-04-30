@@ -168,7 +168,7 @@ async function _resetToGuestToken(options = { reset: true }) {
   }
   const newProvider = await Engine.instance.api.service(identityProviderPath).create({
     type: 'guest',
-    token: self.crypto.randomUUID(),
+    token: crypto.randomUUID(),
     userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!

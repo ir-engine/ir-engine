@@ -39,7 +39,7 @@ export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({
 
 export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

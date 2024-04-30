@@ -40,7 +40,7 @@ export const scopeExternalResolver = resolve<ScopeTypeInterface, HookContext>({
 
 export const scopeDataResolver = resolve<ScopeTypeInterface, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as ScopeID
+    return crypto.randomUUID() as ScopeID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

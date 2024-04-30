@@ -42,7 +42,7 @@ export const spawnPointExternalResolver = resolve<SpawnPointType, HookContext>({
 
 export const spawnPointDataResolver = resolve<SpawnPointType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as EntityUUID
+    return crypto.randomUUID() as EntityUUID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

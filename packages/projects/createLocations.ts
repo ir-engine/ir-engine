@@ -39,9 +39,9 @@ export const createLocations = async (app: Application, projectName: string, sce
   return Promise.all(
     sceneFiles.map(async (fileName) => {
       const assetURL = `projects/${projectName}/${fileName}`
-      const locationId = self.crypto.randomUUID() as LocationID
-      const sceneId = self.crypto.randomUUID()
-      const settingsId = self.crypto.randomUUID()
+      const locationId = crypto.randomUUID() as LocationID
+      const sceneId = crypto.randomUUID()
+      const settingsId = crypto.randomUUID()
       const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
       /** @todo use .gltf instead */

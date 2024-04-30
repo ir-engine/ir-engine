@@ -128,7 +128,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
             {
               type: invite.identityProviderType,
               token: invite.token,
-              userId: self.crypto.randomUUID() as UserID
+              userId: crypto.randomUUID() as UserID
             },
             params as any
           )

@@ -110,7 +110,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
     await super._create({
-      id: self.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       name: projectName,
       enabled,
       repositoryPath: gitData.repositoryPath,

@@ -43,7 +43,7 @@ export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType
 
 export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -91,8 +91,8 @@ describe('route.test', () => {
   })
 
   it('should find the installed project routes', async () => {
-    testProject = `test-project-${self.crypto.randomUUID()}`
-    testRoute = `test-route-${self.crypto.randomUUID()}`
+    testProject = `test-project-${crypto.randomUUID()}`
+    testRoute = `test-route-${crypto.randomUUID()}`
 
     await app.service(projectPath).create({ name: testProject }, params)
     updateXREngineConfigForTest(testProject, testRoute)

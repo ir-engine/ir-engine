@@ -40,7 +40,7 @@ export const redisSettingExternalResolver = resolve<RedisSettingType, HookContex
 
 export const redisSettingDataResolver = resolve<RedisSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

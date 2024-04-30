@@ -40,7 +40,7 @@ export const matchTicketExternalResolver = resolve<MatchTicketType, HookContext>
 
 export const matchTicketDataResolver = resolve<MatchTicketType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

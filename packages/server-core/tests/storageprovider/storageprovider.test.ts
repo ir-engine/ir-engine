@@ -39,7 +39,7 @@ import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
 
 describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
-  const testFolderName = `TestFolder-${self.crypto.randomUUID()}`
+  const testFolderName = `TestFolder-${crypto.randomUUID()}`
   const testFileContent = 'content'
   const folderKeyTemp = path.join(testFolderName, 'temp')
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')

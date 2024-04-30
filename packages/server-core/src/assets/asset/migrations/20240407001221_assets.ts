@@ -58,7 +58,7 @@ export async function up(knex: Knex): Promise<void> {
         locations
           .filter((item) => item.sceneId)
           .map(async (location: LocationType) => {
-            const id = self.crypto.randomUUID()
+            const id = crypto.randomUUID()
             await trx.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
             const [, projectName] = location.sceneId.split('/')
             const projects = await trx.select().from(projectPath).where('name', projectName)

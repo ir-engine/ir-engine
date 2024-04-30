@@ -43,7 +43,7 @@ export const instanceAuthorizedUserExternalResolver = resolve<InstanceAuthorized
 
 export const instanceAuthorizedUserDataResolver = resolve<InstanceAuthorizedUserType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

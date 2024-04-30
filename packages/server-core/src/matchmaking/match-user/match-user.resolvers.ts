@@ -40,7 +40,7 @@ export const matchUserExternalResolver = resolve<MatchUserType, HookContext>({})
 
 export const matchUserDataResolver = resolve<MatchUserType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

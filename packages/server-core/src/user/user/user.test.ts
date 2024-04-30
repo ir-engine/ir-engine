@@ -113,7 +113,7 @@ describe('user.test', () => {
 
   it('should patch users', async () => {
     for (const user of users) {
-      const newName = self.crypto.randomUUID() as UserName
+      const newName = crypto.randomUUID() as UserName
       await app.service(userPath).patch(
         user.id,
         {
@@ -129,7 +129,7 @@ describe('user.test', () => {
   })
 
   it('should patch a user with a query without affecting users not part of that query', async () => {
-    const newName = self.crypto.randomUUID() as UserName
+    const newName = crypto.randomUUID() as UserName
     const user1 = users[0]
     const user2 = users[1]
     await app.service(userPath).patch(user1.id, {

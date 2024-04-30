@@ -53,10 +53,10 @@ describe('project-builder-tags.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-builder-tags-user-name-' + self.crypto.randomUUID()) as UserName
+    const name = ('test-project-builder-tags-user-name-' + crypto.randomUUID()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-builder-tags-avatar-name-' + self.crypto.randomUUID()
+      name: 'test-project-builder-tags-avatar-name-' + crypto.randomUUID()
     })
 
     const testUser = await app.service(userPath).create({

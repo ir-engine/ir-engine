@@ -35,7 +35,7 @@ export const useVariableHandler = ({
   setVariables
 }: Pick<visualScriptFlow, 'variables' | 'setVariables'>) => {
   const createVariable = (): VariableJSON => ({
-    id: self.crypto.randomUUID(),
+    id: crypto.randomUUID(),
     name: uniqueId('variable '),
     valueTypeName: 'string',
     initialValue: ''

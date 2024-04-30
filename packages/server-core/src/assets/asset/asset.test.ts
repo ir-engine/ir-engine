@@ -41,7 +41,7 @@ describe('asset.test', () => {
   })
 
   before(async () => {
-    projectName = `test-scene-project-${self.crypto.randomUUID()}`
+    projectName = `test-scene-project-${crypto.randomUUID()}`
     project = await app.service(projectPath).create({ name: projectName })
   })
 

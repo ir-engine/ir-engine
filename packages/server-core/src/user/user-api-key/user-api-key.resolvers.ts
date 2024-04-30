@@ -40,10 +40,10 @@ export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   token: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
@@ -51,10 +51,10 @@ export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   token: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

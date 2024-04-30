@@ -40,7 +40,7 @@ export const analyticsExternalResolver = resolve<AnalyticsType, HookContext>({})
 
 export const analyticsDataResolver = resolve<AnalyticsType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

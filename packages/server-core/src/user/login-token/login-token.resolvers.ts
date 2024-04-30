@@ -44,7 +44,7 @@ export const loginTokenExternalResolver = resolve<LoginTokenType, HookContext>({
 
 export const loginTokenDataResolver = resolve<LoginTokenType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   token: async () => {
     return crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')

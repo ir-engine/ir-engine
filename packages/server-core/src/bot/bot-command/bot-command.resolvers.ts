@@ -40,7 +40,7 @@ export const botCommandExternalResolver = resolve<BotCommandType, HookContext>({
 
 export const botCommandDataResolver = resolve<BotCommandType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

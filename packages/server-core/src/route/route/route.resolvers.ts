@@ -40,7 +40,7 @@ export const routeExternalResolver = resolve<RouteType, HookContext>({})
 
 export const routeDataResolver = resolve<RouteType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as RouteID
+    return crypto.randomUUID() as RouteID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -41,7 +41,7 @@ export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
 
 export const userKickDataResolver = resolve<UserKickType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as UserKickID
+    return crypto.randomUUID() as UserKickID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

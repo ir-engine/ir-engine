@@ -105,7 +105,7 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>({
 export const inviteDataResolver = resolve<InviteType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     passcode: async () => {
       return crypto.randomBytes(8).toString('hex')

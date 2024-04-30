@@ -50,10 +50,10 @@ describe('location.test', () => {
   })
 
   it('should create a new location', async () => {
-    const name = `Test Location ${self.crypto.randomUUID()}`
+    const name = `Test Location ${crypto.randomUUID()}`
 
     const scene = await app.service(assetPath).create({
-      id: self.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       name,
       assetURL: 'projects/default-project/test.scene.json',
       thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
@@ -98,7 +98,7 @@ describe('location.test', () => {
   })
 
   it('should be able to update the location', async () => {
-    const newName = `Update Test Location ${self.crypto.randomUUID()}`
+    const newName = `Update Test Location ${crypto.randomUUID()}`
     const locationSetting = await app.service(locationSettingPath).create({
       locationType: 'public',
       audioEnabled: true,

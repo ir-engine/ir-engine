@@ -62,8 +62,8 @@ describe('bot.service', () => {
   })
 
   before(async () => {
-    const name = ('test-bot-user-name-' + self.crypto.randomUUID()) as UserName
-    const avatarName = 'test-bot-avatar-name-' + self.crypto.randomUUID()
+    const name = ('test-bot-user-name-' + crypto.randomUUID()) as UserName
+    const avatarName = 'test-bot-avatar-name-' + crypto.randomUUID()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -78,8 +78,8 @@ describe('bot.service', () => {
   })
 
   it('should create bot', async () => {
-    const name = 'test-bot-' + self.crypto.randomUUID()
-    const description = self.crypto.randomUUID() + '-' + self.crypto.randomUUID()
+    const name = 'test-bot-' + crypto.randomUUID()
+    const description = crypto.randomUUID() + '-' + crypto.randomUUID()
     testBot = await app.service(botPath).create({
       name,
       instanceId: testInstance.id,
@@ -98,17 +98,17 @@ describe('bot.service', () => {
   })
 
   it('should create bot with botCommands', async () => {
-    const name = 'test-bot-' + self.crypto.randomUUID()
-    const description = self.crypto.randomUUID() + '-' + self.crypto.randomUUID()
+    const name = 'test-bot-' + crypto.randomUUID()
+    const description = crypto.randomUUID() + '-' + crypto.randomUUID()
 
     const botCommands = [
       {
-        name: 'test-bot-command-' + self.crypto.randomUUID(),
-        description: 'bot-command-description-' + self.crypto.randomUUID()
+        name: 'test-bot-command-' + crypto.randomUUID(),
+        description: 'bot-command-description-' + crypto.randomUUID()
       },
       {
-        name: 'test-bot-command-' + self.crypto.randomUUID(),
-        description: 'bot-command-description-' + self.crypto.randomUUID()
+        name: 'test-bot-command-' + crypto.randomUUID(),
+        description: 'bot-command-description-' + crypto.randomUUID()
       }
     ]
 
@@ -135,7 +135,7 @@ describe('bot.service', () => {
   })
 
   it('should patch the bot', async () => {
-    const name = 'test-bot-' + self.crypto.randomUUID()
+    const name = 'test-bot-' + crypto.randomUUID()
     const patchedBot = await app.service(botPath).patch(testBot.id, { name }, { isInternal: true })
     assert.equal(patchedBot.name, name)
     testBot = patchedBot

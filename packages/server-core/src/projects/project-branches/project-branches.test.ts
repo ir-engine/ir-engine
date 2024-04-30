@@ -53,10 +53,10 @@ describe('project-branches.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-branches-user-name-' + self.crypto.randomUUID()) as UserName
+    const name = ('test-project-branches-user-name-' + crypto.randomUUID()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-branches-avatar-name-' + self.crypto.randomUUID()
+      name: 'test-project-branches-avatar-name-' + crypto.randomUUID()
     })
 
     const testUser = await app.service(userPath).create({

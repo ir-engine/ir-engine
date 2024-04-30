@@ -90,7 +90,7 @@ export const clientSettingExternalResolver = resolve<ClientSettingType, HookCont
 export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

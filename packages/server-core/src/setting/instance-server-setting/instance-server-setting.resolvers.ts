@@ -43,7 +43,7 @@ export const instanceServerSettingExternalResolver = resolve<InstanceServerSetti
 
 export const instanceServerSettingDataResolver = resolve<InstanceServerSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

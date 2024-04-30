@@ -41,7 +41,7 @@ export const assetExternalResolver = resolve<AssetType, HookContext>({})
 
 export const assetDataResolver = resolve<AssetType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

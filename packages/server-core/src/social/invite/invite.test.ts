@@ -47,8 +47,8 @@ describe('invite.service', () => {
   })
 
   before(async () => {
-    const name = ('test-invite-user-name-' + self.crypto.randomUUID()) as UserName
-    const avatarName = 'test-invite-avatar-name-' + self.crypto.randomUUID()
+    const name = ('test-invite-user-name-' + crypto.randomUUID()) as UserName
+    const avatarName = 'test-invite-avatar-name-' + crypto.randomUUID()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -72,7 +72,7 @@ describe('invite.service', () => {
   inviteTypes.forEach((inviteType) => {
     it(`should create an invite with type ${inviteType}`, async () => {
       const inviteType = 'friend'
-      const token = `${self.crypto.randomUUID()}@etherealengine.io`
+      const token = `${crypto.randomUUID()}@etherealengine.io`
       const identityProviderType = 'email'
 
       const createdInvite = await app.service(invitePath).create(

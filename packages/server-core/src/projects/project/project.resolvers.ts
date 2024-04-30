@@ -97,7 +97,7 @@ export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

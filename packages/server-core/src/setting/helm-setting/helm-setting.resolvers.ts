@@ -40,7 +40,7 @@ export const helmSettingExternalResolver = resolve<HelmSettingType, HookContext>
 
 export const helmSettingDataResolver = resolve<HelmSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

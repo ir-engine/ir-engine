@@ -70,7 +70,7 @@ export const useFlowHandlers = ({
       if (connection.target === null) return
 
       const newEdge = {
-        id: self.crypto.randomUUID(),
+        id: crypto.randomUUID(),
         source: connection.source,
         target: connection.target,
         sourceHandle: connection.sourceHandle,
@@ -96,7 +96,7 @@ export const useFlowHandlers = ({
     (nodeType: string, position: XYPosition) => {
       closeNodePicker()
       const newNode = {
-        id: self.crypto.randomUUID(),
+        id: crypto.randomUUID(),
         type: nodeType,
         position,
         data: { configuration: {}, values: {} } //fill with default values here

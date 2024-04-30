@@ -50,7 +50,7 @@ export const migrateSceneSettings = (json: SceneJsonType) => {
   // force reordering so our new entity can be at the start
   json.entities = {
     [json.root]: json.entities[json.root],
-    [self.crypto.randomUUID()]: newEntity,
+    [crypto.randomUUID()]: newEntity,
     ...json.entities
   }
 }

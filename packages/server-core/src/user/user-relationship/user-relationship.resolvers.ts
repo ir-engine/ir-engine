@@ -52,7 +52,7 @@ export const userRelationshipExternalResolver = resolve<UserRelationshipType, Ho
 
 export const userRelationshipDataResolver = resolve<UserRelationshipType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as UserRelationshipID
+    return crypto.randomUUID() as UserRelationshipID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

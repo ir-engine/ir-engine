@@ -60,7 +60,7 @@ describe('InstanceLoad', () => {
     const loadLocation = onConnection(app)
 
     const type = 'guest'
-    const token = self.crypto.randomUUID()
+    const token = crypto.randomUUID()
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,

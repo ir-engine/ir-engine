@@ -85,7 +85,7 @@ export const emailSettingExternalResolver = resolve<EmailSettingType, HookContex
 export const emailSettingDataResolver = resolve<EmailSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

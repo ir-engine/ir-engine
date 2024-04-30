@@ -40,7 +40,7 @@ export const locationBanExternalResolver = resolve<LocationBanType, HookContext>
 
 export const locationBanDataResolver = resolve<LocationBanType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

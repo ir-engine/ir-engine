@@ -76,12 +76,12 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as LocationID
+    return crypto.randomUUID() as LocationID
   },
   locationSetting: async (value, location) => {
     return {
       ...location.locationSetting,
-      id: self.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       locationType: location.locationSetting.locationType || 'public',
       locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
@@ -91,7 +91,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
   locationAdmin: async (value, location) => {
     return {
       ...location.locationAdmin,
-      id: self.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       locationId: '' as LocationID,
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),

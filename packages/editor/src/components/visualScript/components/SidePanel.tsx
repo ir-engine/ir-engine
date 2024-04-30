@@ -113,7 +113,7 @@ export const SidePanel = ({
                       const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
                       const position = viewportCenter // need a way to get viewport
                       const newNode = {
-                        id: self.crypto.randomUUID(),
+                        id: crypto.randomUUID(),
                         type: nodeName,
                         position,
                         data: { configuration: {}, values: {} } //fill with default values here

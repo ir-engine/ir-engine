@@ -74,7 +74,7 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
 
 export const avatarDataResolver = resolve<AvatarDatabaseType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as AvatarID
+    return crypto.randomUUID() as AvatarID
   },
   isPublic: async (isPublic) => {
     return isPublic ?? true

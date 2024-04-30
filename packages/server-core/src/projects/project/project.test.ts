@@ -69,8 +69,8 @@ describe('project.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-user-name-' + self.crypto.randomUUID()) as UserName
-    const avatarName = 'test-project-avatar-name-' + self.crypto.randomUUID()
+    const name = ('test-project-user-name-' + crypto.randomUUID()) as UserName
+    const avatarName = 'test-project-avatar-name-' + crypto.randomUUID()
 
     const avatar = await app.service(avatarPath).create({
       name: avatarName
@@ -102,7 +102,7 @@ describe('project.test', () => {
 
   describe('create', () => {
     it('should add new project', async () => {
-      const projectName = `test-project-${self.crypto.randomUUID()}`
+      const projectName = `test-project-${crypto.randomUUID()}`
 
       testProject = await app.service(projectPath).create(
         {
@@ -144,7 +144,7 @@ describe('project.test', () => {
       git.add('.')
       git.commit('initial commit')
 
-      testUpdateProjectName = `test-update-project-name-${self.crypto.randomUUID()}`
+      testUpdateProjectName = `test-update-project-name-${crypto.randomUUID()}`
     })
 
     after(async () => {

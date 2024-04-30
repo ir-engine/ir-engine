@@ -117,7 +117,7 @@ const uploadFile = (Key, Body) => {
 
 const saveToDB = async (name, extension) => {
   await knexClient.from(staticResourcePath).insert({
-    id: self.crypto.randomUUID(),
+    id: crypto.randomUUID(),
     sid: nanoid(8),
     name,
     url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,

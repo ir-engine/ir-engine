@@ -65,7 +65,7 @@ export const botExternalResolver = resolve<BotType, HookContext>({
 
 export const botDataResolver = resolve<BotType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   instanceId: async (instanceId) => {
     return instanceId ?? ('' as InstanceID)

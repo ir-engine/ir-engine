@@ -45,7 +45,7 @@ export const identityProviderExternalResolver = resolve<IdentityProviderType, Ho
 
 export const identityProviderDataResolver = resolve<IdentityProviderType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

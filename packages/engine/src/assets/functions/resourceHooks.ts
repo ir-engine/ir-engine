@@ -44,7 +44,7 @@ function useLoader<T extends AssetType>(
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
-  const uuid = useHookstate<string>(self.crypto.randomUUID())
+  const uuid = useHookstate<string>(crypto.randomUUID())
 
   const unload = () => {
     if (url) ResourceManager.unload(url, entity, uuid.value)

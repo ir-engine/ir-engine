@@ -166,7 +166,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({
 
 export const userDataResolver = resolve<UserType, HookContext>({
   id: async (id) => {
-    return id || (self.crypto.randomUUID() as UserID)
+    return id || (crypto.randomUUID() as UserID)
   },
   name: async (name) => {
     return name || (('Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)) as UserName)

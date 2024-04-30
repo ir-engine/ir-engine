@@ -42,7 +42,7 @@ export const apiJobExternalResolver = resolve<ApiJobType, HookContext>({})
 
 export const apiJobDataResolver = resolve<ApiJobType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

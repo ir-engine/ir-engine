@@ -48,7 +48,7 @@ export async function up(knex: Knex): Promise<void> {
           .map(
             async (user) =>
               ({
-                id: self.crypto.randomUUID(),
+                id: crypto.randomUUID(),
                 userId: user.id,
                 avatarId: user.avatarId,
                 createdAt: await getDateTimeSql(),

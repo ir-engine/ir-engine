@@ -53,7 +53,7 @@ export const calculateNewEdge = (
 
   if (connection.handleType === 'source') {
     return {
-      id: self.crypto.randomUUID(),
+      id: crypto.randomUUID(),
       source: connection.nodeId ?? '',
       sourceHandle: connection.handleId,
       target: destinationNodeId,
@@ -62,7 +62,7 @@ export const calculateNewEdge = (
   }
 
   return {
-    id: self.crypto.randomUUID(),
+    id: crypto.randomUUID(),
     target: connection.nodeId ?? '',
     targetHandle: connection.handleId,
     source: destinationNodeId,

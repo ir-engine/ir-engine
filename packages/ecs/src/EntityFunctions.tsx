@@ -55,5 +55,5 @@ export const useEntityContext = () => {
 }
 
 export const generateEntityUUID = () => {
-  return self.crypto.randomUUID() as EntityUUID
+  return crypto.randomUUID() as EntityUUID
 }

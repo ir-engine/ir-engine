@@ -42,7 +42,7 @@ export default async function exportMaterialsGLTF(
   const nuMats: Material[] = []
   for (const material of materials) {
     const nuMat: Material = material.material.clone()
-    nuMat.uuid = self.crypto.randomUUID()
+    nuMat.uuid = crypto.randomUUID()
 
     registerMaterial(nuMat, material.src)
     nuMats.push(nuMat)

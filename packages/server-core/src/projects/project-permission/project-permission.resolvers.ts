@@ -47,7 +47,7 @@ export const projectPermissionExternalResolver = resolve<ProjectPermissionType, 
 
 export const projectPermissionDataResolver = resolve<ProjectPermissionType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

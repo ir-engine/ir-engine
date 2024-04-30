@@ -52,7 +52,7 @@ export const coilSettingExternalResolver = resolve<CoilSettingType, HookContext>
 
 export const coilSettingDataResolver = resolve<CoilSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

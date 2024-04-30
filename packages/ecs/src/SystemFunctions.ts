@@ -195,7 +195,7 @@ export function defineSystem(systemConfig: SystemArgs) {
 
 export const useExecute = (execute: () => void, insert: InsertSystem) => {
   useEffect(() => {
-    const handle = defineSystem({ uuid: self.crypto.randomUUID(), execute, insert })
+    const handle = defineSystem({ uuid: crypto.randomUUID(), execute, insert })
     return () => {
       destroySystem(handle)
     }

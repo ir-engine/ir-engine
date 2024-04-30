@@ -47,7 +47,7 @@ export const messageExternalResolver = resolve<MessageType, HookContext>({
 
 export const messageDataResolver = resolve<MessageType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID() as MessageID
+    return crypto.randomUUID() as MessageID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

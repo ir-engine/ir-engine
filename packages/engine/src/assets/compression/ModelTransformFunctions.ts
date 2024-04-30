@@ -804,7 +804,7 @@ export async function transformModel(
       delete resources[image.uri!]
       image.uri = nuURI
     })
-    const defaultBufURI = self.crypto.randomUUID() + '.bin'
+    const defaultBufURI = crypto.randomUUID() + '.bin'
     json.buffers?.map((buffer) => {
       buffer.uri = pathJoin(
         args.resourceUri ? args.resourceUri : resourceName + '_resources',

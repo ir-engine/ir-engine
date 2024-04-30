@@ -176,7 +176,7 @@ export const authenticationSettingExternalResolver = resolve<AuthenticationSetti
 export const authenticationSettingDataResolver = resolve<AuthenticationSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

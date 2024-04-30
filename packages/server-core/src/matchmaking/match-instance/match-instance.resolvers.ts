@@ -43,7 +43,7 @@ export const matchInstanceExternalResolver = resolve<MatchInstanceType, HookCont
 
 export const matchInstanceDataResolver = resolve<MatchInstanceType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -108,7 +108,7 @@ export function createHyperStore(options: {
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
-    peerID: self.crypto.randomUUID() as PeerID,
+    peerID: crypto.randomUUID() as PeerID,
     stateMap: {},
     stateReactors: {},
     actions: {

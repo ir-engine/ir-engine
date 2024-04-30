@@ -86,7 +86,7 @@ export const staticResourceExternalResolver = resolve<StaticResourceType, HookCo
 export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID()
+      return crypto.randomUUID()
     },
     sid: async () => {
       return nanoid(8)

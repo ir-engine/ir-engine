@@ -48,7 +48,7 @@ export const useTemplateHandler = ({
   const visualScriptState = useHookstate(getMutableState(VisualScriptState))
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
-    id: self.crypto.randomUUID(),
+    id: crypto.randomUUID(),
     name: uniqueId('New template '),
     nodes,
     edges

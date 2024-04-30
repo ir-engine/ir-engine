@@ -70,7 +70,7 @@ export async function seed(knex: Knex): Promise<void> {
       }
     ].map(async (item) => ({
       ...item,
-      id: self.crypto.randomUUID() as RouteID,
+      id: crypto.randomUUID() as RouteID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }))

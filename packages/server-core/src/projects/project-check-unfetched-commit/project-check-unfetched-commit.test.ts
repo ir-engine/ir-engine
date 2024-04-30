@@ -53,10 +53,10 @@ describe('project-check-unfetched-commit.test', () => {
   })
 
   before(async () => {
-    const name = ('test-project-check-unfetched-commit-user-name-' + self.crypto.randomUUID()) as UserName
+    const name = ('test-project-check-unfetched-commit-user-name-' + crypto.randomUUID()) as UserName
 
     const avatar = await app.service(avatarPath).create({
-      name: 'test-project-check-unfetched-commit-avatar-name-' + self.crypto.randomUUID()
+      name: 'test-project-check-unfetched-commit-avatar-name-' + crypto.randomUUID()
     })
 
     const testUser = await app.service(userPath).create({

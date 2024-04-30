@@ -43,7 +43,7 @@ export const taskServerSettingExternalResolver = resolve<TaskServerSettingType, 
 
 export const taskServerSettingDataResolver = resolve<TaskServerSettingType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -1542,7 +1542,7 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: self.crypto.randomUUID(),
+          id: crypto.randomUUID(),
           name: projectName,
           enabled,
           repositoryPath,

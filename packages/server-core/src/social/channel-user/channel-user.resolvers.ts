@@ -43,7 +43,7 @@ export const channelUserExternalResolver = resolve<ChannelUserType, HookContext>
 
 export const channelUserDataResolver = resolve<ChannelUserType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

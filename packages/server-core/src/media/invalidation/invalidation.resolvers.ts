@@ -39,7 +39,7 @@ export const invalidationExternalResolver = resolve<InvalidationType, HookContex
 
 export const invalidationDataResolver = resolve<InvalidationType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -75,7 +75,7 @@ export const userSettingExternalResolver = resolve<UserSettingType, HookContext>
 export const userSettingDataResolver = resolve<UserSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return self.crypto.randomUUID() as UserSettingID
+      return crypto.randomUUID() as UserSettingID
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

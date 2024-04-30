@@ -43,7 +43,7 @@ export const locationAuthorizedUserExternalResolver = resolve<LocationAuthorized
 
 export const locationAuthorizedUserDataResolver = resolve<LocationAuthorizedUserType, HookContext>({
   id: async () => {
-    return self.crypto.randomUUID()
+    return crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
