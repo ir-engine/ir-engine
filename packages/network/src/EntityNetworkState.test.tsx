@@ -27,11 +27,10 @@ import assert from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -406,7 +405,7 @@ describe('EntityNetworkState', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
-          entityUUID: generateEntityUUID()
+          entityUUID: UUIDComponent.generateUUID()
         })
       )
     }
@@ -431,7 +430,7 @@ describe('EntityNetworkState', () => {
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
-        entityUUID: generateEntityUUID()
+        entityUUID: UUIDComponent.generateUUID()
       })
     )
 

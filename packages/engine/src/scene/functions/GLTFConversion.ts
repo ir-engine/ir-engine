@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { generateEntityUUID } from '@etherealengine/ecs'
+import { UUIDComponent } from '@etherealengine/ecs'
 
 import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
@@ -47,7 +47,7 @@ export const nodeToEntityJson = (node: any): EntityJsonType => {
 export const gltfToSceneJson = (gltf: any): SceneJsonType => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
-  const rootUuid = generateEntityUUID()
+  const rootUuid = UUIDComponent.generateUUID()
   const result: SceneJsonType = {
     entities: {},
     root: rootUuid,

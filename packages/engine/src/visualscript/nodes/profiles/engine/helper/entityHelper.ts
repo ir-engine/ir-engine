@@ -31,7 +31,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, generateEntityUUID } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -52,7 +52,7 @@ export const addEntityToScene = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, TransformComponent)
-  const uuid = generateEntityUUID()
+  const uuid = UUIDComponent.generateUUID()
   setComponent(newEntity, UUIDComponent, uuid)
   setComponent(newEntity, VisibleComponent)
   for (const component of componentJson) {

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, UUIDComponent, createEntity, generateEntityUUID, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -276,7 +276,7 @@ const createObjectFromSceneElement = (
 ) => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? UUIDComponent.generateUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
     // gltf loader sanitizers names...
@@ -417,7 +417,7 @@ const duplicateObject = (entities: Entity[]) => {
         }
 
         const entityDataClone = JSON.parse(JSON.stringify(node))
-        const newUUID = generateEntityUUID()
+        const newUUID = UUIDComponent.generateUUID()
         copyMap[entityUUID] = newUUID
         entityDataClone.extensions![UUIDComponent.jsonID] = newUUID
         if (newChildren.length) entityDataClone.children = newChildren
@@ -460,7 +460,7 @@ const duplicateObject = (entities: Entity[]) => {
           if (!entityData) return /** @todo entity may be loaded in via GLTF **/
 
           const entityDataClone = JSON.parse(JSON.stringify(entityData))
-          const newUUID = generateEntityUUID()
+          const newUUID = UUIDComponent.generateUUID()
           copyMap[entityUUID] = newUUID
 
           const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
@@ -770,7 +770,7 @@ const groupObjects = (entities: Entity[]) => {
       const groupNode = {
         name: 'New Group',
         extensions: {
-          [UUIDComponent.jsonID]: generateEntityUUID(),
+          [UUIDComponent.jsonID]: UUIDComponent.generateUUID(),
           // TODO figure out where the new position should be
           [TransformComponent.jsonID]: componentJsonDefaults(TransformComponent),
           [VisibleComponent.jsonID]: true
@@ -814,7 +814,7 @@ const groupObjects = (entities: Entity[]) => {
       const childIndex = parentEntityTreeComponent.children.length
       const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
 
-      const groupEntityUUID = generateEntityUUID()
+      const groupEntityUUID = UUIDComponent.generateUUID()
       newGroupUUIDs[sceneID] = groupEntityUUID
 
       newSnapshot.data.entities[groupEntityUUID] = {

@@ -34,12 +34,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import {
-  createEntity,
-  generateEntityUUID,
-  removeEntity,
-  useEntityContext
-} from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -143,7 +138,7 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(helper, NameComponent, 'helper')
       setComponent(helper, VisibleComponent)
       setComponent(helper, TransformComponent)
-      setComponent(helper, UUIDComponent, generateEntityUUID())
+      setComponent(helper, UUIDComponent, UUIDComponent.generateUUID())
       setComponent(helper, EntityTreeComponent, { parentEntity: entity })
       setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper)
 

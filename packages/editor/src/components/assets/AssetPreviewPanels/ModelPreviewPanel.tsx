@@ -28,7 +28,7 @@ import React, { useEffect, useRef } from 'react'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { useHookstate } from '@etherealengine/hyperflux'
 
-import { UUIDComponent, createEntity, generateEntityUUID, setComponent } from '@etherealengine/ecs'
+import { UUIDComponent, createEntity, setComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -51,7 +51,7 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
-    const uuid = generateEntityUUID()
+    const uuid = UUIDComponent.generateUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works

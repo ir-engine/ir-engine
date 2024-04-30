@@ -51,7 +51,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import exportGLTF from '../../functions/exportGLTF'
 
-import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, Entity, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -83,7 +83,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   }
   setComponent(entity, SourceComponent, sceneID)
 
-  const uuid = generateEntityUUID()
+  const uuid = UUIDComponent.generateUUID()
   setComponent(entity, UUIDComponent, uuid)
 
   // These additional properties and relations are required for

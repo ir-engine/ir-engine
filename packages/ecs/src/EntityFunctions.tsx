@@ -28,7 +28,7 @@ import React from 'react'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
 import { removeAllComponents } from './ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 
 export const createEntity = (): Entity => {
   let entity = bitECS.addEntity(HyperFlux.store)
@@ -52,8 +52,4 @@ export const EntityContext = React.createContext(UndefinedEntity)
 
 export const useEntityContext = () => {
   return React.useContext(EntityContext)
-}
-
-export const generateEntityUUID = () => {
-  return crypto.randomUUID() as EntityUUID
 }

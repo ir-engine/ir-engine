@@ -37,7 +37,7 @@ import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
-import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
@@ -66,7 +66,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     if (!avatarUrl) return
 
     const { sceneEntity, cameraEntity } = renderPanel
-    const uuid = generateEntityUUID()
+    const uuid = UUIDComponent.generateUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, LoopAnimationComponent, {

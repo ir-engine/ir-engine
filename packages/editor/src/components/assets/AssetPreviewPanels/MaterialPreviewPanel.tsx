@@ -28,7 +28,7 @@ import React, { useEffect, useRef } from 'react'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { UUIDComponent, generateEntityUUID, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import { UUIDComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
@@ -48,7 +48,7 @@ export const MaterialPreviewCanvas = () => {
 
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
-    const uuid = generateEntityUUID()
+    const uuid = UUIDComponent.generateUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, VisibleComponent, true)
     const material = getState(MaterialLibraryState).materials[selectedMaterial.value].material

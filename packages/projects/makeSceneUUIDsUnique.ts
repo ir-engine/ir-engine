@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { EntityUUID, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 
 for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'))) {
@@ -39,7 +39,7 @@ for (const project of fs.readdirSync(path.resolve(appRootPath.path, 'packages/pr
       fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', project, scene)).toString()
     ) as SceneJsonType
     for (const uuid of Object.keys(sceneJson.entities)) {
-      uuidMapping[uuid] = generateEntityUUID()
+      uuidMapping[uuid] = UUIDComponent.generateUUID()
     }
     sceneJson.root = uuidMapping[Object.keys(sceneJson.entities)[0]]
     for (const uuid of Object.keys(sceneJson.entities)) {
