@@ -27,7 +27,11 @@ import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { commitProperty, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
 import React from 'react'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
@@ -43,7 +47,7 @@ type LightShadowPropertiesProps = {
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
  */
-export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
+export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
   //const lightComponent = useComponent(props.entity, props.comp).value as any

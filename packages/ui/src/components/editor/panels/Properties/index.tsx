@@ -28,14 +28,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
 import { InfoTooltip } from '../../layout/Tooltip'
-import styles from '../styles.module.scss'
+//import styles from '../styles.module.scss'
 import PropertiesPanelContainer from './container'
 
 export const PropertiesPanelTitle = () => {
   const { t } = useTranslation()
 
   return (
-    <div className={styles.dockableTab}>
+    <div>
       <PanelDragContainer>
         <PanelTitle>
           <InfoTooltip title={t('editor:properties.info')}>

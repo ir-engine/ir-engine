@@ -234,3 +234,5 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+export default CameraPropertiesNodeEditor

@@ -27,15 +27,18 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { createEntity } from '@etherealengine/ecs'
+import { setComponent, useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { BsPlusCircle } from 'react-icons/bs'
 import Popover from '../../../../../primitives/mui/Popover'
 import Button from '../../../../../primitives/tailwind/Button'
 import { PopoverContext } from '../../../util/PopoverContext'
@@ -56,7 +59,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  //const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  const entity = createEntity()
+
+  setComponent(entity, MediaComponent)
+
+  setComponent(entity, PositionalAudioComponent)
+
   useHookstate(getMutableState(ComponentEditorsState).keys).value
   const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
 
@@ -70,8 +79,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         }
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
-        <Button onClick={(event) => anchorEl.set(event.currentTarget)}>
+      <div className="ml-auto flex h-8 bg-zinc-900">
+        <Button
+          textContainerClassName="mx-0"
+          startIcon={<BsPlusCircle />}
+          className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
+          onClick={(event) => anchorEl.set(event.currentTarget)}
+        >
           {t('editor:properties.lbl-addComponent')}
         </Button>
       </div>
@@ -111,23 +125,15 @@ export const PropertiesPanelContainer = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const multiEdit = selectedEntities.length > 1
-  const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
-
+  //const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
+  const uuid = 'hello testing one two three' as any
   const { t } = useTranslation()
 
   const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
-    <div
-      style={{
-        overflowY: 'auto',
-        height: '100%'
-      }}
-    >
-      {materialID ? (
-        <></>
-      ) : /*<MaterialEditor materialID={materialID} />*/
-      uuid ? (
+    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
+      {uuid ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div className="flex h-full items-center justify-center text-gray-500">

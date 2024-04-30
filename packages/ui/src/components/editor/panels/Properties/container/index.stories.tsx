@@ -40,3 +40,5 @@ export default {
   },
   argTypes
 }
+
+export const Default = { args: {} }

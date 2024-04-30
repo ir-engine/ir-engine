@@ -44,7 +44,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
   const [minimized, setMinimized] = useState(false)
 
   return (
-    <div className="flex w-full flex-col rounded border-t border-solid bg-[#242424] px-4 py-1.5">
+    <div className="flex w-full flex-col rounded border-solid bg-[#242424] px-4 py-1.5">
       <div className="flex items-center gap-2 text-[#FAFAFA]">
         <Button
           onClick={() => setMinimized(!minimized)}

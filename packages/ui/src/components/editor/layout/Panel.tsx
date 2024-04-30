@@ -42,19 +42,8 @@ const panelCheckboxStyles = {
   padding: '0px'
 }
 
-const panelDragContainerStyles = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  padding: '0px',
-
-  '&.dockTabActive': {
-    '& > div': {
-      color: 'white !important'
-    }
-  }
-}
+const panelDragContainerClassname =
+  ' h-[26px] px-4 py-1 bg-zinc-900 rounded-tl-[5px] rounded-tr-[5px] justify-start items-center gap-2.5 inline-flex'
 
 const panelContainerStyles = {
   position: 'relative',
@@ -88,7 +77,11 @@ export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
 }
 
 export const PanelTitle = ({ children }) => {
-  return <div style={panelTitleStyles as React.CSSProperties}>{children}</div>
+  return (
+    <div className="text-center font-['Figtree'] text-sm font-medium leading-[18.20px] text-neutral-200">
+      {children}
+    </div>
+  )
 }
 
 export const PanelCheckbox = ({ children }) => {
@@ -96,7 +89,7 @@ export const PanelCheckbox = ({ children }) => {
 }
 
 export const PanelDragContainer = ({ children }) => {
-  return <div style={panelDragContainerStyles as React.CSSProperties}>{children}</div>
+  return <div className={panelDragContainerClassname}>{children}</div>
 }
 
 export const PanelContainer = ({ children, ...rest }) => {
