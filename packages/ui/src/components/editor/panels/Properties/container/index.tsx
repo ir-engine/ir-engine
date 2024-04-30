@@ -60,11 +60,12 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const { t } = useTranslation()
 
   //const entity = UUIDComponent.getEntityByUUID(entityUUID)
+
+  // {  for storybook debug remove later
   const entity = createEntity()
-
   setComponent(entity, MediaComponent)
-
   setComponent(entity, PositionalAudioComponent)
+  // }
 
   useHookstate(getMutableState(ComponentEditorsState).keys).value
   const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
@@ -126,7 +127,7 @@ export const PropertiesPanelContainer = () => {
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const multiEdit = selectedEntities.length > 1
   //const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
-  const uuid = 'hello testing one two three' as any
+  const uuid = 'hello testing one two three' as any //  storybook debug remove later
   const { t } = useTranslation()
 
   const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value

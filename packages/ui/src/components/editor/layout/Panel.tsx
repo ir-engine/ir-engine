@@ -31,19 +31,11 @@ const panelIconStyles = {
   width: '18px'
 }
 
-const panelTitleStyles = {
-  color: 'var(--textColor)',
-  position: 'relative'
-}
-
 const panelCheckboxStyles = {
   color: 'var(--textColor)',
   position: 'relative',
   padding: '0px'
 }
-
-const panelDragContainerClassname =
-  ' h-[26px] px-4 py-1 bg-zinc-900 rounded-tl-[5px] rounded-tr-[5px] justify-start items-center gap-2.5 inline-flex'
 
 const panelContainerStyles = {
   position: 'relative',
@@ -89,7 +81,11 @@ export const PanelCheckbox = ({ children }) => {
 }
 
 export const PanelDragContainer = ({ children }) => {
-  return <div className={panelDragContainerClassname}>{children}</div>
+  return (
+    <div className="inline-flex h-[26px] items-center justify-start gap-2.5 rounded-tl-[5px] rounded-tr-[5px] bg-zinc-900 px-4 py-1">
+      {children}
+    </div>
+  )
 }
 
 export const PanelContainer = ({ children, ...rest }) => {
