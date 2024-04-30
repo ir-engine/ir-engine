@@ -44,7 +44,7 @@ export const RendererState = defineState({
     nodeHelperVisibility: false,
     gridVisibility: false,
     gridHeight: 0,
-    forceBasicMaterials: true,
+    forceBasicMaterials: false,
     shadowMapResolution: isIPhone ? 256 : 2048,
     infiniteGridHelperEntity: null as Entity | null,
     physicsDebugEntity: null as Entity | null
