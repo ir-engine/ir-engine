@@ -263,14 +263,15 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
       setComponent(objEntity, ComponentJSONIDMap.get(component.name)!, component.props)
   }
 
-  eJson.components.push({
-    name: TransformComponent.jsonID,
-    props: {
-      position: obj.position.clone(),
-      rotation: obj.quaternion.clone(),
-      scale: obj.scale.clone()
-    }
-  })
+  if (!eJson.components.find((c) => c.name === TransformComponent.jsonID))
+    eJson.components.push({
+      name: TransformComponent.jsonID,
+      props: {
+        position: obj.position.clone(),
+        rotation: obj.quaternion.clone(),
+        scale: obj.scale.clone()
+      }
+    })
 
   addObjectToGroup(objEntity, obj)
   setComponent(objEntity, GLTFLoadedComponent, ['entity'])
@@ -330,7 +331,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   else setComponent(objEntity, FrustumCullCameraComponent)
 
   if (obj.userData['componentJson']) {
-    eJson.components.push(...obj.userData['componentJson'])
+    for (const json of obj.userData['componentJson']) {
+      if (!eJson.components.find((c) => c.name === json.name)) eJson.components.push(json)
+    }
   }
 
   const material = mesh.material

@@ -38,9 +38,9 @@ import {
 } from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { GLTF as GLTFDocument } from '@gltf-transform/core'
-import { GLTFDocumentState } from '../../../scene/GLTFState'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../../../scene/GLTFDocumentState'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
@@ -172,6 +172,28 @@ export class GLTFLoader extends Loader {
       scope.manager.itemEnd(url)
     }
 
+    /** If we alraedy have this document loaded, load the current version of it */
+    const gltfState = getState(GLTFDocumentState)[url]
+    if (gltfState) {
+      try {
+        scope.parse(
+          gltfState,
+          resourcePath,
+          function (gltf) {
+            onLoad(gltf)
+
+            scope.manager.itemEnd(url)
+          },
+          _onError,
+          url,
+          {}
+        )
+      } catch (e) {
+        _onError(e)
+      }
+      return
+    }
+
     const loader = new FileLoader(this.manager)
 
     loader.setPath(this.path)
@@ -181,10 +203,43 @@ export class GLTFLoader extends Loader {
 
     loader.load(
       url,
-      function (data) {
+      function (data: string | ArrayBuffer | GLTFDocument.IGLTF) {
+        const extensions = {}
+        const textDecoder = new TextDecoder()
+        let json: GLTFDocument.IGLTF
+
+        if (typeof data === 'string') {
+          json = JSON.parse(data)
+        } else if (data instanceof ArrayBuffer) {
+          const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+
+          if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+            try {
+              extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data)
+            } catch (error) {
+              if (onError) onError(error)
+              return
+            }
+
+            json = JSON.parse(extensions[EXTENSIONS.KHR_BINARY_GLTF].content)
+          } else {
+            json = JSON.parse(textDecoder.decode(data))
+          }
+        } else {
+          json = data
+        }
+
+        /** Add snapshot only off network load */
+        dispatchAction(
+          GLTFSnapshotAction.createSnapshot({
+            source: url,
+            data: json
+          })
+        )
+
         try {
           scope.parse(
-            data,
+            json,
             resourcePath,
             function (gltf) {
               onLoad(gltf)
@@ -192,7 +247,8 @@ export class GLTFLoader extends Loader {
               scope.manager.itemEnd(url)
             },
             _onError,
-            url
+            url,
+            extensions
           )
         } catch (e) {
           _onError(e)
@@ -239,42 +295,14 @@ export class GLTFLoader extends Loader {
     return this
   }
 
-  parse(data, path, onLoad, onError, url = '') {
-    let json: GLTFDocument.IGLTF
-    const extensions = {}
+  // @ts-ignore
+  parse(json: GLTFDocument.IGLTF, path, onLoad, onError, url = '', extensions) {
     const plugins = {}
-    const textDecoder = new TextDecoder()
-
-    if (typeof data === 'string') {
-      json = JSON.parse(data)
-    } else if (data instanceof ArrayBuffer) {
-      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-        try {
-          extensions[EXTENSIONS.KHR_BINARY_GLTF] = new GLTFBinaryExtension(data)
-        } catch (error) {
-          if (onError) onError(error)
-          return
-        }
-
-        json = JSON.parse(extensions[EXTENSIONS.KHR_BINARY_GLTF].content)
-      } else {
-        json = JSON.parse(textDecoder.decode(data))
-      }
-    } else {
-      json = data
-    }
 
     if (json.asset === undefined || (json.asset.version[0] as any as number) < 2) {
       if (onError) onError(new Error('THREE.GLTFLoader: Unsupported asset. glTF versions >=2.0 are supported.'))
       return
     }
-
-    /** store copy of raw GLTF in state */
-    getMutableState(GLTFDocumentState).merge({
-      [url]: JSON.parse(JSON.stringify(json))
-    })
 
     // Populate storage provider URLs
     parseStorageProviderURLs(json)
@@ -340,14 +368,14 @@ export class GLTFLoader extends Loader {
     parser.parse(onLoad, onError)
   }
 
-  parseAsync(data, path) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const scope = this
+  // parseAsync(data, path) {
+  //   // eslint-disable-next-line @typescript-eslint/no-this-alias
+  //   const scope = this
 
-    return new Promise(function (resolve, reject) {
-      scope.parse(data, path, resolve, reject)
-    })
-  }
+  //   return new Promise(function (resolve, reject) {
+  //     scope.parse(data, path, resolve, reject)
+  //   })
+  // }
 }
 
 export interface GLTF {

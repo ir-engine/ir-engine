@@ -46,6 +46,10 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React from 'react'
@@ -229,7 +233,12 @@ function ModelReactor(): JSX.Element {
       })
     }
     return () => {
-      SceneState.unloadScene(uuid)
+      SceneState.unloadScene(uuid, false)
+      const children = getOptionalComponent(entity, EntityTreeComponent)?.children
+      if (!children) return
+      for (const child of children) {
+        removeEntityNodeRecursively(child)
+      }
     }
   }, [modelComponent.scene])
 

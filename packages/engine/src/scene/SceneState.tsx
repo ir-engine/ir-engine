@@ -55,9 +55,6 @@ export interface SceneSnapshotInterface {
   data: SceneJsonType
 }
 
-/**
- * @todo GLTFDocumentState
- */
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
@@ -94,13 +91,14 @@ export const SceneState = defineState({
     }
   },
 
-  unloadScene: (sceneID: string) => {
+  unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
+    getMutableState(SceneState).scenes[sceneID].set(none)
+    if (!remove) return
     const root = sceneData.scene.root
     const rootEntity = UUIDComponent.getEntityByUUID(root)
     removeEntity(rootEntity)
-    getMutableState(SceneState).scenes[sceneID].set(none)
   },
 
   getRootEntity: (sceneID: string) => {
