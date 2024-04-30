@@ -85,15 +85,14 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
     <JSONTree
       data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
       labelRenderer={(raw, ...keyPath) => {
+        const uuidName = props.uuid! as string
         const label = raw[0]
         const isInnerSystem = label === 'preSystems' || label === 'subSystems' || label === 'postSystems'
         const isUuid = label === 'uuid'
+        const isRoot = label === 'root'
+        const labelName = isInnerSystem || isUuid ? t(`common:debug.${label}`) : isRoot ? uuidName : label
 
-        return (
-          <span style={{ color: isInnerSystem ? 'green' : 'black' }}>
-            {isInnerSystem || isUuid ? t(`common:debug.${label}`) : label}
-          </span>
-        )
+        return <span style={{ color: isInnerSystem ? 'green' : 'black' }}>{labelName}</span>
       }}
       valueRenderer={(raw, value, ...keyPath) => {
         const system = SystemDefinitions.get(value as SystemUUID)!

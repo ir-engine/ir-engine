@@ -63,7 +63,6 @@ import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/Physic
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { RenderOrderComponent } from '@etherealengine/spatial/src/renderer/components/RenderOrderComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import {
@@ -160,7 +159,6 @@ export function setupObject(obj: Object3D, forceBasicMaterials = false) {
 }
 
 const groupQuery = defineQuery([GroupComponent])
-const renderOrder = defineQuery([RenderOrderComponent, GroupComponent, VisibleComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
@@ -207,11 +205,6 @@ const execute = () => {
       )
 
     for (const obj of group) obj.visible = visible
-  }
-
-  for (const entity of renderOrder()) {
-    const group = getComponent(entity, GroupComponent)
-    for (const obj of group) obj.renderOrder = RenderOrderComponent.renderOrder[entity]
   }
 }
 
