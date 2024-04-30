@@ -37,16 +37,18 @@ import { FixedSizeList } from 'react-window'
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { ShapeType } from '@dimforge/rapier3d-compat'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Vector3 } from 'three'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -61,7 +63,6 @@ import VideoNodeEditor from '../properties/VideoNodeEditor'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import { FileIcon } from './FileBrowser/FileIcon'
 import styles from './styles.module.scss'
-
 export type PrefabricatedComponentsType = {
   label: string
   components: ComponentJsonType[]
@@ -78,22 +79,55 @@ const ResourceIcons = {
 }
 
 const DEFAULT_PREFAB_COMPONENTS: PrefabricatedComponentsType[] = [
+  // {
+  //   components: [{ name: ModelComponent.jsonID }, { name: ShadowComponent.jsonID }, { name: EnvmapComponent.jsonID }],
+  //   label: 'Simple Model',
+  //   type: ItemTypes.PrefabComponents
+  // },
+  // {
+  //   components: [
+  //     { name: ModelComponent.jsonID },
+  //     {
+  //       name: ColliderComponent.jsonID,
+  //       props: {
+  //         shape: ShapeType.TriMesh
+  //       }
+  //     }
+  //   ],
+  //   label: 'Mesh Collider',
+  //   type: ItemTypes.PrefabComponents
+  // },
   {
-    components: [{ name: ModelComponent.jsonID }, { name: ShadowComponent.jsonID }, { name: EnvmapComponent.jsonID }],
-    label: 'Simple Model',
+    components: [{ name: PointLightComponent.jsonID }],
+    label: 'Point Light Prefab',
+    type: ItemTypes.PrefabComponents
+  },
+  {
+    components: [{ name: SpotLightComponent.jsonID }],
+    label: 'Spot Light Prefab',
+    type: ItemTypes.PrefabComponents
+  },
+  {
+    components: [{ name: DirectionalLightComponent.jsonID }],
+    label: 'Directional Light Prefab',
     type: ItemTypes.PrefabComponents
   },
   {
     components: [
-      { name: ModelComponent.jsonID },
-      {
-        name: ColliderComponent.jsonID,
-        props: {
-          shape: ShapeType.TriMesh
-        }
-      }
+      { name: ColliderComponent.jsonID },
+      { name: RigidBodyComponent.jsonID },
+      { name: TriggerComponent.jsonID }
     ],
-    label: 'Mesh Collider',
+    label: 'Physics Prefab',
+    type: ItemTypes.PrefabComponents
+  },
+  {
+    components: [
+      { name: PrimitiveGeometryComponent.jsonID },
+      { name: RigidBodyComponent.jsonID },
+      { name: TriggerComponent.jsonID }
+    ],
+    label: 'Geometry Prefab',
     type: ItemTypes.PrefabComponents
   }
 ]
