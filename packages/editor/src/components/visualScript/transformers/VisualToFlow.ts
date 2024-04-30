@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { GraphJSON, NodeConfigurationJSON } from '@etherealengine/visual-script'
 import { Edge, Node } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 export const visualToFlow = (visualScript: GraphJSON): [Node[], Edge[]] => {
   const nodes: Node[] = []
@@ -65,7 +64,7 @@ export const visualToFlow = (visualScript: GraphJSON): [Node[], Edge[]] => {
       for (const [inputKey, input] of Object.entries(nodeJSON.parameters)) {
         if ('link' in input && input.link !== undefined) {
           edges.push({
-            id: uuidv4(),
+            id: self.crypto.randomUUID(),
             source: input.link.nodeId,
             sourceHandle: input.link.socket,
             target: nodeJSON.id,
@@ -81,7 +80,7 @@ export const visualToFlow = (visualScript: GraphJSON): [Node[], Edge[]] => {
     if (nodeJSON.flows) {
       for (const [inputKey, link] of Object.entries(nodeJSON.flows)) {
         edges.push({
-          id: uuidv4(),
+          id: self.crypto.randomUUID(),
           source: nodeJSON.id,
           sourceHandle: inputKey,
           target: link.nodeId,

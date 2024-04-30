@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   AwsCloudFrontType,
@@ -100,7 +99,7 @@ export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>({
 export const awsSettingDataResolver = resolve<AwsSettingDatabaseType, HookContext>(
   {
     id: async () => {
-      return uuidv4()
+      return self.crypto.randomUUID()
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql

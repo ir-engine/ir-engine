@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { UserAvatarQuery, UserAvatarType } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -40,7 +39,7 @@ export const userAvatarExternalResolver = resolve<UserAvatarType, HookContext>({
 
 export const userAvatarDataResolver = resolve<UserAvatarType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

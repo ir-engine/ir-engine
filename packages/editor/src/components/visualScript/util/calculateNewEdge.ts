@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Node, OnConnectStartParams } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
@@ -54,7 +53,7 @@ export const calculateNewEdge = (
 
   if (connection.handleType === 'source') {
     return {
-      id: uuidv4(),
+      id: self.crypto.randomUUID(),
       source: connection.nodeId ?? '',
       sourceHandle: connection.handleId,
       target: destinationNodeId,
@@ -63,7 +62,7 @@ export const calculateNewEdge = (
   }
 
   return {
-    id: uuidv4(),
+    id: self.crypto.randomUUID(),
     target: connection.nodeId ?? '',
     targetHandle: connection.handleId,
     source: destinationNodeId,

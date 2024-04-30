@@ -34,15 +34,14 @@ import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schem
 import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers/lib'
-import { v4 as uuidv4 } from 'uuid'
 
 export const createLocations = async (app: Application, projectName: string, sceneFiles: string[] = []) => {
   return Promise.all(
     sceneFiles.map(async (fileName) => {
       const assetURL = `projects/${projectName}/${fileName}`
-      const locationId = uuidv4() as LocationID
-      const sceneId = uuidv4()
-      const settingsId = uuidv4()
+      const locationId = self.crypto.randomUUID() as LocationID
+      const sceneId = self.crypto.randomUUID()
+      const settingsId = self.crypto.randomUUID()
       const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
       /** @todo use .gltf instead */

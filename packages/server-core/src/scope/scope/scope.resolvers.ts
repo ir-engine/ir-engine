@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { ScopeID, ScopeQuery, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -41,7 +40,7 @@ export const scopeExternalResolver = resolve<ScopeTypeInterface, HookContext>({
 
 export const scopeDataResolver = resolve<ScopeTypeInterface, HookContext>({
   id: async () => {
-    return uuidv4() as ScopeID
+    return self.crypto.randomUUID() as ScopeID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

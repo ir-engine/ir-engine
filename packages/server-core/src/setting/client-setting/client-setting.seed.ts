@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Knex } from 'knex'
-import { v4 as uuidv4 } from 'uuid'
 
 import { defaultMediaSettings } from '@etherealengine/common/src/constants/DefaultMediaSettings'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
@@ -80,7 +79,7 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: ClientSettingDatabaseType[] = await Promise.all(
     [clientSettingSeedData].map(async (item) => ({
       ...item,
-      id: uuidv4(),
+      id: self.crypto.randomUUID(),
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }))

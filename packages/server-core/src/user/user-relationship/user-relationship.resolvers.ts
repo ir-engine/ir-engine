@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   UserRelationshipID,
@@ -53,7 +52,7 @@ export const userRelationshipExternalResolver = resolve<UserRelationshipType, Ho
 
 export const userRelationshipDataResolver = resolve<UserRelationshipType, HookContext>({
   id: async () => {
-    return uuidv4() as UserRelationshipID
+    return self.crypto.randomUUID() as UserRelationshipID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

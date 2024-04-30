@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { State } from '@hookstate/core'
-import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/hyperflux'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
@@ -109,7 +108,7 @@ export function createHyperStore(options: {
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => undefined),
-    peerID: uuidv4() as PeerID,
+    peerID: self.crypto.randomUUID() as PeerID,
     stateMap: {},
     stateReactors: {},
     actions: {

@@ -30,7 +30,6 @@ import { ApiJobQuery, ApiJobType } from '@etherealengine/common/src/schemas/clus
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { v4 as uuidv4 } from 'uuid'
 
 export const apiJobResolver = resolve<ApiJobType, HookContext>({
   startTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.startTime)),
@@ -43,7 +42,7 @@ export const apiJobExternalResolver = resolve<ApiJobType, HookContext>({})
 
 export const apiJobDataResolver = resolve<ApiJobType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

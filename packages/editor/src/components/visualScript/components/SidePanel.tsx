@@ -28,7 +28,6 @@ import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { XYPosition, useReactFlow } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { NodetoEnginetype } from '@etherealengine/engine'
@@ -114,7 +113,7 @@ export const SidePanel = ({
                       const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
                       const position = viewportCenter // need a way to get viewport
                       const newNode = {
-                        id: uuidv4(),
+                        id: self.crypto.randomUUID(),
                         type: nodeName,
                         position,
                         data: { configuration: {}, values: {} } //fill with default values here

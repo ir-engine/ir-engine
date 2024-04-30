@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
@@ -77,12 +76,12 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
 
 export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
-    return uuidv4() as LocationID
+    return self.crypto.randomUUID() as LocationID
   },
   locationSetting: async (value, location) => {
     return {
       ...location.locationSetting,
-      id: uuidv4(),
+      id: self.crypto.randomUUID(),
       locationType: location.locationSetting.locationType || 'public',
       locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
@@ -92,7 +91,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
   locationAdmin: async (value, location) => {
     return {
       ...location.locationAdmin,
-      id: uuidv4(),
+      id: self.crypto.randomUUID(),
       locationId: '' as LocationID,
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),

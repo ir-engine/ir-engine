@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { v4 as uuidv4 } from 'uuid'
 
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
@@ -51,10 +50,10 @@ describe('location.test', () => {
   })
 
   it('should create a new location', async () => {
-    const name = `Test Location ${uuidv4()}`
+    const name = `Test Location ${self.crypto.randomUUID()}`
 
     const scene = await app.service(assetPath).create({
-      id: uuidv4(),
+      id: self.crypto.randomUUID(),
       name,
       assetURL: 'projects/default-project/test.scene.json',
       thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
@@ -99,7 +98,7 @@ describe('location.test', () => {
   })
 
   it('should be able to update the location', async () => {
-    const newName = `Update Test Location ${uuidv4()}`
+    const newName = `Update Test Location ${self.crypto.randomUUID()}`
     const locationSetting = await app.service(locationSettingPath).create({
       locationType: 'public',
       audioEnabled: true,

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AssetType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { v4 } from 'uuid'
+
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
@@ -44,7 +44,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
         )
         if (!sceneJSONAssets.length) return
         return sceneJSONAssets.map((asset) => ({
-          id: v4(),
+          id: self.crypto.randomUUID(),
           assetURL: asset,
           projectId: project.id,
           thumbnailURL: asset.replace('.scene.json', '.thumbnail.jpg'),

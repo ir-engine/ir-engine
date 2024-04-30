@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import * as bitECS from 'bitecs'
 import React from 'react'
-import { v4 as uuidv4 } from 'uuid'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
 import { removeAllComponents } from './ComponentFunctions'
@@ -56,5 +55,5 @@ export const useEntityContext = () => {
 }
 
 export const generateEntityUUID = () => {
-  return uuidv4() as EntityUUID
+  return self.crypto.randomUUID() as EntityUUID
 }

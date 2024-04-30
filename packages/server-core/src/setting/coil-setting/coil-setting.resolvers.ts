@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { CoilSettingQuery, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -53,7 +52,7 @@ export const coilSettingExternalResolver = resolve<CoilSettingType, HookContext>
 
 export const coilSettingDataResolver = resolve<CoilSettingType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { v4 as uuidv4 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
@@ -53,7 +52,7 @@ describe('identity-provider.service', () => {
 
   it('should create an identity provider for guest', async () => {
     const type = 'guest'
-    const token = uuidv4()
+    const token = self.crypto.randomUUID()
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,
@@ -73,7 +72,7 @@ describe('identity-provider.service', () => {
 
   it('should create an identity provider for email', async () => {
     const type = 'email'
-    const token = uuidv4()
+    const token = self.crypto.randomUUID()
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,
@@ -91,7 +90,7 @@ describe('identity-provider.service', () => {
 
   it('should create an identity provider for password', async () => {
     const type = 'password'
-    const token = uuidv4()
+    const token = self.crypto.randomUUID()
 
     const createdIdentityProvider = await app.service(identityProviderPath).create({
       type,
@@ -147,7 +146,7 @@ describe('identity-provider.service', () => {
 
   it('should be able to remove the only identity provider as a guest', async () => {
     const type = 'guest'
-    const token = uuidv4()
+    const token = self.crypto.randomUUID()
 
     const foundIdentityProvider = await app.service(identityProviderPath).create(
       {
@@ -163,7 +162,7 @@ describe('identity-provider.service', () => {
 
   it('should not be able to remove the only identity provider as a user', async () => {
     const type = 'user'
-    const token = uuidv4()
+    const token = self.crypto.randomUUID()
 
     const foundIdentityProvider = await app.service(identityProviderPath).create(
       {

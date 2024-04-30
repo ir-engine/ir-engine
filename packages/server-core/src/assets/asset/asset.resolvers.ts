@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
@@ -42,7 +41,7 @@ export const assetExternalResolver = resolve<AssetType, HookContext>({})
 
 export const assetDataResolver = resolve<AssetType, HookContext>({
   id: async () => {
-    return v4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

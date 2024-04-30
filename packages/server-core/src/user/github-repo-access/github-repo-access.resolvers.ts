@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   GithubRepoAccessQuery,
@@ -44,7 +43,7 @@ export const githubRepoAccessExternalResolver = resolve<GithubRepoAccessType, Ho
 
 export const githubRepoAccessDataResolver = resolve<GithubRepoAccessType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
@@ -43,7 +42,7 @@ export const spawnPointExternalResolver = resolve<SpawnPointType, HookContext>({
 
 export const spawnPointDataResolver = resolve<SpawnPointType, HookContext>({
   id: async () => {
-    return v4() as EntityUUID
+    return self.crypto.randomUUID() as EntityUUID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

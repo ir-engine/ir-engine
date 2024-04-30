@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { AnalyticsQuery, AnalyticsType } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -41,7 +40,7 @@ export const analyticsExternalResolver = resolve<AnalyticsType, HookContext>({})
 
 export const analyticsDataResolver = resolve<AnalyticsType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

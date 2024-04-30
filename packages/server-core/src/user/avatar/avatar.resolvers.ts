@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
@@ -75,7 +74,7 @@ export const avatarExternalResolver = resolve<AvatarType, HookContext>({
 
 export const avatarDataResolver = resolve<AvatarDatabaseType, HookContext>({
   id: async () => {
-    return uuidv4() as AvatarID
+    return self.crypto.randomUUID() as AvatarID
   },
   isPublic: async (isPublic) => {
     return isPublic ?? true

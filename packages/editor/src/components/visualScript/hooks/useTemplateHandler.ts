@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { Edge, Node } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 import { getMutableState } from '@etherealengine/hyperflux'
 import { GraphTemplate, VisualScriptState } from '@etherealengine/visual-script'
@@ -49,7 +48,7 @@ export const useTemplateHandler = ({
   const visualScriptState = useHookstate(getMutableState(VisualScriptState))
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
-    id: uuidv4(),
+    id: self.crypto.randomUUID(),
     name: uniqueId('New template '),
     nodes,
     edges

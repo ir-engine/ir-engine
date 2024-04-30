@@ -28,7 +28,6 @@ import { projectPath } from '@etherealengine/common/src/schemas/projects/project
 import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
-import { v4 } from 'uuid'
 
 /**
  * @param { import("knex").Knex } knex
@@ -59,7 +58,7 @@ export async function up(knex: Knex): Promise<void> {
         locations
           .filter((item) => item.sceneId)
           .map(async (location: LocationType) => {
-            const id = v4()
+            const id = self.crypto.randomUUID()
             await trx.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
             const [, projectName] = location.sceneId.split('/')
             const projects = await trx.select().from(projectPath).where('name', projectName)

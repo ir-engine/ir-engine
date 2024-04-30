@@ -24,7 +24,7 @@ import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/pro
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import fs from 'fs'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -41,7 +41,7 @@ describe('asset.test', () => {
   })
 
   before(async () => {
-    projectName = `test-scene-project-${uuidv4()}`
+    projectName = `test-scene-project-${self.crypto.randomUUID()}`
     project = await app.service(projectPath).create({ name: projectName })
   })
 

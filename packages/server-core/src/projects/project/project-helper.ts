@@ -73,7 +73,7 @@ import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { RestEndpointMethodTypes } from '@octokit/rest'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
@@ -1542,7 +1542,7 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath).create(
         {
-          id: uuidv4(),
+          id: self.crypto.randomUUID(),
           name: projectName,
           enabled,
           repositoryPath,

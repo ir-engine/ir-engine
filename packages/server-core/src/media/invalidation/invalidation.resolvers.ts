@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
 import { InvalidationQuery, InvalidationType } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -40,7 +39,7 @@ export const invalidationExternalResolver = resolve<InvalidationType, HookContex
 
 export const invalidationDataResolver = resolve<InvalidationType, HookContext>({
   id: async () => {
-    return v4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

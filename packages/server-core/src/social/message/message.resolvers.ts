@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { MessageID, MessageQuery, MessageType } from '@etherealengine/common/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -48,7 +47,7 @@ export const messageExternalResolver = resolve<MessageType, HookContext>({
 
 export const messageDataResolver = resolve<MessageType, HookContext>({
   id: async () => {
-    return uuidv4() as MessageID
+    return self.crypto.randomUUID() as MessageID
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

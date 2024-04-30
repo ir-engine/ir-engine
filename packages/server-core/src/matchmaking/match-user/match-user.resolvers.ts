@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { MatchUserQuery, MatchUserType } from '@etherealengine/common/src/schemas/matchmaking/match-user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -41,7 +40,7 @@ export const matchUserExternalResolver = resolve<MatchUserType, HookContext>({})
 
 export const matchUserDataResolver = resolve<MatchUserType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

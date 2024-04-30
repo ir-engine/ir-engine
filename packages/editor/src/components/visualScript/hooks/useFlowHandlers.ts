@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { MouseEvent as ReactMouseEvent, useCallback, useEffect, useState } from 'react'
 import { Connection, Node, OnConnectStartParams, XYPosition } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 import { calculateNewEdge } from '../util/calculateNewEdge'
 import { getNodePickerFilters } from '../util/getPickerFilters'
@@ -71,7 +70,7 @@ export const useFlowHandlers = ({
       if (connection.target === null) return
 
       const newEdge = {
-        id: uuidv4(),
+        id: self.crypto.randomUUID(),
         source: connection.source,
         target: connection.target,
         sourceHandle: connection.sourceHandle,
@@ -97,7 +96,7 @@ export const useFlowHandlers = ({
     (nodeType: string, position: XYPosition) => {
       closeNodePicker()
       const newNode = {
-        id: uuidv4(),
+        id: self.crypto.randomUUID(),
         type: nodeType,
         position,
         data: { configuration: {}, values: {} } //fill with default values here

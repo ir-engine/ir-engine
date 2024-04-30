@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Knex } from 'knex'
-import { v4 as uuidv4 } from 'uuid'
 
 import { RouteID, routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
@@ -71,7 +70,7 @@ export async function seed(knex: Knex): Promise<void> {
       }
     ].map(async (item) => ({
       ...item,
-      id: uuidv4() as RouteID,
+      id: self.crypto.randomUUID() as RouteID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }))

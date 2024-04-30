@@ -47,7 +47,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { v4 as uuidv4 } from 'uuid'
+
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -154,7 +154,9 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
     child.parent = model.scene
     iterateObject3D(child, (obj: Object3D) => {
       const uuid =
-        (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) || (obj.uuid as EntityUUID) || (uuidv4() as EntityUUID)
+        (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) ||
+        (obj.uuid as EntityUUID) ||
+        (self.crypto.randomUUID() as EntityUUID)
       obj.uuid = uuid
       const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
       entityJson[uuid] = eJson

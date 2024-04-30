@@ -68,7 +68,7 @@ import ModelTransformLoader from './ModelTransformLoader'
 
 import config from '@etherealengine/common/src/config'
 import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
-import { v4 as uuidv4 } from 'uuid'
+
 import { UploadRequestState } from '../state/UploadRequestState'
 
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
@@ -804,7 +804,7 @@ export async function transformModel(
       delete resources[image.uri!]
       image.uri = nuURI
     })
-    const defaultBufURI = uuidv4() + '.bin'
+    const defaultBufURI = self.crypto.randomUUID() + '.bin'
     json.buffers?.map((buffer) => {
       buffer.uri = pathJoin(
         args.resourceUri ? args.resourceUri : resourceName + '_resources',

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 as uuidv4 } from 'uuid'
 
 import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -41,10 +40,10 @@ export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   token: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
@@ -52,10 +51,10 @@ export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
 
 export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
   id: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   token: async () => {
-    return uuidv4()
+    return self.crypto.randomUUID()
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 import { useEffect, useMemo, useState } from 'react'
 import { Edge, EdgeChange, Node, NodeChange, useKeyPress } from 'reactflow'
-import { v4 as uuidv4 } from 'uuid'
 
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
@@ -70,7 +69,7 @@ export const useSelectionHandler = ({
 
     const nodeIdMap = new Map<string, string>()
     const newNodes = nodes.map((node) => {
-      nodeIdMap[node.id] = uuidv4()
+      nodeIdMap[node.id] = self.crypto.randomUUID()
       return {
         ...node,
         id: nodeIdMap[node.id],
@@ -86,7 +85,7 @@ export const useSelectionHandler = ({
         type: 'add',
         item: {
           ...edge,
-          id: uuidv4(),
+          id: self.crypto.randomUUID(),
           source: nodeIdMap[edge.source],
           target: nodeIdMap[edge.target]
         }
@@ -100,7 +99,7 @@ export const useSelectionHandler = ({
 
     if (groupNodes) {
       const newGroup: Node = {
-        id: uuidv4(),
+        id: self.crypto.randomUUID(),
         type: 'group',
         position: { x: nodeBoundingPositions.right + 10, y: nodeBoundingPositions.top - 20 },
         data: { label: groupName, configuration: {}, values: {} },

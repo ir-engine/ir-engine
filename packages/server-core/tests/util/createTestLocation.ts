@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationID, assetPath, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '@feathersjs/feathers'
-import { v4 as uuidv4 } from 'uuid'
 
 export const createTestLocation = async (app: Application, params = { isInternal: true } as any) => {
-  const name = `Test Location ${uuidv4()}`
+  const name = `Test Location ${self.crypto.randomUUID()}`
 
   const scene = await app.service(assetPath).create({
-    id: uuidv4(),
+    id: self.crypto.randomUUID(),
     assetURL: 'projects/default-project/test.scene.json',
     thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
     project: 'default-project'

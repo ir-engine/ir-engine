@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, Material, Mesh, Scene } from 'three'
 
-import { v4 as uuidv4 } from 'uuid'
 import { MaterialComponentType } from '../../scene/materials/components/MaterialComponent'
 import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
@@ -43,7 +42,7 @@ export default async function exportMaterialsGLTF(
   const nuMats: Material[] = []
   for (const material of materials) {
     const nuMat: Material = material.material.clone()
-    nuMat.uuid = uuidv4()
+    nuMat.uuid = self.crypto.randomUUID()
 
     registerMaterial(nuMat, material.src)
     nuMats.push(nuMat)
