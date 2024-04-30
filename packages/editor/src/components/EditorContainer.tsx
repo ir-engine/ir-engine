@@ -172,13 +172,7 @@ const onCloseProject = () => {
 
 const onSaveAs = async () => {
   const { sceneAssetID, projectName, sceneName } = getState(EditorState)
-  const { sceneLoaded, sceneModified } = getState(SceneState)
-
-  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-  if (!sceneLoaded) {
-    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-    return
-  }
+  const { sceneModified } = getState(SceneState)
 
   const abortController = new AbortController()
   try {
@@ -222,15 +216,9 @@ const onImportAsset = async () => {
 
 const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName } = getState(EditorState)
-  const { sceneModified, sceneLoaded } = getState(SceneState)
+  const { sceneModified } = getState(SceneState)
 
   if (!projectName) return
-
-  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-  if (!sceneLoaded) {
-    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-    return
-  }
 
   if (!sceneName) {
     if (sceneModified) {

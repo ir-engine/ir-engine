@@ -69,7 +69,7 @@ export const renameScene = async (id: string, name: string, params?: AssetParams
 export const saveSceneGLTF = async (
   sceneAssetID: string | null,
   projectName: string,
-  sceneName: string,
+  sceneFile: string,
   signal: AbortSignal
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
@@ -77,7 +77,7 @@ export const saveSceneGLTF = async (
   const { rootEntity } = getState(EditorState)
   const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
 
-  sceneName = sceneName!.replace('.scene.json', '').replace('.gltf', '')
+  const sceneName = sceneFile!.replace('.scene.json', '').replace('.gltf', '')
 
   const gltfData = getState(GLTFSnapshotState)[sourceID].snapshots.at(-1)
 
