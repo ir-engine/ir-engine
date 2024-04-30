@@ -53,11 +53,9 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -72,7 +70,6 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
@@ -302,20 +299,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
-      const isGLTF = sceneURL.endsWith('.gltf')
-      if (isGLTF) {
-        GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
-      } else {
-        const storage = getStorageProvider()
-        const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
-        const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
-        SceneState.loadScene(sceneURL, {
-          scene: parseStorageProviderURLs(sceneJSON),
-          name: sceneURL.split('/')[2],
-          thumbnailUrl: `${commonConfig.client.fileServer}/${sceneURL.replace('.scene.json', '.thumbnail.jpg')}`,
-          project: sceneURL.split('/')[1]
-        })
-      }
+      GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
 
       /** @todo - quick hack to wait until scene has loaded */
 
