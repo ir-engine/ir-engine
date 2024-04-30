@@ -47,13 +47,9 @@ import {
   Color,
   CubeTexture,
   FogBase,
-  LinearToneMapping,
-  PCFSoftShadowMap,
   SRGBColorSpace,
   Scene,
-  ShadowMapType,
   Texture,
-  ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters
@@ -77,10 +73,9 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
-import { EffectMapType, defaultPostProcessingSchema } from './effects/PostProcessing'
-import { SDFSettingsState } from './effects/sdf/SDFSettingsState'
+import { CSM } from './csm/CSM'
+import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
-import { configureEffectComposer } from './functions/configureEffectComposer'
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
@@ -93,8 +88,6 @@ export const RendererComponent = defineComponent({
     if (json?.canvas) component.value.canvas = json.canvas
   }
 })
-
-export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 const _scene = new Scene()
@@ -133,10 +126,15 @@ export class EngineRenderer {
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
-  effectComposer: EffectComposerWithSchema = null!
+  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
+  rendering = false
+  effectComposer: EffectComposer = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
   webGLLostContext: any = null
+
+  csm = null as CSM | null
+  csmHelper = null as CSMHelper | null
 
   initialize() {
     this.supportWebGL2 = WebGL.isWebGL2Available()
@@ -274,7 +272,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.qualityLevel > 0 && state.csm?.updateFrustums()
+    state.qualityLevel > 0 && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -304,20 +302,7 @@ export const render = (
 export const RenderSettingsState = defineState({
   name: 'RenderSettingsState',
   initial: {
-    csm: true,
-    cascades: 5,
-    toneMapping: LinearToneMapping as ToneMapping,
-    toneMappingExposure: 0.8,
-    shadowMapType: PCFSoftShadowMap as ShadowMapType,
     smaaPreset: SMAAPreset.MEDIUM
-  }
-})
-
-export const PostProcessingSettingsState = defineState({
-  name: 'PostProcessingSettingsState',
-  initial: {
-    enabled: false,
-    effects: defaultPostProcessingSchema
   }
 })
 
@@ -372,34 +357,7 @@ const execute = () => {
 const rendererReactor = () => {
   const entity = useEntityContext()
   const renderer = useComponent(entity, RendererComponent).value
-  const renderSettings = useHookstate(getMutableState(RenderSettingsState))
   const engineRendererSettings = useHookstate(getMutableState(RendererState))
-  const postprocessing = useHookstate(getMutableState(PostProcessingSettingsState))
-  const xrState = useHookstate(getMutableState(XRState))
-  const sdfState = useHookstate(getMutableState(SDFSettingsState))
-
-  useEffect(() => {
-    renderer.renderer.toneMapping = renderSettings.toneMapping.value
-  }, [renderSettings.toneMapping])
-
-  useEffect(() => {
-    renderer.renderer.toneMappingExposure = renderSettings.toneMappingExposure.value
-  }, [renderSettings.toneMappingExposure])
-
-  useEffect(() => {
-    renderer.renderer.shadowMap.type = renderSettings.shadowMapType.value
-    renderer.renderer.shadowMap.needsUpdate = true
-  }, [xrState.supportedSessionModes, renderSettings.shadowMapType, engineRendererSettings.useShadows])
-
-  useEffect(() => {
-    configureEffectComposer(entity)
-  }, [
-    postprocessing.enabled,
-    postprocessing.effects,
-    sdfState.enabled,
-    engineRendererSettings.usePostProcessing,
-    renderSettings.smaaPreset
-  ])
 
   useEffect(() => {
     renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel

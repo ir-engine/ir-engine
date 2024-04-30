@@ -55,6 +55,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
+import { useActiveLocationScene } from './LoadLocationScene'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
@@ -70,8 +71,8 @@ export const useEngineInjection = () => {
 
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-  const sceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId)
-  const rootUUID = SceneState.useScene(sceneID.value)?.root?.value
+  const scenePath = useActiveLocationScene()
+  const rootUUID = SceneState.useScene(scenePath!)?.root?.value
 
   useEffect(() => {
     if (!sceneLoaded.value || !rootUUID) return

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
+import ProjectDrawer from '@etherealengine/client-core/src/admin/common/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -199,6 +199,7 @@ const ProjectsPage = () => {
   const projectFindQuery = useFind(projectPath, {
     query: {
       paginate: false,
+      action: 'studio',
       allowed: true,
       ...(!!search.query.value && { name: { $like: `%${search.query.value}%` } }),
       $sort: { name: 1 }

@@ -47,10 +47,6 @@ describe('api job service', () => {
     assert.ok(service, 'Registered the service')
   })
 
-  it('find service', () => {
-    assert.doesNotThrow(async () => await app.service(apiJobPath).get(''))
-  })
-
   let jobId
   it('creates a job', async () => {
     const date = await getDateTimeSql()

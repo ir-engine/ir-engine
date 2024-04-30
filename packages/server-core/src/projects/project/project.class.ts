@@ -46,6 +46,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
+import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
 import {
   deleteProjectFilesInStorageProvider,
   getCommitSHADate,
@@ -183,10 +184,14 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
-        await deleteProjectFilesInStorageProvider(name)
+        await deleteProjectFilesInStorageProvider(this.app, name)
         logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super._remove(id)
       }
     }
+
+    const refetchedData = (await super._find({ paginate: false })) as ProjectType[]
+
+    await syncAllSceneJSONAssets(refetchedData, this.app)
   }
 }

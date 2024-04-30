@@ -11,7 +11,7 @@ START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
-bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
+bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME $EKS_AWS_ROLE_ARN
 npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
@@ -96,7 +96,7 @@ fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
+npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${DESTINATION_REPO_NAME_STEM} --tag=${TAG} --repoUrl=${DESTINATION_REPO_URL} --startTime=${START_TIME}
 
 npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
 npm run record-build-success

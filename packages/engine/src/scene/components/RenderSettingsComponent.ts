@@ -25,25 +25,32 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { EntityUUID } from '@etherealengine/ecs'
+import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
   jsonID: 'EE_render_settings',
 
-  onInit(entity): typeof RenderSettingsState._TYPE {
-    return typeof RenderSettingsState.initial === 'function'
-      ? (RenderSettingsState.initial as any)()
-      : JSON.parse(JSON.stringify(RenderSettingsState.initial))
+  onInit(entity) {
+    return {
+      primaryLight: '' as EntityUUID,
+      csm: true,
+      cascades: 5,
+      toneMapping: LinearToneMapping as ToneMapping,
+      toneMappingExposure: 0.8,
+      shadowMapType: PCFSoftShadowMap as ShadowMapType
+    }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
 
+    if (typeof json.primaryLight === 'string') component.primaryLight.set(json.primaryLight)
     if (typeof json.csm === 'boolean') component.csm.set(json.csm)
     if (typeof json.cascades === 'number') component.cascades.set(json.cascades)
     if (typeof json.toneMapping === 'number') component.toneMapping.set(json.toneMapping)
@@ -53,6 +60,7 @@ export const RenderSettingsComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
+      primaryLight: component.primaryLight.value,
       csm: component.csm.value,
       cascades: component.cascades.value,
       toneMapping: component.toneMapping.value,
@@ -63,14 +71,27 @@ export const RenderSettingsComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
+    const rendererEntity = useScene(entity)
     const component = useComponent(entity, RenderSettingsComponent)
 
-    for (const prop of Object.keys(getState(RenderSettingsState))) {
-      useEffect(() => {
-        if (component[prop].value !== getState(RenderSettingsState)[prop])
-          getMutableState(RenderSettingsState)[prop].set(component[prop].value)
-      }, [component[prop]])
-    }
+    useEffect(() => {
+      if (!rendererEntity) return
+      const renderer = getComponent(rendererEntity, RendererComponent)
+      renderer.renderer.toneMapping = component.toneMapping.value
+    }, [component.toneMapping])
+
+    useEffect(() => {
+      if (!rendererEntity) return
+      const renderer = getComponent(rendererEntity, RendererComponent)
+      renderer.renderer.toneMappingExposure = component.toneMappingExposure.value
+    }, [component.toneMappingExposure])
+
+    useEffect(() => {
+      if (!rendererEntity) return
+      const renderer = getComponent(rendererEntity, RendererComponent)
+      renderer.renderer.shadowMap.type = component.shadowMapType.value
+      renderer.renderer.shadowMap.needsUpdate = true
+    }, [component.shadowMapType])
 
     return null
   }

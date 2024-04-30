@@ -48,10 +48,10 @@ const variantMap = {
   danger: {
     containerClass: 'bg-theme-tagRed',
     iconColor: '#f43f5e',
-    textClass: 'text-rose-900 dark:text-white'
+    textClass: 'text-white'
   },
   neutral: {
-    containerClass: 'bg-stone-100 dark:bg-gray-800',
+    containerClass: 'bg-stone-200 dark:bg-gray-800',
     iconColor: 'black',
     textClass: 'text-black dark:text-white'
   },

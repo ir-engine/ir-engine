@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import multiLogger from '@etherealengine/common/src/logger'
-import { SceneDataType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Dialog from '@mui/material/Dialog'
 import { t } from 'i18next'
@@ -41,7 +41,7 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveScene, setSceneInState } from '../functions/sceneFunctions'
+import { onNewScene, saveSceneGLTF, saveSceneJSON, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -143,7 +143,7 @@ const onCloseProject = () => {
   const sceneState = getMutableState(SceneState)
   sceneState.sceneModified.set(false)
   editorState.projectName.set(null)
-  editorState.sceneID.set(null)
+  editorState.scenePath.set(null)
   editorState.sceneName.set(null)
   RouterState.navigate('/studio')
 
@@ -160,7 +160,7 @@ const onCloseProject = () => {
 }
 
 const onSaveAs = async () => {
-  const { projectName, sceneName } = getState(EditorState)
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
   const { sceneLoaded, sceneModified } = getState(SceneState)
 
   // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
@@ -177,12 +177,12 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveScene(projectName, result.name, abortController.signal)
+        await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
-        const newSceneData = (await Engine.instance.api
-          .service(scenePath)
-          .get('', { query: { project: projectName, name: result.name, metadataOnly: true } })) as SceneDataType
-        setSceneInState(newSceneData.scenePath)
+        const newSceneData = await Engine.instance.api
+          .service(assetPath)
+          .find({ query: { assetURL: getState(EditorState).scenePath! } })
+        getMutableState(EditorState).scenePath.set(newSceneData.data[0].assetURL as any)
       }
     }
   } catch (error) {
@@ -209,8 +209,8 @@ const onImportAsset = async () => {
   }
 }
 
-const onSaveScene = async () => {
-  const { projectName, sceneName } = getState(EditorState)
+const onSaveScene = async (gltf = false) => {
+  const { sceneAssetID, projectName, sceneName } = getState(EditorState)
   const { sceneModified, sceneLoaded } = getState(SceneState)
 
   if (!projectName) return
@@ -254,7 +254,11 @@ const onSaveScene = async () => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    await saveScene(projectName, sceneName, abortController.signal)
+    if (gltf) {
+      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+    } else {
+      await saveSceneJSON(sceneAssetID, projectName, sceneName, abortController.signal)
+    }
 
     getMutableState(SceneState).sceneModified.set(false)
 
@@ -275,10 +279,14 @@ const generateToolbarMenu = () => {
       action: onNewScene
     },
     {
-      name: t('editor:menubar.saveScene'),
+      name: t('editor:menubar.saveSceneJSON'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: onSaveScene
+      action: () => onSaveScene(false)
     },
+    // {
+    //   name: t('editor:menubar.saveSceneGLTF'),
+    //   action: () => onSaveScene(true)
+    // },
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
@@ -356,11 +364,12 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneName, projectName, sceneID } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
-  const { scenes } = useHookstate(getMutableState(SceneState))
+  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const sceneURL = sceneQuery?.[0]?.assetURL
 
-  const sceneLoading = sceneID.value && !sceneLoaded.value
+  const sceneLoading = scenePath.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -396,7 +405,7 @@ const EditorContainer = () => {
     }
   })
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
+  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene())
 
   useEffect(() => {
     if (!sceneModified.value) return
@@ -414,23 +423,19 @@ const EditorContainer = () => {
   }, [sceneModified])
 
   useEffect(() => {
-    if (!sceneID.value) return
-    return SceneServices.setCurrentScene(sceneID.value)
-  }, [sceneID])
+    if (!sceneURL) return
+    const [_, project, scene] = scenePath.value?.split('/') ?? []
+    sceneName.set(scene ?? null)
+    projectName.set(project ?? null)
+    sceneAssetID.set(sceneQuery[0].id)
+    return setCurrentEditorScene(sceneURL)
+  }, [sceneURL])
 
   useEffect(() => {
     return () => {
       getMutableState(SelectionState).selectedEntities.set([])
     }
-  }, [sceneID])
-
-  useEffect(() => {
-    if (!sceneID.value) return
-    const scene = getState(SceneState).scenes[sceneID.value]
-    if (!scene) return
-    sceneName.set(scene.name)
-    projectName.set(scene.project)
-  }, [sceneID.value, scenes.keys])
+  }, [scenePath])
 
   useEffect(() => {
     if (!dockPanelRef.current) return
@@ -449,7 +454,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneID.value ? { background: 'transparent' } : {}}
+        style={scenePath.value ? { background: 'transparent' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />

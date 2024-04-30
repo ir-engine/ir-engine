@@ -61,7 +61,7 @@ import {
   VignetteTechnique
 } from 'postprocessing'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
-import { Color, SRGBColorSpace, Texture, Vector2, Vector3 } from 'three'
+import { Color, ColorSpace, SRGBColorSpace, Texture, TextureEncoding, Vector2, Vector3 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
@@ -131,6 +131,25 @@ export const EffectMap = {
   [Effects.TextureEffect]: TextureEffect,
   [Effects.VignetteEffect]: VignetteEffect,
   [Effects.LensDistortionEffect]: LensDistortionEffect
+}
+
+declare module 'postprocessing' {
+  interface EffectComposer {
+    // passes
+    EffectPass: EffectPass
+    // effects
+    SMAAEffect: SMAAEffect
+    OutlineEffect: OutlineEffect
+    SSAOEffect: SSAOEffect
+    DepthOfFieldEffect: DepthOfFieldEffect
+    BloomEffect: BloomEffect
+    ToneMappingEffect: ToneMappingEffect
+    BrightnessContrastEffect: BrightnessContrastEffect
+    HueSaturationEffect: HueSaturationEffect
+    ColorDepthEffect: ColorDepthEffect
+    LinearTosRGBEffect: LinearTosRGBEffect
+    VignetteEffect: VignetteEffect
+  }
 }
 
 export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
@@ -368,6 +387,7 @@ export type LUT1DEffectProps = EffectProps & {
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
+  inputEncoding?: TextureEncoding
   inputColorSpace?: ColorSpace
   lut?: Texture | null
 }
@@ -497,7 +517,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.SSAOEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.LINEAR_LIGHT,
+    blendFunction: BlendFunction.MULTIPLY,
     distanceScaling: true,
     depthAwareUpsampling: true,
     normalDepthBuffer: undefined,

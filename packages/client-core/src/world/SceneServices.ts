@@ -24,46 +24,63 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { SceneDataType, SceneID, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { Engine, getMutableComponent } from '@etherealengine/ecs'
+import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { LocationState } from '../social/services/LocationService'
 
 const fileServer = config.client.fileServer
 
 export const SceneServices = {
-  setCurrentScene: (sceneID: SceneID) => {
-    Engine.instance.api
-      .service(scenePath)
-      .get('' as SceneID, { query: { sceneKey: sceneID } })
-      .then((sceneData: SceneDataType) => {
-        const sceneRoot = SceneState.loadScene(sceneID, sceneData)
-        if (sceneRoot) {
-          getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
-        }
+  /** @todo this can be simplified once .scene.json support is dropped */
+  setCurrentScene: (sceneURL: string, overrideLocation = false) => {
+    const isGLTF = sceneURL.endsWith('.gltf')
+    if (isGLTF) {
+      const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+
+      if (overrideLocation) {
+        const sceneID = getModelSceneID(gltfEntity)
+        LocationState.setLocationName(sceneID)
+        getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
+      }
+
+      return () => {
+        GLTFSourceState.unload(gltfEntity)
+      }
+    }
+
+    let unmounted = false
+
+    const sceneID = sceneURL.endsWith('.scene.json') ? sceneURL : sceneURL + '.scene.json'
+
+    fetch(`${fileServer}/${sceneID}`).then(async (data) => {
+      if (unmounted) return
+      const sceneJSON = await data.json()
+      if (unmounted) return
+      const sceneRoot = SceneState.loadScene(sceneID, {
+        scene: parseStorageProviderURLs(sceneJSON),
+        name: sceneID.split('/')[2],
+        thumbnailUrl: `${fileServer}/${sceneID.replace('.scene.json', '.thumbnail.jpg')}`,
+        project: sceneID.split('/')[1]
       })
+      if (sceneRoot) {
+        getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
+
+        if (overrideLocation) {
+          LocationState.setLocationName(sceneID)
+          getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
+        }
+      }
+    })
 
     return () => {
+      unmounted = true
       SceneState.unloadScene(sceneID)
-    }
-  },
-
-  loadSceneJsonOffline: async (projectName, sceneName) => {
-    const sceneID = `projects/${projectName}/${sceneName}.scene.json` as SceneID
-    const sceneData = (await (
-      await fetch(`${fileServer}/projects/${projectName}/${sceneName}.scene.json`)
-    ).json()) as SceneJsonType
-    const sceneRoot = SceneState.loadScene(sceneID, {
-      scene: parseStorageProviderURLs(sceneData),
-      name: sceneName,
-      scenePath: sceneID,
-      thumbnailUrl: `${fileServer}/projects/${projectName}/${sceneName}.thumbnail.jpg`,
-      project: projectName
-    })
-    if (sceneRoot) {
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
     }
   }
 }
