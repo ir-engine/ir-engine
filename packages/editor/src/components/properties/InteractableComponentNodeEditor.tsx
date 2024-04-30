@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import BooleanInput from '@etherealengine/editor/src/components/inputs/BooleanInput'
@@ -34,9 +34,9 @@ import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInpu
 import StringInput from '@etherealengine/editor/src/components/inputs/StringInput'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import {
-  EditorComponentType,
   commitProperties,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
@@ -61,17 +61,31 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useState<OptionsType>([
+    { label: 'Self', value: getComponent(props.entity, UUIDComponent), callbacks: [] }
+  ])
 
   const interactableComponent = useComponent(props.entity, InteractableComponent)
 
   useEffect(() => {
     const options = [] as OptionsType
-    options.push({
-      label: 'Self',
-      value: 'Self',
-      callbacks: []
-    })
+
+    const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
+    if (entityCallbacks) {
+      options.push({
+        label: 'Self',
+        value: getComponent(props.entity, UUIDComponent),
+        callbacks: Object.keys(entityCallbacks).map((cb) => {
+          return { label: cb, value: cb }
+        })
+      })
+    } else {
+      options.push({
+        label: 'Self',
+        value: 'Self',
+        callbacks: []
+      })
+    }
     for (const entity of callbackQuery()) {
       if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
