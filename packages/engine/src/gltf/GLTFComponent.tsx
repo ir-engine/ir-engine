@@ -29,7 +29,7 @@ import {
   Entity,
   EntityUUID,
   UUIDComponent,
-  createEntity,
+  UndefinedEntity,
   defineComponent,
   getComponent,
   removeEntity,
@@ -170,14 +170,13 @@ const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) 
   if (!documentState.value) return null
   if (!documentState.scenes.value) return null
 
-  const scenes = documentState.scenes.value
-  const scene = scenes[documentState.scene.value!]
+  const nodes = documentState.nodes! as State<GLTF.INode[]>
 
   return (
     <>
-      {scene.nodes.map((nodeIndex) => (
+      {nodes.get(NO_PROXY).map((node, nodeIndex) => (
         <NodeReactor
-          key={nodeIndex}
+          key={JSON.stringify(node)}
           nodeIndex={nodeIndex}
           parentUUID={props.parentUUID}
           documentID={props.documentID}
@@ -193,43 +192,56 @@ const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documen
 
   const node = nodes[props.nodeIndex]!
 
-  const entity = useHookstate(() => {
-    const uuidExtension = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID | undefined
-    const entity = createEntity()
-    setComponent(entity, UUIDComponent, uuidExtension ?? UUIDComponent.generateUUID())
-    return entity
-  })
+  const selfEntity = useHookstate(UndefinedEntity)
+  const entity = selfEntity.value
 
-  const uuid = getComponent(entity.value, UUIDComponent)
   const parentEntity = UUIDComponent.getEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    return () => {
-      removeEntity(entity.value)
-    }
-  }, [])
+    if (!parentEntity) return
 
-  useEffect(() => {
-    setComponent(entity.value, EntityTreeComponent, { parentEntity })
+    const uuid = (node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID) ?? UUIDComponent.generateUUID()
+    const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
+
+    selfEntity.set(entity)
+    setComponent(entity, UUIDComponent, uuid)
+    setComponent(entity, SourceComponent, props.documentID)
+    return () => {
+      removeEntity(entity)
+    }
   }, [parentEntity])
 
   useEffect(() => {
-    setComponent(entity.value, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
-  }, [node.name])
+    if (!entity) return
+
+    setComponent(entity, EntityTreeComponent, { parentEntity })
+  }, [entity, parentEntity])
 
   useEffect(() => {
-    setComponent(entity.value, TransformComponent)
+    if (!entity) return
+
+    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+  }, [entity, node.name])
+
+  useEffect(() => {
+    if (!entity) return
+
+    setComponent(entity, TransformComponent)
     if (!node.matrix.value) return
 
     const mat4 = new Matrix4().fromArray(node.matrix.value)
-    const transform = getComponent(entity.value, TransformComponent)
+    const transform = getComponent(entity, TransformComponent)
     mat4.decompose(transform.position, transform.rotation, transform.scale)
-  }, [node.matrix])
+  }, [entity, node.matrix.value])
+
+  if (!entity) return null
+
+  const uuid = getComponent(entity, UUIDComponent)
 
   return (
     <>
       {/* {node.mesh.value && (
-        <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity.value} />
+        <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )} */}
       {node.children.value?.map((childIndex) => (
         <NodeReactor key={childIndex} nodeIndex={childIndex} parentUUID={uuid} documentID={props.documentID} />
@@ -238,7 +250,7 @@ const NodeReactor = (props: { nodeIndex: number; parentUUID: EntityUUID; documen
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
             key={extension}
-            entity={entity.value}
+            entity={entity}
             extension={extension}
             nodeIndex={props.nodeIndex}
             documentID={props.documentID}

@@ -29,6 +29,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -88,6 +89,16 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 const SceneLoadingProgress = () => {
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
+  const scenePath = useHookstate(getMutableState(EditorState).scenePath)
+  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
+
+  const sceneState = useHookstate(getMutableState(SceneState).scenes)
+  // todo support loading screen for GLTFs
+  const gltfScenes = useHookstate(getMutableState(GLTFSourceState).keys)
+
+  const sceneLoading = !!scenePath.value && !sceneLoaded.value && !!sceneState.value[scenePath.value]
+  if (gltfScenes.length || !sceneLoading || loadingProgress === 100) return null
+
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -369,8 +380,6 @@ const EditorContainer = () => {
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
 
-  const sceneLoading = scenePath.value && !sceneLoaded.value
-
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
@@ -460,7 +469,7 @@ const EditorContainer = () => {
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
           <ControlText />
-          {sceneLoading && <SceneLoadingProgress />}
+          <SceneLoadingProgress />
           <div className={styles.workspaceContainer}>
             <AssetDropZone />
             <DockContainer>

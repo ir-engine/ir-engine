@@ -283,6 +283,7 @@ const createObjectFromSceneElement = (
     const name = getState(GLTFSourceState)[sceneID] ? 'New_Object' : 'New Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+      console.log(gltf, gltf.data.nodes)
 
       const nodeIndex = gltf.data.nodes!.length
 
@@ -296,22 +297,35 @@ const createObjectFromSceneElement = (
       if (!extensions[UUIDComponent.jsonID]) {
         extensions[UUIDComponent.jsonID] = entityUUID
       }
-      if (!extensions[TransformComponent.jsonID]) {
-        extensions[TransformComponent.jsonID] = componentJsonDefaults(TransformComponent)
-      }
       if (!extensions[VisibleComponent.jsonID]) {
         extensions[VisibleComponent.jsonID] = true
       }
 
-      gltf.data.nodes!.push({
+      const node = {
         name,
         extensions
-      })
+      } as GLTF.INode
+
+      gltf.data.nodes!.push(node)
+
+      if (extensions[TransformComponent.jsonID]) {
+        const comp = {
+          ...componentJsonDefaults(TransformComponent),
+          ...extensions[TransformComponent.jsonID]
+        }
+        const matrix = new Matrix4().compose(
+          new Vector3().copy(comp.position),
+          new Quaternion().copy(comp.rotation),
+          new Vector3().copy(comp.scale)
+        )
+        delete extensions[TransformComponent.jsonID]
+        if (!matrix.equals(new Matrix4())) node.matrix = matrix.toArray()
+      }
 
       if (parentEntity === getState(EditorState).rootEntity) {
-        const sceneIndex = gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
+        const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
 
-        let beforeIndex = 0
+        let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)

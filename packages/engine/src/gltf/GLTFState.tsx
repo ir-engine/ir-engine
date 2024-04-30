@@ -33,7 +33,7 @@ import {
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
-import { NO_PROXY, Topic, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, Topic, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -59,17 +59,17 @@ export const GLTFSourceState = defineState({
     const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
+    getMutableState(GLTFSourceState)[sourceID].set(entity)
     return entity
   },
 
   unload: (entity: Entity) => {
     const sourceID = `${getComponent(entity, UUIDComponent)}-${getComponent(entity, GLTFComponent).src}`
-    getMutableState(GLTFSourceState)[sourceID].set(entity)
+    getMutableState(GLTFSourceState)[sourceID].set(none)
     removeEntity(entity)
   }
 })
 
-/**@todo rename to GLTFSnapshotState */
 export const GLTFSnapshotState = defineState({
   name: 'GLTFSnapshotState',
   initial: {} as Record<
@@ -147,7 +147,7 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
     // update gltf state with the current snapshot
     const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
-  }, [gltfState.index])
+  }, [gltfState.index.value])
 
   return null
 }
