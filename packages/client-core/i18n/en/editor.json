@@ -967,6 +967,16 @@
       "lbl-backgroundColor": "Background Color",
       "lbl-opacity": "Opacity",
       "lbl-padding": "Padding"
+    },
+    "gallery": {
+      "name": "Gallery Component",
+      "description": "XRUI Gallery Component",
+      "lbl-imageGrid": "ImageGrid Component",
+      "lbl-thumbnail": "Thumbnail",
+      "lbl-outfitURL": "Outfit URL",
+      "lbl-performerURL": "Performer URL",
+      "lbl-asset": "Asset",
+      "assets": "Assets"
     }
   },
   "projects": {

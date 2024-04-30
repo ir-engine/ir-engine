@@ -75,6 +75,7 @@ class NodeEditorErrorBoundary extends React.Component<NodeErrorProps, NodeErrorS
 type NodeEditorProps = EditorPropType & {
   description?: string
   name?: string
+  icon?: JSX.Element
 }
 
 export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
@@ -82,12 +83,14 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   children,
   name,
   entity,
-  component
+  component,
+  icon
 }) => {
   return (
     <PropertyGroup
       name={name}
       description={description}
+      icon={icon}
       onClose={
         component && hasComponent(entity, component)
           ? () => {

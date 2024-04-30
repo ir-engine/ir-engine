@@ -28,7 +28,7 @@ import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsPlusSquare } from 'react-icons/bs'
-import { MdClear } from 'react-icons/md'
+import { GoImage } from 'react-icons/go'
 import { Quaternion, Vector3 } from 'three'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
@@ -45,14 +45,10 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.spawnPoint.name')}
-      description={t('editor:properties.spawnPoint.description')}
-    >
+    <NodeEditor {...props} name={t('editor:properties.gallery.lbl-imageGrid')} icon={<GoImage />}>
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">
-          {'Assets'}
+          {t('editor:properties.gallery.assets')}
         </Text>
         <div className="flex w-full justify-end px-8">
           <BsPlusSquare
@@ -73,51 +69,32 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
           elem,
           index // need styling
         ) => (
-          <div key={index}>
-            <div className="flex-end border-t-2 border-zinc-900 py-2">
-              <div className="flex w-full flex-row px-10">
-                <Text fontSize="xs" className="w-full">
-                  {`Asset ${index + 1}`}
-                </Text>
-                <div className="flex w-full justify-end">
-                  <MdClear
-                    className="text-[#444444]"
-                    onClick={() => {
-                      const newElements = [...elements].filter((_, i) => i !== index)
-                      //commitProperty(, 'elements')(newElements)
-                    }}
-                  />
-                </div>
-              </div>
-              <InputGroup
-                name={`Thumbnail ${index + 1}`}
-                label={`${t('editor:properties.gallery.lbl-thumbnail')} ${index + 1}`}
-              >
-                <StringInput
-                  value={''}
-                  onChange={(value) => {
-                    //updateProperty(, '')
-                  }}
-                  onRelease={(value) => {
-                    //commitProperty(, '')
-                  }}
-                />
-              </InputGroup>
-              <InputGroup
-                name={`Performer URL ${index + 1}`}
-                label={`${t('editor:properties.gallery.lbl-outfitURL')} ${index + 1}`}
-              >
-                <StringInput
-                  value={''}
-                  onChange={(value) => {
-                    //updateProperty(, '')
-                  }}
-                  onRelease={(value) => {
-                    //commitProperty(, '')
-                  }}
-                />
-              </InputGroup>
-            </div>
+          <div key={elem + index} className="flex-end relative border-t-2 border-zinc-900 py-2">
+            <Text className="absolute left-6 text-[#FAFAFA]" fontSize="sm">
+              {t('editor:properties.gallery.lbl-asset') + ' ' + (index + 1)}
+            </Text>
+            <InputGroup label={`${t('editor:properties.gallery.lbl-thumbnail')} ${index + 1}`}>
+              <StringInput
+                value={''}
+                onChange={(value) => {
+                  //updateProperty(, '')
+                }}
+                onRelease={(value) => {
+                  //commitProperty(, '')
+                }}
+              />
+            </InputGroup>
+            <InputGroup label={`${t('editor:properties.gallery.lbl-outfitURL')} ${index + 1}`}>
+              <StringInput
+                value={''}
+                onChange={(value) => {
+                  //updateProperty(, '')
+                }}
+                onRelease={(value) => {
+                  //commitProperty(, '')
+                }}
+              />
+            </InputGroup>
           </div>
         )
       )}

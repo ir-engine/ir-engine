@@ -47,13 +47,13 @@ function toPrecisionString(value: number, precision: number) {
   }
 }
 
-export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange' | 'prefix'> {
   value: number
   onChange: (n: number) => void
   onRelease?: (n: number) => void
   className?: string
   unit?: string
-  prefix?: string
+  prefix?: JSX.Element
   displayPrecision?: any
   precision?: number
   mediumStep?: number
