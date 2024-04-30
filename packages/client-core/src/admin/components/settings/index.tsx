@@ -87,7 +87,6 @@ export const SettingsTabsData = [
 
 const getInitialTabIndex = () => {
   const foundIndex = SettingsTabsData.findIndex((tab) => '#' + encodeURI(tab.label) === window.location.hash)
-  console.log('debug1 foundinex', foundIndex, 'and hash', window.location.hash)
   return foundIndex === -1 ? 0 : foundIndex
 }
 
