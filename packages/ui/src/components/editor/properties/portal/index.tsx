@@ -27,8 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
-import { API } from '@etherealengine/client-core/src/API'
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   PortalComponent,
@@ -38,7 +36,6 @@ import {
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
-import { PortalType, portalPath } from '@etherealengine/common/src/schema.type.module'
 import {
   EditorComponentType,
   commitProperties,
@@ -96,12 +93,12 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   const loadPortals = async () => {
-    const portalsDetail: PortalType[] = []
+    //const portalsDetail: PortalType[] = []
     try {
-      portalsDetail.push(
+      /*portalsDetail.push(
         ...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
       )
-      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
+      console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))*/
     } catch (error) {
       throw new Error(error)
     }
