@@ -65,14 +65,9 @@ import { AvatarColliderComponent, AvatarControllerComponent } from '../component
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { eyeOffset } from '../systems/AvatarTransparencySystem'
 
-export let avatarRadius = 0 //0.125
-
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   if (!entity) return
-
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  avatarRadius = eyeOffset + camera.near
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
 
@@ -130,18 +125,31 @@ export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
 
-  const avatarComponent = getComponent(entity, AvatarComponent)
-  const halfHeight = avatarComponent.avatarHeight * 0.5
-
+  setAvatarColliderTransform(colliderEntity)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
-  setComponent(colliderEntity, TransformComponent, {
-    position: new Vector3(0, halfHeight + 0.25, 0),
-    scale: new Vector3(avatarRadius, halfHeight - avatarRadius - 0.25, avatarRadius)
-  })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,
     collisionMask: AvatarCollisionMask
+  })
+}
+
+const avatarCapsuleOffset = 0.25
+export const setAvatarColliderTransform = (entity: Entity) => {
+  const avatarCollider = getComponent(entity, AvatarColliderComponent)
+  if (avatarCollider === undefined) {
+    return
+  }
+  const colliderEntity = avatarCollider.colliderEntity
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const avatarRadius = eyeOffset + camera.near
+  console.log('avatarRadius = ' + avatarRadius)
+  const avatarComponent = getComponent(entity, AvatarComponent)
+  const halfHeight = avatarComponent.avatarHeight * 0.5
+
+  setComponent(colliderEntity, TransformComponent, {
+    position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
+    scale: new Vector3(avatarRadius, halfHeight - avatarRadius - avatarCapsuleOffset, avatarRadius)
   })
 }
 
