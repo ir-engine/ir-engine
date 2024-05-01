@@ -143,7 +143,6 @@ export const setAvatarColliderTransform = (entity: Entity) => {
   const colliderEntity = avatarCollider.colliderEntity
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const avatarRadius = eyeOffset + camera.near
-  console.log('avatarRadius = ' + avatarRadius)
   const avatarComponent = getComponent(entity, AvatarComponent)
   const halfHeight = avatarComponent.avatarHeight * 0.5
 
