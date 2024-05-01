@@ -162,13 +162,13 @@ describe('upload-asset', () => {
       const response = await addAssetAsStaticResource(app, file, args)
       assert.equal(response.key, 'static-resources/test/default.gltf')
       assert.equal(response.hash, hash)
-      assert.equal(response.mimeType, 'model/gltf')
+      assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.gltf')
       assert.equal(staticResource.hash, hash)
-      assert.equal(staticResource.mimeType, 'model/gltf')
+      assert.equal(staticResource.mimeType, 'application/json')
       assert.equal(staticResource.project, testProject)
 
       const fileResponse = await storageProvider.getObject(staticResource.key)
