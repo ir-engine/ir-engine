@@ -23,32 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import Component from './index'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import ViewPortPanelContainer from './container'
+const argTypes = {}
 
-export const ViewportPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Viewport'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+export default {
+  title: 'Editor/Panel/Viewport/Container',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ViewportPanelContainer',
+    jest: 'ViewportPanelContainer.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-export default ViewportPanelTitle
-
-export const ViewportPanelTab: TabData = {
-  id: 'viewPanel',
-  closable: true,
-  title: <ViewportPanelTitle />,
-  content: <ViewPortPanelContainer />
-}
+export const Default = { args: {} }
