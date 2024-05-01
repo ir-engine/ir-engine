@@ -112,8 +112,7 @@ export const DirectionalLightComponent = defineComponent({
       castShadow: false,
       shadowBias: -0.00001,
       shadowRadius: 1,
-      cameraFar: 200,
-      useInCSM: true
+      cameraFar: 200
     }
   },
 
@@ -127,7 +126,6 @@ export const DirectionalLightComponent = defineComponent({
     /** backwards compat */
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-    if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
   },
 
   toJSON: (entity, component) => {
@@ -137,8 +135,7 @@ export const DirectionalLightComponent = defineComponent({
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
       shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value,
-      useInCSM: component.useInCSM.value
+      shadowRadius: component.shadowRadius.value
     }
   },
 
