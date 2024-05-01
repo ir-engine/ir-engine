@@ -532,9 +532,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.destinationValid
-                ? 'flex items-center gap-2 text-green-400'
-                : 'flex items-center gap-2 text-red-700'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
@@ -546,7 +545,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-700' + ' flex items-center gap-2'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
@@ -558,9 +558,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.sourceProjectMatchesDestination
-                ? 'text-green-400'
-                : 'text-red-700' + ' flex items-center gap-2'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
