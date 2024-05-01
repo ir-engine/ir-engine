@@ -101,6 +101,8 @@ export const InteractableComponent = defineComponent({
       component.uiActivationType.set(json.uiActivationType)
     if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
       component.clickInteract.set(json.clickInteract)
+    if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
+      component.uiInteractable.set(json.uiInteractable)
     if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (
       matches
@@ -133,6 +135,7 @@ export const InteractableComponent = defineComponent({
       clickInteract: component.clickInteract.value,
       activationDistance: component.activationDistance.value,
       uiActivationType: component.uiActivationType.value,
+      uiInteractable: component.uiInteractable.value,
       callbacks: component.callbacks.get(NO_PROXY)
     }
   },
