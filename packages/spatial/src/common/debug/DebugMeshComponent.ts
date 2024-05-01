@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { BufferGeometry, Material, MeshBasicMaterial } from 'three'
@@ -64,12 +65,12 @@ export const DebugMeshComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      const geo = component.geometry.value
+      const geo = component.geometry.get(NO_PROXY)
       if (geo != mesh.geometry.value) mesh.geometry.set(geo)
     }, [component.geometry])
 
     useEffect(() => {
-      const mat = component.material.value
+      const mat = component.material.get(NO_PROXY)
       if (mat != mesh.material.value) mesh.material.set(mat)
     }, [component.material])
 

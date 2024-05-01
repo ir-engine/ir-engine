@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { BufferGeometry, Material, Mesh } from 'three'
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -61,15 +60,13 @@ export const MeshComponent = defineComponent({
       !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
     )
 
-    useDidMount(() => {
-      meshResource.set(meshComponent.value)
+    useEffect(() => {
+      if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
     }, [meshComponent])
 
     useEffect(() => {
       const mesh = meshComponent.value
-      if (mesh.geometry !== geometryResource.value) {
-        geometryResource.set(mesh.geometry)
-      }
+      if (mesh.geometry !== geometryResource.value) geometryResource.set(mesh.geometry)
     }, [meshComponent.geometry])
 
     useEffect(() => {

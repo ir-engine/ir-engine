@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -93,7 +92,7 @@ export const LineSegmentComponent = defineComponent({
       mat.needsUpdate = true
     }, [component.color])
 
-    useDidMount(() => {
+    useEffect(() => {
       const geo = component.geometry.get(NO_PROXY)
       if (geo != geometryState.value) {
         geometryState.set(geo)
@@ -101,7 +100,7 @@ export const LineSegmentComponent = defineComponent({
       }
     }, [component.geometry])
 
-    useDidMount(() => {
+    useEffect(() => {
       const mat = component.material.get(NO_PROXY)
       if (mat != materialState.value) {
         materialState.set(mat)
