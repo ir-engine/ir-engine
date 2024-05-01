@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, SetComponentType, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -85,7 +85,12 @@ const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
-const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[], component: C, add: boolean) => {
+const addOrRemoveComponent = <C extends Component<any, any>>(
+  entities: Entity[],
+  component: C,
+  add: boolean,
+  args: SetComponentType<C> | undefined = undefined
+) => {
   const sceneComponentID = component.jsonID
   if (!sceneComponentID) return
 
@@ -99,7 +104,10 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
         const node = getGLTFNodeByUUID(gltf.data, entityUUID)
         if (!node) continue
         if (add) {
-          node.extensions![sceneComponentID] = componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!)
+          node.extensions![sceneComponentID] = {
+            ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!),
+            ...args
+          }
         } else {
           delete node.extensions?.[sceneComponentID]
         }
@@ -116,7 +124,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
           componentData = componentData.filter((c) => c.name !== sceneComponentID)
           componentData.push({
             name: sceneComponentID,
-            props: componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!)
+            props: { ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!), ...args }
           })
         } else {
           const index = componentData.findIndex((c) => c.name === sceneComponentID)

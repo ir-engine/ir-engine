@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState, matches } from '@etherealengine/hyperflux'
@@ -34,7 +34,6 @@ import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
-import { InteractableComponent, XRUIActivationType } from '../../interaction/components/InteractableComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkComponent, xrState) => {
@@ -60,6 +59,7 @@ const linkCallback = (linkEntity: Entity) => {
 
 const vec3 = new Vector3()
 const interactMessage = 'Click to follow'
+const linkCallbackName = 'linkCallback'
 
 export const LinkState = defineState({
   name: 'LinkState',
@@ -79,6 +79,8 @@ export const LinkComponent = defineComponent({
       location: ''
     }
   },
+  linkCallbackName,
+  linkCallback,
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -86,6 +88,8 @@ export const LinkComponent = defineComponent({
     matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
     matches.string.test(json.location) && component.location.set(json.location as string)
   },
+
+  interactMessage,
 
   toJSON: (entity, component) => {
     return {
@@ -114,19 +118,7 @@ export const LinkComponent = defineComponent({
     }, [link.url, link.sceneNav])
 
     useEffect(() => {
-      setCallback(entity, 'linkCallback', () => linkCallback(entity))
-      setComponent(entity, InteractableComponent, {
-        label: interactMessage,
-        uiInteractable: false,
-        clickInteract: true,
-        uiActivationType: XRUIActivationType.hover,
-        callbacks: [
-          {
-            callbackID: 'linkCallback',
-            target: null
-          }
-        ]
-      })
+      setCallback(entity, linkCallbackName, () => LinkComponent.linkCallback(entity))
     }, [])
 
     return null

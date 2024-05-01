@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useState } from '@etherealengine/hyperflux'
@@ -42,7 +42,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 type OptionsType = Array<{
   callbacks: Array<{
@@ -63,11 +63,24 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const options = [] as OptionsType
-    options.push({
-      label: 'Self',
-      value: 'Self',
-      callbacks: []
-    })
+
+    const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
+    if (entityCallbacks) {
+      options.push({
+        label: 'Self',
+        value: getComponent(props.entity, UUIDComponent),
+        callbacks: Object.keys(entityCallbacks).map((cb) => {
+          return { label: cb, value: cb }
+        })
+      })
+    } else {
+      options.push({
+        label: 'Self',
+        value: 'Self',
+        callbacks: []
+      })
+    }
+
     for (const entity of callbackQuery()) {
       if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)

@@ -205,10 +205,13 @@ export const updateBuilder = async (
   }
 }
 
-export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
+export const checkBuilderService = async (
+  app: Application
+): Promise<{ failed: boolean; succeeded: boolean; running: boolean }> => {
   const jobStatus = {
     failed: false,
-    succeeded: !config.kubernetes.enabled // if no k8s, assume success
+    succeeded: !config.kubernetes.enabled, // if no k8s, assume success
+    running: false
   }
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -234,8 +237,6 @@ export const checkBuilderService = async (app: Application): Promise<{ failed: b
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
-
-        return jobStatus
       } else {
         const containerName = 'etherealengine-builder'
 
@@ -271,8 +272,7 @@ export const checkBuilderService = async (app: Application): Promise<{ failed: b
           )
 
           jobStatus.succeeded = builderLogs.body.includes('sleep infinity')
-
-          return jobStatus
+          jobStatus.running = true
         }
       }
     } catch (e) {
