@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { startCase } from 'lodash'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -249,6 +249,7 @@ export function ElementList() {
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const shelves = useComponentShelfCategories(search.query.value)
+  const inputReference = useRef<HTMLInputElement>(null)
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -257,6 +258,10 @@ export function ElementList() {
       search.query.set(text)
     }, 50)
   }
+
+  useEffect(() => {
+    inputReference.current?.focus()
+  }, [])
 
   return (
     <List
@@ -271,6 +276,7 @@ export function ElementList() {
             value={search.local.value}
             sx={{ mt: 1 }}
             onChange={(e) => onSearch(e.target.value)}
+            inputRef={inputReference}
           />
         </div>
       }
