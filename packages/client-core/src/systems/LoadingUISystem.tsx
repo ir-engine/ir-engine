@@ -41,6 +41,7 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -163,7 +164,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 
   return (
     <>
-      {/* {!state.ready.value && <HideCanvas />} */}
+      {!state.ready.value && <HideCanvas />}
       <SceneSettingsReactor sceneEntity={sceneEntity} key={sceneEntity} />
     </>
   )
@@ -274,7 +275,6 @@ const execute = () => {
   mainThemeColor.set(ui.state.colors.alternate.value)
 
   transition.update(ecsState.deltaSeconds, (opacity) => {
-    console.log('transition', opacity)
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 
@@ -305,6 +305,7 @@ const reactor = () => {
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
   const sceneEntity = LocationSceneState.useScene(locationSceneID)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
 
   useEffect(() => {
     const theme = getAppTheme()
@@ -312,6 +313,9 @@ const reactor = () => {
   }, [themeState, themeModes, clientSettings])
 
   if (!sceneEntity) return null
+
+  // wait for scene gltf to load
+  if (!gltfDocumentState[getComponent(sceneEntity, GLTFComponent).src]) return null
 
   return (
     <>

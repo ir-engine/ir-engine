@@ -81,7 +81,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
     )
       return
     const sceneURL = scene.assetURL
-    return SceneServices.setCurrentScene(sceneURL)
+    return SceneServices.setCurrentScene(sceneURL, scene.id)
   }, [locationState.currentLocation.location.sceneId, scene])
 }
 
@@ -89,6 +89,6 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
     const sceneURL = `projects/${props.projectName}/${props.sceneName}`
-    return SceneServices.setCurrentScene(sceneURL, true)
+    return SceneServices.setCurrentScene(sceneURL, sceneURL, true)
   }, [])
 }

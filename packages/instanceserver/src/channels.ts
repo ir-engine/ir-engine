@@ -52,8 +52,9 @@ import {
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { getMutableComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -300,14 +301,13 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
-      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
+      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL, scene.id as EntityUUID)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
-
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(SceneState).sceneLoaded) {
+          if (getComponent(gltfEntity, GLTFComponent).progress === 100) {
             clearInterval(interval)
             resolve()
           }

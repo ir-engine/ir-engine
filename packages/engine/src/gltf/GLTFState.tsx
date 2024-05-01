@@ -54,18 +54,24 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { MathUtils, Matrix4 } from 'three'
+import { Matrix4 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFSourceState = defineState({
-  name: 'GLTFState',
+  name: 'ee.engine.gltf.GLTFSourceState',
   initial: {} as Record<string, Entity>,
 
-  load: (source: string, parentEntity = UndefinedEntity) => {
+  /**
+   * @param source The asset URL for the GLTF file
+   * @param uuid Identitifies this GLTF uniquely, either as a location instance or loaded as an asset referenced in another GLTF file
+   * @param parentEntity The parent entity to attach the GLTF to
+   * @returns
+   */
+  load: (source: string, uuid: EntityUUID, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
-    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
@@ -85,7 +91,7 @@ export const GLTFSourceState = defineState({
 })
 
 export const GLTFSnapshotState = defineState({
-  name: 'GLTFSnapshotState',
+  name: 'ee.engine.gltf.GLTFSnapshotState',
   initial: {} as Record<
     string,
     {

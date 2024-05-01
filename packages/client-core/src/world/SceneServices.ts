@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config from '@etherealengine/common/src/config'
-import { Engine, UUIDComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
+import { Engine, EntityUUID, UUIDComponent, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
@@ -33,9 +33,9 @@ import { LocationSceneState, LocationState } from '../social/services/LocationSe
 const fileServer = config.client.fileServer
 
 export const SceneServices = {
-  setCurrentScene: (sceneURL: string, overrideLocation = false) => {
+  setCurrentScene: (sceneURL: string, uuid: string, overrideLocation = false) => {
     const source = fileServer + '/' + sceneURL
-    const gltfEntity = GLTFSourceState.load(source)
+    const gltfEntity = GLTFSourceState.load(source, uuid as EntityUUID)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
     getMutableState(LocationSceneState)[sceneURL].set(gltfEntity)
 
