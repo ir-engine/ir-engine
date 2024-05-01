@@ -516,7 +516,7 @@ export const checkProjectDestinationMatch = async (
     return destinationBlobResponse
   if (destinationBlobResponse.error === 'destinationPackageMissing')
     return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
-  console.log('destination content', Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
+  // console.log('destination content', Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
   const destinationContent = JSON.parse(Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
   if (sourceContent.name.toLowerCase() !== destinationContent.name.toLowerCase())
     return {
