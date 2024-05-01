@@ -35,15 +35,18 @@ import { Box, Divider, Stack } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent, setComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import {
   MaterialComponent,
   MaterialComponents,
+  pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -132,11 +135,12 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-    console.log(materialName.value)
   }, [materialName, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity!
   const prototype = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+
+  const selectedPlugin = useHookstate(TransparencyDitheringPlugin.id)
 
   materialName.set(material.name)
   prototypeName.set(material.type)
@@ -211,7 +215,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />
-      {/* <div
+      <div
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -224,42 +228,19 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       >
         <SelectInput
           value={selectedPlugin.value}
-          options={Object.keys(materialLibrary.plugins).map((key) => ({ label: key, value: key }))}
+          options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
           onChange={selectedPlugin.set}
         />
         <Button
           onClick={() => {
-            materialComponent.plugins.set(materialComponent.plugins.concat(selectedPlugin.value))
+            setComponent(entity, MaterialComponent[MaterialComponents.State], {
+              pluginEntities: [...(materialComponent.pluginEntities ?? []), pluginByName[selectedPlugin.value]!]
+            })
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}
         </Button>
-      </div> */}
-      {/* <PaginatedList
-        list={materialComponent.plugins}
-        element={(plugin: State<string>) => {
-          return (
-            <div className={styles.contentContainer}>
-              <InputGroup name="Plugin" label={t('editor:properties.mesh.material.plugin')}>
-                <SelectInput
-                  value={plugin.value}
-                  options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-                  onChange={plugin.set}
-                />
-              </InputGroup>
-              <Button
-                onClick={() => {
-                  removeMaterialPlugin(material, plugin.value)
-                  materialComponent.plugins.set(materialComponent.plugins.value.filter((val) => val !== plugin.value))
-                }}
-                style={{ backgroundColor: '#f00' }}
-              >
-                x
-              </Button>
-            </div>
-          )
-        }}
-      /> */}
+      </div>
     </div>
   )
 }
