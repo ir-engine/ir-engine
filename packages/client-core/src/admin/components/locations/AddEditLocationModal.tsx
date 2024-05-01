@@ -57,7 +57,11 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
 
-  const scenes = useFind(assetPath)
+  const scenes = useFind(assetPath, {
+    query: {
+      paginate: false
+    }
+  })
 
   const handleSubmit = async () => {
     errors.set(getDefaultErrors())
