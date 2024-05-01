@@ -22,12 +22,12 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import React, { Component } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
 
-import BoltIcon from '@mui/icons-material/Bolt'
+import { BsLightning } from 'react-icons/bs'
 
 import {
   EditorComponentType,
@@ -43,8 +43,6 @@ import LightShadowProperties from '../shadowProperties'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
- *
- *  @type {Component class}
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -55,6 +53,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.directionalLight.name')}
       description={t('editor:properties.directionalLight.description')}
+      icon={<BsLightning />}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput
@@ -79,7 +78,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           unit="cd"
         />
       </InputGroup>
-      <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
+      <LightShadowProperties entity={props.entity} component={DirectionalLightComponent} />
       <InputGroup name="Camera Near" label={t('editor:properties.directionalLight.lbl-cameraNear')}>
         <NumericInput
           min={0}
@@ -98,6 +97,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-DirectionalLightNodeEditor.iconComponent = BoltIcon
+DirectionalLightNodeEditor.iconComponent = BsLightning
 
 export default DirectionalLightNodeEditor

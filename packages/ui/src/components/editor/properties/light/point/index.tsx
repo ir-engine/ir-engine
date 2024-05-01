@@ -33,7 +33,7 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import LightbulbIcon from '@mui/icons-material/Lightbulb'
+import { AiOutlineBulb } from 'react-icons/ai'
 import { Color } from 'three'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
@@ -46,7 +46,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   //const lightComponent = useComponent(props.entity, PointLightComponent).value
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
+    <NodeEditor {...props} description={t('editor:properties.pointLight.description')} icon={<AiOutlineBulb />}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
         <ColorInput
           // value={lightComponent.color}
@@ -98,11 +98,11 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(PointLightComponent, 'decay')}
         />
       </InputGroup>
-      <LightShadowProperties entity={props.entity} comp={PointLightComponent} />
+      <LightShadowProperties entity={props.entity} component={PointLightComponent} />
     </NodeEditor>
   )
 }
 
-PointLightNodeEditor.iconComponent = LightbulbIcon
+PointLightNodeEditor.iconComponent = AiOutlineBulb
 
 export default PointLightNodeEditor

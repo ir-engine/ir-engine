@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiOutlineCamera } from 'react-icons/hi'
 
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -50,8 +49,6 @@ import NodeEditor from '../nodeEditor'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
- *
- * @type {Class component}
  */
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -102,6 +99,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.sceneCamera.name')}
       description={t('editor:properties.sceneCamera.description')}
+      icon={<HiOutlineCamera />}
     >
       {/*<Button
         onClick={() => {
@@ -116,6 +114,6 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-ScenePreviewCameraNodeEditor.iconComponent = CameraAltIcon
+ScenePreviewCameraNodeEditor.iconComponent = HiOutlineCamera
 
 export default ScenePreviewCameraNodeEditor

@@ -41,6 +41,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Button } from '@mui/material'
+import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -123,6 +124,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.cameraSettings.name')}
       description={t('editor:properties.cameraSettings.description')}
+      icon={<HiOutlineCamera />}
     >
       <InputGroup name="Projection Type" label={'Projection Type'}>
         <SelectInput

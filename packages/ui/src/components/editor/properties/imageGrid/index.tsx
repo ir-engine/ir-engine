@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsPlusSquare } from 'react-icons/bs'
-import { GoImage } from 'react-icons/go'
+import { LuImage } from 'react-icons/lu'
 import { Quaternion, Vector3 } from 'three'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
@@ -45,7 +44,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
-    <NodeEditor {...props} name={t('editor:properties.gallery.lbl-imageGrid')} icon={<GoImage />}>
+    <NodeEditor {...props} name={t('editor:properties.gallery.lbl-imageGrid')} icon={<LuImage />}>
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">
           {t('editor:properties.gallery.assets')}
@@ -102,6 +101,6 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-GalleryNodeEditor.iconComponent = StreetviewIcon
+GalleryNodeEditor.iconComponent = LuImage
 
 export default GalleryNodeEditor

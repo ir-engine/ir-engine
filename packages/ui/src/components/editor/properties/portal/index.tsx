@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CiSpeaker } from 'react-icons/ci'
 import { Euler, Quaternion } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -33,8 +34,6 @@ import {
   PortalEffects,
   PortalPreviewTypes
 } from '@etherealengine/engine/src/scene/components/PortalComponent'
-
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
 import {
   EditorComponentType,
@@ -64,8 +63,6 @@ const rotation = new Quaternion()
 
 /**
  * PortalNodeEditor provides the editor for properties of PortalNode.
- *
- * @type {class component}
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
   /*const state = useHookstate({
@@ -134,7 +131,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor description={t('editor:properties.portal.description')} {...props}>
+    <NodeEditor description={t('editor:properties.portal.description')} icon={<CiSpeaker />} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
         <StringInput
           value={
@@ -204,7 +201,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(PortalComponent, 'previewImageURL')}
         />
       </InputGroup>
-      <InputGroup name="Preview Image Bake">
+      <InputGroup name="Preview Image Bake" label="Preview Image Bake">
         <div className="flex flex-col">
           <div className="flex w-auto flex-row gap-1">
             <Button
@@ -216,7 +213,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               {t('editor:properties.portal.lbl-generateImage')}
             </Button>
             <Button
-              className="h-[30px] w-[74px] bg-blue-800 font-['Figtree'] text-xs text-xs font-normal text-neutral-400"
+              className="h-[30px] w-[74px] bg-blue-800 font-['Figtree'] text-xs font-normal text-neutral-400"
               onClick={() => {
                 uploadEnvmap()
               }}
@@ -260,6 +257,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-PortalNodeEditor.iconComponent = MeetingRoomIcon
+PortalNodeEditor.iconComponent = CiSpeaker
 
 export default PortalNodeEditor

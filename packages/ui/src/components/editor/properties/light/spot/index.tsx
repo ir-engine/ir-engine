@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { LuCircleDot } from 'react-icons/lu'
 
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
-
-import AdjustIcon from '@mui/icons-material/Adjust'
 
 import {
   EditorComponentType,
@@ -50,7 +49,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
+    <NodeEditor {...props} description={t('editor:properties.spotLight.description')} icon={<LuCircleDot />}>
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
         <ColorInput
           value={
@@ -130,11 +129,11 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />
       </InputGroup>
-      <LightShadowProperties entity={props.entity} comp={SpotLightComponent} />
+      <LightShadowProperties entity={props.entity} component={SpotLightComponent} />
     </NodeEditor>
   )
 }
 
-SpotLightNodeEditor.iconComponent = AdjustIcon
+SpotLightNodeEditor.iconComponent = LuCircleDot
 
 export default SpotLightNodeEditor

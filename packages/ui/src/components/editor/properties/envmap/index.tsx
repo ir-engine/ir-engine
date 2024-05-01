@@ -41,7 +41,7 @@ import {
   updateProperties,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
+import { IoMapOutline } from 'react-icons/io5'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
@@ -98,6 +98,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       component={EnvmapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
+      icon={<IoMapOutline />}
     >
       <InputGroup name="Envmap Source" label="Envmap Source">
         <SelectInput
@@ -207,5 +208,5 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     </NodeEditor>
   )
 }
-EnvMapEditor.iconComponent = SportsBarTwoTone
+EnvMapEditor.iconComponent = IoMapOutline
 export default EnvMapEditor

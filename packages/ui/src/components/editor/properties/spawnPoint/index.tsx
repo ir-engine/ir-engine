@@ -24,15 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { RiCameraLensFill } from 'react-icons/ri'
 import NodeEditor from '../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- *
- * @type {Class component}
  */
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -44,10 +42,11 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.spawnPoint.name')}
       description={t('editor:properties.spawnPoint.description')}
+      icon={<RiCameraLensFill />}
     ></NodeEditor>
   )
 }
 
-SpawnPointNodeEditor.iconComponent = StreetviewIcon
+SpawnPointNodeEditor.iconComponent = RiCameraLensFill
 
 export default SpawnPointNodeEditor

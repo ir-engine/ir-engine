@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import LinkIcon from '@mui/icons-material/Link'
+import { PiLinkBreak } from 'react-icons/pi'
 
 import {
   EditorComponentType,
@@ -54,6 +53,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.linkComp.title')}
       description={t('editor:properties.linkComp.description')}
+      icon={<PiLinkBreak />}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (
@@ -107,6 +107,6 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-LinkNodeEditor.iconComponent = LinkIcon
+LinkNodeEditor.iconComponent = PiLinkBreak
 
 export default LinkNodeEditor

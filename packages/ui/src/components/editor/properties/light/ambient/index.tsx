@@ -32,7 +32,7 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
-import { MdBrightness7 } from 'react-icons/md'
+import { HiOutlineSun } from 'react-icons/hi2'
 import { Color } from 'three'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
@@ -53,6 +53,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.ambientLight.name')}
       description={t('editor:properties.ambientLight.description')}
+      icon={<HiOutlineSun />}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
         <ColorInput
@@ -81,6 +82,6 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-AmbientLightNodeEditor.iconComponent = MdBrightness7
+AmbientLightNodeEditor.iconComponent = HiOutlineSun
 
 export default AmbientLightNodeEditor

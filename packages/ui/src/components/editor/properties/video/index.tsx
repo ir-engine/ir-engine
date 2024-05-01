@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-
-import VideocamIcon from '@mui/icons-material/Videocam'
 
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import {
@@ -90,6 +89,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.video.name')}
       description={t('editor:properties.video.description')}
+      icon={<HiOutlineVideoCamera />}
     >
       <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup
@@ -151,7 +151,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-// setting iconComponent with icon name
-VideoNodeEditor.iconComponent = VideocamIcon
+VideoNodeEditor.iconComponent = HiOutlineVideoCamera
 
 export default VideoNodeEditor

@@ -30,8 +30,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import TextFieldsIcon from '@mui/icons-material/TextFields'
+import { PiTextT } from 'react-icons/pi'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
@@ -39,7 +38,6 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties//Util'
-import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import {
   FontMaterialKind,
   TextComponent,
@@ -53,6 +51,7 @@ import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 import Vector2Input from '../../input/Vector2'
+import NodeEditor from '../nodeEditor'
 
 /**
  * @description SelectInput option groups for the TextNodeEditor UI tsx code.
@@ -141,7 +140,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor {...props} name="Text Component" description="A Text component">
+    <NodeEditor {...props} name="Text Component" description="A Text component" icon={<PiTextT />}>
       <InputGroup name="TextContents" label="Contents">
         <ControlledStringInput
           value={text.text.value}
@@ -507,6 +506,6 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-TextNodeEditor.iconComponent = TextFieldsIcon
+TextNodeEditor.iconComponent = PiTextT
 
 export default TextNodeEditor

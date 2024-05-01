@@ -27,9 +27,9 @@ import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelC
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { supportedColliderShapes } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { FiMinimize2 } from 'react-icons/fi'
 import Select from '../../../../primitives/tailwind/Select'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -42,9 +42,6 @@ const shapeTypeOptions = Object.entries(Shapes)
     return { label: camelCaseToSpacedString(label), value }
   })
 
-/**
- * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- */
 export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -56,6 +53,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.collider.name')}
       description={t('editor:properties.collider.description')}
+      icon={<FiMinimize2 />}
     >
       <InputGroup name="Body type" label={t('editor:properties.collider.lbl-type')}>
         <Select
@@ -100,6 +98,6 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
   )
 }
 
-ColliderComponentEditor.iconComponent = StreetviewIcon
+ColliderComponentEditor.iconComponent = FiMinimize2
 
 export default ColliderComponentEditor

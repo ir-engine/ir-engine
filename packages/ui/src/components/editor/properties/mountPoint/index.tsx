@@ -34,7 +34,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import StreetviewIcon from '@mui/icons-material/Streetview'
+import { LuUsers2 } from 'react-icons/lu'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
@@ -54,6 +54,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.mountPoint.name')}
       description={t('editor:properties.mountPoint.description')}
+      icon={<LuUsers2 />}
     >
       <InputGroup name="Mount Type" label={t('editor:properties.mountpoint.lbl-mountType')}>
         <SelectInput // we dont know the options and the component for this
@@ -80,6 +81,6 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-MountPointNodeEditor.iconComponent = StreetviewIcon
+MountPointNodeEditor.iconComponent = LuUsers2
 
 export default MountPointNodeEditor

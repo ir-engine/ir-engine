@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PiSpeakerLowLight } from 'react-icons/pi'
 
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 import {
   EditorComponentType,
@@ -50,9 +49,6 @@ import NodeEditor from '../nodeEditor'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
- *
- * @param       {Object} props
- * @constructor
  */
 export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -71,6 +67,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
+      icon={<PiSpeakerLowLight />}
     >
       <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup
@@ -231,7 +228,6 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-//setting icon component name
-PositionalAudioNodeEditor.iconComponent = VolumeUpIcon
+PositionalAudioNodeEditor.iconComponent = PiSpeakerLowLight
 
 export default PositionalAudioNodeEditor

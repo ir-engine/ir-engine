@@ -28,13 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
-
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { PiSunHorizon } from 'react-icons/pi'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
@@ -53,6 +52,7 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.hemisphere.name')}
       description={t('editor:properties.hemisphere.description')}
+      icon={<PiSunHorizon />}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
         <ColorInput
@@ -91,6 +91,6 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-HemisphereLightNodeEditor.iconComponent = VerifiedUserIcon
+HemisphereLightNodeEditor.iconComponent = PiSunHorizon
 
 export default HemisphereLightNodeEditor

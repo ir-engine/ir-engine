@@ -53,8 +53,7 @@ import {
   ValueGeneratorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
-
-import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
+import { HiSparkles } from 'react-icons/hi'
 
 import NumericInputGroup from '@etherealengine/editor/src/components/inputs/NumericInputGroup'
 import ParameterInput from '@etherealengine/editor/src/components/inputs/ParameterInput'
@@ -185,6 +184,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
+      icon={<HiSparkles />}
     >
       <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Options</h4>
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
@@ -439,6 +439,6 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-ParticleSystemNodeEditor.iconComponent = ScatterPlotOutlined
+ParticleSystemNodeEditor.iconComponent = HiSparkles
 
 export default ParticleSystemNodeEditor

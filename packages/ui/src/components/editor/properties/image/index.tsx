@@ -30,7 +30,7 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+import { LuImage } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
 import ImageInput from '../../input/Image'
 import NodeEditor from '../nodeEditor'
@@ -47,6 +47,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.image.name')}
       description={t('editor:properties.image.description')}
+      icon={<LuImage />}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
         <ImageInput
@@ -69,6 +70,6 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-ImageNodeEditor.iconComponent = PhotoSizeSelectActualIcon
+ImageNodeEditor.iconComponent = LuImage
 
 export default ImageNodeEditor

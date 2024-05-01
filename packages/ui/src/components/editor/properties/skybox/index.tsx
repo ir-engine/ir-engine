@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { FiCloud } from 'react-icons/fi'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -37,7 +38,6 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import CloudIcon from '@mui/icons-material/Cloud'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
@@ -212,9 +212,10 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor
-      {...props}
       name={t('editor:properties.skybox.name')}
       description={t('editor:properties.skybox.description')}
+      icon={<FiCloud />}
+      {...props}
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput
@@ -229,6 +230,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SkyboxNodeEditor.iconComponent = CloudIcon
+SkyboxNodeEditor.iconComponent = FiCloud
 
 export default SkyboxNodeEditor

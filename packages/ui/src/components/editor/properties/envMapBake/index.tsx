@@ -29,11 +29,10 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 
-import SportsGolfIcon from '@mui/icons-material/SportsGolf'
-
 import { commitProperty, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { uploadBPCEMBakeToServer } from '@etherealengine/editor/src/functions/uploadEnvMapBake'
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
+import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
@@ -161,6 +160,7 @@ export const EnvMapBakeNodeEditor = (props) => {
       {...props}
       name="EnvMap Bake"
       description="For Adding EnvMap bake in your scene"
+      icon={<IoMapOutline />}
     >
       <Button onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</Button>
       <InputGroup name="Position" label="Position Offset">
@@ -206,5 +206,5 @@ export const EnvMapBakeNodeEditor = (props) => {
   )
 }
 
-EnvMapBakeNodeEditor.iconComponent = SportsGolfIcon
+EnvMapBakeNodeEditor.iconComponent = IoMapOutline
 export default EnvMapBakeNodeEditor

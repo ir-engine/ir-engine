@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaClone } from 'react-icons/fa6'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
@@ -36,7 +37,6 @@ import NodeEditor from '../nodeEditor'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
-
  */
 export const ShadowNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -46,6 +46,7 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.shadow.name')}
       component={ShadowComponent}
       description={t('editor:properties.shadow.description')}
+      icon={<FaClone />}
       {...props}
     >
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>

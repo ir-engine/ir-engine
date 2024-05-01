@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { LuPlayCircle } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import NodeEditor from '../nodeEditor'
@@ -43,9 +43,10 @@ export const XRUIPlaybackNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor
-      {...props}
       name={t('editor:properties.xruiPlayback.name')}
       description={t('editor:properties.xruiPlayback.description')}
+      icon={<LuPlayCircle />}
+      {...props}
     >
       <InputGroup
         name="Playback Width"
@@ -68,6 +69,6 @@ export const XRUIPlaybackNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-XRUIPlaybackNodeEditor.iconComponent = StreetviewIcon
+XRUIPlaybackNodeEditor.iconComponent = LuPlayCircle
 
 export default XRUIPlaybackNodeEditor
