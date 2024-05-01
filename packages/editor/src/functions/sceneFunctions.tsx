@@ -28,7 +28,7 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -140,8 +140,8 @@ export const createNewScene = async (projectName: string, params?: AssetParams) 
 
 const fileServer = config.client.fileServer
 
-export const setCurrentEditorScene = (sceneURL: string) => {
-  const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
+export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
+  const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)
   getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {

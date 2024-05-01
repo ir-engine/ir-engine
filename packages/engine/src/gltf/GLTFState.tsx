@@ -54,7 +54,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { Matrix4 } from 'three'
+import { MathUtils, Matrix4 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -69,7 +69,7 @@ export const GLTFSourceState = defineState({
    * @param parentEntity The parent entity to attach the GLTF to
    * @returns
    */
-  load: (source: string, uuid: EntityUUID, parentEntity = UndefinedEntity) => {
+  load: (source: string, uuid = MathUtils.generateUUID() as EntityUUID, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, source.split('/').pop()!)

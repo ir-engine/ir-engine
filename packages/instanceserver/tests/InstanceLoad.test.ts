@@ -30,11 +30,13 @@ import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import appRootPath from 'app-root-path'
 import { ChildProcess } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
 import { StartTestFileServer } from '../../server-core/src/createFileServer'
+import { InstanceServerState } from '../src/InstanceServerState'
 import { onConnection } from '../src/channels'
 import { start } from '../src/start'
 
@@ -95,6 +97,8 @@ describe('InstanceLoad', () => {
 
     await loadLocation(query)
 
+    assert.equal(NetworkState.worldNetwork.ready, true)
+    assert.equal(getState(InstanceServerState).ready, true)
     assert.equal(getState(SceneState).sceneLoaded, true)
   })
 

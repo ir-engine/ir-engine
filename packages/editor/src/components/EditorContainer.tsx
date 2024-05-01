@@ -27,6 +27,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
@@ -417,7 +418,7 @@ const EditorContainer = () => {
     sceneName.set(scene ?? null)
     projectName.set(project ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(sceneURL)
+    return setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
   }, [sceneURL])
 
   useEffect(() => {
