@@ -41,7 +41,7 @@ import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
-import { GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
@@ -80,14 +80,12 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
+    if (!getState(GLTFDocumentState)[props.documentID]) return
 
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
-      if (sourceEntities.length > 1) {
-        const gltfEntity = getState(GLTFSourceState)[props.documentID]
-        console.log('GLTFComponent', entities.length, sourceEntities.length)
-        getMutableComponent(gltfEntity, GLTFComponent).progress.set(100)
-      }
+      const gltfEntity = getState(GLTFSourceState)[props.documentID]
+      getMutableComponent(gltfEntity, GLTFComponent).progress.set(100)
       return
     }
 
@@ -109,7 +107,6 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     const total = resources.reduce((acc, resource) => acc + resource.total, 0)
 
     const percentage = total === 0 ? 100 : (progress / total) * 100
-    console.log('GLTFComponent', entities.length, sourceEntities.length, progress, total, percentage)
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
   }, [resourceQuery, sourceEntities])
 
