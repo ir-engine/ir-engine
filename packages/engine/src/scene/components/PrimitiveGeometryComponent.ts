@@ -92,7 +92,7 @@ function GeometryReactor() {
   const entity = useEntityContext()
   const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
   const transform = useComponent(entity, TransformComponent)
-  const [mesh] = useResource(new Mesh(), entity)
+  const [mesh] = useResource(() => new Mesh(), entity)
 
   function areKeysDifferentTypes(obj1: Record<string, any>, obj2: Record<string, any>): boolean {
     if (!obj1 || !obj2) {

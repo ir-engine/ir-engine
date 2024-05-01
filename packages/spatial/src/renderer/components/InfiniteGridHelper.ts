@@ -176,7 +176,7 @@ export const InfiniteGridComponent = defineComponent({
         }
       })
     )
-    const [plane] = useResource(new Plane(mesh.up.value), entity)
+    const [plane] = useResource(() => new Plane(mesh.up.value), entity)
 
     useEffect(() => {
       mesh.position.y.set(engineRendererSettings.gridHeight.value)

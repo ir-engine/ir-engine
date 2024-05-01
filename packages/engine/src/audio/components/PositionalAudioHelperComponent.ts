@@ -71,8 +71,8 @@ export const PositionalAudioHelperComponent = defineComponent({
     }
 
     const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
-    const [materialInnerAngle] = useResource(new LineBasicMaterial({ color: 0x00ff00 }), entity)
-    const [materialOuterAngle] = useResource(new LineBasicMaterial({ color: 0xffff00 }), entity)
+    const [materialInnerAngle] = useResource(() => new LineBasicMaterial({ color: 0x00ff00 }), entity)
+    const [materialOuterAngle] = useResource(() => new LineBasicMaterial({ color: 0xffff00 }), entity)
     const [line] = useDisposable(Line<BufferGeometry, LineBasicMaterial[]>, entity, geometryState.value, [
       materialOuterAngle.value,
       materialInnerAngle.value
