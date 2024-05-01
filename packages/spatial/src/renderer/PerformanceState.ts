@@ -206,7 +206,7 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
   }
 
   const { renderContext, supportWebGL2 } = getState(PerformanceState)
-  if (supportWebGL2) {
+  if (renderContext && supportWebGL2) {
     const gl = renderContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
 
