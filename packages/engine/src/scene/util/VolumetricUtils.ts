@@ -48,17 +48,56 @@ import {
 } from '../constants/NewUVOLTypes'
 import getFirstMesh from './meshUtils'
 
+export const getBufferGeometrySize = (geometry: BufferGeometry) => {
+  const attributes = geometry.attributes
+  let size = 0
+  for (const key in attributes) {
+    const attribute = attributes[key]
+    size += attribute.array.byteLength
+  }
+  return size
+}
+
+export const getGLTFGeometrySize = (mesh: Mesh) => {
+  let size = getBufferGeometrySize(mesh.geometry)
+
+  if (mesh.geometry.morphAttributes) {
+    for (const key in mesh.geometry.morphAttributes) {
+      mesh.geometry.morphAttributes[key].map((attribute) => {
+        size += attribute.array.byteLength
+      })
+    }
+  }
+  return size
+}
+
+export const getKTX2TextureSize = (texture: CompressedTexture) => {
+  let size = 0
+  if (texture.image) {
+    texture.mipmaps.map((mipmap) => {
+      size += mipmap.data.byteLength
+    })
+  }
+  return size
+}
+
 export const loadCorto = (url: string, byteStart: number, byteEnd: number) => {
   if (!getState(AssetLoaderState).cortoLoader) {
     throw new Error('loadCorto:CORTOLoader is not available')
   }
 
-  return new Promise<BufferGeometry>((res, rej) => {
+  return new Promise<{
+    geometry: BufferGeometry
+    memoryOccupied: number
+  }>((res, rej) => {
     getState(AssetLoaderState).cortoLoader.load(url, byteStart, byteEnd, (geometry) => {
       if (geometry === null) {
         rej(`loadCorto:Failed to load Corto geometry frame from ${url} at bytes ${byteStart} to ${byteEnd}`)
       } else {
-        res(geometry)
+        res({
+          geometry,
+          memoryOccupied: getBufferGeometrySize(geometry)
+        })
       }
     })
   })
@@ -74,12 +113,16 @@ export const loadDraco = (url: string) => {
     throw new Error('loadDraco:DracoLoader is not available')
   }
 
-  return new Promise<{ geometry: BufferGeometry; fetchTime: number }>((resolve, reject) => {
+  return new Promise<{ geometry: BufferGeometry; fetchTime: number; memoryOccupied: number }>((resolve, reject) => {
     const startTime = performance.now()
     dracoLoader.load(
       url,
       (geometry: BufferGeometry) => {
-        resolve({ geometry, fetchTime: performance.now() - startTime })
+        resolve({
+          geometry,
+          fetchTime: performance.now() - startTime,
+          memoryOccupied: getBufferGeometrySize(geometry)
+        })
       },
       undefined,
       (error) => {
@@ -95,13 +138,14 @@ export const loadGLTF = (url: string) => {
     throw new Error('loadDraco:GLTFLoader is not available')
   }
 
-  return new Promise<{ mesh: Mesh; fetchTime: number }>((resolve, reject) => {
+  return new Promise<{ mesh: Mesh; fetchTime: number; memoryOccupied: number }>((resolve, reject) => {
     const startTime = performance.now()
     gltfLoader.load(
       url,
       ({ scene }: GLTF) => {
         const mesh = getFirstMesh(scene)!
-        resolve({ mesh, fetchTime: performance.now() - startTime })
+
+        resolve({ mesh, fetchTime: performance.now() - startTime, memoryOccupied: getGLTFGeometrySize(mesh) })
       },
       undefined,
       (err) => {
@@ -125,7 +169,7 @@ export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
   const repeat = _repeat || new Vector2(1, 1)
   const offset = _offset || new Vector2(0, 0)
 
-  return new Promise<{ texture: CompressedTexture; fetchTime: number }>((resolve, reject) => {
+  return new Promise<{ texture: CompressedTexture; fetchTime: number; memoryOccupied: number }>((resolve, reject) => {
     const startTime = performance.now()
     ktx2Loader.load(
       url,
@@ -133,7 +177,7 @@ export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
         texture.repeat.copy(repeat)
         texture.offset.copy(offset)
         texture.updateMatrix()
-        resolve({ texture, fetchTime: performance.now() - startTime })
+        resolve({ texture, fetchTime: performance.now() - startTime, memoryOccupied: getKTX2TextureSize(texture) })
       },
       undefined,
       (err) => {

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ComponentType } from '@etherealengine/ecs'
 import { State } from '@etherealengine/hyperflux'
-import { NormalMapTypes } from 'three'
+import { InterleavedBufferAttribute, NormalMapTypes } from 'three'
 import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
 import BufferDataContainer from '../util/BufferDataContainer'
 
@@ -481,3 +481,8 @@ export const GeometryFormatToType = {
 }
 
 export const TIME_UNIT_MULTIPLIER = 6000 // 1 second = 6000 time units
+
+export type KeyframeAttribute = {
+  position: InterleavedBufferAttribute
+  normal?: InterleavedBufferAttribute
+}

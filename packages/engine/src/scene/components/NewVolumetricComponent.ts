@@ -33,13 +33,15 @@ import {
   useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { useEffect, useMemo, useRef } from 'react'
-import { BufferGeometry, Group, Mesh, ShaderMaterial, SphereGeometry } from 'three'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { useEffect, useRef } from 'react'
+import { BufferGeometry, CompressedTexture, Group, Material, Mesh, ShaderMaterial, SphereGeometry } from 'three'
 import {
   BufferInfo,
   GeometryFormatToType,
   GeometryType,
+  KeyframeAttribute,
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   Pretrackbufferingcallback,
@@ -51,11 +53,24 @@ import BufferDataContainer from '../util/BufferDataContainer'
 import { createMaterial, getSortedSupportedTargets } from '../util/VolumetricUtils'
 import { PlaylistComponent } from './PlaylistComponent'
 
+const bufferLimits = {
+  geometry: {
+    desktopMaxMemory: 300 * 1024 * 1024, // 300 MB
+    mobileMaxMemory: 150 * 1024 * 1024, // 150 MB
+    minBufferToPlay: 3 // seconds
+  },
+  texture: {
+    desktopMaxMemory: 400 * 1024 * 1024, // 400 MB
+    mobileMaxMemory: 200 * 1024 * 1024, // 200 MB
+    minBufferToPlay: 3 // seconds
+  }
+}
+
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
   jsonID: 'EE_NewVolumetric',
   onInit: (entity) => ({
-    useVideoTexture: false, // legacy for UVOL1
+    useVideoTextureForBaseColor: false, // legacy for UVOL1
     useLoadingEffect: true,
     hasAudio: false,
     volume: 1,
@@ -63,7 +78,8 @@ export const NewVolumetricComponent = defineComponent({
     time: {
       start: 0,
       checkpointAbsolute: -1,
-      checkpointRelative: 0
+      checkpointRelative: 0,
+      currentTime: 0
     },
     geometry: {
       bufferData: new BufferDataContainer(),
@@ -83,8 +99,8 @@ export const NewVolumetricComponent = defineComponent({
   }),
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.useVideoTexture === 'boolean') {
-      component.useVideoTexture.set(json.useVideoTexture)
+    if (typeof json.useVideoTextureForBaseColor === 'boolean') {
+      component.useVideoTextureForBaseColor.set(json.useVideoTextureForBaseColor)
     }
     if (typeof json.useLoadingEffect === 'boolean') {
       component.useLoadingEffect.set(json.useLoadingEffect)
@@ -97,7 +113,7 @@ export const NewVolumetricComponent = defineComponent({
     }
   },
   toJSON: (entity, component) => ({
-    useVideoTexture: component.useVideoTexture.value,
+    useVideoTexture: component.useVideoTextureForBaseColor.value,
     useLoadingEffect: component.useLoadingEffect.value,
     hasAudio: component.hasAudio.value,
     volume: component.volume.value
@@ -112,11 +128,23 @@ function NewVolumetricComponentReactor() {
   const component = useComponent(entity, NewVolumetricComponent)
   const material = useRef<ShaderMaterial | null>(null)
   const mesh = useRef<Mesh | null>(null)
-  const group = useMemo(() => {
-    const _group = new Group()
-    addObjectToGroup(entity, _group)
-    return _group
-  }, [])
+  const group = useRef(new Group())
+  const setIntervalId = useHookstate(-1)
+  const geometryBuffer = useRef(
+    new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>()
+  )
+  const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
+
+  const fetchGeometry = () => {}
+
+  const fetchTextures = () => {}
+
+  const bufferLoop = () => {
+    fetchGeometry()
+    if (!component.useVideoTextureForBaseColor.value) {
+      fetchTextures()
+    }
+  }
 
   useEffect(() => {
     if (!hasComponent(entity, PlaylistComponent)) {
@@ -125,13 +153,15 @@ function NewVolumetricComponentReactor() {
 
     return () => {
       cleanupTrack()
-      removeObjectFromGroup(entity, group)
+      removeObjectFromGroup(entity, group.current)
     }
   }, [])
 
   const cleanupTrack = () => {
+    clearInterval(setIntervalId.value)
+    setIntervalId.set(-1)
     if (mesh.current) {
-      group.remove(mesh.current)
+      group.current.remove(mesh.current)
     }
 
     component.merge({
@@ -139,7 +169,8 @@ function NewVolumetricComponentReactor() {
       time: {
         start: 0,
         checkpointAbsolute: -1,
-        checkpointRelative: 0
+        checkpointRelative: 0,
+        currentTime: 0
       },
       paused: true
     })
@@ -165,6 +196,10 @@ function NewVolumetricComponentReactor() {
       material.current.dispose()
     }
 
+    if (mesh.current) {
+      mesh.current.geometry.dispose()
+    }
+
     clearErrors(entity, NewVolumetricComponent)
   }
 
@@ -179,7 +214,7 @@ function NewVolumetricComponentReactor() {
         (manifest as OldManifestSchema).frameData !== undefined &&
         (manifest as OldManifestSchema).frameRate !== undefined
       ) {
-        component.useVideoTexture.set(true)
+        component.useVideoTextureForBaseColor.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
         component.texture.set({
@@ -197,7 +232,7 @@ function NewVolumetricComponentReactor() {
           return false
         }
 
-        component.useVideoTexture.set(false)
+        component.useVideoTextureForBaseColor.set(false)
         const geometryTargets = Object.keys(_manifest.geometry.targets)
         if (geometryTargets.length === 0) {
           addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
@@ -338,16 +373,19 @@ function NewVolumetricComponentReactor() {
 
         material.current = createMaterial(
           component.geometryType.value,
-          component.useVideoTexture.value,
+          component.useVideoTextureForBaseColor.value,
           hasNormals,
           component.textureInfo.textureTypes.value,
           // @ts-ignore
           overrideMaterialProperties
         )
         mesh.current = new Mesh(new SphereGeometry(3, 32, 32) as BufferGeometry, material.current)
-        group.add(mesh.current)
+        group.current.add(mesh.current)
 
         console.log('Material created successfully: ', material.current)
+
+        const intervalId = setInterval(bufferLoop, 500)
+        setIntervalId.set(intervalId as unknown as number)
       })
       .catch((err) => {
         addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')
@@ -385,6 +423,7 @@ function NewVolumetricComponentReactor() {
       const currentTime = component.paused.value
         ? component.time.checkpointRelative.value
         : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
+      component.time.currentTime.set(currentTime)
     },
     {
       with: AnimationSystemGroup

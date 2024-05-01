@@ -43,6 +43,7 @@ export default class BufferData {
   private bufferedRange: BufferedDataType
   private pendingRange: PendingBufferDataType
   private metrics: {
+    memoryOccupied: number
     fetchTime: number
     playTime: number
   }
@@ -51,6 +52,7 @@ export default class BufferData {
     this.bufferedRange = []
     this.pendingRange = []
     this.metrics = {
+      memoryOccupied: 0,
       fetchTime: 0,
       playTime: 0
     }
@@ -119,7 +121,7 @@ export default class BufferData {
     }
   }
 
-  public addRange(startTime: number, endTime: number, fetchTime: number, pending: boolean) {
+  public addRange(startTime: number, endTime: number, fetchTime: number, memoryOccupied: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (startTime >= endTime) {
       return
@@ -129,6 +131,7 @@ export default class BufferData {
       this.removeRange(startTime, endTime, true)
       this.metrics.fetchTime += fetchTime
       this.metrics.playTime += endTime - startTime
+      this.metrics.memoryOccupied += memoryOccupied
     }
 
     const length = array.length
@@ -173,7 +176,7 @@ export default class BufferData {
     this.updateEndTime(lb)
   }
 
-  public removeRange(startTime: number, endTime: number, pending: boolean) {
+  public removeRange(startTime: number, endTime: number, pending: boolean, reclaimMemory?: number) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (
       array.length === 0 ||
@@ -182,6 +185,10 @@ export default class BufferData {
       startTime >= array[array.length - 1].endTime
     ) {
       return 0
+    }
+
+    if (!pending && reclaimMemory) {
+      this.metrics.memoryOccupied -= reclaimMemory
     }
 
     startTime = Math.max(startTime, array[0].startTime)
