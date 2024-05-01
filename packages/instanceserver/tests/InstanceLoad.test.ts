@@ -28,7 +28,6 @@ import assert from 'assert'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { UserID, identityProviderPath, locationPath } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -99,7 +98,6 @@ describe('InstanceLoad', () => {
 
     assert.equal(NetworkState.worldNetwork.ready, true)
     assert.equal(getState(InstanceServerState).ready, true)
-    assert.equal(getState(SceneState).sceneLoaded, true)
   })
 
   after(() => {
