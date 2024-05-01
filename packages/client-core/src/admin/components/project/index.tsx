@@ -27,10 +27,11 @@ import config, { isDev } from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { ProjectState } from '../../../common/services/ProjectService'
+import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
 import BuildStatusTable from './build-status/BuildStatusTable'
@@ -39,13 +40,23 @@ export default function AdminProject() {
   const { t } = useTranslation()
 
   const projectState = useHookstate(getMutableState(ProjectState))
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
+
+  useEffect(() => {
+    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
+      ProjectService.getBuilderInfo()
+    }
+  }, [user])
 
   return (
     <>
       <div className="mb-2 flex justify-start gap-3">
         {projectState.builderInfo.engineVersion.value && (
           <Badge
-            label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`}
+            label={t('admin:components.project.currentEngineVersion', {
+              version: projectState.builderInfo.engineVersion.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -53,7 +64,9 @@ export default function AdminProject() {
 
         {projectState.builderInfo.engineCommit.value && (
           <Badge
-            label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`}
+            label={t('admin:components.project.currentEngineCommit', {
+              commit: projectState.builderInfo.engineCommit.value
+            })}
             variant="neutral"
             className="py-2"
           />
@@ -80,7 +93,9 @@ export default function AdminProject() {
                         ? 'bg-green-500'
                         : projectState.failed.value === true
                         ? 'bg-red-500'
-                        : 'bg-yellow-400'
+                        : projectState.rebuilding.value === true
+                        ? 'bg-yellow-500'
+                        : ''
                     )}
                   />
                 )}

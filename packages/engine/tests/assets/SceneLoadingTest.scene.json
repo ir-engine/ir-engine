@@ -20,8 +20,8 @@
           "name": "EE_model",
           "props": {
             "src": "/packages/projects/default-project/assets/collisioncube.glb",
-            "generateBVH": false,
-            "avoidCameraOcclusion": false
+            "cameraOcclusion": true,
+            "convertToVRM": false
           }
         }
       ],
