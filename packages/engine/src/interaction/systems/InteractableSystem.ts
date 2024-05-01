@@ -86,8 +86,10 @@ export const onInteractableUpdate = (entity: Entity) => {
 
   if (!selfAvatarEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
 
-  const xrui = getComponent(interactable.uiEntity, XRUIComponent)
-  const xruiTransform = getComponent(interactable.uiEntity, TransformComponent)
+  const xrui = getOptionalComponent(interactable.uiEntity, XRUIComponent)
+  const xruiTransform = getOptionalComponent(interactable.uiEntity, TransformComponent)
+  if (!xrui || !xruiTransform) return
+
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
 
   updateXrDistVec3(selfAvatarEntity)

@@ -206,7 +206,7 @@ export const InteractableComponent = defineComponent({
       return () => {
         canvas.style.cursor = 'auto'
       }
-    }, [input?.inputSources, isEditing.value])
+    }, [input?.inputSources.length, isEditing.value])
 
     //handle highlighting when state is set
     useEffect(() => {
