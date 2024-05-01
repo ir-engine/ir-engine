@@ -33,7 +33,7 @@ import createReadableTexture from '@etherealengine/spatial/src/renderer/function
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, getComponent, setComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -75,8 +75,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
-  const material = materialComponent.material!
+  const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
+  const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
 
@@ -137,8 +137,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     clearThumbs().then(createThumbnails).then(checkThumbs)
   }, [materialName, prototypeName])
 
-  const prototypeEntity = materialComponent.prototypeEntity!
-  const prototype = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+  const prototypeEntity = materialComponent.prototypeEntity.value!
+  const prototype = getMutableComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
 
   const selectedPlugin = useHookstate(TransparencyDitheringPlugin.id)
 
@@ -148,18 +148,16 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput value={materialComponent.material!.name} onChange={(name) => setMaterialName(entity, name)} />
+        <StringInput
+          value={materialComponent.material.value!.name}
+          onChange={(name) => setMaterialName(entity, name)}
+        />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
             <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
-              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
-                {/* <div>
-                  <label>{t('editor:properties.mesh.material.type')}</label>
-                </div>
-                <div>{materialComponent.src.type.value}</div> */}
-              </Stack>
+              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}></Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
                   <label>{t('editor:properties.mesh.material.path')}</label>
@@ -176,9 +174,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
-            setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              prototypeEntity: prototypeByName[protoId]
-            })
+            if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
             prototypeName.set(protoId)
           }}
         />
@@ -186,7 +182,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <Divider className={styles.divider} />
       <ParameterInput
         entity={props.materialUUID}
-        values={materialComponent.parameters!}
+        values={materialComponent.parameters.value!}
         onChange={(k) => async (val) => {
           let prop
           if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
@@ -205,11 +201,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             prop = val
           }
           EditorControlFunctions.modifyMaterial(
-            [materialComponent.material!.uuid],
-            materialComponent.material!.uuid as EntityUUID,
+            [materialComponent.material.value!.uuid],
+            materialComponent.material.value!.uuid as EntityUUID,
             [{ [k]: prop }]
           )
-          materialComponent.parameters![k].set(prop)
+          materialComponent.parameters[k].set(prop)
         }}
         defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
@@ -234,7 +230,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <Button
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities ?? []), pluginByName[selectedPlugin.value]!]
+              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]!]
             })
           }}
         >
