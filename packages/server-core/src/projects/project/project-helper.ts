@@ -476,7 +476,7 @@ export const checkProjectDestinationMatch = async (
           if (err.status === 404) {
             resolve({
               error: 'destinationPackageMissing',
-              text: 'There is no package.json in the source repo'
+              text: 'There is no package.json in the destination repo'
             })
           } else reject(err)
         }
