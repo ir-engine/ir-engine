@@ -501,16 +501,6 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         )
         break
 
-      case PropertyTypes.SMAAPreset:
-        renderVal = (
-          <SelectInput
-            options={SMAAPreset}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            value={effectSettingState.value}
-          />
-        )
-        break
-
       case PropertyTypes.EdgeDetectionMode:
         renderVal = (
           <SelectInput
