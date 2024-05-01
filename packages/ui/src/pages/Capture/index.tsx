@@ -32,7 +32,6 @@ import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/u
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -510,8 +509,6 @@ const PlaybackMode = () => {
       getMutableState(SceneState).sceneLoaded.set(false)
     }
   }, [locationState])
-
-  useLocationSpawnAvatarWithDespawn()
 
   const ActiveRecording = () => {
     const data = recording.data!

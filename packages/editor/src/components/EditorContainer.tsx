@@ -30,8 +30,8 @@ import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -87,7 +87,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 }
 
 const SceneLoadingProgress = () => {
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const resourcePendingQuery = useQuery([ResourcePendingComponent])
   const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
   const scenePath = useHookstate(getMutableState(EditorState).scenePath)
   const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
@@ -121,7 +121,7 @@ const SceneLoadingProgress = () => {
             padding: '16px'
           }}
         >
-          {`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+          {`Scene Loading... ${loadingProgress}% - ${resourcePendingQuery.length} assets left`}
         </div>
         <CircularProgress />
       </div>

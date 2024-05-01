@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
+import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
@@ -55,7 +56,7 @@ function useLoader<T extends AssetType>(
     return unload
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const controller = new AbortController()
     if (url !== urlState.value) {
       if (urlState.value) {
@@ -72,6 +73,10 @@ function useLoader<T extends AssetType>(
     if (!url) return
     let completed = false
 
+    if (entity) {
+      ResourcePendingComponent.setResource(entity, url, 0, 0)
+    }
+
     ResourceManager.load<T>(
       url,
       resourceType,
@@ -80,15 +85,24 @@ function useLoader<T extends AssetType>(
       (response) => {
         completed = true
         value.set(response)
+        if (entity) {
+          ResourcePendingComponent.removeResource(entity, url)
+        }
       },
       (request) => {
         progress.set(request)
+        if (entity) {
+          ResourcePendingComponent.setResource(entity, url, request.loaded, request.total)
+        }
       },
       (err) => {
         // Effect was unmounted, can't set error state safely
         if (controller.signal.aborted) return
         completed = true
         error.set(err)
+        if (entity) {
+          ResourcePendingComponent.removeResource(entity, url)
+        }
       },
       controller.signal,
       uuid.value

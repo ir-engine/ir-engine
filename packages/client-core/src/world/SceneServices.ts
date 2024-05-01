@@ -28,7 +28,7 @@ import { Engine, UUIDComponent, getComponent, getMutableComponent } from '@ether
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { LocationState } from '../social/services/LocationService'
+import { LocationSceneState, LocationState } from '../social/services/LocationService'
 
 const fileServer = config.client.fileServer
 
@@ -37,6 +37,7 @@ export const SceneServices = {
     const source = fileServer + '/' + sceneURL
     const gltfEntity = GLTFSourceState.load(source)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    getMutableState(LocationSceneState)[sceneURL].set(gltfEntity)
 
     if (overrideLocation) {
       const sourceID = `${getComponent(gltfEntity, UUIDComponent)}-${source}`
@@ -46,6 +47,7 @@ export const SceneServices = {
 
     return () => {
       GLTFSourceState.unload(gltfEntity)
+      getMutableState(LocationSceneState)[sceneURL].set(gltfEntity)
     }
   }
 }
