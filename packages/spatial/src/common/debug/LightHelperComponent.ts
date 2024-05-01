@@ -40,6 +40,13 @@ import {
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
+const getLightHelperType = (light: Light) => {
+  if ((light as DirectionalLight).isDirectionalLight) return DirectionalLightHelper
+  else if ((light as SpotLight).isSpotLight) return SpotLightHelper
+  else if ((light as HemisphereLight).isHemisphereLight) return HemisphereLightHelper
+  else return PointLightHelper
+}
+
 export const LightHelperComponent = defineComponent({
   name: 'LightHelperComponent',
 
@@ -66,14 +73,6 @@ export const LightHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LightHelperComponent)
-
-    const getLightHelperType = (light: Light) => {
-      if ((light as DirectionalLight).isDirectionalLight) return DirectionalLightHelper
-      else if ((light as SpotLight).isSpotLight) return SpotLightHelper
-      else if ((light as HemisphereLight).isHemisphereLight) return HemisphereLightHelper
-      else return PointLightHelper
-    }
-
     const light = component.light.value
     const [helper] = useDisposable(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, component, helper)
