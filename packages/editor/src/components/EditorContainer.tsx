@@ -27,10 +27,10 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, useComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -88,17 +88,11 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 }
 
 const SceneLoadingProgress = () => {
+  const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+  const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
-  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
-  const scenePath = useHookstate(getMutableState(EditorState).scenePath)
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
 
-  const sceneState = useHookstate(getMutableState(SceneState).scenes)
-  // todo support loading screen for GLTFs
-  const gltfScenes = useHookstate(getMutableState(GLTFSourceState).keys)
-
-  const sceneLoading = !!scenePath.value && !sceneLoaded.value && !!sceneState.value[scenePath.value]
-  if (gltfScenes.length || !sceneLoading || loadingProgress === 100) return null
+  if (progress === 100) return null
 
   return (
     <div style={{ top: '50px', position: 'relative' }}>
@@ -122,7 +116,7 @@ const SceneLoadingProgress = () => {
             padding: '16px'
           }}
         >
-          {`Scene Loading... ${loadingProgress}% - ${resourcePendingQuery.length} assets left`}
+          {`Scene Loading... ${progress}% - ${resourcePendingQuery.length} assets left`}
         </div>
         <CircularProgress />
       </div>
@@ -356,7 +350,7 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
@@ -450,7 +444,7 @@ const EditorContainer = () => {
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
           <ControlText />
-          <SceneLoadingProgress />
+          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} />}
           <div className={styles.workspaceContainer}>
             <AssetDropZone />
             <DockContainer>

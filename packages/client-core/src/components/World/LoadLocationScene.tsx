@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { scenePath } from '@etherealengine/common/src/schema.type.module'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -37,7 +37,7 @@ import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
-  const scene = useGet(scenePath, locationState.currentLocation.location.sceneId.value).data
+  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)

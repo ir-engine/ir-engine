@@ -229,6 +229,16 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, SourceComponent, props.documentID)
 
+    /** Ensure all base components are added for synchronous mount */
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
+    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+    setComponent(entity, TransformComponent)
+    if (!node.matrix.value) return
+
+    const mat4 = new Matrix4().fromArray(node.matrix.value)
+    const transform = getComponent(entity, TransformComponent)
+    mat4.decompose(transform.position, transform.rotation, transform.scale)
+
     // add all extensions for synchronous mount
     if (node.extensions.value) {
       for (const extension in node.extensions.value) {
