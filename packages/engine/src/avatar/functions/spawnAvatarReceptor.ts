@@ -62,7 +62,10 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-export const avatarRadius = 0.125
+import { cameraNear } from '../../../../spatial/src/camera/components/CameraComponent'
+import { eyeOffset } from '../systems/AvatarTransparencySystem'
+
+export let avatarRadius = eyeOffset + cameraNear //0.125
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)

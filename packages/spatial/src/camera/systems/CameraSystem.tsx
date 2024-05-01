@@ -187,7 +187,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   targetPosition
     .copy(followCamera.offset)
-    .applyQuaternion(targetTransform.rotation)
+    .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
   // Run only if not in first person mode
