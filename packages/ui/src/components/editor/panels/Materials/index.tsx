@@ -36,7 +36,7 @@ export const MaterialsPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{'Viewport'}</span>
+          <span>{'Materials'}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>

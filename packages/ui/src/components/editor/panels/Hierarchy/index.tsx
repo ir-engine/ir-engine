@@ -35,7 +35,7 @@ export const HierarchyPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{'Viewport'}</span>
+          <span>{'Hierarchy'}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>

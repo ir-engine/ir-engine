@@ -36,7 +36,7 @@ export const VisualScriptPanelTitle = () => {
     <div>
       <PanelDragContainer>
         <PanelTitle>
-          <span>{'Viewport'}</span>
+          <span>{'VisualScript'}</span>
         </PanelTitle>
       </PanelDragContainer>
     </div>
