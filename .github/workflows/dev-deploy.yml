@@ -2,8 +2,7 @@ name: dev-deploy
 
 on:
   push:
-    branches:
-      [dev]
+    branches: [dev]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
