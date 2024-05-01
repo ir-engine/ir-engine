@@ -44,7 +44,9 @@ export class AppleStrategy extends CustomOAuthStrategy {
     super()
     this.app = app
   }
-
+  async getProfile(data, _params) {
+    return data.jwt.id_token.payload
+  }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = entity
