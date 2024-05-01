@@ -1,5 +1,4 @@
-![EtherealEngine-logo-horizontal-web-fullcolor](https://github.com/EtherealEngine/etherealengine/assets/5104160/878a74b0-11eb-463d-a70e-6cb7055683eb)
-
+![iR Square Black Small](https://github.com/EtherealEngine/etherealengine/assets/5104160/51d93122-3325-46d9-b111-2562fd8802c1)
 
 >  Manifest your dreams on the open social spatial web.
 
@@ -11,7 +10,7 @@
 - [Project API](#project-api)
   - [Library of EE Projects](#library-of-ee-projects)
   - [Create your own projects](#create-your-own-projects)
-- [Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***](#launch-ethereal-engine-with-control-center-install---recommended)
+- [Launch iR Engine with Control Center Install - ***RECOMMENDED***](#launch-ethereal-engine-with-control-center-install---recommended)
   - [Use Metaverse Control Plane Managment GUI](#use-metaverse-control-plane-managment-gui)
 - [Advanced Development Install](#advanced-development-install)
   - [Pre-Requisites](#pre-requisites)
@@ -28,7 +27,7 @@
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([Ethereal Engine](https://github.com/etherealengine)) believe that the Metaverse, 
+We ([Infinite Reality Engine](https://github.com/etherealengine)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
@@ -60,17 +59,17 @@ Guest Demos
 Host Demos 
 
 - [Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
-- [Ethereal Studio - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/studio)
+- [iR Studio - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/studio)
 
 ## Project API
 
 ### [Library of EE Projects](https://github.com/EtherealEngine/project-manifest)
 
-Create composable plug-ins for Ethereal Engine experiences with the Projects API
+Create composable plug-ins for iR Engine experiences with the Projects API
 
 ### [Create your own projects](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro)
 
-## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
+## Launch iR Engine with Control Center Install - ***RECOMMENDED***
 
 ### [Use Metaverse Control Plane Managment GUI](https://github.com/etherealengine/etherealengine-Control-Center)
 
@@ -80,17 +79,17 @@ Best for simple self hosting, advanced editor content creation, and XRProject Pa
 
 ### Pre-Requisites
 
-To install Ethereal Engine locally, the following pre-reqs are required.
+To install iR Engine locally, the following pre-reqs are required.
 
 * Linux (many of us develop on Ubuntu), Mac OS X, or Windows (we recommend WSL2)
 * Node.js v16 or later (we recommend installing via [`nvm`](https://github.com/nvm-sh/nvm)
   or [`asdf`](https://github.com/asdf-vm/asdf).)
 * C++ (for `node-gyp`), Python >=3.6 + [PIP](https://pypi.org/project/pip/), `make`
   and other build tools, for compiling Mediasoup.
-  Although most of Ethereal Engine is written in TypeScript, it uses a [Mediasoup](https://mediasoup.org/)
+  Although most of iR Engine is written in TypeScript, it uses a [Mediasoup](https://mediasoup.org/)
   engine for WebRTC conferencing. See the [Mediasoup install instructions](https://mediasoup.org/documentation/v3/mediasoup/installation/)
   for more details.
-* Docker. (Although Docker is technically optional, running Ethereal Engine requires starting up
+* Docker. (Although Docker is technically optional, running iR Engine requires starting up
   half a dozen different services, and using Docker Compose will make your life dramatically
   easier.)
 * MariaDB and Redis. (If you're using Docker, containers for MariaDB and Redis 
@@ -105,10 +104,10 @@ for more details.
 
 ### Documentation
 
-* [General Ethereal Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
+* [General iR Engine documentation](https://etherealengine.github.io/etherealengine-docs/docs)
 * [Auto-generated (typedoc) API reference](https://etherealengine.github.io/etherealengine-docs/typedoc/)
 * [Avatar](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/avatars/intro), [Scene](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/project/intro) & [Asset Pipeline](https://etherealengine.github.io/etherealengine-docs/docs/manual/creator/assets/intro)
-* [Why are we building Ethereal Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
+* [Why are we building iR Engine?](https://etherealengine.github.io/etherealengine-docs/docs/)
 
 ## Contributing
 
@@ -117,7 +116,7 @@ for more details.
 * See the **[Contributing Guide](CONTRIBUTING.md)** and corresponding
   [wiki entry](https://github.com/EtherealEngine/etherealengine/wiki/Testing-&-Contributing)
   for more details.
-* Version numbering of the Ethereal Engine monorepo follows the
+* Version numbering of the iR Engine monorepo follows the
   [Semantic versioning](http://semver.org/) approach.
 * We use the [Prettier.io](https://prettier.io/) formatter for our code style.
 * [Standard Readme](https://github.com/RichardLitt/standard-readme) for
@@ -142,9 +141,10 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
-[CPAL](LICENSE) - Copyright (c) 2021-2023 Ethereal Engine, formerly known as XREngine by XR Foundation
+[CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality.
+iR Engine, formerly known as Ethereal Engine and XREngine
 
-If you wish to use Ethereal Engine under the open-source CPAL license, attribution is required. 
+If you wish to use iR Engine under the open-source CPAL license, attribution is required. 
 Please see attribution guidelines in the [LICENSE](LICENSE) file.
 Other licensing options are available, please contact us for more information.
 
