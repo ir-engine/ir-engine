@@ -94,6 +94,7 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
   return [obj, unload]
 }
 
+type ObjOrFunction<T> = T | (() => T)
 /**
  *
  * Hook to add any resource to be tracked by the resource manager
@@ -105,16 +106,14 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
  * @param onUnload *Optional* a callback called when the resource is unloaded
  * @returns the resource object passed in
  */
-export function useResource<T extends object>(
-  resource: NonNullable<T> | (() => NonNullable<T>),
+export function useResource<TObj extends NonNullable<object>>(
+  resource: ObjOrFunction<TObj>,
   entity: Entity = UndefinedEntity,
   id?: string,
   onUnload?: () => void
-): [State<T>, () => void] {
+): [State<TObj>, () => void] {
   const uniqueID = useHookstate<string>(id || uuidv4())
-  const resourceState = useHookstate<NonNullable<T>>(() =>
-    ResourceManager.addResource(resource, uniqueID.value, entity)
-  )
+  const resourceState = useHookstate<TObj>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
 
   const unload = () => {
     ResourceManager.unload(uniqueID.value, entity)
