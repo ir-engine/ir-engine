@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   Engine,
+  Entity,
   EntityUUID,
   getComponent,
   removeComponent,
@@ -37,15 +38,22 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import matches from 'ts-matches'
-
+import { createUI } from '../functions/createUI'
+import { InteractableTransitions } from '../functions/interactableFunctions'
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
  *
@@ -60,6 +68,33 @@ export enum XRUIActivationType {
   proximity = 0,
   hover = 1
 }
+
+/**
+ * Adds an interactable UI to the entity if it has label text
+ * @param entity
+ */
+const addInteractableUI = (entity: Entity) => {
+  if (!isClient || getMutableState(EngineState).isEditing.value) return //no xrui in editor
+  const interactable = getComponent(entity, InteractableComponent)
+  if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
+
+  interactable.uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
+  setComponent(interactable.uiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+  const transition = createTransitionState(0.25)
+  transition.setState('OUT')
+  InteractableTransitions.set(entity, transition)
+}
+
+const removeInteractableUI = (entity: Entity) => {
+  if (!isClient || !getMutableState(EngineState).isEditing.value) return //no xrui in editor
+  const interactable = getComponent(entity, InteractableComponent)
+  if (!interactable.label || interactable.label === '' || interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
+
+  removeEntity(interactable.uiEntity)
+  interactable.uiEntity = UndefinedEntity
+}
+
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
@@ -145,18 +180,33 @@ export const InteractableComponent = defineComponent({
     const entity = useEntityContext()
     const interactable = useComponent(entity, InteractableComponent)
     const input = useOptionalComponent(entity, InputComponent)
+    const isEditing = useMutableState(EngineState).isEditing
 
     useEffect(() => {
-      if (getState(EngineState).isEditor || !input) return
+      setComponent(entity, DistanceFromCameraComponent)
+      setComponent(entity, DistanceFromLocalClientComponent)
+
+      addInteractableUI(entity)
+    }, [])
+
+    useEffect(() => {
+      if (!isEditing.value) {
+        addInteractableUI(entity)
+      } else {
+        removeInteractableUI(entity)
+      }
+    }, [isEditing.value])
+
+    useEffect(() => {
+      if (isEditing.value || !input) return
       const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-      console.log('setting cursor type!')
       if (input.inputSources.length > 0) {
         canvas.style.cursor = 'pointer'
       }
       return () => {
         canvas.style.cursor = 'auto'
       }
-    }, [input?.inputSources])
+    }, [input?.inputSources, isEditing.value])
 
     //handle highlighting when state is set
     useEffect(() => {

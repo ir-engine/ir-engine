@@ -45,7 +45,7 @@ import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationCompo
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
-import { InteractableState } from './InteractableSystem'
+import { InteractableState } from '../functions/interactableFunctions'
 
 const sittingIdleQuery = defineQuery([SittingComponent])
 

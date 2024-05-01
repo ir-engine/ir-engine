@@ -83,7 +83,7 @@ const PlayModeTool = () => {
         })
 
       // todo
-      // getMutableState(EngineState).isEditing.set(false)
+      getMutableState(EngineState).isEditing.set(false)
       // run all visual script logic
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
