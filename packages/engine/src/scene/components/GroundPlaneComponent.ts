@@ -93,7 +93,7 @@ export const GroundPlaneComponent = defineComponent({
       return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
     }
 
-    const mesh = useMeshComponent(entity, new PlaneGeometry(10000, 10000), getMaterial())
+    const mesh = useMeshComponent(entity, () => new PlaneGeometry(10000, 10000), getMaterial)
 
     useLayoutEffect(() => {
       const meshVal = mesh.value

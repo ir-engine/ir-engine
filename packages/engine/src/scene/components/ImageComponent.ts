@@ -153,7 +153,7 @@ export function ImageReactor() {
   const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
     entity,
     PLANE_GEO,
-    new MeshBasicMaterial()
+    () => new MeshBasicMaterial()
   )
 
   useEffect(() => {

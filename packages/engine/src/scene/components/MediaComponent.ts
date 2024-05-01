@@ -44,7 +44,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { MeshHelperComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
+import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -494,7 +494,7 @@ export function MediaReactor() {
     if (debugEnabled.value && audioHelperTexture) {
       const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
       material.map = audioHelperTexture
-      setComponent(entity, MeshHelperComponent, {
+      setComponent(entity, DebugMeshComponent, {
         name: 'audio-helper',
         geometry: new PlaneGeometry(),
         material: material
@@ -502,7 +502,7 @@ export function MediaReactor() {
     }
 
     return () => {
-      removeComponent(entity, MeshHelperComponent)
+      removeComponent(entity, DebugMeshComponent)
     }
   }, [debugEnabled, audioHelperTexture])
 

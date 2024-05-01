@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { BufferGeometry, Material, MeshBasicMaterial } from 'three'
@@ -34,15 +32,14 @@ import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerC
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
 import { useHelperEntity } from './DebugComponentUtils'
 
-export const MeshHelperComponent = defineComponent({
-  name: 'MeshHelperComponent',
+export const DebugMeshComponent = defineComponent({
+  name: 'DebugMeshComponent',
 
   onInit: (entity) => {
     return {
-      name: 'mesh-helper',
+      name: 'debug-mesh',
       geometry: null! as BufferGeometry,
       material: new MeshBasicMaterial() as Material,
-      layerMask: ObjectLayerMasks.NodeHelper,
       entity: undefined as undefined | Entity
     }
   },
@@ -52,29 +49,28 @@ export const MeshHelperComponent = defineComponent({
     if (typeof json.name === 'string') component.name.set(json.name)
 
     if (matchesGeometry.test(json.geometry)) component.geometry.set(json.geometry)
-    else throw new Error('MeshHelperComponent: Geometry required for MeshHelperComponent')
+    else throw new Error('DebugMeshComponent: Geometry required for MeshHelperComponent')
     if (matchesMaterial.test(json.material)) component.material.set(json.material)
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
   },
 
   reactor: function () {
     const entity = useEntityContext()
-    const component = useComponent(entity, MeshHelperComponent)
+    const component = useComponent(entity, DebugMeshComponent)
     const helperEntity = useHelperEntity(entity, component)
     const mesh = useMeshComponent(helperEntity, component.geometry.value, component.material.value)
 
     useEffect(() => {
-      setComponent(helperEntity, ObjectLayerMaskComponent, component.layerMask.value)
-    }, [component.layerMask])
+      setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeHelper)
+    }, [])
 
-    useDidMount(() => {
-      const geo = component.geometry.get(NO_PROXY)
-      mesh.geometry.set(geo)
+    useEffect(() => {
+      const geo = component.geometry.value
+      if (geo != mesh.geometry.value) mesh.geometry.set(geo)
     }, [component.geometry])
 
-    useDidMount(() => {
-      const mat = component.material.get(NO_PROXY)
-      mesh.material.set(mat)
+    useEffect(() => {
+      const mat = component.material.value
+      if (mat != mesh.material.value) mesh.material.set(mat)
     }, [component.material])
 
     return null

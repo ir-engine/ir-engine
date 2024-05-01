@@ -192,15 +192,17 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) {
-        removeComponent(entity, LineSegmentComponent)
-      } else {
+      if (debugEnabled.value) {
         setComponent(entity, LineSegmentComponent, {
           name: 'directional-light-helper',
           // Clone geometry because LineSegmentComponent disposes it when removed
           geometry: mergedGeometry?.clone(),
           color: directionalLightComponent.color.value
         })
+      }
+
+      return () => {
+        removeComponent(entity, LineSegmentComponent)
       }
     }, [debugEnabled])
 

@@ -161,20 +161,21 @@ export const InfiniteGridComponent = defineComponent({
     const engineRendererSettings = useHookstate(getMutableState(RendererState))
     const mesh = useMeshComponent(
       entity,
-      new PlaneGeometry(2, 2, 1, 1),
-      new ShaderMaterial({
-        side: DoubleSide,
-        uniforms: {},
-        transparent: true,
-        vertexShader: vertexShaderGrid,
-        fragmentShader: fragmentShaderGrid,
-        polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: 0.01,
-        extensions: {
-          derivatives: true
-        }
-      })
+      () => new PlaneGeometry(2, 2, 1, 1),
+      () =>
+        new ShaderMaterial({
+          side: DoubleSide,
+          uniforms: {},
+          transparent: true,
+          vertexShader: vertexShaderGrid,
+          fragmentShader: fragmentShaderGrid,
+          polygonOffset: true,
+          polygonOffsetFactor: -1,
+          polygonOffsetUnits: 0.01,
+          extensions: {
+            derivatives: true
+          }
+        })
     )
     const [plane] = useResource(() => new Plane(mesh.up.value), entity)
 

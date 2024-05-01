@@ -99,11 +99,13 @@ export const MeshComponent = defineComponent({
  */
 export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
   entity: Entity,
-  geometry: TGeometry,
-  material: TMaterial
+  geometry: TGeometry | (() => TGeometry),
+  material: TMaterial | (() => TMaterial)
 ): State<Mesh<TGeometry, TMaterial>> {
   if (!hasComponent(entity, MeshComponent)) {
-    setComponent(entity, MeshComponent, new Mesh<TGeometry, TMaterial>(geometry, material))
+    const geo = typeof geometry === 'function' ? geometry() : geometry
+    const mat = typeof material === 'function' ? material() : material
+    setComponent(entity, MeshComponent, new Mesh<TGeometry, TMaterial>(geo, mat))
   }
 
   const meshComponent = useComponent(entity, MeshComponent)

@@ -45,7 +45,7 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { MeshHelperComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
+import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/MeshHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import {
   envmapParsReplaceLambert,
@@ -107,7 +107,7 @@ export const EnvMapBakeComponent = defineComponent({
 
     useLayoutEffect(() => {
       if (debugEnabled.value) {
-        setComponent(entity, MeshHelperComponent, {
+        setComponent(entity, DebugMeshComponent, {
           name: 'envmap-bake-helper',
           geometry: sphereGeometry,
           material: helperMeshMaterial
@@ -115,7 +115,7 @@ export const EnvMapBakeComponent = defineComponent({
       }
 
       return () => {
-        removeComponent(entity, MeshHelperComponent)
+        removeComponent(entity, DebugMeshComponent)
       }
     }, [debugEnabled])
 
