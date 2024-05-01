@@ -28,14 +28,13 @@ import { ArrayCamera, PerspectiveCamera } from 'three'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
-export const cameraNear = 0.1
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',
   onInit: (entity) => {
     const camera = new ArrayCamera()
     camera.fov = 60
     camera.aspect = 1
-    camera.near = cameraNear
+    camera.near = 0.1
     camera.far = 1000
     camera.cameras = [new PerspectiveCamera().copy(camera, false)]
     return camera
