@@ -40,11 +40,7 @@ import {
   createMaterialEntity,
   getMaterialsFromSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import {
-  MaterialComponent,
-  MaterialComponents,
-  materialByHash
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -60,12 +56,13 @@ export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
 
   const materialQuery = useQuery([MaterialComponent[MaterialComponents.State]])
-  const nodes = useState([] as MaterialLibraryEntryType[])
+  const nodes = useHookstate([] as MaterialLibraryEntryType[])
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities)
+
   useEffect(() => {
     const materials = selected.value.length
       ? getMaterialsFromSource(UUIDComponent.getEntityByUUID(selected.value[0]))
-      : Object.values(materialByHash)
+      : materialQuery.map((entity) => getComponent(entity, UUIDComponent))
     const result = materials.flatMap((uuid): MaterialLibraryEntryType[] => {
       const source = getComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent)
       return [
@@ -81,8 +78,6 @@ export default function MaterialLibraryPanel() {
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
   }
-
-  const MemoMatLibEntry = MaterialLibraryEntry
 
   return (
     <>
@@ -102,7 +97,7 @@ export default function MaterialLibraryPanel() {
                 itemKey={(index, _) => index}
                 innerElementType="ul"
               >
-                {MemoMatLibEntry}
+                {MaterialLibraryEntry}
               </FixedSizeList>
             )}
           </AutoSizer>
