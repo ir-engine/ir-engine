@@ -30,6 +30,7 @@ import {
   UUIDComponent,
   createEntity,
   getComponent,
+  getOptionalComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
@@ -136,8 +137,8 @@ export const createAvatarCollider = (entity: Entity) => {
 
 const avatarCapsuleOffset = 0.25
 export const setAvatarColliderTransform = (entity: Entity) => {
-  const avatarCollider = getComponent(entity, AvatarColliderComponent)
-  if (avatarCollider === undefined) {
+  const avatarCollider = getOptionalComponent(entity, AvatarColliderComponent)
+  if (!avatarCollider) {
     return
   }
   const colliderEntity = avatarCollider.colliderEntity

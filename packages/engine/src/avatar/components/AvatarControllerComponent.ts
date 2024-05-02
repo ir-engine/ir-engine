@@ -102,7 +102,7 @@ export const AvatarControllerComponent = defineComponent({
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
 
     useEffect(() => {
       setAvatarColliderTransform(entity)
