@@ -462,9 +462,11 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
 export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
 export interface BufferInfo {
   bufferData: BufferDataContainer
-  targets: string[]
   initialBufferLoaded: boolean
   firstFrameLoaded: boolean
+  targets: string[]
+  currentTarget: number
+  userTarget: number
 }
 
 export enum GeometryType {

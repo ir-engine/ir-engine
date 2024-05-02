@@ -29,6 +29,7 @@ import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
   CompressedTexture,
+  Material,
   Mesh,
   MeshStandardMaterialParameters,
   ShaderLib,
@@ -41,8 +42,11 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   ASTCTextureTarget,
+  FORMAT_TO_EXTENSION,
+  GeometryFormat,
   GeometryType,
   KTX2TextureTarget,
+  TextureFormat,
   TextureTarget,
   TextureType
 } from '../constants/NewUVOLTypes'
@@ -81,11 +85,59 @@ export const getKTX2TextureSize = (texture: CompressedTexture) => {
   return size
 }
 
+const cortoQueue = [] as {
+  url: string
+  byteStart: number
+  byteEnd: number
+  resolve: ({ geometry, memoryOccupied }: { geometry: BufferGeometry; memoryOccupied: number }) => void
+  reject: (error: string) => void
+}[]
+let pendingRequests = 0
+
+const processCortoQueue = () => {
+  if (pendingRequests > 0 || cortoQueue.length === 0) {
+    return
+  }
+
+  const front = cortoQueue.shift()
+  if (front) {
+    pendingRequests++
+    loadCorto(front.url, front.byteStart, front.byteEnd)
+      .then((data) => {
+        front.resolve(data)
+      })
+      .catch((err) => {
+        front.reject(err)
+      })
+      .finally(() => {
+        pendingRequests--
+        if (pendingRequests === 0 && cortoQueue.length > 0) {
+          processCortoQueue()
+        }
+      })
+  }
+}
+
+export const rateLimitedCortoLoader = (url: string, byteStart: number, byteEnd: number) => {
+  return new Promise<{
+    geometry: BufferGeometry
+    memoryOccupied: number
+  }>((resolve, reject) => {
+    cortoQueue.push({
+      url,
+      byteStart,
+      byteEnd,
+      resolve,
+      reject
+    })
+    processCortoQueue()
+  })
+}
+
 export const loadCorto = (url: string, byteStart: number, byteEnd: number) => {
   if (!getState(AssetLoaderState).cortoLoader) {
     throw new Error('loadCorto:CORTOLoader is not available')
   }
-
   return new Promise<{
     geometry: BufferGeometry
     memoryOccupied: number
@@ -138,22 +190,27 @@ export const loadGLTF = (url: string) => {
     throw new Error('loadDraco:GLTFLoader is not available')
   }
 
-  return new Promise<{ mesh: Mesh; fetchTime: number; memoryOccupied: number }>((resolve, reject) => {
-    const startTime = performance.now()
-    gltfLoader.load(
-      url,
-      ({ scene }: GLTF) => {
-        const mesh = getFirstMesh(scene)!
-
-        resolve({ mesh, fetchTime: performance.now() - startTime, memoryOccupied: getGLTFGeometrySize(mesh) })
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading geometry: ', url, err)
-        reject(`loadGLTF:Error loading geometry from ${url}: ${err.message}`)
-      }
-    )
-  })
+  return new Promise<{ mesh: Mesh<BufferGeometry, Material>; fetchTime: number; memoryOccupied: number }>(
+    (resolve, reject) => {
+      const startTime = performance.now()
+      gltfLoader.load(
+        url,
+        ({ scene }: GLTF) => {
+          const mesh = getFirstMesh(scene)!
+          resolve({
+            mesh: mesh as Mesh<BufferGeometry, Material>,
+            fetchTime: performance.now() - startTime,
+            memoryOccupied: getGLTFGeometrySize(mesh)
+          })
+        },
+        undefined,
+        (err) => {
+          console.error('Error loading geometry: ', url, err)
+          reject(`loadGLTF:Error loading geometry from ${url}: ${err.message}`)
+        }
+      )
+    }
+  )
 }
 
 export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
@@ -185,6 +242,14 @@ export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
       }
     )
   })
+}
+
+const replaceSubstrings = (originalString: string, replacements: Record<string, string>) => {
+  let newString = originalString
+  for (const key in replacements) {
+    newString = newString.replace(key, replacements[key])
+  }
+  return newString
 }
 
 export const createMaterial = (
@@ -232,14 +297,6 @@ export const createMaterial = (
     }
 
     return defines
-  }
-
-  const replaceSubstrings = (originalString: string, replacements: Record<string, string>) => {
-    let newString = originalString
-    for (const key in replacements) {
-      newString = newString.replace(key, replacements[key])
-    }
-    return newString
   }
 
   const defines = getShaderDefines(textureTypes, useVideoTexture)
@@ -346,4 +403,97 @@ export const getSortedSupportedTargets = (targets: Record<string, TextureTarget>
   })
 
   return supportedTargets
+}
+
+interface GetResourceURLBasicProps {
+  manifestPath: string
+  type: 'geometry' | 'texture'
+}
+
+interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
+  type: 'geometry'
+  geometryType: GeometryType.Corto
+}
+
+interface GetResourceURLNewGeometryProps extends GetResourceURLBasicProps {
+  type: 'geometry'
+  geometryType: GeometryType.Draco | GeometryType.GLTF | GeometryType.Unify
+  path: string
+  target: string
+  index: number
+  format: GeometryFormat
+}
+
+type GetResourceURLGeometryProps = GetResourceURLCortoGeometryProps | GetResourceURLNewGeometryProps
+
+interface GetResourceURLTextureProps extends GetResourceURLBasicProps {
+  type: 'texture'
+  path: string
+  target: string
+  index: number
+  format: TextureFormat
+  textureType: TextureType
+}
+
+type GetResourceURLProps = GetResourceURLGeometryProps | GetResourceURLTextureProps
+
+const combineURLs = (baseURL: string, relativeURL: string) => {
+  if (relativeURL.startsWith('https://') || relativeURL.startsWith('http://')) {
+    return relativeURL
+  }
+  const baseURLWithoutLastPart = baseURL.substring(0, baseURL.lastIndexOf('/') + 1)
+  return baseURLWithoutLastPart + relativeURL
+}
+
+const countHashes = (str: string) => {
+  let count = 0
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '#') {
+      count++
+    }
+  }
+  return count
+}
+
+export const getResourceURL = (props: GetResourceURLProps) => {
+  if (props.type === 'geometry') {
+    if (props.geometryType === GeometryType.Corto) {
+      if (props.manifestPath.endsWith('.manifest')) {
+        return props.manifestPath.replace('.manifest', '.drcs')
+      } else if (props.manifestPath.endsWith('.mp4')) {
+        return props.manifestPath.replace('.mp4', '.drcs')
+      } else {
+        throw new Error('getResourceURL:Invalid manifest path for Corto geometry')
+      }
+    } else {
+      const absolutePlaceholderPath = combineURLs(props.manifestPath, props.path)
+      const padLength = countHashes(absolutePlaceholderPath)
+      const paddedString = '[' + '#'.repeat(padLength) + ']'
+      const paddedIndex = props.index.toString().padStart(padLength, '0')
+
+      const absolutePath = replaceSubstrings(absolutePlaceholderPath, {
+        '[ext]': FORMAT_TO_EXTENSION[props.format],
+        '[target]': props.target,
+        [paddedString]: paddedIndex
+      })
+
+      return absolutePath
+    }
+  } else if (props.type === 'texture') {
+    const absolutePlaceholderPath = combineURLs(props.manifestPath, props.path)
+    const padLength = countHashes(absolutePlaceholderPath)
+    const paddedString = '[' + '#'.repeat(padLength) + ']'
+    const paddedIndex = props.index.toString().padStart(padLength, '0')
+
+    const absolutePath = replaceSubstrings(absolutePlaceholderPath, {
+      '[ext]': FORMAT_TO_EXTENSION[props.format],
+      '[target]': props.target,
+      '[type]': props.textureType,
+      [paddedString]: paddedIndex
+    })
+
+    return absolutePath
+  } else {
+    throw new Error('getResourceURL:Invalid type. Must be either "geometry" or "texture"')
+  }
 }

@@ -43,21 +43,28 @@ export default class BufferData {
   private bufferedRange: BufferedDataType
   private pendingRange: PendingBufferDataType
   private metrics: {
-    memoryOccupied: number
-    fetchTime: number
-    playTime: number
+    totalMemoryOccupied: number
+    totalFetchTime: number
+    totalPlayTime: number
   }
 
   constructor() {
     this.bufferedRange = []
     this.pendingRange = []
     this.metrics = {
-      memoryOccupied: 0,
-      fetchTime: 0,
-      playTime: 0
+      totalMemoryOccupied: 0,
+      totalFetchTime: 0,
+      totalPlayTime: 0
     }
   }
 
+  get memoryOccupied() {
+    return this.metrics.totalMemoryOccupied
+  }
+
+  /**
+   * Returns the greatest index in the array such that array[index] <= value
+   */
   private lowerBound(array: CommonBufferDataType, value: number, property: 'startTime' | 'endTime' = 'startTime') {
     const length = array.length
     let low = 0,
@@ -76,6 +83,9 @@ export default class BufferData {
     return index
   }
 
+  /**
+   * Returns the smallest index in the array such that array[index] > value
+   */
   private upperBound(array: CommonBufferDataType, value: number, property: 'startTime' | 'endTime' = 'endTime') {
     const length = array.length
     let low = 0,
@@ -129,9 +139,9 @@ export default class BufferData {
 
     if (!pending) {
       this.removeRange(startTime, endTime, true)
-      this.metrics.fetchTime += fetchTime
-      this.metrics.playTime += endTime - startTime
-      this.metrics.memoryOccupied += memoryOccupied
+      this.metrics.totalFetchTime += fetchTime
+      this.metrics.totalPlayTime += endTime - startTime
+      this.metrics.totalMemoryOccupied += memoryOccupied
     }
 
     const length = array.length
@@ -188,12 +198,12 @@ export default class BufferData {
     }
 
     if (!pending && reclaimMemory) {
-      this.metrics.memoryOccupied -= reclaimMemory
+      this.metrics.totalMemoryOccupied -= reclaimMemory
     }
 
     startTime = Math.max(startTime, array[0].startTime)
 
-    endTime = Math.min(endTime, array[length - 1].endTime)
+    endTime = Math.min(endTime, array[array.length - 1].endTime)
 
     const lb = this.lowerBound(array, startTime, 'startTime')
     let ub = this.upperBound(array, endTime, 'startTime')
@@ -303,8 +313,27 @@ export default class BufferData {
     }
   }
 
+  public getNextMissing(currentTime: number) {
+    const bufferedLb = this.lowerBound(this.bufferedRange, currentTime, 'startTime')
+    if (bufferedLb === -1) {
+      const pendingLb = this.lowerBound(this.pendingRange, currentTime, 'startTime')
+      if (pendingLb === -1) {
+        return currentTime
+      } else {
+        return this.pendingRange[pendingLb].endTime
+      }
+    }
+    const bufferedEndTime = this.bufferedRange[bufferedLb].endTime
+    const pendingLb = this.lowerBound(this.pendingRange, bufferedEndTime, 'startTime')
+    if (pendingLb === -1) {
+      return bufferedEndTime
+    } else {
+      return this.pendingRange[pendingLb].endTime
+    }
+  }
+
   public resetMetrics() {
-    this.metrics.fetchTime = 0
-    this.metrics.playTime = 0
+    this.metrics.totalFetchTime = 0
+    this.metrics.totalPlayTime = 0
   }
 }

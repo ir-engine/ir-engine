@@ -33,10 +33,24 @@ import {
   useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect, useRef } from 'react'
-import { BufferGeometry, CompressedTexture, Group, Material, Mesh, ShaderMaterial, SphereGeometry } from 'three'
+import {
+  BufferGeometry,
+  CompressedTexture,
+  Group,
+  InterleavedBufferAttribute,
+  Material,
+  Mesh,
+  ShaderMaterial,
+  SphereGeometry
+} from 'three'
+import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   BufferInfo,
   GeometryFormatToType,
@@ -45,23 +59,37 @@ import {
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   Pretrackbufferingcallback,
+  TIME_UNIT_MULTIPLIER,
   TextureType,
-  UniformSolveEncodeOptions
+  UniformSolveEncodeOptions,
+  UniformSolveTarget
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
-import { createMaterial, getSortedSupportedTargets } from '../util/VolumetricUtils'
+import {
+  createMaterial,
+  getResourceURL,
+  getSortedSupportedTargets,
+  loadDraco,
+  loadGLTF,
+  rateLimitedCortoLoader
+} from '../util/VolumetricUtils'
 import { PlaylistComponent } from './PlaylistComponent'
+type ResolvedType<T> = T extends Promise<infer R> ? R : never
+type DracoResponse = ResolvedType<ReturnType<typeof loadDraco>>
+type GLTFResponse = ResolvedType<ReturnType<typeof loadGLTF>>
 
 const bufferLimits = {
   geometry: {
-    desktopMaxMemory: 300 * 1024 * 1024, // 300 MB
-    mobileMaxMemory: 150 * 1024 * 1024, // 150 MB
+    desktopMaxBufferDuration: 7, // seconds
+    mobileMaxBufferDuration: 5, // seconds
+    initialBufferDuration: 3, // seconds
     minBufferToPlay: 3 // seconds
   },
   texture: {
-    desktopMaxMemory: 400 * 1024 * 1024, // 400 MB
-    mobileMaxMemory: 200 * 1024 * 1024, // 200 MB
+    desktopMaxBufferDuration: 7, // seconds
+    mobileMaxBufferDuration: 5, // seconds
+    initialBufferDuration: 3, // seconds
     minBufferToPlay: 3 // seconds
   }
 }
@@ -85,7 +113,9 @@ export const NewVolumetricComponent = defineComponent({
       bufferData: new BufferDataContainer(),
       targets: [],
       initialBufferLoaded: false,
-      firstFrameLoaded: false
+      firstFrameLoaded: false,
+      currentTarget: 0,
+      userTarget: -1
     } as BufferInfo,
     geometryType: undefined as unknown as GeometryType,
     texture: {} as Partial<Record<TextureType, BufferInfo>>,
@@ -135,7 +165,185 @@ function NewVolumetricComponentReactor() {
   )
   const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
 
-  const fetchGeometry = () => {}
+  const fetchGeometry = () => {
+    const currentTime = component.time.currentTime.value * (TIME_UNIT_MULTIPLIER / 1000)
+    const bufferData = component.geometry.bufferData.get(NO_PROXY)
+    const nextMissing = bufferData.getNextMissing(currentTime)
+
+    const target = component.geometry.targets[component.geometry.currentTarget.value].value
+    const manifest = component.manifest.get(NO_PROXY)
+
+    const frameRate =
+      component.geometryType.value === GeometryType.Corto
+        ? (manifest as OldManifestSchema).frameRate
+        : (manifest as ManifestSchema).geometry.targets[target].frameRate
+    const frameCount =
+      component.geometryType.value === GeometryType.Corto
+        ? (manifest as OldManifestSchema).frameData.length
+        : (manifest as ManifestSchema).geometry.targets[target].frameCount!
+
+    const startFrame = Math.floor((nextMissing * frameRate) / TIME_UNIT_MULTIPLIER)
+    const maxBufferDuration =
+      isMobile || isMobileXRHeadset
+        ? bufferLimits.geometry.mobileMaxBufferDuration
+        : bufferLimits.geometry.desktopMaxBufferDuration
+
+    if (startFrame >= frameCount || nextMissing - currentTime >= maxBufferDuration * TIME_UNIT_MULTIPLIER) {
+      return
+    }
+
+    const endFrame = Math.min(
+      frameCount - 1,
+      Math.floor(((currentTime + maxBufferDuration * TIME_UNIT_MULTIPLIER) * frameRate) / TIME_UNIT_MULTIPLIER)
+    )
+
+    if (endFrame < startFrame) return
+
+    const geometryType = component.geometryType.value
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const manifestPath = playlistComponent?.tracks.value.find(
+      (track) => track.uuid === playlistComponent.currentTrackUUID.value
+    )?.src!
+
+    for (let currentFrame = startFrame; currentFrame <= endFrame; ) {
+      const _currentFrame = currentFrame
+
+      if (geometryType === GeometryType.Corto) {
+        bufferData.addRange(
+          (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+          ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+          -1,
+          -1,
+          true
+        )
+        const resourceURL = getResourceURL({
+          type: 'geometry',
+          geometryType: GeometryType.Corto,
+          manifestPath: manifestPath
+        })
+        const byteStart = (manifest as OldManifestSchema).frameData[_currentFrame].startBytePosition
+        const byteEnd = byteStart + (manifest as OldManifestSchema).frameData[_currentFrame].meshLength
+
+        rateLimitedCortoLoader(resourceURL, byteStart, byteEnd)
+          .then((currentFrameData) => {
+            const geometry = currentFrameData.geometry
+            if (!geometryBuffer.current.get(target)) {
+              geometryBuffer.current.set(target, [])
+            }
+            const collection = geometryBuffer.current.get(target)!
+            collection[_currentFrame] = geometry
+            bufferData.addRange(
+              (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+              ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+              -1,
+              currentFrameData.memoryOccupied,
+              false
+            )
+          })
+          .catch((err) => {
+            console.warn('Error in loading corto frame: ', err)
+          })
+        currentFrame++
+      } else if (geometryType === GeometryType.Draco || geometryType === GeometryType.GLTF) {
+        bufferData.addRange(
+          (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+          ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+          -1,
+          -1,
+          true
+        )
+        const resourceURL = getResourceURL({
+          type: 'geometry',
+          geometryType: geometryType,
+          manifestPath: manifestPath,
+          target: target,
+          index: currentFrame,
+          path: (manifest as ManifestSchema).geometry.path,
+          format: (manifest as ManifestSchema).geometry.targets[target].format
+        })
+
+        const loadingFunction = geometryType === GeometryType.Draco ? loadDraco : loadGLTF
+        loadingFunction(resourceURL)
+          .then((currentFrameData: DracoResponse | GLTFResponse) => {
+            const geometry =
+              geometryType === GeometryType.Draco
+                ? (currentFrameData as DracoResponse).geometry
+                : (currentFrameData as GLTFResponse).mesh
+
+            if (!geometryBuffer.current.get(target)) {
+              geometryBuffer.current.set(target, [])
+            }
+            const collection = geometryBuffer.current.get(target)!
+            collection[currentFrame] = geometry
+            bufferData.addRange(
+              (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+              ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+              -1,
+              currentFrameData.memoryOccupied,
+              false
+            )
+          })
+          .catch((err) => {
+            console.warn('Error in loading draco frame: ', err)
+          })
+        currentFrame++
+      } else if (geometryType === GeometryType.Unify) {
+        const targetData = (manifest as ManifestSchema).geometry.targets[target] as UniformSolveTarget
+        const segmentFrameCount = targetData.segmentFrameCount!
+        const segmentIndex = Math.floor(currentFrame / segmentFrameCount)
+        const segmentOffset = segmentIndex * segmentFrameCount
+
+        bufferData.addRange(
+          segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
+          (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
+          -1,
+          -1,
+          true
+        )
+        const resourceURL = getResourceURL({
+          type: 'geometry',
+          geometryType: GeometryType.Unify,
+          manifestPath: manifestPath,
+          target: target,
+          index: segmentIndex,
+          path: (manifest as ManifestSchema).geometry.path,
+          format: 'uniform-solve'
+        })
+
+        loadGLTF(resourceURL)
+          .then((currentFrameData) => {
+            if (!geometryBuffer.current.get(target)) {
+              geometryBuffer.current.set(target, [])
+            }
+            const collection = geometryBuffer.current.get(target)!
+            const positionMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
+              .position as InterleavedBufferAttribute[]
+            const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
+              .normal as InterleavedBufferAttribute[]
+
+            positionMorphAttributes.map((attribute, index) => {
+              collection[segmentOffset + index] = {
+                position: attribute,
+                normal: normalMorphAttributes ? normalMorphAttributes[index] : undefined
+              }
+            })
+
+            bufferData.addRange(
+              segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
+              (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
+              currentFrameData.fetchTime,
+              currentFrameData.memoryOccupied,
+              false
+            )
+          })
+          .catch((err) => {
+            console.warn('Error in loading unify frame: ', err)
+          })
+        currentFrame += segmentFrameCount
+      }
+    }
+  }
 
   const fetchTextures = () => {}
 
@@ -159,37 +367,41 @@ function NewVolumetricComponentReactor() {
 
   const cleanupTrack = () => {
     clearInterval(setIntervalId.value)
-    setIntervalId.set(-1)
     if (mesh.current) {
       group.current.remove(mesh.current)
     }
 
-    component.merge({
-      manifest: {},
-      time: {
-        start: 0,
-        checkpointAbsolute: -1,
-        checkpointRelative: 0,
-        currentTime: 0
-      },
-      paused: true
-    })
+    if (hasComponent(entity, NewVolumetricComponent)) {
+      setIntervalId.set(-1)
+      component.merge({
+        manifest: {},
+        time: {
+          start: 0,
+          checkpointAbsolute: -1,
+          checkpointRelative: 0,
+          currentTime: 0
+        },
+        paused: true
+      })
+    }
 
     // TODO: Dispose buffers before removing the data about the buffers
 
-    component.geometry.merge({
-      initialBufferLoaded: false,
-      firstFrameLoaded: false,
-      targets: []
-    })
-    component.geometryType.set(undefined as unknown as GeometryType)
+    if (hasComponent(entity, NewVolumetricComponent)) {
+      component.geometry.merge({
+        initialBufferLoaded: false,
+        firstFrameLoaded: false,
+        targets: []
+      })
+      component.geometryType.set(undefined as unknown as GeometryType)
 
-    component.texture.set({})
-    component.textureInfo.merge({
-      textureTypes: [],
-      initialBufferLoaded: {},
-      firstFrameLoaded: {}
-    })
+      component.texture.set({})
+      component.textureInfo.merge({
+        textureTypes: [],
+        initialBufferLoaded: {},
+        firstFrameLoaded: {}
+      })
+    }
 
     // TODO: Dispose all textures before disposing the material
     if (material.current) {
@@ -200,7 +412,9 @@ function NewVolumetricComponentReactor() {
       mesh.current.geometry.dispose()
     }
 
-    clearErrors(entity, NewVolumetricComponent)
+    if (hasComponent(entity, NewVolumetricComponent)) {
+      clearErrors(entity, NewVolumetricComponent)
+    }
   }
 
   const validateManifest = (manifest: OldManifestSchema | ManifestSchema) => {
@@ -222,9 +436,19 @@ function NewVolumetricComponentReactor() {
             bufferData: undefined as unknown as BufferDataContainer, // VideoTexture does not require BufferDataContainer
             targets: [],
             initialBufferLoaded: false,
-            firstFrameLoaded: false
+            firstFrameLoaded: false,
+            currentTarget: 0,
+            userTarget: -1
           }
         })
+        component.geometry.targets.set(['corto'])
+        if (!getState(AssetLoaderState).cortoLoader) {
+          const loader = new CORTOLoader()
+          loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
+          loader.preload()
+          const assetLoaderState = getMutableState(AssetLoaderState)
+          assetLoaderState.cortoLoader.set(loader)
+        }
       } else if ((manifest as ManifestSchema).duration !== undefined) {
         const _manifest = manifest as ManifestSchema
         if (_manifest.duration <= 0 || _manifest.duration > 10800) {
@@ -338,7 +562,12 @@ function NewVolumetricComponentReactor() {
       return
     }
 
-    fetch(track.src)
+    let trackSource = track.src
+    if (track.src.endsWith('.mp4')) {
+      trackSource = track.src.replace('.mp4', '.manifest')
+    }
+
+    fetch(trackSource)
       .then((resp) => {
         if (!resp.ok) {
           throw new Error(`Unable to load the manifest: ${resp.statusText}`)
@@ -358,6 +587,7 @@ function NewVolumetricComponentReactor() {
         if (preTrackBufferingCallback) {
           preTrackBufferingCallback(component)
         }
+        component.time.currentTime.set(component.time.start.value)
         const firstGeometryTarget =
           component.geometryType.value !== GeometryType.Corto ? component.geometry.targets[0].value : ''
 
