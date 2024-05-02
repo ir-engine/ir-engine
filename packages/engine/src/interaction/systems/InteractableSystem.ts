@@ -101,9 +101,8 @@ export const onInteractableUpdate = (entity: Entity) => {
     //open to changing default height, 0.5 seems too small an offset (on default geo cube the xrui is half inside the cube if offset it just 0.5 from position)
     xruiTransform.position.y += boundingBox ? 0.5 + boundingBox.box.max.y : 1
 
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
-
     xruiTransform.scale.set(1, 1, 1)
   }
 
@@ -191,7 +190,7 @@ const execute = () => {
 
 export const InteractableSystem = defineSystem({
   uuid: 'ee.engine.InteractableSystem',
-  insert: { before: TransformSystem },
+  insert: { after: TransformSystem },
   execute
 })
 
