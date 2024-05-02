@@ -63,8 +63,6 @@ export type PrototypeArgument = {
   }
 }
 
-export const materialSuffix = ' (Material)'
-
 export const MaterialPrototypeDefinitions = [
   MeshBasicMaterial,
   MeshStandardMaterial,
