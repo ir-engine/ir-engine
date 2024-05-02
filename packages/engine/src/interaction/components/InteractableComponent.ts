@@ -101,6 +101,8 @@ export const InteractableComponent = defineComponent({
       component.uiActivationType.set(json.uiActivationType)
     if (typeof json.clickInteract === 'boolean' && component.clickInteract.value !== json.clickInteract)
       component.clickInteract.set(json.clickInteract)
+    if (typeof json.uiInteractable === 'boolean' && component.uiInteractable.value !== json.uiInteractable)
+      component.uiInteractable.set(json.uiInteractable)
     if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (
       matches
@@ -133,6 +135,7 @@ export const InteractableComponent = defineComponent({
       clickInteract: component.clickInteract.value,
       activationDistance: component.activationDistance.value,
       uiActivationType: component.uiActivationType.value,
+      uiInteractable: component.uiInteractable.value,
       callbacks: component.callbacks.get(NO_PROXY)
     }
   },
@@ -146,14 +149,13 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
       const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-      console.log('setting cursor type!')
       if (input.inputSources.length > 0) {
         canvas.style.cursor = 'pointer'
       }
       return () => {
         canvas.style.cursor = 'auto'
       }
-    }, [input?.inputSources])
+    }, [input?.inputSources.length])
 
     //handle highlighting when state is set
     useEffect(() => {
