@@ -46,6 +46,7 @@ import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials
 import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
@@ -61,6 +62,9 @@ import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
+
+const tempMatrix4 = new Matrix4()
+const tempVector = new Vector3()
 
 const getSourcesForEntities = (entities: Entity[]) => {
   const scenes: Record<string, Entity[]> = {}
@@ -299,13 +303,13 @@ const createObjectFromSceneElement = (
           ...componentJsonDefaults(TransformComponent),
           ...extensions[TransformComponent.jsonID]
         }
-        const matrix = new Matrix4().compose(
+        const matrix = tempMatrix4.compose(
           new Vector3().copy(comp.position),
           new Quaternion().copy(comp.rotation),
           new Vector3().copy(comp.scale)
         )
         delete extensions[TransformComponent.jsonID]
-        if (!matrix.equals(new Matrix4())) node.matrix = matrix.toArray()
+        if (!matrix.equals(MAT4_IDENTITY)) node.matrix = matrix.toArray()
       }
 
       if (parentEntity === getState(EditorState).rootEntity) {
@@ -480,9 +484,6 @@ const duplicateObject = (entities: Entity[]) => {
   }
 }
 
-const tempMatrix = new Matrix4()
-const tempVector = new Vector3()
-
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
@@ -511,8 +512,8 @@ const positionObject = (
       tempVector.add(pos)
 
       const _spaceMatrix = parentTransform.matrixWorld
-      tempMatrix.copy(_spaceMatrix).invert()
-      tempVector.applyMatrix4(tempMatrix)
+      tempMatrix4.copy(_spaceMatrix).invert()
+      tempVector.applyMatrix4(tempMatrix4)
 
       transform.position.copy(tempVector)
     }
@@ -562,8 +563,6 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
   }
 }
 
-const mat4 = new Matrix4()
-
 const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
   const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
@@ -576,12 +575,12 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
       : transform
 
-    new Matrix4()
+    tempMatrix4
       .copy(transform.matrixWorld)
       .premultiply(pivotToOriginMatrix)
       .premultiply(rotationMatrix)
       .premultiply(originToPivotMatrix)
-      .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
+      .premultiply(tempMatrix4.copy(parentTransform.matrixWorld).invert())
       .decompose(transform.position, transform.rotation, transform.scale)
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
@@ -950,7 +949,7 @@ const commitTransformSave = (entities: Entity[]) => {
         const position = transform.position
         const rotation = transform.rotation
         const scale = transform.scale
-        const matrix = new Matrix4().compose(position, rotation, scale)
+        const matrix = tempMatrix4.compose(position, rotation, scale)
         node.matrix = matrix.toArray()
       }
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
