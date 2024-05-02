@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { OpaqueType } from '../../interfaces/OpaqueType'
+import { TypedString } from '../../types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
 export type FeatureFlag = OpaqueType<'FeatureFlag'> & string
@@ -41,7 +42,8 @@ export const featureFlagSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    flags: Type.Any(),
+    flagName: TypedString<FeatureFlag>(),
+    flagValue: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -49,12 +51,8 @@ export const featureFlagSettingSchema = Type.Object(
 )
 export interface FeatureFlagSettingType extends Static<typeof featureFlagSettingSchema> {}
 
-export interface FeatureFlagSettingDatabaseType extends Omit<FeatureFlagSettingType, 'flags'> {
-  flags: string
-}
-
 // Schema for creating new entries
-export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['flags'], {
+export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['flagName', 'flagValue'], {
   $id: 'FeatureFlagSettingData'
 })
 export interface FeatureFlagSettingData extends Static<typeof featureFlagSettingDataSchema> {}
@@ -66,7 +64,7 @@ export const featureFlagSettingPatchSchema = Type.Partial(featureFlagSettingSche
 export interface FeatureFlagSettingPatch extends Static<typeof featureFlagSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const featureFlagSettingQueryProperties = Type.Pick(featureFlagSettingSchema, ['id', 'flags'])
+export const featureFlagSettingQueryProperties = Type.Pick(featureFlagSettingSchema, ['id', 'flagName', 'flagValue'])
 export const featureFlagSettingQuerySchema = Type.Intersect(
   [
     querySyntax(featureFlagSettingQueryProperties),

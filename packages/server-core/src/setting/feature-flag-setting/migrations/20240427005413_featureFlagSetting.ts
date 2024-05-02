@@ -40,7 +40,8 @@ export async function up(knex: Knex): Promise<void> {
     await trx.schema.createTable(featureFlagSettingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('flags').notNullable()
+      table.string('flagName').notNullable()
+      table.boolean('flagValue').notNullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })

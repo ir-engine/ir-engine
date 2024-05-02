@@ -28,7 +28,6 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
-  FeatureFlagSettingDatabaseType,
   FeatureFlagSettingQuery,
   FeatureFlagSettingType
 } from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
@@ -36,60 +35,23 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
-export const featureFlagDbToSchema = (rawData: FeatureFlagSettingDatabaseType): FeatureFlagSettingType => {
-  return {
-    ...rawData,
-    flags: JSON.parse(rawData.flags)
-  }
-}
-
-export const featureFlagSettingResolver = resolve<FeatureFlagSettingType, HookContext>(
-  {
-    createdAt: virtual(async (featureFlagSetting) => fromDateTimeSql(featureFlagSetting.createdAt)),
-    updatedAt: virtual(async (featureFlagSettings) => fromDateTimeSql(featureFlagSettings.updatedAt))
-  },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return featureFlagDbToSchema(rawData)
-    }
-  }
-)
+export const featureFlagSettingResolver = resolve<FeatureFlagSettingType, HookContext>({
+  createdAt: virtual(async (featureFlagSetting) => fromDateTimeSql(featureFlagSetting.createdAt)),
+  updatedAt: virtual(async (featureFlagSettings) => fromDateTimeSql(featureFlagSettings.updatedAt))
+})
 
 export const featureFlagSettingExternalResolver = resolve<FeatureFlagSettingType, HookContext>({})
 
-export const featureFlagSettingDataResolver = resolve<FeatureFlagSettingDatabaseType, HookContext>(
-  {
-    id: async () => {
-      return uuidv4()
-    },
-    createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql
+export const featureFlagSettingDataResolver = resolve<FeatureFlagSettingType, HookContext>({
+  id: async () => {
+    return uuidv4()
   },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return {
-        ...rawData,
-        flags: JSON.stringify(rawData.flags)
-      }
-    }
-  }
-)
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-export const featureFlagSettingPatchResolver = resolve<FeatureFlagSettingType, HookContext>(
-  {
-    updatedAt: getDateTimeSql
-  },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return {
-        ...rawData,
-        flags: JSON.stringify(rawData.flags)
-      }
-    }
-  }
-)
+export const featureFlagSettingPatchResolver = resolve<FeatureFlagSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
 export const featureFlagSettingQueryResolver = resolve<FeatureFlagSettingQuery, HookContext>({})

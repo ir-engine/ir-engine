@@ -34,11 +34,11 @@ export const FeatureFlagsState = defineState({
   initial: {} as Record<FeatureFlag, boolean>,
   enabled(flagName: FeatureFlag) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
-    return typeof state === 'boolean' ? state : false
+    return typeof state === 'boolean' ? state : true
   },
   useEnabled(flagName: FeatureFlag) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
-    return typeof state === 'boolean' ? state : false
+    return typeof state === 'boolean' ? state : true
   }
 })
 
@@ -47,8 +47,10 @@ const reactor = () => {
 
   useEffect(() => {
     if (!featureFlagQuery.data.length) return
-    const data = featureFlagQuery.data[0]
-    getMutableState(FeatureFlagsState).set(data.flags)
+    const data = featureFlagQuery.data
+    getMutableState(FeatureFlagsState).set(
+      Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
+    )
   }, [featureFlagQuery.data])
 
   return null
