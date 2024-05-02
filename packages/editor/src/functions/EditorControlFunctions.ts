@@ -273,7 +273,6 @@ const createObjectFromSceneElement = (
     const name = 'New Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-      console.log(gltf, gltf.data.nodes)
 
       const nodeIndex = gltf.data.nodes!.length
 
