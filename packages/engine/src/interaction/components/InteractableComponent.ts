@@ -149,14 +149,13 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
       const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-      console.log('setting cursor type!')
       if (input.inputSources.length > 0) {
         canvas.style.cursor = 'pointer'
       }
       return () => {
         canvas.style.cursor = 'auto'
       }
-    }, [input?.inputSources])
+    }, [input?.inputSources.length])
 
     //handle highlighting when state is set
     useEffect(() => {
