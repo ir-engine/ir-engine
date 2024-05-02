@@ -30,6 +30,7 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  getOptionalMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { isArray } from 'lodash'
@@ -43,6 +44,7 @@ import {
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
   pluginByName,
+  pluginQuery,
   prototypeByName
 } from './MaterialComponent'
 
@@ -104,6 +106,16 @@ export const addMaterialPlugin = (materialEntity: Entity, pluginEntity: Entity) 
   setComponent(materialEntity, MaterialComponent[MaterialComponents.Plugin], {
     pluginEntities: [...(materialComponent.pluginEntities ?? []), pluginEntity]
   })
+}
+
+export const getPluginByName = (name: string) => {
+  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === name)[0]
+}
+
+export const getPluginObject = (pluginId: string) => {
+  const pluginEntity = getPluginByName(pluginId)
+  const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])?.plugin
+  return plugin
 }
 
 export const applyMaterialPlugins = (materialEntity: Entity) => {

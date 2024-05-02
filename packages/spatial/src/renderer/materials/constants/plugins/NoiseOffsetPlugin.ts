@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DataTexture, IUniform, Uniform } from 'three'
+import { IUniform, Uniform } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -32,16 +32,10 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, PresentationSystemGroup, useComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { getPluginByName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
 import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents } from '../../MaterialComponent'
-
-export type NoiseOffsetParameters = {
-  noiseTexture: DataTexture | null
-  textureSize: number
-  frequency: number
-}
+import { getPluginByName } from '../../materialFunctions'
 
 let time: IUniform | null = null
 

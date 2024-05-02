@@ -44,7 +44,6 @@ import {
   MaterialComponents,
   materialByHash,
   materialByName,
-  pluginQuery,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -152,10 +151,6 @@ export const getPrototypeConstructorFromName = (name: string) => {
   const prototypeEntity = prototypeByName[name]
   if (!prototypeEntity) return null
   return getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeConstructor!
-}
-
-export const getPluginByName = (name: string) => {
-  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === name)[0]
 }
 
 /**Sets a unique name and source hash for a given material entity */

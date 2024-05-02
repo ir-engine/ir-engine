@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, defineComponent, getMutableComponent } from '@etherealengine/ecs'
+import { Entity, EntityUUID, defineComponent, getOptionalMutableComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { getPluginByName } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Vector3 } from 'three'
-import { getPluginByName } from '../../scene/materials/functions/materialSourcingFunctions'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -76,7 +76,7 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
   priority: 10,
   compile: (shader, renderer) => {
     const pluginEntity = getPluginByName(TransparencyDitheringPlugin.id)
-    const plugin = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
 
     plugin.shader[(shader as any).shaderName].set(shader)
