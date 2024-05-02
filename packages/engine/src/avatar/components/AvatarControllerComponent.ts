@@ -43,6 +43,8 @@ import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camer
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
+import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const AvatarControllerComponent = defineComponent({
@@ -100,19 +102,17 @@ export const AvatarControllerComponent = defineComponent({
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
 
     useEffect(() => {
-      /** @todo fix this */
-      // getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
-      // const collider = createAvatarCollider(entity)
-      // avatarControllerComponent.bodyCollider.set(collider)
+      setAvatarColliderTransform(entity)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
         cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
       }
-    }, [avatarComponent.avatarHeight])
+    }, [avatarComponent.avatarHeight, camera.near])
 
     useEffect(() => {
       if (isCameraAttachedToAvatar.value) {
