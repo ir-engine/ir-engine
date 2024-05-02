@@ -40,7 +40,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
   const sceneJSONAssetsData = (
     await Promise.all(
       projects.map(async (project) => {
-        const projectPath = `projects/${project.name}`
+        const projectPath = `projects/${project.name}/`
         logger.info('ASSETS 1.1', projectPath)
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
         logger.info('ASSETS 1.2', projectAssets)
