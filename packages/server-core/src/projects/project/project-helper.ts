@@ -1596,6 +1596,8 @@ export const updateProject = async (
 
   const latestProjectResult = await app.service(projectPath).get(returned.id)
 
+  logger.info('PROJECT_HELPER', latestProjectResult)
+
   await syncAllSceneJSONAssets([latestProjectResult], app)
 
   const k8BatchClient = getState(ServerState).k8BatchClient

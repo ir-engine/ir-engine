@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { AssetType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
+const logger = multiLogger.child({ component: 'server-core:asset-helper' })
+
 export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Application) => {
+  logger.info('ASSETS 1')
   const now = await getDateTimeSql()
   const storageProvider = getStorageProvider()
 
@@ -56,6 +60,8 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
   )
     .flat()
     .filter(Boolean)
+
+  logger.info('ASSETS 2', sceneJSONAssetsData)
 
   if (!sceneJSONAssetsData.length) return
 
