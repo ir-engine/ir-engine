@@ -43,7 +43,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 
-const eyeOffset = 0.25
+export const eyeOffset = 0.25
 const execute = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   const deltaSeconds = getState(ECSState).deltaSeconds
