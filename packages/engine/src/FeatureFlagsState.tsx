@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { FeatureFlag, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup, defineSystem } from '@etherealengine/ecs'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -31,12 +31,12 @@ import { useEffect } from 'react'
 
 export const FeatureFlagsState = defineState({
   name: 'ee.engine.FeatureFlagsState',
-  initial: {} as Record<string, boolean>,
-  enabled(flagName: string) {
+  initial: {} as Record<FeatureFlag, boolean>,
+  enabled(flagName: FeatureFlag) {
     const state = getMutableState(FeatureFlagsState)[flagName].value
     return typeof state === 'boolean' ? state : false
   },
-  useEnabled(flagName: string) {
+  useEnabled(flagName: FeatureFlag) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
     return typeof state === 'boolean' ? state : false
   }
@@ -59,3 +59,13 @@ export const FeatureFlagSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor
 })
+
+const SocialMenuFlag = 'ir.client.menu.social' as FeatureFlag
+const EmoteMenuFlag = 'ir.client.menu.emote' as FeatureFlag
+
+export const FeatureFlags = {
+  menus: {
+    social: SocialMenuFlag,
+    emote: EmoteMenuFlag
+  }
+}

@@ -29,6 +29,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { FeatureFlags, FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
@@ -68,6 +69,8 @@ const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
+  const emotesEnabled = FeatureFlagsState.useEnabled(FeatureFlags.menus.emote)
+
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
     const Send = lazy(() => import('@mui/icons-material/Send'))
@@ -80,14 +83,12 @@ const reactor = () => {
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe),
       [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn),
-      [UserMenus.Share]: ShareMenu,
-      [UserMenus.Emote]: EmoteMenu
+      [UserMenus.Share]: ShareMenu
     })
 
     popupMenuState.hotbar.merge({
       [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.settings') },
-      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') },
-      [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
+      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') }
     })
 
     return () => {
@@ -98,17 +99,40 @@ const reactor = () => {
         [UserMenus.AvatarModify]: none,
         [UserMenus.ReadyPlayer]: none,
         [UserMenus.Avaturn]: none,
-        [UserMenus.Share]: none,
-        [UserMenus.Emote]: none
+        [UserMenus.Share]: none
       })
 
       popupMenuState.hotbar.merge({
         [UserMenus.Profile]: none,
-        [UserMenus.Share]: none,
-        [UserMenus.Emote]: none
+        [UserMenus.Share]: none
       })
     }
   }, [])
+
+  useEffect(() => {
+    if (!emotesEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.Emote]: EmoteMenu
+    })
+
+    popupMenuState.hotbar.merge({
+      [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
+    })
+
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.Emote]: none
+      })
+
+      popupMenuState.hotbar.merge({
+        [UserMenus.Emote]: none
+      })
+    }
+  }, [emotesEnabled])
+
   return null
 }
 

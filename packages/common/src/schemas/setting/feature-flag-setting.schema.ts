@@ -26,7 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { OpaqueType } from '../../interfaces/OpaqueType'
 import { dataValidator, queryValidator } from '../validators'
+
+export type FeatureFlag = OpaqueType<'FeatureFlag'> & string
 
 export const featureFlagSettingPath = 'feature-flag-setting'
 
