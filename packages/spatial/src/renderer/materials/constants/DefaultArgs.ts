@@ -43,7 +43,6 @@ export const ShaderArg = { default: '', type: 'shader' }
 export const ObjectArg = { default: {}, type: 'object' }
 
 export function getDefaultType(value) {
-  if (value == null) return ''
   switch (typeof value) {
     case 'boolean':
     case 'string':
