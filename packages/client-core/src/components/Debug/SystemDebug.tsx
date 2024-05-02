@@ -90,7 +90,8 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
         const isInnerSystem = label === 'preSystems' || label === 'subSystems' || label === 'postSystems'
         const isUuid = label === 'uuid'
         const isRoot = label === 'root'
-        const labelName = isInnerSystem || isUuid ? t(`common:debug.${label}`) : isRoot ? uuidName : label
+        const labelName =
+          isInnerSystem || isUuid ? t(`common:debug.${isUuid ? 'avgDuration' : label}`) : isRoot ? uuidName : label
 
         return <span style={{ color: isInnerSystem ? 'green' : 'black' }}>{labelName}</span>
       }}
