@@ -33,7 +33,7 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 const logger = multiLogger.child({ component: 'server-core:asset-helper' })
 
 export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Application) => {
-  logger.info('ASSETS 1')
+  logger.info('ASSETS 1', projects)
   const now = await getDateTimeSql()
   const storageProvider = getStorageProvider()
 
