@@ -45,6 +45,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
 import { FrontSide } from 'three'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
@@ -87,6 +88,12 @@ const reactor = () => {
 
 const DitherReactor = () => {
   const entity = useEntityContext()
+
+  const modelComponent = useComponent(entity, ModelComponent)
+  useEffect(() => {
+    getMutableComponent(entity, TransparencyDitheringComponent[0]).materialUUIDs.set([])
+  }, [modelComponent.src])
+
   const sceneInstanceID = useModelSceneID(entity)
   const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
   return (
