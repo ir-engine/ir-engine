@@ -43,7 +43,6 @@ export default class BufferData {
   private bufferedRange: BufferedDataType
   private pendingRange: PendingBufferDataType
   private metrics: {
-    totalMemoryOccupied: number
     totalFetchTime: number
     totalPlayTime: number
   }
@@ -52,14 +51,9 @@ export default class BufferData {
     this.bufferedRange = []
     this.pendingRange = []
     this.metrics = {
-      totalMemoryOccupied: 0,
       totalFetchTime: 0,
       totalPlayTime: 0
     }
-  }
-
-  get memoryOccupied() {
-    return this.metrics.totalMemoryOccupied
   }
 
   /**
@@ -120,8 +114,8 @@ export default class BufferData {
     if (index < 0 || index >= length) return
 
     let i = index + 1
-    while (i < length && array[index].startTime >= array[i].startTime) {
-      array[i].endTime = Math.max(array[index].startTime, array[i].endTime)
+    while (i < length && array[index].endTime >= array[i].startTime) {
+      array[index].endTime = Math.max(array[index].endTime, array[i].endTime)
 
       if (!pending) {
         this.bufferedRange[i].fetchTime = this.bufferedRange[index].fetchTime + this.bufferedRange[i].fetchTime
@@ -129,9 +123,11 @@ export default class BufferData {
 
       i++
     }
+
+    array.splice(index + 1, i - 1 - index)
   }
 
-  public addRange(startTime: number, endTime: number, fetchTime: number, memoryOccupied: number, pending: boolean) {
+  public addRange(startTime: number, endTime: number, fetchTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (startTime >= endTime) {
       return
@@ -141,7 +137,6 @@ export default class BufferData {
       this.removeRange(startTime, endTime, true)
       this.metrics.totalFetchTime += fetchTime
       this.metrics.totalPlayTime += endTime - startTime
-      this.metrics.totalMemoryOccupied += memoryOccupied
     }
 
     const length = array.length
@@ -186,7 +181,7 @@ export default class BufferData {
     this.updateEndTime(lb)
   }
 
-  public removeRange(startTime: number, endTime: number, pending: boolean, reclaimMemory?: number) {
+  public removeRange(startTime: number, endTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (
       array.length === 0 ||
@@ -195,10 +190,6 @@ export default class BufferData {
       startTime >= array[array.length - 1].endTime
     ) {
       return 0
-    }
-
-    if (!pending && reclaimMemory) {
-      this.metrics.totalMemoryOccupied -= reclaimMemory
     }
 
     startTime = Math.max(startTime, array[0].startTime)

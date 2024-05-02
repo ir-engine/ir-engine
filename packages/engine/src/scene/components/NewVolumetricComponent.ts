@@ -72,6 +72,7 @@ import {
   getSortedSupportedTargets,
   loadDraco,
   loadGLTF,
+  loadKTX2,
   rateLimitedCortoLoader
 } from '../util/VolumetricUtils'
 import { PlaylistComponent } from './PlaylistComponent'
@@ -206,6 +207,11 @@ function NewVolumetricComponentReactor() {
       (track) => track.uuid === playlistComponent.currentTrackUUID.value
     )?.src!
 
+    if (!geometryBuffer.current.has(target)) {
+      geometryBuffer.current.set(target, [])
+    }
+    const collection = geometryBuffer.current.get(target)!
+
     for (let currentFrame = startFrame; currentFrame <= endFrame; ) {
       const _currentFrame = currentFrame
 
@@ -213,7 +219,6 @@ function NewVolumetricComponentReactor() {
         bufferData.addRange(
           (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
           ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-          -1,
           -1,
           true
         )
@@ -228,16 +233,11 @@ function NewVolumetricComponentReactor() {
         rateLimitedCortoLoader(resourceURL, byteStart, byteEnd)
           .then((currentFrameData) => {
             const geometry = currentFrameData.geometry
-            if (!geometryBuffer.current.get(target)) {
-              geometryBuffer.current.set(target, [])
-            }
-            const collection = geometryBuffer.current.get(target)!
             collection[_currentFrame] = geometry
             bufferData.addRange(
               (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
               ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
               -1,
-              currentFrameData.memoryOccupied,
               false
             )
           })
@@ -249,7 +249,6 @@ function NewVolumetricComponentReactor() {
         bufferData.addRange(
           (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
           ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-          -1,
           -1,
           true
         )
@@ -270,17 +269,11 @@ function NewVolumetricComponentReactor() {
               geometryType === GeometryType.Draco
                 ? (currentFrameData as DracoResponse).geometry
                 : (currentFrameData as GLTFResponse).mesh
-
-            if (!geometryBuffer.current.get(target)) {
-              geometryBuffer.current.set(target, [])
-            }
-            const collection = geometryBuffer.current.get(target)!
             collection[currentFrame] = geometry
             bufferData.addRange(
               (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
               ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
               -1,
-              currentFrameData.memoryOccupied,
               false
             )
           })
@@ -298,7 +291,6 @@ function NewVolumetricComponentReactor() {
           segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
           (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
           -1,
-          -1,
           true
         )
         const resourceURL = getResourceURL({
@@ -313,10 +305,6 @@ function NewVolumetricComponentReactor() {
 
         loadGLTF(resourceURL)
           .then((currentFrameData) => {
-            if (!geometryBuffer.current.get(target)) {
-              geometryBuffer.current.set(target, [])
-            }
-            const collection = geometryBuffer.current.get(target)!
             const positionMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
               .position as InterleavedBufferAttribute[]
             const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
@@ -333,7 +321,6 @@ function NewVolumetricComponentReactor() {
               segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
               (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
               currentFrameData.fetchTime,
-              currentFrameData.memoryOccupied,
               false
             )
           })
@@ -345,12 +332,100 @@ function NewVolumetricComponentReactor() {
     }
   }
 
-  const fetchTextures = () => {}
+  const fetchTextures = (textureType: TextureType) => {
+    const textureData = component.texture[textureType].get(NO_PROXY)
+    if (!textureData) {
+      return
+    }
+
+    const currentTime = component.time.currentTime.value * (TIME_UNIT_MULTIPLIER / 1000)
+
+    const bufferData = textureData.bufferData
+    const nextMissing = bufferData.getNextMissing(currentTime)
+
+    const target = textureData.targets[textureData.currentTarget]
+    const manifest = component.manifest.get(NO_PROXY)
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const frameRate = (manifest as ManifestSchema).texture[textureType]?.targets[target].frameRate!
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const frameCount = (manifest as ManifestSchema).texture[textureType]?.targets[target].frameCount!
+
+    const startFrame = Math.floor((nextMissing * frameRate) / TIME_UNIT_MULTIPLIER)
+    const maxBufferDuration =
+      isMobile || isMobileXRHeadset
+        ? bufferLimits.texture.mobileMaxBufferDuration
+        : bufferLimits.texture.desktopMaxBufferDuration
+
+    if (startFrame >= frameCount || nextMissing - currentTime >= maxBufferDuration * TIME_UNIT_MULTIPLIER) {
+      return
+    }
+
+    const endFrame = Math.min(
+      frameCount - 1,
+      Math.floor(((currentTime + maxBufferDuration * TIME_UNIT_MULTIPLIER) * frameRate) / TIME_UNIT_MULTIPLIER)
+    )
+
+    if (endFrame < startFrame) return
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+    const manifestPath = playlistComponent?.tracks.value.find(
+      (track) => track.uuid === playlistComponent.currentTrackUUID.value
+    )?.src!
+
+    if (!textureBuffer.current.has(textureType)) {
+      textureBuffer.current.set(textureType, new Map<string, CompressedTexture[]>())
+    }
+    const textureTypeCollection = textureBuffer.current.get(textureType)!
+    if (!textureTypeCollection.has(target)) {
+      textureTypeCollection.set(target, [])
+    }
+    const collection = textureTypeCollection.get(target)!
+
+    for (let currentFrame = startFrame; currentFrame <= endFrame; currentFrame++) {
+      const _currentFrame = currentFrame
+      bufferData.addRange(
+        (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+        ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+        -1,
+        true
+      )
+
+      const resourceURL = getResourceURL({
+        type: 'texture',
+        textureType: textureType,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+        format: (manifest as ManifestSchema).texture[textureType]?.targets[target].format!,
+        index: _currentFrame,
+        target: target,
+        path: (manifest as ManifestSchema).texture['baseColor'].path,
+        manifestPath: manifestPath
+      })
+
+      loadKTX2(resourceURL)
+        .then((currentFrameData) => {
+          collection[_currentFrame] = currentFrameData.texture
+
+          bufferData.addRange(
+            (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
+            ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
+            currentFrameData.fetchTime,
+            false
+          )
+        })
+        .catch((err) => {
+          console.warn('Error in loading ktx2 frame: ', err)
+        })
+    }
+  }
 
   const bufferLoop = () => {
     fetchGeometry()
     if (!component.useVideoTextureForBaseColor.value) {
-      fetchTextures()
+      component.textureInfo.textureTypes.value.forEach((textureType) => {
+        fetchTextures(textureType)
+      })
     }
   }
 
@@ -524,8 +599,10 @@ function NewVolumetricComponentReactor() {
                 bufferData: new BufferDataContainer(),
                 targets: supportedTargets,
                 initialBufferLoaded: false,
-                firstFrameLoaded: false
-              }
+                firstFrameLoaded: false,
+                currentTarget: 0,
+                userTarget: -1
+              } as BufferInfo
             })
           } else {
             addError(
