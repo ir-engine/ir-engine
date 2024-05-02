@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { DialogState } from '@etherealengine/editor/src/components/dialogs/DialogState'
 import ErrorDialog from '@etherealengine/editor/src/components/dialogs/ErrorDialog'
@@ -35,13 +36,27 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { BsPlusCircle } from 'react-icons/bs'
+import { HiDotsHorizontal } from 'react-icons/hi'
+import Typography from '../../../../../primitives/mui/Typography'
+import Button from '../../../../../primitives/tailwind/Button'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
   const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
-  const scenes = scenesQuery.data
-
+  //const scenes = scenesQuery.data
+  const scenes = [
+    { assetURL: 'test/test.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test2.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test3.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test4.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test5.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test6.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test7.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test9.gltf', thumbnailURL: 'https://picsum.photos/200' },
+    { assetURL: 'test/test10.gltf', thumbnailURL: 'https://picsum.photos/200' }
+  ]
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
@@ -49,8 +64,8 @@ export default function ScenesPanel() {
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
   const sceneState = useHookstate(getMutableState(SceneState))
-  const scenesLoading = scenesQuery.status === 'pending'
-
+  //const scenesLoading = scenesQuery.status === 'pending'
+  const scenesLoading = false
   const onCreateScene = async () => {
     await onNewScene()
   }
@@ -131,7 +146,52 @@ export default function ScenesPanel() {
   }
 
   return (
-    <>
+    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
+      <div className="ml-auto flex h-8 bg-zinc-900">
+        <Button
+          textContainerClassName="mx-0"
+          startIcon={<BsPlusCircle />}
+          className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
+          onClick={onCreateScene}
+        >
+          {t(`editor:newScene`)}
+        </Button>
+      </div>
+
+      {scenesLoading ? (
+        <div>
+          <div>
+            <LoadingCircle />
+            <Typography>{t('editor:loadingScenes')}</Typography>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-6 p-5">
+          {scenes.map((scene: AssetType, index) => (
+            <div key={index} className="flex h-[100%] w-[100%] flex-col items-center pb-[3px]">
+              <div className="flex h-[100%] w-[100%] items-center justify-center rounded-tl-lg rounded-tr-lg bg-white">
+                <div className="h-[100%] w-auto rounded bg-neutral-900">
+                  <img
+                    className="h-[100%] w-[100%] rounded-bl-[5px] rounded-br-[5px] object-contain"
+                    src={scene.thumbnailURL}
+                    alt=""
+                    crossOrigin="anonymous"
+                  />
+                </div>
+              </div>
+              <div className="flex w-[100%] flex-row items-center justify-between rounded-bl-lg rounded-br-lg bg-zinc-900 px-4 py-2">
+                <div className="truncate font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400">
+                  {scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}
+                </div>
+                <div className="truncate p-2">
+                  <HiDotsHorizontal className="truncate text-white" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/*<div id="file-browser-panel" className={styles.panelContainer}>
         <div className={styles.btnContainer}>
           <Button onClick={onCreateScene} className={styles.newBtn}>
@@ -215,6 +275,6 @@ export default function ScenesPanel() {
         onCancel={closeDeleteDialog}
         onConfirm={deleteActiveScene}
       />*/}
-    </>
+    </div>
   )
 }

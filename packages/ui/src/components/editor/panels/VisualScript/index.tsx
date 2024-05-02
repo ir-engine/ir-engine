@@ -45,7 +45,7 @@ export const VisualScriptPanelTitle = () => {
 
 export default VisualScriptPanelTitle
 
-export const ViewportPanelTab: TabData = {
+export const VisualScriptPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
   title: <VisualScriptPanelTitle />,

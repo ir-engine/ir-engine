@@ -45,7 +45,7 @@ export const MaterialsPanelTitle = () => {
 
 export default MaterialsPanelTitle
 
-export const ViewportPanelTab: TabData = {
+export const MaterialsPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
   title: <MaterialsPanelTitle />,
