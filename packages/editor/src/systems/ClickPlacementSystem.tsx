@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { Ray } from '@dimforge/rapier3d-compat'
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
   Entity,
@@ -60,8 +59,10 @@ import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { HolographicMaterial } from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/HolographicMaterial.mat'
+import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import React from 'react'
+import { EditorState } from '../services/EditorServices'
 
 export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
@@ -72,6 +73,7 @@ export const ClickPlacementState = defineState({
     yawOffset: 0,
     pitchOffset: 0,
     rollOffset: 0,
+    maxDistance: 25,
     materialCache: [] as [Mesh, Material][]
   }
 })
@@ -99,6 +101,45 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
 
 const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
 
+const getParentEntity = () => {
+  const editorState = getState(EditorState)
+  if (!editorState.sceneID) return null
+  const scene = SceneState.getScene(editorState.sceneID)
+  if (!scene) return null
+  const entity = UUIDComponent.getEntityByUUID(scene.scene.root)
+  return entity
+}
+
+const createPlacementEntity = (parentEntity: Entity) => {
+  const placementEntity = createSceneEntity('Placement', parentEntity)
+  //removeComponent(placementEntity, SourceComponent)
+  return placementEntity
+}
+
+const clickListener = () => {
+  const clickState = getMutableState(ClickPlacementState)
+  if (!clickState.selectedAsset.value) return
+  const parentEntity = getParentEntity()
+  if (!parentEntity) return
+  const placementEntity = clickState.placementEntity.value
+  if (!placementEntity) return
+  const sceneID = getComponent(parentEntity, SourceComponent)
+  setComponent(placementEntity, SourceComponent, sceneID)
+  setComponent(placementEntity, EntityTreeComponent, { parentEntity })
+  const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+  const uuid = getComponent(placementEntity, UUIDComponent)
+  snapshot.data.entities[uuid] = toEntityJson(placementEntity)
+
+  dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
+
+  clickState.placedEntity.set(placementEntity)
+  clickState.placementEntity.set(createPlacementEntity(parentEntity))
+  for (const [mesh, material] of clickState.materialCache.value) {
+    mesh.material = material
+  }
+  clickState.materialCache.set([])
+}
+
 export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
   insert: { before: TransformSystem },
@@ -109,54 +150,16 @@ export const ClickPlacementSystem = defineSystem({
 
     const renderers = defineQuery([RendererComponent])
 
-    const getParentEntity = () => {
-      if (!sceneState.scenes.value) return null
-      const sceneID = sceneState.scenes.keys[0] as SceneID
-      const scene = SceneState.getScene(sceneID)
-      if (!scene) return null
-      const entity = UUIDComponent.getEntityByUUID(scene.scene.root)
-      return entity
-    }
-
-    const createPlacementEntity = (parentEntity: Entity) => {
-      const placementEntity = createSceneEntity('Placement', parentEntity)
-      //removeComponent(placementEntity, SourceComponent)
-      return placementEntity
-    }
-
-    const clickListener = () => {
-      if (!clickState.selectedAsset.value) return
-      const parentEntity = getParentEntity()
-      if (!parentEntity) return
-      const placementEntity = clickState.placementEntity.value
-      if (!placementEntity) return
-      const sceneID = getComponent(parentEntity, SourceComponent)
-      setComponent(placementEntity, SourceComponent, sceneID)
-      setComponent(placementEntity, EntityTreeComponent, { parentEntity })
-      const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
-      const uuid = getComponent(placementEntity, UUIDComponent)
-      snapshot.data.entities[uuid] = toEntityJson(placementEntity)
-
-      dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
-
-      clickState.placedEntity.set(placementEntity)
-      clickState.placementEntity.set(createPlacementEntity(parentEntity))
-      for (const [mesh, material] of clickState.materialCache.value) {
-        mesh.material = material
-      }
-      clickState.materialCache.set([])
-    }
-
-    useEffect(() => {
-      const placementMode = editorState.placementMode.value
-      const renderer = getComponent(renderers()[0], RendererComponent)
-      const canvas = renderer.canvas
-      if (placementMode === PlacementMode.CLICK) {
-        canvas.addEventListener('click', clickListener)
-      } else {
-        canvas.removeEventListener('click', clickListener)
-      }
-    }, [editorState.placementMode])
+    // useEffect(() => {
+    //   const placementMode = editorState.placementMode.value
+    //   const renderer = getComponent(renderers()[0], RendererComponent)
+    //   const canvas = renderer.canvas
+    //   if (placementMode === PlacementMode.CLICK) {
+    //     canvas.addEventListener('click', clickListener)
+    //   } else {
+    //     canvas.removeEventListener('click', clickListener)
+    //   }
+    // }, [editorState.placementMode])
 
     useEffect(() => {
       const parentEntity = getParentEntity()
@@ -207,8 +210,14 @@ export const ClickPlacementSystem = defineSystem({
     const clickState = getState(ClickPlacementState)
     const placementEntity = clickState.placementEntity
     if (!placementEntity) return
-    const buttons = InputSourceComponent.getMergedButtons()
-    const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+
+    //@todo: fix type of `typeof GroupComponent`
+    const sceneObjects: any[] = []
+    const candidates = objectLayerQuery()
+    for (const entity of candidates) {
+      const obj = getComponent(entity, GroupComponent)?.[0]
+      !!obj && sceneObjects.push(obj)
+    }
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const pointerScreenRaycaster = new Raycaster()
@@ -220,18 +229,33 @@ export const ClickPlacementSystem = defineSystem({
 
     const mouseEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
     if (!mouseEntity) return
+
+    const buttons = InputSourceComponent.getMergedButtons()
+    const axes = InputSourceComponent.getMergedAxes()
+
+    const zoom = axes[MouseScroll.VerticalScroll]
+
+    if (buttons.SecondaryClick?.pressed) {
+      clickState.maxDistance -= zoom
+    }
+
     if (buttons.KeyE?.up) {
       clickState.yawOffset += Math.PI / 4
     }
     if (buttons.KeyQ?.up) {
       clickState.yawOffset -= Math.PI / 4
     }
-    const mouse = getComponent(mouseEntity, InputPointerComponent).position
+    if (buttons.PrimaryClick?.up) {
+      clickListener()
+    }
+
+    const pointer = getComponent(mouseEntity, InputPointerComponent)
+    const mouse = pointer.position
     pointerScreenRaycaster.setFromCamera(mouse, camera) // Assuming 'camera' is your Three.js camera
     const cameraPosition = pointerScreenRaycaster.ray.origin
     const cameraDirection = pointerScreenRaycaster.ray.direction
     const physicsIntersection = physicsWorld.castRayAndGetNormal(new Ray(cameraPosition, cameraDirection), 1000, false)
-    if (physicsIntersection) {
+    if (physicsIntersection && physicsIntersection.toi < clickState.maxDistance) {
       const intersectPosition = cameraPosition
         .clone()
         .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
@@ -247,9 +271,10 @@ export const ClickPlacementSystem = defineSystem({
       }
     }
     const intersect = pointerScreenRaycaster.intersectObjects(sceneObjects, false)
-    if (intersect.length === 0 && !targetIntersection) return
+    //if (intersect.length === 0 && !targetIntersection) return
     for (let i = 0; i < intersect.length; i++) {
       const intersected = intersect[i]
+      if (intersected.distance > clickState.maxDistance) continue
       if (isPlacementDescendant(intersected.object.entity)) continue
       targetIntersection = {
         point: intersected.point,
@@ -257,7 +282,11 @@ export const ClickPlacementSystem = defineSystem({
       }
       break
     }
-    if (!targetIntersection || !placementEntity) return
+    if (!placementEntity) return
+    if (!targetIntersection) {
+      const point = cameraPosition.clone().add(cameraDirection.clone().multiplyScalar(clickState.maxDistance))
+      targetIntersection = { point, normal: new Vector3(0, 1, 0) }
+    }
     const position = targetIntersection.point
     let rotation = new Quaternion().setFromUnitVectors(new Vector3(), targetIntersection.normal ?? new Vector3(0, 1, 0))
     const offset = new Quaternion().setFromEuler(

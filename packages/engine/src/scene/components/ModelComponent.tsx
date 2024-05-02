@@ -247,7 +247,7 @@ function ModelReactor(): JSX.Element {
     }
     return () => {
       SceneState.unloadScene(uuid, false)
-      const children = getComponent(entity, EntityTreeComponent).children
+      const children = getOptionalComponent(entity, EntityTreeComponent)?.children ?? []
       for (const child of children) {
         removeEntity(child)
       }

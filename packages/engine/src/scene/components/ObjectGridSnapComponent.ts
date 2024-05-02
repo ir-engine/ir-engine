@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import ECS, { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -56,6 +56,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { ModelComponent } from './ModelComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
@@ -116,6 +117,17 @@ function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number)
   return result
 }
 
+function createHelperEntity(entity: Entity) {
+  const helper = createEntity()
+  setComponent(helper, NameComponent, 'helper')
+  setComponent(helper, VisibleComponent)
+  setComponent(helper, TransformComponent)
+  setComponent(helper, UUIDComponent, generateEntityUUID())
+  setComponent(helper, EntityTreeComponent, { parentEntity: entity })
+  setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper | ObjectLayers.Scene)
+  return helper
+}
+
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
@@ -135,18 +147,12 @@ export const ObjectGridSnapComponent = defineComponent({
     const entity = useEntityContext()
 
     const engineState = useState(getMutableState(EngineState))
+    const modelComponent = useOptionalComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
-      const helper = createEntity()
-      setComponent(helper, NameComponent, 'helper')
-      setComponent(helper, VisibleComponent)
-      setComponent(helper, TransformComponent)
-      setComponent(helper, UUIDComponent, generateEntityUUID())
-      setComponent(helper, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helper, ObjectLayerMaskComponent, ObjectLayers.NodeHelper | ObjectLayers.Scene)
-
+      const helper = createHelperEntity(entity)
       setComponent(entity, ObjectGridSnapComponent, { helper })
       return () => {
         const helper = getOptionalComponent(entity, ObjectGridSnapComponent)?.helper
@@ -195,13 +201,18 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, ObjectGridSnapComponent, {
         bbox
       })
-    }, [assetLoading])
+    }, [assetLoading, modelComponent?.scene])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
       const bbox = snapComponent.bbox.value
       const helperEntity = snapComponent.helper.value
       if (!helperEntity) return
+      if (!ECS.entityExists(helperEntity)) {
+        const helper = createHelperEntity(entity)
+        setComponent(entity, ObjectGridSnapComponent, { helper })
+        return
+      }
       const matrixWorld = getComponent(helperEntity, TransformComponent).matrixWorld
       const helperMesh = createBBoxGridHelper(new Matrix4().identity(), bbox, 2)
       addObjectToGroup(helperEntity, helperMesh)
