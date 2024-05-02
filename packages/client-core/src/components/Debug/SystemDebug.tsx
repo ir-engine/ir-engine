@@ -121,8 +121,19 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           </>
         )
       }}
-      shouldExpandNodeInitially={() => true}
+      shouldExpandNodeInitially={(keyName, data, level) => shouldExpandNode(data)}
     />
+  )
+}
+function shouldExpandNode(nodeData) {
+  const data = nodeData as SystemTree
+
+  // !data.postSystems is a shorthand for whether we're on a system node that contains all 3 (sub/pre/post systems)
+  return (
+    !data.postSystems ||
+    Object.keys(data.postSystems).length > 0 ||
+    Object.keys(data.preSystems).length > 0 ||
+    Object.keys(data.subSystems).length > 0
   )
 }
 
