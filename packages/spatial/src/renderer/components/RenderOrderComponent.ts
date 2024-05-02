@@ -28,18 +28,5 @@ import { Types } from 'bitecs'
 
 export const RenderOrderComponent = defineComponent({
   name: 'RenderOrderComponent',
-  schema: { renderOrder: Types.i32 },
-
-  onInit() {
-    return 0 as number
-  },
-
-  onSet(entity, component, renderOrder: number) {
-    RenderOrderComponent.renderOrder[entity] = renderOrder
-    component.set(renderOrder)
-  },
-
-  toJSON(entity, component) {
-    return component.value
-  }
+  schema: { renderOrder: Types.i32 }
 })

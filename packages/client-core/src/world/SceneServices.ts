@@ -50,7 +50,7 @@ export const SceneServices = {
       }
 
       return () => {
-        GLTFSourceState.unload(fileServer + '/' + sceneURL, gltfEntity)
+        GLTFSourceState.unload(gltfEntity)
       }
     }
 
