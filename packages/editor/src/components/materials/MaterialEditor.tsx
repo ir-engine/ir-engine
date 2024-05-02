@@ -145,6 +145,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   materialName.set(material.name)
   prototypeName.set(material.type)
 
+  const parameters = useHookstate(0)
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -205,7 +206,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             materialComponent.material.value!.uuid as EntityUUID,
             [{ [k]: prop }]
           )
-          materialComponent.parameters[k].set(prop)
+          parameters.set(parameters.value + 1)
+          if (materialComponent.parameters.value) materialComponent.parameters[k].set(prop)
         }}
         defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
