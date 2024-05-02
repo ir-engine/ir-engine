@@ -71,12 +71,6 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
     }
   })
 })
-const defaultParameters = {
-  exponent: 1,
-  distance: 1,
-  center: new Vector3(),
-  calculationType: ditherCalculationType.worldTransformed
-}
 export const TransparencyDitheringPlugin: PluginObjectType = {
   id: 'TransparencyDithering',
   priority: 10,

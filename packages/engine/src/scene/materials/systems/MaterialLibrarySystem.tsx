@@ -49,25 +49,6 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-// function MaterialReactor({ materialId }: { materialId: string }) {
-//   const materialLibrary = useState(getMutableState(MaterialLibraryState))
-//   const component = materialLibrary.materials[materialId]
-//   useEffect(() => {
-//     const material = component.material.value
-//     component.plugins.value.forEach((plugin) => {
-//       removeMaterialPlugin(material, plugin)
-//       applyMaterialPlugin(material, plugin)
-//     })
-//   }, [component.plugins])
-//   return null
-// }
-
-// function PluginReactor({ pluginId }: { pluginId: string }) {
-//   const materialLibrary = useState(getMutableState(MaterialLibraryState))
-//   const component = materialLibrary.plugins[pluginId]
-//   return null
-// }
-
 const reactor = (): ReactElement => {
   useEffect(() => {
     MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
@@ -75,27 +56,6 @@ const reactor = (): ReactElement => {
       createMaterialPlugin(plugin)
     })
   }, [])
-
-  // useEffect(() => {
-  //   const materialIds = materialLibrary.materials.keys
-  //   for (const materialId of materialIds) {
-  //     const component = materialLibrary.materials[materialId]
-  //     //if the material is missing, check if its prototype is present now
-  //     if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
-  //       //if the prototype is present, create the material
-  //       const material = component.material.get(NO_PROXY)
-  //       const parms = material.userData.args
-  //       const factory = protoIdToFactory(component.prototype.value)
-  //       const newMaterial = factory(parms)
-  //       replaceMaterial(material, newMaterial)
-  //       newMaterial.userData = material.userData
-  //       delete newMaterial.userData.args
-  //       const src = JSON.parse(JSON.stringify(component.src.value))
-  //       registerMaterial(newMaterial, src)
-  //       unregisterMaterial(material)
-  //     }
-  //   }
-  // }, [materialLibrary.prototypes])
 
   return (
     <>
@@ -111,18 +71,6 @@ const reactor = (): ReactElement => {
       />
     </>
   )
-
-  // const plugins = materialLibrary.plugins
-  // return (
-  //   <>
-  //     {materialLibrary.materials.keys.map((materialId) => (
-  //       <MaterialReactor key={materialId} materialId={materialId} />
-  //     ))}
-  //     {plugins.keys.map((pluginId) => (
-  //       <PluginReactor pluginId={pluginId} key={pluginId} />
-  //     ))}
-  //   </>
-  // )
 }
 
 const MaterialEntityReactor = () => {
