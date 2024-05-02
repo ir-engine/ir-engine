@@ -34,13 +34,14 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -80,8 +81,7 @@ export const ModelComponent = defineComponent({
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null,
-      loadState: true
+      asset: null as VRM | GLTF | null
     }
   },
 
@@ -119,15 +119,12 @@ export const ModelComponent = defineComponent({
 })
 
 function ModelReactor(): JSX.Element {
-  let entity = useEntityContext()
+  const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
-  const loadState = modelComponent.loadState
   const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
-  const child = getComponent(entity, EntityTreeComponent).children[0]
-  // entity=child
 
   useEffect(() => {
     if (!progress) return
@@ -196,7 +193,6 @@ function ModelReactor(): JSX.Element {
   // update scene
   useEffect(() => {
     const { scene, asset, src } = getComponent(entity, ModelComponent)
-    console.log('Model', scene)
     if (!scene || !asset) return
 
     /**hotfix for gltf animations being stored in the root and not scene property */
@@ -204,17 +200,6 @@ function ModelReactor(): JSX.Element {
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     const uuid = getModelSceneID(entity)
-
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
     if (renderer)
@@ -235,15 +220,17 @@ function ModelReactor(): JSX.Element {
         animations: scene.animations
       })
     }
-    //reparenting
-    if (loadState.value === true) {
+
+    const assettype = gltf.scene.userData.type
+    if (assettype === 'prefab') {
+      //reparenting
       const entityTreeComp = getComponent(entity, EntityTreeComponent)
-      if (!entityTreeComp) return
+
       const parentEntity = entityTreeComp.parentEntity
-      if (!parentEntity) return
+
       const children = entityTreeComp.children
       const parentEntityTreeComp = getComponent(parentEntity, EntityTreeComponent)
-      if (!parentEntityTreeComp) return
+
       for (const child of children) {
         const childTreeComp = getComponent(child, EntityTreeComponent)
         if (childTreeComp) {
@@ -251,17 +238,28 @@ function ModelReactor(): JSX.Element {
           parentEntityTreeComp.children.push(child)
         }
       }
-      const index = parentEntityTreeComp.children.indexOf(entity)
-      if (index > -1) {
-        parentEntityTreeComp.children.splice(index, 1)
-      }
 
-      removeEntity(entity)
-      //removeEntityNodeRecursively(entity)
+      //dereference model with current entity
+      removeComponent(entity, SourceComponent)
+      //const modelComponent = getComponent(entity, ModelComponent)
+      // modelComponent.src=''
+      // modelComponent.asset=null
+      // modelComponent.scene=null
     }
+    SceneState.loadScene(uuid, {
+      scene: {
+        entities: loadedJsonHierarchy,
+        root: getComponent(entity, UUIDComponent),
+        version: 0
+      },
+      name: '',
+      project: '',
+      thumbnailUrl: ''
+    })
 
     return () => {
       SceneState.unloadScene(uuid, false)
+
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return
       for (const child of children) {
@@ -271,6 +269,7 @@ function ModelReactor(): JSX.Element {
   }, [modelComponent.scene])
 
   const sceneInstanceID = useModelSceneID(entity)
+
   const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
 
   return (
@@ -302,7 +301,15 @@ export const useMeshOrModel = (entity: Entity) => {
   const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
 }
+export const dereferenceModel = (entity: Entity) => {
+  const modelComponent = getComponent(entity, ModelComponent)
+  const asset = modelComponent.asset
+  if (asset?.userData) {
+    const sceneInstanceID = getModelSceneID(entity)
+  }
 
+  removeComponent(entity, ModelComponent)
+}
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
   const ModelReactor = () => {
     const entity = useEntityContext()
