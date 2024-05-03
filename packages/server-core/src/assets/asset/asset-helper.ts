@@ -23,25 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { AssetType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
+const logger = multiLogger.child({ component: 'server-core:asset-helper' })
+
 export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Application) => {
+  logger.info('ASSETS 1', projects)
   const now = await getDateTimeSql()
   const storageProvider = getStorageProvider()
 
   const sceneJSONAssetsData = (
     await Promise.all(
       projects.map(async (project) => {
-        const projectPath = `/projects/${project.name}/`
+        const projectPath = `/projects/${project.name}`
+        logger.info('ASSETS 1.1', projectPath)
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
+        logger.info('ASSETS 1.2', projectAssets)
         const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
+        logger.info('ASSETS 1.3', assets)
         const sceneJSONAssets = projectAssets.filter(
           (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
         )
+        logger.info('ASSETS 1.4', sceneJSONAssets)
         if (!sceneJSONAssets.length) return
         return sceneJSONAssets.map((asset) => ({
           id: v4(),
@@ -56,6 +64,8 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
   )
     .flat()
     .filter(Boolean)
+
+  logger.info('ASSETS 2', sceneJSONAssetsData)
 
   if (!sceneJSONAssetsData.length) return
 
