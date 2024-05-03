@@ -23,11 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { MaterialSource } from './MaterialSource'
+import { MeshBasicMaterial as Basic } from 'three'
 
-export type MaterialPluginType = {
-  plugin: PluginObjectType
-  parameters: Record<string, any>
-  src: MaterialSource
+import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../constants/BasicArgs'
+import { TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
+export const MeshBasicArguments = {
+  ...BasicArgs,
+  ...EmissiveMapArgs,
+  ...LightMapArgs,
+  ...AoMapArgs,
+  ...EnvMapArgs,
+  specularMap: TextureArg
 }
+
+export const MeshBasicMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshBasicMaterial',
+  prototypeConstructor: Basic,
+  arguments: MeshBasicArguments
+}
+
+export default MeshBasicMaterial
