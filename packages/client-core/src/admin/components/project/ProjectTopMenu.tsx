@@ -29,7 +29,7 @@ import config from '@etherealengine/common/src/config'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
 import { AuthState } from '../../../user/services/AuthService'
@@ -39,25 +39,6 @@ import UpdateEngineModal from './UpdateEngineModal'
 export default function ProjectTopMenu() {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
-
-  ProjectService.useAPIListeners()
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null
-
-    ProjectService.checkReloadStatus()
-
-    if (projectState.rebuilding.value) {
-      interval = setInterval(ProjectService.checkReloadStatus, 10000)
-    } else {
-      if (interval) clearInterval(interval)
-      ProjectService.fetchProjects()
-    }
-
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [projectState.rebuilding.value])
 
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
