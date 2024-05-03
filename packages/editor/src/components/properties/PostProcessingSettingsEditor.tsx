@@ -253,11 +253,11 @@ const EffectsOptions: Partial<EffectOptionsType> = {
   },
   LUT1DEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' }
+    lutPath: { propertyType: PropertyTypes.Texture, name: 'LUT' }
   },
   LUT3DEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    lut: { propertyType: PropertyTypes.Texture, name: 'LUT' },
+    lutPath: { propertyType: PropertyTypes.Texture, name: 'LUT' },
     inputColorSpace: { propertyType: PropertyTypes.ColorSpace, name: 'Input Color Space' }
   },
   MotionBlurEffect: {
