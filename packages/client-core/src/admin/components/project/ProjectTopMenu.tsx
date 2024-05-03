@@ -45,6 +45,8 @@ export default function ProjectTopMenu() {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null
 
+    ProjectService.checkReloadStatus()
+
     if (projectState.rebuilding.value) {
       interval = setInterval(ProjectService.checkReloadStatus, 10000)
     } else {
