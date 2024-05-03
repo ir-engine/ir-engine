@@ -90,7 +90,7 @@ export const loadResource = <T extends ResourceAssetType>(
       onProgress(request)
     },
     (error) => {
-      console.error(`ResourceManager:load error loading ${resourceType} at url ${url} for entity ${entity}`, error)
+      console.warn(`ResourceManager:load error loading ${resourceType} at url ${url} for entity ${entity}`, error)
       if (resource && resource.value) {
         resource.status.set(ResourceStatus.Error)
         callbacks.onError(error, resource)
