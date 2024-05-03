@@ -49,15 +49,14 @@ import {
   instanceAttendancePath,
   instancePath,
   locationPath,
-  scenePath,
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -72,8 +71,8 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -302,26 +301,13 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(assetPath).get(sceneId, { headers })
       const sceneURL = scene.assetURL
-      const isGLTF = sceneURL.endsWith('.gltf')
-      if (isGLTF) {
-        GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL)
-      } else {
-        const storage = getStorageProvider()
-        const sceneJSONBuffer = await storage.getCachedObject(sceneURL)
-        const sceneJSON = JSON.parse(sceneJSONBuffer.Body.toString()) as SceneJsonType
-        SceneState.loadScene(sceneURL, {
-          scene: parseStorageProviderURLs(sceneJSON),
-          name: sceneURL.split('/')[2],
-          thumbnailUrl: `${commonConfig.client.fileServer}/${sceneURL.replace('.scene.json', '.thumbnail.jpg')}`,
-          project: sceneURL.split('/')[1]
-        })
-      }
+      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL, scene.id as EntityUUID)
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
-
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(SceneState).sceneLoaded) {
+          if (getComponent(gltfEntity, GLTFComponent).progress === 100) {
             clearInterval(interval)
             resolve()
           }
@@ -329,7 +315,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       })
     }
 
-    app.service(scenePath).on('updated', sceneUpdatedListener)
+    app.service(assetPath).on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')

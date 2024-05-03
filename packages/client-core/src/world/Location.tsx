@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -60,7 +58,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
+      {/* {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />} */}
       <LocationIcons />
     </>
   )

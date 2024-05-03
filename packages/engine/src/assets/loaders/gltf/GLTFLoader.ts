@@ -38,9 +38,7 @@ import {
 } from 'three'
 
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { GLTF as GLTFDocument } from '@gltf-transform/core'
-import { GLTFDocumentState, GLTFSnapshotAction } from '../../../scene/GLTFDocumentState'
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 import { DRACOLoader } from './DRACOLoader'
@@ -172,28 +170,6 @@ export class GLTFLoader extends Loader {
       scope.manager.itemEnd(url)
     }
 
-    /** If we alraedy have this document loaded, load the current version of it */
-    const gltfState = getState(GLTFDocumentState)[url]
-    if (gltfState) {
-      try {
-        scope.parse(
-          gltfState,
-          resourcePath,
-          function (gltf) {
-            onLoad(gltf)
-
-            scope.manager.itemEnd(url)
-          },
-          _onError,
-          url,
-          {}
-        )
-      } catch (e) {
-        _onError(e)
-      }
-      return
-    }
-
     const loader = new FileLoader(this.manager)
 
     loader.setPath(this.path)
@@ -228,14 +204,6 @@ export class GLTFLoader extends Loader {
         } else {
           json = data
         }
-
-        /** Add snapshot only off network load */
-        dispatchAction(
-          GLTFSnapshotAction.createSnapshot({
-            source: url,
-            data: json
-          })
-        )
 
         try {
           scope.parse(
