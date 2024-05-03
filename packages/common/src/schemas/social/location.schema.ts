@@ -50,6 +50,9 @@ export const locationSchema = Type.Object(
     }),
     name: Type.String(),
     sceneId: Type.String(),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     slugifiedName: Type.String(),
     /** @todo review */
     isLobby: Type.Boolean(),
@@ -73,7 +76,7 @@ export interface LocationDatabaseType
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(
   locationSchema,
-  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
+  ['name', 'sceneId', 'projectId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
   {
     $id: 'LocationData'
   }
@@ -91,6 +94,7 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
   'id',
   'name',
   'sceneId',
+  'projectId',
   'slugifiedName',
   'isLobby',
   'isFeatured',
