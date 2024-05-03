@@ -103,12 +103,6 @@ export const ImageComponent = defineComponent({
     if (typeof json.projection === 'string' && json.projection !== component.projection.value)
       component.projection.set(json.projection)
     if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
-
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    // if (!getState(SceneState).sceneLoaded && hasComponent(entity, SourceComponent))
-    //   SceneAssetPendingTagComponent.addResource(entity, ImageComponent.jsonID)
   },
 
   errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
@@ -159,20 +153,17 @@ export function ImageReactor() {
   useEffect(() => {
     if (!error) return
     addError(entity, ImageComponent, `LOADING_ERROR`, error.message)
-    // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
   }, [error])
 
   useEffect(() => {
     if (!image.source.value) {
       addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
       return
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
     if (assetType !== AssetClass.Image) {
       addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
-      // SceneAssetPendingTagComponent.removeResource(entity, ImageComponent.jsonID)
     }
   }, [image.source])
 

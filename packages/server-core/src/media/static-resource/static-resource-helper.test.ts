@@ -72,12 +72,12 @@ describe('static-resource-helper', () => {
     })
 
     it('should return the url if the url is a file path', async () => {
-      const url = path.join(appRootPath.path, 'packages/projects/default-project/default.scene.json')
-      const name = 'default.scene.json'
+      const url = path.join(appRootPath.path, 'packages/projects/default-project/default.gltf')
+      const name = 'default.gltf'
       const res = await downloadResourceAndMetadata(url)
       assert(res.buffer)
       assert.equal(res.originalname, name)
-      assert.equal(res.mimetype, 'application/json')
+      assert.equal(res.mimetype, 'model/gltf')
       assert(res.size)
     })
   })
