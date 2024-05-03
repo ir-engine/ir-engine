@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
@@ -56,9 +56,7 @@ const PlayModeTool = () => {
   const authState = useHookstate(getMutableState(AuthState))
 
   const sceneEntity = useHookstate(getMutableState(EditorState).rootEntity)
-  const loadingProgress = getComponent(sceneEntity.value, GLTFComponent)
-
-  console.log(loadingProgress)
+  const gltfComponent = getOptionalComponent(sceneEntity.value, GLTFComponent)
 
   const onTogglePlayMode = () => {
     const entity = AvatarComponent.getSelfAvatarEntity()
@@ -106,7 +104,7 @@ const PlayModeTool = () => {
         }
       >
         <button
-          disabled={loadingProgress?.progress < 100}
+          disabled={gltfComponent ? gltfComponent?.progress < 100 : false}
           onClick={onTogglePlayMode}
           className={styles.toolButton + ' ' + (isEditing.value ? '' : styles.selected)}
         >
