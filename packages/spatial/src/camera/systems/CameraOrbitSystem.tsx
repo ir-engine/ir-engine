@@ -24,7 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineQuery, defineSystem, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
@@ -127,10 +134,11 @@ const execute = () => {
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group = getComponent(object, GroupComponent)
-          for (const obj of group) {
-            box.expandByObject(obj)
-          }
+          const group = getOptionalComponent(object, GroupComponent)
+          if (group)
+            for (const obj of group) {
+              box.expandByObject(obj)
+            }
         }
         if (box.isEmpty()) {
           const entity = cameraOrbit.focusedEntities[0].value

@@ -30,8 +30,7 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
@@ -56,7 +55,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
 import { Box3, BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 
 function createBBoxGridHelper(matrixWorld: Matrix4, bbox: Box3, density: number): LineSegments {
   const lineSegmentList: Vector3[] = []
@@ -137,7 +135,6 @@ export const ObjectGridSnapComponent = defineComponent({
     const engineState = useState(getMutableState(EngineState))
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
-    const assetLoading = useOptionalComponent(entity, SceneAssetPendingTagComponent)
     useEffect(() => {
       const helper = createEntity()
       setComponent(helper, NameComponent, 'helper')
@@ -155,7 +152,6 @@ export const ObjectGridSnapComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      if (assetLoading?.value) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -195,7 +191,7 @@ export const ObjectGridSnapComponent = defineComponent({
       setComponent(entity, ObjectGridSnapComponent, {
         bbox
       })
-    }, [assetLoading])
+    }, [])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return

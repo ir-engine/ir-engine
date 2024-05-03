@@ -58,17 +58,17 @@ describe('asset.test', () => {
       const storageProvider = getStorageProvider()
 
       const addedSceneData = await app.service(assetPath).create({ project: projectName })
-      assert.equal(addedSceneData.assetURL, 'projects/' + projectName + '/New-Scene.scene.json')
+      assert.equal(addedSceneData.assetURL, 'projects/' + projectName + '/New-Scene.gltf')
       assert.equal(addedSceneData.projectId, project.id)
-      assert(storageProvider.doesExist('New-Scene.scene.json', 'projects/' + projectName))
+      assert(storageProvider.doesExist('New-Scene.gltf', 'projects/' + projectName))
 
       const secondAddedSceneData = await app.service(assetPath).create({ project: projectName })
-      assert.equal(secondAddedSceneData.assetURL, 'projects/' + projectName + '/New-Scene-1.scene.json')
+      assert.equal(secondAddedSceneData.assetURL, 'projects/' + projectName + '/New-Scene-1.gltf')
       assert.equal(addedSceneData.projectId, project.id)
-      assert(storageProvider.doesExist('New-Scene-1.scene.json', 'projects/' + projectName))
+      assert(storageProvider.doesExist('New-Scene-1.gltf', 'projects/' + projectName))
 
       if (isDev) {
-        assert(fs.existsSync('projects/' + projectName + '/New-Scene.scene.json'))
+        assert(fs.existsSync('projects/' + projectName + '/New-Scene.gltf'))
       }
     })
 
@@ -83,12 +83,12 @@ describe('asset.test', () => {
       const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
       const data = queryResult.data[0]
       const updatedData = await app.service(assetPath).patch(data.id, { name: 'Updated-Scene' }, params)
-      assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.scene.json')
+      assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.gltf')
       const storageProvider = getStorageProvider()
-      assert(storageProvider.doesExist('Updated-Scene.scene.json', 'projects/' + projectName))
+      assert(storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName))
       if (isDev) {
-        assert(!fs.existsSync('projects/' + projectName + '/New-Scene.scene.json'))
-        assert(fs.existsSync('projects/' + projectName + '/Updated-Scene.scene.json'))
+        assert(!fs.existsSync('projects/' + projectName + '/New-Scene.gltf'))
+        assert(fs.existsSync('projects/' + projectName + '/Updated-Scene.gltf'))
       }
     })
 
@@ -98,9 +98,9 @@ describe('asset.test', () => {
       await app.service(assetPath).remove(data.id, params)
       assert.rejects(async () => await app.service(assetPath).get(data.id, params))
       const storageProvider = getStorageProvider()
-      assert(!(await storageProvider.doesExist('Updated-Scene.scene.json', 'projects/' + projectName)))
+      assert(!(await storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName)))
       if (isDev) {
-        assert(!fs.existsSync('projects/' + projectName + '/Updated-Scene.scene.json'))
+        assert(!fs.existsSync('projects/' + projectName + '/Updated-Scene.gltf'))
       }
     })
   })
