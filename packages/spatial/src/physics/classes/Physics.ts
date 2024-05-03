@@ -257,6 +257,12 @@ function removeRigidbody(entity: Entity, world: World) {
   }
 }
 
+function applyImpulse(entity: Entity, impulse: Vector3) {
+  const rigidBody = Rigidbodies.get(entity)
+  if (!rigidBody) return
+  rigidBody.applyImpulse(impulse, true)
+}
+
 function createColliderDesc(entity: Entity, rootEntity: Entity) {
   const mesh = getOptionalComponent(entity, MeshComponent)
 
@@ -688,6 +694,7 @@ export const Physics = {
   updatePreviousRigidbodyPose,
   updateRigidbodyPose,
   setKinematicRigidbodyPose,
+  applyImpulse,
   /** Colliders */
   createColliderDesc,
   attachCollider,
