@@ -55,6 +55,7 @@ export interface SceneSnapshotInterface {
   data: SceneJsonType
 }
 
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
@@ -108,6 +109,7 @@ export const SceneState = defineState({
   }
 })
 
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export class SceneSnapshotAction {
   static createSnapshot = defineAction({
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
@@ -138,7 +140,7 @@ export class SceneSnapshotAction {
   })
 }
 
-/**@todo rename to GLTFSnapshotState */
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export const SceneSnapshotState = defineState({
   name: 'SceneSnapshotState',
   initial: {} as Record<

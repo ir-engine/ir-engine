@@ -27,10 +27,12 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, useComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -41,7 +43,7 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveSceneGLTF, saveSceneJSON, setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -86,8 +88,12 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
 }
 
 const SceneLoadingProgress = () => {
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress).value
+  const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
+  const progress = useComponent(rootEntity, GLTFComponent).progress.value
+  const resourcePendingQuery = useQuery([ResourcePendingComponent])
+
+  if (progress === 100) return null
+
   return (
     <div style={{ top: '50px', position: 'relative' }}>
       <div
@@ -110,7 +116,7 @@ const SceneLoadingProgress = () => {
             padding: '16px'
           }}
         >
-          {`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+          {`Scene Loading... ${progress}% - ${resourcePendingQuery.length} assets left`}
         </div>
         <CircularProgress />
       </div>
@@ -161,13 +167,7 @@ const onCloseProject = () => {
 
 const onSaveAs = async () => {
   const { sceneAssetID, projectName, sceneName } = getState(EditorState)
-  const { sceneLoaded, sceneModified } = getState(SceneState)
-
-  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-  if (!sceneLoaded) {
-    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-    return
-  }
+  const { sceneModified } = getState(SceneState)
 
   const abortController = new AbortController()
   try {
@@ -177,7 +177,7 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveSceneJSON(sceneAssetID, projectName, result.name, abortController.signal)
+        await saveSceneGLTF(sceneAssetID, projectName, result.name, abortController.signal)
         getMutableState(SceneState).sceneModified.set(false)
         const newSceneData = await Engine.instance.api
           .service(assetPath)
@@ -209,17 +209,11 @@ const onImportAsset = async () => {
   }
 }
 
-const onSaveScene = async (gltf = false) => {
+const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName } = getState(EditorState)
-  const { sceneModified, sceneLoaded } = getState(SceneState)
+  const { sceneModified } = getState(SceneState)
 
   if (!projectName) return
-
-  // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
-  if (!sceneLoaded) {
-    DialogState.setDialog(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
-    return
-  }
 
   if (!sceneName) {
     if (sceneModified) {
@@ -254,11 +248,7 @@ const onSaveScene = async (gltf = false) => {
   await new Promise((resolve) => setTimeout(resolve, 5))
 
   try {
-    if (gltf) {
-      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
-    } else {
-      await saveSceneJSON(sceneAssetID, projectName, sceneName, abortController.signal)
-    }
+    await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
 
     getMutableState(SceneState).sceneModified.set(false)
 
@@ -279,14 +269,10 @@ const generateToolbarMenu = () => {
       action: onNewScene
     },
     {
-      name: t('editor:menubar.saveSceneJSON'),
+      name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: () => onSaveScene(false)
+      action: () => onSaveScene()
     },
-    // {
-    //   name: t('editor:menubar.saveSceneGLTF'),
-    //   action: () => onSaveScene(true)
-    // },
     {
       name: t('editor:menubar.saveAs'),
       action: onSaveAs
@@ -364,12 +350,10 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
   const { sceneLoaded, sceneModified } = useHookstate(getMutableState(SceneState))
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
-
-  const sceneLoading = scenePath.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -428,7 +412,7 @@ const EditorContainer = () => {
     sceneName.set(scene ?? null)
     projectName.set(project ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(sceneURL)
+    return setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
   }, [sceneURL])
 
   useEffect(() => {
@@ -460,7 +444,7 @@ const EditorContainer = () => {
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
           <ControlText />
-          {sceneLoading && <SceneLoadingProgress />}
+          {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} />}
           <div className={styles.workspaceContainer}>
             <AssetDropZone />
             <DockContainer>

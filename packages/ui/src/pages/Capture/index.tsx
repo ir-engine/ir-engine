@@ -32,7 +32,6 @@ import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/u
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -51,14 +50,18 @@ import { useWorldNetwork } from '@etherealengine/client-core/src/common/services
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
-import { RecordingID, StaticResourceType, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  RecordingID,
+  StaticResourceType,
+  assetPath,
+  recordingPath
+} from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   defineState,
   dispatchAction,
@@ -491,6 +494,7 @@ const PlaybackMode = () => {
   const locationState = useHookstate(getMutableState(LocationState))
 
   const recording = useGet(recordingPath, recordingID.value!)
+  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     recording.refetch()
@@ -501,17 +505,16 @@ const PlaybackMode = () => {
    * @todo - wait until scene has loaded to start playback
    */
   useEffect(() => {
-    const scenePath = locationState.currentLocation.location.sceneId.value
-    if (!scenePath) return
-    const cleanup = SceneServices.setCurrentScene(scenePath)
-    return () => {
-      cleanup()
-      // hack
-      getMutableState(SceneState).sceneLoaded.set(false)
-    }
-  }, [locationState])
-
-  useLocationSpawnAvatarWithDespawn()
+    if (
+      !locationState.currentLocation.location.sceneId.value ||
+      locationState.invalidLocation.value ||
+      locationState.currentLocation.selfNotAuthorized.value ||
+      !scene
+    )
+      return
+    const sceneURL = scene.assetURL
+    return SceneServices.setCurrentScene(sceneURL, scene.id)
+  }, [scene])
 
   const ActiveRecording = () => {
     const data = recording.data!
