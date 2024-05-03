@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -61,7 +61,6 @@ import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SourceComponent } from './SourceComponent'
 
 /**
@@ -99,17 +98,6 @@ export const ModelComponent = defineComponent({
       component.cameraOcclusion.set(!(json as any).avoidCameraOcclusion)
     if (typeof json.cameraOcclusion === 'boolean') component.cameraOcclusion.set(json.cameraOcclusion)
     if (typeof json.convertToVRM === 'boolean') component.convertToVRM.set(json.convertToVRM)
-
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SourceComponent) &&
-      component.src.value &&
-      !component.asset.value
-    )
-      SceneAssetPendingTagComponent.addResource(entity, ModelComponent.jsonID)
   },
 
   errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
@@ -117,32 +105,19 @@ export const ModelComponent = defineComponent({
   reactor: ModelReactor
 })
 
-function ModelReactor(): JSX.Element {
+function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
-  const [gltf, error, progress] = useGLTF(modelComponent.src.value, entity, {
+  const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
 
   useEffect(() => {
-    if (!progress) return
-    if (hasComponent(entity, SceneAssetPendingTagComponent))
-      SceneAssetPendingTagComponent.loadingProgress.merge({
-        [entity]: {
-          loadedAmount: progress.loaded,
-          totalAmount: progress.total
-        }
-      })
-  }, [progress])
-
-  useEffect(() => {
     if (!error) return
-
     console.error(error)
     addError(entity, ModelComponent, 'INVALID_SOURCE', error.message)
-    SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
   }, [error])
 
   useEffect(() => {
@@ -216,14 +191,9 @@ function ModelReactor(): JSX.Element {
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
     if (renderer)
-      renderer.renderer
-        .compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent))
-        .catch(() => {
-          addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
-        })
-        .finally(() => {
-          SceneAssetPendingTagComponent.removeResource(entity, ModelComponent.jsonID)
-        })
+      renderer.renderer.compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent)).catch(() => {
+        addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
+      })
 
     const gltf = asset as GLTF
     if (gltf.animations?.length) scene.animations = gltf.animations
@@ -243,23 +213,6 @@ function ModelReactor(): JSX.Element {
     }
   }, [modelComponent.scene])
 
-  const sceneInstanceID = useModelSceneID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
-
-  return (
-    <>
-      {childEntities.value?.map((childEntity: Entity) => (
-        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
-      ))}
-    </>
-  )
-}
-
-const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
-  useEffect(() => {
-    SceneAssetPendingTagComponent.removeResource(props.entity, `${props.parentEntity}`)
-    SceneAssetPendingTagComponent.removeResource(props.parentEntity, ModelComponent.jsonID)
-  }, [])
   return null
 }
 
