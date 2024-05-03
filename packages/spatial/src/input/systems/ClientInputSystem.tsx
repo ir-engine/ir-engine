@@ -119,8 +119,8 @@ export function updateGamepadInput(eid: Entity) {
 
 const pointers = defineQuery([InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)])
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
-const inputSources = defineQuery([InputSourceComponent, TransformComponent])
-const nonSpatialInputSources = defineQuery([InputSourceComponent])
+const spatialInputSourceQuery = defineQuery([InputSourceComponent, TransformComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 const inputs = defineQuery([InputComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
@@ -193,7 +193,7 @@ const execute = () => {
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent)
-  for (const sourceEid of inputSources()) {
+  for (const sourceEid of spatialInputSourceQuery()) {
     const intersectionData = [] as {
       entity: Entity
       distance: number
@@ -270,7 +270,7 @@ const execute = () => {
     }
   }
 
-  for (const sourceEid of nonSpatialInputSources()) {
+  for (const sourceEid of inputSourceQuery()) {
     updateGamepadInput(sourceEid)
   }
 }
@@ -571,7 +571,7 @@ const cleanupInputs = () => {
 
   const hasFocus = document.hasFocus()
 
-  for (const eid of nonSpatialInputSources()) {
+  for (const eid of inputSourceQuery()) {
     const source = getComponent(eid, InputSourceComponent)
     for (const key in source.buttons) {
       cleanupButton(key, source.buttons, hasFocus)
