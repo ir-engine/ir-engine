@@ -46,6 +46,7 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -90,9 +91,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (!entity || (!xrFrame && !additionalMovement)) return
 
   const colliderEntity = getComponent(entity, AvatarColliderComponent).colliderEntity
-  const bodyCollider = getComponent(colliderEntity, ColliderComponent)?.collider
-  /** @todo remove this check when physics API is fleshed out */
-  if (!bodyCollider) return
+  const bodyCollider = getComponent(colliderEntity, ColliderComponent)
 
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
@@ -136,10 +135,14 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (additionalMovement) desiredMovement.add(additionalMovement)
 
-  const avatarCollisionGroups = bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
+  const avatarCollisionGroups = getInteractionGroups(
+    bodyCollider.collisionLayer & ~CollisionGroups.Trigger,
+    bodyCollider.collisionMask
+  )
 
-  controller.controller.computeColliderMovement(
-    bodyCollider,
+  Physics.computeColliderMovement(
+    controller.controller,
+    colliderEntity,
     desiredMovement,
     QueryFilterFlags.EXCLUDE_SENSORS,
     avatarCollisionGroups
@@ -388,7 +391,8 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.previousPosition.copy(rigidbody.targetKinematicPosition)
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
-  rigidbody.body.setTranslation(rigidbody.targetKinematicPosition, true)
+  Physics.setKinematicRigidbodyPose(entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
+  delete TransformComponent.dirtyTransforms[entity]
 }
 
 const viewerQuat = new Quaternion()

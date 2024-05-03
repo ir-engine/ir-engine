@@ -25,27 +25,29 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '@etherealengine/network'
+import { findAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
+import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent,
   RigidBodyKinematicTagComponent
 } from '../components/RigidBodyComponent'
+import { TriggerComponent } from '../components/TriggerComponent'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
@@ -67,12 +69,13 @@ export function smoothKinematicBody(entity: Entity, dt: number, substep: number)
     rigidbodyComponent.position.lerp(rigidbodyComponent.targetKinematicPosition, alpha)
     rigidbodyComponent.rotation.fastSlerp(rigidbodyComponent.targetKinematicRotation, alpha)
   }
-  if (!rigidbodyComponent.body) return
-  rigidbodyComponent.body.setNextKinematicTranslation(rigidbodyComponent.position)
-  rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
+  Physics.setKinematicRigidbodyPose(entity, rigidbodyComponent.position, rigidbodyComponent.rotation)
 }
 
-const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
+const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
+const rigidbodyQuery = defineQuery([RigidBodyComponent])
+const colliderQuery = defineQuery([ColliderComponent])
+const triggerQuery = defineQuery([TriggerComponent])
 const collisionQuery = defineQuery([CollisionComponent])
 
 const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
@@ -84,22 +87,41 @@ const execute = () => {
   const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
   if (!physicsWorld) return
 
-  const allRigidBodies = allRigidBodyQuery()
+  const allRigidBodies = nonFixedRigidbodyQuery()
 
-  for (const entity of allRigidBodies) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-    const body = rigidBody.body
-    if (!body) continue
-    const translation = body.translation() as Vector3
-    const rotation = body.rotation() as Quaternion
-    RigidBodyComponent.previousPosition.x[entity] = translation.x
-    RigidBodyComponent.previousPosition.y[entity] = translation.y
-    RigidBodyComponent.previousPosition.z[entity] = translation.z
-    RigidBodyComponent.previousRotation.x[entity] = rotation.x
-    RigidBodyComponent.previousRotation.y[entity] = rotation.y
-    RigidBodyComponent.previousRotation.z[entity] = rotation.z
-    RigidBodyComponent.previousRotation.w[entity] = rotation.w
+  for (const entity of rigidbodyQuery.enter()) {
+    Physics.createRigidBody(entity, physicsWorld)
+    // ensure all colliders are attached to rigidbodies
+    iterateEntityNode(
+      entity,
+      (child) => {
+        const colliderDesc = Physics.createColliderDesc(child, entity)
+        Physics.attachCollider(physicsWorld, colliderDesc, entity)
+      },
+      (entity) => hasComponent(entity, ColliderComponent)
+    )
   }
+  for (const entity of rigidbodyQuery.exit()) {
+    Physics.removeRigidbody(entity, physicsWorld)
+  }
+  for (const entity of colliderQuery.enter()) {
+    const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+    if (ancestor) {
+      const colliderDesc = Physics.createColliderDesc(entity, ancestor)
+      Physics.attachCollider(physicsWorld, colliderDesc, ancestor)
+    } // else case covered in above rigidbody queries
+  }
+  for (const entity of colliderQuery.exit()) {
+    Physics.removeCollider(physicsWorld, entity)
+  }
+  for (const entity of triggerQuery.enter()) {
+    Physics.setTrigger(entity, true)
+  }
+  for (const entity of triggerQuery.exit()) {
+    Physics.setTrigger(entity, false)
+  }
+
+  Physics.updatePreviousRigidbodyPose(allRigidBodies)
 
   const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
 
@@ -150,28 +172,7 @@ const execute = () => {
     }
   }
 
-  for (const entity of allRigidBodies) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
-    const body = rigidBody.body
-    if (!body) continue
-    const translation = body.translation() as Vector3
-    const rotation = body.rotation() as Quaternion
-    const linvel = body.linvel() as Vector3
-    const angvel = body.angvel() as Vector3
-    RigidBodyComponent.position.x[entity] = translation.x
-    RigidBodyComponent.position.y[entity] = translation.y
-    RigidBodyComponent.position.z[entity] = translation.z
-    RigidBodyComponent.rotation.x[entity] = rotation.x
-    RigidBodyComponent.rotation.y[entity] = rotation.y
-    RigidBodyComponent.rotation.z[entity] = rotation.z
-    RigidBodyComponent.rotation.w[entity] = rotation.w
-    RigidBodyComponent.linearVelocity.x[entity] = linvel.x
-    RigidBodyComponent.linearVelocity.y[entity] = linvel.y
-    RigidBodyComponent.linearVelocity.z[entity] = linvel.z
-    RigidBodyComponent.angularVelocity.x[entity] = angvel.x
-    RigidBodyComponent.angularVelocity.y[entity] = angvel.y
-    RigidBodyComponent.angularVelocity.z[entity] = angvel.z
-  }
+  Physics.updateRigidbodyPose(allRigidBodies)
 
   for (const collisionEntity of collisionQuery()) {
     const collisionComponent = getComponent(collisionEntity, CollisionComponent)
