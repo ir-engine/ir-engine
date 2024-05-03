@@ -28,8 +28,7 @@
   "loadingScenes": "Loading Scenes",
   "menubar": {
     "newScene": "New Scene",
-    "saveSceneJSON": "Save Scene JSON",
-    "saveSceneGLTF": "Save Scene GLTF",
+    "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
