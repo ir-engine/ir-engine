@@ -232,11 +232,14 @@ export async function checkForDuplicatedAssignments({
     await app.service(instancePath).patch(null, { ended: true }, { query, headers })
   }
 
+  const locationData = await app.service(locationPath).get(locationId as LocationID)
+
   //Create an assigned instance at this IP
   const assignResult: any = (await app.service(instancePath).create(
     {
       ipAddress: ipAddress,
       locationId: locationId as LocationID,
+      projectId: locationData.projectId,
       podName: podName,
       channelId: channelId,
       assigned: true,

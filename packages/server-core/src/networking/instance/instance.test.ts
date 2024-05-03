@@ -48,6 +48,7 @@ describe('instance.test', () => {
     testInstance = {
       id: '' as InstanceID,
       locationId: testLocation.id as LocationID,
+      projectId: testLocation.projectId,
       roomCode: '' as RoomCode,
       currentUsers: 0,
       ended: false,
@@ -67,6 +68,7 @@ describe('instance.test', () => {
   it('should create an instance', async () => {
     const instance = (await app.service(instancePath).create({
       locationId: testLocation.id as LocationID,
+      projectId: testInstance.projectId,
       roomCode: testInstance.roomCode as RoomCode,
       currentUsers: testInstance.currentUsers
     })) as InstanceType
