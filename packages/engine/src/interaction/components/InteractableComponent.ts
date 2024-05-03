@@ -29,6 +29,7 @@ import {
   Entity,
   EntityUUID,
   getComponent,
+  getMutableComponent,
   removeComponent,
   removeEntity,
   setComponent,
@@ -75,11 +76,12 @@ export enum XRUIActivationType {
  */
 const addInteractableUI = (entity: Entity) => {
   if (!isClient || getMutableState(EngineState).isEditing.value) return //no xrui in editor
-  const interactable = getComponent(entity, InteractableComponent)
-  if (!interactable.label || interactable.label === '' || interactable.uiEntity != UndefinedEntity) return //null or empty label = no ui
+  const interactable = getMutableComponent(entity, InteractableComponent)
+  if (!interactable.label.value || interactable.label.value === '' || interactable.uiEntity.value != UndefinedEntity)
+    return //null or empty label = no ui
 
-  interactable.uiEntity = createUI(entity, interactable.label, interactable.uiInteractable).entity
-  setComponent(interactable.uiEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+  interactable.uiEntity.set(createUI(entity, interactable.label.value, interactable.uiInteractable.value).entity)
+  setComponent(interactable.uiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
   const transition = createTransitionState(0.25)
   transition.setState('OUT')
@@ -88,11 +90,11 @@ const addInteractableUI = (entity: Entity) => {
 
 const removeInteractableUI = (entity: Entity) => {
   if (!isClient || !getMutableState(EngineState).isEditing.value) return //no xrui in editor
-  const interactable = getComponent(entity, InteractableComponent)
-  if (!interactable.label || interactable.label === '' || interactable.uiEntity == UndefinedEntity) return //null or empty label = no ui
+  const interactable = getMutableComponent(entity, InteractableComponent)
+  if (!interactable.label || interactable.label.value === '' || interactable.uiEntity.value == UndefinedEntity) return //null or empty label = no ui
 
-  removeEntity(interactable.uiEntity)
-  interactable.uiEntity = UndefinedEntity
+  removeEntity(interactable.uiEntity.value)
+  interactable.uiEntity.set(UndefinedEntity)
 }
 
 export const InteractableComponent = defineComponent({
