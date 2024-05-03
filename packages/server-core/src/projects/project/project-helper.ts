@@ -235,7 +235,7 @@ export const checkBuilderService = async (
       if (builderJob && builderJob.body.items.length > 0) {
         const succeeded = builderJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
-        const running = builderJob.body.items.filter((item) => item.status && item.status.active)
+        const running = builderJob.body.items.filter((item) => item.status && item.status.active === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
         jobStatus.running = running.length > 0
