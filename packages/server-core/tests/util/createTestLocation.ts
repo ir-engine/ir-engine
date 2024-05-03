@@ -42,6 +42,7 @@ export const createTestLocation = async (app: Application, params = { isInternal
       name,
       slugifiedName: '',
       sceneId: scene.id,
+      projectId: scene.projectId,
       maxUsersPerInstance: 20,
       locationSetting: {
         id: '',

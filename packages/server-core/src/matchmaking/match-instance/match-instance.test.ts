@@ -110,6 +110,7 @@ describe.skip('matchmaking match-instance service', () => {
       slugifiedName: `game-${gameMode}`,
       maxUsersPerInstance: 20,
       sceneId: `test/game-${gameMode}`,
+      projectId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
       isLobby: false,
       isFeatured: false
