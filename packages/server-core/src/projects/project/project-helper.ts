@@ -237,6 +237,7 @@ export const checkBuilderService = async (
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
+        ;(jobStatus as any).builderJob = builderJob.body
       } else {
         const containerName = 'etherealengine-builder'
 
@@ -249,11 +250,13 @@ export const checkBuilderService = async (
           builderLabelSelector
         )
 
-        console.log('debug2 the builder pods', builderPods.body)
+        console.log('debug2 the builder pods were', builderPods.body)
 
         const runningBuilderPods = builderPods.body.items.filter(
           (item) => item.status && item.status.phase === 'Running'
         )
+
+        ;(jobStatus as any).builderPods = builderPods.body
 
         if (runningBuilderPods.length > 0) {
           const podName = runningBuilderPods[0].metadata?.name
