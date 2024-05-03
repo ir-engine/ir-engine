@@ -51,6 +51,7 @@ export async function down(knex: Knex): Promise<void> {
 
   if (projectIdColumnExists) {
     await knex.schema.alterTable(instancePath, async (table) => {
+      table.dropForeign('projectId')
       table.dropColumn('projectId')
     })
   }
