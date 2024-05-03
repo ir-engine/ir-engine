@@ -79,7 +79,8 @@ export const ModelComponent = defineComponent({
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      dereference: false
     }
   },
 
@@ -175,18 +176,29 @@ function ModelReactor() {
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
-    const uuid = getModelSceneID(entity)
+    let uuid: string | null = null
+    if (modelComponent.dereference.value) {
+      const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+      if (!parentEntity) {
+        console.warn("Can't dereference model, no parent entity")
+      }
+      // update authoring layer
+      SceneState.injectScene(parentEntity, loadedJsonHierarchy)
+      // perform runtime reparent and delete model entity
+    } else {
+      uuid = getModelSceneID(entity)
 
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
+      SceneState.loadScene(uuid, {
+        scene: {
+          entities: loadedJsonHierarchy,
+          root: getComponent(entity, UUIDComponent),
+          version: 0
+        },
+        name: '',
+        project: '',
+        thumbnailUrl: ''
+      })
+    }
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -204,6 +216,7 @@ function ModelReactor() {
       })
     }
     return () => {
+      if (!uuid) return
       SceneState.unloadScene(uuid, false)
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return

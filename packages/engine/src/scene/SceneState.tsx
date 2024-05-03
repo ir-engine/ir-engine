@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
   NO_PROXY,
   Topic,
@@ -91,6 +91,8 @@ export const SceneState = defineState({
       return createRootEntity(sceneID, data)
     }
   },
+
+  injectScene: (parentEntity: Entity, data: Record<EntityUUID, EntityJsonType>) => {},
 
   unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
