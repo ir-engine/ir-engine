@@ -45,7 +45,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
         logger.info('ASSETS 1.2', projectAssets)
         const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
-        logger.info('ASSETS 1.3', assets)
+        logger.info('ASSETS 1.3.4', assets)
         const sceneJSONAssets = projectAssets.filter(
           (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
         )
