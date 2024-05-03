@@ -57,7 +57,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { MathUtils, Matrix4 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFSourceState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',
@@ -165,6 +165,7 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
 
   useLayoutEffect(() => {
     // update gltf state with the current snapshot
+    if (gltfState.index.value > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
     const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
   }, [gltfState.index.value])

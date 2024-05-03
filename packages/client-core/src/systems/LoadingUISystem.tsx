@@ -110,6 +110,11 @@ export const LoadingUISystemState = defineState({
 
     return {
       ui,
+      colors: {
+        main: '',
+        background: '',
+        alternate: ''
+      },
       meshEntity,
       transition,
       ready: false
@@ -119,22 +124,30 @@ export const LoadingUISystemState = defineState({
 
 const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
-  const loadingProgress = useComponent(props.sceneEntity, GLTFComponent).progress.value
+  const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
+  const loadingProgress = gltfComponent.progress.value
   const sceneLoaded = loadingProgress === 100
   const locationState = useHookstate(getMutableState(LocationState))
   const state = useHookstate(getMutableState(LoadingUISystemState))
 
+  useEffect(() => {
+    getState(LoadingUISystemState).ui.state.progress.set(loadingProgress)
+  }, [loadingProgress])
+
   /** Scene is loading */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded) return transition.setState('IN')
+    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded) transition.setState('IN')
   }, [state.ready])
 
   /** Scene has loaded */
   useEffect(() => {
     if (sceneLoaded && !state.ready.value) state.ready.set(true)
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'IN' && sceneLoaded) return transition.setState('OUT')
+    if (transition.state === 'IN' && sceneLoaded) transition.setState('OUT')
+    /** used by the PWA service worker */
+    /** @TODO find a better place for this */
+    window.dispatchEvent(new Event('load'))
   }, [sceneLoaded])
 
   useEffect(() => {
@@ -214,7 +227,7 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
 
   /** Scene data changes */
   useEffect(() => {
-    const colors = getState(LoadingUISystemState).ui.state.colors
+    const colors = getMutableState(LoadingUISystemState).colors
     colors.main.set(sceneComponent.primaryColor.value)
     colors.background.set(sceneComponent.backgroundColor.value)
     colors.alternate.set(sceneComponent.alternativeColor.value)
@@ -238,7 +251,7 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, meshEntity, ready } = getState(LoadingUISystemState)
+  const { transition, ui, meshEntity, colors, ready } = getState(LoadingUISystemState)
   if (!transition) return
 
   const ecsState = getState(ECSState)
@@ -272,14 +285,14 @@ const execute = () => {
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
 
-  mainThemeColor.set(ui.state.colors.alternate.value)
+  mainThemeColor.set(colors.alternate)
 
   transition.update(ecsState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 
   const opacity = getState(LoadingSystemState).loadingScreenOpacity
-  const isReady = opacity > 0 && true //ready
+  const isReady = opacity > 0 && ready
 
   setVisibleComponent(meshEntity, isReady)
 
