@@ -249,6 +249,8 @@ export const checkBuilderService = async (
           builderLabelSelector
         )
 
+        console.log('debug2 the builder pods', builderPods.body)
+
         const runningBuilderPods = builderPods.body.items.filter(
           (item) => item.status && item.status.phase === 'Running'
         )
