@@ -58,7 +58,6 @@ const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
 export default function ProjectTable() {
   const { t } = useTranslation()
-  const modalProcessing = useHookstate(false)
   const activeProjectId = useHookstate<string | null>(null)
   const projectQuery = useFind(projectPath, {
     query: {
@@ -97,10 +96,8 @@ export default function ProjectTable() {
             PopoverState.showPopupover(
               <AddEditProjectModal
                 update={true}
-                processing={modalProcessing.value}
                 inputProject={project}
                 onSubmit={async () => {
-                  modalProcessing.set(true)
                   await ProjectService.uploadProject({
                     sourceURL: projectUpdateStatus.sourceURL,
                     destinationURL: projectUpdateStatus.destinationURL,
@@ -113,7 +110,6 @@ export default function ProjectTable() {
                   }).catch((err) => {
                     NotificationService.dispatchNotify(err.message, { variant: 'error' })
                   })
-                  modalProcessing.set(false)
                   PopoverState.hidePopupover()
                 }}
               />
@@ -134,7 +130,7 @@ export default function ProjectTable() {
                   project.repositoryPath
                 }`}
                 onSubmit={async () => {
-                  await ProjectService.pushProject(project.id).catch(() => modalProcessing.set(false))
+                  await ProjectService.pushProject(project.id)
                 }}
               />
             )

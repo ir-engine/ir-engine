@@ -29,7 +29,7 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
@@ -92,7 +92,15 @@ const getTempProject = () => ({
   commitDate: toDateTimeSql(new Date())
 })
 
-export default function AddEditProjectModal({ update, inputProject }: { update: boolean; inputProject?: ProjectType }) {
+export default function AddEditProjectModal({
+  update,
+  inputProject,
+  onSubmit
+}: {
+  update: boolean
+  inputProject?: ProjectType
+  onSubmit?: () => Promise<void>
+}) {
   const { t } = useTranslation()
   const showAutoUpdateOptions = useHookstate(false)
   const modalProcessing = useHookstate(false)
@@ -366,20 +374,9 @@ export default function AddEditProjectModal({ update, inputProject }: { update: 
 
   const handleSubmit = async () => {
     modalProcessing.set(true)
-    const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
 
     try {
-      await ProjectService.uploadProject({
-        sourceURL: projectUpdateStatus.sourceURL,
-        destinationURL: projectUpdateStatus.destinationURL,
-        name: projectUpdateStatus.projectName,
-        reset: true,
-        commitSHA: projectUpdateStatus.selectedSHA,
-        sourceBranch: projectUpdateStatus.selectedBranch,
-        updateType: projectUpdateStatus.updateType,
-        updateSchedule: projectUpdateStatus.updateSchedule
-      })
-      PopoverState.hidePopupover()
+      await onSubmit?.()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

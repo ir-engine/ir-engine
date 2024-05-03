@@ -23,22 +23,61 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiArrowPath, HiPlus } from 'react-icons/hi2'
 import { AuthState } from '../../../user/services/AuthService'
+import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
 
 export default function ProjectTopMenu() {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
+  const modalProcessing = useHookstate(false)
+
+  ProjectService.useAPIListeners()
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    if (projectState.rebuilding.value) {
+      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    } else {
+      if (interval) clearInterval(interval)
+      ProjectService.fetchProjects()
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [projectState.rebuilding.value])
+
+  const handleSubmit = async () => {
+    const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
+    try {
+      await ProjectService.uploadProject({
+        sourceURL: projectUpdateStatus.sourceURL,
+        destinationURL: projectUpdateStatus.destinationURL,
+        name: projectUpdateStatus.projectName,
+        reset: true,
+        commitSHA: projectUpdateStatus.selectedSHA,
+        sourceBranch: projectUpdateStatus.selectedBranch,
+        updateType: projectUpdateStatus.updateType,
+        updateSchedule: projectUpdateStatus.updateSchedule
+      })
+      PopoverState.hidePopupover()
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
 
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
@@ -90,7 +129,7 @@ export default function ProjectTopMenu() {
           startIcon={<HiPlus />}
           size="small"
           onClick={() => {
-            PopoverState.showPopupover(<AddEditProjectModal update={false} />)
+            PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
           }}
         >
           {t('admin:components.project.addProject')}
