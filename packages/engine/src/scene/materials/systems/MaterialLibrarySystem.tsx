@@ -48,6 +48,7 @@ import {
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { removeMaterial } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
@@ -93,15 +94,21 @@ const MaterialEntityReactor = () => {
   useEffect(() => {
     if (materialComponent.prototypeEntity.value) updateMaterialPrototype(entity)
   }, [materialComponent.prototypeEntity])
+
+  useEffect(() => {
+    if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
+  }, [materialComponent.instances])
   return null
 }
 
 const MaterialInstanceReactor = () => {
   const entity = useEntityContext()
-  const uuid = useComponent(entity, MaterialComponent[MaterialComponents.Instance]).uuid
+  const modelComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
+  const uuid = modelComponent.uuid
   useEffect(() => {
     if (uuid.value) setGroupMaterial(entity, uuid.value)
-  }, [uuid])
+  }, [modelComponent.uuid])
+
   return null
 }
 

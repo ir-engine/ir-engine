@@ -23,10 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, defineQuery } from '@etherealengine/ecs'
+import {
+  UUIDComponent,
+  defineComponent,
+  defineQuery,
+  getMutableComponent,
+  getOptionalComponent
+} from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
-import { removeMaterialInstance } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Shader, WebGLRenderer } from 'three'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
@@ -144,10 +149,14 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
     },
 
     onRemove: (entity, component) => {
-      if (component.uuid.value)
-        for (let i = 0; i < component.uuid.value.length; i++) {
-          removeMaterialInstance(entity, i)
-        }
+      const uuids = getOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
+      if (!uuids) return
+      for (const uuid of uuids) {
+        const materialEntity = UUIDComponent.getEntityByUUID(uuid)
+        const materialComponent = getMutableComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+        if (materialComponent.instances.value)
+          materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
+      }
     }
   })
 })

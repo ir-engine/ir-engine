@@ -130,21 +130,12 @@ export const createMaterialEntity = (material: Material, path: string) => {
   return materialEntity
 }
 
-/** Removes an instance of a material, also removes its referenced material entity if there are no remaining references to it */
-export const removeMaterialInstance = (sourceEntity: Entity, atIndex: number) => {
-  const materialComponent = getComponent(sourceEntity, MaterialComponent[MaterialComponents.Instance])
-  const materialEntity = UUIDComponent.getEntityByUUID(materialComponent.uuid![atIndex])
-  const sourceMaterial = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-  if (!sourceMaterial.instances!.length) return
-  const instances = sourceMaterial.instances!.filter((instance) => instance !== sourceEntity)
-  if (instances.length === 0) {
-    delete materialByName[getComponent(materialEntity, NameComponent)]
-    delete materialByHash[
-      hashMaterial(getComponent(materialEntity, SourceComponent), getComponent(materialEntity, NameComponent))
-    ]
-    removeEntity(materialEntity)
-  }
-  return instances.length
+export const removeMaterial = (entity: Entity) => {
+  const name = getComponent(entity, NameComponent)
+  const hash = hashMaterial(getComponent(entity, SourceComponent), name)
+  delete materialByHash[hash]
+  delete materialByName[name]
+  removeEntity(entity)
 }
 
 export const getPrototypeConstructorFromName = (name: string) => {
