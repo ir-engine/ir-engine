@@ -50,8 +50,7 @@ import {
   removeEntity,
   setComponent,
   useEntityContext,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '@etherealengine/ecs'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { NetworkState, NetworkTopics, SceneUser } from '@etherealengine/network'
@@ -68,7 +67,6 @@ import { Not } from 'bitecs'
 import React from 'react'
 import { Group } from 'three'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { proxifyParentChildRelationships } from '../functions/loadGLTFModel'
@@ -123,32 +121,9 @@ const NetworkedSceneObjectReactor = () => {
 }
 
 const SceneReactor = (props: { sceneID: string }) => {
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
-  const entities = useHookstate(UUIDComponent.entitiesByUUIDState)
-
   const currentSceneSnapshotState = SceneState.useScene(props.sceneID)
   const sceneEntities = currentSceneSnapshotState.entities
   const rootUUID = currentSceneSnapshotState.root.value
-
-  useEffect(() => {
-    if (getState(SceneState).sceneLoaded) return
-
-    const entitiesCount = sceneEntities.keys.map(UUIDComponent.getEntityByUUID).filter(Boolean).length
-    if (entitiesCount <= 1) return
-
-    const values = Object.values(assetLoadingState.value)
-    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
-    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
-
-    getMutableState(SceneState).loadingProgress.set(progress)
-
-    if (!sceneAssetPendingTagQuery.length && !getState(SceneState).sceneLoaded) {
-      getMutableState(SceneState).sceneLoaded.set(true)
-      SceneAssetPendingTagComponent.loadingProgress.set({})
-    }
-  }, [sceneAssetPendingTagQuery.length, assetLoadingState, entities.keys])
 
   return (
     <>

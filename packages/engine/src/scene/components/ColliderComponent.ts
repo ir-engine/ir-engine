@@ -40,7 +40,6 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -67,8 +66,6 @@ import { Mesh } from 'three'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const ColliderComponent = defineComponent({
@@ -145,14 +142,6 @@ export const ColliderComponent = defineComponent({
         component.triggers.set(json.triggers)
       }
     }
-
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SourceComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)
-    setComponent(entity, InputComponent)
   },
 
   toJSON(entity, component) {
@@ -177,7 +166,7 @@ export const ColliderComponent = defineComponent({
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useLayoutEffect(() => {
-      SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
+      setComponent(entity, InputComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld

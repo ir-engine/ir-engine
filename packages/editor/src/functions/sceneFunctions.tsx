@@ -28,27 +28,16 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
-import {
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
-import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
-import { exportRelativeGLTF } from './exportGLTF'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -77,48 +66,28 @@ export const renameScene = async (id: string, name: string, params?: AssetParams
   }
 }
 
-/**
- * saveScene used to save changes in existing project.
- *
- * @param {string} projectName
- * @param  {any}  sceneName
- * @param {File | null} thumbnailFile
- * @param  {any}  signal
- * @return {Promise}
- */
-export const saveSceneJSON = async (
+export const saveSceneGLTF = async (
   sceneAssetID: string | null,
   projectName: string,
-  sceneName: string,
+  sceneFile: string,
   signal: AbortSignal
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
-  const sceneData = getState(SceneSnapshotState)[getState(EditorState).scenePath!].snapshots.at(-1)?.data
+  const { rootEntity } = getState(EditorState)
+  const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
 
-  if (!sceneData) throw new Error(i18n.t('editor:errors.sceneDataNotFound'))
-  //remove gltf data from scene data
-  for (const entityUUID of Object.keys(sceneData.entities)) {
-    if (!sceneData.entities[entityUUID]) continue //entity has already been removed from save data
-    const entity = UUIDComponent.getEntityByUUID(entityUUID as EntityUUID)
-    if (hasComponent(entity, GLTFLoadedComponent)) {
-      //delete anything that is a child of any GLTF-loaded entity
-      iterateEntityNode(entity, (entity) => {
-        if (!hasComponent(entity, UUIDComponent)) return
-        delete sceneData.entities[getComponent(entity, UUIDComponent)]
-      })
-    }
-  }
+  const sceneName = sceneFile!.replace('.scene.json', '').replace('.gltf', '')
 
-  const relativePath = sceneName.endsWith('.scene.json') ? sceneName : `${sceneName}.scene.json`
+  const gltfData = getState(GLTFSnapshotState)[sourceID].snapshots.at(-1)
 
-  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
-
-  const blob = [JSON.stringify(sceneData, null, 2)]
-  const file = new File(blob, relativePath)
+  const blob = [JSON.stringify(gltfData, null, 2)]
+  const file = new File(blob, `${sceneName}.gltf`)
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
 
   const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
+
+  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
 
   if (sceneAssetID) {
     const result = await Engine.instance.api
@@ -127,7 +96,7 @@ export const saveSceneJSON = async (
 
     getMutableState(EditorState).merge({
       sceneName,
-      scenePath: result.assetURL,
+      scenePath: assetURL,
       projectName,
       sceneAssetID: result.id
     })
@@ -140,68 +109,10 @@ export const saveSceneJSON = async (
 
   getMutableState(EditorState).merge({
     sceneName,
-    scenePath: result.assetURL,
+    scenePath: assetURL,
     projectName,
     sceneAssetID: result.id
   })
-}
-
-export const saveSceneGLTF = async (
-  sceneAssetID: string | null,
-  projectName: string,
-  sceneName: string,
-  signal: AbortSignal
-) => {
-  if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-
-  const editorState = getState(EditorState)
-
-  const entity = SceneState.getRootEntity(editorState.scenePath!)
-
-  if (!entity) throw new Error(i18n.t('editor:errors.sceneEntityNotFound'))
-
-  sceneName = sceneName!.replace('.scene.json', '')
-
-  const relativePath = `${sceneName!.replace('.scene.json', '')}.gltf`
-
-  /** @todo remove once .scene.json support is removed */
-  const isModel = hasComponent(entity, ModelComponent)
-  if (!isModel) setComponent(entity, ModelComponent)
-  await exportRelativeGLTF(entity, projectName!, relativePath)
-  if (!isModel) removeComponent(entity, ModelComponent)
-
-  const absolutePath = `projects/${projectName}/${relativePath}`
-
-  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
-
-  if (sceneAssetID) {
-    const result = await Engine.instance.api
-      .service(assetPath)
-      .patch(sceneAssetID, { name: sceneNameWithoutExtension, assetURL: absolutePath, project: projectName })
-
-    getMutableState(EditorState).merge({
-      sceneName,
-      scenePath: absolutePath,
-      projectName,
-      sceneAssetID: result.id
-    })
-
-    return
-  }
-  const result = await Engine.instance.api
-    .service(assetPath)
-    .create({ name: sceneNameWithoutExtension, assetURL: absolutePath, project: projectName })
-
-  getMutableState(EditorState).merge({
-    sceneName,
-    scenePath: absolutePath,
-    projectName,
-    sceneAssetID: result.id
-  })
-
-  // if (sceneName.endsWith('.scene.json')) {
-  //   location.reload()
-  // }
 }
 
 export const onNewScene = async () => {
@@ -229,40 +140,12 @@ export const createNewScene = async (projectName: string, params?: AssetParams) 
 
 const fileServer = config.client.fileServer
 
-export const setCurrentEditorScene = (sceneURL: string) => {
-  const isGLTF = sceneURL.endsWith('.gltf')
-  if (isGLTF) {
-    const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL)
-    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
-    getMutableState(EditorState).rootEntity.set(gltfEntity)
-    return () => {
-      getMutableState(EditorState).rootEntity.set(UndefinedEntity)
-      GLTFSourceState.unload(gltfEntity)
-    }
-  }
-
-  let unmounted = false
-
-  const sceneID = sceneURL.endsWith('.scene.json') ? sceneURL : sceneURL + '.scene.json'
-
-  fetch(`${fileServer}/${sceneID}`).then(async (data) => {
-    if (unmounted) return
-    const sceneJSON = await data.json()
-    if (unmounted) return
-    const sceneRoot = SceneState.loadScene(sceneID, {
-      scene: parseStorageProviderURLs(sceneJSON),
-      name: sceneID.split('/')[2],
-      thumbnailUrl: `${fileServer}/${sceneID.replace('.scene.json', '.thumbnail.jpg')}`,
-      project: sceneID.split('/')[1]
-    })
-    if (sceneRoot) {
-      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([sceneRoot])
-      getMutableState(EditorState).rootEntity.set(sceneRoot)
-    }
-  })
-
+export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
+  const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)
+  getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+  getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
-    unmounted = true
-    SceneState.unloadScene(sceneID)
+    getMutableState(EditorState).rootEntity.set(UndefinedEntity)
+    GLTFSourceState.unload(gltfEntity)
   }
 }
