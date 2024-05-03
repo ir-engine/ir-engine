@@ -72,6 +72,7 @@ export type PhysicsWorld = World
 
 const Colliders = new Map<Entity, Collider>()
 const Rigidbodies = new Map<Entity, RigidBody>()
+const Controllers = new Map<Entity, KinematicCharacterController>()
 
 async function load() {
   return RAPIER.init()
@@ -431,6 +432,7 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 }
 
 function createCharacterController(
+  entity: Entity,
   world: World,
   {
     offset = 0.01,
@@ -446,21 +448,53 @@ function createCharacterController(
   if (autoStep) characterController.enableAutostep(autoStep.maxHeight, autoStep.minWidth, autoStep.stepOverDynamic)
   if (enableSnapToGround) characterController.enableSnapToGround(enableSnapToGround)
   else characterController.disableSnapToGround()
-  return characterController
+  Controllers.set(entity, characterController)
 }
 
+function removeCharacterController(entity: Entity, world: World) {
+  const controller = Controllers.get(entity)
+  if (!controller) return
+  world.removeCharacterController(controller)
+  Controllers.delete(entity)
+}
+
+/**
+ * @deprecated - will be populated on AvatarControllerComponent
+ */
+function getControllerOffset(entity: Entity) {
+  const controller = Controllers.get(entity)
+  if (!controller) return 0
+  return controller.offset()
+}
+
+const controllerMoveFilterFlags = QueryFilterFlags.EXCLUDE_SENSORS
+
 function computeColliderMovement(
-  controller: KinematicCharacterController,
+  entity: Entity,
   colliderEntity: Entity,
   desiredTranslation: Vector3,
-  filterFlags?: QueryFilterFlags,
   filterGroups?: InteractionGroups,
   filterPredicate?: (collider: Collider) => boolean
 ) {
+  const controller = Controllers.get(entity)
+  if (!controller) return
   const collider = Colliders.get(colliderEntity)
   if (!collider) return
-  controller.computeColliderMovement(collider, desiredTranslation, filterFlags, filterGroups, filterPredicate)
+  controller.computeColliderMovement(
+    collider,
+    desiredTranslation,
+    controllerMoveFilterFlags,
+    filterGroups,
+    filterPredicate
+  )
 }
+
+function getComputedMovement(entity: Entity, out: Vector3) {
+  const controller = Controllers.get(entity)
+  if (!controller) return out.set(0, 0, 0)
+  return out.copy(controller.computedMovement() as Vector3)
+}
+
 export type RaycastArgs = {
   type: SceneQueryType
   origin: Vector3
@@ -663,7 +697,10 @@ export const Physics = {
   removeCollidersFromRigidBody,
   /** Charcter Controller */
   createCharacterController,
+  removeCharacterController,
   computeColliderMovement,
+  getComputedMovement,
+  getControllerOffset,
   /** Raycasts */
   castRay,
   castRayFromCamera,

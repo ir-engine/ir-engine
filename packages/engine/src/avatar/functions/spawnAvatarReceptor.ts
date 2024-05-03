@@ -163,7 +163,6 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
 
-  setComponent(entity, AvatarControllerComponent, {
-    controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
-  })
+  Physics.createCharacterController(entity, getState(PhysicsState).physicsWorld, {})
+  setComponent(entity, AvatarControllerComponent)
 }

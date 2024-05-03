@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -83,6 +82,7 @@ const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
+const _computedMovement = new Vector3()
 let beganFalling = false
 
 export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
@@ -140,15 +140,11 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     bodyCollider.collisionMask
   )
 
-  Physics.computeColliderMovement(
-    controller.controller,
-    colliderEntity,
-    desiredMovement,
-    QueryFilterFlags.EXCLUDE_SENSORS,
-    avatarCollisionGroups
-  )
+  Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
 
-  const computedMovement = controller.controller.computedMovement() as Vector3
+  const computedMovement = Physics.getComputedMovement(entity, _computedMovement)
+  if (!computedMovement) throw new Error('Computed movement not found - this should not happen')
+
   if (desiredMovement.y === 0) computedMovement.y = 0
 
   rigidbody.targetKinematicPosition.copy(rigidbody.position).add(computedMovement)
@@ -163,7 +159,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (groundHits.length) {
     const hit = groundHits[0]
-    const controllerOffset = controller.controller.offset()
+    const controllerOffset = Physics.getControllerOffset(entity)
     controller.isInAir = hit.distance > avatarGroundRaycastDistanceOffset + controllerOffset * 10 // todo - 10 is way too big, should be 1, but this makes you fall down stairs
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
