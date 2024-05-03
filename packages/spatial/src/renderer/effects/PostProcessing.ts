@@ -382,14 +382,16 @@ export type GridEffectProps = EffectProps & {
 }
 export type LUT1DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
-  lut?: Texture | null
+  lutPath?: string
+  lut?: Texture
 }
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
   inputEncoding?: TextureEncoding
   inputColorSpace?: ColorSpace
-  lut?: Texture | null
+  lutPath?: string
+  lut?: Texture
 }
 export type NoiseEffectProps = EffectProps & {
   blendFunction?: BlendFunction
@@ -685,14 +687,16 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.LUT1DEffect]: {
     isActive: false,
     blendFunction: BlendFunction.SET,
-    lut: null
+    lutPath: undefined,
+    lut: undefined
   },
   [Effects.LUT3DEffect]: {
     isActive: false,
     blendFunction: BlendFunction.SET,
     tetrahedralInterpolation: false,
     inputColorSpace: SRGBColorSpace,
-    lut: null
+    lutPath: undefined,
+    lut: undefined
   },
   [Effects.NoiseEffect]: {
     isActive: false,

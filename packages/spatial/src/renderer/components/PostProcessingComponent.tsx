@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent, getComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { NO_PROXY_STEALTH, getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
@@ -38,7 +39,7 @@ import {
 } from 'postprocessing'
 import { useEffect } from 'react'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { Scene, Texture, TextureLoader } from 'three'
+import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { HighlightState } from '../HighlightState'
@@ -81,13 +82,34 @@ export const PostProcessingComponent = defineComponent({
     const rendererEntity = useScene(entity)
     const postprocessingComponent = useComponent(entity, PostProcessingComponent)
 
+    let lut1DEffectTexturePath: string | undefined
+    if (
+      postprocessingComponent.effects[Effects.LUT1DEffect].lutPath &&
+      postprocessingComponent.effects[Effects.LUT1DEffect].isActive.value
+    ) {
+      lut1DEffectTexturePath = postprocessingComponent.effects[Effects.LUT1DEffect].lutPath.value
+    }
+    let lut3DEffectTexturePath: string | undefined
+    if (
+      postprocessingComponent.effects[Effects.LUT3DEffect].lutPath &&
+      postprocessingComponent.effects[Effects.LUT3DEffect].isActive.value
+    ) {
+      lut3DEffectTexturePath = postprocessingComponent.effects[Effects.LUT3DEffect].lutPath.value
+    }
+    let textureEffectTexturePath: string | undefined
+    if (
+      postprocessingComponent.effects[Effects.TextureEffect].texturePath &&
+      postprocessingComponent.effects[Effects.TextureEffect].isActive.value
+    ) {
+      textureEffectTexturePath = postprocessingComponent.effects[Effects.TextureEffect].texturePath.value
+    }
+
+    const [lut1DEffectTexture, lut1DEffectTextureError] = useTexture(lut1DEffectTexturePath!, entity)
+    const [lut3DEffectTexture, lut3DEffectTextureError] = useTexture(lut3DEffectTexturePath!, entity)
+    const [textureEffectTexture, textureEffectTextureError] = useTexture(textureEffectTexturePath!, entity)
+
     useEffect(() => {
       if (!rendererEntity) return
-      //configureEffectComposer(
-      //  rendererEntity,
-      //  postprocessingComponent.enabled.value ? postprocessingComponent.effects.get(NO_PROXY_STEALTH) : undefined
-      //)
-      //export const configureEffectComposer = (entity: Entity, schema?: typeof defaultPostProcessingSchema): void => {
 
       let schema = postprocessingComponent.enabled.value
         ? postprocessingComponent.effects.get(NO_PROXY_STEALTH)
@@ -143,25 +165,6 @@ export const PostProcessingComponent = defineComponent({
       })
 
       if (!schema) return
-
-      const AddPass = () => {
-        if (effects.length) {
-          if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
-
-          if (useDepthDownsamplingPass) {
-            composer.addPass(normalPass)
-            composer.addPass(depthDownsamplingPass)
-            const textureEffect = new TextureEffect({
-              blendFunction: BlendFunction.SKIP,
-              texture: depthDownsamplingPass.texture
-            })
-            effects.push(textureEffect)
-          }
-
-          composer.EffectPass = new EffectPass(camera, ...effects)
-          composer.addPass(composer.EffectPass)
-        }
-      }
 
       const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
       let useVelocityDepthNormalPass = false
@@ -219,42 +222,14 @@ export const PostProcessingComponent = defineComponent({
           //  composer[key] = eff
           //  effects.push(eff)
         } else if (key == Effects.LUT1DEffect) {
-          let lutPath = effectOptions.lut
-          if (lutPath == undefined) {
-            lutPath = null
-          }
-          let lut: Texture | null = null
-          if (lutPath != null) {
-            let textLoad = new TextureLoader()
-            //have to wait for the texture's image to load and then add the pass to the composer
-            lut = textLoad.load(lutPath, (texture) => {
-              const eff = new EffectClass(texture, effectOptions)
-              composer[key] = eff
-              effects.push(eff)
-              AddPass()
-            })
-          } else {
-            const eff = new EffectClass(lut, effectOptions)
+          if (lut1DEffectTexture) {
+            const eff = new EffectClass(lut1DEffectTexture, effectOptions)
             composer[key] = eff
             effects.push(eff)
           }
         } else if (key == Effects.LUT3DEffect) {
-          let lutPath = effectOptions.lut
-          if (lutPath == undefined) {
-            lutPath = null
-          }
-          let lut: Texture | null = null
-          if (lutPath != null) {
-            let textLoad = new TextureLoader()
-            //have to wait for the texture's image to load and then add the pass to the composer
-            lut = textLoad.load(lutPath, (texture) => {
-              const eff = new EffectClass(texture, effectOptions)
-              composer[key] = eff
-              effects.push(eff)
-              AddPass()
-            })
-          } else {
-            const eff = new EffectClass(lut, effectOptions)
+          if (lut3DEffectTexture) {
+            const eff = new EffectClass(lut3DEffectTexture, effectOptions)
             composer[key] = eff
             effects.push(eff)
           }
@@ -267,23 +242,8 @@ export const PostProcessingComponent = defineComponent({
           composer[key] = eff
           effects.push(eff)
         } else if (key == Effects.TextureEffect) {
-          let texturePath = effectOptions.texturePath
-          if (texturePath == undefined) {
-            texturePath = null
-          }
-          let texture: Texture | null = null
-          if (texturePath != null) {
-            let textLoad = new TextureLoader()
-            //have to wait for the texture's image to load and then add the pass to the composer
-            texture = textLoad.load(texturePath, (textureLoaded) => {
-              effectOptions.texture = textureLoaded
-              const eff = new EffectClass(effectOptions)
-              composer[key] = eff
-              effects.push(eff)
-              AddPass()
-            })
-          } else {
-            effectOptions.texture = texture
+          if (textureEffectTexture) {
+            effectOptions.texture = textureEffectTexture
             const eff = new EffectClass(effectOptions)
             composer[key] = eff
             effects.push(eff)
@@ -294,10 +254,36 @@ export const PostProcessingComponent = defineComponent({
           effects.push(eff)
         }
       }
-      AddPass()
+
+      if (effects.length) {
+        if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
+
+        if (useDepthDownsamplingPass) {
+          composer.addPass(normalPass)
+          composer.addPass(depthDownsamplingPass)
+          const textureEffect = new TextureEffect({
+            blendFunction: BlendFunction.SKIP,
+            texture: depthDownsamplingPass.texture
+          })
+          effects.push(textureEffect)
+        }
+
+        composer.EffectPass = new EffectPass(camera, ...effects)
+        composer.addPass(composer.EffectPass)
+      }
 
       if (getState(EngineState).isEditor) changeRenderMode()
-    }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
+    }, [
+      rendererEntity,
+      postprocessingComponent.enabled,
+      postprocessingComponent.effects,
+      lut1DEffectTexture,
+      lut1DEffectTextureError,
+      lut3DEffectTexture,
+      lut3DEffectTextureError,
+      textureEffectTexture,
+      textureEffectTextureError
+    ])
 
     return null
   }
