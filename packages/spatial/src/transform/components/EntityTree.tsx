@@ -399,10 +399,11 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = useOptionalComponent(props.entity, component)
+      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
 
       useLayoutEffect(() => {
-        result.set(entity)
+        if (!matchesQuery) return
+        result.set(props.entity)
         return () => {
           if (!unmounted) result.set(UndefinedEntity)
         }
@@ -416,7 +417,49 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <ParentSubReactor entity={entity} />
+      return <ParentSubReactor entity={entity} key={entity} />
+    })
+    return () => {
+      unmounted = true
+      root.stop()
+    }
+  }, [])
+
+  return result.value
+}
+
+export function useChildWithComponent(entity: Entity, component: ComponentType<any>) {
+  const result = useHookstate(UndefinedEntity)
+
+  useLayoutEffect(() => {
+    let unmounted = false
+    const ChildSubReactor = (props: { entity: Entity }) => {
+      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
+      const matchesQuery = !!useOptionalComponent(props.entity, component)?.value
+
+      useLayoutEffect(() => {
+        if (!matchesQuery) return
+        result.set(props.entity)
+        return () => {
+          if (!unmounted) result.set(UndefinedEntity)
+        }
+      }, [tree?.children?.value, matchesQuery])
+
+      if (matchesQuery) return null
+
+      if (!tree?.children?.value) return null
+
+      return (
+        <>
+          {tree.children.value.map((e) => (
+            <ChildSubReactor key={e} entity={e} />
+          ))}
+        </>
+      )
+    }
+
+    const root = startReactor(function useQueryReactor() {
+      return <ChildSubReactor entity={entity} key={entity} />
     })
     return () => {
       unmounted = true

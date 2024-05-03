@@ -23,36 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState } from '@etherealengine/hyperflux'
-import { GLTF } from '@gltf-transform/core'
-import matches, { Validator } from 'ts-matches'
+import {
+  Entity,
+  defineComponent,
+  getMutableComponent,
+  getOptionalMutableComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { none } from '@etherealengine/hyperflux'
 
-export const GLTFDocumentState = defineState({
-  name: 'GLTFDocumentState',
-  initial: {} as Record<string, GLTF.IGLTF>
+export const ResourcePendingComponent = defineComponent({
+  name: 'ResourcePendingComponent',
+
+  onInit(entity) {
+    return {} as Record<string, { progress: number; total: number }>
+  },
+
+  setResource(entity: Entity, url: string, progress: number, total: number) {
+    setComponent(entity, ResourcePendingComponent)
+
+    const component = getMutableComponent(entity, ResourcePendingComponent)
+    component[url].set({ progress, total })
+  },
+
+  removeResource(entity: Entity, url: string) {
+    const component = getOptionalMutableComponent(entity, ResourcePendingComponent)
+    if (!component) return
+    if (!component[url].value) return
+
+    component[url].set(none)
+
+    if (!component.keys.length) {
+      removeComponent(entity, ResourcePendingComponent)
+    }
+  }
 })
-
-export class GLTFSnapshotAction {
-  static createSnapshot = defineAction({
-    type: 'ee.gltf.snapshot.CREATE_SNAPSHOT' as const,
-    source: matches.string as Validator<unknown, string>,
-    data: matches.object as Validator<unknown, GLTF.IGLTF>
-  })
-
-  static undo = defineAction({
-    type: 'ee.gltf.snapshot.UNDO' as const,
-    source: matches.string as Validator<unknown, string>,
-    count: matches.number
-  })
-
-  static redo = defineAction({
-    type: 'ee.gltf.snapshot.REDO' as const,
-    source: matches.string as Validator<unknown, string>,
-    count: matches.number
-  })
-
-  static clearHistory = defineAction({
-    type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
-    source: matches.string as Validator<unknown, string>
-  })
-}

@@ -54,7 +54,6 @@ import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshCompone
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
@@ -246,9 +245,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     parentEntity
   })
   setComponent(objEntity, UUIDComponent, uuid)
-
-  if (hasComponent(rootEntity, SceneAssetPendingTagComponent))
-    SceneAssetPendingTagComponent.addResource(objEntity, `${rootEntity}`)
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
