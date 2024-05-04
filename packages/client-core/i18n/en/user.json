@@ -221,7 +221,7 @@
       "issueVC": "Issue a VC",
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
-      "removeSocial": "Remove Social Logins?",
+      "removeSocial": "Remove Social Logins",
       "connections": {
         "title": "Connections",
         "ipError": "Can not remove active Identity Provider",
