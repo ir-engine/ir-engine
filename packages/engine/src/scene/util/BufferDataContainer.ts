@@ -118,7 +118,7 @@ export default class BufferData {
       array[index].endTime = Math.max(array[index].endTime, array[i].endTime)
 
       if (!pending) {
-        this.bufferedRange[i].fetchTime = this.bufferedRange[index].fetchTime + this.bufferedRange[i].fetchTime
+        this.bufferedRange[index].fetchTime = this.bufferedRange[index].fetchTime + this.bufferedRange[i].fetchTime
       }
 
       i++
