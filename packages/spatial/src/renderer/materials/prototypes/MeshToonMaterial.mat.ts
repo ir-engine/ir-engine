@@ -23,26 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, ShaderMaterial as Shader } from 'three'
+import { MeshToonMaterial as Toon } from 'three'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../constants/BasicArgs'
+import { BoolArg, TextureArg } from '../constants/DefaultArgs'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { ColorArg, ObjectArg, ShaderArg } from '../DefaultArgs'
-
-export const DefaultArgs = {
-  uniforms: {
-    ...ObjectArg,
-    default: {
-      color: { ...ColorArg, default: new Color('#f00') }
-    }
-  },
-  vertexShader: ShaderArg,
-  fragmentShader: ShaderArg
+export const MeshToonArguments = {
+  ...BasicArgs,
+  ...DisplacementMapArgs,
+  ...EmissiveMapArgs,
+  fog: BoolArg,
+  gradientMap: TextureArg,
+  ...NormalMapArgs
 }
 
-export const ShaderMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'ShaderMaterial',
-  baseMaterial: Shader,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const MeshToonMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshToonMaterial',
+  prototypeConstructor: Toon,
+  arguments: MeshToonArguments
 }
+
+export default MeshToonMaterial
