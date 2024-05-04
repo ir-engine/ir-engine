@@ -48,11 +48,19 @@ const AppleCallbackComponent = (props): JSX.Element => {
     const path = search.get('path') as string
     const instanceId = search.get('instanceId') as InstanceID
 
+    console.log(`[AppleSSO]: AppleCallback: error ${error}`)
+    console.log(`[AppleSSO]: AppleCallback: token ${token}`)
+    console.log(`[AppleSSO]: AppleCallback: type ${type}`)
+    console.log(`[AppleSSO]: AppleCallback: instanceId ${instanceId}`)
+
     if (!error) {
       if (type === 'connection') {
+        console.log(`[AppleSSO]: Redirection type is connection`)
         const user = useHookstate(getMutableState(AuthState)).user
         AuthService.refreshConnections(user.id.value!)
+        console.log(`[AppleSSO]: Redirection type is connection user ID value is  ${user.id.value}`)
       } else {
+        console.log(`[AppleSSO]: Redirection type is not connection and path is  ${path}`)
         let redirectSuccess = `${path}`
         if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`
         AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
@@ -60,9 +68,11 @@ const AppleCallbackComponent = (props): JSX.Element => {
     }
 
     setState({ ...state, error, token })
+    console.log(`[AppleSSO]: AppleCallback: state.error ${state.error}`)
   }, [])
 
   function redirectToRoot() {
+    console.log(`[AppleSSO]: Inside redirect to root`)
     window.location.href = '/'
   }
 
