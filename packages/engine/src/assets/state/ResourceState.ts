@@ -42,8 +42,6 @@ import {
   Texture
 } from 'three'
 import { SourceComponent } from '../../scene/components/SourceComponent'
-import { SourceType } from '../../scene/materials/components/MaterialSource'
-import { removeMaterialSource } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 import { Geometry } from '../constants/Geometry'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
@@ -311,7 +309,6 @@ const Callbacks = {
     },
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: GLTF, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
-      removeMaterialSource({ type: SourceType.MODEL, path: resource.id.value })
       const metadata = resource.metadata.value as GLTFMetadata
       if (metadata.vertexCount)
         resourceState.totalVertexCount.set(resourceState.totalVertexCount.value - metadata.vertexCount)

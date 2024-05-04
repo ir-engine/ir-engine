@@ -23,41 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshStandardMaterial as Standard } from 'three'
+import { MeshLambertMaterial as Lambert } from 'three'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+import { BasicArgs, EmissiveMapArgs, EnvMapArgs } from '../constants/BasicArgs'
+import { BoolArg } from '../constants/DefaultArgs'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import {
-  AoMapArgs,
-  BasicArgs,
-  BumpMapArgs,
-  DisplacementMapArgs,
-  EmissiveMapArgs,
-  EnvMapArgs,
-  LightMapArgs,
-  MetalnessMapArgs,
-  NormalMapArgs,
-  RoughhnessMapArgs
-} from '../BasicArgs'
-
-export const DefaultArgs = {
+export const MeshLambertArguments = {
   ...BasicArgs,
   ...EmissiveMapArgs,
   ...EnvMapArgs,
-  ...NormalMapArgs,
-  ...BumpMapArgs,
-  ...DisplacementMapArgs,
-  ...RoughhnessMapArgs,
-  ...MetalnessMapArgs,
-  ...AoMapArgs,
-  ...LightMapArgs
+  fog: BoolArg
 }
 
-export const MeshStandardMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshStandardMaterial',
-  baseMaterial: Standard,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const MeshLambertMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshLambertMaterial',
+  prototypeConstructor: Lambert,
+  arguments: MeshLambertArguments
 }
 
-export default MeshStandardMaterial
+export default MeshLambertMaterial

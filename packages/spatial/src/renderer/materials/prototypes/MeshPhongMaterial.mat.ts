@@ -23,32 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { MeshPhongMaterial as Phong } from 'three'
 
-import { MaterialSource, SourceType } from './MaterialSource'
+import {
+  BasicArgs,
+  BumpMapArgs,
+  DisplacementMapArgs,
+  EmissiveMapArgs,
+  EnvMapArgs,
+  NormalMapArgs
+} from '../constants/BasicArgs'
+import { BoolArg, FloatArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
-  prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
-  }
-  src: MaterialSource
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
+export const MeshPhongArguments = {
+  ...BasicArgs,
+  ...BumpMapArgs,
+  ...DisplacementMapArgs,
+  dithering: { ...BoolArg, default: true },
+  ...EmissiveMapArgs,
+  ...NormalMapArgs,
+  fog: BoolArg,
+  ...EnvMapArgs,
+  shininess: { ...FloatArg, default: 30 }
 }
 
-export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
-  prototypeId: 'unavailable',
-  baseMaterial: Material,
-  arguments: {},
-  src: {
-    type: SourceType.BUILT_IN,
-    path: 'UNAVAILABLE'
-  }
+export const MeshPhongMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshPhongMaterial',
+  prototypeConstructor: Phong,
+  arguments: MeshPhongArguments
 }
+
+export default MeshPhongMaterial

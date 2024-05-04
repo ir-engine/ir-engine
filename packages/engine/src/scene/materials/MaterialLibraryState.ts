@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const MaterialSelectionState = defineState({
   name: 'MaterialSelectionState',
   initial: {
-    selectedMaterial: null as string | null
+    selectedMaterial: null as EntityUUID | null
   }
 })

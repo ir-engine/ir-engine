@@ -42,12 +42,11 @@ import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/g
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
   findCommonAncestors,
@@ -57,7 +56,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { GLTF } from '@gltf-transform/core'
-import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -137,6 +136,10 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
+}
+
+export const testst = {
+  setComponent: function () {}
 }
 
 const modifyName = (entities: Entity[], name: string) => {
@@ -223,25 +226,12 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
-function _getMaterial(node: string, materialId: string) {
-  let material: Material | undefined
-  if (getState(MaterialLibraryState).materials[materialId]) {
-    material = materialFromId(materialId).material
-  }
-  // else {
-  //   const mesh = obj3dFromUuid(node) as Mesh
-  //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-  //   material = materials.find((material) => materialId === material.uuid)
-  // }
-  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
-  return material
-}
-
-const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: string]: any }[]) => {
+const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
-    const material = _getMaterial(node, materialId)
+    const material = getMaterial(materialId)
+    if (!material) return
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')
