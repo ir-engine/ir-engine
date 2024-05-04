@@ -98,8 +98,9 @@ describe('ColliderComponent', () => {
     setComponent(entity, TriggerComponent)
     setComponent(entity, ColliderComponent)
 
-    const collider = Physics._Colliders.get(entity)!
+    handlePhysicsEnterExitQueries(physicsWorld)
 
+    const collider = Physics._Colliders.get(entity)!
     assert.equal(collider!.isSensor(), true)
   })
 })

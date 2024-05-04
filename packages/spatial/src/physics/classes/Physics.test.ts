@@ -43,7 +43,7 @@ import {
   getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
-import { CollisionGroups } from '../enums/CollisionGroups'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
@@ -54,7 +54,7 @@ export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
   bodyType: RigidBodyType.Fixed,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
+  collisionMask: DefaultCollisionMask | CollisionGroups.Avatars | CollisionGroups.Ground,
   friction: 1,
   restitution: 0,
   isTrigger: false,
@@ -217,7 +217,7 @@ describe('Physics', () => {
     setComponent(entity, ColliderComponent, {
       shape: Shapes.Box,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
 
     handlePhysicsEnterExitQueries(physicsWorld)
@@ -251,23 +251,21 @@ describe('Physics', () => {
     setComponent(entity1, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
-
-    setComponent(entity1, CollisionComponent)
-    setComponent(entity2, CollisionComponent)
 
     handlePhysicsEnterExitQueries(physicsWorld)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    handlePhysicsEnterExitQueries(physicsWorld)
+    physicsWorld.step(collisionEventQueue)
+    collisionEventQueue.drainCollisionEvents(drainCollisions)
 
     const rigidBody1 = Physics._Rigidbodies.get(entity1)!
     const rigidBody2 = Physics._Rigidbodies.get(entity2)!
@@ -319,20 +317,23 @@ describe('Physics', () => {
     setComponent(entity1, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
     setComponent(entity1, TriggerComponent)
     setComponent(entity2, TriggerComponent)
 
+    handlePhysicsEnterExitQueries(physicsWorld)
+
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    handlePhysicsEnterExitQueries(physicsWorld)
+    physicsWorld.step(collisionEventQueue)
+    collisionEventQueue.drainCollisionEvents(drainCollisions)
 
     const rigidBody1 = Physics._Rigidbodies.get(entity1)!
     const rigidBody2 = Physics._Rigidbodies.get(entity2)!
