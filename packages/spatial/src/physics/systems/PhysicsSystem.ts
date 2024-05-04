@@ -39,7 +39,7 @@ import { NetworkState } from '@etherealengine/network'
 import { findAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PhysicsSerialization } from '../PhysicsSerialization'
-import { Physics } from '../classes/Physics'
+import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -75,7 +75,7 @@ export function smoothKinematicBody(entity: Entity, dt: number, substep: number)
 const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
 const rigidbodyQuery = defineQuery([RigidBodyComponent])
 const colliderQuery = defineQuery([ColliderComponent])
-const triggerQuery = defineQuery([TriggerComponent])
+const triggerQuery = defineQuery([ColliderComponent, TriggerComponent])
 const collisionQuery = defineQuery([CollisionComponent])
 
 const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
@@ -83,12 +83,8 @@ const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagCom
 let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
 let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
-const execute = () => {
-  const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
-  if (!physicsWorld) return
-
-  const allRigidBodies = nonFixedRigidbodyQuery()
-
+export const handlePhysicsEnterExitQueries = (physicsWorld: PhysicsWorld) => {
+  const handledColliders = new Set<Entity>()
   for (const entity of rigidbodyQuery.enter()) {
     Physics.createRigidBody(entity, physicsWorld)
     // ensure all colliders are attached to rigidbodies
@@ -97,6 +93,7 @@ const execute = () => {
       (child) => {
         const colliderDesc = Physics.createColliderDesc(child, entity)
         Physics.attachCollider(physicsWorld, colliderDesc, entity)
+        handledColliders.add(child)
       },
       (entity) => hasComponent(entity, ColliderComponent)
     )
@@ -105,6 +102,7 @@ const execute = () => {
     Physics.removeRigidbody(entity, physicsWorld)
   }
   for (const entity of colliderQuery.enter()) {
+    if (handledColliders.has(entity)) continue
     const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
     if (ancestor) {
       const colliderDesc = Physics.createColliderDesc(entity, ancestor)
@@ -120,6 +118,15 @@ const execute = () => {
   for (const entity of triggerQuery.exit()) {
     Physics.setTrigger(entity, false)
   }
+}
+
+const execute = () => {
+  const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
+  if (!physicsWorld) return
+
+  handlePhysicsEnterExitQueries(physicsWorld)
+
+  const allRigidBodies = nonFixedRigidbodyQuery()
 
   Physics.updatePreviousRigidbodyPose(allRigidBodies)
 

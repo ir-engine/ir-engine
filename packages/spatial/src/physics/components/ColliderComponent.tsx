@@ -101,6 +101,8 @@ function ColliderComponentReactor() {
     Physics.removeCollider(physicsWorld, entity)
 
     const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
+    if (!colliderDesc) return
+
     Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity)
   }, [transformComponent.scale])
 

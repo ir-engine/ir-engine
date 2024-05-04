@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createEntity, destroyEngine, getComponent, removeComponent, setComponent } from '@etherealengine/ecs'
-import { ReactorReconciler, getMutableState } from '@etherealengine/hyperflux'
+import { createEntity, destroyEngine, removeComponent, setComponent } from '@etherealengine/ecs'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import assert from 'assert'
 import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
+import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
 import { ColliderComponent } from './ColliderComponent'
 import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
@@ -46,59 +47,59 @@ describe('ColliderComponent', () => {
   })
 
   it('should add collider to rigidbody', () => {
+    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
+    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+    setComponent(entity, ColliderComponent)
 
-    ReactorReconciler.flushSync(() => {
-      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-      setComponent(entity, ColliderComponent)
-    })
+    handlePhysicsEnterExitQueries(physicsWorld)
 
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    const collider = getComponent(entity, ColliderComponent)
+    const body = Physics._Rigidbodies.get(entity)!
+    const collider = Physics._Colliders.get(entity)!
 
-    assert.equal(rigidbody.body.numColliders(), 1)
-    assert(collider.collider)
-    assert.equal(collider.collider, rigidbody.body.collider(0))
+    assert.equal(body.numColliders(), 1)
+    assert(collider)
+    assert.equal(collider, body.collider(0))
   })
 
-  it('should remove collider from rigidbody', async () => {
+  it('should remove collider from rigidbody', () => {
+    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
+    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+    setComponent(entity, ColliderComponent)
 
-    ReactorReconciler.flushSync(() => {
-      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-      setComponent(entity, ColliderComponent)
-    })
+    handlePhysicsEnterExitQueries(physicsWorld)
 
-    const rigidbody = getComponent(entity, RigidBodyComponent)
-    const collider = getComponent(entity, ColliderComponent)
+    const body = Physics._Rigidbodies.get(entity)!
+    const collider = Physics._Colliders.get(entity)!
 
-    assert.equal(rigidbody.body.numColliders(), 1)
-    assert(collider.collider)
-    assert.equal(collider.collider, rigidbody.body.collider(0))
+    assert.equal(body.numColliders(), 1)
+    assert(collider)
+    assert.equal(collider, body.collider(0))
 
-    ReactorReconciler.flushSync(() => {
-      removeComponent(entity, ColliderComponent)
-    })
-    assert.equal(rigidbody.body.numColliders(), 0)
+    removeComponent(entity, ColliderComponent)
+
+    handlePhysicsEnterExitQueries(physicsWorld)
+
+    assert.equal(body.numColliders(), 0)
   })
 
   it('should add trigger collider', () => {
+    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
 
-    ReactorReconciler.flushSync(() => {
-      setComponent(entity, RigidBodyComponent, { type: 'fixed' })
-      setComponent(entity, TriggerComponent)
-      setComponent(entity, ColliderComponent)
-    })
+    setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+    setComponent(entity, TriggerComponent)
+    setComponent(entity, ColliderComponent)
 
-    const collider = getComponent(entity, ColliderComponent)
+    const collider = Physics._Colliders.get(entity)!
 
-    assert.equal(collider.collider!.isSensor(), true)
+    assert.equal(collider!.isSensor(), true)
   })
 })

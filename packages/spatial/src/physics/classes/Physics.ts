@@ -65,8 +65,9 @@ import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
+import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { Body, BodyTypes, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
+import { Body, BodyTypes, CollisionEvents, RaycastHit, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -264,41 +265,43 @@ function applyImpulse(entity: Entity, impulse: Vector3) {
 }
 
 function createColliderDesc(entity: Entity, rootEntity: Entity) {
+  if (!Rigidbodies.has(rootEntity)) return
+
   const mesh = getOptionalComponent(entity, MeshComponent)
 
   const colliderComponent = getComponent(entity, ColliderComponent)
 
-  let shape = typeof colliderComponent.shape === 'string' ? ShapeType[colliderComponent.shape] : colliderComponent.shape
+  let shape: ShapeType
 
-  //check for old collider types to allow backwards compatibility
-  if (typeof shape === 'undefined') {
-    switch (colliderComponent.shape) {
-      case 'sphere':
-        shape = ShapeType.Ball
-        break
-      case 'box':
-      case 'plane':
-        shape = ShapeType.Cuboid
-        break
-      case 'mesh':
-        shape = ShapeType.TriMesh
-        break
-      case 'capsule':
-        shape = ShapeType.Capsule
-        break
-      case 'cylinder':
-        shape = ShapeType.Cylinder
-        break
-      default:
-        console.error('unrecognized collider shape type: ' + colliderComponent.shape)
-    }
+  switch (colliderComponent.shape) {
+    case Shapes.Sphere:
+      shape = ShapeType.Ball
+      break
+    case Shapes.Box:
+    case Shapes.Plane:
+      shape = ShapeType.Cuboid
+      break
+    case Shapes.Mesh:
+      shape = ShapeType.TriMesh
+      break
+    case Shapes.ConvexHull:
+      shape = ShapeType.ConvexPolyhedron
+      break
+    case Shapes.Capsule:
+      shape = ShapeType.Capsule
+      break
+    case Shapes.Cylinder:
+      shape = ShapeType.Cylinder
+      break
+    default:
+      throw new Error('unrecognized collider shape type: ' + colliderComponent.shape)
   }
 
   const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
   let colliderDesc: ColliderDesc
 
-  switch (shape as ShapeType) {
+  switch (shape) {
     case ShapeType.Cuboid:
       if (colliderComponent.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
       else {
@@ -376,8 +379,8 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
     matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
   }
 
-  const worldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
-  positionRelativeToRoot.multiply(worldScale)
+  const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
+  positionRelativeToRoot.multiply(rootWorldScale)
 
   colliderDesc.setFriction(colliderComponent.friction)
   colliderDesc.setRestitution(colliderComponent.restitution)
@@ -386,7 +389,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
   const collisionMask = colliderComponent.collisionMask
   colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
 
-  if (position) colliderDesc.setTranslation(position.x, position.y, position.z)
+  colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
   colliderDesc.setRotation(quaternionRelativeToRoot)
 
   colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
@@ -399,9 +402,9 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
 }
 
 function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity) {
+  if (Colliders.has(rigidBodyEntity)) return
   const rigidBody = Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
   if (!rigidBody) throw new Error('Rigidbody not found for entity ' + rigidBodyEntity)
-  if (!colliderDesc) throw new Error('ColliderDesc is undefined')
   const collider = world.createCollider(colliderDesc, rigidBody)
   Colliders.set(rigidBodyEntity, collider)
   return collider
@@ -425,6 +428,12 @@ function setTrigger(entity: Entity, isTrigger: boolean) {
   const collider = Colliders.get(entity)
   if (!collider) return
   collider.setSensor(isTrigger)
+  const colliderComponent = getComponent(entity, ColliderComponent)
+  // if we are a trigger, we need to update the collision groups to include the trigger group
+  const collisionLayer = isTrigger
+    ? colliderComponent.collisionLayer | ~CollisionGroups.Trigger
+    : colliderComponent.collisionLayer
+  collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
@@ -715,5 +724,9 @@ export const Physics = {
   /** Collisions */
   createCollisionEventQueue,
   drainCollisionEventQueue,
-  drainContactEventQueue
+  drainContactEventQueue,
+  /**Internals */
+  _Colliders: Colliders,
+  _Rigidbodies: Rigidbodies,
+  _Controllers: Controllers
 }

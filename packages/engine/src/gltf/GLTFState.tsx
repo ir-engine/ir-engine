@@ -54,7 +54,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { MathUtils, Matrix4 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -236,8 +236,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     if (node.matrix.value) {
       const mat4 = new Matrix4().fromArray(node.matrix.value)
-      const transform = getComponent(entity, TransformComponent)
-      mat4.decompose(transform.position, transform.rotation, transform.scale)
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      const scale = new Vector3()
+      mat4.decompose(position, rotation, scale)
+      setComponent(entity, TransformComponent, { position, rotation, scale })
     }
 
     // add all extensions for synchronous mount
@@ -273,8 +276,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!node.matrix.value) return
 
     const mat4 = new Matrix4().fromArray(node.matrix.value)
-    const transform = getComponent(entity, TransformComponent)
-    mat4.decompose(transform.position, transform.rotation, transform.scale)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const scale = new Vector3()
+    mat4.decompose(position, rotation, scale)
+    setComponent(entity, TransformComponent, { position, rotation, scale })
   }, [entity, node.matrix.value])
 
   if (!entity) return null
