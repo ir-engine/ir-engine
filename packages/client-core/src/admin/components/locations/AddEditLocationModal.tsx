@@ -62,7 +62,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
-  const locationType = useHookstate(location?.locationSetting.locationType || 'private')
+  const locationType = useHookstate(location?.locationSetting.locationType || 'public')
 
   const scenes = useFind(assetPath, {
     query: {
