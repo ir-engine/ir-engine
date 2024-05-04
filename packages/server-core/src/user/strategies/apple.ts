@@ -44,9 +44,6 @@ export class AppleStrategy extends CustomOAuthStrategy {
     super()
     this.app = app
   }
-  async getProfile(data, _params) {
-    return data.jwt.id_token.payload
-  }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = entity
@@ -57,7 +54,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
         )
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
-
+    console.log(`[AppleSSO]: user ID is ${userId}`)
     return {
       ...baseData,
       accountIdentifier: `$${profile.firstName} ${profile.lastName}`,
@@ -122,6 +119,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: AuthenticationResult | Error, params: CustomOAuthParams): Promise<string> {
+    console.log('[AppleSSO]: Entering in the get redirection')
     let redirectConfig: RedirectConfig
     try {
       redirectConfig = JSON.parse(params.redirect!)
@@ -130,6 +128,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
     }
     let { domain: redirectDomain, path: redirectPath, instanceId: redirectInstanceId } = redirectConfig
     redirectDomain = redirectDomain ? `${redirectDomain}/auth/oauth/apple` : config.authentication.callback.apple
+    console.log(`[AppleSSO]: Redirection Domain: ${redirectDomain}`)
 
     if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
@@ -137,14 +136,16 @@ export class AppleStrategy extends CustomOAuthStrategy {
     }
 
     const loginType = params.query?.userId ? 'connection' : 'login'
+    console.log(`[AppleSSO]: loginType: ${loginType}`)
     let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
     if (redirectPath) {
       redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
     }
+    console.log(`[AppleSSO]: Redirect Path: ${redirectPath}`)
     if (redirectInstanceId) {
       redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
     }
-
+    console.log(`[AppleSSO]: About to return Redirect URL: ${redirectUrl}`)
     return redirectUrl
   }
 
@@ -158,6 +159,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
             authentication.error
         )
     }
+    console.log(`[AppleSSO]: Returnng success from Authenticate`)
     return super.authenticate(authentication, originalParams)
   }
 }
