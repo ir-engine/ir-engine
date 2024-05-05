@@ -358,6 +358,10 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
+    /** @todo fix gizmo then re-enable this */
+    // return () => {
+    //   removeComponent(props.entity, Component)
+    // }
   }, [extension])
 
   return null
