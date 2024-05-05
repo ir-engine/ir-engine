@@ -39,7 +39,6 @@ import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/func
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -71,6 +70,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
+  setComponent(entity, TransformComponent)
 
   const obj3d = new Object3D()
   obj3d.entity = entity
@@ -105,7 +105,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     allowRolling: false,
     enabledRotations: [false, true, false]
   })
-  setComponent(entity, CollisionComponent)
 
   createAvatarCollider(entity)
 

@@ -82,7 +82,7 @@ const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
-const _computedMovement = new Vector3()
+const computedMovement = new Vector3()
 let beganFalling = false
 
 export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
@@ -141,9 +141,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   )
 
   Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
-
-  const computedMovement = Physics.getComputedMovement(entity, _computedMovement)
-  if (!computedMovement) throw new Error('Computed movement not found - this should not happen')
+  Physics.getComputedMovement(entity, computedMovement)
 
   if (desiredMovement.y === 0) computedMovement.y = 0
 

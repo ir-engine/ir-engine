@@ -92,7 +92,7 @@ export const handlePhysicsEnterExitQueries = (physicsWorld: PhysicsWorld) => {
       entity,
       (child) => {
         const colliderDesc = Physics.createColliderDesc(child, entity)
-        Physics.attachCollider(physicsWorld, colliderDesc, entity)
+        Physics.attachCollider(physicsWorld, colliderDesc, entity, child)
         handledColliders.add(child)
       },
       (entity) => hasComponent(entity, ColliderComponent)
@@ -106,7 +106,7 @@ export const handlePhysicsEnterExitQueries = (physicsWorld: PhysicsWorld) => {
     const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
     if (ancestor) {
       const colliderDesc = Physics.createColliderDesc(entity, ancestor)
-      Physics.attachCollider(physicsWorld, colliderDesc, ancestor)
+      Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
     } // else case covered in above rigidbody queries
   }
   for (const entity of colliderQuery.exit()) {

@@ -23,17 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { useLayoutEffect } from 'react'
+import { defineComponent } from '@etherealengine/ecs'
 import { Vector3 } from 'three'
-import { findAncestorWithComponent } from '../../transform/components/EntityTree'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
-import { RigidBodyComponent } from './RigidBodyComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -74,9 +67,7 @@ export const ColliderComponent = defineComponent({
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value
     }
-  },
-
-  reactor: ColliderComponentReactor
+  }
 })
 
 export const supportedColliderShapes = [
@@ -88,23 +79,3 @@ export const supportedColliderShapes = [
   Shapes.Mesh
   // Shapes.Heightfield
 ]
-
-function ColliderComponentReactor() {
-  const entity = useEntityContext()
-  const transformComponent = useComponent(entity, TransformComponent)
-
-  useLayoutEffect(() => {
-    const rigidbodyEntity = findAncestorWithComponent(entity, RigidBodyComponent)
-    if (!rigidbodyEntity) return
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
-    Physics.removeCollider(physicsWorld, entity)
-
-    const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
-    if (!colliderDesc) return
-
-    Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity)
-  }, [transformComponent.scale])
-
-  return null
-}

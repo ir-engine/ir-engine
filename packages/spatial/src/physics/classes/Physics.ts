@@ -401,12 +401,12 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
   return colliderDesc
 }
 
-function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity) {
-  if (Colliders.has(rigidBodyEntity)) return
+function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity, colliderEntity: Entity) {
+  if (Colliders.has(colliderEntity)) return
   const rigidBody = Rigidbodies.get(rigidBodyEntity) // guaranteed will exist
-  if (!rigidBody) throw new Error('Rigidbody not found for entity ' + rigidBodyEntity)
+  if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
   const collider = world.createCollider(colliderDesc, rigidBody)
-  Colliders.set(rigidBodyEntity, collider)
+  Colliders.set(colliderEntity, collider)
   return collider
 }
 
