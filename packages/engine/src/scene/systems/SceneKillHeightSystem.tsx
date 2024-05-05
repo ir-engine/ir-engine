@@ -43,7 +43,7 @@ import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 import { updateReferenceSpaceFromAvatarMovement } from '../../avatar/functions/moveAvatar'
-import { SceneSettingsComponent } from '../components/SceneSettingsComponent'
+import { DefaultKillHeight, SceneSettingsComponent } from '../components/SceneSettingsComponent'
 
 const heightKillApplicableQuery = defineQuery([
   RigidBodyComponent,
@@ -58,7 +58,7 @@ const execute = () => {
   const settingsEntities = settingsQuery()
   const sceneKillHeight = settingsEntities.reduce((min, entity) => {
     return Math.min(min, getComponent(entity, SceneSettingsComponent).sceneKillHeight)
-  }, Number.MAX_VALUE)
+  }, DefaultKillHeight)
   const killableEntities = heightKillApplicableQuery()
 
   for (const entity of killableEntities) {

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KinematicCharacterController } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
 import {
@@ -54,7 +53,6 @@ export const AvatarControllerComponent = defineComponent({
     return {
       /** The camera entity that should be updated by this controller */
       cameraEntity: Engine.instance.cameraEntity,
-      controller: null! as KinematicCharacterController,
       movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,
@@ -74,7 +72,6 @@ export const AvatarControllerComponent = defineComponent({
     if (!json) return
 
     if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
-    if (matches.object.test(json.controller)) component.controller.set(json.controller as KinematicCharacterController)
     if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
     if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
     if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
