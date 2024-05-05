@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   AnimationSystemGroup,
   Engine,
   Entity,
+  EntityUUID,
+  UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
@@ -43,7 +43,7 @@ import {
 } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '@etherealengine/network'
+import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
@@ -58,9 +58,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
-import { FlyControlComponent } from '../components/FlyControlComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { switchCameraMode } from '../functions/switchCameraMode'
 
@@ -229,21 +227,44 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-export function cameraSpawnReceptor(spawnAction: ReturnType<typeof CameraActions.spawnCamera>) {
-  const entity = NetworkObjectComponent.getNetworkObject(spawnAction.$peer, spawnAction.networkId)
-  if (!entity) return
+export const CameraEntityState = defineState({
+  name: 'CameraEntityState',
+  initial: {} as Record<EntityUUID, true>,
 
-  console.log('Camera Spawn Receptor Call', entity)
+  receptors: {
+    onCameraSpawn: CameraActions.spawnCamera.receive((action) => {
+      getMutableState(CameraEntityState)[action.entityUUID].set(true)
+    }),
+    onEntityDestroy: WorldNetworkAction.destroyEntity.receive((action) => {
+      getMutableState(CameraEntityState)[action.entityUUID].set(none)
+    })
+  },
 
-  setComponent(entity, CameraComponent)
+  reactor: () => {
+    const state = useHookstate(getMutableState(CameraEntityState))
+    return (
+      <>
+        {state.keys.map((entityUUID: EntityUUID) => (
+          <CameraEntity key={entityUUID} entityUUID={entityUUID} />
+        ))}
+      </>
+    )
+  }
+})
+
+const CameraEntity = (props: { entityUUID: EntityUUID }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+
+  useEffect(() => {
+    if (!entity) return
+    setComponent(entity, CameraComponent)
+  }, [entity])
+
+  return null
 }
 
 const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
-const spectatorQuery = defineQuery([SpectatorComponent])
-const cameraSpawnActions = defineActionQueue(CameraActions.spawnCamera.matches)
-const spectateUserActions = defineActionQueue(CameraActions.spectateUser.matches)
-const exitSpectateActions = defineActionQueue(CameraActions.exitSpectate.matches)
 
 function CameraReactor() {
   const cameraSettings = useHookstate(getMutableState(CameraSettingsState))
@@ -263,26 +284,6 @@ function CameraReactor() {
 }
 
 const execute = () => {
-  for (const action of cameraSpawnActions()) cameraSpawnReceptor(action)
-
-  for (const action of spectateUserActions()) {
-    const cameraEntity = Engine.instance.cameraEntity
-    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
-    else
-      setComponent(cameraEntity, FlyControlComponent, {
-        boostSpeed: 4,
-        moveSpeed: 4,
-        lookSensitivity: 5,
-        maxXRotation: MathUtils.degToRad(80)
-      })
-  }
-
-  for (const action of exitSpectateActions()) {
-    const cameraEntity = Engine.instance.cameraEntity
-    removeComponent(cameraEntity, SpectatorComponent)
-    deleteSearchParams('spectate')
-  }
-
   for (const cameraEntity of followCameraQuery.enter()) {
     const followCamera = getComponent(cameraEntity, FollowCameraComponent)
     setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
@@ -290,21 +291,6 @@ const execute = () => {
 
   for (const cameraEntity of followCameraQuery.exit()) {
     removeComponent(cameraEntity, ComputedTransformComponent)
-  }
-
-  // as spectator: update local camera from network camera
-  for (const cameraEntity of spectatorQuery.enter()) {
-    const cameraTransform = getComponent(cameraEntity, TransformComponent)
-    const spectator = getComponent(cameraEntity, SpectatorComponent)
-    const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
-      spectator.userId,
-      CameraComponent
-    )
-    const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-    setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-      cameraTransform.position.copy(networkTransform.position)
-      cameraTransform.rotation.copy(networkTransform.rotation)
-    })
   }
 
   // as spectatee: update network camera from local camera

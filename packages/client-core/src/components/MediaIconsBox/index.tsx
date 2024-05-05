@@ -45,12 +45,13 @@ import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { Engine } from '@etherealengine/ecs'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
@@ -135,7 +136,8 @@ export const MediaIconsBox = () => {
   }
 
   const xrSessionActive = xrState.sessionActive.value
-  const handleExitSpectatorClick = () => dispatchAction(CameraActions.exitSpectate({}))
+  const handleExitSpectatorClick = () =>
+    dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
