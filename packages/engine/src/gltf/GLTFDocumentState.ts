@@ -32,6 +32,11 @@ export const GLTFDocumentState = defineState({
   initial: {} as Record<string, GLTF.IGLTF>
 })
 
+export const GLTFModifiedState = defineState({
+  name: 'ee.engine.gltf.GLTFModifiedState',
+  initial: {} as Record<string, boolean>
+})
+
 export class GLTFSnapshotAction {
   static createSnapshot = defineAction({
     type: 'ee.gltf.snapshot.CREATE_SNAPSHOT' as const,
