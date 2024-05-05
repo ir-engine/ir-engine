@@ -289,11 +289,12 @@ const authentication = {
     apple: {
       key: process.env.APPLE_CLIENT_ID!,
       secret: process.env.APPLE_CLIENT_SECRET!,
-      scope: ['openid'],
+      scope: ['openid', 'name', 'email'],
       response: ['raw', 'jwt'],
       nonce: true,
       custom_params: {
-        response_type: 'code'
+        response_type: 'code id_token',
+        response_mode: 'form_post'
       }
     },
     discord: {

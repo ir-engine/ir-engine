@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import multiLogger from '@etherealengine/common/src/logger'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
-
-import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
@@ -39,12 +39,31 @@ import getFreeInviteCode from '../../util/get-free-invite-code'
 import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy, { CustomOAuthParams } from './custom-oauth'
 
+const logger = multiLogger.child({ component: 'engine:ecs:Apple' })
+
 export class AppleStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {
+    logger.info('[AppleSSO]: Entering in constructor for AppleStrategy')
     super()
     this.app = app
   }
+  async getProfile(data, _params) {
+    logger.info('[AppleSSO]: Loger Entering in getProfile')
+    console.log('[AppleSSO]: Console Entering in getProfile')
+    logger.info(`[AppleSSO]: Loger Entering in getProfile data is ${data}`)
+    console.log(`[AppleSSO]: Console Entering in getProfile data is ${data}`)
+    logger.info(`[AppleSSO]: Loger Entering in getProfile data.jwt is ${data.jwt}`)
+    console.log(`[AppleSSO]: Console Entering in getProfile data .jwt is ${data.jwt}`)
+    logger.info(`[AppleSSO]: Loger Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
+    console.log(`[AppleSSO]: Console Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
+    logger.info(`[AppleSSO]: Loger Entering in getProfile data.payload is  is ${data.jwt.id_token.payload}`)
+    console.log(`[AppleSSO]: Console Entering in getProfile data.payload is ${data.jwt.id_token.payload}`)
+
+    return data.jwt.id_token.payload
+  }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
+    logger.info('[AppleSSO]: Loger Entering in getEntityData')
+    console.log('[AppleSSO]: Console Entering in getEntityData')
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = entity
       ? entity
@@ -64,6 +83,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
+    logger.info('[AppleSSO]: Loger Entering in updateEntity')
+    console.log('[AppleSSO]: Console Entering in updateEntity')
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -119,6 +140,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: AuthenticationResult | Error, params: CustomOAuthParams): Promise<string> {
+    logger.info('[AppleSSO]: Loger Entering in getRedirect')
+    console.log('[AppleSSO]: Console Entering in getRedirect')
     console.log('[AppleSSO]: Entering in the get redirection')
     let redirectConfig: RedirectConfig
     try {
@@ -150,6 +173,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    logger.info('[AppleSSO]: Loger Entering in authenticate')
+    console.log('[AppleSSO]: Console Entering in authenticate')
     if (authentication.error) {
       if (authentication.error === 'user_cancelled_authorize')
         throw new Error('You canceled the Apple OAuth login flow')
