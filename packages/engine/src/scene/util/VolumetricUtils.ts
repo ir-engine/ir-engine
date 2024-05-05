@@ -42,6 +42,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   ASTCTextureTarget,
+  AudioFileFormat,
   FORMAT_TO_EXTENSION,
   GeometryFormat,
   GeometryType,
@@ -407,7 +408,7 @@ export const getSortedSupportedTargets = (targets: Record<string, TextureTarget>
 
 interface GetResourceURLBasicProps {
   manifestPath: string
-  type: 'geometry' | 'texture'
+  type: 'geometry' | 'texture' | 'audio'
 }
 
 interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
@@ -435,7 +436,13 @@ interface GetResourceURLTextureProps extends GetResourceURLBasicProps {
   textureType: TextureType
 }
 
-type GetResourceURLProps = GetResourceURLGeometryProps | GetResourceURLTextureProps
+interface GetResourceURLAudioProps extends GetResourceURLBasicProps {
+  type: 'audio'
+  path: string
+  format: AudioFileFormat
+}
+
+type GetResourceURLProps = GetResourceURLGeometryProps | GetResourceURLTextureProps | GetResourceURLAudioProps
 
 const combineURLs = (baseURL: string, relativeURL: string) => {
   if (relativeURL.startsWith('https://') || relativeURL.startsWith('http://')) {
@@ -492,6 +499,12 @@ export const getResourceURL = (props: GetResourceURLProps) => {
       [paddedString]: paddedIndex
     })
 
+    return absolutePath
+  } else if (props.type === 'audio') {
+    const absolutePlaceholderPath = combineURLs(props.manifestPath, props.path)
+    const absolutePath = replaceSubstrings(absolutePlaceholderPath, {
+      '[ext]': FORMAT_TO_EXTENSION[props.format]
+    })
     return absolutePath
   } else {
     throw new Error('getResourceURL:Invalid type. Must be either "geometry" or "texture"')

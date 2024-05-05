@@ -27,6 +27,7 @@ import {
   AnimationSystemGroup,
   defineComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useEntityContext,
@@ -35,20 +36,9 @@ import {
 } from '@etherealengine/ecs'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect, useRef } from 'react'
-import {
-  BufferGeometry,
-  CompressedTexture,
-  Group,
-  InterleavedBufferAttribute,
-  Material,
-  Mesh,
-  ShaderMaterial,
-  SphereGeometry
-} from 'three'
+import { BufferGeometry, CompressedTexture, Group, Material, Mesh, ShaderMaterial, SphereGeometry } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
@@ -59,41 +49,15 @@ import {
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   Pretrackbufferingcallback,
-  TIME_UNIT_MULTIPLIER,
   TextureType,
-  UniformSolveEncodeOptions,
-  UniformSolveTarget
+  UniformSolveEncodeOptions
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
-import {
-  createMaterial,
-  getResourceURL,
-  getSortedSupportedTargets,
-  loadDraco,
-  loadGLTF,
-  loadKTX2,
-  rateLimitedCortoLoader
-} from '../util/VolumetricUtils'
+import { fetchGeometry, fetchTextures } from '../util/VolumetricBufferingUtils'
+import { createMaterial, getResourceURL, getSortedSupportedTargets } from '../util/VolumetricUtils'
+import { MediaElementComponent } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
-type ResolvedType<T> = T extends Promise<infer R> ? R : never
-type DracoResponse = ResolvedType<ReturnType<typeof loadDraco>>
-type GLTFResponse = ResolvedType<ReturnType<typeof loadGLTF>>
-
-const bufferLimits = {
-  geometry: {
-    desktopMaxBufferDuration: 7, // seconds
-    mobileMaxBufferDuration: 5, // seconds
-    initialBufferDuration: 3, // seconds
-    minBufferToPlay: 3 // seconds
-  },
-  texture: {
-    desktopMaxBufferDuration: 7, // seconds
-    mobileMaxBufferDuration: 5, // seconds
-    initialBufferDuration: 3, // seconds
-    minBufferToPlay: 3 // seconds
-  }
-}
 
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
@@ -165,266 +129,43 @@ function NewVolumetricComponentReactor() {
     new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>()
   )
   const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
-
-  const fetchGeometry = () => {
-    const currentTime = component.time.currentTime.value * (TIME_UNIT_MULTIPLIER / 1000)
-    const bufferData = component.geometry.bufferData.get(NO_PROXY)
-    const nextMissing = bufferData.getNextMissing(currentTime)
-
-    const target = component.geometry.targets[component.geometry.currentTarget.value].value
-    const manifest = component.manifest.get(NO_PROXY)
-
-    const frameRate =
-      component.geometryType.value === GeometryType.Corto
-        ? (manifest as OldManifestSchema).frameRate
-        : (manifest as ManifestSchema).geometry.targets[target].frameRate
-    const frameCount =
-      component.geometryType.value === GeometryType.Corto
-        ? (manifest as OldManifestSchema).frameData.length
-        : (manifest as ManifestSchema).geometry.targets[target].frameCount!
-
-    const startFrame = Math.floor((nextMissing * frameRate) / TIME_UNIT_MULTIPLIER)
-    const maxBufferDuration =
-      isMobile || isMobileXRHeadset
-        ? bufferLimits.geometry.mobileMaxBufferDuration
-        : bufferLimits.geometry.desktopMaxBufferDuration
-
-    if (startFrame >= frameCount || nextMissing - currentTime >= maxBufferDuration * TIME_UNIT_MULTIPLIER) {
-      return
-    }
-
-    const endFrame = Math.min(
-      frameCount - 1,
-      Math.floor(((currentTime + maxBufferDuration * TIME_UNIT_MULTIPLIER) * frameRate) / TIME_UNIT_MULTIPLIER)
-    )
-
-    if (endFrame < startFrame) return
-
-    const geometryType = component.geometryType.value
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const manifestPath = playlistComponent?.tracks.value.find(
-      (track) => track.uuid === playlistComponent.currentTrackUUID.value
-    )?.src!
-
-    if (!geometryBuffer.current.has(target)) {
-      geometryBuffer.current.set(target, [])
-    }
-    const collection = geometryBuffer.current.get(target)!
-
-    for (let currentFrame = startFrame; currentFrame <= endFrame; ) {
-      const _currentFrame = currentFrame
-
-      if (geometryType === GeometryType.Corto) {
-        bufferData.addRange(
-          (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-          ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-          -1,
-          true
-        )
-        const resourceURL = getResourceURL({
-          type: 'geometry',
-          geometryType: GeometryType.Corto,
-          manifestPath: manifestPath
-        })
-        const byteStart = (manifest as OldManifestSchema).frameData[_currentFrame].startBytePosition
-        const byteEnd = byteStart + (manifest as OldManifestSchema).frameData[_currentFrame].meshLength
-
-        rateLimitedCortoLoader(resourceURL, byteStart, byteEnd)
-          .then((currentFrameData) => {
-            const geometry = currentFrameData.geometry
-            collection[_currentFrame] = geometry
-            bufferData.addRange(
-              (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-              ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-              -1,
-              false
-            )
-          })
-          .catch((err) => {
-            console.warn('Error in loading corto frame: ', err)
-          })
-        currentFrame++
-      } else if (geometryType === GeometryType.Draco || geometryType === GeometryType.GLTF) {
-        bufferData.addRange(
-          (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-          ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-          -1,
-          true
-        )
-        const resourceURL = getResourceURL({
-          type: 'geometry',
-          geometryType: geometryType,
-          manifestPath: manifestPath,
-          target: target,
-          index: currentFrame,
-          path: (manifest as ManifestSchema).geometry.path,
-          format: (manifest as ManifestSchema).geometry.targets[target].format
-        })
-
-        const loadingFunction = geometryType === GeometryType.Draco ? loadDraco : loadGLTF
-        loadingFunction(resourceURL)
-          .then((currentFrameData: DracoResponse | GLTFResponse) => {
-            const geometry =
-              geometryType === GeometryType.Draco
-                ? (currentFrameData as DracoResponse).geometry
-                : (currentFrameData as GLTFResponse).mesh
-            collection[currentFrame] = geometry
-            bufferData.addRange(
-              (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-              ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-              -1,
-              false
-            )
-          })
-          .catch((err) => {
-            console.warn('Error in loading draco frame: ', err)
-          })
-        currentFrame++
-      } else if (geometryType === GeometryType.Unify) {
-        const targetData = (manifest as ManifestSchema).geometry.targets[target] as UniformSolveTarget
-        const segmentFrameCount = targetData.segmentFrameCount!
-        const segmentIndex = Math.floor(currentFrame / segmentFrameCount)
-        const segmentOffset = segmentIndex * segmentFrameCount
-
-        bufferData.addRange(
-          segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-          (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-          -1,
-          true
-        )
-        const resourceURL = getResourceURL({
-          type: 'geometry',
-          geometryType: GeometryType.Unify,
-          manifestPath: manifestPath,
-          target: target,
-          index: segmentIndex,
-          path: (manifest as ManifestSchema).geometry.path,
-          format: 'uniform-solve'
-        })
-
-        loadGLTF(resourceURL)
-          .then((currentFrameData) => {
-            const positionMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
-              .position as InterleavedBufferAttribute[]
-            const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
-              .normal as InterleavedBufferAttribute[]
-
-            positionMorphAttributes.map((attribute, index) => {
-              collection[segmentOffset + index] = {
-                position: attribute,
-                normal: normalMorphAttributes ? normalMorphAttributes[index] : undefined
-              }
-            })
-
-            bufferData.addRange(
-              segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-              (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-              currentFrameData.fetchTime,
-              false
-            )
-          })
-          .catch((err) => {
-            console.warn('Error in loading unify frame: ', err)
-          })
-        currentFrame += segmentFrameCount
-      }
-    }
-  }
-
-  const fetchTextures = (textureType: TextureType) => {
-    const textureData = component.texture[textureType].get(NO_PROXY)
-    if (!textureData) {
-      return
-    }
-
-    const currentTime = component.time.currentTime.value * (TIME_UNIT_MULTIPLIER / 1000)
-
-    const bufferData = textureData.bufferData
-    const nextMissing = bufferData.getNextMissing(currentTime)
-
-    const target = textureData.targets[textureData.currentTarget]
-    const manifest = component.manifest.get(NO_PROXY)
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const frameRate = (manifest as ManifestSchema).texture[textureType]?.targets[target].frameRate!
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const frameCount = (manifest as ManifestSchema).texture[textureType]?.targets[target].frameCount!
-
-    const startFrame = Math.floor((nextMissing * frameRate) / TIME_UNIT_MULTIPLIER)
-    const maxBufferDuration =
-      isMobile || isMobileXRHeadset
-        ? bufferLimits.texture.mobileMaxBufferDuration
-        : bufferLimits.texture.desktopMaxBufferDuration
-
-    if (startFrame >= frameCount || nextMissing - currentTime >= maxBufferDuration * TIME_UNIT_MULTIPLIER) {
-      return
-    }
-
-    const endFrame = Math.min(
-      frameCount - 1,
-      Math.floor(((currentTime + maxBufferDuration * TIME_UNIT_MULTIPLIER) * frameRate) / TIME_UNIT_MULTIPLIER)
-    )
-
-    if (endFrame < startFrame) return
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    const manifestPath = playlistComponent?.tracks.value.find(
-      (track) => track.uuid === playlistComponent.currentTrackUUID.value
-    )?.src!
-
-    if (!textureBuffer.current.has(textureType)) {
-      textureBuffer.current.set(textureType, new Map<string, CompressedTexture[]>())
-    }
-    const textureTypeCollection = textureBuffer.current.get(textureType)!
-    if (!textureTypeCollection.has(target)) {
-      textureTypeCollection.set(target, [])
-    }
-    const collection = textureTypeCollection.get(target)!
-
-    for (let currentFrame = startFrame; currentFrame <= endFrame; currentFrame++) {
-      const _currentFrame = currentFrame
-      bufferData.addRange(
-        (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-        ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-        -1,
-        true
-      )
-
-      const resourceURL = getResourceURL({
-        type: 'texture',
-        textureType: textureType,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-        format: (manifest as ManifestSchema).texture[textureType]?.targets[target].format!,
-        index: _currentFrame,
-        target: target,
-        path: (manifest as ManifestSchema).texture['baseColor'].path,
-        manifestPath: manifestPath
-      })
-
-      loadKTX2(resourceURL)
-        .then((currentFrameData) => {
-          collection[_currentFrame] = currentFrameData.texture
-
-          bufferData.addRange(
-            (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-            ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-            currentFrameData.fetchTime,
-            false
-          )
-        })
-        .catch((err) => {
-          console.warn('Error in loading ktx2 frame: ', err)
-        })
-    }
-  }
+  const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
   const bufferLoop = () => {
-    fetchGeometry()
+    const currentTimeInMS = component.time.currentTime.value
+    const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
+    const manifest = component.manifest.get(NO_PROXY)
+    const geometryType = component.geometryType.value
+    const manifestPath = playlistComponent?.tracks.value.find(
+      (track) => track.uuid === playlistComponent.currentTrackUUID.value
+    )?.src!
+    const geometryBufferData = component.geometry.bufferData.get(NO_PROXY)
+
+    fetchGeometry({
+      currentTimeInMS,
+      bufferData: geometryBufferData,
+      target: geometryTarget,
+      manifest,
+      geometryType,
+      manifestPath,
+      geometryBuffer: geometryBuffer.current
+    })
     if (!component.useVideoTextureForBaseColor.value) {
       component.textureInfo.textureTypes.value.forEach((textureType) => {
-        fetchTextures(textureType)
+        const textureInfo = component.texture[textureType].get(NO_PROXY)
+        if (textureInfo) {
+          const bufferData = textureInfo.bufferData
+          const target = textureInfo.targets[textureInfo.currentTarget]
+          fetchTextures({
+            currentTimeInMS,
+            bufferData,
+            target,
+            manifest,
+            textureType,
+            manifestPath,
+            textureBuffer: textureBuffer.current
+          })
+        }
       })
     }
   }
@@ -441,6 +182,7 @@ function NewVolumetricComponentReactor() {
   }, [])
 
   const cleanupTrack = () => {
+    removeComponent(entity, MediaElementComponent)
     clearInterval(setIntervalId.value)
     if (mesh.current) {
       group.current.remove(mesh.current)
@@ -456,7 +198,9 @@ function NewVolumetricComponentReactor() {
           checkpointRelative: 0,
           currentTime: 0
         },
-        paused: true
+        paused: true,
+        hasAudio: false,
+        useVideoTextureForBaseColor: false
       })
     }
 
@@ -503,6 +247,7 @@ function NewVolumetricComponentReactor() {
         (manifest as OldManifestSchema).frameData !== undefined &&
         (manifest as OldManifestSchema).frameRate !== undefined
       ) {
+        setComponent(entity, MediaElementComponent)
         component.useVideoTextureForBaseColor.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
@@ -693,6 +438,27 @@ function NewVolumetricComponentReactor() {
 
         const intervalId = setInterval(bufferLoop, 500)
         setIntervalId.set(intervalId as unknown as number)
+
+        if (
+          (component.useVideoTextureForBaseColor.value ||
+            (component.hasAudio.value && (manifest as ManifestSchema).audio)) &&
+          mediaElement
+        ) {
+          const element = mediaElement.element.get(NO_PROXY)
+          if (component.useVideoTextureForBaseColor.value) {
+            element.src = track.src.replace('.manifest', '.mp4')
+          } else if (component.hasAudio.value && (manifest as ManifestSchema).audio) {
+            const audioData = (manifest as ManifestSchema).audio!
+            element.src = getResourceURL({
+              type: 'audio',
+              manifestPath: track.src,
+              path: audioData.path,
+              format: audioData.formats[0]
+            })
+          }
+          element.currentTime = component.time.currentTime.value / 1000
+          element.load()
+        }
       })
       .catch((err) => {
         addError(entity, NewVolumetricComponent, 'INVALID_TRACK', 'Error in loading the manifest')
@@ -705,6 +471,11 @@ function NewVolumetricComponentReactor() {
 
     if (!playlistComponent || playlistComponent?.paused.value) {
       component.paused.set(true)
+      if (mediaElement) {
+        const element = mediaElement.element.get(NO_PROXY)
+        element.pause()
+      }
+
       const currentCheckpointAbsolute = component.time.checkpointAbsolute.value
 
       const currentTimeRelative =
@@ -720,16 +491,28 @@ function NewVolumetricComponentReactor() {
     } else {
       const currentTimeAbs = now
       component.time.checkpointAbsolute.set(currentTimeAbs)
+      if (mediaElement) {
+        const element = mediaElement.element.get(NO_PROXY)
+        element.play()
+      }
       component.paused.set(false)
     }
-  }, [playlistComponent?.paused])
+  }, [playlistComponent?.paused, mediaElement])
 
   useExecute(
     () => {
       const now = Date.now()
-      const currentTime = component.paused.value
-        ? component.time.checkpointRelative.value
-        : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
+      let __currentTime = component.time.currentTime.value
+
+      if ((component.useVideoTextureForBaseColor.value || component.hasAudio.value) && mediaElement) {
+        const element = mediaElement.element.get(NO_PROXY)!
+        __currentTime = element.currentTime * 1000
+      } else {
+        __currentTime = component.paused.value
+          ? component.time.checkpointRelative.value
+          : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
+      }
+      const currentTime = __currentTime
       component.time.currentTime.set(currentTime)
     },
     {

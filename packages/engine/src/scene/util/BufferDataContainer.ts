@@ -305,21 +305,31 @@ export default class BufferData {
   }
 
   public getNextMissing(currentTime: number) {
-    const bufferedLb = this.lowerBound(this.bufferedRange, currentTime, 'startTime')
-    if (bufferedLb === -1) {
-      const pendingLb = this.lowerBound(this.pendingRange, currentTime, 'startTime')
-      if (pendingLb === -1) {
-        return currentTime
-      } else {
-        return this.pendingRange[pendingLb].endTime
+    let current = currentTime
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const maxOfBoth = Math.max(
+        this.bufferedRange.length > 0 ? this.bufferedRange[this.bufferedRange.length - 1].endTime : 0,
+        this.pendingRange.length > 0 ? this.pendingRange[this.pendingRange.length - 1].endTime : 0
+      )
+      if (current >= maxOfBoth) {
+        return maxOfBoth
       }
-    }
-    const bufferedEndTime = this.bufferedRange[bufferedLb].endTime
-    const pendingLb = this.lowerBound(this.pendingRange, bufferedEndTime, 'startTime')
-    if (pendingLb === -1) {
-      return bufferedEndTime
-    } else {
-      return this.pendingRange[pendingLb].endTime
+
+      const bufferedLb = this.lowerBound(this.bufferedRange, current, 'startTime')
+      if (bufferedLb === -1) {
+        return current
+      }
+
+      const pendingLb = this.lowerBound(this.pendingRange, this.bufferedRange[bufferedLb].endTime, 'startTime')
+      if (pendingLb === -1) {
+        return this.bufferedRange[bufferedLb].endTime
+      }
+      if (this.pendingRange[pendingLb].endTime <= this.bufferedRange[bufferedLb].endTime) {
+        return this.bufferedRange[bufferedLb].endTime
+      }
+      current = this.pendingRange[pendingLb].endTime
     }
   }
 
