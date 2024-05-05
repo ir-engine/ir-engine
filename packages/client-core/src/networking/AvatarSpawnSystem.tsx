@@ -37,12 +37,13 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { LocationSceneState, LocationState } from '../social/services/LocationService'
+import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
@@ -104,7 +105,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
 const reactor = () => {
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = LocationSceneState.useScene(locationSceneID)
+  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
 
   if (!sceneEntity) return null
 

@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import config from '@etherealengine/common/src/config'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
+  Engine,
   Entity,
   EntityUUID,
   QueryReactor,
@@ -32,6 +35,7 @@ import {
   UndefinedEntity,
   createEntity,
   getComponent,
+  getMutableComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -50,6 +54,8 @@ import {
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
@@ -58,6 +64,32 @@ import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+
+export const GLTFAssetState = defineState({
+  name: 'ee.engine.gltf.GLTFAssetState',
+  initial: {} as Record<string, Entity>, // sceneID => entity
+
+  useScene: (sceneID: string | undefined) => {
+    const scene = useGet(assetPath, sceneID).data
+    const scenes = useHookstate(getMutableState(GLTFAssetState))
+    const assetURL = scene?.assetURL
+    return assetURL ? scenes[assetURL].value : null
+  },
+
+  loadScene: (sceneURL: string, uuid: string) => {
+    const source = fileServer + '/' + sceneURL
+    const gltfEntity = GLTFSourceState.load(source, uuid as EntityUUID)
+    getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
+    getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+
+    return () => {
+      GLTFSourceState.unload(gltfEntity)
+      getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+    }
+  }
+})
+
+const fileServer = config.client.fileServer
 
 export const GLTFSourceState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',
