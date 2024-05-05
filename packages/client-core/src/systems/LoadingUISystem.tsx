@@ -42,6 +42,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -66,7 +67,7 @@ import type { WebLayer3D } from '@etherealengine/xrui'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
-import { LocationSceneState, LocationState } from '../social/services/LocationService'
+import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
@@ -304,7 +305,7 @@ const reactor = () => {
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = LocationSceneState.useScene(locationSceneID)
+  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
   const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
 
   useEffect(() => {
