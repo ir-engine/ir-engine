@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
-import Container from '@etherealengine/ui/src/primitives/mui/Container'
-
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
-
+const logger = multiLogger.child({ component: 'engine:ecs:AppleCallback' })
 const AppleCallbackComponent = (props): JSX.Element => {
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
@@ -42,6 +42,8 @@ const AppleCallbackComponent = (props): JSX.Element => {
   const search = new URLSearchParams(useLocation().search)
 
   useEffect(() => {
+    logger.info('[AppleSSO]: Loger Entering in useEffect')
+    console.log('[AppleSSO]: Console Entering in useEffect')
     const error = search.get('error') as string
     const token = search.get('token') as string
     const type = search.get('type') as string
@@ -72,13 +74,15 @@ const AppleCallbackComponent = (props): JSX.Element => {
   }, [])
 
   function redirectToRoot() {
+    logger.info('[AppleSSO]: Loger Entering in redirectToRoot')
+    console.log('[AppleSSO]: Console Entering in redirectToRoot')
     console.log(`[AppleSSO]: Inside redirect to root`)
     window.location.href = '/'
   }
 
   return state.error && state.error !== '' ? (
     <Container className={styles.oauthError}>
-      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Apple' })}</div>
+      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Apple111' })}</div>
       <div className={styles.message}>{state.error}</div>
       <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}

@@ -353,6 +353,8 @@ export const AuthService = {
    * Logs in the current user based on an OAuth response.
    */
   async loginUserByOAuth(service: string, location: any) {
+    logger.info('[AppleSSO]: Loger Entering in loginUserByOAuth')
+    console.log('[AppleSSO]: Console Entering in loginUserByOAuth')
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = new URLSearchParams(location.search).get('redirectUrl') || location.pathname
@@ -374,6 +376,8 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
+    logger.info('[AppleSSO]: Loger Entering in removeUserOAuth')
+    console.log('[AppleSSO]: Console Entering in removeUserOAuth')
     const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
@@ -402,6 +406,8 @@ export const AuthService = {
   },
 
   async loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
+    logger.info('[AppleSSO]: Loger Entering in loginUserByJwt')
+    console.log('[AppleSSO]: Console Entering in loginUserByJwt')
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -441,6 +447,8 @@ export const AuthService = {
   },
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
+    logger.info('[AppleSSO]: Loger Entering in loginUserMagicLink')
+    console.log('[AppleSSO]: Console Entering in loginUserMagicLink')
     try {
       const res = await Engine.instance.api.service(loginPath).get(token)
       await AuthService.loginUserByJwt(res.token!, '/', '/')
@@ -546,6 +554,8 @@ export const AuthService = {
   },
 
   async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
+    logger.info('[AppleSSO]: Loger Entering in addConnectionByPassword')
+    console.log('[AppleSSO]: Console Entering in addConnectionByPassword')
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -565,6 +575,8 @@ export const AuthService = {
   },
 
   async addConnectionByEmail(email: string, userId: UserID) {
+    logger.info('[AppleSSO]: Loger Entering in addConnectionByEmail')
+    console.log('[AppleSSO]: Console Entering in addConnectionByEmail')
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -614,10 +626,14 @@ export const AuthService = {
     oauth: 'apple' | 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: UserID
   ) {
+    logger.info('[AppleSSO]: Loger Entering in addConnectionByOauth')
+    console.log('[AppleSSO]: Console Entering in addConnectionByOauth')
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
   async removeConnection(identityProviderId: number, userId: UserID) {
+    logger.info('[AppleSSO]: Loger Entering in removeConnection')
+    console.log('[AppleSSO]: Console Entering in removeConnection')
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
       await Engine.instance.api.service(identityProviderPath).remove(identityProviderId)
@@ -630,10 +646,14 @@ export const AuthService = {
   },
 
   refreshConnections(userId: UserID) {
+    logger.info('[AppleSSO]: Loger Entering in refreshConnections')
+    console.log('[AppleSSO]: Console Entering in refreshConnections')
     AuthService.loadUserData(userId)
   },
 
   async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
+    logger.info('[AppleSSO]: Loger Entering in updateUserSettings')
+    console.log('[AppleSSO]: Console Entering in updateUserSettings')
     const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
     getMutableState(AuthState).user.userSetting.merge(response)
   },
@@ -644,6 +664,8 @@ export const AuthService = {
   },
 
   async updateApiKey() {
+    logger.info('[AppleSSO]: Loger Entering in updateApiKey')
+    console.log('[AppleSSO]: Console Entering in updateApiKey')
     const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
 
     let apiKey: UserApiKeyType | undefined
@@ -657,6 +679,8 @@ export const AuthService = {
   },
 
   async updateUsername(userId: UserID, name: UserName) {
+    logger.info('[AppleSSO]: Loger Entering in updateUsername')
+    console.log('[AppleSSO]: Console Entering in updateUsername')
     const { name: updatedName } = (await Engine.instance.api
       .service(userPath)
       .patch(userId, { name: name })) as UserType
@@ -666,11 +690,15 @@ export const AuthService = {
   },
 
   async createLoginToken() {
+    logger.info('[AppleSSO]: Loger Entering in createLoginToken')
+    console.log('[AppleSSO]: Console Entering in createLoginToken')
     return Engine.instance.api.service(loginTokenPath).create({})
   },
 
   useAPIListeners: () => {
     useEffect(() => {
+      logger.info('[AppleSSO]: Loger Entering in useAPIListeners')
+      console.log('[AppleSSO]: Console Entering in useAPIListeners')
       const userPatchedListener = (user: UserPublicPatch | UserPatch) => {
         console.log('USER PATCHED %o', user)
 
@@ -697,6 +725,8 @@ export const AuthService = {
       }
 
       const locationBanCreatedListener = async (params) => {
+        logger.info('[AppleSSO]: Loger Entering in locationBanCreatedListener')
+        console.log('[AppleSSO]: Console Entering in locationBanCreatedListener')
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
@@ -724,6 +754,8 @@ export const AuthService = {
  * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
  */
 function parseUserWalletCredentials(vprResult: any) {
+  logger.info('[AppleSSO]: Loger Entering in parseUserWalletCredentials')
+  console.log('[AppleSSO]: Console Entering in parseUserWalletCredentials')
   console.log('PARSING:', vprResult)
 
   const {
@@ -754,6 +786,8 @@ function parseUserWalletCredentials(vprResult: any) {
  * @returns {{displayName: string, displayIcon: string}}
  */
 function parseLoginDisplayCredential(credentials) {
+  logger.info('[AppleSSO]: Loger Entering in parseLoginDisplayCredential')
+  console.log('[AppleSSO]: Console Entering in parseLoginDisplayCredential')
   const loginDisplayVc = credentials.find((vc) => vc.type.includes('LoginDisplayCredential'))
   const DEFAULT_ICON = 'https://material-ui.com/static/images/avatar/1.jpg'
   const displayName = loginDisplayVc.credentialSubject.displayName || 'Wallet User'

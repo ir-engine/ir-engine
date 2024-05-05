@@ -43,6 +43,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -59,7 +60,7 @@ import { useUserHasAccessHook } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-
+const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu' })
 interface Props {
   className?: string
   hideLogin?: boolean
@@ -95,6 +96,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
+    logger.info('[AppleSSO]: Loger Entering in useEffectProfileMenu')
+    console.log('[AppleSSO]: Console Entering in useEffectProfileMenu')
     if (authSetting) {
       const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
@@ -173,12 +176,16 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleUsernameChange = (e) => {
+    logger.info('[AppleSSO]: Loger Entering in handleUsernameChange')
+    console.log('[AppleSSO]: Console Entering in handleUsernameChange')
     username.set(e.target.value)
     if (!e.target.value) errorUsername.set(t('user:usermenu.profile.usernameError'))
     else errorUsername.set('')
   }
 
   const handleUpdateUsername = () => {
+    logger.info('[AppleSSO]: Loger Entering in handleUpdateUsername')
+    console.log('[AppleSSO]: Console Entering in handleUpdateUsername')
     const name = username.value.trim() as UserName
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
@@ -189,6 +196,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const handleInputChange = (e) => emailPhone.set(e.target.value)
 
   const validate = () => {
+    logger.info('[AppleSSO]: Loger Entering in validate')
+    console.log('[AppleSSO]: Console Entering in validate')
     if (emailPhone.value === '') return false
     if (validateEmail(emailPhone.value.trim()) && authState?.value?.emailMagicLink) type = 'email'
     else if (validatePhoneNumber(emailPhone.value.trim()) && authState?.value?.smsMagicLink) type = 'sms'
@@ -202,6 +211,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleGuestSubmit = (e: any): any => {
+    logger.info('[AppleSSO]: Loger Entering in handleGuestSubmit')
+    console.log('[AppleSSO]: Console Entering in handleGuestSubmit')
     e.preventDefault()
     if (!validate()) return
     if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email')
@@ -210,6 +221,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   }
 
   const handleOAuthServiceClick = (e) => {
+    logger.info('[AppleSSO]: Loger Entering in handleOAuthServiceClick')
+    console.log('[AppleSSO]: Console Entering in handleOAuthServiceClick')
     AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
