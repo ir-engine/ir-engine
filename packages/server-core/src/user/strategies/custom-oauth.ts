@@ -26,9 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
 
+import multiLogger from '@etherealengine/common/src/logger'
 import { Application } from '../../../declarations'
 
 // import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
+const logger = multiLogger.child({ component: 'engine:ecs:CustomOAuthParams' })
 
 export interface CustomOAuthParams extends Params {
   redirect?: string
@@ -39,12 +41,25 @@ export class CustomOAuthStrategy extends OAuthStrategy {
   // @ts-ignore
   app: Application
   async getEntityQuery(profile: any, _params: Params): Promise<any> {
+    logger.info('[AppleSSO]: Loger Entering in getEntityQuery')
+    console.log('[AppleSSO]: Console Entering in getEntityQuery')
+    logger.info(`[AppleSSO]: Loger in getEntityQuery profile is ${profile}`)
+    console.log(`[AppleSSO]: Console in getEntityQuery profile is  ${profile}`)
+    logger.info(`[AppleSSO]: Loger in getEntityQuery profile.sub is ${profile.sub}`)
+    console.log(`[AppleSSO]: Console in getEntityQuery profile.sub is  ${profile.sub}`)
+    logger.info(`[AppleSSO]: Loger in getEntityQuery profile.id is ${profile.id}`)
+    console.log(`[AppleSSO]: Console in getEntityQuery profile.id is  ${profile.id}`)
+    logger.info(`[AppleSSO]: Loger in getEntityQuery _params is ${_params}`)
+    console.log(`[AppleSSO]: Console in getEntityQuery _params is  ${_params}`)
+    logger.info(`[AppleSSO]: Loger in getEntityQuery name is ${this.name}`)
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
     }
   }
 
   async getEntityData(profile: any, _existingEntity: any, _params: Params): Promise<any> {
+    logger.info(`[AppleSSO]: Loger in getEntityQuery profile is ${profile}`)
+    console.log(`[AppleSSO]: Console in getEntityQuery profile is  ${profile}`)
     return {
       token: profile.sub ? `${this.name}:::${profile.sub as string}` : `${this.name}:::${profile.id as string}`
     }
