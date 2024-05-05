@@ -41,7 +41,7 @@ import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
-import { SpectateActions } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
+import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { LocationState } from '../social/services/LocationService'
@@ -50,6 +50,7 @@ import { AuthState } from '../user/services/AuthService'
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
+  const isSpectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
 
   useEffect(() => {
     if (!gltfLoaded) return
@@ -88,7 +89,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [gltfLoaded])
+  }, [gltfLoaded, isSpectating])
 
   return null
 }

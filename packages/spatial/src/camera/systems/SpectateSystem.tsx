@@ -24,7 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, getComponent, removeComponent, setComponent } from '@etherealengine/ecs'
+import {
+  Engine,
+  EntityUUID,
+  UUIDComponent,
+  getComponent,
+  getOptionalComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs'
 import { defineAction, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkTopics, WorldNetworkAction, matchesUserID } from '@etherealengine/network'
 import React, { useEffect } from 'react'
@@ -92,15 +100,15 @@ const SpectatorReactor = () => {
   useEffect(() => {
     const cameraEntity = Engine.instance.viewerEntity
 
-    console.log(state.spectating.value)
     if (state.spectating.value) {
       const cameraTransform = getComponent(cameraEntity, TransformComponent)
       const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
         state.spectating.value,
         CameraComponent
       )
-      const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
+        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+        if (!networkTransform) return
         cameraTransform.position.copy(networkTransform.position)
         cameraTransform.rotation.copy(networkTransform.rotation)
       })
@@ -119,6 +127,31 @@ const SpectatorReactor = () => {
       }
     }
   }, [state.spectating])
+
+  if (!state.spectating.value) return null
+
+  return <SpectatingUserReactor key={state.spectating.value} userID={state.spectating.value} />
+}
+
+const SpectatingUserReactor = (props: { userID: UserID }) => {
+  /** @todo reevaluate if we should use the _camera suffix */
+  const networkCameraEntity = UUIDComponent.useEntityByUUID((props.userID + '_camera') as EntityUUID)
+
+  useEffect(() => {
+    if (!networkCameraEntity) return
+
+    const cameraEntity = Engine.instance.viewerEntity
+    const cameraTransform = getComponent(cameraEntity, TransformComponent)
+    setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
+      const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+      if (!networkTransform) return
+      cameraTransform.position.copy(networkTransform.position)
+      cameraTransform.rotation.copy(networkTransform.rotation)
+    })
+    return () => {
+      removeComponent(cameraEntity, ComputedTransformComponent)
+    }
+  }, [networkCameraEntity])
 
   return null
 }
