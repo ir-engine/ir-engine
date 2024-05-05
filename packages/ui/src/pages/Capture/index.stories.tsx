@@ -45,14 +45,9 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
-
-const initializeEngineForRecorder = async () => {
-  getMutableState(SceneState).sceneLoaded.set(true)
-}
 
 const argTypes = {}
 const decorators = [
@@ -79,7 +74,6 @@ const decorators = [
           setFetchedProjectComponents(true)
           loadEngineInjection().then((result) => {
             LocationState.setLocationName(locationName)
-            initializeEngineForRecorder()
             setProjectComponents(result)
           })
         }
