@@ -23,16 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MaterialSource } from '../components/MaterialSource'
-import { changeMaterialPrototype, materialsFromSource } from './MaterialLibraryFunctions'
+import { Color, ShaderMaterial as Shader } from 'three'
 
-export async function batchChangeMaterialPrototype(src: MaterialSource, protoId: string) {
-  materialsFromSource(src)?.map((materialComponent) => changeMaterialPrototype(materialComponent.material, protoId))
+import { ColorArg, ObjectArg, ShaderArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
+export const ShaderMaterialArguments = {
+  uniforms: {
+    ...ObjectArg,
+    default: {
+      color: { ...ColorArg, default: new Color('#f00') }
+    }
+  },
+  vertexShader: ShaderArg,
+  fragmentShader: ShaderArg
 }
 
-export function batchSetMaterialProperty(src: MaterialSource, field: string, value: any) {
-  materialsFromSource(src)?.map((materialComponent) => {
-    ;(materialComponent.material as any)[field] = value
-    materialComponent.material.needsUpdate = true
-  })
+export const ShaderMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'ShaderMaterial',
+  prototypeConstructor: Shader,
+  arguments: ShaderMaterialArguments
 }

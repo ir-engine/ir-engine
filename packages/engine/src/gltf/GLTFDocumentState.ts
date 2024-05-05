@@ -23,41 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshStandardMaterial as Standard } from 'three'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
+import { GLTF } from '@gltf-transform/core'
+import matches, { Validator } from 'ts-matches'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import {
-  AoMapArgs,
-  BasicArgs,
-  BumpMapArgs,
-  DisplacementMapArgs,
-  EmissiveMapArgs,
-  EnvMapArgs,
-  LightMapArgs,
-  MetalnessMapArgs,
-  NormalMapArgs,
-  RoughhnessMapArgs
-} from '../BasicArgs'
+export const GLTFDocumentState = defineState({
+  name: 'ee.engine.gltf.GLTFDocumentState',
+  initial: {} as Record<string, GLTF.IGLTF>
+})
 
-export const DefaultArgs = {
-  ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...EnvMapArgs,
-  ...NormalMapArgs,
-  ...BumpMapArgs,
-  ...DisplacementMapArgs,
-  ...RoughhnessMapArgs,
-  ...MetalnessMapArgs,
-  ...AoMapArgs,
-  ...LightMapArgs
+export class GLTFSnapshotAction {
+  static createSnapshot = defineAction({
+    type: 'ee.gltf.snapshot.CREATE_SNAPSHOT' as const,
+    source: matches.string as Validator<unknown, string>,
+    data: matches.object as Validator<unknown, GLTF.IGLTF>
+  })
+
+  static undo = defineAction({
+    type: 'ee.gltf.snapshot.UNDO' as const,
+    source: matches.string as Validator<unknown, string>,
+    count: matches.number
+  })
+
+  static redo = defineAction({
+    type: 'ee.gltf.snapshot.REDO' as const,
+    source: matches.string as Validator<unknown, string>,
+    count: matches.number
+  })
+
+  static clearHistory = defineAction({
+    type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
+    source: matches.string as Validator<unknown, string>
+  })
 }
-
-export const MeshStandardMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshStandardMaterial',
-  baseMaterial: Standard,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
-}
-
-export default MeshStandardMaterial

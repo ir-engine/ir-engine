@@ -53,7 +53,6 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { SourceType } from '../../scene/materials/components/MaterialSource'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -61,7 +60,6 @@ import { AssetType } from '../enum/AssetType'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
@@ -336,9 +334,6 @@ const assetLoadCallback =
       else asset.userData = { type: assetType }
 
       AssetLoader.processModelAsset(asset.scene, args)
-      if (notGLTF) {
-        registerMaterials(asset.scene, SourceType.MODEL, url)
-      }
     }
     if (assetClass === AssetClass.Material) {
       const material = asset as Material

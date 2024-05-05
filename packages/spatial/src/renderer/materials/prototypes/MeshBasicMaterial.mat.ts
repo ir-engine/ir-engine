@@ -23,32 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshMatcapMaterial as Matcap } from 'three'
+import { MeshBasicMaterial as Basic } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, TextureArg } from '../DefaultArgs'
+import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../constants/BasicArgs'
+import { TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const DefaultArgs = {
+export const MeshBasicArguments = {
   ...BasicArgs,
-  ...BumpMapArgs,
-  fog: BoolArg,
-  matcap: TextureArg,
-  ...NormalMapArgs,
-  ...DisplacementMapArgs
+  ...EmissiveMapArgs,
+  ...LightMapArgs,
+  ...AoMapArgs,
+  ...EnvMapArgs,
+  specularMap: TextureArg
 }
 
-export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshMatcapMaterial',
-  baseMaterial: Matcap,
-  arguments: DefaultArgs,
-  onBeforeCompile: (shader, renderer) => {
-    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
-      (arg) => (shader.uniforms[arg] = { value: null })
-    )
-  },
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const MeshBasicMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshBasicMaterial',
+  prototypeConstructor: Basic,
+  arguments: MeshBasicArguments
 }
 
-export default MeshMatcapMaterial
+export default MeshBasicMaterial
