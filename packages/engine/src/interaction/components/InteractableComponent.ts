@@ -40,7 +40,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -176,7 +176,6 @@ export const updateInteractableUI = (entity: Entity) => {
  * @param entity
  */
 const addInteractableUI = (entity: Entity) => {
-  if (!isClient || getMutableState(EngineState).isEditing.value) return //no xrui in editor
   const interactable = getMutableComponent(entity, InteractableComponent)
   if (!interactable.label.value || interactable.label.value === '' || interactable.uiEntity.value != UndefinedEntity)
     return //null or empty label = no ui
@@ -194,7 +193,6 @@ const addInteractableUI = (entity: Entity) => {
 }
 
 const removeInteractableUI = (entity: Entity) => {
-  if (!isClient || !getMutableState(EngineState).isEditing.value) return //no xrui in editor
   const interactable = getMutableComponent(entity, InteractableComponent)
   if (!interactable.label || interactable.label.value === '' || interactable.uiEntity.value == UndefinedEntity) return //null or empty label = no ui
 
@@ -265,12 +263,6 @@ export const InteractableComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {
-    if (component.uiEntity.value !== UndefinedEntity) {
-      removeEntity(component.uiEntity.value)
-    }
-  },
-
   toJSON: (entity, component) => {
     return {
       label: component.label.value,
@@ -293,13 +285,13 @@ export const InteractableComponent = defineComponent({
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
 
-      addInteractableUI(entity)
-    }, [])
-
-    useEffect(() => {
       if (!isEditing.value) {
         addInteractableUI(entity)
       } else {
+        removeInteractableUI(entity)
+      }
+
+      return () => {
         removeInteractableUI(entity)
       }
     }, [isEditing.value])
