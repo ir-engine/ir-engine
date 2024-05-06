@@ -30,6 +30,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import React, { useEffect } from 'react'
 import '../EditorModule'
+import EditorContainer from '../components/Editor2Container'
 
 export const useStudioEditor = () => {
   const engineReady = useHookstate(false)
@@ -45,5 +46,5 @@ export const useStudioEditor = () => {
 }
 
 export default function EditorPage() {
-  return <>planted editor 2 page</>
+  return <EditorContainer />
 }

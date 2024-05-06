@@ -58,7 +58,6 @@ const EditorProtectedRoutes = () => {
   const isAuthorized = useHookstate<boolean | null>(null)
 
   useEffect(() => {
-    console.log('debug1 inside use effect')
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
