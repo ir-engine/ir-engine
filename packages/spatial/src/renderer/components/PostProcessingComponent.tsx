@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent, getComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { NO_PROXY_STEALTH, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY_STEALTH, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
   EdgeDetectionMode,
+  Effect,
   EffectComposer,
   EffectPass,
   OutlineEffect,
@@ -81,6 +82,8 @@ export const PostProcessingComponent = defineComponent({
     const entity = useEntityContext()
     const rendererEntity = useScene(entity)
     const postprocessingComponent = useComponent(entity, PostProcessingComponent)
+    const camera = useComponent(rendererEntity, CameraComponent)
+    const renderer = useComponent(rendererEntity, RendererComponent)
 
     let lut1DEffectTexturePath: string | undefined
     if (
@@ -107,6 +110,54 @@ export const PostProcessingComponent = defineComponent({
     const [lut1DEffectTexture, lut1DEffectTextureError] = useTexture(lut1DEffectTexturePath!, entity)
     const [lut3DEffectTexture, lut3DEffectTextureError] = useTexture(lut3DEffectTexturePath!, entity)
     const [textureEffectTexture, textureEffectTextureError] = useTexture(textureEffectTexturePath!, entity)
+
+    const scene = useHookstate<Scene>(() => new Scene())
+    const normalPass = useHookstate<CustomNormalPass>(() => new CustomNormalPass(scene, camera))
+    const depthDownsamplingPass = useHookstate<DepthDownsamplingPass>(
+      () =>
+        new DepthDownsamplingPass({
+          normalBuffer: normalPass.value.texture,
+          resolutionScale: 0.5
+        })
+    )
+    const useVelocityDepthNormalPass = useHookstate(false)
+    const useDepthDownsamplingPass = useHookstate(false)
+
+    const composer = useHookstate<EffectComposer>(() => new EffectComposer(renderer.value.renderer))
+    const effects = useHookstate<Record<string, Effect>>({})
+
+    useEffect(() => {
+      const ssaoParams = postprocessingComponent.effects[Effects.SSAOEffect] as any
+      if (ssaoParams.isActive) {
+        const SSAO = EffectMap[Effects.SSAOEffect]
+        const eff = new SSAO(camera.value, normalPass.value.texture, {
+          ...ssaoParams,
+          normalDepthBuffer: depthDownsamplingPass.value.texture
+        })
+        useDepthDownsamplingPass.set(true)
+        composer.merge({
+          [Effects.SSAOEffect]: eff
+        })
+        effects.merge({
+          [Effects.SSAOEffect]: eff
+        })
+
+        return () => {
+          composer.merge({
+            [Effects.SSAOEffect]: none
+          })
+          effects.merge({
+            [Effects.SSAOEffect]: none
+          })
+        }
+      }
+    }, [postprocessingComponent.effects[Effects.SSAOEffect]])
+
+    useEffect(() => {
+      const effectArray = Object.values(effects.value)
+      composer.EffectPass.set(new EffectPass(camera.value, ...effectArray))
+      composer.value.addPass(composer.value.EffectPass)
+    }, [effects])
 
     useEffect(() => {
       if (!rendererEntity) return
