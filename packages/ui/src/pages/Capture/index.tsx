@@ -226,7 +226,7 @@ const CaptureMode = () => {
   // const throttledSend = throttle(sendResults, 1)
 
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active' || videoRef.current) return
+    if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active' || !videoRef.current) return
 
     poseDetector.value.detectForVideo(videoRef.current, performance.now(), (result) => {
       const worldLandmarks = result.worldLandmarks[0]
