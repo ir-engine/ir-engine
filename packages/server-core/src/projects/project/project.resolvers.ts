@@ -79,6 +79,18 @@ export const projectResolver = resolve<ProjectType, HookContext>(
         : []
     }),
 
+    assetsOnly: virtual(async (project, context) => {
+      return !!project.assetsOnly
+    }),
+
+    hasLocalChanges: virtual(async (project, context) => {
+      return !!project.hasLocalChanges
+    }),
+
+    needsRebuild: virtual(async (project, context) => {
+      return !!project.needsRebuild
+    }),
+
     commitDate: virtual(async (project) => {
       if (project.commitDate) return fromDateTimeSql(project.commitDate)
     }),

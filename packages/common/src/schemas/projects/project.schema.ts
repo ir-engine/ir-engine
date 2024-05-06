@@ -70,6 +70,7 @@ export const projectSchema = Type.Object(
     projectPermissions: Type.Optional(Type.Array(Type.Ref(projectPermissionSchema))),
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
+    assetsOnly: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
