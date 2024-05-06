@@ -36,7 +36,7 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
   const sceneJSONAssetsData = (
     await Promise.all(
       projects.map(async (project) => {
-        const projectPath = `projects/${project.name}`
+        const projectPath = `projects/${project.name}/`
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
         const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
         const sceneJSONAssets = projectAssets.filter(

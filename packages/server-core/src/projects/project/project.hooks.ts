@@ -230,8 +230,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   for (const item of data) {
     try {
       const packageJson = getProjectPackageJson(item.name)
-      const config = getProjectConfig(item.name)
-      item.thumbnail = config.thumbnail!
+      item.thumbnail = packageJson.etherealEngine?.thumbnail || '/static/etherealengine_thumbnail.jpg'
       item.version = packageJson.version
       item.engineVersion = packageJson.etherealEngine?.version
       item.description = packageJson.description
@@ -281,7 +280,8 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
     (!config.db.forceRefresh && context.projectName === 'default-project') ||
-    context.projectName === 'template-project'
+    context.projectName === 'template-project' ||
+    context.projectName === 'template-code-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)
 }
