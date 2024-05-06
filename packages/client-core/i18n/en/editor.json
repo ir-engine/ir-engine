@@ -28,8 +28,7 @@
   "loadingScenes": "Loading Scenes",
   "menubar": {
     "newScene": "New Scene",
-    "saveSceneJSON": "Save Scene JSON",
-    "saveSceneGLTF": "Save Scene GLTF",
+    "saveScene": "Save Scene",
     "saveAs": "Save As",
     "importAsset": "Import Asset",
     "importSettings": "Import Settings",
@@ -1169,6 +1168,7 @@
   },
   "materialLibrary": {
     "lbl": "Material Library",
+    "tab-materials": "Materials",
     "info": "Location of an assets materials and where you can select and edit them."
   },
   "dnd": {

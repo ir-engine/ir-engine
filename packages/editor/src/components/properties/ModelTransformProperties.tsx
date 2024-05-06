@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
+import { DoubleSide, Mesh } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
@@ -41,10 +41,6 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { MaterialSource, SourceType } from '@etherealengine/engine/src/scene/materials/components/MaterialSource'
-import MeshBasicMaterial from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import { materialsFromSource } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import bakeToVertices from '@etherealengine/engine/src/scene/materials/functions/bakeToVertices'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
@@ -83,25 +79,25 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
 
   const doVertexBake = useCallback(
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
-      const attribs = [
-        ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
-        ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
-        ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
-      ] as { field: keyof MeshStandardMaterial; attribName: string }[]
-      const colors: (keyof MeshStandardMaterial)[] = ['color']
-      const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
-      await Promise.all(
-        materialsFromSource(src)?.map((matComponent) =>
-          bakeToVertices<MeshStandardMaterial>(
-            entity,
-            matComponent.material as MeshStandardMaterial,
-            colors,
-            attribs,
-            modelState.scene.value,
-            MeshBasicMaterial.prototypeId
-          )
-        ) ?? []
-      )
+      // const attribs = [
+      //   ...(vertexBakeOptions.map.value ? [{ field: 'map', attribName: 'uv' }] : []),
+      //   ...(vertexBakeOptions.emissive.value ? [{ field: 'emissiveMap', attribName: 'uv' }] : []),
+      //   ...(vertexBakeOptions.lightMap.value ? [{ field: 'lightMap', attribName: 'uv2' }] : [])
+      // ] as { field: keyof MeshStandardMaterial; attribName: string }[]
+      // const colors: (keyof MeshStandardMaterial)[] = ['color']
+      // const src: MaterialSource = { type: SourceType.MODEL, path: modelState.src.value }
+      // await Promise.all(
+      //   materialsFromSource(src)?.map((matComponent) =>
+      //     bakeToVertices<MeshStandardMaterial>(
+      //       entity,
+      //       matComponent.material as MeshStandardMaterial,
+      //       colors,
+      //       attribs,
+      //       modelState.scene.value,
+      //       MeshBasicMaterial.prototypeId
+      //     )
+      //   ) ?? []
+      // )
     },
     [vertexBakeOptions]
   )

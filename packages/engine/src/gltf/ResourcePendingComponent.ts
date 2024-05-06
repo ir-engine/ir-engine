@@ -23,32 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshMatcapMaterial as Matcap } from 'three'
+import {
+  Entity,
+  defineComponent,
+  getMutableComponent,
+  getOptionalMutableComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { none } from '@etherealengine/hyperflux'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, TextureArg } from '../DefaultArgs'
+export const ResourcePendingComponent = defineComponent({
+  name: 'ResourcePendingComponent',
 
-export const DefaultArgs = {
-  ...BasicArgs,
-  ...BumpMapArgs,
-  fog: BoolArg,
-  matcap: TextureArg,
-  ...NormalMapArgs,
-  ...DisplacementMapArgs
-}
-
-export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshMatcapMaterial',
-  baseMaterial: Matcap,
-  arguments: DefaultArgs,
-  onBeforeCompile: (shader, renderer) => {
-    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
-      (arg) => (shader.uniforms[arg] = { value: null })
-    )
+  onInit(entity) {
+    return {} as Record<string, { progress: number; total: number }>
   },
-  src: { type: SourceType.BUILT_IN, path: '' }
-}
 
-export default MeshMatcapMaterial
+  setResource(entity: Entity, url: string, progress: number, total: number) {
+    setComponent(entity, ResourcePendingComponent)
+
+    const component = getMutableComponent(entity, ResourcePendingComponent)
+    component[url].set({ progress, total })
+  },
+
+  removeResource(entity: Entity, url: string) {
+    const component = getOptionalMutableComponent(entity, ResourcePendingComponent)
+    if (!component) return
+    if (!component[url].value) return
+
+    component[url].set(none)
+
+    if (!component.keys.length) {
+      removeComponent(entity, ResourcePendingComponent)
+    }
+  }
+})

@@ -44,6 +44,7 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { TransformComponent } from '@etherealengine/spatial'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
@@ -138,7 +139,7 @@ const hipsPos = new Vector3(),
   box = new Box3()
 
 export const setupAvatarProportions = (entity: Entity, vrm: VRM) => {
-  iterateEntityNode(entity, computeTransformMatrix)
+  iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
   box.expandByObject(vrm.scene).getSize(size)
 

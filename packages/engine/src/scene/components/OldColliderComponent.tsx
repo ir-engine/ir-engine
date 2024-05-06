@@ -40,7 +40,6 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -67,12 +66,10 @@ import { Mesh } from 'three'
 import matches from 'ts-matches'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
-export const ColliderComponent = defineComponent({
-  name: 'Collider Component',
+export const OldColliderComponent = defineComponent({
+  name: 'OldColliderComponent',
   jsonID: 'collider',
 
   onInit(entity) {
@@ -145,14 +142,6 @@ export const ColliderComponent = defineComponent({
         component.triggers.set(json.triggers)
       }
     }
-
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SourceComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      SceneAssetPendingTagComponent.addResource(entity, ColliderComponent.jsonID)
-    setComponent(entity, InputComponent)
   },
 
   toJSON(entity, component) {
@@ -172,18 +161,18 @@ export const ColliderComponent = defineComponent({
     const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
-    const colliderComponent = useComponent(entity, ColliderComponent)
+    const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useLayoutEffect(() => {
-      SceneAssetPendingTagComponent.removeResource(entity, ColliderComponent.jsonID)
+      setComponent(entity, InputComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
       const physicsWorld = getState(PhysicsState).physicsWorld
 
       if (isLoadedFromGLTF?.value || isMeshCollider) {
-        const colliderComponent = getComponent(entity, ColliderComponent)
+        const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
@@ -262,15 +251,7 @@ export const ColliderComponent = defineComponent({
         }
         setComponent(entity, RigidBodyComponent, { type })
 
-        const rigidbody = getComponent(entity, RigidBodyComponent)
-
-        /**
-         * This component only supports one collider, always at index 0
-         */
-        if (rigidbody.body && rigidbody.body.numColliders() > 0) {
-          const collider = rigidbody.body.collider(0)
-          physicsWorld.removeCollider(collider, false)
-        }
+        removeComponent(entity, NewColliderComponent)
 
         setComponent(entity, NewColliderComponent, {
           shape: OldShapeTypes[colliderComponent.shapeType.value],

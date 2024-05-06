@@ -28,8 +28,13 @@ import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
 
 export const GLTFDocumentState = defineState({
-  name: 'GLTFDocumentState',
+  name: 'ee.engine.gltf.GLTFDocumentState',
   initial: {} as Record<string, GLTF.IGLTF>
+})
+
+export const GLTFModifiedState = defineState({
+  name: 'ee.engine.gltf.GLTFModifiedState',
+  initial: {} as Record<string, boolean>
 })
 
 export class GLTFSnapshotAction {
