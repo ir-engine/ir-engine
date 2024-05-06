@@ -172,3 +172,7 @@ packages/ui/tests/jest-test-results.json
 certs/tailscale
 
 **/credentials
+local.values.yaml
+values.yaml
+packages/client/server.js
+.gitignore

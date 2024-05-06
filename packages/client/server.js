@@ -67,6 +67,7 @@ app.listen = function () {
   } else {
     server = _createServer(this.callback());
   }
+  arguments[1] = '0.0.0.0'
   return server.listen.apply(server, arguments);
 };
 app.listen(PORT, HOST, () => console.log(`Server listening on port: ${PORT}`));
