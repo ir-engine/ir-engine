@@ -57,7 +57,6 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { V_000 } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -100,24 +99,25 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   TransformComponent.dirtyTransforms[entity] = false
 
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+
   rigidBodyDesc.translation = position
   rigidBodyDesc.rotation = rotation
+  rigidBodyDesc.linvel = rigidBody.linearVelocity
+  rigidBodyDesc.angvel = rigidBody.angularVelocity
 
   const body = world.createRigidBody(rigidBodyDesc)
   body.setTranslation(position, false)
   body.setRotation(rotation, false)
-  body.setLinvel(V_000, false)
-  body.setAngvel(V_000, false)
+  body.setLinvel(rigidBody.linearVelocity, false)
+  body.setAngvel(rigidBody.angularVelocity, false)
 
-  const rigidBody = getComponent(entity, RigidBodyComponent)
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
   rigidBody.targetKinematicPosition.copy(position)
   rigidBody.targetKinematicRotation.copy(rotation)
   rigidBody.position.copy(position)
   rigidBody.rotation.copy(rotation)
-  rigidBody.linearVelocity.copy(V_000)
-  rigidBody.angularVelocity.copy(V_000)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }

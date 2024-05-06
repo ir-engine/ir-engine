@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PhysicsPreTransformSystem } from './systems/PhysicsPreTransformSystem'
+import { PhysicsRollFrictionSystem } from './systems/PhysicsRollFrictionSystem'
 import { PhysicsSystem } from './systems/PhysicsSystem'
 import { TriggerSystem } from './systems/TriggerSystem'
 
-export { PhysicsSystem, PhysicsPreTransformSystem, TriggerSystem }
+export { PhysicsSystem, PhysicsPreTransformSystem, PhysicsRollFrictionSystem, TriggerSystem }
