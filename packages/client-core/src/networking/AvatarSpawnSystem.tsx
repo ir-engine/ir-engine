@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import {
   Engine,
@@ -34,39 +35,40 @@ import {
   useComponent
 } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
+import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@etherealengine/network'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
+import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { LocationSceneState, LocationState } from '../social/services/LocationService'
+import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfLoaded = useComponent(sceneEntity, GLTFComponent).progress.value === 100
+  const isSpectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
 
   useEffect(() => {
     if (!gltfLoaded) return
 
     const spectate = getSearchParamFromURL('spectate')
-    if (spectate) {
-      dispatchAction(CameraActions.spectateUser({}))
+    if (typeof spectate === 'string') {
+      dispatchAction(
+        SpectateActions.spectateEntity({
+          spectatorUserID: Engine.instance.userID,
+          spectatingUserID: spectate as UserID
+        })
+      )
       return
     }
 
-    // the avatar should only be spawned once, after user auth and scene load
-    const user = getState(AuthState).user
-    const spawnPoint = getSearchParamFromURL('spawnPoint')
-
-    const avatarSpawnPose = spawnPoint
-      ? getSpawnPoint(spawnPoint, Engine.instance.userID)
-      : getRandomSpawnPoint(Engine.instance.userID)
-
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
+    const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
+    const user = getState(AuthState).user
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
@@ -86,25 +88,15 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
       if (!peersCountForUser || peersCountForUser === 1) {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
-
-      /** @todo this logic should be handled by the camera system */
-      // const cameraEntity = Engine.instance.cameraEntity
-      // if (!cameraEntity) return
-
-      // const cameraComputed = getComponent(cameraEntity, ComputedTransformComponent)
-      // removeEntity(cameraComputed.referenceEntity)
-      // removeComponent(cameraEntity, ComputedTransformComponent)
-      // removeComponent(cameraEntity, FollowCameraComponent)
-      // removeComponent(cameraEntity, TargetCameraRotationComponent)
     }
-  }, [gltfLoaded])
+  }, [gltfLoaded, isSpectating])
 
   return null
 }
 
 const reactor = () => {
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = LocationSceneState.useScene(locationSceneID)
+  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
 
   if (!sceneEntity) return null
 

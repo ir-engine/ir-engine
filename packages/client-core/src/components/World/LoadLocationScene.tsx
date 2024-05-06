@@ -30,10 +30,10 @@ import { LocationService, LocationState } from '@etherealengine/client-core/src/
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
-import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -81,14 +81,17 @@ export const useLoadLocation = (props: { locationName: string }) => {
     )
       return
     const sceneURL = scene.assetURL
-    return SceneServices.setCurrentScene(sceneURL, scene.id)
+    return GLTFAssetState.loadScene(sceneURL, scene.id)
   }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
+  const sceneURL = `projects/${props.projectName}/${props.sceneName}`
+  const assetID = useFind(assetPath, { query: { assetURL: sceneURL } })
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
-    const sceneURL = `projects/${props.projectName}/${props.sceneName}`
-    return SceneServices.setCurrentScene(sceneURL, sceneURL, true)
-  }, [])
+    if (!assetID.data.length) return
+    getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
+    return GLTFAssetState.loadScene(sceneURL, assetID.data[0].id)
+  }, [assetID.data.length])
 }

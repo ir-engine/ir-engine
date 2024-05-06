@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -49,9 +48,9 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
       name: RigidBodyComponent.jsonID,
       props: {
         type:
-          data.bodyType === RigidBodyType.Fixed || data.bodyType === 'Fixed'
+          data.bodyType === 1 || data.bodyType === 'Fixed'
             ? 'fixed'
-            : data.bodyType === RigidBodyType.Dynamic || data.bodyType === 'Dynamic'
+            : data.bodyType === 0 || data.bodyType === 'Dynamic'
             ? 'dynamic'
             : 'kinematic'
       }
