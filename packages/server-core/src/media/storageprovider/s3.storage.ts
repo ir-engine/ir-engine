@@ -504,7 +504,6 @@ export class S3Provider implements StorageProviderInterface {
             break
           case '/location':
           case '/auth':
-          case '/xadm':
           case '/capture':
             routeRegex += `^${route}/|`
             break
