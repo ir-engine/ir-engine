@@ -16,10 +16,16 @@ package-lock.json
 packages/**/package-lock.json
 packages/bot
 packages/instanceserver
-packages/ops
 packages/server
 packages/taskserver
 packages/test
+packages/projects/projects/*/public
+packages/projects/projects/*/assets
+packages/projects/projects/*/*.png
+packages/projects/projects/*/*.jpg
+packages/projects/projects/*/*.jpeg
+packages/projects/projects/*/*.ktx2
+packages/projects/projects/*/*.scene.json
 
 
 kubernetes/**

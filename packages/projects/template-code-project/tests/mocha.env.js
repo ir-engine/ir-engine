@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,13 +24,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IPackageJson } from 'package-json-type'
+process.env.APP_ENV = 'test'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
-export const DefaultUpdateSchedule = '0 * * * *'
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
+})
 
-export interface ProjectPackageJsonType extends IPackageJson {
-  etherealEngine: {
-    version: string
-    thumbnail?: string
-  }
-}
+require("fix-esm").register()
