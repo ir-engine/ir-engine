@@ -303,7 +303,8 @@
     "setting": "Settings",
     "server": "Server",
     "recordings": "Recordings",
-    "channels": "Channels"
+    "channels": "Channels",
+    "middleware": "Middleware"
   },
   "resource": {
     "createResource": "Create Resource"
