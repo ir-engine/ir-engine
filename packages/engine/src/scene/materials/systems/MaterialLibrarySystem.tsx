@@ -25,86 +25,91 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
-
-import { PresentationSystemGroup } from '@etherealengine/ecs'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import {
-  protoIdToFactory,
-  registerMaterial,
-  replaceMaterial,
-  unregisterMaterial
-} from '../functions/MaterialLibraryFunctions'
-import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
+  PresentationSystemGroup,
+  QueryReactor,
+  getComponent,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  MaterialPlugins,
+  MaterialPrototypeDefinition,
+  MaterialPrototypeDefinitions
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  applyMaterialPlugins,
+  createMaterialPlugin,
+  createMaterialPrototype,
+  setGroupMaterial,
+  updateMaterialPrototype
+} from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { removeMaterial } from '../functions/materialSourcingFunctions'
 
-function MaterialReactor({ materialId }: { materialId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.materials[materialId]
+const reactor = (): ReactElement => {
   useEffect(() => {
-    const material = component.material.value
-    component.plugins.value.forEach((plugin) => {
-      removeMaterialPlugin(material, plugin)
-      applyMaterialPlugin(material, plugin)
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
+    MaterialPlugins.map((plugin) => {
+      createMaterialPlugin(plugin)
     })
-  }, [component.plugins])
-  return null
-}
-
-function PluginReactor({ pluginId }: { pluginId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-  const component = materialLibrary.plugins[pluginId]
-  return null
-}
-
-function reactor(): ReactElement {
-  useEffect(() => {
-    initializeMaterialLibrary()
-    return () => {
-      const materialLibraryState = getMutableState(MaterialLibraryState)
-      // todo, to make extensible only clear those initialized in initializeMaterialLibrary
-      materialLibraryState.materials.set({})
-      materialLibraryState.prototypes.set({})
-      materialLibraryState.sources.set({})
-      materialLibraryState.plugins.set({})
-    }
   }, [])
 
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
-
-  useEffect(() => {
-    const materialIds = materialLibrary.materials.keys
-    for (const materialId of materialIds) {
-      const component = materialLibrary.materials[materialId]
-      //if the material is missing, check if its prototype is present now
-      if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
-        //if the prototype is present, create the material
-        const material = component.material.get(NO_PROXY)
-        const parms = material.userData.args
-        const factory = protoIdToFactory(component.prototype.value)
-        const newMaterial = factory(parms)
-        replaceMaterial(material, newMaterial)
-        newMaterial.userData = material.userData
-        delete newMaterial.userData.args
-        const comp = component.get(NO_PROXY)
-        const src = JSON.parse(JSON.stringify(component.src.value))
-        registerMaterial(newMaterial, src)
-        unregisterMaterial(material)
-      }
-    }
-  }, [materialLibrary.prototypes])
-
-  const plugins = materialLibrary.plugins
   return (
     <>
-      {materialLibrary.materials.keys.map((materialId) => (
-        <MaterialReactor key={materialId} materialId={materialId} />
-      ))}
-      {plugins.keys.map((pluginId) => (
-        <PluginReactor pluginId={pluginId} key={pluginId} />
-      ))}
+      {
+        <QueryReactor
+          Components={[MaterialComponent[MaterialComponents.Instance]]}
+          ChildEntityReactor={MaterialInstanceReactor}
+        />
+      }
+      <QueryReactor
+        Components={[MaterialComponent[MaterialComponents.State]]}
+        ChildEntityReactor={MaterialEntityReactor}
+      />
     </>
   )
+}
+
+const MaterialEntityReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.State])
+  useEffect(() => {
+    if (materialComponent.instances.value)
+      for (const sourceEntity of materialComponent.instances.value) {
+        iterateEntityNode(sourceEntity, (childEntity) => {
+          const uuid = getComponent(childEntity, MaterialComponent[MaterialComponents.Instance]).uuid
+          if (uuid) setGroupMaterial(childEntity, uuid)
+        })
+      }
+  }, [materialComponent.material])
+
+  useEffect(() => {
+    if (materialComponent.pluginEntities) applyMaterialPlugins(entity)
+  }, [materialComponent.pluginEntities])
+
+  useEffect(() => {
+    if (materialComponent.prototypeEntity.value) updateMaterialPrototype(entity)
+  }, [materialComponent.prototypeEntity])
+
+  useEffect(() => {
+    if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
+  }, [materialComponent.instances])
+  return null
+}
+
+const MaterialInstanceReactor = () => {
+  const entity = useEntityContext()
+  const modelComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
+  const uuid = modelComponent.uuid
+  useEffect(() => {
+    if (uuid.value) setGroupMaterial(entity, uuid.value)
+  }, [modelComponent.uuid])
+
+  return null
 }
 
 export const MaterialLibrarySystem = defineSystem({

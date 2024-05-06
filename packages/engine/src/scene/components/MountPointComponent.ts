@@ -44,7 +44,6 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -114,7 +113,6 @@ const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
 
 const unmountEntity = (entity: Entity) => {
   if (!hasComponent(entity, SittingComponent)) return
-  const rigidBody = getComponent(entity, RigidBodyComponent)
 
   dispatchAction(
     AvatarNetworkAction.setAnimationState({
@@ -140,7 +138,6 @@ const unmountEntity = (entity: Entity) => {
   //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
   const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
   teleportAvatar(entity, dismountPoint)
-  rigidBody.body.setEnabled(true)
   removeComponent(entity, SittingComponent)
 }
 
