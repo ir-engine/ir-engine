@@ -52,7 +52,6 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -174,8 +173,6 @@ const execute = () => {
   const xrFrame = getState(XRState).xrFrame
   const physicsState = getState(PhysicsState)
   inputRaycast.excludeRigidBody = physicsState.cameraAttachedRigidbodyEntity
-    ? getOptionalComponent(physicsState.cameraAttachedRigidbodyEntity, RigidBodyComponent)?.body
-    : undefined
 
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)

@@ -62,8 +62,7 @@ const PlayModeTool = () => {
     const entity = AvatarComponent.getSelfAvatarEntity()
     if (entity) {
       dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
-      const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
-      removeEntity(cameraComputed.referenceEntity)
+      removeEntity(entity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)

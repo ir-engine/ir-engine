@@ -47,6 +47,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import { isArray } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
@@ -54,6 +55,7 @@ import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
+import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -330,5 +332,14 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     }
   }
 
+  const material = mesh.material
+  if (!material) return eJson
+
+  const materials = Array.isArray(material) ? material : [material]
+  materials.map((material) => {
+    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
+    createMaterialInstance(path, objEntity, material)
+  })
+  mesh.material = isArray(mesh.material) ? materials : materials[0]
   return eJson
 }

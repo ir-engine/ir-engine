@@ -23,32 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshMatcapMaterial as Matcap } from 'three'
+import { MeshStandardMaterial as Standard } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, TextureArg } from '../DefaultArgs'
+import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  AoMapArgs,
+  BasicArgs,
+  BumpMapArgs,
+  DisplacementMapArgs,
+  EmissiveMapArgs,
+  EnvMapArgs,
+  LightMapArgs,
+  MetalnessMapArgs,
+  NormalMapArgs,
+  RoughhnessMapArgs
+} from '../constants/BasicArgs'
 
-export const DefaultArgs = {
+export const MeshStandardArguments = {
   ...BasicArgs,
-  ...BumpMapArgs,
-  fog: BoolArg,
-  matcap: TextureArg,
+  ...EmissiveMapArgs,
+  ...EnvMapArgs,
   ...NormalMapArgs,
-  ...DisplacementMapArgs
+  ...BumpMapArgs,
+  ...DisplacementMapArgs,
+  ...RoughhnessMapArgs,
+  ...MetalnessMapArgs,
+  ...AoMapArgs,
+  ...LightMapArgs
 }
 
-export const MeshMatcapMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshMatcapMaterial',
-  baseMaterial: Matcap,
-  arguments: DefaultArgs,
-  onBeforeCompile: (shader, renderer) => {
-    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
-      (arg) => (shader.uniforms[arg] = { value: null })
-    )
-  },
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const MeshStandardMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshStandardMaterial',
+  prototypeConstructor: Standard,
+  arguments: MeshStandardArguments
 }
 
-export default MeshMatcapMaterial
+export default MeshStandardMaterial

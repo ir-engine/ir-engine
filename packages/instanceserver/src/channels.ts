@@ -56,7 +56,6 @@ import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/e
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -292,7 +291,6 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
