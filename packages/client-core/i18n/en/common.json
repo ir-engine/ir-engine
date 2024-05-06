@@ -33,6 +33,7 @@
     "loadingProjects": "Loading projects...",
     "loadingEngine": "Loading engine...",
     "loadingEditor": "Loading editor...",
+    "loadingStudio": "Loading studio...",
     "loadingRoutes": "Loading routes...",
     "loadingRoute": "Loading route...",
     "loadingAuth": "Loading auth routes...",
