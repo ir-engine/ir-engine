@@ -43,13 +43,17 @@ import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
+  DRACOTarget,
   FORMAT_TO_EXTENSION,
+  GLBTarget,
   GeometryFormat,
   GeometryType,
   KTX2TextureTarget,
+  KeyframeAttribute,
   TextureFormat,
   TextureTarget,
-  TextureType
+  TextureType,
+  UniformSolveTarget
 } from '../constants/NewUVOLTypes'
 import getFirstMesh from './meshUtils'
 
@@ -301,7 +305,11 @@ export const createMaterial = (
   }
 
   const defines = getShaderDefines(textureTypes, useVideoTexture)
-  const customUniforms = {}
+  const customUniforms = {
+    mixRatio: {
+      value: 0
+    }
+  }
 
   if (overrideMaterialProperties) {
     for (const key in overrideMaterialProperties) {
@@ -332,8 +340,8 @@ export const createMaterial = (
   if (geometryType === GeometryType.Unify) {
     vertexShader = replaceSubstrings(ShaderLib[shaderName].vertexShader, {
       '#include <clipping_planes_pars_vertex>': `#include <clipping_planes_pars_vertex>
-attribute vec3 keyframeA;
-attribute vec3 keyframeB;
+attribute vec3 keyframeAPosition;
+attribute vec3 keyframeBPosition;
 attribute vec3 keyframeANormal;
 attribute vec3 keyframeBNormal;
 uniform float mixRatio;
@@ -343,9 +351,9 @@ out vec2 custom_vUv;`,
 
       '#include <begin_vertex>': `
       vec3 transformed = vec3(position);
-      transformed.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
-      transformed.y += mix(keyframeA.y, keyframeB.y, mixRatio);
-      transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
+      transformed.x += mix(keyframeAPosition.x, keyframeBPosition.x, mixRatio); 
+      transformed.y += mix(keyframeAPosition.y, keyframeBPosition.y, mixRatio);
+      transformed.z += mix(keyframeAPosition.z, keyframeBPosition.z, mixRatio);
       
       #ifdef USE_ALPHAHASH
       
@@ -509,4 +517,95 @@ export const getResourceURL = (props: GetResourceURLProps) => {
   } else {
     throw new Error('getResourceURL:Invalid type. Must be either "geometry" or "texture"')
   }
+}
+
+interface GetGeometryBaseProps {
+  geometryBuffer: Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>
+  currentTimeInMS: number
+  preferredTarget: string
+  targets: string[]
+  geometryType: GeometryType
+}
+
+interface GetGeometryModernProps extends GetGeometryBaseProps {
+  targetData: Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>
+}
+
+interface GetGeometryUnifyProps extends GetGeometryModernProps {
+  geometryType: GeometryType.Unify
+  keyframeName: 'keyframeA' | 'keyframeB'
+}
+
+interface GetGeometryNonUnifyProps extends GetGeometryModernProps {
+  geometryType: GeometryType.Draco | GeometryType.GLTF
+}
+
+interface GetGeometryCortoProps extends GetGeometryBaseProps {
+  geometryType: GeometryType.Corto
+  frameRate: number
+}
+
+export type GetGeometryProps = GetGeometryUnifyProps | GetGeometryNonUnifyProps | GetGeometryCortoProps
+
+export const getGeometry = ({
+  geometryBuffer,
+  currentTimeInMS,
+  preferredTarget,
+  geometryType,
+  targets,
+  ...props
+}: GetGeometryProps) => {
+  const keyframeName = (props as GetGeometryUnifyProps).keyframeName
+
+  if (geometryBuffer.has(preferredTarget)) {
+    const frameRate =
+      geometryType === GeometryType.Corto
+        ? (props as GetGeometryCortoProps).frameRate
+        : (props as GetGeometryModernProps).targetData[preferredTarget].frameRate
+    let preferredTargetIndex = (currentTimeInMS * frameRate) / 1000
+    if (geometryType === GeometryType.Unify) {
+      preferredTargetIndex =
+        keyframeName === 'keyframeA' ? Math.floor(preferredTargetIndex) : Math.ceil(preferredTargetIndex)
+    } else {
+      preferredTargetIndex = Math.round(preferredTargetIndex)
+    }
+
+    const collection = geometryBuffer.get(preferredTarget)!
+    const geometry = collection[preferredTargetIndex]
+    if (geometry) {
+      return {
+        geometry,
+        target: preferredTarget,
+        index: preferredTargetIndex
+      }
+    }
+  }
+
+  if (geometryType === GeometryType.Corto) {
+    // Corto Volumetrics does not have multiple targets (legacy)
+    return false
+  }
+
+  for (const target of targets) {
+    if (geometryBuffer.has(target)) {
+      let index = (currentTimeInMS * (props as GetGeometryModernProps).targetData[preferredTarget].frameRate) / 1000
+      if (geometryType === GeometryType.Unify) {
+        index = keyframeName === 'keyframeA' ? Math.floor(index) : Math.ceil(index)
+      } else {
+        index = Math.round(index)
+      }
+
+      const collection = geometryBuffer.get(target)!
+      const geometry = collection[index]
+      if (geometry) {
+        return {
+          geometry,
+          target,
+          index
+        }
+      }
+    }
+  }
+
+  return false
 }

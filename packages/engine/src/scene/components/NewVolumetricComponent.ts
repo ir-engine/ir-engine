@@ -34,15 +34,26 @@ import {
   useExecute,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
-import { BufferGeometry, CompressedTexture, Group, Material, Mesh, ShaderMaterial, SphereGeometry } from 'three'
+import {
+  BufferGeometry,
+  CompressedTexture,
+  Group,
+  Material,
+  Mesh,
+  ShaderMaterial,
+  SphereGeometry,
+  Vector2
+} from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   BufferInfo,
+  DRACOTarget,
+  GLBTarget,
   GeometryFormatToType,
   GeometryType,
   KeyframeAttribute,
@@ -50,12 +61,19 @@ import {
   OldManifestSchema,
   Pretrackbufferingcallback,
   TextureType,
-  UniformSolveEncodeOptions
+  UniformSolveEncodeOptions,
+  UniformSolveTarget
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
 import { fetchGeometry, fetchTextures } from '../util/VolumetricBufferingUtils'
-import { createMaterial, getResourceURL, getSortedSupportedTargets } from '../util/VolumetricUtils'
+import {
+  GetGeometryProps,
+  createMaterial,
+  getGeometry,
+  getResourceURL,
+  getSortedSupportedTargets
+} from '../util/VolumetricUtils'
 import { MediaElementComponent } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
 
@@ -122,7 +140,7 @@ function NewVolumetricComponentReactor() {
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
   const component = useComponent(entity, NewVolumetricComponent)
   const material = useRef<ShaderMaterial | null>(null)
-  const mesh = useRef<Mesh | null>(null)
+  const mesh = useRef<Mesh<BufferGeometry, ShaderMaterial> | null>(null)
   const group = useRef(new Group())
   const setIntervalId = useHookstate(-1)
   const geometryBuffer = useRef(
@@ -130,6 +148,10 @@ function NewVolumetricComponentReactor() {
   )
   const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+
+  // Used by GeometryType.GLTF
+  const repeat = useRef(new Vector2(1, 1))
+  const offset = useRef(new Vector2(0, 0))
 
   const bufferLoop = () => {
     const currentTimeInMS = component.time.currentTime.value
@@ -499,6 +521,102 @@ function NewVolumetricComponentReactor() {
     }
   }, [playlistComponent?.paused, mediaElement])
 
+  const updateGeometry = (currentTimeInMS: number) => {
+    const geometryType = component.geometryType.value
+    const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
+    const targetData =
+      component.geometryType.value !== GeometryType.Corto
+        ? (component.manifest as State<ManifestSchema>).geometry.targets.get(NO_PROXY)
+        : undefined
+    const frameRate =
+      component.geometryType.value === GeometryType.Corto
+        ? (component.manifest as State<OldManifestSchema>).frameRate.get(NO_PROXY)
+        : undefined
+
+    const result = getGeometry({
+      geometryBuffer: geometryBuffer.current,
+      currentTimeInMS,
+      preferredTarget: geometryTarget,
+      geometryType,
+      targets: component.geometry.targets.value,
+      ...(geometryType === GeometryType.Corto && { frameRate: frameRate as number }),
+      ...(geometryType !== GeometryType.Corto && {
+        targetData: targetData as Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>
+      }),
+      ...(geometryType === GeometryType.Unify && { keyframeName: 'keyframeA' })
+    } as GetGeometryProps)
+
+    if (!result) {
+      if (geometryType !== GeometryType.Unify) {
+        console.warn('Geometry frame not found at time: ', currentTimeInMS / 1000)
+        return
+      }
+    } else {
+      if (geometryType === GeometryType.Corto || geometryType === GeometryType.Draco) {
+        const geometry = result.geometry as BufferGeometry
+        for (const attribute in geometry.attributes) {
+          if (mesh.current!.geometry.attributes[attribute] !== geometry.attributes[attribute]) {
+            mesh.current!.geometry.attributes[attribute] = geometry.attributes[attribute]
+            mesh.current!.geometry.attributes[attribute].needsUpdate = true
+          }
+        }
+      } else if (geometryType === GeometryType.GLTF) {
+        console.log('NOT IMPLEMENTED')
+      }
+    }
+
+    if (geometryType === GeometryType.Unify) {
+      const keyframeAResult = result
+      const keyframeBResult = getGeometry({
+        geometryBuffer: geometryBuffer.current,
+        currentTimeInMS,
+        preferredTarget: geometryTarget,
+        geometryType,
+        targets: component.geometry.targets.value,
+        targetData: targetData as Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>,
+        ...(geometryType === GeometryType.Unify && { keyframeName: 'keyframeB' })
+      } as GetGeometryProps)
+
+      if (keyframeAResult) {
+        if (
+          mesh.current!.geometry.attributes['keyframeAPosition'] !==
+          (keyframeAResult.geometry as KeyframeAttribute).position
+        ) {
+          mesh.current!.geometry.attributes['keyframeAPosition'] = (
+            keyframeAResult.geometry as KeyframeAttribute
+          ).position
+          mesh.current!.geometry.attributes['keyframeAPosition'].needsUpdate = true
+        }
+      }
+      if (keyframeBResult) {
+        if (
+          mesh.current!.geometry.attributes['keyframeBPosition'] !==
+          (keyframeBResult.geometry as KeyframeAttribute).position
+        ) {
+          mesh.current!.geometry.attributes['keyframeBPosition'] = (
+            keyframeBResult.geometry as KeyframeAttribute
+          ).position
+          mesh.current!.geometry.attributes['keyframeBPosition'].needsUpdate = true
+        }
+      }
+
+      if (!keyframeAResult && !keyframeBResult) {
+        return
+      } else if (!keyframeAResult && keyframeBResult) {
+        mesh.current!.material.uniforms.mixRatio.value = 1
+      } else if (keyframeAResult && !keyframeBResult) {
+        mesh.current!.material.uniforms.mixRatio.value = 0
+      } else if (keyframeAResult && keyframeBResult) {
+        const keyframeATimeInMS = (keyframeAResult.index * 1000) / targetData![keyframeAResult.target].frameRate
+        const keyframeBTimeInMS = (keyframeBResult.index * 1000) / targetData![keyframeBResult.target].frameRate
+        const distanceFromA = Math.abs(currentTimeInMS - keyframeATimeInMS)
+        const distanceFromB = Math.abs(currentTimeInMS - keyframeBTimeInMS)
+        const mixRatio = distanceFromA + distanceFromB > 0 ? distanceFromA / (distanceFromA + distanceFromB) : 0.5
+        mesh.current!.material.uniforms.mixRatio.value = mixRatio
+      }
+    }
+  }
+
   useExecute(
     () => {
       const now = Date.now()
@@ -514,6 +632,7 @@ function NewVolumetricComponentReactor() {
       }
       const currentTime = __currentTime
       component.time.currentTime.set(currentTime)
+      updateGeometry(__currentTime)
     },
     {
       with: AnimationSystemGroup
