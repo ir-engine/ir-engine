@@ -32,7 +32,6 @@ import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { Engine, UUIDComponent, UndefinedEntity, getComponent } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { addOutgoingTopicIfNecessary, getMutableState } from '@etherealengine/hyperflux'
@@ -133,17 +132,8 @@ export const usePortalTeleport = () => {
 }
 
 export const useLoadEngineWithScene = () => {
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-
   usePortalTeleport()
   useLinkTeleport()
-
-  useEffect(() => {
-    if (sceneLoaded.value) {
-      /** used by the PWA service worker */
-      window.dispatchEvent(new Event('load'))
-    }
-  }, [sceneLoaded])
 }
 
 export const useNetwork = (props: { online?: boolean }) => {

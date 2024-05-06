@@ -49,7 +49,6 @@ import {
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { SceneServices } from '@etherealengine/client-core/src/world/SceneServices'
 import {
   RecordingID,
   StaticResourceType,
@@ -57,6 +56,7 @@ import {
   recordingPath
 } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -513,7 +513,7 @@ const PlaybackMode = () => {
     )
       return
     const sceneURL = scene.assetURL
-    return SceneServices.setCurrentScene(sceneURL, scene.id)
+    return GLTFAssetState.loadScene(sceneURL, scene.id)
   }, [scene])
 
   const ActiveRecording = () => {

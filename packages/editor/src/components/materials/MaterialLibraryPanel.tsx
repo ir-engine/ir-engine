@@ -56,7 +56,7 @@ export const MaterialLibraryPanelTitle = () => {
               tabs: [
                 {
                   id: 'materialLibraryPanel',
-                  title: t('editor:layout.filebrowser.tab-name'),
+                  title: t('editor:materialLibrary.tab-materials'),
                   content: <MaterialLibraryPanel />
                 }
               ]

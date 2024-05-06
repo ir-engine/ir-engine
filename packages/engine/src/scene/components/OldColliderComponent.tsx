@@ -68,8 +68,8 @@ import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 
 /** @deprecated - use the new API */
-export const ColliderComponent = defineComponent({
-  name: 'Collider Component',
+export const OldColliderComponent = defineComponent({
+  name: 'OldColliderComponent',
   jsonID: 'collider',
 
   onInit(entity) {
@@ -161,7 +161,7 @@ export const ColliderComponent = defineComponent({
     const entity = useEntityContext()
 
     const transformComponent = useComponent(entity, TransformComponent)
-    const colliderComponent = useComponent(entity, ColliderComponent)
+    const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
@@ -172,7 +172,7 @@ export const ColliderComponent = defineComponent({
       const physicsWorld = getState(PhysicsState).physicsWorld
 
       if (isLoadedFromGLTF?.value || isMeshCollider) {
-        const colliderComponent = getComponent(entity, ColliderComponent)
+        const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)
         if (hasComponent(entity, GroupComponent)) {
@@ -251,15 +251,7 @@ export const ColliderComponent = defineComponent({
         }
         setComponent(entity, RigidBodyComponent, { type })
 
-        const rigidbody = getComponent(entity, RigidBodyComponent)
-
-        /**
-         * This component only supports one collider, always at index 0
-         */
-        if (rigidbody.body && rigidbody.body.numColliders() > 0) {
-          const collider = rigidbody.body.collider(0)
-          physicsWorld.removeCollider(collider, false)
-        }
+        removeComponent(entity, NewColliderComponent)
 
         setComponent(entity, NewColliderComponent, {
           shape: OldShapeTypes[colliderComponent.shapeType.value],

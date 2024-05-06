@@ -23,27 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshBasicMaterial as Basic } from 'three'
+import { MeshPhongMaterial as Phong } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
-import { TextureArg } from '../DefaultArgs'
+import {
+  BasicArgs,
+  BumpMapArgs,
+  DisplacementMapArgs,
+  EmissiveMapArgs,
+  EnvMapArgs,
+  NormalMapArgs
+} from '../constants/BasicArgs'
+import { BoolArg, FloatArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const DefaultArgs = {
+export const MeshPhongArguments = {
   ...BasicArgs,
+  ...BumpMapArgs,
+  ...DisplacementMapArgs,
+  dithering: { ...BoolArg, default: true },
   ...EmissiveMapArgs,
-  ...LightMapArgs,
-  ...AoMapArgs,
+  ...NormalMapArgs,
+  fog: BoolArg,
   ...EnvMapArgs,
-  specularMap: TextureArg
+  shininess: { ...FloatArg, default: 30 }
 }
 
-export const MeshBasicMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshBasicMaterial',
-  baseMaterial: Basic,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const MeshPhongMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshPhongMaterial',
+  prototypeConstructor: Phong,
+  arguments: MeshPhongArguments
 }
 
-export default MeshBasicMaterial
+export default MeshPhongMaterial
