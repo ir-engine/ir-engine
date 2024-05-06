@@ -190,7 +190,7 @@ const execute = () => {
 
 export const InteractableSystem = defineSystem({
   uuid: 'ee.engine.InteractableSystem',
-  insert: { after: TransformSystem },
+  insert: { before: TransformSystem },
   execute
 })
 
