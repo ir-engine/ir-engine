@@ -23,14 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import { MeshToonMaterial as Toon } from 'three'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../constants/BasicArgs'
+import { BoolArg, TextureArg } from '../constants/DefaultArgs'
 
-const config: ProjectConfigInterface = {
-  onEvent: undefined,
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {},
-  services: undefined,
-  databaseSeed: undefined
+export const MeshToonArguments = {
+  ...BasicArgs,
+  ...DisplacementMapArgs,
+  ...EmissiveMapArgs,
+  fog: BoolArg,
+  gradientMap: TextureArg,
+  ...NormalMapArgs
 }
 
-export default config
+export const MeshToonMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshToonMaterial',
+  prototypeConstructor: Toon,
+  arguments: MeshToonArguments
+}
+
+export default MeshToonMaterial

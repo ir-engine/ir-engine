@@ -23,27 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshBasicMaterial as Basic } from 'three'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../BasicArgs'
-import { TextureArg } from '../DefaultArgs'
-
-export const DefaultArgs = {
-  ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...LightMapArgs,
-  ...AoMapArgs,
-  ...EnvMapArgs,
-  specularMap: TextureArg
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const assetsOnlyColumnExists = await knex.schema.hasColumn(projectPath, 'assetsOnly')
+  if (!assetsOnlyColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('assetsOnly').defaultTo(false)
+    })
+  }
 }
 
-export const MeshBasicMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshBasicMaterial',
-  baseMaterial: Basic,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const assetsOnlyColumnExists = await knex.schema.hasColumn(projectPath, 'assetsOnly')
 
-export default MeshBasicMaterial
+  if (assetsOnlyColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('assetsOnly')
+    })
+  }
+}

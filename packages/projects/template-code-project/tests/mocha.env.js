@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,8 +24,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export enum LibraryEntryType {
-  MATERIAL = 'MATERIAL',
-  MATERIAL_PROTOTYPE = 'MATERIAL_PROTOTYPE',
-  MATERIAL_SOURCE = 'MATERIAL_SOURCE'
-}
+process.env.APP_ENV = 'test'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
+})
+
+require("fix-esm").register()

@@ -59,10 +59,7 @@ export interface SceneSnapshotInterface {
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<string, SceneJSONDataType>,
-    sceneLoaded: false,
-    loadingProgress: 0,
-    sceneModified: false
+    scenes: {} as Record<string, SceneJSONDataType>
   }),
 
   getScene: (sceneID: string) => {
@@ -278,7 +275,6 @@ const SceneSnapshotReactor = (props: { sceneID: string }) => {
 
   useLayoutEffect(() => {
     if (!sceneState.index.value) return
-    getMutableState(SceneState).sceneModified.set(true)
     // update scene state with the current snapshot
     getMutableState(SceneState).scenes[props.sceneID].scene.set(
       sceneState.snapshots[sceneState.index.value].data.get(NO_PROXY)
