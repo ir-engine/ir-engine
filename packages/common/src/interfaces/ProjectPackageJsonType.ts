@@ -30,5 +30,6 @@ export const DefaultUpdateSchedule = '0 * * * *'
 export interface ProjectPackageJsonType extends IPackageJson {
   etherealEngine: {
     version: string
+    thumbnail?: string
   }
 }

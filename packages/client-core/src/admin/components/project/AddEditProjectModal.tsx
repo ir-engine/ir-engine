@@ -45,6 +45,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCircleCheck, CiCircleRemove, CiWarning } from 'react-icons/ci'
 import { HiMiniClipboardDocumentList } from 'react-icons/hi2'
+import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 
 const autoUpdateIntervalOptions = [
@@ -94,16 +95,15 @@ const getTempProject = () => ({
 export default function AddEditProjectModal({
   update,
   inputProject,
-  onSubmit,
-  processing
+  onSubmit
 }: {
   update: boolean
   inputProject?: ProjectType
-  onSubmit: () => void
-  processing: boolean
+  onSubmit?: () => Promise<void>
 }) {
   const { t } = useTranslation()
   const showAutoUpdateOptions = useHookstate(false)
+  const modalProcessing = useHookstate(false)
 
   const project = update && inputProject ? inputProject : getTempProject()
 
@@ -372,6 +372,17 @@ export default function AddEditProjectModal({
     }
   }, [projectUpdateStatus?.value?.triggerSetDestination])
 
+  const handleSubmit = async () => {
+    modalProcessing.set(true)
+
+    try {
+      await onSubmit?.()
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+    modalProcessing.set(false)
+  }
+
   return (
     <Modal
       className="relative max-h-full w-[50vw] max-w-2xl p-4"
@@ -380,8 +391,8 @@ export default function AddEditProjectModal({
         ProjectUpdateService.clearProjectUpdate(project.name)
         PopoverState.hidePopupover()
       }}
-      onSubmit={onSubmit}
-      submitLoading={processing}
+      onSubmit={handleSubmit}
+      submitLoading={modalProcessing.value}
     >
       <div className="grid gap-6">
         <div className="grid gap-2">
@@ -532,9 +543,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.destinationValid
-                ? 'flex items-center gap-2 text-green-400'
-                : 'flex items-center gap-2 text-red-700'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
@@ -546,7 +556,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-700' + ' flex items-center gap-2'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
@@ -558,9 +569,8 @@ export default function AddEditProjectModal({
         {!update && (
           <Text
             className={
-              projectUpdateStatus.value?.sourceProjectMatchesDestination
-                ? 'text-green-400'
-                : 'text-red-700' + ' flex items-center gap-2'
+              'flex items-center gap-2 ' +
+              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
             }
           >
             {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}

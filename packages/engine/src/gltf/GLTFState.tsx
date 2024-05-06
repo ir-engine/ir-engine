@@ -60,10 +60,10 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { MathUtils, Matrix4 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -197,6 +197,7 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
 
   useLayoutEffect(() => {
     // update gltf state with the current snapshot
+    if (gltfState.index.value > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
     const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
     getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
   }, [gltfState.index.value])
@@ -268,8 +269,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     if (node.matrix.value) {
       const mat4 = new Matrix4().fromArray(node.matrix.value)
-      const transform = getComponent(entity, TransformComponent)
-      mat4.decompose(transform.position, transform.rotation, transform.scale)
+      const position = new Vector3()
+      const rotation = new Quaternion()
+      const scale = new Vector3()
+      mat4.decompose(position, rotation, scale)
+      setComponent(entity, TransformComponent, { position, rotation, scale })
     }
 
     // add all extensions for synchronous mount
@@ -305,8 +309,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!node.matrix.value) return
 
     const mat4 = new Matrix4().fromArray(node.matrix.value)
-    const transform = getComponent(entity, TransformComponent)
-    mat4.decompose(transform.position, transform.rotation, transform.scale)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const scale = new Vector3()
+    mat4.decompose(position, rotation, scale)
+    setComponent(entity, TransformComponent, { position, rotation, scale })
   }, [entity, node.matrix.value])
 
   if (!entity) return null
@@ -352,6 +359,10 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
+    /** @todo fix gizmo then re-enable this */
+    // return () => {
+    //   removeComponent(props.entity, Component)
+    // }
   }, [extension])
 
   return null
