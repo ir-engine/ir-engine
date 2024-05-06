@@ -47,20 +47,20 @@ export class AppleStrategy extends CustomOAuthStrategy {
     super()
     this.app = app
   }
-  async getProfile(data, _params) {
-    logger.info('[AppleSSO]: Loger Entering in getProfile')
-    console.log('[AppleSSO]: Console Entering in getProfile')
-    logger.info(`[AppleSSO]: Loger Entering in getProfile data is ${data}`)
-    console.log(`[AppleSSO]: Console Entering in getProfile data is ${data}`)
-    logger.info(`[AppleSSO]: Loger Entering in getProfile data.jwt is ${data.jwt}`)
-    console.log(`[AppleSSO]: Console Entering in getProfile data .jwt is ${data.jwt}`)
-    logger.info(`[AppleSSO]: Loger Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
-    console.log(`[AppleSSO]: Console Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
-    logger.info(`[AppleSSO]: Loger Entering in getProfile data.payload is  is ${data.jwt.id_token.payload}`)
-    console.log(`[AppleSSO]: Console Entering in getProfile data.payload is ${data.jwt.id_token.payload}`)
+  // async getProfile(data, _params) {
+  //   logger.info('[AppleSSO]: Loger Entering in getProfile')
+  //   console.log('[AppleSSO]: Console Entering in getProfile')
+  //   logger.info(`[AppleSSO]: Loger Entering in getProfile data is ${data}`)
+  //   console.log(`[AppleSSO]: Console Entering in getProfile data is ${data}`)
+  //   logger.info(`[AppleSSO]: Loger Entering in getProfile data.jwt is ${data.jwt}`)
+  //   console.log(`[AppleSSO]: Console Entering in getProfile data .jwt is ${data.jwt}`)
+  //   logger.info(`[AppleSSO]: Loger Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
+  //   console.log(`[AppleSSO]: Console Entering in getProfile data.idtokne is ${data.jwt.id_token}`)
+  //   logger.info(`[AppleSSO]: Loger Entering in getProfile data.payload is  is ${data.jwt.id_token.payload}`)
+  //   console.log(`[AppleSSO]: Console Entering in getProfile data.payload is ${data.jwt.id_token.payload}`)
 
-    return data.jwt.id_token.payload
-  }
+  //   return data.jwt.id_token.payload
+  // }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     logger.info('[AppleSSO]: Loger Entering in getEntityData')
     console.log('[AppleSSO]: Console Entering in getEntityData')
