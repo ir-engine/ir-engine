@@ -23,22 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { MeshMatcapMaterial as Matcap } from 'three'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
+import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../constants/BasicArgs'
+import { BoolArg, TextureArg } from '../constants/DefaultArgs'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+export const MeshMatcapArguments = {
+  ...BasicArgs,
+  ...BumpMapArgs,
+  fog: BoolArg,
+  matcap: TextureArg,
+  ...NormalMapArgs,
+  ...DisplacementMapArgs
+}
 
-export const SpectatorComponent = defineComponent({
-  name: 'SpectatorComponent',
-
-  onInit: (entity) => {
-    return {
-      userId: '' as UserID
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.userId) component.userId.set(json.userId)
+export const MeshMatcapMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshMatcapMaterial',
+  arguments: MeshMatcapArguments,
+  prototypeConstructor: Matcap,
+  onBeforeCompile: (shader, renderer) => {
+    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
+      (arg) => (shader.uniforms[arg] = { value: null })
+    )
   }
-})
+}
+
+export default MeshMatcapMaterial

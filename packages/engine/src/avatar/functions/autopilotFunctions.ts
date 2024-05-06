@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { World } from '@dimforge/rapier3d-compat'
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -36,7 +35,7 @@ import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
+import { Physics, PhysicsWorld, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -138,7 +137,7 @@ export const assessWalkability = (
   entity: Entity,
   rayNormal: Vector3,
   targetPosition: Vector3,
-  world: World
+  world: PhysicsWorld
 ): boolean => {
   const transform = getComponent(entity, TransformComponent)
   autopilotRaycastArgs.origin.copy(transform.position).setY(transform.position.y + 1.5)

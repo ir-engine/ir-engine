@@ -23,41 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshStandardMaterial as Standard } from 'three'
+import { Color, ShadowMaterial as Shadow } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import {
-  AoMapArgs,
-  BasicArgs,
-  BumpMapArgs,
-  DisplacementMapArgs,
-  EmissiveMapArgs,
-  EnvMapArgs,
-  LightMapArgs,
-  MetalnessMapArgs,
-  NormalMapArgs,
-  RoughhnessMapArgs
-} from '../BasicArgs'
+import { BoolArg, ColorArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const DefaultArgs = {
-  ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...EnvMapArgs,
-  ...NormalMapArgs,
-  ...BumpMapArgs,
-  ...DisplacementMapArgs,
-  ...RoughhnessMapArgs,
-  ...MetalnessMapArgs,
-  ...AoMapArgs,
-  ...LightMapArgs
+export const ShadowMaterialArguments = {
+  color: { ...ColorArg, default: new Color('#000') },
+  fog: { ...BoolArg, default: true },
+  transparent: { ...BoolArg, default: true }
 }
 
-export const MeshStandardMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshStandardMaterial',
-  baseMaterial: Standard,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const ShadowMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'ShadowMaterial',
+  prototypeConstructor: Shadow,
+  arguments: ShadowMaterialArguments
 }
-
-export default MeshStandardMaterial

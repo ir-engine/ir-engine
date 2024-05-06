@@ -43,7 +43,6 @@ import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancing
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
 import { KHRMaterialsPBRSpecularGlossinessExtension } from '../loaders/gltf/extensions/KHRMaterialsPBRSpecularGlossinessExtension'
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
-import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 
@@ -61,7 +60,6 @@ export const createGLTFLoader = (keepMaterials = false) => {
     loader.register((parser) => new GPUInstancingExtension(parser))
     loader.register((parser) => new HubsLightMapExtension(parser))
     loader.register((parser) => new EEMaterialImporterExtension(parser))
-    loader.register((parser) => new RegisterMaterialsExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }

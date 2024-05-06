@@ -25,13 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { assetPath, LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { locationBanPath, UserID } from '@etherealengine/common/src/schema.type.module'
-import { Entity } from '@etherealengine/ecs'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -60,18 +58,6 @@ export const LocationSeed: LocationType = {
   createdAt: '',
   updatedAt: ''
 }
-
-export const LocationSceneState = defineState({
-  name: 'LocationSceneState',
-  initial: {} as Record<string, Entity>, // sceneID => entity
-
-  useScene: (sceneID: string | undefined) => {
-    const scene = useGet(assetPath, sceneID).data
-    const scenes = useHookstate(getMutableState(LocationSceneState))
-    const assetURL = scene?.assetURL
-    return assetURL ? scenes[assetURL].value : null
-  }
-})
 
 export const LocationState = defineState({
   name: 'LocationState',

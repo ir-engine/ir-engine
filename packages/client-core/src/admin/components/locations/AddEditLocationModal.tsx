@@ -42,6 +42,12 @@ const getDefaultErrors = () => ({
   serverError: ''
 })
 
+const locationTypeOptions = [
+  { label: 'Private', value: 'private' },
+  { label: 'Public', value: 'public' },
+  { label: 'Showroom', value: 'showroom' }
+]
+
 export default function AddEditLocationModal({ location }: { location?: LocationType }) {
   const { t } = useTranslation()
 
@@ -56,6 +62,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
+  const locationType = useHookstate(location?.locationSetting.locationType || 'public')
 
   const scenes = useFind(assetPath, {
     query: {
@@ -90,7 +97,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
       locationSetting: {
         id: '',
         locationId: '' as LocationID,
-        locationType: location?.locationSetting.locationType as 'private' | 'public' | 'showroom',
+        locationType: locationType.value,
         audioEnabled: audioEnabled.value,
         screenSharingEnabled: screenSharingEnabled.value,
         faceStreamingEnabled: false,
@@ -164,6 +171,12 @@ export default function AddEditLocationModal({ location }: { location?: Location
                 ]
           }
           error={errors.scene.value}
+        />
+        <Select
+          label={t('admin:components.location.type')}
+          currentValue={locationType.value}
+          onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
+          options={locationTypeOptions}
         />
         <Toggle
           label={t('admin:components.location.lbl-ve')}
