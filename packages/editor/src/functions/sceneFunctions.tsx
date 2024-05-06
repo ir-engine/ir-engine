@@ -115,9 +115,17 @@ export const saveSceneGLTF = async (
   })
 }
 
-export const onNewScene = async () => {
+export const activateWizardPanel = () => {
+  getMutableState(EditorState).wizardContainerActive.set(true)
+}
+
+export const initiateEmptyScene = async () => {
   const { projectName } = getState(EditorState)
   if (!projectName) return
+
+  console.log('NEW SCENE')
+
+  getMutableState(EditorState).wizardContainerActive.set(false)
 
   try {
     const sceneData = await createNewScene(projectName)

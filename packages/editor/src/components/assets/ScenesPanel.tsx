@@ -44,7 +44,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
-import { deleteScene, onNewScene, renameScene } from '../../functions/sceneFunctions'
+import { activateWizardPanel, deleteScene, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -75,7 +75,7 @@ export default function ScenesPanel() {
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onCreateScene = async () => {
-    await onNewScene()
+    activateWizardPanel()
   }
 
   const onClickExisting = async (e, scene: AssetType) => {

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
@@ -44,7 +45,12 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
-import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
+import {
+  activateWizardPanel,
+  initiateEmptyScene,
+  saveSceneGLTF,
+  setCurrentEditorScene
+} from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -66,6 +72,7 @@ import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
+import { SceneWizardSelectorPanel } from './panels/SceneWizardSelectorPanel'
 import { ViewportPanelTab } from './panels/ViewportPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
@@ -286,7 +293,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: onNewScene
+      action: activateWizardPanel
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -370,9 +377,17 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity, wizardContainerActive } = useHookstate(
+    getMutableState(EditorState)
+  )
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
   const sceneURL = sceneQuery?.[0]?.assetURL
+
+  console.log(useHookstate(getState(ProjectState).projects).value)
+
+  const wizardInstalled = useHookstate(
+    getState(ProjectState).projects.find((project) => project.name === 'WizardPropertyComponent')
+  )
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -439,35 +454,42 @@ const EditorContainer = () => {
 
   return (
     <>
-      <div
-        id="editor-container"
-        className={styles.editorContainer}
-        style={scenePath.value ? { background: 'transparent' } : {}}
-      >
-        <DndWrapper id="editor-container">
-          <DragLayer />
-          <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ControlText />
-          {rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />}
-          <div className={styles.workspaceContainer}>
-            <AssetDropZone />
-            <DockContainer>
-              <DockLayout
-                ref={dockPanelRef}
-                defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
-          </div>
-          <Dialog
-            open={!!dialogComponent}
-            onClose={() => DialogState.setDialog(null)}
-            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-          >
-            {getState(DialogState).dialog}
-          </Dialog>
-        </DndWrapper>
-      </div>
+      <>
+        <div
+          id="editor-container"
+          className={styles.editorContainer}
+          style={scenePath.value ? { background: 'transparent' } : {}}
+        >
+          <DndWrapper id="editor-container">
+            <DragLayer />
+            <ToolBar menu={toolbarMenu} panels={panelMenu} />
+            <ControlText />
+            {rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />}
+            <div className={styles.workspaceContainer}>
+              <AssetDropZone />
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                />
+              </DockContainer>
+            </div>
+            <Dialog
+              open={!!dialogComponent}
+              onClose={() => DialogState.setDialog(null)}
+              classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
+            >
+              {getState(DialogState).dialog}
+            </Dialog>
+          </DndWrapper>
+        </div>
+      </>
+      {wizardContainerActive.value && (
+        <>
+          <SceneWizardSelectorPanel onNewScene={() => initiateEmptyScene()} wizardInstalled={wizardInstalled} />
+        </>
+      )}
     </>
   )
 }

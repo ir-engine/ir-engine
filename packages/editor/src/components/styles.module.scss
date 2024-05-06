@@ -64,7 +64,7 @@
 
 .checkbox {
   &:global(.Mui-checked) {
-    color: var(--iconButtonColor)!important;
+    color: var(--iconButtonColor) !important;
   }
 }
 
@@ -105,4 +105,26 @@
 
 .dockableTab {
   display: flex;
+}
+
+.wizardContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 40%;
+  width: 60%;
+  position: fixed;
+  top: 30%;
+  left: 20%;
+  pointer-events: auto;
+  background: var(--background2);
+}
+
+.wizardButtonEnabled {
+  background: 'lightgray';
+}
+
+.wizardButtonDisabled {
+  background: 'darkgray';
+  color: 'red';
 }

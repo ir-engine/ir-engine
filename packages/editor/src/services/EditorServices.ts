@@ -48,7 +48,8 @@ export const EditorState = defineState({
     expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
-    rootEntity: UndefinedEntity
+    rootEntity: UndefinedEntity,
+    wizardContainerActive: false as boolean
   }),
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
