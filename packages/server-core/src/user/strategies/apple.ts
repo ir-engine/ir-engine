@@ -47,16 +47,10 @@ export class AppleStrategy extends CustomOAuthStrategy {
     super()
     this.app = app
   }
-  // async getProfile(data, _params) {
-  //   logger.info('[AppleSSO]: Loger Entering in getProfile')
-  //   console.log('[AppleSSO]: Console Entering in getProfile')
-  //   logger.info(`[AppleSSO]: Loger Entering in getProfile data is ${data}`)
-  //   console.log(`[AppleSSO]: Console Entering in getProfile data is ${data}`)
-  //   return data as string
-  // }
+  async getProfile(data, _params) {
+    return data as string
+  }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
-    logger.info('[AppleSSO]: Loger Entering in getEntityData')
-    console.log('[AppleSSO]: Console Entering in getEntityData')
     const baseData = await super.getEntityData(profile, null, {})
     const authResult = entity
       ? entity

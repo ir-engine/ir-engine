@@ -130,7 +130,7 @@ export async function seed(knex: Knex): Promise<void> {
     }))
   )
 
-  if (forceRefresh || testEnabled) {
+  if (forceRefresh || testEnabled || process.env.REFRESH_AUTH_SETTINGS) {
     // Deletes ALL existing entries
     await knex(authenticationSettingPath).del()
 
