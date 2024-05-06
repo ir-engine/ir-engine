@@ -31,7 +31,6 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
-  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -39,15 +38,9 @@ import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import { useHookstate } from '@hookstate/core'
+import { getState } from '@etherealengine/hyperflux'
 
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import { HeirarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
@@ -56,8 +49,11 @@ import { ComponentEditorsState } from '@etherealengine/editor/src/functions/Comp
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { MdOutlineRemoveRedEye } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
-import styles from './styles.module.scss'
+
+//import styles from './styles.module.scss'
 
 /**
  * getNodeElId function provides id for node.
@@ -97,15 +93,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
 
-  const uuid = useComponent(node.entity, UUIDComponent)
+  console.log('DEBUG', node)
+  //const uuid = useComponent(node.entity, UUIDComponent)
 
-  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
+  //const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
 
   const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
-  const errors = useOptionalComponent(node.entity, ErrorComponent)
+  //const errors = useOptionalComponent(node.entity, ErrorComponent)
 
-  const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
+  // const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -169,7 +166,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     } else if (place === 'After') {
       const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
       parentNode = entityTreeComponent?.parentEntity
-      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity, EntityTreeComponent)
+      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
       if (
         parentTreeComponent &&
         !node.lastChild &&
@@ -285,7 +282,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     : []
   const IconComponent = icons.length ? icons[icons.length - 1] : TransformPropertyGroup.iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entity
-  const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
+  const marginLeft = node.depth > 0 ? node.depth * 2 + 2 : 0
 
   return (
     <li style={props.style}>
@@ -294,38 +291,41 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={styles.treeNodeContainer + (selected ? ' ' + styles.selected : '')}
+        className={`ml-3.5 h-7 py-1 pr-2 bg-[${props.index % 2 ? '#141619' : '#111113'}] items-center justify-between`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}
       >
         <div
-          className={styles.nodeDropTraget}
-          style={{ marginLeft, borderTopWidth: isOverBefore && canDropBefore ? 2 : 0 }}
+          className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft}`)}
           ref={beforeDropTarget}
         />
-        <div className={styles.nodeContent} style={{ paddingLeft: node.depth * 8 + 'px' }} ref={onDropTarget}>
+        <div className={twMerge('flex pr-2', `pl-${node.depth * 2}`)} ref={onDropTarget}>
           {node.isLeaf ? (
-            <div className={styles.spacer} />
+            <div className={'w-5 shrink-0'} />
           ) : (
             <button
               type="button"
-              className={styles.collapseButton}
+              className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'}
               onClick={onClickToggle as any}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {node.isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
+              {node.isCollapsed ? (
+                <MdKeyboardArrowRight className="font-small text-white" />
+              ) : (
+                <MdKeyboardArrowDown className="font-small text-white" />
+              )}
             </button>
           )}
 
-          <div className={styles.selectTarget}>
-            {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
-            <div className={styles.labelContainer}>
+          <div className={'flex flex-1 py-0.5 pl-0 pr-1'}>
+            {IconComponent ? <IconComponent className={'h-5 w-5 text-white'} /> : null}
+            <div className={'flex flex-1'}>
               {renaming ? (
-                <div className={styles.renameInputContainer}>
+                <div className={'relative h-[15px] w-full'}>
                   <input
                     type="text"
-                    className={styles.renameInput}
+                    className={'absolute top-[-3px] m-0 w-full rounded-[3px] px-1 py-0.5'}
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
@@ -333,20 +333,26 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                  {nodeName}
-                </div>
+                <div className={'shrink-0 rounded bg-transparent px-0.5 py-0 text-inherit'}>{nodeName}</div>
               )}
             </div>
             {/*errors?.value && <NodeIssuesIcon errors={errors.value} />*/}
-            {sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />}
+            {/*sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />*/}
           </div>
+
+          <button
+            type="button"
+            className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'}
+            onClick={onClickToggle as any}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <MdOutlineRemoveRedEye className="font-small text-[#6B7280]" />
+          </button>
         </div>
 
         <div
-          className={styles.nodeDropTraget}
-          style={{ marginLeft, borderBottomWidth: isOverAfter && canDropAfter ? 2 : 0 }}
-          ref={afterDropTarget}
+          className={twMerge(`border-b-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-[${marginLeft}px]`)}
+          ref={beforeDropTarget}
         />
       </div>
     </li>

@@ -30,7 +30,6 @@ import { GrabbableComponent } from '@etherealengine/engine/src/interaction/compo
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
@@ -96,9 +95,9 @@ import TriggerComponentEditor from '../components/properties/TriggerComponentEdi
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 
 // everythign above still needs to be built
+import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
-import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
@@ -125,6 +124,7 @@ import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
+import ColliderComponentEditor from '../components/properties/ColliderComponentEditor'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({

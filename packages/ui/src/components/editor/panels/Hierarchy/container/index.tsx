@@ -43,21 +43,20 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
-import {
-  HeirarchyTreeNodeType,
-  heirarchyTreeWalker
-} from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
+import { HeirarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { BsPlusCircle } from 'react-icons/bs'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import Button from '../../../../../primitives/tailwind/Button'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
 /**
@@ -82,7 +81,108 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
-  const entityHierarchy = useHookstate<HeirarchyTreeNodeType[]>([])
+  const entityHierarchy = useHookstate<HeirarchyTreeNodeType[]>([
+    {
+      depth: 0,
+      entity: {
+        /* Your Entity object 1 */
+      },
+      childIndex: 0,
+      lastChild: false,
+      isLeaf: false,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 2 */
+      },
+      childIndex: 0,
+      lastChild: false,
+      isLeaf: false,
+      isCollapsed: false
+    },
+    {
+      depth: 2,
+      entity: {
+        /* Your Entity object 3 */
+      },
+      childIndex: 1,
+      lastChild: false,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 2,
+      entity: {
+        /* Your Entity object 4 */
+      },
+      childIndex: 1,
+      lastChild: true,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 5 */
+      },
+      childIndex: 0,
+      lastChild: false,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 6 */
+      },
+      childIndex: 0,
+      lastChild: false,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 0,
+      entity: {
+        /* Your Entity object 7 */
+      },
+      childIndex: 1,
+      lastChild: false,
+      isLeaf: false,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 8 */
+      },
+      childIndex: 0,
+      lastChild: false,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 9 */
+      },
+      childIndex: 1,
+      lastChild: false,
+      isLeaf: true,
+      isCollapsed: false
+    },
+    {
+      depth: 1,
+      entity: {
+        /* Your Entity object 10 */
+      },
+      childIndex: 2,
+      lastChild: true,
+      isLeaf: true,
+      isCollapsed: false
+    }
+  ] as HeirarchyTreeNodeType[])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
@@ -92,13 +192,15 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const index = SceneSnapshotState.useSnapshotIndex(sceneURL)
 
   const MemoTreeNode = useCallback(
-    (props: HierarchyTreeNodeProps) => (
-      <HierarchyTreeNode
-        {...props}
-        key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
-        onContextMenu={onContextMenu}
-      />
-    ),
+    (props: HierarchyTreeNodeProps) => {
+      return (
+        <HierarchyTreeNode
+          {...props}
+          key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
+          onContextMenu={onContextMenu}
+        />
+      )
+    },
     [entityHierarchy]
   )
 
@@ -117,7 +219,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, SceneState.getRootEntity(sceneURL))))
+    //entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, SceneState.getRootEntity(sceneURL))))
   }, [expandedNodes, index])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
@@ -411,7 +513,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   })
 
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
-  validNodes = validNodes.filter((node) => entityExists(node.entity))
+  //validNodes = validNodes.filter((node) => entityExists(node.entity))
 
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
@@ -439,8 +541,24 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 
   return (
-    <>
-      {/*<div className={styles.panelContainer}>
+    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
+      <div className="ml-auto flex h-8 bg-zinc-900">
+        <Button
+          textContainerClassName="mx-0"
+          startIcon={<BsPlusCircle />}
+          className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+        >
+          {t('editor:hierarchy.lbl-addEntity')}
+        </Button>
+      </div>
+      <div className="h-[300px]">
+        <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+      </div>
+    </div>
+  )
+  {
+    /*<div className={styles.panelContainer}>
         <div className={styles.dockableTabButtons}>
           <Search elementsName="hierarchy" handleInputChange={searchHierarchy.set} />
         </div>
@@ -521,9 +639,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         <MenuItem onClick={() => collapseChildren(contextSelectedItem!)}>
           {t('editor:hierarchy.lbl-collapseAll')}
         </MenuItem>
-        </ContextMenu>*/}
-    </>
-  )
+        </ContextMenu>*/
+  }
 }
 
 const GLTFHierarchy = (props: { sceneID: string }) => {
@@ -549,16 +666,147 @@ const JSONHierarchy = (props: { sceneID: string }) => {
   const { sceneID } = props
   const sceneState = useHookstate(getMutableState(SceneState)).value
 
-  const sceneJson = SceneState.getScene(sceneID!)?.scene
-  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
+  //const sceneJson = SceneState.getScene(sceneID!)?.scene
 
-  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+  const sceneJson = {
+    version: 0,
+    entities: {
+      root: {
+        name: 'Root',
+        components: []
+      },
+      child_0: {
+        name: 'Child 0',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          },
+          {
+            name: 'EE_model',
+            props: {
+              src: '/packages/projects/default-project/assets/collisioncube.glb',
+              cameraOcclusion: true,
+              convertToVRM: false
+            }
+          }
+        ],
+        parent: 'root'
+      },
+      child_1: {
+        name: 'Child 1',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 1, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          }
+        ],
+        parent: 'child_0'
+      },
+      child_2: {
+        name: 'Child 2',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 0, y: 1, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          }
+        ],
+        parent: 'child_1'
+      },
+      child_3: {
+        name: 'Child 3',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 0, y: 0, z: 1 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          }
+        ],
+        parent: 'child_2'
+      },
+      child_4: {
+        name: 'Child 4',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 2, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          }
+        ],
+        parent: 'child_3'
+      },
+      child_5: {
+        name: 'Child 5',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 0, y: 2, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          }
+        ],
+        parent: 'child_4'
+      },
+      child_2_1: {
+        name: 'Child 2 _ 1',
+        components: [
+          {
+            name: 'EE_transform',
+            props: {
+              position: { x: 0, y: 0, z: 2 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 }
+            }
+          },
+          {
+            name: 'EE_fog',
+            props: {
+              type: 'linear',
+              color: '#FFFFFF',
+              density: 0.005,
+              near: 1,
+              far: 1000,
+              timeScale: 1,
+              height: 0.05
+            }
+          }
+        ],
+        parent: 'child_2'
+      }
+    },
+    root: 'root'
+  }
 
-  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={sceneID} />
+  //const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
+
+  //if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
+
+  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root as any} sceneURL={sceneID} />
 }
 
 export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
+  //const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
+  const sceneID = 'test.json'
   if (!sceneID) return null
   return sceneID.endsWith('.json') ? (
     <JSONHierarchy sceneID={sceneID} key={sceneID} />
