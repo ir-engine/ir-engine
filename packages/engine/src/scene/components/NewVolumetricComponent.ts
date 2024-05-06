@@ -566,7 +566,13 @@ function NewVolumetricComponentReactor() {
     }
 
     if (geometryType === GeometryType.Unify) {
-      const keyframeAResult = result
+      const keyframeAResult = result as
+        | {
+            geometry: KeyframeAttribute
+            index: number
+            target: string
+          }
+        | false
       const keyframeBResult = getGeometry({
         geometryBuffer: geometryBuffer.current,
         currentTimeInMS,
@@ -575,28 +581,38 @@ function NewVolumetricComponentReactor() {
         targets: component.geometry.targets.value,
         targetData: targetData as Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>,
         ...(geometryType === GeometryType.Unify && { keyframeName: 'keyframeB' })
-      } as GetGeometryProps)
+      } as GetGeometryProps) as
+        | {
+            geometry: KeyframeAttribute
+            index: number
+            target: string
+          }
+        | false
 
       if (keyframeAResult) {
-        if (
-          mesh.current!.geometry.attributes['keyframeAPosition'] !==
-          (keyframeAResult.geometry as KeyframeAttribute).position
-        ) {
-          mesh.current!.geometry.attributes['keyframeAPosition'] = (
-            keyframeAResult.geometry as KeyframeAttribute
-          ).position
+        if (mesh.current!.geometry.attributes['keyframeAPosition'] !== keyframeAResult.geometry.position) {
+          mesh.current!.geometry.attributes['keyframeAPosition'] = keyframeAResult.geometry.position
           mesh.current!.geometry.attributes['keyframeAPosition'].needsUpdate = true
+        }
+        if (
+          keyframeAResult.geometry.normal &&
+          mesh.current!.geometry.attributes['keyframeANormal'] !== keyframeAResult.geometry.normal
+        ) {
+          mesh.current!.geometry.attributes['keyframeANormal'] = keyframeAResult.geometry.normal
+          mesh.current!.geometry.attributes['keyframeANormal'].needsUpdate = true
         }
       }
       if (keyframeBResult) {
-        if (
-          mesh.current!.geometry.attributes['keyframeBPosition'] !==
-          (keyframeBResult.geometry as KeyframeAttribute).position
-        ) {
-          mesh.current!.geometry.attributes['keyframeBPosition'] = (
-            keyframeBResult.geometry as KeyframeAttribute
-          ).position
+        if (mesh.current!.geometry.attributes['keyframeBPosition'] !== keyframeBResult.geometry.position) {
+          mesh.current!.geometry.attributes['keyframeBPosition'] = keyframeBResult.geometry.position
           mesh.current!.geometry.attributes['keyframeBPosition'].needsUpdate = true
+        }
+        if (
+          keyframeBResult.geometry.normal &&
+          mesh.current!.geometry.attributes['keyframeBNormal'] !== keyframeBResult.geometry.normal
+        ) {
+          mesh.current!.geometry.attributes['keyframeBNormal'] = keyframeBResult.geometry.normal
+          mesh.current!.geometry.attributes['keyframeBNormal'].needsUpdate = true
         }
       }
 
