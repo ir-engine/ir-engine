@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable"],
+    "lib": ["esnext", "dom", "dom.iterable", "WebWorker"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -25,15 +25,12 @@
     "types": ["vite/client", "mocha"]
   },
   "exclude": [
-    "../projects/template-project/**",
-    "../projects/template-code-project/**",
-    "../projects/projects/**",
     "**/node_modules/**"
   ],
   "include": [
-    "../../__global.d.ts",
-    "../server-core/src/",
-    "./**/*.ts",
-    "./**/*.tsx"
+    "../../../../__global.d.ts",
+    "../../../server-core/src/*",
+    "../**/*.ts",
+    "../**/*.tsx"
   ]
 }
