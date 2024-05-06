@@ -45,13 +45,16 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEntity, generateEntityUUID, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
@@ -63,9 +66,12 @@ export const ParticleState = defineState({
   initial: () => {
     const batchRenderer = new BatchedParticleRenderer()
     const batchRendererEntity = createEntity()
-    addObjectToGroup(batchRendererEntity, batchRenderer)
+    setComponent(batchRendererEntity, UUIDComponent, generateEntityUUID())
     setComponent(batchRendererEntity, VisibleComponent)
     setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
+    setComponent(batchRendererEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    addObjectToGroup(batchRendererEntity, batchRenderer)
+    batchRenderer.parent = globalThis._scene
     return {
       batchRenderer,
       batchRendererEntity
@@ -765,6 +771,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
 export const ParticleSystemComponent = defineComponent({
   name: 'ParticleSystemComponent',
   jsonID: 'EE_particle_system',
+
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -773,6 +780,7 @@ export const ParticleSystemComponent = defineComponent({
       _refresh: 0
     } as ParticleSystemComponentType
   },
+
   onSet: (entity, component, json) => {
     !!json?.systemParameters &&
       component.systemParameters.set({
@@ -784,6 +792,7 @@ export const ParticleSystemComponent = defineComponent({
     ;(!!json?.systemParameters || !!json?.behaviorParameters) &&
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
+
   onRemove: (entity, component) => {
     if (component.system.value) {
       removeObjectFromGroup(entity, component.system.value.emitter as unknown as Object3D)
@@ -792,40 +801,39 @@ export const ParticleSystemComponent = defineComponent({
     }
     component.behaviors.set(none)
   },
+
   toJSON: (entity, component) => ({
     systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
     behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
   }),
+
   reactor: function () {
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
-    const component = componentState.value
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
 
-    const [geoDependency] = useGLTF(component.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh] = useGLTF(component.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [texture] = useTexture(component.systemParameters.texture!, entity, {}, (url) => {
+    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, {}, (url) => {
       metadata.textures.nested(url).set(none)
-      dudMaterial.map.set(none)
+      dudMaterial.map = null
     })
 
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
-    const dudMaterial = useHookstate(
-      new MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending as Blending
-      })
-    )
+    const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
+      color: 0xffffff,
+      transparent: componentState.value.systemParameters.transparent ?? true,
+      blending: componentState.value.systemParameters.blending as Blending
+    })
 
     useEffect(() => {
       //add dud material
       componentState.systemParameters.material.set('dud')
-      metadata.materials.nested('dud').set(dudMaterial.get(NO_PROXY))
+      metadata.materials.nested('dud').set(dudMaterial)
     }, [])
 
     useEffect(() => {
@@ -833,7 +841,7 @@ export const ParticleSystemComponent = defineComponent({
 
       const scene = geoDependency.scene
       const geo = getFirstMesh(scene)?.geometry
-      !!geo && metadata.geometries.nested(component.systemParameters.instancingGeometry!).set(geo)
+      !!geo && metadata.geometries.nested(componentState.value.systemParameters.instancingGeometry!).set(geo)
     }, [geoDependency])
 
     useEffect(() => {
@@ -841,16 +849,18 @@ export const ParticleSystemComponent = defineComponent({
 
       const scene = shapeMesh.scene
       const mesh = getFirstMesh(scene)
-      mesh && metadata.geometries.nested(component.systemParameters.shape.mesh!).set(mesh.geometry)
+      mesh && metadata.geometries.nested(componentState.value.systemParameters.shape.mesh!).set(mesh.geometry)
     }, [shapeMesh])
 
     useEffect(() => {
       if (!texture) return
-      metadata.textures.nested(component.systemParameters.texture!).set(texture)
-      dudMaterial.map.set(texture)
+      metadata.textures.nested(componentState.value.systemParameters.texture!).set(texture)
+      dudMaterial.map = texture
+      dudMaterial.needsUpdate = true
     }, [texture])
 
     useEffect(() => {
+      const component = componentState.get(NO_PROXY)
       if (component.system) {
         const emitterAsObj3D = component.system.emitter as unknown as Object3D
         if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
@@ -873,6 +883,7 @@ export const ParticleSystemComponent = defineComponent({
         const emitterAsObj3D = nuSystem.emitter
         emitterAsObj3D.userData['_refresh'] = component._refresh
         addObjectToGroup(entity, emitterAsObj3D)
+        emitterAsObj3D.parent = getState(ParticleState).batchRenderer
         const transformComponent = getComponent(entity, TransformComponent)
         emitterAsObj3D.matrix = transformComponent.matrix
         componentState.system.set(nuSystem)
