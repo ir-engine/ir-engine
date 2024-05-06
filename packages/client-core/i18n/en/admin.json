@@ -349,6 +349,16 @@
       "selectFile": "Select File",
       "resourceUrl": "Resource URL"
     },
+    "middleware": {
+      "settings": "Middleware",
+      "project": {
+        "header": "Project",
+        "subtitle": "Edit Middleware Settings",
+        "submit": "Submit",
+        "clear": "Clear",
+        "noSettingsMessage": "No schema available in xrengine.config.ts"
+      }
+    },
     "setting": {
       "authentication": {
         "header": "Authentication",
