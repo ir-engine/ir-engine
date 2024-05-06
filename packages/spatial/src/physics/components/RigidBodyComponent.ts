@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
 import { useEntityContext } from '@etherealengine/ecs'
@@ -33,11 +32,9 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState } from '@etherealengine/hyperflux'
 import { useLayoutEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
-import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
@@ -64,12 +61,11 @@ export const RigidBodyComponent = defineComponent({
       type: 'fixed' as Body,
       ccd: false,
       allowRolling: true,
-      enabledRotations: [true, true, true],
+      enabledRotations: [true, true, true] as [boolean, boolean, boolean],
       // rigidbody desc values
       canSleep: true,
       gravityScale: 1,
       // internal
-      body: null! as RigidBody,
       previousPosition: proxifyVector3(this.previousPosition, entity),
       previousRotation: proxifyQuaternion(this.previousRotation, entity),
       position: proxifyVector3(this.position, entity),
@@ -111,37 +107,6 @@ export const RigidBodyComponent = defineComponent({
     const component = useComponent(entity, RigidBodyComponent)
 
     useLayoutEffect(() => {
-      let rigidBodyDesc: RigidBodyDesc = undefined!
-      switch (component.type.value) {
-        case 'fixed':
-        default:
-          rigidBodyDesc = RigidBodyDesc.fixed()
-          break
-
-        case 'dynamic':
-          rigidBodyDesc = RigidBodyDesc.dynamic()
-          break
-
-        case 'kinematic':
-          rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-          break
-      }
-      rigidBodyDesc.setCanSleep(component.canSleep.value)
-      rigidBodyDesc.setGravityScale(component.gravityScale.value)
-      const world = getState(PhysicsState).physicsWorld
-      const rigidBody = Physics.createRigidBody(entity, world, rigidBodyDesc)
-      component.body.set(rigidBody)
-
-      return () => {
-        const world = getState(PhysicsState).physicsWorld
-        if (!world) return
-        if (world.bodies.contains(rigidBody.handle)) {
-          world.removeRigidBody(rigidBody)
-        }
-      }
-    }, [])
-
-    useLayoutEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
       Physics.setRigidBodyType(entity, type)
@@ -151,23 +116,15 @@ export const RigidBodyComponent = defineComponent({
     }, [component.type])
 
     useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.enableCcd(component.ccd.value)
+      Physics.enabledCcd(entity, component.ccd.value)
     }, [component.ccd])
 
     useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.lockRotations(component.allowRolling.value, false)
+      Physics.lockRotations(entity, !component.allowRolling.value)
     }, [component.allowRolling])
 
     useLayoutEffect(() => {
-      const rigidBody = component.body.value
-      rigidBody.setEnabledRotations(
-        component.enabledRotations.value[0],
-        component.enabledRotations.value[1],
-        component.enabledRotations.value[2],
-        false
-      )
+      Physics.setEnabledRotations(entity, component.enabledRotations.value)
     }, [component.enabledRotations])
 
     return null

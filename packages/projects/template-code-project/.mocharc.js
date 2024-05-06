@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,22 +24,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
-export const SpectatorComponent = defineComponent({
-  name: 'SpectatorComponent',
-
-  onInit: (entity) => {
-    return {
-      userId: '' as UserID
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.userId) component.userId.set(json.userId)
-  }
-})
+module.exports = {
+  failZero: false,
+  parallel: false,
+  require: [
+    'tests/mocha.env', // init env here
+    'jsdom-global/register'
+  ],
+  spec: [
+    './**/*.test.ts',
+    './**/*.test.tsx'
+  ],
+  extension: [
+    'ts',
+    'tsx'
+  ],
+  bail: true,
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '60000'
+};
