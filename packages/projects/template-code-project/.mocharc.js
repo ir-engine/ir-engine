@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,13 +24,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IPackageJson } from 'package-json-type'
-
-export const DefaultUpdateSchedule = '0 * * * *'
-
-export interface ProjectPackageJsonType extends IPackageJson {
-  etherealEngine: {
-    version: string
-    thumbnail?: string
-  }
-}
+module.exports = {
+  failZero: false,
+  parallel: false,
+  require: [
+    'tests/mocha.env', // init env here
+    'jsdom-global/register'
+  ],
+  spec: [
+    './**/*.test.ts',
+    './**/*.test.tsx'
+  ],
+  extension: [
+    'ts',
+    'tsx'
+  ],
+  bail: true,
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '60000'
+};

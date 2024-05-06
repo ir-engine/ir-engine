@@ -22,15 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
-
-const config: ProjectConfigInterface = {
-  onEvent: undefined,
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {},
-  services: undefined,
-  databaseSeed: undefined
-}
-
-export default config
