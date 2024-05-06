@@ -178,12 +178,8 @@ function ModelReactor() {
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     let uuid: string | null = null
     if (modelComponent.dereference.value) {
-      const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-      if (!parentEntity) {
-        console.warn("Can't dereference model, no parent entity")
-      }
       // update authoring layer
-      SceneState.injectScene(parentEntity, loadedJsonHierarchy)
+      SceneState.injectScene(entity, loadedJsonHierarchy)
       // perform runtime reparent and delete model entity
       //...
       //...
