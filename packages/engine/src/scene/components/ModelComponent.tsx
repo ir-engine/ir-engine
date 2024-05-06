@@ -40,7 +40,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -185,6 +185,10 @@ function ModelReactor() {
       // update authoring layer
       SceneState.injectScene(parentEntity, loadedJsonHierarchy)
       // perform runtime reparent and delete model entity
+      //...
+      //...
+      // remove the model entity since it has been dereferenced
+      removeEntity(entity)
     } else {
       uuid = getModelSceneID(entity)
 

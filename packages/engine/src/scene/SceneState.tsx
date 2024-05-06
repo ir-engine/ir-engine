@@ -92,7 +92,23 @@ export const SceneState = defineState({
     }
   },
 
-  injectScene: (parentEntity: Entity, data: Record<EntityUUID, EntityJsonType>) => {},
+  injectScene: (parentEntity: Entity, data: Record<EntityUUID, EntityJsonType>) => {
+    //get the sceneID from the parent entity
+    const sceneID = getComponent(parentEntity, SourceComponent)
+    if (!sceneID) return
+    //get snapshot from the sceneID
+    const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+    //add new data as child of the parent entity
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
+    for (const [uuid, entityJson] of Object.entries(data)) {
+      if (entityJson.parent === parentUUID) {
+        entityJson.parent = parentUUID
+      }
+    }
+    snapshot.data.entities = { ...snapshot.data.entities, ...data }
+    //create a new snapshot
+    dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
+  },
 
   unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
