@@ -206,9 +206,9 @@ const execute = () => {
 
   if (transition.state === 'IN') {
     setComponent(ui.entity, ComputedTransformComponent, {
-      referenceEntity: Engine.instance.cameraEntity,
+      referenceEntities: [Engine.instance.viewerEntity],
       computeFunction: () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+        const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
         const distance = camera.near * 1.1 // 10% in front of camera
         ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, 0.3, distance)
       }

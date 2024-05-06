@@ -38,10 +38,7 @@ import { NetworkObjectComponent, NetworkTopics, WorldNetworkAction, matchesUserI
 import React, { useEffect } from 'react'
 import { MathUtils } from 'three'
 import { TransformComponent } from '../../SpatialModule'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
@@ -106,11 +103,14 @@ const SpectatorReactor = () => {
         state.spectating.value,
         CameraComponent
       )
-      setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
-        if (!networkTransform) return
-        cameraTransform.position.copy(networkTransform.position)
-        cameraTransform.rotation.copy(networkTransform.rotation)
+      setComponent(cameraEntity, ComputedTransformComponent, {
+        referenceEntities: [networkCameraEntity],
+        computeFunction: () => {
+          const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+          if (!networkTransform) return
+          cameraTransform.position.copy(networkTransform.position)
+          cameraTransform.rotation.copy(networkTransform.rotation)
+        }
       })
       return () => {
         removeComponent(cameraEntity, ComputedTransformComponent)
@@ -142,11 +142,14 @@ const SpectatingUserReactor = (props: { userID: UserID }) => {
 
     const cameraEntity = Engine.instance.viewerEntity
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
-    setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-      const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
-      if (!networkTransform) return
-      cameraTransform.position.copy(networkTransform.position)
-      cameraTransform.rotation.copy(networkTransform.rotation)
+    setComponent(cameraEntity, ComputedTransformComponent, {
+      referenceEntities: [networkCameraEntity],
+      computeFunction: () => {
+        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+        if (!networkTransform) return
+        cameraTransform.position.copy(networkTransform.position)
+        cameraTransform.rotation.copy(networkTransform.rotation)
+      }
     })
     return () => {
       removeComponent(cameraEntity, ComputedTransformComponent)
