@@ -39,7 +39,7 @@ import {
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useEntityContext } from '@etherealengine/ecs'
+import { UUIDComponent, useEntityContext } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -50,7 +50,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -64,22 +64,20 @@ import { RendererState } from '@etherealengine/spatial/src/renderer/RendererStat
 import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { registerMaterial, unregisterMaterial } from '../../scene/materials/functions/MaterialLibraryFunctions'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { MaterialLibraryState } from '../materials/MaterialLibrary'
-
-export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
+import { createMaterialEntity } from '../materials/functions/materialSourcingFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -116,44 +114,42 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
+export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
-export function setupObject(obj: Object3D, forceBasicMaterials = false) {
+export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
-
   if (child.material) {
-    if (!child.userData) child.userData = {}
     const shouldMakeBasic =
       (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-    if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
-      const prevEntry = unregisterMaterial(child.material)
-      child.material = child.userData.lastMaterial
-      prevEntry && registerMaterial(child.userData.lastMaterial, prevEntry.src, prevEntry.parameters)
-      delete child.userData.lastMaterial
-    } else if (shouldMakeBasic && !child.userData.lastMaterial) {
-      const basicMaterial = getState(MaterialLibraryState).materials[`basic-${child.material.uuid}`]
-      if (basicMaterial) {
-        child.material = basicMaterial.material
+    if (shouldMakeBasic) {
+      const basicUUID = `basic-${child.material.uuid}` as EntityUUID
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
+      if (basicMaterialEntity) {
+        child.material = getComponent(basicMaterialEntity, MaterialComponent[MaterialComponents.State]).material
         return
       }
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-      const prevMatEntry = unregisterMaterial(prevMaterial)
-      const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
+      const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
+      newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+      if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
+      else newBasicMaterial.map = prevMaterial.map
+      newBasicMaterial.reflectivity = prevMaterial.metalness
+      newBasicMaterial.envMap = prevMaterial.envMap
+      newBasicMaterial.vertexColors = prevMaterial.vertexColors
+      newBasicMaterial.uuid = basicUUID
+      createMaterialEntity(newBasicMaterial, '')
+      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
+    } else {
+      const UUID = child.material.uuid as EntityUUID
+      const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUID)
+      if (!basicMaterialEntity) return
 
-      nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+      const nonBasicUUID = UUID.slice(6) as EntityUUID
+      const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
+      if (!materialEntity) return
 
-      if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
-      else nuMaterial.map = prevMaterial.map
-
-      nuMaterial.reflectivity = prevMaterial.metalness
-      nuMaterial.envMap = prevMaterial.envMap
-      nuMaterial.vertexColors = prevMaterial.vertexColors
-
-      child.material = nuMaterial
-      child.userData.lastMaterial = prevMaterial
-
-      nuMaterial.uuid = `basic-${prevMaterial.uuid}`
-      prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
+      setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [nonBasicUUID] })
     }
   }
 }
@@ -177,7 +173,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   }, [])
 
   useEffect(() => {
-    setupObject(obj, forceBasicMaterials.value)
+    setupObject(obj, entity, forceBasicMaterials.value)
   }, [forceBasicMaterials])
 
   return null

@@ -26,12 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Entity } from '@etherealengine/ecs'
+import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GraphJSON, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
 export enum VisualScriptDomain {
@@ -83,6 +86,7 @@ export const VisualScriptComponent = defineComponent({
     const visualScriptState = useHookstate(getMutableState(VisualScriptState))
     const canPlay = visualScript.run.value && !visualScript.disabled.value
     const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true })
+    const gltfAncestor = useAncestorWithComponent(entity, GLTFComponent)
 
     const visualScriptRunner = useVisualScriptRunner({
       visualScriptJson: visualScript.visualScript.get({ noproxy: true }),
@@ -100,6 +104,23 @@ export const VisualScriptComponent = defineComponent({
       visualScript.run.set(false)
     }, [visualScript.disabled])
 
-    return null
+    if (!gltfAncestor) return null
+
+    return <LoadReactor entity={entity} gltfAncestor={gltfAncestor} key={gltfAncestor} />
   }
 })
+
+const LoadReactor = (props: { entity: Entity; gltfAncestor: Entity }) => {
+  const gltfComponent = useComponent(props.gltfAncestor, GLTFComponent)
+  const loaded = gltfComponent.progress.value === 100
+
+  useEffect(() => {
+    setComponent(props.entity, VisualScriptComponent, { run: true })
+
+    return () => {
+      setComponent(props.entity, VisualScriptComponent, { run: false })
+    }
+  }, [loaded])
+
+  return null
+}

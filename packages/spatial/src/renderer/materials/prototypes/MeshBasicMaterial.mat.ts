@@ -23,32 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { MeshBasicMaterial as Basic } from 'three'
 
-import { MaterialSource, SourceType } from './MaterialSource'
+import { AoMapArgs, BasicArgs, EmissiveMapArgs, EnvMapArgs, LightMapArgs } from '../constants/BasicArgs'
+import { TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export type MaterialPrototypeComponentType<T extends Material = Material> = {
-  prototypeId: string
-  baseMaterial: { new (params): T }
-  arguments: {
-    [_: string]: {
-      type: string
-      default: any
-      min?: number
-      max?: number
-      options?: any[]
-    }
-  }
-  src: MaterialSource
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
+export const MeshBasicArguments = {
+  ...BasicArgs,
+  ...EmissiveMapArgs,
+  ...LightMapArgs,
+  ...AoMapArgs,
+  ...EnvMapArgs,
+  specularMap: TextureArg
 }
 
-export const materialPrototypeUnavailableComponent: MaterialPrototypeComponentType = {
-  prototypeId: 'unavailable',
-  baseMaterial: Material,
-  arguments: {},
-  src: {
-    type: SourceType.BUILT_IN,
-    path: 'UNAVAILABLE'
-  }
+export const MeshBasicMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshBasicMaterial',
+  prototypeConstructor: Basic,
+  arguments: MeshBasicArguments
 }
+
+export default MeshBasicMaterial

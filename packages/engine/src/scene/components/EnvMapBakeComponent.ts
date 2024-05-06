@@ -137,7 +137,6 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
         shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
         shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
 
-        //replace shader chunks with box projection chunks
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
           shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
 

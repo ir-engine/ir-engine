@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -46,6 +45,7 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -82,6 +82,7 @@ const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
+const computedMovement = new Vector3()
 let beganFalling = false
 
 export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
@@ -90,9 +91,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (!entity || (!xrFrame && !additionalMovement)) return
 
   const colliderEntity = getComponent(entity, AvatarColliderComponent).colliderEntity
-  const bodyCollider = getComponent(colliderEntity, ColliderComponent)?.collider
-  /** @todo remove this check when physics API is fleshed out */
-  if (!bodyCollider) return
+  const bodyCollider = getComponent(colliderEntity, ColliderComponent)
 
   const xrState = getState(XRState)
   const rigidbody = getComponent(entity, RigidBodyComponent)
@@ -136,16 +135,14 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (additionalMovement) desiredMovement.add(additionalMovement)
 
-  const avatarCollisionGroups = bodyCollider.collisionGroups() & ~CollisionGroups.Trigger
-
-  controller.controller.computeColliderMovement(
-    bodyCollider,
-    desiredMovement,
-    QueryFilterFlags.EXCLUDE_SENSORS,
-    avatarCollisionGroups
+  const avatarCollisionGroups = getInteractionGroups(
+    bodyCollider.collisionLayer & ~CollisionGroups.Trigger,
+    bodyCollider.collisionMask
   )
 
-  const computedMovement = controller.controller.computedMovement() as Vector3
+  Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
+  Physics.getComputedMovement(entity, computedMovement)
+
   if (desiredMovement.y === 0) computedMovement.y = 0
 
   rigidbody.targetKinematicPosition.copy(rigidbody.position).add(computedMovement)
@@ -160,7 +157,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
 
   if (groundHits.length) {
     const hit = groundHits[0]
-    const controllerOffset = controller.controller.offset()
+    const controllerOffset = Physics.getControllerOffset(entity)
     controller.isInAir = hit.distance > avatarGroundRaycastDistanceOffset + controllerOffset * 10 // todo - 10 is way too big, should be 1, but this makes you fall down stairs
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
@@ -388,7 +385,8 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.previousPosition.copy(rigidbody.targetKinematicPosition)
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
-  rigidbody.body.setTranslation(rigidbody.targetKinematicPosition, true)
+  Physics.setKinematicRigidbodyPose(entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
+  delete TransformComponent.dirtyTransforms[entity]
 }
 
 const viewerQuat = new Quaternion()

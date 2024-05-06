@@ -92,7 +92,7 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const avatarComponentQuery = defineQuery([AvatarComponent])
+const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
 
 const _quat = new Quaternion()
 const _quat2 = new Quaternion()
@@ -114,19 +114,15 @@ const execute = () => {
   for (const entity of avatarComponentQuery()) {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-    if (rigidbodyComponent.body.isEnabled()) {
-      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
-      avatarAnimationComponent.locomotion.x = 0
-      avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
-      // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaSeconds
-      )
-    } else {
-      avatarAnimationComponent.locomotion.setScalar(0)
-    }
+    // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+    avatarAnimationComponent.locomotion.x = 0
+    avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
+    // lerp animated forward animation to smoothly animate to a stop
+    avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+      avatarAnimationComponent.locomotion.z || 0,
+      _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+      10 * deltaSeconds
+    )
   }
 
   /**

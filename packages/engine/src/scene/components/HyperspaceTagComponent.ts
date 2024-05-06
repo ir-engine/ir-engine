@@ -38,7 +38,6 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -244,9 +243,8 @@ export const HyperspaceTagComponent = defineComponent({
         const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const ecsState = getState(ECSState)
-        const sceneLoaded = getState(SceneState).sceneLoaded
 
-        if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
+        if (transition.alpha >= 1 && transition.state === 'IN') {
           transition.setState('OUT')
           camera.layers.enable(ObjectLayers.Scene)
         }
@@ -270,7 +268,7 @@ export const HyperspaceTagComponent = defineComponent({
           sceneVisible.set(false)
         }
 
-        if (sceneLoaded && transition.state === 'OUT' && transition.alpha <= 0 && !sceneVisible.value) {
+        if (transition.state === 'OUT' && transition.alpha <= 0 && !sceneVisible.value) {
           sceneVisible.set(true)
           removeComponent(entity, HyperspaceTagComponent)
           getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)

@@ -23,30 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshPhongMaterial as Phong } from 'three'
+import { Color, ShaderMaterial as Shader } from 'three'
 
-import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
-import { SourceType } from '../../components/MaterialSource'
-import { BasicArgs, BumpMapArgs, DisplacementMapArgs, EmissiveMapArgs, EnvMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, FloatArg } from '../DefaultArgs'
+import { ColorArg, ObjectArg, ShaderArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export const DefaultArgs = {
-  ...BasicArgs,
-  ...BumpMapArgs,
-  ...DisplacementMapArgs,
-  dithering: { ...BoolArg, default: true },
-  ...EmissiveMapArgs,
-  ...NormalMapArgs,
-  fog: BoolArg,
-  ...EnvMapArgs,
-  shininess: { ...FloatArg, default: 30 }
+export const ShaderMaterialArguments = {
+  uniforms: {
+    ...ObjectArg,
+    default: {
+      color: { ...ColorArg, default: new Color('#f00') }
+    }
+  },
+  vertexShader: ShaderArg,
+  fragmentShader: ShaderArg
 }
 
-export const MeshPhongMaterial: MaterialPrototypeComponentType = {
-  prototypeId: 'MeshPhongMaterial',
-  baseMaterial: Phong,
-  arguments: DefaultArgs,
-  src: { type: SourceType.BUILT_IN, path: '' }
+export const ShaderMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'ShaderMaterial',
+  prototypeConstructor: Shader,
+  arguments: ShaderMaterialArguments
 }
-
-export default MeshPhongMaterial

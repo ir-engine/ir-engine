@@ -23,21 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { MeshPhongMaterial as Phong } from 'three'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { MaterialSource } from './MaterialSource'
+import {
+  BasicArgs,
+  BumpMapArgs,
+  DisplacementMapArgs,
+  EmissiveMapArgs,
+  EnvMapArgs,
+  NormalMapArgs
+} from '../constants/BasicArgs'
+import { BoolArg, FloatArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
-export type MaterialWithEntity = Material & { entity: Entity }
-
-export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
-
-export type MaterialComponentType = {
-  prototype: string
-  material: Material
-  parameters: { [field: string]: any }
-  plugins: string[]
-  src: MaterialSource
-  status: MaterialStatus
-  instances: Entity[]
+export const MeshPhongArguments = {
+  ...BasicArgs,
+  ...BumpMapArgs,
+  ...DisplacementMapArgs,
+  dithering: { ...BoolArg, default: true },
+  ...EmissiveMapArgs,
+  ...NormalMapArgs,
+  fog: BoolArg,
+  ...EnvMapArgs,
+  shininess: { ...FloatArg, default: 30 }
 }
+
+export const MeshPhongMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshPhongMaterial',
+  prototypeConstructor: Phong,
+  arguments: MeshPhongArguments
+}
+
+export default MeshPhongMaterial

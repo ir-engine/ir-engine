@@ -23,22 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import MoreVert from '@mui/icons-material/MoreVert'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
+
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import config from '@etherealengine/common/src/config'
+import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
-import { default as React, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { deleteScene, onNewScene, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { DialogState } from '../dialogs/DialogState'
@@ -93,7 +98,6 @@ export default function ScenesPanel() {
     if (loadedScene) {
       await deleteScene(loadedScene.id)
       if (editorState.sceneAssetID.value === loadedScene.id) {
-        getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)
       }
@@ -116,11 +120,15 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (sceneState.sceneModified.value) {
-      DialogState.setDialog(
-        <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
-      )
-      return
+    const rootEntity = getState(EditorState).rootEntity
+    if (rootEntity) {
+      const modified = getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+      if (modified) {
+        DialogState.setDialog(
+          <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
+        )
+        return
+      }
     }
     setContextMenuOpen(false)
     setAnchorEl(null)
