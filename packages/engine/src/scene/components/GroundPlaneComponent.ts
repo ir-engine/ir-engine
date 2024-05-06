@@ -26,17 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { matches } from '@etherealengine/hyperflux'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -46,8 +42,6 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
-import { SourceComponent } from './SourceComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -68,16 +62,6 @@ export const GroundPlaneComponent = defineComponent({
       component.color.value.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
     if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
-
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    if (
-      !getState(SceneState).sceneLoaded &&
-      hasComponent(entity, SourceComponent) &&
-      !hasComponent(entity, RigidBodyComponent)
-    )
-      SceneAssetPendingTagComponent.addResource(entity, GroundPlaneComponent.jsonID)
   },
 
   toJSON(entity, component) {
@@ -114,8 +98,6 @@ export const GroundPlaneComponent = defineComponent({
         collisionLayer: CollisionGroups.Ground,
         collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
       })
-
-      SceneAssetPendingTagComponent.removeResource(entity, GroundPlaneComponent.jsonID)
       return () => {
         removeComponent(entity, RigidBodyComponent)
         removeComponent(entity, ColliderComponent)

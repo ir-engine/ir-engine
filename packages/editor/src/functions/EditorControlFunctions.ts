@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, UUIDComponent, createEntity, generateEntityUUID, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, SetComponentType, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 import {
   Component,
   ComponentJSONIDMap,
@@ -32,24 +32,21 @@ import {
   componentJsonDefaults,
   getComponent,
   hasComponent,
-  removeComponent,
   serializeComponent,
   setComponent,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { GLTFSnapshotAction } from '@etherealengine/engine/src/scene/GLTFDocumentState'
-import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/scene/GLTFState'
+import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { materialFromId } from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
   findCommonAncestors,
@@ -59,11 +56,14 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { GLTF } from '@gltf-transform/core'
-import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { filterParentEntities } from './filterParentEntities'
+
+const tempMatrix4 = new Matrix4()
+const tempVector = new Vector3()
 
 const getSourcesForEntities = (entities: Entity[]) => {
   const scenes: Record<string, Entity[]> = {}
@@ -85,7 +85,12 @@ const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
-const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[], component: C, add: boolean) => {
+const addOrRemoveComponent = <C extends Component<any, any>>(
+  entities: Entity[],
+  component: C,
+  add: boolean,
+  args: SetComponentType<C> | undefined = undefined
+) => {
   const sceneComponentID = component.jsonID
   if (!sceneComponentID) return
 
@@ -99,7 +104,10 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
         const node = getGLTFNodeByUUID(gltf.data, entityUUID)
         if (!node) continue
         if (add) {
-          node.extensions![sceneComponentID] = componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!)
+          node.extensions![sceneComponentID] = {
+            ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!),
+            ...args
+          }
         } else {
           delete node.extensions?.[sceneComponentID]
         }
@@ -116,7 +124,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
           componentData = componentData.filter((c) => c.name !== sceneComponentID)
           componentData.push({
             name: sceneComponentID,
-            props: componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!)
+            props: { ...componentJsonDefaults(ComponentJSONIDMap.get(sceneComponentID)!), ...args }
           })
         } else {
           const index = componentData.findIndex((c) => c.name === sceneComponentID)
@@ -127,15 +135,11 @@ const addOrRemoveComponent = <C extends Component<any, any>>(entities: Entity[],
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      if (add) {
-        setComponent(entity, component)
-      } else {
-        removeComponent(entity, component)
-      }
-    }
   }
+}
+
+export const testst = {
+  setComponent: function () {}
 }
 
 const modifyName = (entities: Entity[], name: string) => {
@@ -164,11 +168,6 @@ const modifyName = (entities: Entity[], name: string) => {
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
-    }
-
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      setComponent(entity, NameComponent, name)
     }
   }
 }
@@ -224,33 +223,15 @@ const modifyProperty = <C extends Component<any, any>>(
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-
-    /** Temporary until GLTF loader refactored */
-    for (const entity of entities) {
-      setComponent(entity, component, properties)
-    }
   }
 }
 
-function _getMaterial(node: string, materialId: string) {
-  let material: Material | undefined
-  if (getState(MaterialLibraryState).materials[materialId]) {
-    material = materialFromId(materialId).material
-  }
-  // else {
-  //   const mesh = obj3dFromUuid(node) as Mesh
-  //   const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-  //   material = materials.find((material) => materialId === material.uuid)
-  // }
-  if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
-  return material
-}
-
-const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: string]: any }[]) => {
+const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
-    const material = _getMaterial(node, materialId)
+    const material = getMaterial(materialId)
+    if (!material) return
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
       if (!material) throw new Error('Updating properties on undefined material')
@@ -279,8 +260,7 @@ const createObjectFromSceneElement = (
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    // gltf loader sanitizers names...
-    const name = getState(GLTFSourceState)[sceneID] ? 'New_Object' : 'New Object'
+    const name = 'New Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -296,22 +276,35 @@ const createObjectFromSceneElement = (
       if (!extensions[UUIDComponent.jsonID]) {
         extensions[UUIDComponent.jsonID] = entityUUID
       }
-      if (!extensions[TransformComponent.jsonID]) {
-        extensions[TransformComponent.jsonID] = componentJsonDefaults(TransformComponent)
-      }
       if (!extensions[VisibleComponent.jsonID]) {
         extensions[VisibleComponent.jsonID] = true
       }
 
-      gltf.data.nodes!.push({
+      const node = {
         name,
         extensions
-      })
+      } as GLTF.INode
+
+      gltf.data.nodes!.push(node)
+
+      if (extensions[TransformComponent.jsonID]) {
+        const comp = {
+          ...componentJsonDefaults(TransformComponent),
+          ...extensions[TransformComponent.jsonID]
+        }
+        const matrix = tempMatrix4.compose(
+          new Vector3().copy(comp.position),
+          new Quaternion().copy(comp.rotation),
+          new Vector3().copy(comp.scale)
+        )
+        delete extensions[TransformComponent.jsonID]
+        if (!matrix.equals(MAT4_IDENTITY)) node.matrix = matrix.toArray()
+      }
 
       if (parentEntity === getState(EditorState).rootEntity) {
-        const sceneIndex = gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
+        const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
 
-        let beforeIndex = 0
+        let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
@@ -370,19 +363,6 @@ const createObjectFromSceneElement = (
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
-    }
-
-    /** Temporary until GLTF loader refactored */
-    const entity = createEntity()
-    setComponent(entity, UUIDComponent, entityUUID)
-    const parentEntityTree = getComponent(parentEntity, EntityTreeComponent)
-    const childIndex = beforeEntity ? parentEntityTree.children.indexOf(beforeEntity) : parentEntityTree.children.length
-    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
-    setComponent(entity, NameComponent, name)
-    setComponent(entity, VisibleComponent)
-    setComponent(entity, SourceComponent, sceneID)
-    for (const comp of componentJson) {
-      setComponent(entity, ComponentJSONIDMap.get(comp.name)!, comp.props)
     }
   }
 }
@@ -491,25 +471,7 @@ const duplicateObject = (entities: Entity[]) => {
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
-
-  /** Temporary until GLTF loader refactored */
-  for (const [oldEntityUUID, newEntityUUID] of Object.entries(copyMap)) {
-    const oldEntity = UUIDComponent.getEntityByUUID(oldEntityUUID as EntityUUID)
-    const data = serializeEntity(oldEntity)
-    const newEntity = createEntity()
-    setComponent(newEntity, SourceComponent, getComponent(oldEntity, SourceComponent))
-    setComponent(newEntity, UUIDComponent, newEntityUUID)
-    const parent = getComponent(oldEntity, EntityTreeComponent).parentEntity
-    setComponent(newEntity, EntityTreeComponent, { parentEntity: parent })
-    for (const comp of data) {
-      if (comp.name === UUIDComponent.jsonID) continue
-      setComponent(newEntity, ComponentJSONIDMap.get(comp.name)!, comp.props)
-    }
-  }
 }
-
-const tempMatrix = new Matrix4()
-const tempVector = new Vector3()
 
 const positionObject = (
   nodes: Entity[],
@@ -539,8 +501,8 @@ const positionObject = (
       tempVector.add(pos)
 
       const _spaceMatrix = parentTransform.matrixWorld
-      tempMatrix.copy(_spaceMatrix).invert()
-      tempVector.applyMatrix4(tempMatrix)
+      tempMatrix4.copy(_spaceMatrix).invert()
+      tempVector.applyMatrix4(tempMatrix4)
 
       transform.position.copy(tempVector)
     }
@@ -590,8 +552,6 @@ const rotateObject = (nodes: Entity[], rotations: Euler[], space = getState(Edit
   }
 }
 
-const mat4 = new Matrix4()
-
 const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: Vector3) => {
   const pivotToOriginMatrix = new Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z)
   const originToPivotMatrix = new Matrix4().makeTranslation(pivot.x, pivot.y, pivot.z)
@@ -604,12 +564,12 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
       : transform
 
-    new Matrix4()
+    tempMatrix4
       .copy(transform.matrixWorld)
       .premultiply(pivotToOriginMatrix)
       .premultiply(rotationMatrix)
       .premultiply(originToPivotMatrix)
-      .premultiply(mat4.copy(parentTransform.matrixWorld).invert())
+      .premultiply(tempMatrix4.copy(parentTransform.matrixWorld).invert())
       .decompose(transform.position, transform.rotation, transform.scale)
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
@@ -734,22 +694,6 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
-
-  /** Temporary until GLTF loader refactored */
-  for (const entity of entities) {
-    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
-    const parentEntity = entityTreeComponent.parentEntity
-    const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
-
-    if (before) {
-      setComponent(entity, EntityTreeComponent, {
-        parentEntity,
-        childIndex: parentEntityTreeComponent.children.indexOf(before)
-      })
-    } else {
-      setComponent(entity, EntityTreeComponent, { parentEntity })
-    }
-  }
 }
 
 /** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
@@ -864,17 +808,6 @@ const groupObjects = (entities: Entity[]) => {
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
   }
-
-  /** Temporary until GLTF loader refactored */
-  for (const [sceneID, groupUUID] of Object.entries(newGroupUUIDs)) {
-    const entity = createEntity()
-    setComponent(entity, UUIDComponent, groupUUID)
-    setComponent(entity, NameComponent, 'New Group')
-    setComponent(entity, TransformComponent)
-    setComponent(entity, VisibleComponent, true)
-    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EditorState).rootEntity })
-    setComponent(entity, SourceComponent, sceneID)
-  }
 }
 
 const removeObject = (entities: Entity[]) => {
@@ -882,13 +815,12 @@ const removeObject = (entities: Entity[]) => {
   getMutableState(SelectionState).selectedEntities.set([])
 
   const scenes = getSourcesForEntities(entities)
-  const entityUUIDsToDelete = [] as EntityUUID[]
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntity = SceneState.getRootEntity(sceneID)
-    const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
-
     if (getState(GLTFSourceState)[sceneID]) {
+      const rootEntity = getState(GLTFSourceState)[sceneID]
+      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
+
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
       for (let i = 0; i < removedParentNodes.length; i++) {
@@ -917,11 +849,13 @@ const removeObject = (entities: Entity[]) => {
 
           gltf.data.nodes!.splice(nodeIndex, 1)
         }
-        entityUUIDsToDelete.push(...uuidsToDelete)
       }
 
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
     } else {
+      const rootEntity = SceneState.getRootEntity(sceneID)
+      const removedParentNodes = filterParentEntities(rootEntity, entities, undefined, true, false)
+
       const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
 
       for (let i = 0; i < removedParentNodes.length; i++) {
@@ -938,17 +872,10 @@ const removeObject = (entities: Entity[]) => {
         for (const uuid of uuidsToDelete) {
           delete newSnapshot.data.entities[uuid]
         }
-        entityUUIDsToDelete.push(...uuidsToDelete)
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
     }
-  }
-
-  /** Temporary until GLTF loader refactored */
-  for (const entityUUID of entityUUIDsToDelete) {
-    const entity = UUIDComponent.getEntityByUUID(entityUUID)
-    removeEntity(entity)
   }
 }
 
@@ -1011,7 +938,7 @@ const commitTransformSave = (entities: Entity[]) => {
         const position = transform.position
         const rotation = transform.rotation
         const scale = transform.scale
-        const matrix = new Matrix4().compose(position, rotation, scale)
+        const matrix = tempMatrix4.compose(position, rotation, scale)
         node.matrix = matrix.toArray()
       }
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
