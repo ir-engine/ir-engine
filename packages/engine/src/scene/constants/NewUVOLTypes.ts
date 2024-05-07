@@ -117,7 +117,7 @@ export interface AudioInput {
   outputPath: string
 }
 
-export type GeometryFormat = 'draco' | 'glb' | 'uniform-solve'
+export type GeometryFormat = 'draco' | 'uniform-solve'
 
 export interface GeometryTarget {
   /**
@@ -188,24 +188,6 @@ export interface DRACOTarget extends GeometryTarget {
   }
 }
 
-export interface GLBEncodeOptions {
-  /**
-   * simplify meshes targeting triangle count ratio R (default: 1; R should be between 0 and 1)
-   * `simplifyAggressively` is not supported here, because sit changes the topology:
-   * @link https://meshoptimizer.org/#simplification
-   * @default 1
-   */
-  simplificationRatio?: number
-}
-
-export interface GLBTarget extends GeometryTarget {
-  format: 'glb'
-  /**
-   * GLB encoding options for the geometry data.
-   */
-  settings: GLBEncodeOptions
-}
-
 export interface UniformSolveEncodeOptions {
   /**
    * simplify meshes targeting triangle count ratio R (default: 1; R should be between 0 and 1)
@@ -267,7 +249,7 @@ export interface GeometryInput {
   /**
    * targets
    */
-  targets: Record<string, GLBTarget | DRACOTarget | UniformSolveTarget>
+  targets: Record<string, DRACOTarget | UniformSolveTarget>
 }
 
 export type TextureFormat = 'ktx2' | 'astc/ktx2'
@@ -429,14 +411,6 @@ export interface DRACO_Manifest extends BasePlayerManifest {
   }
 }
 
-export interface GLB_Manifest extends BasePlayerManifest {
-  type: UVOL_TYPE.GLB_WITH_COMPRESSED_TEXTURE
-  geometry: {
-    targets: Record<string, GLBTarget>
-    path: EncoderManifest['geometryOutputPath']
-  }
-}
-
 export interface UniformSolve_Manifest extends BasePlayerManifest {
   type: UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE
   geometry: {
@@ -445,7 +419,7 @@ export interface UniformSolve_Manifest extends BasePlayerManifest {
   }
 }
 
-export type PlayerManifest = DRACO_Manifest | GLB_Manifest | UniformSolve_Manifest
+export type PlayerManifest = DRACO_Manifest | UniformSolve_Manifest
 
 export const ABC_TO_OBJ_PADDING = 7
 
@@ -453,7 +427,6 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
   mp3: '.mp3',
   wav: '.wav',
   draco: '.drc',
-  glb: '.glb',
   'uniform-solve': '.glb',
   ktx2: '.ktx2',
   'astc/ktx2': '.ktx2'
@@ -472,13 +445,11 @@ export interface BufferInfo {
 export enum GeometryType {
   Corto, // legacy
   Draco,
-  GLTF,
   Unify
 }
 
 export const GeometryFormatToType = {
   draco: GeometryType.Draco,
-  glb: GeometryType.GLTF,
   'uniform-solve': GeometryType.Unify
 }
 

@@ -53,7 +53,6 @@ import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import {
   BufferInfo,
   DRACOTarget,
-  GLBTarget,
   GeometryFormatToType,
   GeometryType,
   KeyframeAttribute,
@@ -541,7 +540,7 @@ function NewVolumetricComponentReactor() {
       targets: component.geometry.targets.value,
       ...(geometryType === GeometryType.Corto && { frameRate: frameRate as number }),
       ...(geometryType !== GeometryType.Corto && {
-        targetData: targetData as Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>
+        targetData: targetData as Record<string, DRACOTarget | UniformSolveTarget>
       }),
       ...(geometryType === GeometryType.Unify && { keyframeName: 'keyframeA' })
     } as GetGeometryProps)
@@ -560,8 +559,6 @@ function NewVolumetricComponentReactor() {
             mesh.current!.geometry.attributes[attribute].needsUpdate = true
           }
         }
-      } else if (geometryType === GeometryType.GLTF) {
-        console.log('NOT IMPLEMENTED')
       }
     }
 
@@ -579,7 +576,7 @@ function NewVolumetricComponentReactor() {
         preferredTarget: geometryTarget,
         geometryType,
         targets: component.geometry.targets.value,
-        targetData: targetData as Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>,
+        targetData: targetData as Record<string, DRACOTarget | UniformSolveTarget>,
         ...(geometryType === GeometryType.Unify && { keyframeName: 'keyframeB' })
       } as GetGeometryProps) as
         | {
