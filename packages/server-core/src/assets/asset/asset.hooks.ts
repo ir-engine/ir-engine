@@ -89,7 +89,7 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
     await storageProvider.deleteResources([assetIterationURL])
 
-    if (isDev && config.disableFsProjectSync === 'false') {
+    if (isDev && !config.disableFsProjectSync) {
       const assetFilePath = path.resolve(projectPathLocal, assetIterationURL)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
@@ -210,7 +210,7 @@ export const createSceneInStorageProvider = async (context: HookContext<AssetSer
     )
   )
   try {
-    if (!isDev && config.disableFsProjectSync === 'false')
+    if (!isDev && !config.disableFsProjectSync)
       await context.app.service(invalidationPath).create(
         GLTF_ASSET_FILES.map((file) => {
           return { path: `${context.directory}${data.name}${file}` }
@@ -241,7 +241,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   // ignore if we are seeding data
   if (data.assetURL) return
 
-  if (isDev && config.disableFsProjectSync === 'false') {
+  if (isDev && !config.disableFsProjectSync) {
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
     for (const ext of GLTF_ASSET_FILES) {
       fs.copyFileSync(
@@ -291,7 +291,7 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
         true
       )
 
-      if (isDev && config.disableFsProjectSync === 'false') fs.renameSync(oldLocalFile, newLocalFile)
+      if (isDev && !config.disableFsProjectSync) fs.renameSync(oldLocalFile, newLocalFile)
       else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
     }
 

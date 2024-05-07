@@ -192,7 +192,7 @@ export class FileBrowserService
         path: keyPath
       })
 
-    if (isDev && config.disableFsProjectSync === 'false')
+    if (isDev && !config.disableFsProjectSync)
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
@@ -247,7 +247,7 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev && config.disableFsProjectSync === 'false') {
+    if (isDev && !config.disableFsProjectSync) {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -283,7 +283,7 @@ export class FileBrowserService
       }
     )
 
-    if (isDev && config.disableFsProjectSync === 'false') {
+    if (isDev && !config.disableFsProjectSync) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
@@ -371,8 +371,7 @@ export class FileBrowserService
       )
     }
 
-    if (isDev && config.disableFsProjectSync === 'false')
-      fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+    if (isDev && !config.disableFsProjectSync) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
     return result
   }
