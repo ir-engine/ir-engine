@@ -101,8 +101,6 @@ declare module 'postprocessing' {
   }
 }
 
-export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
-
 export type EffectProps = {
   isActive: boolean
 }
