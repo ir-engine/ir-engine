@@ -27,6 +27,7 @@ import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+import HierarchyPanel from './container'
 
 export const HierarchyPanelTitle = () => {
   const { t } = useTranslation()
@@ -48,5 +49,5 @@ export const HierarchyPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
   title: <HierarchyPanelTitle />,
-  content: <></>
+  content: <HierarchyPanel />
 }

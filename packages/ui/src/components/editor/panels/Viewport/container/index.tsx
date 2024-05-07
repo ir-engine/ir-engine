@@ -27,6 +27,8 @@ import { SceneElementType } from '@etherealengine/editor/src/components/element/
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import React from 'react'
 import { useDrop } from 'react-dnd'
@@ -75,8 +77,7 @@ const ViewportDnD = () => {
 
 const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
-  //const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
-  const sceneName = 'test'
+  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
   return (
     <div className="flex h-full w-full flex-col">
       <div className="flex h-8 flex-row items-center bg-zinc-900">

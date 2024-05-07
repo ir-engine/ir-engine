@@ -27,16 +27,14 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { createEntity } from '@etherealengine/ecs'
-import { setComponent, useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { BsPlusCircle } from 'react-icons/bs'
 import Popover from '../../../../../primitives/mui/Popover'
@@ -59,13 +57,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
   const { t } = useTranslation()
 
-  //const entity = UUIDComponent.getEntityByUUID(entityUUID)
-
-  // {  for storybook debug remove later
-  const entity = createEntity()
-  setComponent(entity, MediaComponent)
-  setComponent(entity, PositionalAudioComponent)
-  // }
+  const entity = UUIDComponent.getEntityByUUID(entityUUID)
 
   useHookstate(getMutableState(ComponentEditorsState).keys).value
   const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])

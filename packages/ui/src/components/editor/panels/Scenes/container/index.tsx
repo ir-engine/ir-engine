@@ -25,13 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { getComponent } from '@etherealengine/ecs'
 import { DialogState } from '@etherealengine/editor/src/components/dialogs/DialogState'
 import ErrorDialog from '@etherealengine/editor/src/components/dialogs/ErrorDialog'
 import { deleteScene, onNewScene, renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import React, { useState } from 'react'
@@ -45,18 +48,8 @@ export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
   const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
-  //const scenes = scenesQuery.data
-  const scenes = [
-    { assetURL: 'test/test.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test2.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test3.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test4.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test5.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test6.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test7.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test9.gltf', thumbnailURL: 'https://picsum.photos/200' },
-    { assetURL: 'test/test10.gltf', thumbnailURL: 'https://picsum.photos/200' }
-  ]
+  const scenes = scenesQuery.data
+
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
@@ -64,8 +57,7 @@ export default function ScenesPanel() {
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
   const sceneState = useHookstate(getMutableState(SceneState))
-  //const scenesLoading = scenesQuery.status === 'pending'
-  const scenesLoading = false
+  const scenesLoading = scenesQuery.status === 'pending'
   const onCreateScene = async () => {
     await onNewScene()
   }
@@ -85,12 +77,10 @@ export default function ScenesPanel() {
     setLoadedScene(null)
     setDeleteOpen(false)
   }
-
   const deleteActiveScene = async () => {
     if (loadedScene) {
       await deleteScene(loadedScene.id)
       if (editorState.sceneAssetID.value === loadedScene.id) {
-        getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)
       }
@@ -113,11 +103,15 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (sceneState.sceneModified.value) {
-      DialogState.setDialog(
-        <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
-      )
-      return
+    const rootEntity = getState(EditorState).rootEntity
+    if (rootEntity) {
+      const modified = getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+      if (modified) {
+        DialogState.setDialog(
+          <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
+        )
+        return
+      }
     }
     setContextMenuOpen(false)
     setAnchorEl(null)
