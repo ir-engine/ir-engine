@@ -418,7 +418,8 @@ const config = {
   testEnabled,
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */
   allowOutOfDateProjects:
-    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true'
+    typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
+  disableFsProjectSync: process.env.DISABLE_FS_PROJECT_SYNC
 }
 
 chargebeeInst.configure({

@@ -47,6 +47,7 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -191,7 +192,7 @@ export class FileBrowserService
         path: keyPath
       })
 
-    if (isDev && PROJECT_FILE_REGEX.test(directory))
+    if (isDev && config.disableFsProjectSync === 'false')
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
@@ -246,7 +247,7 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
+    if (isDev && config.disableFsProjectSync === 'false') {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -282,7 +283,7 @@ export class FileBrowserService
       }
     )
 
-    if (isDev && PROJECT_FILE_REGEX.test(key)) {
+    if (isDev && config.disableFsProjectSync === 'false') {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
@@ -370,7 +371,8 @@ export class FileBrowserService
       )
     }
 
-    if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+    if (isDev && config.disableFsProjectSync === 'false')
+      fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
     return result
   }
