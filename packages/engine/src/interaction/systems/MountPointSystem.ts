@@ -45,12 +45,12 @@ import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationCompo
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
-import { InteractableState } from './InteractableSystem'
+import { InteractableState } from '../functions/interactableFunctions'
 
 const sittingIdleQuery = defineQuery([SittingComponent])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditing) return
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
 
   /*Consider mocap inputs in the event we want to snap a real world seated person
