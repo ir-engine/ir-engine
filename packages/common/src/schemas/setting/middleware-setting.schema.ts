@@ -41,48 +41,48 @@ export const middlewareSocialLinkSchema = Type.Object(
 )
 export interface MiddlewareSocialLinkType extends Static<typeof middlewareSocialLinkSchema> {}
 
-export const audioSettingsSchema = Type.Object(
-  {
-    maxBitrate: Type.Number()
-  },
-  { $id: 'AudioSettingsSchema', additionalProperties: false }
-)
+// export const audioSettingsSchema = Type.Object(
+//   {
+//     maxBitrate: Type.Number()
+//   },
+//   { $id: 'AudioSettingsSchema', additionalProperties: false }
+// )
+//
+// export interface AudioSettingsType extends Static<typeof audioSettingsSchema> {}
+//
+// export const videoSettingsSchema = Type.Object(
+//   {
+//     codec: Type.String(),
+//     maxResolution: Type.String(),
+//     lowResMaxBitrate: Type.Number(),
+//     midResMaxBitrate: Type.Number(),
+//     highResMaxBitrate: Type.Number()
+//   },
+//   { $id: 'VideoSettingsSchema', additionalProperties: false }
+// )
+//
+// export const screenshareSettingsSchema = Type.Object(
+//   {
+//     codec: Type.String(),
+//     lowResMaxBitrate: Type.Number(),
+//     midResMaxBitrate: Type.Number(),
+//     highResMaxBitrate: Type.Number()
+//   },
+//   { $id: 'ScreenshareSettingsSchema', additionalProperties: false }
+// )
+//
+// export interface VideoSettingsType extends Static<typeof videoSettingsSchema> {}
+//
+// export const mediaSettingsSchema = Type.Object(
+//   {
+//     audio: Type.Ref(audioSettingsSchema),
+//     video: Type.Ref(videoSettingsSchema),
+//     screenshare: Type.Ref(screenshareSettingsSchema)
+//   },
+//   { $id: 'MediaSettingsSchema', additionalProperties: false }
+// )
 
-export interface AudioSettingsType extends Static<typeof audioSettingsSchema> {}
-
-export const videoSettingsSchema = Type.Object(
-  {
-    codec: Type.String(),
-    maxResolution: Type.String(),
-    lowResMaxBitrate: Type.Number(),
-    midResMaxBitrate: Type.Number(),
-    highResMaxBitrate: Type.Number()
-  },
-  { $id: 'VideoSettingsSchema', additionalProperties: false }
-)
-
-export const screenshareSettingsSchema = Type.Object(
-  {
-    codec: Type.String(),
-    lowResMaxBitrate: Type.Number(),
-    midResMaxBitrate: Type.Number(),
-    highResMaxBitrate: Type.Number()
-  },
-  { $id: 'ScreenshareSettingsSchema', additionalProperties: false }
-)
-
-export interface VideoSettingsType extends Static<typeof videoSettingsSchema> {}
-
-export const mediaSettingsSchema = Type.Object(
-  {
-    audio: Type.Ref(audioSettingsSchema),
-    video: Type.Ref(videoSettingsSchema),
-    screenshare: Type.Ref(screenshareSettingsSchema)
-  },
-  { $id: 'MediaSettingsSchema', additionalProperties: false }
-)
-
-export interface MediaSettingsType extends Static<typeof mediaSettingsSchema> {}
+// export interface MediaSettingsType extends Static<typeof mediaSettingsSchema> {}
 
 export const middlewareThemeOptionsSchema = Type.Object(
   {
@@ -153,27 +153,27 @@ export const middlewareSettingSchema = Type.Object(
     appTitle: Type.String(),
     appSubtitle: Type.String(),
     appDescription: Type.String(),
-    mappSocialLinks: Type.Array(Type.Ref(middlewareSocialLinkSchema)),
-    mthemeSettings: Type.Record(Type.String(), Type.Ref(middlewareThemeOptionsSchema)),
-    mthemeModes: Type.Record(Type.String(), Type.String()),
+    appSocialLinks: Type.Array(Type.Ref(middlewareSocialLinkSchema)),
+    themeSettings: Type.Record(Type.String(), Type.Ref(middlewareThemeOptionsSchema)),
+    themeModes: Type.Record(Type.String(), Type.String()),
     key8thWall: Type.String(),
     privacyPolicy: Type.String(),
     homepageLinkButtonEnabled: Type.Boolean(),
     homepageLinkButtonRedirect: Type.String(),
     homepageLinkButtonText: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
-    mmediaSettings: Type.Ref(mediaSettingsSchema)
+    updatedAt: Type.String({ format: 'date-time' })
+    // mediaSettings: Type.Ref(mediaSettingsSchema)
   },
   { $id: 'MiddlewareSetting', additionalProperties: false }
 )
 export interface MiddlewareSettingType extends Static<typeof middlewareSettingSchema> {}
 
 export interface MiddlewareSettingDatabaseType
-  extends Omit<MiddlewareSettingType, 'mappSocialLinks' | 'mthemeSettings' | 'mthemeModes'> {
-  mappSocialLinks: string
-  mthemeSettings: string
-  mthemeModes: string
+  extends Omit<MiddlewareSettingType, 'appSocialLinks' | 'themeSettings' | 'themeModes'> {
+  appSocialLinks: string
+  themeSettings: string
+  themeModes: string
 }
 
 // Schema for creating new entries
@@ -197,15 +197,15 @@ export const middlewareSettingDataSchema = Type.Pick(
     'appTitle',
     'appSubtitle',
     'appDescription',
-    'mappSocialLinks',
-    'mthemeSettings',
-    'mthemeModes',
+    'appSocialLinks',
+    'themeSettings',
+    'themeModes',
     'key8thWall',
     'privacyPolicy',
     'homepageLinkButtonEnabled',
     'homepageLinkButtonRedirect',
-    'homepageLinkButtonText',
-    'mmediaSettings'
+    'homepageLinkButtonText'
+    // 'mediaSettings'
   ],
   {
     $id: 'MiddlewareSettingData'
@@ -239,9 +239,9 @@ export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchem
   'appTitle',
   'appSubtitle',
   'appDescription',
-  // 'mappSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  // 'mthemeSettings',
-  // 'mthemeModes',
+  // 'appSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+  // 'themeSettings',
+  // 'themeModes',
   'key8thWall',
   'privacyPolicy',
   'homepageLinkButtonEnabled',
@@ -258,10 +258,10 @@ export const middlewareSettingQuerySchema = Type.Intersect(
 )
 export interface MiddlewareSettingQuery extends Static<typeof middlewareSettingQuerySchema> {}
 
-export const audioSettingsValidator = /* @__PURE__ */ getValidator(audioSettingsSchema, dataValidator)
-export const videoSettingsValidator = /* @__PURE__ */ getValidator(videoSettingsSchema, dataValidator)
-export const screenshareSettingsValidator = /* @__PURE__ */ getValidator(screenshareSettingsSchema, dataValidator)
-export const mediaSettingsValidator = /* @__PURE__ */ getValidator(mediaSettingsSchema, dataValidator)
+// export const audioSettingsValidator = /* @__PURE__ */ getValidator(audioSettingsSchema, dataValidator)
+// export const videoSettingsValidator = /* @__PURE__ */ getValidator(videoSettingsSchema, dataValidator)
+// export const screenshareSettingsValidator = /* @__PURE__ */ getValidator(screenshareSettingsSchema, dataValidator)
+// export const mediaSettingsValidator = /* @__PURE__ */ getValidator(mediaSettingsSchema, dataValidator)
 export const middlewareSocialLinkValidator = /* @__PURE__ */ getValidator(middlewareSocialLinkSchema, dataValidator)
 export const middlewareThemeOptionsValidator = /* @__PURE__ */ getValidator(middlewareThemeOptionsSchema, dataValidator)
 export const middlewareSettingValidator = /* @__PURE__ */ getValidator(middlewareSettingSchema, dataValidator)
