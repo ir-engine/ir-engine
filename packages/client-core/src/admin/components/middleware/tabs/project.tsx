@@ -54,6 +54,17 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   const patchProjectSetting = useMutation(projectPath).patch
 
+  console.log('#### MiddlewareTab Load ####')
+  // console.log('projectState', projectState)
+  console.log('projects', projects)
+  console.log('settings', settings)
+  console.log('selectedProjectId', selectedProjectId)
+  const tSettings = JSON.parse(JSON.stringify(settings.value))
+  console.log('tSettings', tSettings)
+  // console.log('project', project)
+  // console.log('projectPath', projectPath)
+  console.log('####')
+
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])
@@ -70,6 +81,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     }
 
     const tempSettings = JSON.parse(JSON.stringify(settings.value))
+
     for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = project.data.settings.filter((item) => item.key === setting.key)
       if (savedSetting.length > 0) {

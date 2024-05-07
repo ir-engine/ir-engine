@@ -150,12 +150,5 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: Channels,
     access: false,
     icon: <HiOutlineMegaphone />
-  },
-  middleware: {
-    name: 'user:dashboard.middleware',
-    scope: 'admin',
-    component: Middleware,
-    access: false,
-    icon: <HiOutlineCog6Tooth />
   }
 }

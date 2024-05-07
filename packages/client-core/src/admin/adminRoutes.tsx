@@ -70,7 +70,7 @@ const AdminTopBar = () => {
 const AdminSideBar = () => {
   const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState)).get(NO_PROXY)
 
-  console.log(allowedRoutes)
+  //console.log(allowedRoutes)
 
   const location = useLocation()
   const { pathname: fullPathName } = location
@@ -117,15 +117,15 @@ const AdminRoutes = () => {
   useEffect(() => {
     allowedRoutes.set(DefaultAdminRoutes)
 
-    console.log(allowedRoutes)
+    //console.log(allowedRoutes)
   }, [])
 
   useEffect(() => {
     for (const [route, state] of Object.entries(allowedRoutes)) {
       const routeScope = state.scope.value
 
-      console.log(state)
-      console.log(routeScope)
+      //console.log(state)
+      //console.log(routeScope)
 
       const hasScope =
         routeScope === '' ||
@@ -134,8 +134,8 @@ const AdminRoutes = () => {
           return Array.isArray(routeScope) ? routeScope.includes(scopeKey) : scopeKey === routeScope
         })
 
-      console.log(hasScope)
-      console.log(!!hasScope)
+      //console.log(hasScope)
+      //console.log(!!hasScope)
 
       state.access.set(!!hasScope)
     }
