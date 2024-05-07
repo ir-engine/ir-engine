@@ -32,6 +32,7 @@ import { locationSettingPath } from '@etherealengine/common/src/schemas/social/l
 import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
@@ -97,6 +98,14 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
+    }
+  },
+  projectId: async (value, location, context) => {
+    try {
+      const scene = await context.app.service(assetPath).get(location.sceneId)
+      return scene.projectId
+    } catch (error) {
+      return
     }
   },
   createdAt: getDateTimeSql,
