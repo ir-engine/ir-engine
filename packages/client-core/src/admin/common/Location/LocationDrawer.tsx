@@ -186,7 +186,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       name: state.name.value,
       slugifiedName: '',
       sceneId: state.scene.value,
-      projectId: selectedSceneData.data?.projectId ?? '',
       maxUsersPerInstance: state.maxUsers.value,
       locationSetting: {
         id: '',

@@ -112,7 +112,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, projectId: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -161,7 +161,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, projectId: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
@@ -190,7 +190,7 @@ describe('channel service', () => {
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, projectId: '', currentUsers: 0 },
+      { roomCode: '' as RoomCode, currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true

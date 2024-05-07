@@ -59,7 +59,6 @@ describe('bot.service', () => {
 
     testInstance = await app.service(instancePath).create({
       locationId: testLocation.id as LocationID,
-      projectId: testLocation.projectId,
       roomCode: '' as RoomCode,
       currentUsers: 0
     })

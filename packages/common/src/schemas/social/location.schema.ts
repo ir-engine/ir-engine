@@ -76,7 +76,7 @@ export interface LocationDatabaseType
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(
   locationSchema,
-  ['name', 'sceneId', 'projectId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
+  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
   {
     $id: 'LocationData'
   }

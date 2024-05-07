@@ -114,7 +114,6 @@ describe('channel-user service', () => {
     const instance = (await app.service(instancePath).create(
       {
         roomCode: '' as RoomCode,
-        projectId: '',
         currentUsers: 0
       },
       {

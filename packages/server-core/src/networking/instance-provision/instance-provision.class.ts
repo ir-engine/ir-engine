@@ -224,16 +224,11 @@ export async function checkForDuplicatedAssignments({
   podName?: string
   provisionConstraints?: object
 }): Promise<InstanceProvisionType> {
-  let locationData
-
   /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
   if (!config.kubernetes.enabled) {
     const query = { ended: false } as any
 
-    if (locationId) {
-      query.locationId = locationId
-      locationData = await app.service(locationPath).get(locationId as LocationID)
-    }
+    if (locationId) query.locationId = locationId
     if (channelId) query.channelId = channelId
     await app.service(instancePath).patch(null, { ended: true }, { query, headers })
   }
@@ -243,7 +238,6 @@ export async function checkForDuplicatedAssignments({
     {
       ipAddress: ipAddress,
       locationId: locationId as LocationID,
-      projectId: locationData?.projectId || '',
       podName: podName,
       channelId: channelId,
       assigned: true,

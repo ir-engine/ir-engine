@@ -92,7 +92,6 @@ export default function AddEditLocationModal({ location }: { location?: Location
       name: name.value,
       slugifiedName: '',
       sceneId: scene.value,
-      projectId: scenes.data[0]?.projectId,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         id: '',
