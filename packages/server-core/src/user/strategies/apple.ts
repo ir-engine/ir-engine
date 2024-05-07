@@ -48,6 +48,12 @@ export class AppleStrategy extends CustomOAuthStrategy {
     this.app = app
   }
   async getProfile(data, _params) {
+    logger.info('[AppleSSO]: Loger Entering in getProfile')
+    console.info('[AppleSSO]: Console Entering in getProfile')
+    logger.info(`[AppleSSO]: Loger Entering in data.jwt ${data.jwt}`)
+    console.info(`[AppleSSO]: Console Entering in getProfile data.jwt ${data.jwt}`)
+    logger.info(`[AppleSSO]: Loger Entering in data.jwt.ID ${data.jwt.id_token}`)
+    console.info(`[AppleSSO]: Console Entering in getProfile data.jwt.ID ${data.jwt.id_token}`)
     return data as string
   }
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
@@ -61,6 +67,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
     console.log(`[AppleSSO]: user ID is ${userId}`)
+    console.log(`[AppleSSO]: profile is ${profile.firstName}`)
     return {
       ...baseData,
       accountIdentifier: `$${profile.firstName} ${profile.lastName}`,
