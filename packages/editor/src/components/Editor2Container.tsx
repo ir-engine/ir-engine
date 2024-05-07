@@ -36,6 +36,10 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
+import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
+import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
+import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Dialog from '@mui/material/Dialog'
 import { t } from 'i18next'
@@ -52,9 +56,6 @@ import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import ImportSettingsPanel from './assets/ImportSettingsPanel'
-import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
-import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
-import { ScenePanelTab } from './assets/ScenesPanel'
 import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
@@ -63,13 +64,9 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import { PropertiesPanelTab } from './element/PropertiesPanel'
-import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
-import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
-import { ViewportPanelTab } from './panels/ViewportPanel'
+
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
-import { VisualScriptPanelTab } from './visualScript/VisualScriptPanel'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
@@ -317,33 +314,25 @@ const defaultLayout: LayoutData = {
     children: [
       {
         mode: 'vertical' as DockMode,
-        size: 3,
-        children: [
-          {
-            tabs: [ScenePanelTab, ProjectBrowserPanelTab, SceneAssetsPanelTab]
-          }
-        ]
-      },
-      {
-        mode: 'vertical' as DockMode,
         size: 8,
         children: [
           {
-            id: '+5',
-            tabs: [ViewportPanelTab],
-            size: 1
+            tabs: [ViewportPanelTab]
+          },
+          {
+            tabs: [ScenePanelTab]
           }
         ]
       },
       {
         mode: 'vertical' as DockMode,
-        size: 2,
+        size: 3,
         children: [
           {
-            tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
+            tabs: [HierarchyPanelTab]
           },
           {
-            tabs: [PropertiesPanelTab, VisualScriptPanelTab]
+            tabs: [PropertiesPanelTab]
           }
         ]
       }
@@ -351,15 +340,7 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const tabs = [
-  HierarchyPanelTab,
-  PropertiesPanelTab,
-  VisualScriptPanelTab,
-  MaterialLibraryPanelTab,
-  ViewportPanelTab,
-  ProjectBrowserPanelTab,
-  ScenePanelTab
-]
+const tabs = [HierarchyPanelTab, PropertiesPanelTab, ViewportPanelTab, ScenePanelTab]
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
