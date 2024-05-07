@@ -32,7 +32,7 @@ import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
@@ -529,13 +529,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 }
 
-const GLTFHierarchy = (props: { sourcePath: string }) => {
+export default function HierarchyPanel() {
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
   const gltfEntity = useMutableState(EditorState).rootEntity.value
-  if (!gltfEntity) return null
+  if (!sceneID || !gltfEntity) return null
 
   const GLTFHierarchySub = () => {
     const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = `${rootEntityUUID}-${props.sourcePath}`
+    const sourceID = `${rootEntityUUID}-${sceneID}`
     const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
 
     return (
@@ -549,38 +550,4 @@ const GLTFHierarchy = (props: { sourcePath: string }) => {
   }
 
   return <GLTFHierarchySub />
-}
-
-const JSONHierarchy = (props: { sceneID: string }) => {
-  const { sceneID } = props
-  const sceneState = useHookstate(getMutableState(SceneState)).value
-  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
-
-  if (!sceneID || !sceneState.scenes[sceneID] || !snapshots[sceneID]) return null
-
-  const SceneHierarchySub = () => {
-    const sceneJson = SceneState.useScene(sceneID).value
-    const index = SceneSnapshotState.useSnapshotIndex(sceneID)
-
-    return (
-      <HierarchyPanelContents
-        key={sceneJson.root}
-        rootEntityUUID={sceneJson.root}
-        sceneURL={sceneID}
-        index={index.value}
-      />
-    )
-  }
-
-  return <SceneHierarchySub />
-}
-
-export default function HierarchyPanel() {
-  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
-  if (!sceneID) return null
-  return sceneID.endsWith('.json') ? (
-    <JSONHierarchy sceneID={sceneID} key={sceneID} />
-  ) : (
-    <GLTFHierarchy sourcePath={sceneID} key={sceneID} />
-  )
 }
