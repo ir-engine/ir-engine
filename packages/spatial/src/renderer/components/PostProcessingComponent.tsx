@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { NO_PROXY_STEALTH, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import {
   BloomEffect,
   BrightnessContrastEffect,
@@ -35,7 +35,6 @@ import {
   DepthDownsamplingPass,
   DepthOfFieldEffect,
   DotScreenEffect,
-  EdgeDetectionMode,
   Effect,
   EffectComposer,
   EffectPass,
@@ -61,15 +60,13 @@ import {
   VignetteEffect
 } from 'postprocessing'
 import { useEffect } from 'react'
-import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
+import { MotionBlurEffect, SSGIEffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
-import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
-import { ObjectLayers } from '../constants/ObjectLayers'
+import { RendererComponent } from '../WebGLRendererSystem'
 import { Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { changeRenderMode } from '../functions/changeRenderMode'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
@@ -146,7 +143,7 @@ export const PostProcessingComponent = defineComponent({
     const useVelocityDepthNormalPass = useHookstate(false)
     const useDepthDownsamplingPass = useHookstate(false)
 
-    const composer = useHookstate<EffectComposer>(() => new EffectComposer(renderer.value.renderer))
+    //const composer = useHookstate<EffectComposer>(() => new EffectComposer(renderer.value.renderer))
     const effects = useHookstate<Record<string, Effect>>({})
 
     useEffect(() => {
@@ -157,11 +154,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.BloomEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new BloomEffect(effectOptions)
-        composer[Effects.BloomEffect].set(eff)
+        //composer[Effects.BloomEffect].set(eff)
         effects[Effects.BloomEffect].set(eff)
 
         return () => {
-          composer[Effects.BloomEffect].set(none)
+          //composer[Effects.BloomEffect].set(none)
           effects[Effects.BloomEffect].set(none)
         }
       }
@@ -171,11 +168,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.BrightnessContrastEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new BrightnessContrastEffect(effectOptions)
-        composer[Effects.BrightnessContrastEffect].set(eff)
+        //composer[Effects.BrightnessContrastEffect].set(eff)
         effects[Effects.BrightnessContrastEffect].set(eff)
 
         return () => {
-          composer[Effects.BrightnessContrastEffect].set(none)
+          //composer[Effects.BrightnessContrastEffect].set(none)
           effects[Effects.BrightnessContrastEffect].set(none)
         }
       }
@@ -185,11 +182,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ChromaticAberrationEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ChromaticAberrationEffect(effectOptions)
-        composer[Effects.ChromaticAberrationEffect].set(eff)
+        //composer[Effects.ChromaticAberrationEffect].set(eff)
         effects[Effects.ChromaticAberrationEffect].set(eff)
 
         return () => {
-          composer[Effects.ChromaticAberrationEffect].set(none)
+          //composer[Effects.ChromaticAberrationEffect].set(none)
           effects[Effects.ChromaticAberrationEffect].set(none)
         }
       }
@@ -199,11 +196,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ColorAverageEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ColorAverageEffect(effectOptions.blendFunction)
-        composer[Effects.ColorAverageEffect].set(eff)
+        //composer[Effects.ColorAverageEffect].set(eff)
         effects[Effects.ColorAverageEffect].set(eff)
 
         return () => {
-          composer[Effects.ColorAverageEffect].set(none)
+          //composer[Effects.ColorAverageEffect].set(none)
           effects[Effects.ColorAverageEffect].set(none)
         }
       }
@@ -213,11 +210,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ColorDepthEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ColorDepthEffect(effectOptions)
-        composer[Effects.ColorDepthEffect].set(eff)
+        //composer[Effects.ColorDepthEffect].set(eff)
         effects[Effects.ColorDepthEffect].set(eff)
 
         return () => {
-          composer[Effects.ColorDepthEffect].set(none)
+          //composer[Effects.ColorDepthEffect].set(none)
           effects[Effects.ColorDepthEffect].set(none)
         }
       }
@@ -227,11 +224,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.DepthOfFieldEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new DepthOfFieldEffect(camera.value, effectOptions)
-        composer[Effects.DepthOfFieldEffect].set(eff)
+        //composer[Effects.DepthOfFieldEffect].set(eff)
         effects[Effects.DepthOfFieldEffect].set(eff)
 
         return () => {
-          composer[Effects.DepthOfFieldEffect].set(none)
+          //composer[Effects.DepthOfFieldEffect].set(none)
           effects[Effects.DepthOfFieldEffect].set(none)
         }
       }
@@ -241,11 +238,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.DotScreenEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new DotScreenEffect(effectOptions)
-        composer[Effects.DotScreenEffect].set(eff)
+        //composer[Effects.DotScreenEffect].set(eff)
         effects[Effects.DotScreenEffect].set(eff)
 
         return () => {
-          composer[Effects.DotScreenEffect].set(none)
+          //composer[Effects.DotScreenEffect].set(none)
           effects[Effects.DotScreenEffect].set(none)
         }
       }
@@ -255,11 +252,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.FXAAEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new FXAAEffect(effectOptions)
-        composer[Effects.FXAAEffect].set(eff)
+        //composer[Effects.FXAAEffect].set(eff)
         effects[Effects.FXAAEffect].set(eff)
 
         return () => {
-          composer[Effects.FXAAEffect].set(none)
+          //composer[Effects.FXAAEffect].set(none)
           effects[Effects.FXAAEffect].set(none)
         }
       }
@@ -269,11 +266,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.GlitchEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new GlitchEffect(effectOptions)
-        composer[Effects.GlitchEffect].set(eff)
+        //composer[Effects.GlitchEffect].set(eff)
         effects[Effects.GlitchEffect].set(eff)
 
         return () => {
-          composer[Effects.GlitchEffect].set(none)
+          //composer[Effects.GlitchEffect].set(none)
           effects[Effects.GlitchEffect].set(none)
         }
       }
@@ -283,11 +280,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.GridEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new GridEffect(effectOptions)
-        composer[Effects.GridEffect].set(eff)
+        //composer[Effects.GridEffect].set(eff)
         effects[Effects.GridEffect].set(eff)
 
         return () => {
-          composer[Effects.GridEffect].set(none)
+          //composer[Effects.GridEffect].set(none)
           effects[Effects.GridEffect].set(none)
         }
       }
@@ -297,11 +294,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.HueSaturationEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new HueSaturationEffect(effectOptions)
-        composer[Effects.HueSaturationEffect].set(eff)
+        //composer[Effects.HueSaturationEffect].set(eff)
         effects[Effects.HueSaturationEffect].set(eff)
 
         return () => {
-          composer[Effects.HueSaturationEffect].set(none)
+          //composer[Effects.HueSaturationEffect].set(none)
           effects[Effects.HueSaturationEffect].set(none)
         }
       }
@@ -311,11 +308,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.LUT1DEffect] as any
       if (effectOptions && effectOptions.isActive && lut1DEffectTexture) {
         const eff = new LUT1DEffect(lut1DEffectTexture, effectOptions)
-        composer[Effects.LUT1DEffect].set(eff)
+        //composer[Effects.LUT1DEffect].set(eff)
         effects[Effects.LUT1DEffect].set(eff)
 
         return () => {
-          composer[Effects.LUT1DEffect].set(none)
+          //composer[Effects.LUT1DEffect].set(none)
           effects[Effects.LUT1DEffect].set(none)
         }
       }
@@ -325,11 +322,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.LUT3DEffect] as any
       if (effectOptions && effectOptions.isActive && lut3DEffectTexture) {
         const eff = new LUT3DEffect(lut3DEffectTexture, effectOptions)
-        composer[Effects.LUT3DEffect].set(eff)
+        //composer[Effects.LUT3DEffect].set(eff)
         effects[Effects.LUT3DEffect].set(eff)
 
         return () => {
-          composer[Effects.LUT3DEffect].set(none)
+          //composer[Effects.LUT3DEffect].set(none)
           effects[Effects.LUT3DEffect].set(none)
         }
       }
@@ -339,11 +336,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.LensDistortionEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new LensDistortionEffect(effectOptions)
-        composer[Effects.LensDistortionEffect].set(eff)
+        //composer[Effects.LensDistortionEffect].set(eff)
         effects[Effects.LensDistortionEffect].set(eff)
 
         return () => {
-          composer[Effects.LensDistortionEffect].set(none)
+          //composer[Effects.LensDistortionEffect].set(none)
           effects[Effects.LensDistortionEffect].set(none)
         }
       }
@@ -353,11 +350,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.LinearTosRGBEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new LinearTosRGBEffect(effectOptions)
-        composer[Effects.LinearTosRGBEffect].set(eff)
+        //composer[Effects.LinearTosRGBEffect].set(eff)
         effects[Effects.LinearTosRGBEffect].set(eff)
 
         return () => {
-          composer[Effects.LinearTosRGBEffect].set(none)
+          //composer[Effects.LinearTosRGBEffect].set(none)
           effects[Effects.LinearTosRGBEffect].set(none)
         }
       }
@@ -368,11 +365,11 @@ export const PostProcessingComponent = defineComponent({
       if (effectOptions && effectOptions.isActive) {
         const eff = new MotionBlurEffect(velocityDepthNormalPass, effectOptions)
         useVelocityDepthNormalPass.set(true)
-        composer[Effects.MotionBlurEffect].set(eff)
+        //composer[Effects.MotionBlurEffect].set(eff)
         effects[Effects.MotionBlurEffect].set(eff)
 
         return () => {
-          composer[Effects.MotionBlurEffect].set(none)
+          //composer[Effects.MotionBlurEffect].set(none)
           effects[Effects.MotionBlurEffect].set(none)
         }
       }
@@ -382,11 +379,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.NoiseEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new NoiseEffect(effectOptions)
-        composer[Effects.NoiseEffect].set(eff)
+        //composer[Effects.NoiseEffect].set(eff)
         effects[Effects.NoiseEffect].set(eff)
 
         return () => {
-          composer[Effects.NoiseEffect].set(none)
+          //composer[Effects.NoiseEffect].set(none)
           effects[Effects.NoiseEffect].set(none)
         }
       }
@@ -396,11 +393,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.OutlineEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new OutlineEffect(scene.value, camera.value, effectOptions)
-        composer[Effects.OutlineEffect].set(eff)
+        //composer[Effects.OutlineEffect].set(eff)
         effects[Effects.OutlineEffect].set(eff)
 
         return () => {
-          composer[Effects.OutlineEffect].set(none)
+          //composer[Effects.OutlineEffect].set(none)
           effects[Effects.OutlineEffect].set(none)
         }
       }
@@ -410,11 +407,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.PixelationEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new PixelationEffect(effectOptions.granularity)
-        composer[Effects.PixelationEffect].set(eff)
+        //composer[Effects.PixelationEffect].set(eff)
         effects[Effects.PixelationEffect].set(eff)
 
         return () => {
-          composer[Effects.PixelationEffect].set(none)
+          //composer[Effects.PixelationEffect].set(none)
           effects[Effects.PixelationEffect].set(none)
         }
       }
@@ -424,11 +421,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.SMAAEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new SMAAEffect(effectOptions)
-        composer[Effects.SMAAEffect].set(eff)
+        //composer[Effects.SMAAEffect].set(eff)
         effects[Effects.SMAAEffect].set(eff)
 
         return () => {
-          composer[Effects.SMAAEffect].set(none)
+          //composer[Effects.SMAAEffect].set(none)
           effects[Effects.SMAAEffect].set(none)
         }
       }
@@ -442,11 +439,11 @@ export const PostProcessingComponent = defineComponent({
           normalDepthBuffer: depthDownsamplingPass.value.texture
         })
         useDepthDownsamplingPass.set(true)
-        composer[Effects.SSAOEffect].set(eff)
+        //composer[Effects.SSAOEffect].set(eff)
         effects[Effects.SSAOEffect].set(eff)
 
         return () => {
-          composer[Effects.SSAOEffect].set(none)
+          //composer[Effects.SSAOEffect].set(none)
           effects[Effects.SSAOEffect].set(none)
         }
       }
@@ -456,11 +453,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new SSGIEffect(effectOptions)
-        composer[Effects.SSGIEffect].set(eff)
+        //composer[Effects.SSGIEffect].set(eff)
         effects[Effects.SSGIEffect].set(eff)
 
         return () => {
-          composer[Effects.SSGIEffect].set(none)
+          //composer[Effects.SSGIEffect].set(none)
           effects[Effects.SSGIEffect].set(none)
         }
       }
@@ -475,13 +472,13 @@ export const PostProcessingComponent = defineComponent({
       }
       const effectOptions = postprocessingComponent.value.effects[Effects.SSREffect] as any
       if (effectOptions && effectOptions && !usingSSGI) {
-        const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
+        //const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
         useVelocityDepthNormalPass.set(true)
-        composer[Effects.SSREffect].set(eff)
-        effects[Effects.SSREffect].set(eff)
+        //composer[Effects.SSREffect].set(eff)
+        //effects[Effects.SSREffect].set(eff)
 
         return () => {
-          composer[Effects.SSREffect].set(none)
+          //composer[Effects.SSREffect].set(none)
           effects[Effects.SSREffect].set(none)
         }
       }
@@ -491,11 +488,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ScanlineEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ScanlineEffect(effectOptions)
-        composer[Effects.ScanlineEffect].set(eff)
+        //composer[Effects.ScanlineEffect].set(eff)
         effects[Effects.ScanlineEffect].set(eff)
 
         return () => {
-          composer[Effects.ScanlineEffect].set(none)
+          //composer[Effects.ScanlineEffect].set(none)
           effects[Effects.ScanlineEffect].set(none)
         }
       }
@@ -505,11 +502,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ShockWaveEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ShockWaveEffect(camera.value, effectOptions.position, effectOptions)
-        composer[Effects.ShockWaveEffect].set(eff)
+        //composer[Effects.ShockWaveEffect].set(eff)
         effects[Effects.ShockWaveEffect].set(eff)
 
         return () => {
-          composer[Effects.ShockWaveEffect].set(none)
+          //composer[Effects.ShockWaveEffect].set(none)
           effects[Effects.ShockWaveEffect].set(none)
         }
       }
@@ -522,11 +519,11 @@ export const PostProcessingComponent = defineComponent({
         const textureCount = 1
         const eff = new TRAAEffect(scene, camera.value, velocityDepthNormalPass, textureCount, effectOptions)
         useVelocityDepthNormalPass.set(true)
-        composer[Effects.TRAAEffect].set(eff)
+        //composer[Effects.TRAAEffect].set(eff)
         effects[Effects.TRAAEffect].set(eff)
 
         return () => {
-          composer[Effects.TRAAEffect].set(none)
+          //composer[Effects.TRAAEffect].set(none)
           effects[Effects.TRAAEffect].set(none)
         }
       }
@@ -537,11 +534,11 @@ export const PostProcessingComponent = defineComponent({
       if (effectOptions && effectOptions.isActive && textureEffectTexture) {
         effectOptions.texture = textureEffectTexture
         const eff = new TextureEffect(effectOptions)
-        composer[Effects.TextureEffect].set(eff)
+        //composer[Effects.TextureEffect].set(eff)
         effects[Effects.TextureEffect].set(eff)
 
         return () => {
-          composer[Effects.TextureEffect].set(none)
+          //composer[Effects.TextureEffect].set(none)
           effects[Effects.TextureEffect].set(none)
         }
       }
@@ -551,11 +548,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.TiltShiftEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new TiltShiftEffect(effectOptions)
-        composer[Effects.TiltShiftEffect].set(eff)
+        //composer[Effects.TiltShiftEffect].set(eff)
         effects[Effects.TiltShiftEffect].set(eff)
 
         return () => {
-          composer[Effects.TiltShiftEffect].set(none)
+          //composer[Effects.TiltShiftEffect].set(none)
           effects[Effects.TiltShiftEffect].set(none)
         }
       }
@@ -565,11 +562,11 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.ToneMappingEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new ToneMappingEffect(effectOptions)
-        composer[Effects.ToneMappingEffect].set(eff)
+        //composer[Effects.ToneMappingEffect].set(eff)
         effects[Effects.ToneMappingEffect].set(eff)
 
         return () => {
-          composer[Effects.ToneMappingEffect].set(none)
+          //composer[Effects.ToneMappingEffect].set(none)
           effects[Effects.ToneMappingEffect].set(none)
         }
       }
@@ -579,25 +576,42 @@ export const PostProcessingComponent = defineComponent({
       const effectOptions = postprocessingComponent.value.effects[Effects.VignetteEffect] as any
       if (effectOptions && effectOptions.isActive) {
         const eff = new VignetteEffect(effectOptions)
-        composer[Effects.VignetteEffect].set(eff)
+        //composer[Effects.VignetteEffect].set(eff)
         effects[Effects.VignetteEffect].set(eff)
 
         return () => {
-          composer[Effects.VignetteEffect].set(none)
+          //composer[Effects.VignetteEffect].set(none)
           effects[Effects.VignetteEffect].set(none)
         }
       }
     }, [postprocessingComponent.effects[Effects.VignetteEffect]])
 
     useEffect(() => {
-      const effectArray = Object.values(effects.value)
-      composer.EffectPass.set(new EffectPass(camera.value, ...effectArray))
-      composer.value.addPass(composer.value.EffectPass)
+      const composer = new EffectComposer(renderer.value.renderer)
+      renderer.value.effectComposer = composer
+
+      // we always want to have at least the render pass enabled
+      const renderPass = new RenderPass()
+      renderer.value.effectComposer.addPass(renderPass)
+      renderer.value.renderPass = renderPass
+
+      const renderSettings = getState(RendererState)
+      if (!renderSettings.usePostProcessing) return
+
+      const effectsVal = effects.get(NO_PROXY)
+      for (const key in effectsVal) {
+        const val = effectsVal[key]
+        composer[key] = val
+      }
+
+      const effectArray = Object.values(effectsVal)
+      composer.EffectPass = new EffectPass(camera.value, ...effectArray)
+      composer.addPass(composer.EffectPass)
     }, [effects])
 
     useEffect(() => {
       if (!rendererEntity) return
-
+      /*
       let schema = postprocessingComponent.enabled.value
         ? postprocessingComponent.effects.get(NO_PROXY_STEALTH)
         : undefined
@@ -639,7 +653,7 @@ export const PostProcessingComponent = defineComponent({
       const OutlineEffectPass = new EffectPass(camera.value, outlineEffect)
       composer.addPass(OutlineEffectPass) //outlines don't follow camera
       composer.addPass(SmaaEffectPass)
-
+*/
       /*
       const effectKeys = Object.keys(EffectMap)
 
