@@ -36,7 +36,6 @@ import { EditorComponentType } from '@etherealengine/editor/src/components/prope
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -66,7 +65,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateScenePreview = async () => {
-    const rootEntity = SceneState.getRootEntity(getState(EditorState).sceneID!)
+    const rootEntity = getState(EditorState).rootEntity
     const scene = new Scene()
     scene.children = getComponent(rootEntity, SceneComponent)
       .children.map(getNestedVisibleChildren)

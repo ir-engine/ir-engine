@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCircleDot } from 'react-icons/lu'
+import { MathUtils as _Math } from 'three'
 
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
-
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
@@ -46,18 +47,12 @@ import LightShadowProperties from '../shadowProperties'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const lightComponent = useComponent(props.entity, SpotLightComponent).value
+  const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')} icon={<LuCircleDot />}>
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput
-          value={
-            //lightComponent.color
-            undefined
-          }
-          onChange={updateProperty(SpotLightComponent, 'color')}
-        />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput
@@ -65,10 +60,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={
-            //lightComponent.intensity
-            0
-          }
+          value={lightComponent.intensity}
           onChange={updateProperty(SpotLightComponent, 'intensity')}
           onRelease={commitProperty(SpotLightComponent, 'intensity')}
         />
@@ -79,37 +71,33 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={1}
           smallStep={0.01}
           mediumStep={0.1}
-          value={
-            //lightComponent.penumbra
-            0
-          }
+          value={lightComponent.penumbra}
           onChange={updateProperty(SpotLightComponent, 'penumbra')}
           onRelease={commitProperty(SpotLightComponent, 'penumbra')}
         />
       </InputGroup>
-      {/*<RadianNumericInputGroup
-        name="Angle"
-        label={t('editor:properties.spotLight.lbl-angle')}
-        min={0}
-        max={90}
-        smallStep={0.1}
-        mediumStep={1}
-        largeStep={10}
-        value={lightComponent.angle}
-        onChange={updateProperty(SpotLightComponent, 'angle')}
-        onRelease={commitProperty(SpotLightComponent, 'angle')}
-        unit="°"
-      />*/}
+      <InputGroup name="Angle" label={t('editor:properties.spotLight.lbl-angle')}>
+        <NumericInput
+          min={0}
+          max={90}
+          smallStep={0.1}
+          mediumStep={1}
+          largeStep={10}
+          value={lightComponent.angle}
+          convertFrom={_Math.radToDeg}
+          convertTo={_Math.degToRad}
+          onChange={updateProperty(SpotLightComponent, 'angle')}
+          onRelease={commitProperty(SpotLightComponent, 'angle')}
+          unit="°"
+        />
+      </InputGroup>
       <InputGroup name="Range" label={t('editor:properties.spotLight.lbl-range')}>
         <NumericInput
           min={0}
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            //lightComponent.range
-            0
-          }
+          value={lightComponent.range}
           onChange={updateProperty(SpotLightComponent, 'range')}
           onRelease={commitProperty(SpotLightComponent, 'range')}
           unit="m"
@@ -121,10 +109,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={10}
           smallStep={0.1}
           mediumStep={1}
-          value={
-            //lightComponent.decay
-            0
-          }
+          value={lightComponent.decay}
           onChange={updateProperty(SpotLightComponent, 'decay')}
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />

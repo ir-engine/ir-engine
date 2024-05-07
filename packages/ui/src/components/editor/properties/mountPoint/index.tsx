@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useComponent } from '@etherealengine/ecs'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import {
   EditorComponentType,
@@ -33,7 +34,6 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
-import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { LuUsers2 } from 'react-icons/lu'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
@@ -47,7 +47,7 @@ import NodeEditor from '../nodeEditor'
 export const MountPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const mountComponent = useComponent(props.entity, MountPointComponent)
+  const mountComponent = useComponent(props.entity, MountPointComponent)
 
   return (
     <NodeEditor
@@ -59,20 +59,14 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mount Type" label={t('editor:properties.mountpoint.lbl-mountType')}>
         <SelectInput // we dont know the options and the component for this
           key={props.entity}
-          value={
-            //mountComponent.type.value
-            ''
-          }
+          value={mountComponent.type.value}
           options={Object.entries(MountPoint).map(([key, value]) => ({ label: key, value }))}
           onChange={commitProperty(MountPointComponent, 'type')}
         />
       </InputGroup>
       <InputGroup name="Dismount Offset" label={t('editor:properties.mountpoint.lbl-dismountOffset')}>
         <Vector3Input
-          value={
-            //mountComponent.dismountOffset.value
-            V_000
-          }
+          value={mountComponent.dismountOffset.value}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}
           onRelease={commitProperty(MountPointComponent, 'dismountOffset')}
         />

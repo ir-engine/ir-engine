@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
@@ -45,7 +46,7 @@ import NodeEditor from '../../nodeEditor'
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
+  const lightComponent = useComponent(props.entity, HemisphereLightComponent).value
 
   return (
     <NodeEditor
@@ -55,20 +56,11 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       icon={<PiSunHorizon />}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        <ColorInput
-          value={
-            //lightComponent.skyColor
-            undefined
-          }
-          onChange={updateProperty(HemisphereLightComponent, 'skyColor')}
-        />
+        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
         <ColorInput
-          value={
-            //lightComponent.groundColor
-            undefined
-          }
+          value={lightComponent.groundColor}
           onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
         />
       </InputGroup>
@@ -78,10 +70,7 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={
-            //lightComponent.intensity
-            0
-          }
+          value={lightComponent.intensity}
           onChange={updateProperty(HemisphereLightComponent, 'intensity')}
           onRelease={commitProperty(HemisphereLightComponent, 'intensity')}
           unit="cd"

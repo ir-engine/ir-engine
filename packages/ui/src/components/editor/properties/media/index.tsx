@@ -27,14 +27,19 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
-import { useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import {
+  MediaComponent,
+  MediaElementComponent,
+  setTime
+} from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
+import Button from '../../../../primitives/tailwind/Button'
 import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import BooleanInput from '../../input/Boolean'
@@ -68,16 +73,16 @@ const PlayModeOptions = [
 export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  // const media = useComponent(props.entity, MediaComponent)
+  const media = useComponent(props.entity, MediaComponent)
   const element = useOptionalComponent(props.entity, MediaElementComponent)
 
   const toggle = () => {
-    // media.paused.set(!media.paused.value)
+    media.paused.set(!media.paused.value)
   }
 
   const reset = () => {
     if (element) {
-      // setTime(element.element, media.seekTime.value)
+      setTime(element.element, media.seekTime.value)
     }
   }
 
@@ -93,9 +98,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           min={0}
           max={100}
           step={1}
-          value={
-            0 // media.volume.value
-          }
+          value={media.volume.value}
           onChange={updateProperty(MediaComponent, 'volume')}
           onRelease={() => commitProperty(MediaComponent, 'volume')}
         />
@@ -103,21 +106,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Start Time" label={t('editor:properties.media.seekTime')}>
         <NumericInput
-          value={
-            0 // media.seekTime.value
-          }
+          value={media.seekTime.value}
           onChange={updateProperty(MediaComponent, 'seekTime')}
           onRelease={commitProperty(MediaComponent, 'seekTime')}
         />
       </InputGroup>
 
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
-        <BooleanInput
-          value={
-            true // media.isMusic.value
-          }
-          onChange={commitProperty(MediaComponent, 'isMusic')}
-        />
+        <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
 
       <InputGroup
@@ -125,13 +121,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-controls')}
         info={t('editor:properties.media.info-controls')}
       >
-        <BooleanInput
-          value={
-            // media.controls.value
-            true
-          }
-          onChange={commitProperty(MediaComponent, 'controls')}
-        />
+        <BooleanInput value={media.controls.value} onChange={commitProperty(MediaComponent, 'controls')} />
       </InputGroup>
 
       <InputGroup
@@ -139,13 +129,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-autoplay')}
         info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput
-          value={
-            // media.autoplay.value
-            true
-          }
-          onChange={commitProperty(MediaComponent, 'autoplay')}
-        />
+        <BooleanInput value={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
 
       <InputGroup
@@ -153,22 +137,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.lbl-synchronize')}
         info={t('editor:properties.media.info-synchronize')}
       >
-        <BooleanInput
-          value={
-            // media.synchronize.value
-            true
-          }
-          onChange={commitProperty(MediaComponent, 'synchronize')}
-        />
+        <BooleanInput value={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
       </InputGroup>
 
       <ArrayInputGroup
         label={t('editor:properties.media.paths')}
         inputLabel={t('editor:properties.media.path')}
-        values={
-          ['test 1']
-          //media.resources.value
-        }
+        values={media.resources.value}
         onChange={updateProperty(MediaComponent, 'resources')}
       />
 
@@ -176,21 +151,18 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={PlayModeOptions}
-          value={
-            ''
-            //media.playMode.value
-          }
+          value={media.playMode.value}
           onChange={commitProperty(MediaComponent, 'playMode')}
         />
       </InputGroup>
-      {/* {media.resources.length > 0 && (
+      {media.resources.length > 0 && (
         <InputGroup name="media-controls" label="media-controls">
           <Button onClick={toggle}>
             {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>
           <Button onClick={reset}>{t('editor:properties.media.resettitle')}</Button>
         </InputGroup>
-      )} */}
+      )}
     </NodeEditor>
   )
 }

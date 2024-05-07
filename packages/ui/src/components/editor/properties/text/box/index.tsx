@@ -23,7 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { useComponent } from '@etherealengine/ecs'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
+import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
 import StreetviewIcon from '@mui/icons-material/Streetview'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -70,7 +76,7 @@ const PaddingNumericInput = ({
 export const TextBoxEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const spawnComponent = useComponent(props.entity, SpawnPointComponent)
+  const text = useComponent(props.entity, TextComponent)
 
   return (
     <NodeEditor
@@ -81,10 +87,9 @@ export const TextBoxEditor: EditorComponentType = (props) => {
       <InputGroup name="Text" label={t('editor:properties.textBox.lbl-text')}>
         <ControlledStringInput
           containerClassname="w-56"
-          value=""
-          // value={text.text.value}
-          // onChange={updateProperty(TextComponent, 'text')}
-          // onRelease={commitProperty(TextComponent, 'text')}
+          value={text.text.value}
+          onChange={updateProperty(TextComponent, 'text')}
+          onRelease={commitProperty(TextComponent, 'text')}
         />
       </InputGroup>
       <InputGroup name="Family" label={t('editor:properties.textBox.lbl-family')} info="">

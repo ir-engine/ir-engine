@@ -23,32 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useComponent } from '@etherealengine/ecs'
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { RiCameraLensFill } from 'react-icons/ri'
-import NodeEditor from '../nodeEditor'
+
+import NumericInput, { NumericInputProp } from '..'
+import InputGroup from '../../Group'
+
+const radToDeg = _Math.radToDeg
+const degToRad = _Math.degToRad
 
 /**
- * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
+ *
+ * @param {any} convertTo
+ * @param {any} convertFrom
+ * @param {any} rest
+ * @returns
  */
-export const SpawnPointNodeEditor: EditorComponentType = (props) => {
-  const { t } = useTranslation()
-
-  const spawnComponent = useComponent(props.entity, SpawnPointComponent)
-
+export function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }: NumericInputProp) {
   return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.spawnPoint.name')}
-      description={t('editor:properties.spawnPoint.description')}
-      icon={<RiCameraLensFill />}
-    ></NodeEditor>
+    <InputGroup label={''} {...rest}>
+      <NumericInput {...rest} convertFrom={radToDeg} convertTo={degToRad} />
+    </InputGroup>
   )
 }
 
-SpawnPointNodeEditor.iconComponent = RiCameraLensFill
+RadianNumericInputGroup.defaultProps = {
+  min: 0,
+  max: 360,
+  smallStep: 1,
+  mediumStep: 5,
+  largeStep: 15,
+  unit: '°'
+}
 
-export default SpawnPointNodeEditor
+export default RadianNumericInputGroup

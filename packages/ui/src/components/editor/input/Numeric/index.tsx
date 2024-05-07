@@ -51,6 +51,8 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   value: number
   onChange: (n: number) => void
   onRelease?: (n: number) => void
+  convertFrom?: any
+  convertTo?: any
   className?: string
   unit?: string
   prefix?: JSX.Element
@@ -68,6 +70,8 @@ const NumericInput = ({
   unit,
   prefix,
   displayPrecision,
+  convertFrom,
+  convertTo,
   value,
   precision,
   mediumStep,
@@ -79,16 +83,15 @@ const NumericInput = ({
   max,
   ...rest
 }: NumericInputProp) => {
-  const handleStep = (event: React.KeyboardEvent<HTMLInputElement>, direction: number) => {
+  const handleStep = (event, direction, focus = true) => {
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
     const nextValue = value + stepSize * direction
     const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
     const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
+    const finalValue = convertTo(roundedValue)
 
-    if (onChange) {
-      onChange(roundedValue)
-    }
+    onChange?.(Number(finalValue))
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -107,16 +110,15 @@ const NumericInput = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value
-
     const parsedValue = parseFloat(newValue)
 
     if (!Number.isNaN(parsedValue)) {
       const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
-      onChange?.(roundedValue)
+      const finalValue = convertTo(roundedValue)
+      onChange?.(Number(finalValue))
     }
   }
-
   return (
     <div
       className={twMerge(
@@ -150,7 +152,9 @@ NumericInput.defaultProps = {
   min: -Infinity,
   max: Infinity,
   displayPrecision: 0.001,
-  precision: Number.EPSILON
+  precision: Number.EPSILON,
+  convertTo: (value) => value,
+  convertFrom: (value) => value
 }
 
 export default NumericInput

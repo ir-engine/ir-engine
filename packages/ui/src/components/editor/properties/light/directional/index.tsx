@@ -29,12 +29,12 @@ import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/
 
 import { BsLightning } from 'react-icons/bs'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { Color } from 'three'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
@@ -46,7 +46,7 @@ import LightShadowProperties from '../shadowProperties'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  //const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
+  const lightComponent = useComponent(props.entity, DirectionalLightComponent).value
 
   return (
     <NodeEditor
@@ -58,8 +58,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput
           className="bg-[#1A1A1A]"
-          // value={lightComponent.color}
-          value={new Color('#00FF00')}
+          value={lightComponent.color}
           onChange={updateProperty(DirectionalLightComponent, 'color')}
         />
       </InputGroup>
@@ -69,10 +68,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={
-            //lightComponent.intensity
-            0
-          }
+          value={lightComponent.intensity}
           onChange={updateProperty(DirectionalLightComponent, 'intensity')}
           onRelease={commitProperty(DirectionalLightComponent, 'intensity')}
           unit="cd"
@@ -85,10 +81,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={
-            //lightComponent.cameraFar
-            0
-          }
+          value={lightComponent.cameraFar}
           onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
           onRelease={commitProperty(DirectionalLightComponent, 'cameraFar')}
         />

@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiSpeakerLowLight } from 'react-icons/pi'
 
-import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
 
@@ -53,7 +53,7 @@ import NodeEditor from '../nodeEditor'
 export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const audioComponent = useComponent(props.entity, PositionalAudioComponent)
+  const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent) && !hasComponent(props.entity, VolumetricComponent)) {
@@ -86,49 +86,40 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      {
-        //audioComponent.distanceModel.value
-        DistanceModel.Linear === DistanceModel.Linear ? (
-          <InputGroup
-            name="Rolloff Factor"
-            label={t('editor:properties.audio.lbl-rolloffFactor')}
-            info={t('editor:properties.audio.info-rolloffFactor')}
-          >
-            <NumericInput
-              min={0}
-              max={1}
-              smallStep={0.001}
-              mediumStep={0.01}
-              largeStep={0.1}
-              value={
-                //audioComponent.rolloffFactor.value
-                0
-              }
-              onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
-              onRelease={commitProperty(PositionalAudioComponent, 'rolloffFactor')}
-            />
-          </InputGroup>
-        ) : (
-          <InputGroup
-            name="Rolloff Factor"
-            label={t('editor:properties.audio.lbl-rolloffFactor')}
-            info={t('editor:properties.audio.info-rfInfinity')}
-          >
-            <NumericInput
-              min={0}
-              smallStep={0.1}
-              mediumStep={1}
-              largeStep={10}
-              value={
-                0
-                //audioComponent.rolloffFactor.value
-              }
-              onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
-              onRelease={commitProperty(PositionalAudioComponent, 'rolloffFactor')}
-            />
-          </InputGroup>
-        )
-      }
+      {audioComponent.distanceModel.value === DistanceModel.Linear ? (
+        <InputGroup
+          name="Rolloff Factor"
+          label={t('editor:properties.audio.lbl-rolloffFactor')}
+          info={t('editor:properties.audio.info-rolloffFactor')}
+        >
+          <NumericInput
+            min={0}
+            max={1}
+            smallStep={0.001}
+            mediumStep={0.01}
+            largeStep={0.1}
+            value={audioComponent.rolloffFactor.value}
+            onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
+            onRelease={commitProperty(PositionalAudioComponent, 'rolloffFactor')}
+          />
+        </InputGroup>
+      ) : (
+        <InputGroup
+          name="Rolloff Factor"
+          label={t('editor:properties.audio.lbl-rolloffFactor')}
+          info={t('editor:properties.audio.info-rfInfinity')}
+        >
+          <NumericInput
+            min={0}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={audioComponent.rolloffFactor.value}
+            onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
+            onRelease={commitProperty(PositionalAudioComponent, 'rolloffFactor')}
+          />
+        </InputGroup>
+      )}
       <InputGroup
         name="Ref Distance"
         label={t('editor:properties.audio.lbl-refDistance')}
@@ -139,10 +130,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            0
-            //audioComponent.refDistance.value
-          }
+          value={audioComponent.refDistance.value}
           onChange={updateProperty(PositionalAudioComponent, 'refDistance')}
           onRelease={commitProperty(PositionalAudioComponent, 'refDistance')}
           unit="m"
@@ -158,10 +146,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            0
-            //audioComponent.maxDistance.value
-          }
+          value={audioComponent.maxDistance.value}
           onChange={updateProperty(PositionalAudioComponent, 'maxDistance')}
           onRelease={commitProperty(PositionalAudioComponent, 'maxDistance')}
           unit="m"
@@ -178,10 +163,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            0
-            //audioComponent.coneInnerAngle.value
-          }
+          value={audioComponent.coneInnerAngle.value}
           onChange={updateProperty(PositionalAudioComponent, 'coneInnerAngle')}
           onRelease={commitProperty(PositionalAudioComponent, 'coneInnerAngle')}
           unit="°"
@@ -198,10 +180,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            0
-            //audioComponent.coneOuterAngle.value
-          }
+          value={audioComponent.coneOuterAngle.value}
           onChange={updateProperty(PositionalAudioComponent, 'coneOuterAngle')}
           onRelease={commitProperty(PositionalAudioComponent, 'coneOuterAngle')}
           unit="°"
@@ -216,10 +195,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
           min={0}
           max={1}
           step={0.01}
-          value={
-            //audioComponent.coneOuterGain.value
-            0
-          }
+          value={audioComponent.coneOuterGain.value}
           onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
           onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
         />

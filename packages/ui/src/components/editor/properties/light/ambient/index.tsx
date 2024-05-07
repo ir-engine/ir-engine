@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
@@ -33,7 +34,6 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
 import { HiOutlineSun } from 'react-icons/hi2'
-import { Color } from 'three'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
@@ -46,7 +46,7 @@ import NodeEditor from '../../nodeEditor'
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  // const lightComponent = useComponent(props.entity, AmbientLightComponent)
+  const lightComponent = useComponent(props.entity, AmbientLightComponent)
 
   return (
     <NodeEditor
@@ -59,7 +59,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
         <ColorInput
           className="bg-[#1A1A1A]"
           textClassName="text-white"
-          value={new Color('#00FF00')}
+          value={lightComponent.color.value}
           onChange={updateProperty(AmbientLightComponent, 'color')}
         />
       </InputGroup>
@@ -69,10 +69,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={
-            //lightComponent.intensity.value
-            0
-          }
+          value={lightComponent.intensity.value}
           onChange={updateProperty(AmbientLightComponent, 'intensity')}
           onRelease={commitProperty(AmbientLightComponent, 'intensity')}
           unit="cd"

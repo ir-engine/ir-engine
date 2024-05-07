@@ -27,7 +27,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -88,7 +88,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     }
   }, [])
 
-  //const envmapComponent = useComponent(entity, EnvmapComponent)
+  const envmapComponent = useComponent(entity, EnvmapComponent)
 
   const errors = getEntityErrors(props.entity, EnvmapComponent)
 
@@ -104,107 +104,65 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={EnvMapSourceOptions}
-          value={
-            //envmapComponent.type.value
-            ''
-          }
+          value={envmapComponent.type.value}
           onChange={commitProperty(EnvmapComponent, 'type')}
         />
       </InputGroup>
-      {
-        //envmapComponent.type.value
-        EnvMapSourceType.Color === EnvMapSourceType.Color && (
-          <InputGroup name="EnvMapColor" label="EnvMap Color">
-            <ColorInput
-              value={
-                //envmapComponent.envMapSourceColor.value
-                undefined
-              }
-              onChange={commitProperty(EnvmapComponent, 'envMapSourceColor')}
-            />
-          </InputGroup>
-        )
-      }
-      {
-        //envmapComponent.type.value
-        EnvMapSourceType.Bake === EnvMapSourceType.Bake && (
-          <InputGroup name="EnvMapBake" label="EnvMap Bake">
+      {envmapComponent.type.value === EnvMapSourceType.Color && (
+        <InputGroup name="EnvMapColor" label="EnvMap Color">
+          <ColorInput
+            value={envmapComponent.envMapSourceColor.value}
+            onChange={commitProperty(EnvmapComponent, 'envMapSourceColor')}
+          />
+        </InputGroup>
+      )}
+      {envmapComponent.type.value === EnvMapSourceType.Bake && (
+        <InputGroup name="EnvMapBake" label="EnvMap Bake">
+          <SelectInput
+            options={bakeEntities}
+            value={envmapComponent.envMapSourceEntityUUID.value}
+            onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
+          />
+        </InputGroup>
+      )}
+      {envmapComponent.type.value === EnvMapSourceType.Texture && (
+        <div>
+          <InputGroup name="Texture Type" label="Texture Type">
             <SelectInput
-              options={bakeEntities}
-              value={
-                //envmapComponent.envMapSourceEntityUUID.value
-                ''
-              }
-              onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
+              key={props.entity}
+              options={EnvMapTextureOptions}
+              value={envmapComponent.envMapTextureType.value}
+              onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
-        )
-      }
-      {
-        //envmapComponent.type.value
-        EnvMapSourceType.Texture === EnvMapSourceType.Texture && (
-          <div>
-            <InputGroup name="Texture Type" label="Texture Type">
-              <SelectInput
-                key={props.entity}
-                options={EnvMapTextureOptions}
-                value={
-                  //envmapComponent.envMapTextureType.value
-                  ''
-                }
-                onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
+          <InputGroup name="Texture URL" label="Texture URL">
+            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
+              <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
+            )}
+            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
+              <ImagePreviewInput
+                value={envmapComponent.envMapSourceURL.value}
+                onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
               />
-            </InputGroup>
-            <InputGroup name="Texture URL" label="Texture URL">
-              {
-                //envmapComponent.envMapTextureType.value
-                EnvMapTextureType.Cubemap === EnvMapTextureType.Cubemap && (
-                  <FolderInput
-                    value={
-                      //envmapComponent.envMapSourceURL.value
-                      ''
-                    }
-                    onRelease={onChangeCubemapURLSource}
-                  />
-                )
-              }
-              {
-                //envmapComponent.envMapTextureType.value
-                EnvMapTextureType.Equirectangular === EnvMapTextureType.Equirectangular && (
-                  <ImagePreviewInput
-                    value={
-                      ''
-                      //envmapComponent.envMapSourceURL.value
-                    }
-                    onRelease={commitProperty(EnvmapComponent, 'envMapSourceURL')}
-                  />
-                )
-              }
-              {errors?.MISSING_FILE && (
-                <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
-              )}
-            </InputGroup>
-          </div>
-        )
-      }
-
-      {
-        //envmapComponent.type.value !== EnvMapSourceType.None
-        true && (
-          <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
-            <Slider
-              min={0}
-              max={20}
-              value={
-                //envmapComponent.envMapIntensity.value
-                0
-              }
-              onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
-              onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
-            />
+            )}
+            {errors?.MISSING_FILE && (
+              <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
+            )}
           </InputGroup>
-        )
-      }
+        </div>
+      )}
+
+      {envmapComponent.type.value !== EnvMapSourceType.None && (
+        <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
+          <Slider
+            min={0}
+            max={20}
+            value={envmapComponent.envMapIntensity.value}
+            onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
+            onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
+          />
+        </InputGroup>
+      )}
     </NodeEditor>
   )
 }

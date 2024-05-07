@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
+import { useComponent } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { LuImage } from 'react-icons/lu'
 import InputGroup from '../../input/Group'
@@ -39,7 +40,7 @@ import ImageSourceProperties from './sourceProperties'
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
-  //const imageComponent = useComponent(entity, ImageComponent)
+  const imageComponent = useComponent(entity, ImageComponent)
   const errors = getEntityErrors(props.entity, ImageComponent)
 
   return (
@@ -50,10 +51,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       icon={<LuImage />}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput
-          value={/*imageComponent.source.value ?? ""*/ ''}
-          onRelease={commitProperty(ImageComponent, 'source')}
-        />
+        <ImageInput value={imageComponent.source.value ?? ''} onRelease={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

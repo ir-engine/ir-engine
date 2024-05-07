@@ -27,7 +27,12 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -44,6 +49,8 @@ import { ObjectGridSnapState } from '@etherealengine/editor/src/systems/ObjectGr
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@etherealengine/spatial'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -60,15 +67,15 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
-  //const transformComponent = useComponent(props.entity, TransformComponent)
+  useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
+  const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  /*transformSpace.value === TransformSpace.world
+  transformSpace.value === TransformSpace.world
     ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
     : transformComponent.matrix.value.decompose(position, rotation, scale)
 
-  scale.copy(transformComponent.scale.value)*/
+  scale.copy(transformComponent.scale.value)
 
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)

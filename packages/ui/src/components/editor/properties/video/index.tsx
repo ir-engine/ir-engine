@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -41,7 +41,6 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { V_00 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import InputGroup from '../../input/Group'
 import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
@@ -66,7 +65,7 @@ const projectionOptions = [
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const video = useComponent(props.entity, VideoComponent)
+  const video = useComponent(props.entity, VideoComponent)
 
   const mediaEntities = useQuery([MediaComponent])
 
@@ -98,10 +97,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.video.lbl-media-info')}
       >
         <SelectInput
-          value={
-            //video.mediaUUID.value
-            ''
-          }
+          value={video.mediaUUID.value}
           onChange={commitProperty(VideoComponent, 'mediaUUID')}
           options={mediaOptions}
         />
@@ -113,10 +109,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.video.lbl-size-info')}
       >
         <Vector2Input
-          value={
-            //video.size.value
-            V_00
-          }
+          value={video.size.value}
           onChange={updateProperty(VideoComponent, 'size')}
           onRelease={commitProperty(VideoComponent, 'size')}
         />
@@ -124,10 +117,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
         <SelectInput
-          value={
-            //video.projection.value
-            ''
-          }
+          value={video.projection.value}
           onChange={commitProperty(VideoComponent, 'projection')}
           options={projectionOptions}
         />
@@ -138,14 +128,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-fit')}
         info={t('editor:properties.video.lbl-fit-info')}
       >
-        <SelectInput
-          value={
-            //video.fit.value
-            ''
-          }
-          onChange={commitProperty(VideoComponent, 'fit')}
-          options={fitOptions}
-        />
+        <SelectInput value={video.fit.value} onChange={commitProperty(VideoComponent, 'fit')} options={fitOptions} />
       </InputGroup>
     </NodeEditor>
   )

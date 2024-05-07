@@ -28,13 +28,13 @@ import { useTranslation } from 'react-i18next'
 
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { AiOutlineBulb } from 'react-icons/ai'
-import { Color } from 'three'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
@@ -43,16 +43,12 @@ import LightShadowProperties from '../shadowProperties'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  //const lightComponent = useComponent(props.entity, PointLightComponent).value
+  const lightComponent = useComponent(props.entity, PointLightComponent).value
 
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')} icon={<AiOutlineBulb />}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        <ColorInput
-          // value={lightComponent.color}
-          value={new Color('#00FF00')}
-          onChange={updateProperty(PointLightComponent, 'color')}
-        />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(PointLightComponent, 'color')} />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.pointLight.lbl-intensity')}>
         <NumericInput
@@ -60,10 +56,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={
-            //lightComponent.intensity
-            0
-          }
+          value={lightComponent.intensity}
           onChange={updateProperty(PointLightComponent, 'intensity')}
           onRelease={commitProperty(PointLightComponent, 'intensity')}
           unit="cd"
@@ -75,10 +68,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            //lightComponent.range
-            0
-          }
+          value={lightComponent.range}
           onChange={updateProperty(PointLightComponent, 'range')}
           onRelease={commitProperty(PointLightComponent, 'range')}
           unit="m"
@@ -90,10 +80,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={
-            0
-            //lightComponent.decay
-          }
+          value={lightComponent.decay}
           onChange={updateProperty(PointLightComponent, 'decay')}
           onRelease={commitProperty(PointLightComponent, 'decay')}
         />

@@ -30,7 +30,9 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { useComponent } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { BsPlusSquare } from 'react-icons/bs'
 import { MdClear } from 'react-icons/md'
 import { Quaternion, Vector3 } from 'three'
@@ -48,9 +50,8 @@ import NodeEditor from '../nodeEditor'
 
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  //const component = useComponent(props.entity, SplineComponent)
-  //const elements = component.elements
-  const elements = [{ position: new Vector3(-1, 0, -1), quaternion: new Quaternion() }]
+  const component = useComponent(props.entity, SplineComponent)
+  const elements = component.elements
 
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
@@ -62,11 +63,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <BsPlusSquare
             onClick={() => {
               const elem = { position: new Vector3(), quaternion: new Quaternion() }
-              const newElements = [
-                //...elements.get(NO_PROXY),
-                ...elements,
-                elem
-              ]
+              const newElements = [...elements.get(NO_PROXY), elem]
               commitProperty(SplineComponent, 'elements')(newElements)
             }}
           ></BsPlusSquare>
@@ -87,7 +84,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   <MdClear
                     className="text-neutral-700"
                     onClick={() => {
-                      const newElements = [...elements].filter((_, i) => i !== index)
+                      const newElements = [...elements.get(NO_PROXY)].filter((_, i) => i !== index)
                       commitProperty(SplineComponent, 'elements')(newElements)
                     }}
                   />
@@ -96,10 +93,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
               <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
                 <Vector3Input
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-                  value={
-                    //elem.position.value
-                    elem.position
-                  }
+                  value={elem.position.value}
                   smallStep={0.01}
                   mediumStep={0.1}
                   largeStep={1}
@@ -114,10 +108,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
               <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
                 <EulerInput
                   //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-                  quaternion={
-                    //elem.quaternion.value
-                    elem.quaternion
-                  }
+                  quaternion={elem.quaternion.value}
                   unit="°"
                   onChange={(euler) => {
                     commitProperty(

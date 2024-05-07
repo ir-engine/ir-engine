@@ -27,6 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiLinkBreak } from 'react-icons/pi'
 
+import { useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperty,
@@ -45,7 +46,7 @@ import NodeEditor from '../nodeEditor'
 export const LinkNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const linkComponent = useComponent(props.entity, LinkComponent)
+  const linkComponent = useComponent(props.entity, LinkComponent)
   const errors = getEntityErrors(props.entity, LinkComponent)
 
   return (
@@ -63,46 +64,26 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
           ))
         : null}
       <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
-        <BooleanInput
-          value={
-            true
-            //linkComponent.sceneNav.value
-          }
-          onChange={commitProperty(LinkComponent, 'sceneNav')}
-        />
+        <BooleanInput value={linkComponent.sceneNav.value} onChange={commitProperty(LinkComponent, 'sceneNav')} />
       </InputGroup>
-      <InputGroup
-        name="Location"
-        label="abcdefghijklm"
-        // label={t('editor:properties.linkComp.lbl-locaiton')}
-      ></InputGroup>
-      {
-        //linkComponent.sceneNav.value
-        // eslint-disable-next-line no-constant-condition
-        true ? (
-          <InputGroup name="Location" label={t('editor:properties.linkComp.lbl-locaiton')}>
-            <ControlledStringInput
-              value={
-                ''
-                //linkComponent.location.value
-              }
-              onChange={updateProperty(LinkComponent, 'location')}
-              onRelease={commitProperty(LinkComponent, 'location')}
-            />
-          </InputGroup>
-        ) : (
-          <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
-            <ControlledStringInput
-              value={
-                ''
-                //linkComponent.url.value
-              }
-              onChange={updateProperty(LinkComponent, 'url')}
-              onRelease={commitProperty(LinkComponent, 'url')}
-            />
-          </InputGroup>
-        )
-      }
+
+      {linkComponent.sceneNav.value ? (
+        <InputGroup name="Location" label={t('editor:properties.linkComp.lbl-locaiton')}>
+          <ControlledStringInput
+            value={linkComponent.location.value}
+            onChange={updateProperty(LinkComponent, 'location')}
+            onRelease={commitProperty(LinkComponent, 'location')}
+          />
+        </InputGroup>
+      ) : (
+        <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
+          <ControlledStringInput
+            value={linkComponent.url.value}
+            onChange={updateProperty(LinkComponent, 'url')}
+            onRelease={commitProperty(LinkComponent, 'url')}
+          />
+        </InputGroup>
+      )}
     </NodeEditor>
   )
 }

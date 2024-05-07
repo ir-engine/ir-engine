@@ -23,10 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineQuery } from '@etherealengine/ecs'
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@etherealengine/ecs'
+import {
+  EditorComponentType,
+  commitProperty,
+  updateProperty
+} from '@etherealengine/editor/src/components/properties/Util'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import React from 'react'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPlus } from 'react-icons/hi2'
 import { PiTrashSimple } from 'react-icons/pi'
@@ -48,30 +56,30 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  // const targets = useHookstate<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useHookstate<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
-  // const triggerComponent = useComponent(props.entity, TriggerComponent)
+  const triggerComponent = useComponent(props.entity, TriggerComponent)
 
-  // useEffect(() => {
-  //   const options = [] as OptionsType
-  //   options.push({
-  //     label: 'Self',
-  //     value: 'Self',
-  //     callbacks: []
-  //   })
-  //   for (const entity of callbackQuery()) {
-  //     if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
-  //     const callbacks = getComponent(entity, CallbackComponent)
-  //     options.push({
-  //       label: getComponent(entity, NameComponent),
-  //       value: getComponent(entity, UUIDComponent),
-  //       callbacks: Object.keys(callbacks).map((cb) => {
-  //         return { label: cb, value: cb }
-  //       })
-  //     })
-  //   }
-  //   targets.set(options)
-  // }, [])
+  useEffect(() => {
+    const options = [] as OptionsType
+    options.push({
+      label: 'Self',
+      value: 'Self',
+      callbacks: []
+    })
+    for (const entity of callbackQuery()) {
+      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
+      const callbacks = getComponent(entity, CallbackComponent)
+      options.push({
+        label: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent),
+        callbacks: Object.keys(callbacks).map((cb) => {
+          return { label: cb, value: cb }
+        })
+      })
+    }
+    targets.set(options)
+  }, [])
 
   return (
     <>
@@ -85,72 +93,57 @@ const TriggerProperties: EditorComponentType = (props) => {
         </div>
       </div>
       <div className="w-full bg-[#1A1A1A]">
-        {/* {triggerComponent.triggers.map((trigger, index) => {
+        {triggerComponent.triggers.map((trigger, index) => {
           const targetOption = targets.value.find((o) => o.value === trigger.target.value)
           const target = targetOption ? targetOption.value : 'Self'
-          return ( */}
-        <>
-          <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
-            <Select
-              value="Self"
-              onChange={() => {}}
-              options={[]}
-              // value={trigger.target.value ?? 'Self'}
-              // onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-              // options={targets.value}
-              disabled={props.multiEdit}
-            />
-          </InputGroup>
-          <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
-            {/* {targetOption?.callbacks.length == 0 ? ( */}
-            {true ? (
-              <StringInput
-                value=""
-                onChange={() => {}}
-                // value={trigger.onEnter.value!}
-                // onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                // onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                // disabled={props.multiEdit || !target}
-              />
-            ) : (
-              <Select
-                value=""
-                onChange={() => {}}
-                options={[]}
-                // value={trigger.onEnter.value!}
-                // onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                // options={targetOption?.callbacks ? targetOption.callbacks : []}
-                // disabled={props.multiEdit || !target}
-              />
-            )}
-          </InputGroup>
+          return (
+            <>
+              <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
+                <Select
+                  value={trigger.target.value ?? 'Self'}
+                  onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
+                  options={targets.value}
+                  disabled={props.multiEdit}
+                />
+              </InputGroup>
+              <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
+                {targetOption?.callbacks.length == 0 ? (
+                  <StringInput
+                    value={trigger.onEnter.value!}
+                    onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                    onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                    disabled={props.multiEdit || !target}
+                  />
+                ) : (
+                  <Select
+                    value={trigger.onEnter.value!}
+                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    disabled={props.multiEdit || !target}
+                  />
+                )}
+              </InputGroup>
 
-          <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
-            {/* {targetOption?.callbacks.length == 0 ? ( */}
-            {true ? (
-              <StringInput
-                value=""
-                onChange={() => {}}
-                // value={trigger.onExit.value!}
-                // onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                // onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                // disabled={props.multiEdit || !target}
-              />
-            ) : (
-              <Select
-                value=""
-                options={[]}
-                onChange={() => {}}
-                // value={trigger.onExit.value!}
-                // onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                // options={targetOption?.callbacks ? targetOption.callbacks : []}
-                // disabled={props.multiEdit || !target}
-              />
-            )}
-          </InputGroup>
-        </>
-        {/* )
-        })} */}
+              <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
+                {targetOption?.callbacks.length == 0 ? (
+                  <StringInput
+                    value={trigger.onExit.value!}
+                    onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                    disabled={props.multiEdit || !target}
+                  />
+                ) : (
+                  <Select
+                    value={trigger.onExit.value!}
+                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    disabled={props.multiEdit || !target}
+                  />
+                )}
+              </InputGroup>
+            </>
+          )
+        })}
       </div>
     </>
   )

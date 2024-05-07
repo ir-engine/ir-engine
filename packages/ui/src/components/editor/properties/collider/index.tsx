@@ -24,8 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
-import { supportedColliderShapes } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { useComponent } from '@etherealengine/ecs'
+import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
+import {
+  ColliderComponent,
+  supportedColliderShapes
+} from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -45,7 +49,7 @@ const shapeTypeOptions = Object.entries(Shapes)
 export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //const spawnComponent = useComponent(props.entity, SpawnPointComponent)
+  const colliderComponent = useComponent(props.entity, ColliderComponent)
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
@@ -59,33 +63,27 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
         <Select
           options={[]}
           value={
-            'Fixed'
-            // colliderComponent.bodyType.value
+            'dynamic'
+            //colliderComponent.bodyType.value
           }
           onChange={
             () => {}
-            // commitProperty(ColliderComponent, 'bodyType')
+            //commitProperty(ColliderComponent, 'bodyType')
           }
         />
       </InputGroup>
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <Select
           options={shapeTypeOptions}
-          value={
-            'sphere'
-            // colliderComponent.shape.value
-          }
-          onChange={
-            () => {}
-            // commitProperty(ColliderComponent, 'shape')
-          }
+          value={colliderComponent.shape.value}
+          onChange={commitProperty(ColliderComponent, 'shape')}
         />
       </InputGroup>
       <InputGroup name="Remove mesh" label={t('editor:properties.collider.lbl-removeMesh')}>
         <BooleanInput
           value={
             true
-            // colliderComponent.removeMesh.value
+            //colliderComponent.removeMesh.value
           }
           onChange={
             () => {}
