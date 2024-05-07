@@ -23,18 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { State } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { BufferGeometry, CompressedTexture, InterleavedBufferAttribute, Material, Mesh } from 'three'
+import { MutableRefObject } from 'react'
+import {
+  BufferGeometry,
+  CompressedTexture,
+  InterleavedBufferAttribute,
+  Material,
+  Mesh,
+  MeshStandardMaterial,
+  ShaderMaterial,
+  Vector2
+} from 'three'
 import {
   GeometryType,
   KeyframeAttribute,
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   TIME_UNIT_MULTIPLIER,
+  TextureFormat,
   TextureType,
-  UniformSolveTarget,
-  bufferLimits
+  UniformSolveTarget
 } from '../constants/NewUVOLTypes'
 import BufferDataContainer from './BufferDataContainer'
 import { getResourceURL, loadDraco, loadGLTF, loadKTX2, rateLimitedCortoLoader } from './VolumetricUtils'
@@ -43,22 +54,59 @@ type ResolvedType<T> = T extends Promise<infer R> ? R : never
 type DracoResponse = ResolvedType<ReturnType<typeof loadDraco>>
 type GLTFResponse = ResolvedType<ReturnType<typeof loadGLTF>>
 
+export const bufferLimits = {
+  geometry: {
+    [GeometryType.Corto]: {
+      desktopMaxBufferDuration: 4, // seconds
+      mobileMaxBufferDuration: 3,
+      initialBufferDuration: 3,
+      minBufferDurationToPlay: 2
+    },
+    [GeometryType.Draco]: {
+      desktopMaxBufferDuration: 4,
+      mobileMaxBufferDuration: 3,
+      initialBufferDuration: 3,
+      minBufferDurationToPlay: 2
+    },
+    [GeometryType.Unify]: {
+      desktopMaxBufferDuration: 6,
+      mobileMaxBufferDuration: 5,
+      initialBufferDuration: 3,
+      minBufferDurationToPlay: 2
+    }
+  },
+  texture: {
+    ['ktx2' as TextureFormat]: {
+      desktopMaxBufferDuration: 4, // seconds
+      mobileMaxBufferDuration: 3,
+      initialBufferDuration: 3,
+      minBufferDurationToPlay: 2
+    },
+    ['astc/ktx2' as TextureFormat]: {
+      desktopMaxBufferDuration: 4, // seconds
+      mobileMaxBufferDuration: 3,
+      initialBufferDuration: 3,
+      minBufferDurationToPlay: 2
+    }
+  }
+}
+
 interface fetchProps {
   manifest: OldManifestSchema | ManifestSchema | Record<string, never>
   manifestPath: string
   currentTimeInMS: number
   bufferData: BufferDataContainer
   target: string
+  startTimeInMS: number
 }
 
 interface fetchGeometryProps extends fetchProps {
   geometryType: GeometryType
   geometryBuffer: Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>
-}
-
-interface fetchTextureProps extends fetchProps {
-  textureType: TextureType
-  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  mesh: Mesh<BufferGeometry, ShaderMaterial>
+  initialBufferLoaded: State<boolean>
+  repeat: MutableRefObject<Vector2>
+  offset: MutableRefObject<Vector2>
 }
 
 export const fetchGeometry = ({
@@ -68,7 +116,12 @@ export const fetchGeometry = ({
   manifest,
   geometryType,
   manifestPath,
-  geometryBuffer
+  geometryBuffer,
+  mesh,
+  initialBufferLoaded,
+  startTimeInMS,
+  repeat,
+  offset
 }: fetchGeometryProps) => {
   if (Object.keys(manifest).length === 0) return
   const currentTime = currentTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
@@ -83,14 +136,16 @@ export const fetchGeometry = ({
       ? (manifest as OldManifestSchema).frameData.length
       : (manifest as ManifestSchema).geometry.targets[target].frameCount!
 
+  const duration = geometryType === GeometryType.Corto ? frameCount / frameRate : (manifest as ManifestSchema).duration
+
   const startFrame = Math.floor((nextMissing * frameRate) / TIME_UNIT_MULTIPLIER)
   const maxBufferDuration = Math.max(
     0,
     Math.min(
       isMobile || isMobileXRHeadset
-        ? bufferLimits.texture.mobileMaxBufferDuration
-        : bufferLimits.texture.desktopMaxBufferDuration,
-      (manifest as ManifestSchema).duration - currentTimeInMS / 1000
+        ? bufferLimits.geometry[geometryType].mobileMaxBufferDuration
+        : bufferLimits.geometry[geometryType].desktopMaxBufferDuration,
+      duration - currentTimeInMS / 1000
     )
   )
 
@@ -114,12 +169,16 @@ export const fetchGeometry = ({
     const _currentFrame = currentFrame
 
     if (geometryType === GeometryType.Corto) {
-      bufferData.addRange(
-        (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-        ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-        -1,
-        true
-      )
+      const currentFrameStartTime = (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate
+      const currentFrameEndTime = ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate
+
+      const currentFrameBufferData = bufferData.getIntersectionDuration(currentFrameStartTime, currentFrameEndTime)
+      if (currentFrameBufferData.missingDuration === 0) {
+        currentFrame++
+        continue
+      }
+
+      bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: GeometryType.Corto,
@@ -132,24 +191,33 @@ export const fetchGeometry = ({
         .then((currentFrameData) => {
           const geometry = currentFrameData.geometry
           collection[_currentFrame] = geometry
-          bufferData.addRange(
-            (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-            ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-            -1,
-            false
-          )
+          bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, false)
+
+          if (!initialBufferLoaded.value) {
+            const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
+            const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
+
+            const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
+            if (startFrameBufferData.missingDuration === 0) {
+              initialBufferLoaded.set(true)
+            }
+          }
         })
         .catch((err) => {
           console.warn('Error in loading corto frame: ', err)
         })
       currentFrame++
-    } else if (geometryType === GeometryType.Draco || geometryType === GeometryType.GLTF) {
-      bufferData.addRange(
-        (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-        ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-        -1,
-        true
-      )
+    } else if (geometryType === GeometryType.Draco) {
+      const currentFrameStartTime = (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate
+      const currentFrameEndTime = ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate
+
+      const currentFrameBufferData = bufferData.getIntersectionDuration(currentFrameStartTime, currentFrameEndTime)
+      if (currentFrameBufferData.missingDuration === 0) {
+        currentFrame++
+        continue
+      }
+
+      bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: geometryType,
@@ -168,12 +236,17 @@ export const fetchGeometry = ({
               ? (currentFrameData as DracoResponse).geometry
               : (currentFrameData as GLTFResponse).mesh
           collection[currentFrame] = geometry
-          bufferData.addRange(
-            (currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-            ((currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-            -1,
-            false
-          )
+          bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, false)
+
+          if (!initialBufferLoaded.value) {
+            const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
+            const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
+
+            const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
+            if (startFrameBufferData.missingDuration === 0) {
+              initialBufferLoaded.set(true)
+            }
+          }
         })
         .catch((err) => {
           console.warn('Error in loading draco frame: ', err)
@@ -182,15 +255,19 @@ export const fetchGeometry = ({
     } else if (geometryType === GeometryType.Unify) {
       const targetData = (manifest as ManifestSchema).geometry.targets[target] as UniformSolveTarget
       const segmentFrameCount = targetData.segmentFrameCount!
-      const segmentIndex = Math.floor(currentFrame / segmentFrameCount)
+      const segmentIndex = Math.floor(_currentFrame / segmentFrameCount)
       const segmentOffset = segmentIndex * segmentFrameCount
 
-      bufferData.addRange(
-        segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-        (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-        -1,
-        true
-      )
+      const currentSegmentStartTime = segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER
+      const currentSegmentEndTime = (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER
+
+      const currentFrameBufferData = bufferData.getIntersectionDuration(currentSegmentStartTime, currentSegmentEndTime)
+      if (currentFrameBufferData.missingDuration === 0) {
+        currentFrame += segmentFrameCount
+        continue
+      }
+
+      bufferData.addRange(currentSegmentStartTime, currentSegmentEndTime, -1, true)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: GeometryType.Unify,
@@ -208,6 +285,8 @@ export const fetchGeometry = ({
           const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
             .normal as InterleavedBufferAttribute[]
 
+          // console.log('Segment Mesh: ', currentFrameData.mesh)
+
           positionMorphAttributes.map((attribute, index) => {
             collection[segmentOffset + index] = {
               position: attribute,
@@ -215,12 +294,49 @@ export const fetchGeometry = ({
             }
           })
 
-          bufferData.addRange(
-            segmentIndex * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-            (segmentIndex + 1) * targetData.settings.segmentSize * TIME_UNIT_MULTIPLIER,
-            currentFrameData.fetchTime,
-            false
-          )
+          if (mesh.geometry.attributes.position.count !== currentFrameData.mesh.geometry.attributes.position.count) {
+            if ((currentFrameData.mesh.material as MeshStandardMaterial).map) {
+              const texture = (currentFrameData.mesh.material as MeshStandardMaterial).map
+              if (texture) {
+                repeat.current.copy(texture.repeat)
+                offset.current.copy(texture.offset)
+              }
+            }
+
+            console.log('Initiailizing Unify Geometry')
+
+            const material = mesh.material
+
+            // @ts-ignore
+            mesh.copy(currentFrameData.mesh)
+            mesh.material = material
+            mesh.material.needsUpdate = true
+
+            for (const attribute in currentFrameData.mesh.geometry.attributes) {
+              mesh.geometry.attributes[attribute] = currentFrameData.mesh.geometry.attributes[attribute]
+              mesh.geometry.attributes[attribute].needsUpdate = true
+            }
+            if (currentFrameData.mesh.geometry.index) {
+              mesh.geometry.index = currentFrameData.mesh.geometry.index
+              mesh.geometry.index.needsUpdate = true
+            }
+
+            mesh.geometry.morphAttributes = {}
+            mesh.morphTargetDictionary = undefined
+            mesh.morphTargetInfluences = undefined
+          }
+
+          bufferData.addRange(currentSegmentStartTime, currentSegmentEndTime, currentFrameData.fetchTime, false)
+
+          if (!initialBufferLoaded.value) {
+            const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
+            const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
+
+            const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
+            if (startFrameBufferData.missingDuration === 0) {
+              initialBufferLoaded.set(true)
+            }
+          }
         })
         .catch((err) => {
           console.warn('Error in loading unify frame: ', err)
@@ -230,6 +346,12 @@ export const fetchGeometry = ({
   }
 }
 
+interface fetchTextureProps extends fetchProps {
+  textureType: TextureType
+  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  textureFormat: TextureFormat
+}
+
 export const fetchTextures = ({
   currentTimeInMS,
   bufferData,
@@ -237,7 +359,8 @@ export const fetchTextures = ({
   manifest,
   textureType,
   manifestPath,
-  textureBuffer
+  textureBuffer,
+  textureFormat
 }: fetchTextureProps) => {
   const currentTime = currentTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
 
@@ -254,8 +377,8 @@ export const fetchTextures = ({
     0,
     Math.min(
       isMobile || isMobileXRHeadset
-        ? bufferLimits.texture.mobileMaxBufferDuration
-        : bufferLimits.texture.desktopMaxBufferDuration,
+        ? bufferLimits.texture[textureFormat].mobileMaxBufferDuration
+        : bufferLimits.texture[textureFormat].desktopMaxBufferDuration,
       (manifest as ManifestSchema).duration - currentTimeInMS / 1000
     )
   )
@@ -282,12 +405,14 @@ export const fetchTextures = ({
 
   for (let currentFrame = startFrame; currentFrame <= endFrame; currentFrame++) {
     const _currentFrame = currentFrame
-    bufferData.addRange(
-      (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-      ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-      -1,
-      true
-    )
+    const currentFrameStartTime = (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate
+    const currentFrameEndTime = ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate
+    const currentFrameBufferData = bufferData.getIntersectionDuration(currentFrameStartTime, currentFrameEndTime)
+    if (currentFrameBufferData.missingDuration === 0) {
+      continue
+    }
+
+    bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
 
     const resourceURL = getResourceURL({
       type: 'texture',
@@ -304,12 +429,7 @@ export const fetchTextures = ({
       .then((currentFrameData) => {
         collection[_currentFrame] = currentFrameData.texture
 
-        bufferData.addRange(
-          (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate,
-          ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate,
-          currentFrameData.fetchTime,
-          false
-        )
+        bufferData.addRange(currentFrameStartTime, currentFrameEndTime, currentFrameData.fetchTime, false)
       })
       .catch((err) => {
         console.warn('Error in loading ktx2 frame: ', err)

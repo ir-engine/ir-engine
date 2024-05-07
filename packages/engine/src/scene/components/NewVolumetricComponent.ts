@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   AnimationSystemGroup,
+  Entity,
   defineComponent,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -36,16 +40,19 @@ import {
 } from '@etherealengine/ecs'
 import { NO_PROXY, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
 import {
   BufferGeometry,
   CompressedTexture,
   Group,
+  LinearFilter,
   Material,
   Mesh,
+  SRGBColorSpace,
   ShaderMaterial,
   SphereGeometry,
+  Texture,
   Vector2
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
@@ -59,19 +66,21 @@ import {
   PlayerManifest as ManifestSchema,
   OldManifestSchema,
   Pretrackbufferingcallback,
+  TIME_UNIT_MULTIPLIER,
   TextureType,
   UniformSolveEncodeOptions,
   UniformSolveTarget
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
-import { fetchGeometry, fetchTextures } from '../util/VolumetricBufferingUtils'
+import { bufferLimits, fetchGeometry, fetchTextures } from '../util/VolumetricBufferingUtils'
 import {
   GetGeometryProps,
   createMaterial,
   getGeometry,
   getResourceURL,
-  getSortedSupportedTargets
+  getSortedSupportedTargets,
+  getTexture
 } from '../util/VolumetricUtils'
 import { MediaElementComponent } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
@@ -85,6 +94,7 @@ export const NewVolumetricComponent = defineComponent({
     hasAudio: false,
     volume: 1,
     manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
+    notEnoughBuffers: true,
     time: {
       start: 0,
       checkpointAbsolute: -1,
@@ -131,6 +141,72 @@ export const NewVolumetricComponent = defineComponent({
     volume: component.volume.value
   }),
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
+
+  canPlayWithoutPause: (entity: Entity) => {
+    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const manifest = component.manifest.get(NO_PROXY)
+    if (Object.keys(manifest).length === 0) {
+      return false
+    }
+
+    const currentTimeInMS = component.time.currentTime.value
+    const geometryBufferDataContainer = component.geometry.bufferData.get(NO_PROXY)
+
+    let durationInMS = -1
+    const geometryType = component.geometryType.value
+
+    if (geometryType === GeometryType.Corto) {
+      const frameCount = (manifest as OldManifestSchema).frameData.length
+      const frameRate = (manifest as OldManifestSchema).frameRate
+      durationInMS = (frameCount * 1000) / frameRate
+    } else {
+      durationInMS = (manifest as ManifestSchema).duration * 1000
+    }
+
+    const startTime = (currentTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
+    const geometryEndTime = Math.min(
+      (durationInMS * TIME_UNIT_MULTIPLIER) / 1000,
+      startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
+    )
+
+    const geometryBufferData = geometryBufferDataContainer.getIntersectionDuration(startTime, geometryEndTime)
+    if (geometryBufferData.missingDuration > 0) {
+      return false
+    }
+
+    if (component.useVideoTextureForBaseColor.value) {
+      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+      if (!mediaElement) {
+        return false
+      }
+      const element = mediaElement.element
+      return element.readyState >= 3 // HAVE_FUTURE_DATA
+    }
+
+    const textureTypes = component.textureInfo.textureTypes.value
+    for (const textureType of textureTypes) {
+      const textureInfo = component.texture[textureType].get(NO_PROXY)
+      if (!textureInfo) {
+        return false
+      }
+      const textureBufferDataContainer = textureInfo.bufferData
+      const target = textureInfo.targets[textureInfo.currentTarget]
+      const format = (manifest as ManifestSchema).texture[textureType]!.targets[target].format
+
+      const endTime = Math.min(
+        (durationInMS * TIME_UNIT_MULTIPLIER) / 1000,
+        startTime + bufferLimits.texture[format].initialBufferDuration * TIME_UNIT_MULTIPLIER
+      )
+
+      const textureBufferData = textureBufferDataContainer.getIntersectionDuration(startTime, endTime)
+      if (textureBufferData.missingDuration > 0) {
+        return false
+      }
+    }
+
+    return true
+  },
+
   reactor: NewVolumetricComponentReactor
 })
 
@@ -148,9 +224,16 @@ function NewVolumetricComponentReactor() {
   const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
-  // Used by GeometryType.GLTF
+  // Used by GeometryType.Unify
   const repeat = useRef(new Vector2(1, 1))
   const offset = useRef(new Vector2(0, 0))
+
+  useEffect(() => {
+    if (component.geometry.initialBufferLoaded.value) {
+      addObjectToGroup(entity, group.current)
+      console.log('Geometry initial buffers loaded')
+    }
+  }, [component.geometry.initialBufferLoaded])
 
   const bufferLoop = () => {
     const currentTimeInMS = component.time.currentTime.value
@@ -169,7 +252,12 @@ function NewVolumetricComponentReactor() {
       manifest,
       geometryType,
       manifestPath,
-      geometryBuffer: geometryBuffer.current
+      geometryBuffer: geometryBuffer.current,
+      mesh: mesh.current!,
+      startTimeInMS: component.time.start.value,
+      initialBufferLoaded: component.geometry.initialBufferLoaded,
+      repeat: repeat,
+      offset: offset
     })
     if (!component.useVideoTextureForBaseColor.value) {
       component.textureInfo.textureTypes.value.forEach((textureType) => {
@@ -177,6 +265,7 @@ function NewVolumetricComponentReactor() {
         if (textureInfo) {
           const bufferData = textureInfo.bufferData
           const target = textureInfo.targets[textureInfo.currentTarget]
+          const format = (manifest as ManifestSchema).texture[textureType]!.targets[target].format
           fetchTextures({
             currentTimeInMS,
             bufferData,
@@ -184,7 +273,9 @@ function NewVolumetricComponentReactor() {
             manifest,
             textureType,
             manifestPath,
-            textureBuffer: textureBuffer.current
+            textureBuffer: textureBuffer.current,
+            textureFormat: format,
+            startTimeInMS: component.time.start.value
           })
         }
       })
@@ -268,7 +359,10 @@ function NewVolumetricComponentReactor() {
         (manifest as OldManifestSchema).frameData !== undefined &&
         (manifest as OldManifestSchema).frameRate !== undefined
       ) {
-        setComponent(entity, MediaElementComponent)
+        const video = document.createElement('video')
+        setComponent(entity, MediaElementComponent, {
+          element: video
+        })
         component.useVideoTextureForBaseColor.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
@@ -456,18 +550,33 @@ function NewVolumetricComponentReactor() {
         group.current.add(mesh.current)
 
         console.log('Material created successfully: ', material.current)
+        mesh.current.material = material.current
+        mesh.current.material.needsUpdate = true
 
         const intervalId = setInterval(bufferLoop, 500)
         setIntervalId.set(intervalId as unknown as number)
+        const mediaElement = getMutableComponent(entity, MediaElementComponent)
 
         if (
-          (component.useVideoTextureForBaseColor.value ||
-            (component.hasAudio.value && (manifest as ManifestSchema).audio)) &&
-          mediaElement
+          component.useVideoTextureForBaseColor.value ||
+          (component.hasAudio.value && (manifest as ManifestSchema).audio)
         ) {
           const element = mediaElement.element.get(NO_PROXY)
           if (component.useVideoTextureForBaseColor.value) {
             element.src = track.src.replace('.manifest', '.mp4')
+
+            const videoTexture = new Texture(element)
+            videoTexture.generateMipmaps = false
+            videoTexture.minFilter = LinearFilter
+            videoTexture.magFilter = LinearFilter
+            ;(videoTexture as any).isVideoTexture = true
+            ;(videoTexture as any).update = () => {}
+            videoTexture.colorSpace = SRGBColorSpace
+            videoTexture.flipY = false
+
+            console.log('Video source set: ', element.src, element)
+            mesh.current.material.uniforms['map'].value = videoTexture
+            videoTexture.needsUpdate = true
           } else if (component.hasAudio.value && (manifest as ManifestSchema).audio) {
             const audioData = (manifest as ManifestSchema).audio!
             element.src = getResourceURL({
@@ -520,6 +629,39 @@ function NewVolumetricComponentReactor() {
     }
   }, [playlistComponent?.paused, mediaElement])
 
+  useEffect(() => {
+    const now = Date.now()
+
+    if (component.notEnoughBuffers.value) {
+      component.paused.set(true)
+      if (mediaElement) {
+        const element = mediaElement.element.get(NO_PROXY)
+        element.pause()
+      }
+
+      const currentCheckpointAbsolute = component.time.checkpointAbsolute.value
+
+      const currentTimeRelative =
+        currentCheckpointAbsolute !== -1
+          ? component.time.checkpointRelative.value + now - currentCheckpointAbsolute
+          : component.time.start.value
+      const newCheckpointAbsolute = now
+
+      component.time.merge({
+        checkpointAbsolute: newCheckpointAbsolute,
+        checkpointRelative: currentTimeRelative
+      })
+    } else {
+      const currentTimeAbs = now
+      component.time.checkpointAbsolute.set(currentTimeAbs)
+      if (mediaElement) {
+        const element = mediaElement.element.get(NO_PROXY)
+        element.play()
+      }
+      component.paused.set(false)
+    }
+  }, [component.notEnoughBuffers])
+
   const updateGeometry = (currentTimeInMS: number) => {
     const geometryType = component.geometryType.value
     const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
@@ -553,9 +695,9 @@ function NewVolumetricComponentReactor() {
     } else {
       if (geometryType === GeometryType.Corto || geometryType === GeometryType.Draco) {
         const geometry = result.geometry as BufferGeometry
-        for (const attribute in geometry.attributes) {
-          if (mesh.current!.geometry.attributes[attribute] !== geometry.attributes[attribute]) {
-            mesh.current!.geometry.attributes[attribute] = geometry.attributes[attribute]
+        if (mesh.current!.geometry !== geometry) {
+          mesh.current!.geometry = geometry
+          for (const attribute in geometry.attributes) {
             mesh.current!.geometry.attributes[attribute].needsUpdate = true
           }
         }
@@ -630,8 +772,59 @@ function NewVolumetricComponentReactor() {
     }
   }
 
+  const updateTexture = (currentTimeInMS: number) => {
+    const textureTypes = component.textureInfo.textureTypes.value
+    const manifest = component.manifest.get(NO_PROXY) as ManifestSchema
+
+    textureTypes.forEach((textureType) => {
+      const textureInfo = component.texture[textureType].get(NO_PROXY)
+      if (textureInfo) {
+        const targets = textureInfo.targets
+        const preferredTarget = textureInfo.targets[textureInfo.currentTarget]
+
+        const result = getTexture({
+          textureBuffer: textureBuffer.current,
+          currentTimeInMS,
+          preferredTarget,
+          targets,
+          textureType,
+          // @ts-ignore
+          targetData: manifest.texture[textureType]!.targets
+        })
+
+        if (!result) {
+          console.warn(`Texture frame not found at time: ${currentTimeInMS / 1000}`)
+          return
+        }
+
+        if (mesh.current!.material.uniforms['map'].value !== result.texture) {
+          result.texture.repeat.set(repeat.current.x, repeat.current.y)
+          result.texture.offset.set(offset.current.x, offset.current.y)
+          result.texture.updateMatrix()
+          mesh.current!.material.uniforms['map'].value = result.texture
+          mesh.current!.material.uniforms['map'].value.needsUpdate = true
+          mesh.current!.material.uniforms.mapTransform.value.copy(result.texture.matrix)
+        }
+      }
+    })
+  }
+
   useExecute(
     () => {
+      const playlistComponent = getComponent(entity, PlaylistComponent)
+      if (playlistComponent.paused) {
+        return
+      }
+
+      if (!NewVolumetricComponent.canPlayWithoutPause(entity)) {
+        component.notEnoughBuffers.set(true)
+        return
+      } else {
+        if (component.notEnoughBuffers.value) {
+          component.notEnoughBuffers.set(false)
+        }
+      }
+
       const now = Date.now()
       let __currentTime = component.time.currentTime.value
 
@@ -645,7 +838,12 @@ function NewVolumetricComponentReactor() {
       }
       const currentTime = __currentTime
       component.time.currentTime.set(currentTime)
+
       updateGeometry(__currentTime)
+
+      if (!component.useVideoTextureForBaseColor.value) {
+        updateTexture(__currentTime)
+      }
     },
     {
       with: AnimationSystemGroup

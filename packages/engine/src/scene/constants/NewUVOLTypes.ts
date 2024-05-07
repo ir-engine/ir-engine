@@ -459,18 +459,3 @@ export type KeyframeAttribute = {
   position: InterleavedBufferAttribute
   normal?: InterleavedBufferAttribute
 }
-
-export const bufferLimits = {
-  geometry: {
-    desktopMaxBufferDuration: 7, // seconds
-    mobileMaxBufferDuration: 5, // seconds
-    initialBufferDuration: 3, // seconds
-    minBufferToPlay: 3 // seconds
-  },
-  texture: {
-    desktopMaxBufferDuration: 7, // seconds
-    mobileMaxBufferDuration: 5, // seconds
-    initialBufferDuration: 3, // seconds
-    minBufferToPlay: 3 // seconds
-  }
-}

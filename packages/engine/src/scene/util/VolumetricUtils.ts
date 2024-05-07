@@ -45,7 +45,6 @@ import {
   AudioFileFormat,
   DRACOTarget,
   FORMAT_TO_EXTENSION,
-  GLBTarget,
   GeometryFormat,
   GeometryType,
   KTX2TextureTarget,
@@ -426,7 +425,7 @@ interface GetResourceURLCortoGeometryProps extends GetResourceURLBasicProps {
 
 interface GetResourceURLNewGeometryProps extends GetResourceURLBasicProps {
   type: 'geometry'
-  geometryType: GeometryType.Draco | GeometryType.GLTF | GeometryType.Unify
+  geometryType: GeometryType.Draco | GeometryType.Unify
   path: string
   target: string
   index: number
@@ -528,7 +527,7 @@ interface GetGeometryBaseProps {
 }
 
 interface GetGeometryModernProps extends GetGeometryBaseProps {
-  targetData: Record<string, DRACOTarget | GLBTarget | UniformSolveTarget>
+  targetData: Record<string, DRACOTarget | UniformSolveTarget>
 }
 
 interface GetGeometryUnifyProps extends GetGeometryModernProps {
@@ -537,7 +536,7 @@ interface GetGeometryUnifyProps extends GetGeometryModernProps {
 }
 
 interface GetGeometryNonUnifyProps extends GetGeometryModernProps {
-  geometryType: GeometryType.Draco | GeometryType.GLTF
+  geometryType: GeometryType.Draco
 }
 
 interface GetGeometryCortoProps extends GetGeometryBaseProps {
@@ -600,6 +599,59 @@ export const getGeometry = ({
       if (geometry) {
         return {
           geometry,
+          target,
+          index
+        }
+      }
+    }
+  }
+
+  return false
+}
+
+interface GetTextureProps {
+  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  currentTimeInMS: number
+  preferredTarget: string
+  targets: string[]
+  targetData: Record<string, KTX2TextureTarget | ASTCTextureTarget>
+  textureType: TextureType
+}
+
+export const getTexture = ({
+  textureBuffer,
+  currentTimeInMS,
+  preferredTarget,
+  targets,
+  targetData,
+  textureType
+}: GetTextureProps) => {
+  if (!textureBuffer.has(textureType)) {
+    return false
+  }
+  const textureTypeCollection = textureBuffer.get(textureType)!
+
+  if (textureTypeCollection.has(preferredTarget)) {
+    const preferredTargetIndex = Math.round((currentTimeInMS * targetData[preferredTarget].frameRate) / 1000)
+    const collection = textureTypeCollection.get(preferredTarget)!
+    const texture = collection[preferredTargetIndex]
+    if (texture) {
+      return {
+        texture,
+        target: preferredTarget,
+        index: preferredTargetIndex
+      }
+    }
+  }
+
+  for (const target of targets) {
+    if (textureTypeCollection.has(target)) {
+      const index = Math.round((currentTimeInMS * targetData[target].frameRate) / 1000)
+      const collection = textureTypeCollection.get(target)!
+      const texture = collection[index]
+      if (texture) {
+        return {
+          texture,
           target,
           index
         }
