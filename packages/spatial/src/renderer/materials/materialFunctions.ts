@@ -30,11 +30,12 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  getMutableComponent,
   getOptionalMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { isArray } from 'lodash'
-import { Color, Mesh, Texture } from 'three'
+import { Color, Mesh, Shader, Texture } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
@@ -125,6 +126,16 @@ export const applyMaterialPlugins = (materialEntity: Entity) => {
   }
 }
 
+export const setPluginShaderParameters = (pluginEntity: Entity, shader: Shader, parameters: { [key: string]: any }) => {
+  const pluginComponent = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+  const name = (shader as any).shaderName
+  pluginComponent.parameters[name].set({})
+  for (const key in parameters) {
+    pluginComponent.parameters[name][key].set(parameters[key])
+    shader.uniforms[key] = { value: pluginComponent.parameters[name][key].value }
+  }
+}
+
 export const getMaterial = (uuid: EntityUUID) => {
   return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State]).material!
 }
@@ -148,12 +159,12 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const matKeys = Object.keys(material)
-  const commonParms = Object.fromEntries(
+  const commonParameters = Object.fromEntries(
     Object.keys(prototypeComponent.prototypeArguments)
       .filter((key) => matKeys.includes(key))
       .map((key) => [key, material[key]])
   )
-  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParms }
+  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParameters }
   const newMaterial = new prototypeConstructor(fullParameters)
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
