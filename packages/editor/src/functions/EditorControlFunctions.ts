@@ -604,7 +604,6 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
     if (getState(GLTFSourceState)[sceneID]) {
-      console.log('reparenting GLTF', sceneID, entities, before, parent)
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
       for (const entity of entities) {
