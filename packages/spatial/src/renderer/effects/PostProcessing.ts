@@ -28,39 +28,22 @@ import {
   BloomEffect,
   BloomEffectOptions,
   BrightnessContrastEffect,
-  ChromaticAberrationEffect,
-  ColorAverageEffect,
   ColorDepthEffect,
   DepthOfFieldEffect,
-  DotScreenEffect,
   EdgeDetectionMode,
-  FXAAEffect,
-  GlitchEffect,
-  //GodRaysEffect,
-  GridEffect,
   HueSaturationEffect,
   KernelSize,
-  LensDistortionEffect,
-  LUT1DEffect,
-  LUT3DEffect,
-  NoiseEffect,
   OutlineEffect,
-  PixelationEffect,
   PredicationMode,
   Resolution,
-  ScanlineEffect,
-  ShockWaveEffect,
   SMAAEffect,
   SMAAPreset,
   SSAOEffect,
-  TextureEffect,
-  TiltShiftEffect,
   ToneMappingEffect,
   ToneMappingMode,
   VignetteEffect,
   VignetteTechnique
 } from 'postprocessing'
-import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { Color, ColorSpace, SRGBColorSpace, Texture, TextureEncoding, Vector2, Vector3 } from 'three'
 
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
@@ -97,40 +80,6 @@ export const Effects = {
   TextureEffect: 'TextureEffect' as const,
   VignetteEffect: 'VignetteEffect' as const,
   LensDistortionEffect: 'LensDistortionEffect' as const
-}
-
-export const EffectMap = {
-  [Effects.SMAAEffect]: SMAAEffect,
-  [Effects.OutlineEffect]: OutlineEffect,
-  [Effects.SSAOEffect]: SSAOEffect,
-  [Effects.SSREffect]: SSREffect,
-  [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
-  [Effects.BloomEffect]: BloomEffect,
-  [Effects.ToneMappingEffect]: ToneMappingEffect,
-  [Effects.BrightnessContrastEffect]: BrightnessContrastEffect,
-  [Effects.HueSaturationEffect]: HueSaturationEffect,
-  [Effects.ColorDepthEffect]: ColorDepthEffect,
-  [Effects.LinearTosRGBEffect]: LinearTosRGBEffect,
-  [Effects.SSGIEffect]: SSGIEffect,
-  [Effects.TRAAEffect]: TRAAEffect,
-  [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffect,
-  [Effects.MotionBlurEffect]: MotionBlurEffect,
-  [Effects.ColorAverageEffect]: ColorAverageEffect,
-  [Effects.DotScreenEffect]: DotScreenEffect,
-  [Effects.TiltShiftEffect]: TiltShiftEffect,
-  [Effects.GlitchEffect]: GlitchEffect,
-  //[Effects.GodRaysEffect]: GodRaysEffect,
-  [Effects.GridEffect]: GridEffect,
-  [Effects.LUT1DEffect]: LUT1DEffect,
-  [Effects.LUT3DEffect]: LUT3DEffect,
-  [Effects.NoiseEffect]: NoiseEffect,
-  [Effects.PixelationEffect]: PixelationEffect, //cant be used with convolution effects(blur)
-  [Effects.ScanlineEffect]: ScanlineEffect,
-  [Effects.ShockWaveEffect]: ShockWaveEffect,
-  [Effects.FXAAEffect]: FXAAEffect,
-  [Effects.TextureEffect]: TextureEffect,
-  [Effects.VignetteEffect]: VignetteEffect,
-  [Effects.LensDistortionEffect]: LensDistortionEffect
 }
 
 declare module 'postprocessing' {

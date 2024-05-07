@@ -27,28 +27,52 @@ import { Engine, defineComponent, useComponent, useEntityContext } from '@ethere
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { NO_PROXY_STEALTH, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import {
+  BloomEffect,
+  BrightnessContrastEffect,
+  ChromaticAberrationEffect,
+  ColorAverageEffect,
+  ColorDepthEffect,
   DepthDownsamplingPass,
+  DepthOfFieldEffect,
+  DotScreenEffect,
   EdgeDetectionMode,
   Effect,
   EffectComposer,
   EffectPass,
+  FXAAEffect,
+  GlitchEffect,
+  //GodRaysEffect,
+  GridEffect,
+  HueSaturationEffect,
+  LUT1DEffect,
+  LUT3DEffect,
+  LensDistortionEffect,
+  NoiseEffect,
   OutlineEffect,
+  PixelationEffect,
   RenderPass,
-  SMAAEffect
+  SMAAEffect,
+  SSAOEffect,
+  ScanlineEffect,
+  ShockWaveEffect,
+  TextureEffect,
+  TiltShiftEffect,
+  ToneMappingEffect,
+  VignetteEffect
 } from 'postprocessing'
 import { useEffect } from 'react'
-import { VelocityDepthNormalPass } from 'realism-effects'
+import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { EffectMap, Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
+import { Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { changeRenderMode } from '../functions/changeRenderMode'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
-import { useScene } from './SceneComponents'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -78,7 +102,7 @@ export const PostProcessingComponent = defineComponent({
   /** @todo this will be replaced with spatial queries or distance checks */
   reactor: () => {
     const entity = useEntityContext()
-    const rendererEntity = useScene(Engine.instance.viewerEntity)
+    const rendererEntity = Engine.instance.viewerEntity
     const postprocessingComponent = useComponent(entity, PostProcessingComponent)
     const camera = useComponent(rendererEntity, CameraComponent)
     const renderer = useComponent(rendererEntity, RendererComponent)
@@ -130,10 +154,9 @@ export const PostProcessingComponent = defineComponent({
     }, [scene])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.BloomEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.BloomEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.BloomEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new BloomEffect(effectOptions)
         composer[Effects.BloomEffect].set(eff)
         effects[Effects.BloomEffect].set(eff)
 
@@ -145,10 +168,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects.BloomEffect])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.BrightnessContrastEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.BrightnessContrastEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.BrightnessContrastEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new BrightnessContrastEffect(effectOptions)
         composer[Effects.BrightnessContrastEffect].set(eff)
         effects[Effects.BrightnessContrastEffect].set(eff)
 
@@ -160,10 +182,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.BrightnessContrastEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ChromaticAberrationEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ChromaticAberrationEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ChromaticAberrationEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ChromaticAberrationEffect(effectOptions)
         composer[Effects.ChromaticAberrationEffect].set(eff)
         effects[Effects.ChromaticAberrationEffect].set(eff)
 
@@ -175,10 +196,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ChromaticAberrationEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ColorAverageEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ColorAverageEffect]
-        const eff = new EffectClass(effectOptions.blendFunction)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ColorAverageEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ColorAverageEffect(effectOptions.blendFunction)
         composer[Effects.ColorAverageEffect].set(eff)
         effects[Effects.ColorAverageEffect].set(eff)
 
@@ -190,10 +210,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ColorAverageEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ColorDepthEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ColorDepthEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ColorDepthEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ColorDepthEffect(effectOptions)
         composer[Effects.ColorDepthEffect].set(eff)
         effects[Effects.ColorDepthEffect].set(eff)
 
@@ -205,10 +224,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ColorDepthEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.DepthOfFieldEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.DepthOfFieldEffect]
-        const eff = new EffectClass(camera.value, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.DepthOfFieldEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new DepthOfFieldEffect(camera.value, effectOptions)
         composer[Effects.DepthOfFieldEffect].set(eff)
         effects[Effects.DepthOfFieldEffect].set(eff)
 
@@ -220,10 +238,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.DepthOfFieldEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.DotScreenEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.DotScreenEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.DotScreenEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new DotScreenEffect(effectOptions)
         composer[Effects.DotScreenEffect].set(eff)
         effects[Effects.DotScreenEffect].set(eff)
 
@@ -235,10 +252,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.DotScreenEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.FXAAEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.FXAAEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.FXAAEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new FXAAEffect(effectOptions)
         composer[Effects.FXAAEffect].set(eff)
         effects[Effects.FXAAEffect].set(eff)
 
@@ -250,10 +266,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.FXAAEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.GlitchEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.GlitchEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.GlitchEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new GlitchEffect(effectOptions)
         composer[Effects.GlitchEffect].set(eff)
         effects[Effects.GlitchEffect].set(eff)
 
@@ -265,10 +280,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.GlitchEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.GridEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.GridEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.GridEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new GridEffect(effectOptions)
         composer[Effects.GridEffect].set(eff)
         effects[Effects.GridEffect].set(eff)
 
@@ -280,10 +294,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.GridEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.HueSaturationEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.HueSaturationEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.HueSaturationEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new HueSaturationEffect(effectOptions)
         composer[Effects.HueSaturationEffect].set(eff)
         effects[Effects.HueSaturationEffect].set(eff)
 
@@ -295,10 +308,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.HueSaturationEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.LUT1DEffect] as any
-      if (effectOptions && effectOptions.isActive.value && lut1DEffectTexture) {
-        const EffectClass = EffectMap[Effects.LUT1DEffect]
-        const eff = new EffectClass(lut1DEffectTexture, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.LUT1DEffect] as any
+      if (effectOptions && effectOptions.isActive && lut1DEffectTexture) {
+        const eff = new LUT1DEffect(lut1DEffectTexture, effectOptions)
         composer[Effects.LUT1DEffect].set(eff)
         effects[Effects.LUT1DEffect].set(eff)
 
@@ -310,10 +322,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.LUT1DEffect], lut1DEffectTexture, lut1DEffectTextureError])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.LUT3DEffect] as any
-      if (effectOptions && effectOptions.isActive.value && lut3DEffectTexture) {
-        const EffectClass = EffectMap[Effects.LUT3DEffect]
-        const eff = new EffectClass(lut3DEffectTexture, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.LUT3DEffect] as any
+      if (effectOptions && effectOptions.isActive && lut3DEffectTexture) {
+        const eff = new LUT3DEffect(lut3DEffectTexture, effectOptions)
         composer[Effects.LUT3DEffect].set(eff)
         effects[Effects.LUT3DEffect].set(eff)
 
@@ -325,10 +336,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.LUT3DEffect], lut3DEffectTexture, lut3DEffectTextureError])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.LensDistortionEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.LensDistortionEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.LensDistortionEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new LensDistortionEffect(effectOptions)
         composer[Effects.LensDistortionEffect].set(eff)
         effects[Effects.LensDistortionEffect].set(eff)
 
@@ -340,10 +350,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.LensDistortionEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.LinearTosRGBEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.LinearTosRGBEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.LinearTosRGBEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new LinearTosRGBEffect(effectOptions)
         composer[Effects.LinearTosRGBEffect].set(eff)
         effects[Effects.LinearTosRGBEffect].set(eff)
 
@@ -355,10 +364,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.LinearTosRGBEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.MotionBlurEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.MotionBlurEffect]
-        const eff = new EffectClass(velocityDepthNormalPass, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.MotionBlurEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new MotionBlurEffect(velocityDepthNormalPass, effectOptions)
         useVelocityDepthNormalPass.set(true)
         composer[Effects.MotionBlurEffect].set(eff)
         effects[Effects.MotionBlurEffect].set(eff)
@@ -371,10 +379,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.MotionBlurEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.NoiseEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.NoiseEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.NoiseEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new NoiseEffect(effectOptions)
         composer[Effects.NoiseEffect].set(eff)
         effects[Effects.NoiseEffect].set(eff)
 
@@ -386,10 +393,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.NoiseEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.OutlineEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.OutlineEffect]
-        const eff = new EffectClass(scene.value, camera.value, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.OutlineEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new OutlineEffect(scene.value, camera.value, effectOptions)
         composer[Effects.OutlineEffect].set(eff)
         effects[Effects.OutlineEffect].set(eff)
 
@@ -401,10 +407,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.OutlineEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.PixelationEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.PixelationEffect]
-        const eff = new EffectClass(effectOptions.granularity)
+      const effectOptions = postprocessingComponent.value.effects[Effects.PixelationEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new PixelationEffect(effectOptions.granularity)
         composer[Effects.PixelationEffect].set(eff)
         effects[Effects.PixelationEffect].set(eff)
 
@@ -416,10 +421,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.PixelationEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.SMAAEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.SMAAEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.SMAAEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new SMAAEffect(effectOptions)
         composer[Effects.SMAAEffect].set(eff)
         effects[Effects.SMAAEffect].set(eff)
 
@@ -431,10 +435,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.SMAAEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.SSAOEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.SSAOEffect]
-        const eff = new EffectClass(camera.value, normalPass.value.texture, {
+      const effectOptions = postprocessingComponent.value.effects[Effects.SSAOEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new SSAOEffect(camera.value, normalPass.value.texture, {
           ...effectOptions,
           normalDepthBuffer: depthDownsamplingPass.value.texture
         })
@@ -450,10 +453,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.SSAOEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.SSGIEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.SSGIEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new SSGIEffect(effectOptions)
         composer[Effects.SSGIEffect].set(eff)
         effects[Effects.SSGIEffect].set(eff)
 
@@ -467,14 +469,13 @@ export const PostProcessingComponent = defineComponent({
     // SSR is just a mode of SSGI, and can't both be run at the same time
     useEffect(() => {
       let usingSSGI = false
-      const ssgiEffectOptions = postprocessingComponent.effects[Effects.SSGIEffect] as any
-      if (ssgiEffectOptions && ssgiEffectOptions.isActive.value) {
+      const ssgiEffectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
+      if (ssgiEffectOptions && ssgiEffectOptions.isActive) {
         usingSSGI = true
       }
-      const effectOptions = postprocessingComponent.effects[Effects.SSREffect] as any
-      if (effectOptions && effectOptions.isActive && !usingSSGI) {
-        const EffectClass = EffectMap[Effects.SSREffect]
-        const eff = new EffectClass(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
+      const effectOptions = postprocessingComponent.value.effects[Effects.SSREffect] as any
+      if (effectOptions && effectOptions && !usingSSGI) {
+        const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
         useVelocityDepthNormalPass.set(true)
         composer[Effects.SSREffect].set(eff)
         effects[Effects.SSREffect].set(eff)
@@ -487,10 +488,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.SSREffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ScanlineEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ScanlineEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ScanlineEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ScanlineEffect(effectOptions)
         composer[Effects.ScanlineEffect].set(eff)
         effects[Effects.ScanlineEffect].set(eff)
 
@@ -502,10 +502,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ScanlineEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ShockWaveEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ShockWaveEffect]
-        const eff = new EffectClass(camera.value, effectOptions.position, effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ShockWaveEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ShockWaveEffect(camera.value, effectOptions.position, effectOptions)
         composer[Effects.ShockWaveEffect].set(eff)
         effects[Effects.ShockWaveEffect].set(eff)
 
@@ -517,12 +516,11 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ShockWaveEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.TRAAEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
+      const effectOptions = postprocessingComponent.value.effects[Effects.TRAAEffect] as any
+      if (effectOptions && effectOptions.isActive) {
         // todo support more than 1 texture
         const textureCount = 1
-        const EffectClass = EffectMap[Effects.TRAAEffect]
-        const eff = new EffectClass(scene, camera.value, velocityDepthNormalPass, textureCount, effectOptions)
+        const eff = new TRAAEffect(scene, camera.value, velocityDepthNormalPass, textureCount, effectOptions)
         useVelocityDepthNormalPass.set(true)
         composer[Effects.TRAAEffect].set(eff)
         effects[Effects.TRAAEffect].set(eff)
@@ -535,11 +533,10 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.TRAAEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.TextureEffect] as any
-      if (effectOptions && effectOptions.isActive.value && textureEffectTexture) {
+      const effectOptions = postprocessingComponent.value.effects[Effects.TextureEffect] as any
+      if (effectOptions && effectOptions.isActive && textureEffectTexture) {
         effectOptions.texture = textureEffectTexture
-        const EffectClass = EffectMap[Effects.TextureEffect]
-        const eff = new EffectClass(effectOptions)
+        const eff = new TextureEffect(effectOptions)
         composer[Effects.TextureEffect].set(eff)
         effects[Effects.TextureEffect].set(eff)
 
@@ -551,10 +548,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.TextureEffect], textureEffectTexture, textureEffectTextureError])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.TiltShiftEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.TiltShiftEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.TiltShiftEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new TiltShiftEffect(effectOptions)
         composer[Effects.TiltShiftEffect].set(eff)
         effects[Effects.TiltShiftEffect].set(eff)
 
@@ -566,10 +562,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.TiltShiftEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.ToneMappingEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.ToneMappingEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.ToneMappingEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new ToneMappingEffect(effectOptions)
         composer[Effects.ToneMappingEffect].set(eff)
         effects[Effects.ToneMappingEffect].set(eff)
 
@@ -581,10 +576,9 @@ export const PostProcessingComponent = defineComponent({
     }, [postprocessingComponent.effects[Effects.ToneMappingEffect]])
 
     useEffect(() => {
-      const effectOptions = postprocessingComponent.effects[Effects.VignetteEffect] as any
-      if (effectOptions && effectOptions.isActive.value) {
-        const EffectClass = EffectMap[Effects.VignetteEffect]
-        const eff = new EffectClass(effectOptions)
+      const effectOptions = postprocessingComponent.value.effects[Effects.VignetteEffect] as any
+      if (effectOptions && effectOptions.isActive) {
+        const eff = new VignetteEffect(effectOptions)
         composer[Effects.VignetteEffect].set(eff)
         effects[Effects.VignetteEffect].set(eff)
 
