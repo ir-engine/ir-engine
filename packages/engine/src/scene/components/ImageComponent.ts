@@ -54,10 +54,11 @@ import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
-export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
-export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
-export const PLANE_GEO_FLIPPED = flipNormals(new PlaneGeometry(1, 1, 1, 1))
-export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
+// Making these functions to make it more explicit, otherwise .clone() needs to be called any time these are referenced between components
+export const PLANE_GEO = () => new PlaneGeometry(1, 1, 1, 1)
+export const SPHERE_GEO = () => new SphereGeometry(1, 64, 32)
+export const PLANE_GEO_FLIPPED = () => flipNormals(new PlaneGeometry(1, 1, 1, 1))
+export const SPHERE_GEO_FLIPPED = () => flipNormals(new SphereGeometry(1, 64, 32))
 
 export type ImageResource = {
   source?: string
@@ -192,12 +193,12 @@ export function ImageReactor() {
       const flippedTexture = mesh.material.map.value.flipY
       switch (image.projection.value) {
         case ImageProjection.Equirectangular360:
-          mesh.geometry.set(flippedTexture ? SPHERE_GEO : SPHERE_GEO_FLIPPED)
+          mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
           mesh.scale.value.set(-1, 1, 1)
           break
         case ImageProjection.Flat:
         default:
-          mesh.geometry.set(flippedTexture ? PLANE_GEO : PLANE_GEO_FLIPPED)
+          mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
           resizeImageMesh(mesh.value)
       }
     },
