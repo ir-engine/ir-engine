@@ -27,8 +27,11 @@ import { Entity, EntityUUID, defineComponent, getOptionalMutableComponent } from
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getPluginByName } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { Vector3 } from 'three'
 import {
   ditheringAlphatestChunk,
@@ -75,7 +78,7 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
   id: 'TransparencyDithering',
   priority: 10,
   compile: (shader, renderer) => {
-    const pluginEntity = getPluginByName(TransparencyDitheringPlugin.id)
+    const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
     const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
 
@@ -97,9 +100,8 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
         '#include <common>\n' + ditheringFragUniform
       )
     shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-    shader.uniforms.centers = {
-      value: Array.from({ length: maxDitherPoints }, () => new Vector3())
-    }
+    plugin.parameters['centers'].set(Array.from({ length: maxDitherPoints }, () => new Vector3()))
+    shader.uniforms.centers = { value: plugin.parameters['centers'].value }
     shader.uniforms.exponents = { value: Array.from({ length: maxDitherPoints }, () => 1) }
     shader.uniforms.distances = { value: Array.from({ length: maxDitherPoints }, () => 1) }
     shader.uniforms.useWorldCalculation = { value: Array.from({ length: maxDitherPoints }, () => 1) }

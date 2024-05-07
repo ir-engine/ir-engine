@@ -44,7 +44,6 @@ import {
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
   pluginByName,
-  pluginQuery,
   prototypeByName
 } from './MaterialComponent'
 
@@ -108,12 +107,8 @@ export const addMaterialPlugin = (materialEntity: Entity, pluginEntity: Entity) 
   })
 }
 
-export const getPluginByName = (name: string) => {
-  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === name)[0]
-}
-
 export const getPluginObject = (pluginId: string) => {
-  const pluginEntity = getPluginByName(pluginId)
+  const pluginEntity = pluginByName[pluginId]
   const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])?.plugin
   return plugin
 }

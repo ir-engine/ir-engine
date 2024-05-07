@@ -44,7 +44,7 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
-import { FrontSide } from 'three'
+import { FrontSide, Vector3 } from 'three'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
@@ -58,6 +58,13 @@ const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0
 const execute = () => {
   const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
   const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+
+  getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters['centers'].set([
+    new Vector3(0, 1, 0),
+    new Vector3(0, 1, 0),
+    new Vector3(0, 1, 0),
+    new Vector3(0, 1, 0)
+  ])
 
   for (const entity of TransparencyDitheringQuery()) {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
