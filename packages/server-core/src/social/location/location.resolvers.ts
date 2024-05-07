@@ -40,6 +40,7 @@ import {
 import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { BadRequest } from '@feathersjs/errors'
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
@@ -105,7 +106,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       const scene = await context.app.service(assetPath).get(location.sceneId)
       return scene.projectId
     } catch (error) {
-      return
+      throw new BadRequest('Failed to retrieve project ID from scene ID')
     }
   },
   createdAt: getDateTimeSql,
