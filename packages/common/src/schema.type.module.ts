@@ -228,6 +228,8 @@ export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 
+export const middlewareSettingPath = 'middleware-setting'
+
 export const redisSettingPath = 'redis-setting'
 
 export const chargebeeSettingPath = 'chargebee-setting'
