@@ -40,6 +40,7 @@ import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
+
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Dialog from '@mui/material/Dialog'
 import { t } from 'i18next'
@@ -56,7 +57,6 @@ import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 import AssetDropZone from './assets/AssetDropZone'
 import ImportSettingsPanel from './assets/ImportSettingsPanel'
-import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
@@ -65,8 +65,8 @@ import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import ToolBar from '@etherealengine/ui/src/components/editor/toolbar'
 import * as styles from './styles.module.scss'
-import ToolBar from './toolbar/ToolBar'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
@@ -414,15 +414,14 @@ const EditorContainer = () => {
     <>
       <div
         id="editor-container"
-        className={styles.editorContainer}
+        className="pointer-events-none fixed flex h-full w-full flex-1 flex-col bg-neutral-900 "
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar menu={toolbarMenu} panels={panelMenu} />
-          <ControlText />
-          {rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />}
-          <div className={styles.workspaceContainer}>
+          {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
+          <div className="m-0; flex flex-1 overflow-hidden">
             <AssetDropZone />
             <DockContainer>
               <DockLayout
