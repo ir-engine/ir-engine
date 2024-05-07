@@ -73,6 +73,7 @@ const execute = () => {
         if (!ditherComponent) break
         if (!material.shader || !pluginComponent.shader) break
         const shader = pluginComponent.shader[material.name]
+        if (!shader?.uniforms) break
         shader.uniforms.centers.value[i] = ditherComponent.center
         shader.uniforms.exponents.value[i] = ditherComponent.exponent
         shader.uniforms.distances.value[i] = ditherComponent.distance
