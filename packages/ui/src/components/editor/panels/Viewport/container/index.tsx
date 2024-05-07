@@ -80,7 +80,7 @@ const ViewPortPanelContainer = () => {
   const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex h-8 flex-row items-center bg-zinc-900">
+      <div className="z-10 flex h-8 flex-row items-center bg-zinc-900">
         <div className="inline-flex h-[26px] w-24 items-center justify-start gap-2 overflow-hidden rounded-sm bg-neutral-900 py-1 pl-2 pr-1">
           <GoGlobe className="text-white" size={70} />
           <SelectInput /> {/* modify with custom styling later */}
@@ -129,8 +129,8 @@ const ViewPortPanelContainer = () => {
       {sceneName ? (
         <ViewportDnD />
       ) : (
-        <div className="flex h-full w-full flex-col justify-center">
-          <img className="mt-[-50px] opacity-80" src="/static/etherealengine.png" alt="" />
+        <div className="z-0 flex h-full w-full flex-col justify-center">
+          <img className="mt-[-50px] object-contain opacity-80" src="/static/etherealengine.png" alt="" />
           <h2 className="text-white-400 mt-[30px] w-full text-center font-[normal] text-[100%]">
             {t('editor:selectSceneMsg')}
           </h2>
