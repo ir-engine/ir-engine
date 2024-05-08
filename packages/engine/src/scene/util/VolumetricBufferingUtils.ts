@@ -57,10 +57,10 @@ type GLTFResponse = ResolvedType<ReturnType<typeof loadGLTF>>
 export const bufferLimits = {
   geometry: {
     [GeometryType.Corto]: {
-      desktopMaxBufferDuration: 4, // seconds
-      mobileMaxBufferDuration: 3,
-      initialBufferDuration: 3,
-      minBufferDurationToPlay: 2
+      desktopMaxBufferDuration: 15, // seconds
+      mobileMaxBufferDuration: 5,
+      initialBufferDuration: 5,
+      minBufferDurationToPlay: 3
     },
     [GeometryType.Draco]: {
       desktopMaxBufferDuration: 4,
@@ -350,6 +350,8 @@ interface fetchTextureProps extends fetchProps {
   textureType: TextureType
   textureBuffer: Map<string, Map<string, CompressedTexture[]>>
   textureFormat: TextureFormat
+  initialBufferLoaded: State<boolean>
+  startTimeInMS: number
 }
 
 export const fetchTextures = ({
@@ -360,7 +362,9 @@ export const fetchTextures = ({
   textureType,
   manifestPath,
   textureBuffer,
-  textureFormat
+  textureFormat,
+  initialBufferLoaded,
+  startTimeInMS
 }: fetchTextureProps) => {
   const currentTime = currentTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
 
@@ -430,6 +434,16 @@ export const fetchTextures = ({
         collection[_currentFrame] = currentFrameData.texture
 
         bufferData.addRange(currentFrameStartTime, currentFrameEndTime, currentFrameData.fetchTime, false)
+
+        if (!initialBufferLoaded.value) {
+          const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
+          const endTime = startTime + bufferLimits.texture[textureFormat].initialBufferDuration * TIME_UNIT_MULTIPLIER
+
+          const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
+          if (startFrameBufferData.missingDuration === 0) {
+            initialBufferLoaded.set(true)
+          }
+        }
       })
       .catch((err) => {
         console.warn('Error in loading ktx2 frame: ', err)
