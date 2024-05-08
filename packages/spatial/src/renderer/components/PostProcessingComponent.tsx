@@ -463,6 +463,7 @@ export const PostProcessingComponent = defineComponent({
       }
     }, [postprocessingComponent.effects[Effects.SSGIEffect]])
 
+    /*
     // SSR is just a mode of SSGI, and can't both be run at the same time
     useEffect(() => {
       let usingSSGI = false
@@ -483,6 +484,7 @@ export const PostProcessingComponent = defineComponent({
         }
       }
     }, [postprocessingComponent.effects[Effects.SSREffect]])
+*/
 
     useEffect(() => {
       const effectOptions = postprocessingComponent.value.effects[Effects.ScanlineEffect] as any

@@ -60,7 +60,7 @@ export const Effects = {
   HueSaturationEffect: 'HueSaturationEffect' as const,
   ColorDepthEffect: 'ColorDepthEffect' as const,
   LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
-  SSGIEffect: 'SSGIEffect' as const,
+  //SSGIEffect: 'SSGIEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,
   ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
@@ -157,8 +157,6 @@ export type SSAOEffectProps = EffectProps & {
   resolutionY?: number
   width?: number
   height?: number
-  blur?: boolean
-  kernelSize?: KernelSize
 }
 
 const defaultSSROptions = {
@@ -289,7 +287,6 @@ export type TiltShiftEffectProps = EffectProps & {
   rotation?: number
   focusArea?: number
   feather?: number
-  bias?: number
   kernelSize?: KernelSize
   resolutionScale?: number
   resolutionX?: number
@@ -348,6 +345,7 @@ export type PixelationEffectProps = EffectProps & { granularity?: number }
 export type ScanlineEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   density?: number
+  scrollSpeed?: number
 }
 export type ShockWaveEffectProps = EffectProps & {
   position?: Vector3
@@ -389,7 +387,7 @@ export type EffectPropsSchema = {
   [Effects.HueSaturationEffect]: HueSaturationEffectProps
   [Effects.ColorDepthEffect]: ColorDepthEffectProps
   [Effects.LinearTosRGBEffect]: LinearTosRGBEffectProps
-  [Effects.SSGIEffect]: SSGIEffectProps
+  //[Effects.SSGIEffect]: SSGIEffectProps
   [Effects.TRAAEffect]: TRAAEffectProps
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
   [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
@@ -442,6 +440,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     isActive: false,
     ...defaultSSROptions
   },
+  /*
   [Effects.SSGIEffect]: {
     isActive: false,
     distance: 10,
@@ -464,41 +463,40 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     resolutionScale: 1,
     missedRays: false
   },
+  */
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
     distanceScaling: true,
     depthAwareUpsampling: true,
     normalDepthBuffer: undefined,
-    samples: 23,
-    rings: 0.29,
+    samples: 9,
+    rings: 7,
     // worldDistanceThreshold: 0.97,
     // worldDistanceFalloff: 0.03,
     // worldProximityThreshold: 0.0005,
     // worldProximityFalloff: 0.001,
-    distanceThreshold: 0.06, // Render up to a distance of ~20 world units
-    distanceFalloff: 0.494, // with an additional ~2.5 units of falloff.
+    distanceThreshold: 0.97, // Render up to a distance of ~20 world units
+    distanceFalloff: 0.03, // with an additional ~2.5 units of falloff.
     rangeThreshold: 0.0005,
-    rangeFalloff: 0.537,
-    minRadiusScale: -0.64,
-    luminanceInfluence: 0.52,
-    bias: -0.04,
-    radius: 0.09,
-    intensity: 3,
-    fade: 0.09,
+    rangeFalloff: 0.001,
+    minRadiusScale: 0.1,
+    luminanceInfluence: 0.7,
+    bias: 0.025,
+    radius: 0.1825,
+    intensity: 1.0,
+    fade: 0.01,
     color: undefined,
     resolutionScale: 1.0,
     resolutionX: Resolution.AUTO_SIZE,
     resolutionY: Resolution.AUTO_SIZE,
     width: Resolution.AUTO_SIZE,
-    height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.VERY_LARGE,
-    blur: true
+    height: Resolution.AUTO_SIZE
   },
   [Effects.DepthOfFieldEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
-    focusDistance: 0.1,
+    focusDistance: 0.0,
     focalLength: 0.1,
     focusRange: 0.1,
     bokehScale: 1.0,
@@ -519,9 +517,9 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.ToneMappingEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     adaptive: false,
-    mode: ToneMappingMode.ACES_FILMIC,
+    mode: ToneMappingMode.AGX,
     resolution: 256,
     maxLuminance: 4.0,
     whitePoint: 4.0,
@@ -532,13 +530,13 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.BrightnessContrastEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     brightness: 0.0,
     contrast: 0.0
   },
   [Effects.HueSaturationEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     hue: 0,
     saturation: 0.0
   },
@@ -569,7 +567,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.ChromaticAberrationEffect]: {
     isActive: false,
-    offset: undefined,
+    offset: new Vector2(1e-3, 5e-4),
     radialModulation: false,
     modulationOffset: 0.15
   },
@@ -580,7 +578,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.DotScreenEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
-    angle: 1.57,
+    angle: Math.PI * 0.5,
     scale: 1.0
   },
   [Effects.TiltShiftEffect]: {
@@ -590,7 +588,6 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     rotation: 0.0,
     focusArea: 0.4,
     feather: 0.3,
-    bias: 0.06,
     kernelSize: KernelSize.MEDIUM,
     resolutionScale: 0.5,
     resolutionX: Resolution.AUTO_SIZE,
@@ -600,9 +597,9 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
     chromaticAberrationOffset: undefined,
-    delay: undefined,
-    duration: undefined,
-    strength: undefined,
+    delay: new Vector2(1.5, 3.5),
+    duration: new Vector2(0.6, 1.0),
+    strength: new Vector2(0.3, 1.0),
     perturbationMap: undefined,
     dtSize: 64,
     columns: 0.05,
@@ -633,13 +630,13 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.LUT1DEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.SET,
+    blendFunction: BlendFunction.SRC,
     lutPath: undefined,
     lut: undefined
   },
   [Effects.LUT3DEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.SET,
+    blendFunction: BlendFunction.SRC,
     tetrahedralInterpolation: false,
     inputColorSpace: SRGBColorSpace,
     lutPath: undefined,
@@ -657,7 +654,8 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   [Effects.ScanlineEffect]: {
     isActive: false,
     blendFunction: BlendFunction.OVERLAY,
-    density: 1.25
+    density: 1.25,
+    scrollSpeed: 0.0
   },
   [Effects.ShockWaveEffect]: {
     isActive: false,
@@ -690,7 +688,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     isActive: false,
     distortion: new Vector2(0, 0),
     principalPoint: new Vector2(0, 0),
-    focalLength: new Vector2(0, 0),
+    focalLength: new Vector2(1, 1),
     skew: 0
   }
 }
@@ -712,7 +710,7 @@ export const effectInOrder = [
   Effects.DepthOfFieldEffect,
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
-  Effects.SSGIEffect,
+  //Effects.SSGIEffect,
   //Effects.GodRaysEffect,
 
   /** 3. camera effects */

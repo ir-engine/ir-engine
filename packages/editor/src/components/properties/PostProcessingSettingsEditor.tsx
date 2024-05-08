@@ -96,9 +96,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: -1, max: 1, step: 0.01 },
     intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
     fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -10, max: 10, step: 0.01 },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' }
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -10, max: 10, step: 0.01 }
   },
   SSREffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
@@ -168,6 +166,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     bits: { propertyType: PropertyTypes.Number, name: 'Bits', min: -1, max: 1, step: 0.01 }
   },
   LinearTosRGBEffect: {},
+  /*
   SSGIEffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
     thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
@@ -189,6 +188,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
     missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
+  */
   TRAAEffect: {
     blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
     constantBlend: { propertyType: PropertyTypes.Boolean, name: 'Constant Blend' },
@@ -291,7 +291,6 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     rotation: { propertyType: PropertyTypes.Number, name: 'Rotation', min: 0, max: 360, step: 0.1 },
     focusArea: { propertyType: PropertyTypes.Number, name: 'Focus Area', min: 0, max: 10, step: 0.1 },
     feather: { propertyType: PropertyTypes.Number, name: 'Feather', min: 0, max: 10, step: 0.1 },
-    bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: 0, max: 10, step: 0.1 },
     kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'KernelSize' },
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0, max: 10, step: 0.1 }
     //resolutionX: Resolution.AUTO_SIZE,
@@ -306,7 +305,8 @@ const EffectsOptions: Partial<EffectOptionsType> = {
   },
   ScanlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 }
+    density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 },
+    scrollSpeed: { propertyType: PropertyTypes.Number, name: 'Scroll Speed', min: 0, max: 10, step: 0.05 }
   },
   ShockWaveEffect: {
     position: { propertyType: PropertyTypes.Vector3, name: 'Position' },
