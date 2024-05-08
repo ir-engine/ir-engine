@@ -34,6 +34,7 @@ import {
   UUIDComponent,
   UndefinedEntity,
   createEntity,
+  entityExists,
   getComponent,
   getMutableComponent,
   removeEntity,
@@ -170,6 +171,11 @@ export const GLTFSnapshotState = defineState({
         snapshots: [data]
       })
       getMutableState(GLTFDocumentState)[action.source].set(data)
+    }),
+
+    onUnload: GLTFSnapshotAction.unload.receive((action) => {
+      getMutableState(GLTFSnapshotState)[action.source].set(none)
+      getMutableState(GLTFDocumentState)[action.source].set(none)
     })
   },
 
@@ -258,7 +264,14 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
-    if (!parentEntity) return
+    return () => {
+      if (!selfEntity.value) return
+      removeEntity(selfEntity.value)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!parentEntity || selfEntity.value) return
 
     const uuid = (node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID) ?? UUIDComponent.generateUUID()
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
@@ -289,26 +302,25 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
         setComponent(entity, Component, node.extensions[extension].get(NO_PROXY_STEALTH))
       }
     }
-
-    return () => {
-      removeEntity(entity)
-    }
   }, [parentEntity])
 
   useEffect(() => {
     if (!entity) return
+    if (!entityExists(entity)) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])
 
   useEffect(() => {
     if (!entity) return
+    if (!entityExists(entity)) return
 
     setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
   }, [entity, node.name])
 
   useEffect(() => {
     if (!entity) return
+    if (!entityExists(entity)) return
 
     setComponent(entity, TransformComponent)
     if (!node.matrix.value) return
@@ -361,6 +373,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const extension = node.extensions![props.extension]
 
   useEffect(() => {
+    if (!entityExists(props.entity)) return
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))

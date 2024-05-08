@@ -27,9 +27,11 @@ import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parse
 import {
   Entity,
   defineComponent,
+  entityExists,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext,
   useQuery
@@ -121,6 +123,14 @@ const onProgress: (event: ProgressEvent) => void = (event) => {
 
 const useGLTFDocument = (url: string, entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
+  const sourceComponent = useComponent(entity, SourceComponent)
+
+  useEffect(() => {
+    const source = sourceComponent.value
+    return () => {
+      dispatchAction(GLTFSnapshotAction.unload({ source }))
+    }
+  }, [])
 
   useEffect(() => {
     if (!url) return
@@ -182,6 +192,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
     )
     return () => {
       abortController.abort()
+      if (!entityExists(entity) || !hasComponent(entity, GLTFComponent)) return
       state.merge({
         extensions: {}
       })

@@ -37,7 +37,8 @@ import {
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -363,6 +364,73 @@ const createObjectFromSceneElement = (
       }
 
       dispatchAction(SceneSnapshotAction.createSnapshot(newSnapshot))
+    }
+  }
+}
+
+const copyChildren = (sourceEntity: Entity, targetEntity: Entity) => {
+  const parentSource = getComponent(targetEntity, SourceComponent)
+  const entitySource = getComponent(sourceEntity, SourceComponent)
+
+  if (getState(GLTFSourceState)[parentSource]) {
+    const targetGLTF = GLTFSnapshotState.cloneCurrentSnapshot(parentSource)
+    const sourceGLTF = getState(GLTFDocumentState)[entitySource]
+
+    const addNode = (node: GLTF.INode, parentUUID: EntityUUID) => {
+      const nodeClone = JSON.parse(JSON.stringify(node)) as GLTF.INode
+      targetGLTF.data.nodes!.push(nodeClone)
+      nodeClone.extensions![UUIDComponent.jsonID] = generateEntityUUID()
+      if (nodeClone.children) nodeClone.children = []
+      const index = targetGLTF.data.nodes!.length - 1
+      const parentNode = getGLTFNodeByUUID(targetGLTF.data, parentUUID)
+      if (!parentNode) {
+        targetGLTF.data.scenes![0].nodes.push(index)
+      } else {
+        if (!parentNode.children) parentNode.children = []
+        parentNode.children.push(index)
+      }
+      if (node.children) {
+        for (const childIndex of node.children) {
+          addNode(sourceGLTF.nodes![childIndex], nodeClone.extensions![UUIDComponent.jsonID] as EntityUUID)
+        }
+      }
+    }
+
+    const targetEntityUUID = getComponent(targetEntity, UUIDComponent)
+
+    const isSourceEntityInRootOfScene = hasComponent(sourceEntity, GLTFComponent)
+    if (isSourceEntityInRootOfScene) {
+      for (const nodeIndex of sourceGLTF.scenes![0].nodes) {
+        addNode(sourceGLTF.nodes![nodeIndex], targetEntityUUID)
+      }
+    } else {
+      const sourceEntityUUID = getComponent(sourceEntity, UUIDComponent)
+      const node = getGLTFNodeByUUID(sourceGLTF, sourceEntityUUID)!
+      addNode(node, targetEntityUUID)
+    }
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(targetGLTF))
+  } else {
+    const newSnapshot = SceneSnapshotState.cloneCurrentSnapshot(parentSource)
+    const sourceSnapshot = getState(SceneState).scenes[entitySource]
+
+    const addNode = (entityUUID: EntityUUID, parentUUID: EntityUUID) => {
+      const entityData = sourceSnapshot.scene.entities[entityUUID]
+      const entityDataClone = JSON.parse(JSON.stringify(entityData))
+      entityDataClone.parent = parentUUID
+      const newUUID = generateEntityUUID()
+      entityDataClone.components = entityData.components.map((comp) => {
+        if (comp.name === UUIDComponent.jsonID) {
+          return { name: comp.name, props: newUUID }
+        }
+        return comp
+      })
+      newSnapshot.data.entities[newUUID] = entityDataClone
+      const children = getComponent(UUIDComponent.getEntityByUUID(entityUUID), EntityTreeComponent).children
+      for (const child of children) {
+        const childUUID = getComponent(child, UUIDComponent)
+        addNode(childUUID, newUUID)
+      }
     }
   }
 }
@@ -980,6 +1048,7 @@ export const EditorControlFunctions = {
   modifyName,
   modifyMaterial,
   createObjectFromSceneElement,
+  copyChildren,
   duplicateObject,
   positionObject,
   rotateObject,
