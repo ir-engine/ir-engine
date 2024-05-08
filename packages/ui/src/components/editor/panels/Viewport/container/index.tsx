@@ -45,6 +45,8 @@ import { Vector2, Vector3 } from 'three'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
 
+console.log('Intializing viewport')
+
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Component],
@@ -71,7 +73,13 @@ const ViewportDnD = () => {
         isDragging && isOver ? 'border-[5px]' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
-    />
+    >
+      <canvas
+        id="viewport-renderer-canvas"
+        tabIndex={1}
+        className="pointer-events-auto absolute inset-0 z-0 h-full w-full select-none"
+      ></canvas>
+    </div>
   )
 }
 
