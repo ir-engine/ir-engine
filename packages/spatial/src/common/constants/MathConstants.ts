@@ -99,12 +99,18 @@ Object.freeze(Axis)
 
 /** Right handed coordinate direction */
 export const ObjectDirection = {
-  Right: Axis.X,
-  Left: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
-  Up: Axis.Y,
-  Down: Object.freeze(new Vector3().copy(Axis.Y).multiplyScalar(-1)),
-  Forward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1)),
-  Backward: Axis.Z
+  /** const Vector3 (1,0,0) */
+  Right: Vector3_Right,
+  /** const Vector3 (-1,0,0) */
+  Left: Vector3_Left,
+  /** const Vector3 (0,1,0) */
+  Up: Vector3_Up,
+  /** const Vector3 (0,-1,0) */
+  Down: Vector3_Down,
+  /** const Vector3 (0,0,-1) */
+  Forward: Vector3_Forward,
+  /** const Vector3 (0,0,1) */
+  Backward: Vector3_Back
 }
 
 Object.freeze(ObjectDirection)
