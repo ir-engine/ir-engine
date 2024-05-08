@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import {
   MiddlewareSettingDatabaseType,
   middlewareSettingPath
@@ -36,38 +35,10 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const middlewareSettingSeedData = {
-  logo: process.env.APP_LOGO || '',
-  title: process.env.APP_TITLE || '',
-  shortTitle: process.env.APP_TITLE || '',
-  startPath: '/',
-  releaseName: process.env.RELEASE_NAME || 'local',
-  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
-  url:
-    process.env.APP_URL ||
-    (process.env.VITE_LOCAL_BUILD
-      ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
-      : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
-  appleTouchIcon: 'apple-touch-icon.png',
-  favicon32px: '/favicon-32x32.png',
-  favicon16px: '/favicon-16x16.png',
-  icon192px: '/android-chrome-192x192.png',
-  icon512px: '/android-chrome-512x512.png',
-  appBackground: 'static/main-background.png',
-  appTitle: 'static/ethereal_watermark_small.png',
-  appSubtitle: 'EtherealEngine.org',
-  appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
-  appSocialLinks: JSON.stringify([
-    { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
-    { icon: 'static/github.svg', link: 'https://github.com/etherealengine' }
-  ]),
-  themeSettings: JSON.stringify(defaultThemeSettings),
-  themeModes: JSON.stringify(defaultThemeModes),
-  key8thWall: process.env.VITE_8TH_WALL || '',
-  homepageLinkButtonEnabled: false,
-  homepageLinkButtonRedirect: '',
-  homepageLinkButtonText: '',
-  webmanifestLink: '',
-  swScriptLink: ''
+  // logo: process.env.APP_LOGO || '',
+  conf0: process.env.CONF0 || 'Test Value',
+  conf1: process.env.CONF1 || 'Test Value',
+  conf2: process.env.CONF2 || 'test Value'
 }
 
 export async function seed(knex: Knex): Promise<void> {

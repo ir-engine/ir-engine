@@ -354,9 +354,9 @@
         "header": "Middleware",
         "subtitle": "Edit Middleware Settings",
         "main": "Main",
-        "logo": "Logo",
-        "other": "Other",
-        "media": "Audio & Video"
+        "toggle0": "Test Toggle Label",
+        "sub0": "Sub",
+        "sub1": "Sub"
       },
       "authentication": {
         "header": "Authentication",

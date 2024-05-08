@@ -37,6 +37,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { AuthState } from '../../../../user/services/AuthService'
 import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'
 
+console.log('#### client')
+
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
@@ -51,6 +53,8 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const id = clientSetting?.id
 
   const settings = useHookstate(clientSetting)
+
+  console.log('# client settings', settings)
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
@@ -124,7 +128,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    console.log(settings.get(NO_PROXY))
+    console.log('# client handleSubmit', settings.get(NO_PROXY))
     settings.merge({
       createdAt: none,
       updatedAt: none

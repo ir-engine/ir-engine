@@ -135,34 +135,11 @@ export const middlewareSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    logo: Type.String(),
-    title: Type.String(),
-    shortTitle: Type.String(),
-    startPath: Type.String(),
-    url: Type.String(),
-    releaseName: Type.String(),
-    siteDescription: Type.String(),
-    appleTouchIcon: Type.String(),
-    favicon32px: Type.String(),
-    favicon16px: Type.String(),
-    icon192px: Type.String(),
-    icon512px: Type.String(),
-    webmanifestLink: Type.String(),
-    swScriptLink: Type.String(),
-    appBackground: Type.String(),
-    appTitle: Type.String(),
-    appSubtitle: Type.String(),
-    appDescription: Type.String(),
-    appSocialLinks: Type.Array(Type.Ref(middlewareSocialLinkSchema)),
-    themeSettings: Type.Record(Type.String(), Type.Ref(middlewareThemeOptionsSchema)),
-    themeModes: Type.Record(Type.String(), Type.String()),
-    key8thWall: Type.String(),
-    homepageLinkButtonEnabled: Type.Boolean(),
-    homepageLinkButtonRedirect: Type.String(),
-    homepageLinkButtonText: Type.String(),
+    conf0: Type.String(),
+    conf1: Type.String(),
+    conf2: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
-    // mediaSettings: Type.Ref(mediaSettingsSchema)
   },
   { $id: 'MiddlewareSetting', additionalProperties: false }
 )
@@ -176,39 +153,9 @@ export interface MiddlewareSettingDatabaseType
 }
 
 // Schema for creating new entries
-export const middlewareSettingDataSchema = Type.Pick(
-  middlewareSettingSchema,
-  [
-    'logo',
-    'title',
-    'shortTitle',
-    'startPath',
-    'url',
-    'releaseName',
-    'siteDescription',
-    'favicon32px',
-    'favicon16px',
-    'icon192px',
-    'icon512px',
-    'webmanifestLink',
-    'swScriptLink',
-    'appBackground',
-    'appTitle',
-    'appSubtitle',
-    'appDescription',
-    'appSocialLinks',
-    'themeSettings',
-    'themeModes',
-    'key8thWall',
-    'homepageLinkButtonEnabled',
-    'homepageLinkButtonRedirect',
-    'homepageLinkButtonText'
-    // 'mediaSettings'
-  ],
-  {
-    $id: 'MiddlewareSettingData'
-  }
-)
+export const middlewareSettingDataSchema = Type.Pick(middlewareSettingSchema, ['conf0', 'conf1', 'conf2'], {
+  $id: 'MiddlewareSettingData'
+})
 export interface MiddlewareSettingData extends Static<typeof middlewareSettingDataSchema> {}
 
 // Schema for updating existing entries
@@ -218,33 +165,7 @@ export const middlewareSettingPatchSchema = Type.Partial(middlewareSettingSchema
 export interface MiddlewareSettingPatch extends Static<typeof middlewareSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, [
-  'id',
-  'logo',
-  'title',
-  'shortTitle',
-  'startPath',
-  'url',
-  'releaseName',
-  'siteDescription',
-  'favicon32px',
-  'favicon16px',
-  'icon192px',
-  'icon512px',
-  'webmanifestLink',
-  'swScriptLink',
-  'appBackground',
-  'appTitle',
-  'appSubtitle',
-  'appDescription',
-  // 'appSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  // 'themeSettings',
-  // 'themeModes',
-  'key8thWall',
-  'homepageLinkButtonEnabled',
-  'homepageLinkButtonRedirect',
-  'homepageLinkButtonText'
-])
+export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, ['id', 'conf0', 'conf1', 'conf2'])
 export const middlewareSettingQuerySchema = Type.Intersect(
   [
     querySyntax(middlewareSettingQueryProperties),
