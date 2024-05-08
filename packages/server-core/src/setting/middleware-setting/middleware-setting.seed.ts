@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import { defaultMediaSettings } from '@etherealengine/common/src/constants/DefaultMediaSettings'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import {
   MiddlewareSettingDatabaseType,
@@ -64,13 +63,11 @@ export const middlewareSettingSeedData = {
   themeSettings: JSON.stringify(defaultThemeSettings),
   themeModes: JSON.stringify(defaultThemeModes),
   key8thWall: process.env.VITE_8TH_WALL || '',
-  privacyPolicy: 'https://www.etherealengine.com/privacy',
   homepageLinkButtonEnabled: false,
   homepageLinkButtonRedirect: '',
   homepageLinkButtonText: '',
   webmanifestLink: '',
-  swScriptLink: '',
-  mediaSettings: defaultMediaSettings
+  swScriptLink: ''
 }
 
 export async function seed(knex: Knex): Promise<void> {
@@ -108,12 +105,6 @@ export async function seed(knex: Knex): Promise<void> {
           await knex(middlewareSettingPath).update({
             ...item,
             appleTouchIcon: seedData[0].appleTouchIcon
-          })
-        }
-        if (!item.privacyPolicy) {
-          await knex(middlewareSettingPath).update({
-            ...item,
-            privacyPolicy: seedData[0].privacyPolicy
           })
         }
       }
