@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KinematicCharacterController } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
 import {
@@ -43,6 +42,8 @@ import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camer
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
+import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
 
 export const AvatarControllerComponent = defineComponent({
@@ -52,7 +53,6 @@ export const AvatarControllerComponent = defineComponent({
     return {
       /** The camera entity that should be updated by this controller */
       cameraEntity: Engine.instance.cameraEntity,
-      controller: null! as KinematicCharacterController,
       movementCaptured: [] as Array<Entity>,
       isJumping: false,
       isWalking: false,
@@ -72,7 +72,6 @@ export const AvatarControllerComponent = defineComponent({
     if (!json) return
 
     if (matches.number.test(json.cameraEntity)) component.cameraEntity.set(json.cameraEntity)
-    if (matches.object.test(json.controller)) component.controller.set(json.controller as KinematicCharacterController)
     if (matches.array.test(json.movementCaptured)) component.movementCaptured.set(json.movementCaptured)
     if (matches.boolean.test(json.isJumping)) component.isJumping.set(json.isJumping)
     if (matches.boolean.test(json.isWalking)) component.isWalking.set(json.isWalking)
@@ -100,19 +99,17 @@ export const AvatarControllerComponent = defineComponent({
     const avatarComponent = useComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = useHookstate(getMutableState(XRControlsState).isCameraAttachedToAvatar)
+    const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
 
     useEffect(() => {
-      /** @todo fix this */
-      // getState(PhysicsState).physicsWorld.removeCollider(avatarControllerComponent.bodyCollider.value, false)
-      // const collider = createAvatarCollider(entity)
-      // avatarControllerComponent.bodyCollider.set(collider)
+      setAvatarColliderTransform(entity)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
       if (cameraEntity && entityExists(cameraEntity) && hasComponent(cameraEntity, FollowCameraComponent)) {
         const cameraComponent = getComponent(cameraEntity, FollowCameraComponent)
         cameraComponent.offset.set(0, avatarComponent.eyeHeight.value, 0)
       }
-    }, [avatarComponent.avatarHeight])
+    }, [avatarComponent.avatarHeight, camera.near])
 
     useEffect(() => {
       if (isCameraAttachedToAvatar.value) {

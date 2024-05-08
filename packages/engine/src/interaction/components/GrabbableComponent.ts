@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, hasComponent, useEntityContext } from '@etherealengine/ecs'
-import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
@@ -33,8 +33,10 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { dropEntity, grabEntity, grabbableInteractMessage } from '../functions/grabbableFunctions'
+import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'
+
+const grabbableCallbackName = 'grabCallback'
 
 /**
  * GrabbableComponent
@@ -46,20 +48,13 @@ export const GrabbableComponent = defineComponent({
 
   toJSON: () => true,
 
+  grabbableCallbackName,
+
   reactor: function () {
     const entity = useEntityContext()
     useEffect(() => {
       if (isClient) {
-        setCallback(entity, 'grabCallback', () => grabCallback(entity))
-        setComponent(entity, InteractableComponent, {
-          label: grabbableInteractMessage,
-          callbacks: [
-            {
-              callbackID: 'grabCallback',
-              target: null
-            }
-          ]
-        })
+        setCallback(entity, grabbableCallbackName, () => grabCallback(entity))
       }
     }, [])
     return null

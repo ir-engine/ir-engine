@@ -24,7 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineQuery, defineSystem, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  Engine,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
@@ -33,6 +42,7 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
@@ -77,7 +87,9 @@ const execute = () => {
 
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
 
-    if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    if (cameraOrbit.disabled.value || (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing))
+      continue
 
     if (buttons.PrimaryClick?.pressed) {
       cameraOrbit.isOrbiting.set(true)
@@ -127,10 +139,11 @@ const execute = () => {
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group = getComponent(object, GroupComponent)
-          for (const obj of group) {
-            box.expandByObject(obj)
-          }
+          const group = getOptionalComponent(object, GroupComponent)
+          if (group)
+            for (const obj of group) {
+              box.expandByObject(obj)
+            }
         }
         if (box.isEmpty()) {
           const entity = cameraOrbit.focusedEntities[0].value

@@ -235,8 +235,10 @@ export const checkBuilderService = async (
       if (builderJob && builderJob.body.items.length > 0) {
         const succeeded = builderJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
+        const running = builderJob.body.items.filter((item) => item.status && item.status.active === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
+        jobStatus.running = running.length > 0
       } else {
         const containerName = 'etherealengine-builder'
 
@@ -442,73 +444,58 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidDestinationURL',
       text: 'The destination URL is not valid, or you do not have access to it'
     }
-  const [sourceBlobResponse, sourceConfigResponse, destinationBlobResponse]: [
-    sourceBlobResponse: any,
-    sourceConfigResponse: any,
-    destinationBlobResponse: any
-  ] = await Promise.all([
-    new Promise(async (resolve, reject) => {
-      try {
-        const sourcePackage = await sourceOctoKit.rest.repos.getContent({
-          owner: sourceOwner,
-          repo: sourceRepo,
-          path: 'package.json',
-          ref: selectedSHA
-        })
-        resolve(sourcePackage)
-      } catch (err) {
-        logger.error(err)
-        if (err.status === 404) {
-          resolve({
-            error: 'sourcePackageMissing',
-            text: 'There is no package.json in the source repo'
+  const [sourceBlobResponse, destinationBlobResponse]: [sourceBlobResponse: any, destinationBlobResponse: any] =
+    await Promise.all([
+      new Promise(async (resolve, reject) => {
+        try {
+          const sourcePackage = await sourceOctoKit.rest.repos.getContent({
+            owner: sourceOwner,
+            repo: sourceRepo,
+            path: 'package.json',
+            ref: selectedSHA
           })
-        } else reject(err)
-      }
-    }),
-    new Promise(async (resolve, reject) => {
-      try {
-        const sourceConfig = await sourceOctoKit.rest.repos.getContent({
-          owner: sourceOwner,
-          repo: sourceRepo,
-          path: 'xrengine.config.ts',
-          ref: selectedSHA
-        })
-        resolve(sourceConfig)
-      } catch (err) {
-        logger.error(err)
-        if (err.status === 404) {
-          resolve({
-            error: 'sourceConfigMissing',
-            text: 'There is no xrengine.config.ts in the source repo'
+          resolve(sourcePackage)
+        } catch (err) {
+          logger.error(err)
+          if (err.status === 404) {
+            resolve({
+              error: 'sourcePackageMissing',
+              text: 'There is no package.json in the source repo'
+            })
+          } else reject(err)
+        }
+      }),
+      new Promise(async (resolve, reject) => {
+        try {
+          const destinationPackage = await destinationOctoKit.rest.repos.getContent({
+            owner: destinationOwner,
+            repo: destinationRepo,
+            path: 'package.json'
           })
-        } else reject(err)
-      }
-    }),
-    new Promise(async (resolve, reject) => {
-      try {
-        const destinationPackage = await destinationOctoKit.rest.repos.getContent({
-          owner: destinationOwner,
-          repo: destinationRepo,
-          path: 'package.json'
-        })
-        resolve(destinationPackage)
-      } catch (err) {
-        logger.error('destination package fetch error %o', err)
-        if (err.status === 404) {
-          resolve({
-            error: 'destinationPackageMissing',
-            text: 'There is no package.json in the source repo'
-          })
-        } else reject(err)
-      }
-    })
-  ])
+          resolve(destinationPackage)
+        } catch (err) {
+          logger.error('destination package fetch error %o', err)
+          if (err.status === 404) {
+            resolve({
+              error: 'destinationPackageMissing',
+              text: 'There is no package.json in the destination repo'
+            })
+          } else reject(err)
+        }
+      })
+    ])
+
   if (sourceBlobResponse.error) return sourceBlobResponse
-  if (sourceConfigResponse.error) return sourceConfigResponse
   const sourceContent = JSON.parse(
     Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
   )
+
+  if (!sourceContent.etherealEngine)
+    return {
+      sourceProjectMatchesDestination: false,
+      error: 'notEtherealEngineProject',
+      text: `The source repo's package.json does not have an 'etherealEngine' key, suggesting it is not a project`
+    }
   if (!existingProject) {
     const projectExists = (await app.service(projectPath).find({
       query: {
@@ -531,6 +518,7 @@ export const checkProjectDestinationMatch = async (
     return destinationBlobResponse
   if (destinationBlobResponse.error === 'destinationPackageMissing')
     return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
+  // console.log('destination content', Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
   const destinationContent = JSON.parse(Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
   if (sourceContent.name.toLowerCase() !== destinationContent.name.toLowerCase())
     return {
@@ -1515,7 +1503,7 @@ export const updateProject = async (
     throw err
   }
 
-  await uploadLocalProjectToProvider(app, projectName)
+  const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
   const projectConfig = getProjectConfig(projectName) ?? {}
 
@@ -1555,6 +1543,7 @@ export const updateProject = async (
           updateUserId: userId,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
+          assetsOnly: assetsOnly,
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         },
@@ -1567,6 +1556,7 @@ export const updateProject = async (
           commitSHA,
           hasLocalChanges: false,
           commitDate: toDateTimeSql(commitDate),
+          assetsOnly: assetsOnly,
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
@@ -1751,6 +1741,7 @@ export const uploadLocalProjectToProvider = async (
     }
   }
 
+  let assetsOnly = true
   for (const file of filtered) {
     try {
       const fileResult = fs.readFileSync(file)
@@ -1758,6 +1749,8 @@ export const uploadLocalProjectToProvider = async (
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
       const url = getCachedURL(key, getCacheDomain(storageProvider))
+      if (filePathRelative === '/xrengine.config.ts') assetsOnly = false
+
       await storageProvider.putObject(
         {
           Body: fileResult,
@@ -1823,5 +1816,5 @@ export const uploadLocalProjectToProvider = async (
     await app.service(projectResourcesPath).create({ project: projectName })
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
-  return results.filter((success) => !!success) as string[]
+  return { files: results.filter((success) => !!success) as string[], assetsOnly }
 }

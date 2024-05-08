@@ -29,16 +29,15 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { assetPath, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
-import { SceneServices } from '../../world/SceneServices'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
-  const scene = useGet(scenePath, locationState.currentLocation.location.sceneId.value).data
+  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     LocationState.setLocationName(props.locationName)
@@ -82,22 +81,17 @@ export const useLoadLocation = (props: { locationName: string }) => {
     )
       return
     const sceneURL = scene.assetURL
-    return SceneServices.setCurrentScene(sceneURL)
+    return GLTFAssetState.loadScene(sceneURL, scene.id)
   }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
+  const sceneURL = `projects/${props.projectName}/${props.sceneName}`
+  const assetID = useFind(assetPath, { query: { assetURL: sceneURL } })
   useEffect(() => {
     if (!props.sceneName || !props.projectName) return
-    const sceneURL = `projects/${props.projectName}/${props.sceneName}`
-    return SceneServices.setCurrentScene(sceneURL, true)
-  }, [])
-}
-
-/** This is kind of a hack that we can fix once we drop .scene.json support */
-export const useActiveLocationScene = () => {
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const scenes = useHookstate(getMutableState(SceneState).scenes)
-  const scene = useGet(assetPath, locationSceneID).data
-  return !!locationSceneID && !!scene?.assetURL ? scenes.keys.find((id) => id.includes(scene?.assetURL)) : ''
+    if (!assetID.data.length) return
+    getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
+    return GLTFAssetState.loadScene(sceneURL, assetID.data[0].id)
+  }, [assetID.data.length])
 }

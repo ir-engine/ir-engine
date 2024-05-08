@@ -85,10 +85,12 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
     <JSONTree
       data={expandSystemToTree(SystemDefinitions.get(props.uuid)!)}
       labelRenderer={(raw, ...keyPath) => {
+        const uuidName = props.uuid! as string
         const label = raw[0]
-        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems')
+        if (label === 'preSystems' || label === 'subSystems' || label === 'postSystems') {
           return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
-        return <span style={{ color: 'black' }}>{label}</span>
+        }
+        return <span style={{ color: 'black' }}>{label === 'root' ? uuidName : label}</span>
       }}
       valueRenderer={(raw, value, ...keyPath) => {
         const system = SystemDefinitions.get(keyPath[0] as SystemUUID)!
@@ -119,8 +121,19 @@ export const SystemDagView = (props: { uuid: SystemUUID }) => {
           </>
         )
       }}
-      shouldExpandNodeInitially={() => true}
+      shouldExpandNodeInitially={(keyName, data, level) => shouldExpandNode(data)}
     />
+  )
+}
+function shouldExpandNode(nodeData) {
+  const data = nodeData as SystemTree
+
+  // !data.postSystems is a shorthand for whether we're on a system node that contains all 3 (sub/pre/post systems)
+  return (
+    !data.postSystems ||
+    Object.keys(data.postSystems).length > 0 ||
+    Object.keys(data.preSystems).length > 0 ||
+    Object.keys(data.subSystems).length > 0
   )
 }
 

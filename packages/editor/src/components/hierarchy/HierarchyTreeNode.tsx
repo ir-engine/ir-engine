@@ -43,8 +43,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { UUIDComponent } from '@etherealengine/ecs'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useHookstate } from '@hookstate/core'
@@ -105,7 +105,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const errors = useOptionalComponent(node.entity, ErrorComponent)
 
-  const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
+  const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {

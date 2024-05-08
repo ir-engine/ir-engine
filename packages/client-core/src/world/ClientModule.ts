@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { WidgetAppServiceReceptorSystem } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
 import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { MediaControlSystem } from '../systems/MediaControlSystem'
@@ -34,6 +35,7 @@ import './ClientNetworkModule'
 
 export {
   AvatarUISystem,
+  AvatarSpawnSystem,
   LoadingUISystem,
   MediaControlSystem,
   UserUISystem,

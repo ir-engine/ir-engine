@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NO_PROXY_STEALTH, State, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { MathUtils } from 'three'
 import { defineComponent, setComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity } from './EntityFunctions'
@@ -82,6 +83,10 @@ export const UUIDComponent = defineComponent({
       setComponent(entity, UUIDComponent, uuid)
     }
     return state.value
+  },
+
+  generateUUID() {
+    return MathUtils.generateUUID() as EntityUUID
   }
 })
 
@@ -93,4 +98,3 @@ function _getUUIDState(uuid: EntityUUID) {
   }
   return entityState
 }
-globalThis.UUIDComponent = UUIDComponent
