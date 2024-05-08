@@ -63,6 +63,9 @@ export const instanceDataResolver = resolve<InstanceType, HookContext>({
         const locationData = await context.app.service(locationPath).get(instance.locationId)
         if (locationData) {
           return locationData.projectId
+        } else {
+          console.error('Error populating projectId into instance', instance)
+          throw new BadRequest('Error populating projectId into instance')
         }
       }
       // Populate projectId from channelId
@@ -75,6 +78,7 @@ export const instanceDataResolver = resolve<InstanceType, HookContext>({
         return ''
       }
     } catch (error) {
+      console.error('Error populating projectId into instance', instance)
       throw new BadRequest('Error populating projectId into instance')
     }
   },

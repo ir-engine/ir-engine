@@ -106,7 +106,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       const scene = await context.app.service(assetPath).get(location.sceneId)
       return scene.projectId
     } catch (error) {
-      throw new BadRequest('Failed to retrieve project ID from scene ID')
+      throw new BadRequest(`Failed to retrieve project ID from scene ID: ${location.sceneId}`)
     }
   },
   createdAt: getDateTimeSql,
