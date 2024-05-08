@@ -53,6 +53,7 @@ export const Effects = {
   OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
+  SSGIEffect: 'SSGIEffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
   BloomEffect: 'BloomEffect' as const,
   ToneMappingEffect: 'ToneMappingEffect' as const,
