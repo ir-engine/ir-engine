@@ -60,7 +60,7 @@ import {
   VignetteEffect
 } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { MotionBlurEffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
+import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -114,6 +114,8 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const postprocessingComponent = useComponent(entity, PostProcessingComponent)
   const camera = useComponent(rendererEntity, CameraComponent)
   const renderer = useComponent(rendererEntity, RendererComponent)
+  const composer = new EffectComposer(renderer.value.renderer)
+  renderer.value.effectComposer = composer
 
   let lut1DEffectTexturePath: string | undefined
   if (
@@ -459,37 +461,36 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
       }
     }
   }, [postprocessingComponent.effects[Effects.SSAOEffect]])
-  /*
-    useEffect(() => {
-      const effectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
-      if (effectOptions && effectOptions.isActive) {
-        const eff = new SSGIEffect(effectOptions)
-        //composer[Effects.SSGIEffect].set(eff)
-        effects[Effects.SSGIEffect].set(eff)
 
-        return () => {
-          //composer[Effects.SSGIEffect].set(none)
-          effects[Effects.SSGIEffect].set(none)
-        }
+  useEffect(() => {
+    const effectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
+    if (effectOptions && effectOptions.isActive) {
+      const eff = new SSGIEffect(effectOptions)
+      //composer[Effects.SSGIEffect].set(eff)
+      effects[Effects.SSGIEffect].set(eff)
+
+      return () => {
+        //composer[Effects.SSGIEffect].set(none)
+        effects[Effects.SSGIEffect].set(none)
       }
-    }, [postprocessingComponent.effects[Effects.SSGIEffect]])
-*/
+    }
+  }, [postprocessingComponent.effects[Effects.SSGIEffect]])
 
   // SSR is just a mode of SSGI, and can't both be run at the same time
   useEffect(() => {
     let usingSSGI = false
-    /*
-      const ssgiEffectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
-      if (ssgiEffectOptions && ssgiEffectOptions.isActive) {
-        usingSSGI = true
-      }
-      */
+
+    const ssgiEffectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
+    if (ssgiEffectOptions && ssgiEffectOptions.isActive) {
+      usingSSGI = true
+    }
+
     const effectOptions = postprocessingComponent.value.effects[Effects.SSREffect] as any
-    if (effectOptions && effectOptions && !usingSSGI) {
-      //const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
+    if (effectOptions && effectOptions.isActive && !usingSSGI) {
+      const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
       useVelocityDepthNormalPass.set(true)
       //composer[Effects.SSREffect].set(eff)
-      //effects[Effects.SSREffect].set(eff)
+      effects[Effects.SSREffect].set(eff)
 
       return () => {
         //composer[Effects.SSREffect].set(none)
@@ -601,9 +602,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   }, [postprocessingComponent.effects[Effects.VignetteEffect]])
 
   useEffect(() => {
-    const composer = new EffectComposer(renderer.value.renderer)
-    renderer.value.effectComposer = composer
-
     // we always want to have at least the render pass enabled
     const renderPass = new RenderPass()
     renderer.value.effectComposer.addPass(renderPass)
@@ -625,191 +623,9 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
 
   useEffect(() => {
     if (!rendererEntity) return
-    /*
-      let schema = postprocessingComponent.enabled.value
-        ? postprocessingComponent.effects.get(NO_PROXY_STEALTH)
-        : undefined
 
-      if (!renderer.value || !camera.value) return
-
-      const scene = new Scene()
-
-      if (renderer.value.effectComposer) {
-        renderer.value.effectComposer.dispose()
-        renderer.value.renderPass = null!
-      }
-
-      const composer = new EffectComposer(renderer.value.renderer)
-      renderer.value.effectComposer = composer
-
-      // we always want to have at least the render pass enabled
-      const renderPass = new RenderPass()
-      renderer.value.effectComposer.addPass(renderPass)
-      renderer.value.renderPass = renderPass
-
-      const renderSettings = getState(RendererState)
-      if (!renderSettings.usePostProcessing) return
-
-      const effects: any[] = []
-
-      const smaaPreset = getState(RenderSettingsState).smaaPreset
-      const smaaEffect = new SMAAEffect({
-        preset: smaaPreset,
-        edgeDetectionMode: EdgeDetectionMode.COLOR
-      })
-      composer.SMAAEffect = smaaEffect
-
-      const outlineEffect = new OutlineEffect(scene, camera.value, getState(HighlightState))
-      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-      composer.OutlineEffect = outlineEffect
-
-      const SmaaEffectPass = new EffectPass(camera.value, smaaEffect)
-      const OutlineEffectPass = new EffectPass(camera.value, outlineEffect)
-      composer.addPass(OutlineEffectPass) //outlines don't follow camera
-      composer.addPass(SmaaEffectPass)
-*/
-    /*
-      const effectKeys = Object.keys(EffectMap)
-
-      const normalPass = new CustomNormalPass(scene, camera)
-
-      const depthDownsamplingPass = new DepthDownsamplingPass({
-        normalBuffer: normalPass.texture,
-        resolutionScale: 0.5
-      })
-
-      if (!schema) return
-
-      const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
-      let useVelocityDepthNormalPass = false
-      let useDepthDownsamplingPass = false
-
-      for (const key of effectKeys) {
-        const effectOptions = schema[key]
-
-        if (!effectOptions || !effectOptions.isActive) continue
-        const EffectClass = EffectMap[key]
-
-        if (!EffectClass) continue
-
-   
-        if (key === Effects.SSAOEffect) {
-          const eff = new EffectClass(camera, normalPass.texture, {
-            ...effectOptions,
-            normalDepthBuffer: depthDownsamplingPass.texture
-          })
-          useDepthDownsamplingPass = true
-          composer[key] = eff
-          effects.push(eff)
-        } else 
-         if (key === Effects.SSREffect || key === Effects.SSGIEffect) {
-         SSR is just a mode of SSGI, and can't both be run at the same time
-          const eff = new EffectClass(composer, scene, camera, { ...effectOptions, velocityDepthNormalPass })
-          useVelocityDepthNormalPass = true
-          composer[key] = eff
-           effects.push(eff)
-        } else 
-         if (key === Effects.DepthOfFieldEffect) {
-          const eff = new EffectClass(camera, effectOptions)
-          composer[key] = eff
-          effects.push(eff)
-        } else         
-        if (key === Effects.TRAAEffect) {
-          // todo support more than 1 texture
-          const textureCount = 1
-          const eff = new EffectClass(scene, camera, velocityDepthNormalPass, textureCount, effectOptions)
-          useVelocityDepthNormalPass = true
-          composer[key] = eff
-          effects.push(eff)
-        } else 
-        if (key === Effects.MotionBlurEffect) {
-          const eff = new EffectClass(velocityDepthNormalPass, effectOptions)
-          useVelocityDepthNormalPass = true
-          composer[key] = eff
-          effects.push(eff)
-        } else         
-       if (key === Effects.ColorAverageEffect) {
-          const eff = new EffectClass(effectOptions.blendFunction)
-          composer[key] = eff
-          effects.push(eff)
-        } else 
-        if (key === Effects.OutlineEffect) {
-          const eff = new EffectClass(scene, camera, effectOptions)
-          composer[key] = eff
-          effects.push(eff)
-          //} else if (key == Effects.GodRaysEffect) {
-          //  const lightsource = null //tbd
-          //  const eff = new EffectClass(camera, lightsource, effectOptions)
-          //  composer[key] = eff
-          //  effects.push(eff)
-        } else 
-       if (key == Effects.LUT1DEffect) {
-          if (lut1DEffectTexture) {
-            const eff = new EffectClass(lut1DEffectTexture, effectOptions)
-            composer[key] = eff
-            effects.push(eff)
-          }
-        } else        
-        if (key == Effects.LUT3DEffect) {
-          if (lut3DEffectTexture) {
-            const eff = new EffectClass(lut3DEffectTexture, effectOptions)
-            composer[key] = eff
-            effects.push(eff)
-          }
-        } else 
-       if (key == Effects.PixelationEffect) {
-          const eff = new EffectClass(effectOptions.granularity)
-          composer[key] = eff
-          effects.push(eff)
-        } else 
-       if (key == Effects.ShockWaveEffect) {
-          const eff = new EffectClass(camera, effectOptions.position, effectOptions)
-          composer[key] = eff
-          effects.push(eff)
-        } else 
-        if (key == Effects.TextureEffect) {
-          if (textureEffectTexture) {
-            effectOptions.texture = textureEffectTexture
-            const eff = new EffectClass(effectOptions)
-            composer[key] = eff
-            effects.push(eff)
-          }
-        } else {
-          const eff = new EffectClass(effectOptions)
-          composer[key] = eff
-          effects.push(eff)
-        }
-      }
-        
-      if (effects.length) {
-        if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
-
-        if (useDepthDownsamplingPass) {
-          composer.addPass(normalPass)
-          composer.addPass(depthDownsamplingPass)
-          const textureEffect = new TextureEffect({
-            blendFunction: BlendFunction.SKIP,
-            texture: depthDownsamplingPass.texture
-          })
-          effects.push(textureEffect)
-        }
-
-        composer.EffectPass = new EffectPass(camera, ...effects)
-        composer.addPass(composer.EffectPass)
-      }
- */
     if (getState(EngineState).isEditor) changeRenderMode()
-  }, [
-    rendererEntity,
-    postprocessingComponent.enabled,
-    postprocessingComponent.effects
-    //lut1DEffectTexture,
-    //lut1DEffectTextureError,
-    //lut3DEffectTexture,
-    //lut3DEffectTextureError,
-    //textureEffectTexture,
-    //textureEffectTextureError
-  ])
+  }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
 
   return null
 }

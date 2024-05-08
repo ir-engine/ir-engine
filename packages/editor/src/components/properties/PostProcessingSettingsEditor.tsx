@@ -166,7 +166,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     bits: { propertyType: PropertyTypes.Number, name: 'Bits', min: -1, max: 1, step: 0.01 }
   },
   LinearTosRGBEffect: {},
-  /*
+
   SSGIEffect: {
     distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
     thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
@@ -188,7 +188,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
     missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
-  */
+
   TRAAEffect: {
     blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
     constantBlend: { propertyType: PropertyTypes.Boolean, name: 'Constant Blend' },
