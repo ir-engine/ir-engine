@@ -99,6 +99,8 @@
   "toolbar": {
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "lbl-simple": "Simple",
+    "lbl-advanced": "Advanced",
     "gizmo": {
       "description": "Transform Gizmo",
       "translate": "[T] Translate",

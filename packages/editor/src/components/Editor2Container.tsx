@@ -65,7 +65,7 @@ import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import ToolBar from '@etherealengine/ui/src/components/editor/toolbar'
+import Toolbar from '../components/toolbar/Toolbar2'
 import * as styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
@@ -419,9 +419,9 @@ const EditorContainer = () => {
       >
         <DndWrapper id="editor-container">
           <DragLayer />
-          <ToolBar menu={toolbarMenu} panels={panelMenu} />
+          <Toolbar />
           {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
-          <div className="m-0; flex flex-1 overflow-hidden">
+          <div className="m-0 flex flex-1 overflow-hidden">
             <AssetDropZone />
             <DockContainer>
               <DockLayout
