@@ -29,8 +29,11 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import React, { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'
 import EditorContainer from '../components/Editor2Container'
+import { EditorState } from '../services/EditorServices'
+import { ProjectPage } from './ProjectPage'
 
 export const useStudioEditor = () => {
   const engineReady = useHookstate(false)
@@ -45,6 +48,32 @@ export const useStudioEditor = () => {
   return engineReady.value
 }
 
-export default function EditorPage() {
+export const EditorPage = () => {
+  const [params] = useSearchParams()
+  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+
+  useEffect(() => {
+    const sceneInParams = params.get('scenePath')
+    if (sceneInParams) scenePath.set(sceneInParams)
+    const projectNameInParams = params.get('project')
+    if (projectNameInParams) projectName.set(projectNameInParams)
+  }, [params])
+
+  useEffect(() => {
+    if (!scenePath.value) return
+
+    const parsed = new URL(window.location.href)
+    const query = parsed.searchParams
+
+    query.set('scenePath', scenePath.value)
+
+    parsed.search = query.toString()
+    if (typeof history.pushState !== 'undefined') {
+      window.history.replaceState({}, '', parsed.toString())
+    }
+  }, [scenePath])
+
+  if (!scenePath.value && !projectName.value) return <ProjectPage />
+
   return <EditorContainer />
 }

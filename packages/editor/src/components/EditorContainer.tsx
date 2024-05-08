@@ -88,7 +88,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
   )
 }
 
-const LoadedScene = (props: { rootEntity: Entity }) => {
+export const LoadedScene = (props: { rootEntity: Entity }) => {
   const { rootEntity } = props
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
@@ -146,7 +146,7 @@ const LoadedScene = (props: { rootEntity: Entity }) => {
  * Scene Event Handlers
  */
 
-const onEditorError = (error) => {
+export const onEditorError = (error) => {
   logger.error(error)
   if (error['aborted']) {
     DialogState.setDialog(null)
@@ -162,7 +162,7 @@ const onEditorError = (error) => {
   )
 }
 
-const onCloseProject = () => {
+export const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
   editorState.projectName.set(null)
@@ -182,7 +182,7 @@ const onCloseProject = () => {
   }
 }
 
-const onSaveAs = async () => {
+export const onSaveAs = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
   const sceneModified = EditorState.isModified()
   const abortController = new AbortController()
@@ -212,11 +212,11 @@ const onSaveAs = async () => {
   }
 }
 
-const onImportSettings = () => {
+export const onImportSettings = () => {
   DialogState.setDialog(<ImportSettingsPanel />)
 }
 
-const onImportAsset = async () => {
+export const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
   if (projectName) {
@@ -228,7 +228,7 @@ const onImportAsset = async () => {
   }
 }
 
-const onSaveScene = async () => {
+export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
 
   if (!projectName) return
@@ -282,7 +282,7 @@ const onSaveScene = async () => {
   }
 }
 
-const generateToolbarMenu = () => {
+export const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
