@@ -39,6 +39,8 @@ import {
   MiddlewareSettingService
 } from '../../../services/Setting/MiddlewareSettingService'
 
+console.log('#### middleware')
+
 const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
@@ -54,6 +56,8 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
   const settings = useHookstate(middlewareSetting)
 
+  console.log('# middleware settings', settings)
+
   useEffect(() => {
     if (user?.id?.value != null && middlewareSettingState?.updateNeeded?.value === true) {
       MiddlewareSettingService.fetchMiddlewareSettings()
@@ -63,69 +67,17 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   useEffect(() => {
     if (middlewareSetting) {
       settings.merge({
-        logo: middlewareSetting?.logo,
-        title: middlewareSetting?.title,
-        shortTitle: middlewareSetting?.shortTitle,
-        startPath: middlewareSetting?.startPath || '/',
-        appTitle: middlewareSetting?.appTitle,
-        appSubtitle: middlewareSetting?.appSubtitle,
-        appDescription: middlewareSetting?.appDescription,
-        appBackground: middlewareSetting?.appBackground,
-        appSocialLinks: JSON.parse(JSON.stringify(middlewareSetting?.appSocialLinks)) || [],
-        appleTouchIcon: middlewareSetting?.appleTouchIcon,
-        icon192px: middlewareSetting?.icon192px,
-        icon512px: middlewareSetting?.icon512px,
-        webmanifestLink: middlewareSetting?.webmanifestLink,
-        swScriptLink: middlewareSetting?.swScriptLink,
-        favicon16px: middlewareSetting?.favicon16px,
-        favicon32px: middlewareSetting?.favicon32px,
-        siteDescription: middlewareSetting?.siteDescription,
-        key8thWall: middlewareSetting?.key8thWall,
-        homepageLinkButtonEnabled: middlewareSetting?.homepageLinkButtonEnabled,
-        homepageLinkButtonRedirect: middlewareSetting?.homepageLinkButtonRedirect,
-        homepageLinkButtonText: middlewareSetting?.homepageLinkButtonText
+        conf0: middlewareSetting?.conf0,
+        conf1: middlewareSetting?.conf1,
+        conf2: middlewareSetting?.conf2
       })
     }
   }, [middlewareSettingState?.updateNeeded?.value])
 
-  const codecMenu = [
-    {
-      value: 'VP9',
-      label: 'VP9'
-    },
-    {
-      value: 'VP8',
-      label: 'VP8'
-    },
-    {
-      value: 'h264',
-      label: 'h264'
-    }
-  ]
-
-  const videoMaxResolutionMenu = [
-    {
-      value: 'fhd',
-      label: t('admin:components.setting.videoFHD')
-    },
-    {
-      value: 'hd',
-      label: t('admin:components.setting.videoHD')
-    },
-    {
-      value: 'fwvga',
-      label: t('admin:components.setting.videoFWVGA')
-    },
-    {
-      value: 'nhd',
-      label: t('admin:components.setting.videoNHD')
-    }
-  ]
-
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    console.log(settings.get(NO_PROXY))
+    console.log('# middleware handleSubmit', settings.get(NO_PROXY))
     settings.merge({
       createdAt: none,
       updatedAt: none
@@ -159,155 +111,39 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.appTitle')}
-          value={settings.appTitle.value || ''}
-          onChange={(e) => settings.appTitle.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.title')}
-          value={settings.title.value || ''}
-          onChange={(e) => settings.title.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appSubtitle')}
-          value={settings.appSubtitle.value || ''}
-          onChange={(e) => settings.appSubtitle.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.shortTitle')}
-          value={settings.shortTitle.value || ''}
-          onChange={(e) => settings.shortTitle.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appDescription')}
-          value={settings.appDescription.value || ''}
-          onChange={(e) => settings.appDescription.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.startPath')}
-          value={settings.startPath.value || '/'}
-          onChange={(e) => settings.startPath.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appBackground')}
-          value={settings.appBackground.value || ''}
-          onChange={(e) => settings.appBackground.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.description')}
-          value={settings.siteDescription.value || ''}
-          onChange={(e) => settings.siteDescription.set(e.target.value)}
+          label={t('admin:components.setting.middleware.conf0')}
+          value={settings.conf0.value || ''}
+          onChange={(e) => settings.conf0.set(e.target.value)}
         />
 
         <Toggle
           containerClassName="justify-start col-span-full"
-          label={t('admin:components.setting.homepageLinkButtonEnabled')}
-          value={settings.homepageLinkButtonEnabled.value}
-          onChange={(value) => settings.homepageLinkButtonEnabled.set(value)}
+          label={t('admin:components.setting.middleware.toggle0')}
+          value={settings.toggle0.value}
+          onChange={(value) => settings.toggle0.set(value)}
         />
 
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
-          {t('admin:components.setting.middleware.logo')}
+          {t('admin:components.setting.middleware.sub0')}
         </Text>
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.logo')}
-          value={settings.logo.value || ''}
-          onChange={(e) => settings.logo.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.appleTouchIcon')}
-          value={settings.appleTouchIcon.value || ''}
-          onChange={(e) => settings.appleTouchIcon.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.favIcon16px')}
-          value={settings.favicon16px.value || ''}
-          onChange={(e) => settings.favicon16px.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.favIcon32px')}
-          value={settings.favicon32px.value || ''}
-          onChange={(e) => settings.favicon32px.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.icon192px')}
-          value={settings.icon192px.value || ''}
-          onChange={(e) => settings.icon192px.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.icon512px')}
-          value={settings.icon512px.value || ''}
-          onChange={(e) => settings.icon512px.set(e.target.value)}
+          label={t('admin:components.setting.middleware.conf1')}
+          value={settings.conf1.value || ''}
+          onChange={(e) => settings.conf1.set(e.target.value)}
         />
 
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
-          {t('admin:components.setting.middleware.other')}
+          {t('admin:components.setting.middleware.sub1')}
         </Text>
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.webmanifestLink')}
-          value={settings.webmanifestLink.value || ''}
-          onChange={(e) => settings.webmanifestLink.set(e.target.value)}
+          label={t('admin:components.setting.middleware.conf2')}
+          value={settings.conf2.value || ''}
+          onChange={(e) => settings.conf2.set(e.target.value)}
         />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.swScriptLink')}
-          value={settings.swScriptLink.value || ''}
-          onChange={(e) => settings.swScriptLink.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.url')}
-          value={middlewareSetting?.url || ''}
-          disabled
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.releaseName')}
-          value={middlewareSetting?.releaseName || ''}
-          disabled
-        />
-
-        <Input
-          className="col-span-1"
-          label={t('admin:components.setting.key8thWall')}
-          value={settings.key8thWall.value || ''}
-          onChange={(e) => settings.key8thWall.set(e.target.value)}
-        />
-
-        <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
-          {t('admin:components.setting.middleware.media')}
-        </Text>
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">

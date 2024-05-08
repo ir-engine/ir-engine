@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import config from '@etherealengine/common/src/config'
+// import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   MiddlewareSettingPatch,
@@ -38,7 +38,9 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { NotificationService } from '../../../common/services/NotificationService'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })
+const logger = multiLogger.child({ component: 'client-core:MiddlewareSettingService' })
+
+console.log('##### MiddlewareSettingService')
 
 export const AdminMiddlewareSettingsState = defineState({
   name: 'AdminMiddlewareSettingsState',
@@ -56,9 +58,11 @@ export const MiddlewareSettingService = {
         .service(middlewareSettingPath)
         .find()) as Paginated<MiddlewareSettingType>
 
-      if (middlewareSettings.data[0].key8thWall) {
-        config.middleware.key8thWall = middlewareSettings.data[0].key8thWall
-      }
+      console.log('middlewareSettings', middlewareSettings)
+
+      // if (middlewareSettings.data[0].key8thWall) {
+      //   config.middleware.key8thWall = middlewareSettings.data[0].key8thWall
+      // }
 
       getMutableState(AdminMiddlewareSettingsState).merge({ middleware: middlewareSettings.data, updateNeeded: false })
     } catch (err) {

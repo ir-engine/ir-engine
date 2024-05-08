@@ -30,6 +30,12 @@ import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+
+import {
+  AdminMiddlewareSettingsState,
+  MiddlewareSettingService
+} from '@etherealengine/client-core/src/admin/services/Setting/MiddlewareSettingService'
+
 import {
   AppThemeState,
   getAppTheme,
@@ -55,9 +61,13 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
 
+  const middlewareSettingState = useHookstate(getMutableState(AdminMiddlewareSettingsState))
+
   const appTheme = useHookstate(getMutableState(AppThemeState))
   const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
+
+  const [middlewareSetting] = middlewareSettingState?.middleware?.get(NO_PROXY) || []
 
   const currentThemeName = useAppThemeName()
 
@@ -75,6 +85,14 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     }
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
+
+  useEffect(() => {
+    if (middlewareSetting) {
+      // middlewareThemeSettings.set(middlewareSetting?.themeSettings)
+      console.log('#### themeContext', middlewareSetting)
+    }
+    if (middlewareSettingState?.updateNeeded?.value) MiddlewareSettingService.fetchMiddlewareSettings()
+  }, [middlewareSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     updateTheme()

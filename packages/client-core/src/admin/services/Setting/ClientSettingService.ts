@@ -36,6 +36,8 @@ import waitForClientAuthenticated from '../../../util/wait-for-client-authentica
 
 const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })
 
+console.log('##### ClientSettingService')
+
 export const AdminClientSettingsState = defineState({
   name: 'AdminClientSettingsState',
   initial: () => ({
@@ -51,6 +53,8 @@ export const ClientSettingService = {
       const clientSettings = (await Engine.instance.api
         .service(clientSettingPath)
         .find()) as Paginated<ClientSettingType>
+
+      console.log('# clientSettings', clientSettings)
 
       if (clientSettings.data[0].key8thWall) {
         config.client.key8thWall = clientSettings.data[0].key8thWall
