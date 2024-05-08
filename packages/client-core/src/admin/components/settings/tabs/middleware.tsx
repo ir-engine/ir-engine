@@ -28,7 +28,6 @@ import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
@@ -82,7 +81,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         favicon32px: middlewareSetting?.favicon32px,
         siteDescription: middlewareSetting?.siteDescription,
         key8thWall: middlewareSetting?.key8thWall,
-        privacyPolicy: middlewareSetting?.privacyPolicy,
         homepageLinkButtonEnabled: middlewareSetting?.homepageLinkButtonEnabled,
         homepageLinkButtonRedirect: middlewareSetting?.homepageLinkButtonRedirect,
         homepageLinkButtonText: middlewareSetting?.homepageLinkButtonText
@@ -302,13 +300,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
         <Input
           className="col-span-1"
-          label={t('admin:components.setting.privacyPolicy')}
-          value={settings.privacyPolicy.value}
-          onChange={(e) => settings.privacyPolicy.set(e.target.value)}
-        />
-
-        <Input
-          className="col-span-1"
           label={t('admin:components.setting.key8thWall')}
           value={settings.key8thWall.value || ''}
           onChange={(e) => settings.key8thWall.set(e.target.value)}
@@ -317,93 +308,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
           {t('admin:components.setting.middleware.media')}
         </Text>
-
-        <Input
-          className="col-span-1"
-          type="number"
-          label={t('admin:components.setting.audioMaxBitrate')}
-          value={settings.mediaSettings.audio.maxBitrate.value || ''}
-          onChange={(e) => settings.mediaSettings.audio.maxBitrate.set(Number(e.target.value))}
-        />
-
-        <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoMaxResolution')}
-          currentValue={settings.mediaSettings.video.maxResolution.value}
-          options={videoMaxResolutionMenu}
-          onChange={(value) => settings.mediaSettings.video.maxResolution.set(value)}
-        />
-
-        <Select
-          className="col-span-1"
-          label={t('admin:components.setting.videoCodec')}
-          currentValue={settings.mediaSettings.video.codec.value}
-          options={codecMenu}
-          onChange={(value) => settings.mediaSettings.video.codec.set(value)}
-        />
-
-        {(settings.mediaSettings.video.codec.value === 'VP8' ||
-          settings.mediaSettings.video.codec.value === 'h264') && (
-          <>
-            <Input
-              className="col-span-1"
-              type="number"
-              label={t('admin:components.setting.videoLowResMaxBitrate')}
-              value={settings.mediaSettings.video.lowResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.video.lowResMaxBitrate.set(Number(e.target.value))}
-            />
-
-            <Input
-              className="col-span-1"
-              type="number"
-              label={t('admin:components.setting.videoMidResMaxBitrate')}
-              value={settings.mediaSettings.video.midResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.video.midResMaxBitrate.set(Number(e.target.value))}
-            />
-
-            <Input
-              className="col-span-1"
-              type="number"
-              label={t('admin:components.setting.videoHighResMaxBitrate')}
-              value={settings.mediaSettings.video.highResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.video.highResMaxBitrate.set(Number(e.target.value))}
-            />
-          </>
-        )}
-
-        <Select
-          className="col-span-1"
-          label={t('admin:components.setting.screenshareCodec')}
-          currentValue={settings.mediaSettings.screenshare.codec.value}
-          options={codecMenu}
-          onChange={(value) => settings.mediaSettings.screenshare.codec.set(value)}
-        />
-
-        {(settings.mediaSettings.screenshare.codec.value === 'VP8' ||
-          settings.mediaSettings.screenshare.codec.value === 'h264') && (
-          <>
-            <Input
-              type="number"
-              label={t('admin:components.setting.screenshareLowResMaxBitrate')}
-              value={settings.mediaSettings.screenshare.lowResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.screenshare.lowResMaxBitrate.set(Number(e.target.value))}
-            />
-
-            <Input
-              type="number"
-              label={t('admin:components.setting.screenshareMidResMaxBitrate')}
-              value={settings.mediaSettings.screenshare.midResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.screenshare.midResMaxBitrate.set(Number(e.target.value))}
-            />
-
-            <Input
-              type="number"
-              label={t('admin:components.setting.screenshareHighResMaxBitrate')}
-              value={settings.mediaSettings.screenshare.highResMaxBitrate.value || ''}
-              onChange={(e) => settings.mediaSettings.screenshare.highResMaxBitrate.set(Number(e.target.value))}
-            />
-          </>
-        )}
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
