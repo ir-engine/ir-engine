@@ -174,7 +174,7 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditing) return
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
