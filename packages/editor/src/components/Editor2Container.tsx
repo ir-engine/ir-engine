@@ -414,14 +414,14 @@ const EditorContainer = () => {
     <>
       <div
         id="editor-container"
-        className="pointer-events-none fixed flex h-full w-full flex-1 flex-col bg-neutral-900 "
+        className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />
           <Toolbar />
           {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
-          <div className="m-0 flex flex-1 overflow-hidden">
+          <div className="flex overflow-hidden">
             <AssetDropZone />
             <DockContainer>
               <DockLayout

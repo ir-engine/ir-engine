@@ -36,9 +36,7 @@ export const ViewportPanelTitle = () => {
   return (
     <div>
       <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Viewport'}</span>
-        </PanelTitle>
+        <PanelTitle>{t('editor:viewport.title')}</PanelTitle>
       </PanelDragContainer>
     </div>
   )

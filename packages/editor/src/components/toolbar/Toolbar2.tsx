@@ -34,10 +34,10 @@ export default function Toolbar() {
   const { t } = useTranslation()
 
   return (
-    <div className="flex items-center justify-between">
-      <Button variant="outline" startIcon={<PiSquaresFourThin />} className="border-0 bg-transparent" />
+    <div className="bg-theme-primary flex items-center justify-between">
+      <Button variant="outline" rounded="none" startIcon={<PiSquaresFourThin />} className="border-0 bg-transparent" />
       <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
-        <div className="rounded-2xl">{t('editor:toolbar.lbl-simple')}</div>
+        <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
         <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
       </div>
       <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+import Text from '../../../primitives/tailwind/Text'
 
 const panelIconStyles = {
   color: 'var(--textColor)',
@@ -70,9 +71,9 @@ export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
 
 export const PanelTitle = ({ children }) => {
   return (
-    <div className="text-center font-['Figtree'] text-sm font-medium leading-[18.20px] text-neutral-200">
+    <Text fontSize="sm" fontFamily="Figtree">
       {children}
-    </div>
+    </Text>
   )
 }
 
