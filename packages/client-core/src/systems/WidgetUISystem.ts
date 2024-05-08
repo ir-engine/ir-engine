@@ -41,7 +41,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_001, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Back, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -72,12 +72,12 @@ const widgetRightMenuGripOffset = new Vector3(-0.08, 0, -0.05)
 const vec3 = new Vector3()
 
 const widgetLeftRotation = new Quaternion()
-  .setFromAxisAngle(V_010, Math.PI * 0.5)
-  .multiply(new Quaternion().setFromAxisAngle(V_001, -Math.PI * 0.5))
+  .setFromAxisAngle(Vector3_Up, Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(Vector3_Back, -Math.PI * 0.5))
 
 const widgetRightRotation = new Quaternion()
-  .setFromAxisAngle(V_010, -Math.PI * 0.5)
-  .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
+  .setFromAxisAngle(Vector3_Up, -Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(Vector3_Back, Math.PI * 0.5))
 
 const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',

@@ -29,26 +29,82 @@ export const PI = Math.PI
 export const HALF_PI = PI / 2
 export const TAU = Math.PI * 2
 
-export const V_000 = Object.freeze(new Vector3(0, 0, 0))
-export const V_100 = Object.freeze(new Vector3(1, 0, 0))
-export const V_010 = Object.freeze(new Vector3(0, 1, 0))
-export const V_001 = Object.freeze(new Vector3(0, 0, 1))
-export const V_111 = Object.freeze(new Vector3(1, 1, 1))
-export const V_00 = Object.freeze(new Vector2(0, 0))
+/** const Vector3(0,0,0) */
+export const Vector3_Zero = Object.freeze(new Vector3(0, 0, 0))
 
+/** const Vector3(1,0,0) */
+export const Vector3_Right = Object.freeze(new Vector3(1, 0, 0))
+
+/** const Vector3(-1,0,0) */
+export const Vector3_Left = Object.freeze(new Vector3(-1, 0, 0))
+
+/** const Vector3(0,1,0) */
+export const Vector3_Up = Object.freeze(new Vector3(0, 1, 0))
+
+/** const Vector3(0,-1,0) */
+export const Vector3_Down = Object.freeze(new Vector3(0, -1, 0))
+
+/** const Vector3(0,0,1) */
+export const Vector3_Back = Object.freeze(new Vector3(0, 0, 1))
+
+/** const Vector3(0,0,-1) */
+export const Vector3_Forward = Object.freeze(new Vector3(0, 0, -1))
+
+/** const Vector3(1,1,1) */
+export const Vector3_One = Object.freeze(new Vector3(1, 1, 1))
+
+/** const Vector2(0,0) */
+export const Vector2_Zero = Object.freeze(new Vector2(0, 0))
+
+/** const Vector2(1,0) */
+export const Vector2_Right = Object.freeze(new Vector2(1, 0))
+
+/** const Vector2(0,1) */
+export const Vector2_Up = Object.freeze(new Vector2(0, 1))
+
+/** const Vector2(1,1) */
+export const Vector2_One = Object.freeze(new Vector2(1, 1))
+
+/** const Quaternion(0,0,0,1) */
 export const Q_IDENTITY = Object.freeze(new Quaternion())
 
+/** Matrix3x3 array in row-major order [1, 0, 0, 0, 1, 0, 0, 0, 1] */
 export const MAT3_IDENTITY = Object.freeze(new Matrix3().identity())
+
+/** Matrix4x4 array in row-major order [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1] */
 export const MAT4_IDENTITY = Object.freeze(new Matrix4().identity())
 
-export const Q_X_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, HALF_PI))
-export const Q_Y_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, HALF_PI))
-export const Q_Z_90 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, HALF_PI))
+export const Q_X_90 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Right, HALF_PI))
+export const Q_Y_90 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Up, HALF_PI))
+export const Q_Z_90 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Back, HALF_PI))
 
-export const Q_X_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI))
-export const Q_Y_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI))
-export const Q_Z_180 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI))
+export const Q_X_180 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Right, PI))
+export const Q_Y_180 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Up, PI))
+export const Q_Z_180 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Back, PI))
 
-export const Q_X_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_100, PI + HALF_PI))
-export const Q_Y_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_010, PI + HALF_PI))
-export const Q_Z_270 = Object.freeze(new Quaternion().setFromAxisAngle(V_001, PI + HALF_PI))
+export const Q_X_270 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Right, PI + HALF_PI))
+export const Q_Y_270 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Up, PI + HALF_PI))
+export const Q_Z_270 = Object.freeze(new Quaternion().setFromAxisAngle(Vector3_Back, PI + HALF_PI))
+
+export const Axis = {
+  /** X Axis (1,0,0) */
+  X: Vector3_Right,
+  /** Y Axis (0,1,0) */
+  Y: Vector3_Up,
+  /** Z Axis (0,0,1) */
+  Z: Vector3_Back
+}
+
+Object.freeze(Axis)
+
+/** Right handed coordinate direction */
+export const ObjectDirection = {
+  Right: Axis.X,
+  Left: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
+  Up: Axis.Y,
+  Down: Object.freeze(new Vector3().copy(Axis.Y).multiplyScalar(-1)),
+  Forward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1)),
+  Backward: Axis.Z
+}
+
+Object.freeze(ObjectDirection)
