@@ -88,7 +88,7 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
     await storageProvider.deleteResources([assetIterationURL])
 
-    if (config.enableFsProjectSync === 'true') {
+    if (config.fsProjectSyncEnabled) {
       const assetFilePath = path.resolve(projectPathLocal, assetIterationURL)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
@@ -240,7 +240,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   // ignore if we are seeding data
   if (data.assetURL) return
 
-  if (config.enableFsProjectSync === 'true') {
+  if (config.fsProjectSyncEnabled) {
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
     for (const ext of GLTF_ASSET_FILES) {
       fs.copyFileSync(
@@ -290,7 +290,7 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
         true
       )
 
-      if (config.enableFsProjectSync === 'true') fs.renameSync(oldLocalFile, newLocalFile)
+      if (config.fsProjectSyncEnabled) fs.renameSync(oldLocalFile, newLocalFile)
       else if (config.server.edgeCachingEnabled)
         await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
     }
