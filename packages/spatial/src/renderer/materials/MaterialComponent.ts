@@ -124,7 +124,6 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
           return {
             // plugin state
             plugin: {} as PluginObjectType,
-            shader: {} as Record<string, Shader>,
             parameters: {} as { [key: string]: any }
           }
         default:

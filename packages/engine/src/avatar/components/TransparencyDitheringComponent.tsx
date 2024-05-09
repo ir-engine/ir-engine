@@ -82,7 +82,6 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
     const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
     const name = (shader as any).shaderName
-    plugin.shader[name].set(shader)
 
     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
       shader.vertexShader = shader.vertexShader.replace(

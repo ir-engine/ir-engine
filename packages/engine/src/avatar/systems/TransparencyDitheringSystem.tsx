@@ -32,11 +32,13 @@ import {
   defineSystem,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   useComponent,
   useEntityContext,
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
   MaterialComponent,
   MaterialComponents,
@@ -62,15 +64,16 @@ const execute = () => {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
     for (const shader of ditherComponent.shaders) {
       for (let i = 0; i < maxDitherPoints; i++) {
-        // const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
-        // if (!ditherComponent) break
-        // if (!material.shader || !pluginComponent.shader) break
-        // const shader = pluginComponent.shader[material.name]
-        // if (!shader?.uniforms) break
-        // shader.uniforms.centers.value[i] = ditherComponent.center
-        // shader.uniforms.exponents.value[i] = ditherComponent.exponent
-        // shader.uniforms.distances.value[i] = ditherComponent.distance
-        // shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
+        const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
+        if (!ditherComponent) break
+        if (!pluginComponent.parameters) break
+        const parameters = pluginComponent.parameters[shader]
+        console.log(parameters, shader)
+        if (!parameters) break
+        parameters['centers'].value[i] = ditherComponent.center
+        parameters['exponents'].value[i] = ditherComponent.exponent
+        parameters['distances'].value[i] = ditherComponent.distance
+        parameters['useWorldCalculation'].value[i] = ditherComponent.calculationType
       }
     }
   }
@@ -110,12 +113,14 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
       const materialComponent = getMutableComponent(material, MaterialComponent[MaterialComponents.State])
+      const materialName = getComponent(material, NameComponent)
       if (materialComponent.pluginEntities.value)
         materialComponent.pluginEntities.set([pluginByName[TransparencyDitheringPlugin.id]])
       materialComponent.material.value!.alphaTest = 0.5
       materialComponent.material.value!.side = FrontSide
       const ditheringComponent = getMutableComponent(rootEntity, TransparencyDitheringComponent[0])
-      ditheringComponent.shaders.set([...ditheringComponent.shaders.value, materialUUID])
+      if (!ditheringComponent.shaders.value.includes(materialName))
+        ditheringComponent.shaders.set([...ditheringComponent.shaders.value, materialName])
     }
   }, [materialComponentUUID])
 

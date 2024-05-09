@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { isArray } from 'lodash'
-import { Color, Mesh, Shader, Texture } from 'three'
+import { Color, Mesh, Shader, Texture, Uniform } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
@@ -131,8 +131,8 @@ export const setPluginShaderParameters = (pluginEntity: Entity, shader: Shader, 
   const name = (shader as any).shaderName
   pluginComponent.parameters[name].set({})
   for (const key in parameters) {
-    pluginComponent.parameters[name][key].set(parameters[key])
-    shader.uniforms[key] = { value: pluginComponent.parameters[name][key].value }
+    pluginComponent.parameters[name][key].set(new Uniform(parameters[key]))
+    shader.uniforms[key] = pluginComponent.parameters[name][key].value
   }
 }
 
