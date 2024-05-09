@@ -420,7 +420,7 @@ const config = {
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */
   allowOutOfDateProjects:
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
-  fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'true'
+  fsProjectSyncEnabled: process.env.FS_PROJECT_SYNC_ENABLED === 'false' ? false : true
 }
 
 chargebeeInst.configure({

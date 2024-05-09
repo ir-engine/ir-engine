@@ -93,7 +93,8 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
       }
-    } else if (config.server.edgeCachingEnabled) {
+    }
+    if (config.server.edgeCachingEnabled) {
       await context.app.service(invalidationPath).create([{ path: assetURL }])
     }
   }
@@ -291,7 +292,7 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
       )
 
       if (config.fsProjectSyncEnabled) fs.renameSync(oldLocalFile, newLocalFile)
-      else if (config.server.edgeCachingEnabled)
+      if (config.server.edgeCachingEnabled)
         await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
     }
 
