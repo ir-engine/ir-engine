@@ -71,7 +71,7 @@ export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
 
 export const PanelTitle = ({ children }) => {
   return (
-    <Text fontSize="sm" fontFamily="Figtree">
+    <Text fontSize="sm" fontFamily="Figtree" className="leading-none">
       {children}
     </Text>
   )
@@ -82,11 +82,7 @@ export const PanelCheckbox = ({ children }) => {
 }
 
 export const PanelDragContainer = ({ children }) => {
-  return (
-    <div className="inline-flex h-[26px] items-center justify-start gap-2.5 rounded-tl-[5px] rounded-tr-[5px] bg-zinc-900 px-4 py-1">
-      {children}
-    </div>
-  )
+  return <div className="bg-theme-surface-main rounded-t-md px-4 py-1">{children}</div>
 }
 
 export const PanelContainer = ({ children, ...rest }) => {

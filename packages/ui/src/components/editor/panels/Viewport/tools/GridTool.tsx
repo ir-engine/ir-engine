@@ -23,28 +23,47 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import ViewPortPanelContainer from './container'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { MdBorderClear } from 'react-icons/md'
 
-export const ViewportPanelTitle = () => {
+import Button from '../../../../../primitives/tailwind/Button'
+import NumericInput from '../../../input/Numeric'
+
+const GridTool = () => {
   const { t } = useTranslation()
 
+  const rendererState = useHookstate(getMutableState(RendererState))
+
+  const onToggleGridVisible = () => {
+    rendererState.gridVisibility.set(!rendererState.gridVisibility.value)
+  }
+
   return (
-    <PanelDragContainer>
-      <PanelTitle>{t('editor:viewport.title')}</PanelTitle>
-    </PanelDragContainer>
+    <div id="transform-space" className="bg-theme-surfaceInput flex items-center">
+      <Button
+        startIcon={<MdBorderClear />}
+        onClick={onToggleGridVisible}
+        variant="transparent"
+        title={t('editor:toolbar.transformPivot.info-toggleGridVisibility')}
+        className="px-0"
+      />
+      <NumericInput
+        value={rendererState.gridHeight.value}
+        onChange={(value) => rendererState.gridHeight.set(value)}
+        className="h-6 w-16 rounded-sm bg-transparent px-2 py-1"
+        inputClassName="text-[#A3A3A3]"
+        precision={0.01}
+        smallStep={0.5}
+        mediumStep={1}
+        largeStep={5}
+        unit="m"
+      />
+    </div>
   )
 }
 
-export default ViewportPanelTitle
-
-export const ViewportPanelTab: TabData = {
-  id: 'viewPanel',
-  closable: true,
-  title: <ViewportPanelTitle />,
-  content: <ViewPortPanelContainer />
-}
+export default GridTool

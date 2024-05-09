@@ -42,20 +42,18 @@ function toPrecisionString(value: number, precision: number) {
       maximumFractionDigits,
       useGrouping: false
     })
-  } else {
-    return value.toLocaleString('fullwide', { useGrouping: false })
   }
+  return value.toLocaleString('fullwide', { useGrouping: false })
 }
 
-export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange' | 'prefix'> {
+export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> {
   value: number
-  onChange: (n: number) => void
-  onRelease?: (n: number) => void
-  convertFrom?: any
-  convertTo?: any
+  onChange: (value: number) => void
+  onRelease?: (value: number) => void
   className?: string
+  inputClassName?: string
   unit?: string
-  prefix?: JSX.Element
+  prefix?: string
   displayPrecision?: any
   precision?: number
   mediumStep?: number
@@ -67,11 +65,10 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
 
 const NumericInput = ({
   className,
+  inputClassName,
   unit,
   prefix,
   displayPrecision,
-  convertFrom,
-  convertTo,
   value,
   precision,
   mediumStep,
@@ -83,15 +80,16 @@ const NumericInput = ({
   max,
   ...rest
 }: NumericInputProp) => {
-  const handleStep = (event, direction, focus = true) => {
+  const handleStep = (event: React.KeyboardEvent<HTMLInputElement>, direction: number) => {
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
     const nextValue = value + stepSize * direction
     const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
     const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
-    const finalValue = convertTo(roundedValue)
 
-    onChange?.(Number(finalValue))
+    if (onChange) {
+      onChange(roundedValue)
+    }
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -110,25 +108,30 @@ const NumericInput = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value
+
     const parsedValue = parseFloat(newValue)
 
     if (!Number.isNaN(parsedValue)) {
       const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
-      const finalValue = convertTo(roundedValue)
-      onChange?.(Number(finalValue))
+      onChange?.(roundedValue)
     }
   }
+
   return (
     <div
       className={twMerge(
         prefix ? 'w-[93px] px-2 py-[7px]' : 'w-[200px] px-5 py-2',
-        'flex h-8 items-center justify-between rounded bg-[#1A1A1A]'
+        'flex h-8 items-center justify-between rounded bg-[#1A1A1A]',
+        className
       )}
     >
       {prefix}
       <input
-        className="w-full bg-inherit text-xs text-[#8B8B8D] focus:outline-none"
+        className={twMerge(
+          'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none',
+          inputClassName
+        )}
         value={toPrecisionString(value, displayPrecision)}
         onKeyUp={handleKeyPress}
         onChange={handleChange}
@@ -136,7 +139,7 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#444444]">
+        <Text fontSize="xs" fontFamily="Figtree" className="text-right text-[#8B8B8D]">
           {unit}
         </Text>
       )}
@@ -152,9 +155,7 @@ NumericInput.defaultProps = {
   min: -Infinity,
   max: Infinity,
   displayPrecision: 0.001,
-  precision: Number.EPSILON,
-  convertTo: (value) => value,
-  convertFrom: (value) => value
+  precision: Number.EPSILON
 }
 
 export default NumericInput
