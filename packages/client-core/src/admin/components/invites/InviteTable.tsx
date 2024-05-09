@@ -61,6 +61,16 @@ export default function InviteTable({
     {
       $or: [
         {
+          userId: {
+            $like: '%' + search + '%'
+          }
+        },
+        {
+          inviteeId: {
+            $like: '%' + search + '%'
+          }
+        },
+        {
           inviteType: {
             $like: '%' + search + '%'
           }
