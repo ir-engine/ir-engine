@@ -46,10 +46,7 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationState } from '../AnimationManager'
 import { preloadedAnimations } from '../animation/Util'
@@ -152,9 +149,12 @@ export const AvatarRigComponent = defineComponent({
       setComponent(helperEntity, NameComponent, helper.name)
       setObjectLayers(helper, ObjectLayers.AvatarHelper)
 
-      setComputedTransformComponent(helperEntity, entity, () => {
-        // this updates the bone helper lines
-        helper.updateMatrixWorld(true)
+      setComponent(helperEntity, ComputedTransformComponent, {
+        referenceEntities: [entity],
+        computeFunction: () => {
+          // this updates the bone helper lines
+          helper.updateMatrixWorld(true)
+        }
       })
 
       return () => {
