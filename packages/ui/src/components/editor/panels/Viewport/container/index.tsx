@@ -37,6 +37,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
+import Text from '../../../../../primitives/tailwind/Text'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import TransformPivotTool from '../tools/TransformPivotTool'
@@ -60,7 +61,7 @@ export const ViewportEngineCanvas = () => {
     // }
   }, [ref])
 
-  return <div ref={ref} className="h-[100%] w-[100%]" />
+  return <div ref={ref} className="w-fulh-full h-full" />
 }
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
@@ -84,8 +85,8 @@ const ViewportDnD = () => {
       id="viewport-panel"
       ref={dropRef}
       className={twMerge(
-        'h-full w-full',
-        isDragging && isOver ? 'border-[5px]' : 'border-none',
+        'h-full w-full border border-white',
+        isDragging && isOver ? 'border-4' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
     >
@@ -110,11 +111,9 @@ const ViewPortPanelContainer = () => {
       {sceneName ? (
         <ViewportDnD />
       ) : (
-        <div className="z-0 flex h-full w-full flex-col justify-center">
-          <img className="mt-[-50px] object-contain opacity-80" src="/static/etherealengine.png" alt="" />
-          <h2 className="text-white-400 mt-[30px] w-full text-center font-[normal] text-[100%]">
-            {t('editor:selectSceneMsg')}
-          </h2>
+        <div className="flex h-full w-full flex-col justify-center gap-2">
+          <img src="/static/etherealengine.png" className="block" />
+          <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
     </div>
