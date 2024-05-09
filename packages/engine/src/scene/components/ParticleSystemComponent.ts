@@ -71,7 +71,12 @@ export const ParticleState = defineState({
     setComponent(batchRendererEntity, NameComponent, 'Particle Batched Renderer')
     setComponent(batchRendererEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     addObjectToGroup(batchRendererEntity, batchRenderer)
-    batchRenderer.parent = globalThis._scene
+    // Three.quarks checks if the top level parent is not scene to tell if an emitter is ready for disposal
+    // Mocking parent so the batchRenderer doesn't dispose emitters, emitters are already being disposed of reactively in ParticleSystemComponent
+    batchRenderer.parent = {
+      type: 'Scene'
+    } as Object3D
+
     return {
       batchRenderer,
       batchRendererEntity
