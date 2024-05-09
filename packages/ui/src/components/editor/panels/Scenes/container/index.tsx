@@ -56,7 +56,6 @@ export default function ScenesPanel() {
 
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
-  const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
@@ -73,7 +72,6 @@ export default function ScenesPanel() {
 
   const openDeleteDialog = () => {
     setContextMenuOpen(false)
-    setAnchorEl(null)
     setDeleteOpen(true)
   }
 
@@ -97,12 +95,10 @@ export default function ScenesPanel() {
     e.stopPropagation()
     setLoadedScene(scene)
     setContextMenuOpen(true)
-    setAnchorEl(e.target)
   }
 
   const closeContextMenu = () => {
     setContextMenuOpen(false)
-    setAnchorEl(null)
     setLoadedScene(null)
   }
 
@@ -118,7 +114,6 @@ export default function ScenesPanel() {
       }
     }
     setContextMenuOpen(false)
-    setAnchorEl(null)
     setRenaming(true)
     setNewName(loadedScene!.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', ''))
   }
@@ -232,29 +227,13 @@ export default function ScenesPanel() {
             ))}
           </div>
         )}
-        <DeleteDialog
-          open={isDeleteOpen}
-          onClose={closeDeleteDialog}
-          onCancel={closeDeleteDialog}
-          onConfirm={deleteActiveScene}
-        />
       </div>
-      {/*<Menu
-            id="menu"
-            MenuListProps={{ 'aria-labelledby': 'long-button' }}
-            anchorEl={anchorEl}
-            open={isContextMenuOpen}
-            onClose={closeContextMenu}
-            classes={{ paper:  'bg-neutral-900' }}
-          >
-            <MenuItem classes={{ root: "text-sm text-white" }} onClick={startRenaming}>
-              {t('editor:hierarchy.lbl-rename')}
-            </MenuItem>
-            <MenuItem classes={{ root: "text-sm text-white" }} onClick={openDeleteDialog}>
-              {t('editor:hierarchy.lbl-delete')}
-            </MenuItem>
-        </Menu>
-        */}
+      <DeleteDialog
+        open={isDeleteOpen}
+        onClose={closeDeleteDialog}
+        onCancel={closeDeleteDialog}
+        onConfirm={deleteActiveScene}
+      />
     </>
   )
 }
