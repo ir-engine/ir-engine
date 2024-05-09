@@ -160,6 +160,7 @@ const server = {
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || 'local',
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
+  edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
     : 10
@@ -419,7 +420,7 @@ const config = {
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */
   allowOutOfDateProjects:
     typeof process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'undefined' || process.env.ALLOW_OUT_OF_DATE_PROJECTS === 'true',
-  disableFsProjectSync: process.env.DISABLE_FS_PROJECT_SYNC
+  enableFsProjectSync: process.env.ENABLE_FS_PROJECT_SYNC ?? 'true'
 }
 
 chargebeeInst.configure({

@@ -30,7 +30,6 @@ import path from 'path/posix'
 
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
@@ -187,12 +186,12 @@ export class FileBrowserService
       isDirectory: true
     })
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create({
         path: keyPath
       })
 
-    if (isDev && !config.disableFsProjectSync)
+    if (config.enableFsProjectSync === 'true')
       fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
@@ -212,7 +211,7 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create([
         {
           path: _oldPath + data.oldName
@@ -247,7 +246,7 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev && !config.disableFsProjectSync) {
+    if (config.enableFsProjectSync === 'true') {
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -283,7 +282,7 @@ export class FileBrowserService
       }
     )
 
-    if (isDev && !config.disableFsProjectSync) {
+    if (config.enableFsProjectSync === 'true') {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
@@ -315,7 +314,7 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await this.app.service(invalidationPath).create({
           path: key
         })
@@ -331,7 +330,7 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await this.app.service(invalidationPath).create({
           path: key
         })
@@ -353,7 +352,7 @@ export class FileBrowserService
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create({
         path: key
       })
@@ -371,7 +370,7 @@ export class FileBrowserService
       )
     }
 
-    if (isDev && !config.disableFsProjectSync) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+    if (config.enableFsProjectSync === 'true') fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
     return result
   }
