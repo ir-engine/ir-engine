@@ -38,6 +38,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import { ClickAwayListener } from '@mui/material'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsPlusCircle } from 'react-icons/bs'
@@ -205,22 +206,24 @@ export default function ScenesPanel() {
                     <HiDotsHorizontal className="truncate text-white" />
                   </button>
                   {isContextMenuOpen && loadedScene && loadedScene?.assetURL === scene.assetURL && (
-                    <div className="absolute right-0 z-10 mt-2 w-24 rounded-md bg-neutral-900 shadow-lg">
-                      <div className="flex flex-col py-1">
-                        <button
-                          className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
-                          onClick={startRenaming}
-                        >
-                          {t('editor:hierarchy.lbl-rename')}
-                        </button>
-                        <button
-                          className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
-                          onClick={openDeleteDialog}
-                        >
-                          {t('editor:hierarchy.lbl-delete')}
-                        </button>
+                    <ClickAwayListener onClickAway={() => closeContextMenu()}>
+                      <div className="absolute right-0 z-10 mt-2 w-24 rounded-md bg-neutral-900 shadow-lg">
+                        <div className="flex flex-col py-1">
+                          <button
+                            className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
+                            onClick={startRenaming}
+                          >
+                            {t('editor:hierarchy.lbl-rename')}
+                          </button>
+                          <button
+                            className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
+                            onClick={openDeleteDialog}
+                          >
+                            {t('editor:hierarchy.lbl-delete')}
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    </ClickAwayListener>
                   )}
                 </div>
               </div>
