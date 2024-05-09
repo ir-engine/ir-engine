@@ -73,7 +73,13 @@ import {
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
-import { bufferLimits, fetchGeometry, fetchTextures } from '../util/VolumetricBufferingUtils'
+import {
+  bufferLimits,
+  deleteUsedGeometryBuffers,
+  deleteUsedTextureBuffers,
+  fetchGeometry,
+  fetchTextures
+} from '../util/VolumetricBufferingUtils'
 import {
   GetGeometryProps,
   createMaterial,
@@ -680,6 +686,17 @@ function NewVolumetricComponentReactor() {
       component.geometryType.value === GeometryType.Corto
         ? (component.manifest as State<OldManifestSchema>).frameRate.get(NO_PROXY)
         : undefined
+    const bufferData = component.geometry.bufferData.get(NO_PROXY)
+
+    deleteUsedGeometryBuffers({
+      geometryBuffer: geometryBuffer.current,
+      currentTimeInMS: currentTimeInMS - 500,
+      geometryType,
+      targetData,
+      frameRate,
+      mesh: mesh.current!,
+      bufferData
+    })
 
     const result = getGeometry({
       geometryBuffer: geometryBuffer.current,
@@ -787,7 +804,17 @@ function NewVolumetricComponentReactor() {
 
     textureTypes.forEach((textureType) => {
       const textureInfo = component.texture[textureType].get(NO_PROXY)
+      const targetData = manifest.texture[textureType]!.targets
+
       if (textureInfo) {
+        deleteUsedTextureBuffers({
+          textureBuffer: textureBuffer.current,
+          currentTimeInMS,
+          bufferData: textureInfo.bufferData,
+          textureType,
+          targetData
+        })
+
         const targets = textureInfo.targets
         const preferredTarget = textureInfo.targets[textureInfo.currentTarget]
 
@@ -798,7 +825,7 @@ function NewVolumetricComponentReactor() {
           targets,
           textureType,
           // @ts-ignore
-          targetData: manifest.texture[textureType]!.targets
+          targetData
         })
 
         if (!result) {
