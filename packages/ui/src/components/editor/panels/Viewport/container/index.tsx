@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine, getComponent } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -30,7 +31,8 @@ import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/scr
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import React from 'react'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { CiPlay1 } from 'react-icons/ci'
@@ -45,8 +47,25 @@ import { Vector2, Vector3 } from 'three'
 import NumericInput from '../../../input/Numeric'
 import SelectInput from '../../../input/Select'
 
-console.log('Intializing viewport')
+export const ViewportEngineCanvas = () => {
+  const ref = useRef(null as null | HTMLDivElement)
 
+  useEffect(() => {
+    if (!ref?.current) return
+
+    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
+    ref.current.appendChild(canvas)
+
+    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
+
+    // return () => {
+    //   const canvas = document.getElementById('engine-renderer-canvas')!
+    //   parent.removeChild(canvas)
+    // }
+  }, [ref])
+
+  return <div ref={ref} className="h-[100%] w-[100%]" />
+}
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Component],
@@ -74,11 +93,7 @@ const ViewportDnD = () => {
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
     >
-      <canvas
-        id="viewport-renderer-canvas"
-        tabIndex={1}
-        className="pointer-events-auto absolute inset-0 z-0 h-full w-full select-none"
-      ></canvas>
+      <ViewportEngineCanvas />
     </div>
   )
 }
