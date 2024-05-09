@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import config from '@etherealengine/common/src/config'
 import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
 import { DialogState } from '@etherealengine/editor/src/components/dialogs/DialogState'
 import ErrorDialog from '@etherealengine/editor/src/components/dialogs/ErrorDialog'
-import StringInput from '@etherealengine/editor/src/components/inputs/StringInput'
 import { deleteScene, onNewScene, renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
@@ -44,7 +44,9 @@ import { BsPlusCircle } from 'react-icons/bs'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import Typography from '../../../../../primitives/mui/Typography'
 import Button from '../../../../../primitives/tailwind/Button'
+import StringInput from '../../../input/String'
 import { InfoTooltip } from '../../../layout/Tooltip'
+import DeleteDialog from '../dialog/delete'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
@@ -163,14 +165,20 @@ export default function ScenesPanel() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-6 p-5">
+          <div className="relative grid grid-cols-4 gap-6 p-5">
             {scenes.map((scene: AssetType) => (
-              <div key={scene.assetURL} className="flex h-[100%] w-[100%] flex-col items-center pb-[3px]">
+              <div
+                key={scene.assetURL}
+                onClick={(e) => {
+                  onClickExisting(e, scene)
+                }}
+                className="relative flex h-[100%] w-[100%] flex-col items-center pb-[3px]"
+              >
                 <div className="flex h-[100%] w-[100%] items-center justify-center rounded-tl-lg rounded-tr-lg bg-white">
                   <div className="h-[100%] w-auto rounded bg-neutral-900">
                     <img
                       className="h-[100%] w-[100%] rounded-bl-[5px] rounded-br-[5px] object-contain"
-                      src={scene.thumbnailURL}
+                      src={config.client.fileServer + '/' + scene.thumbnailURL}
                       alt=""
                       crossOrigin="anonymous"
                     />
@@ -179,7 +187,11 @@ export default function ScenesPanel() {
                 <div className="flex w-[100%] flex-row items-center justify-between rounded-bl-lg rounded-br-lg bg-zinc-900 px-4 py-2">
                   <div className="truncate font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400">
                     {loadedScene === scene && isRenaming ? (
-                      <StringInput></StringInput>
+                      <StringInput
+                        value={newName}
+                        onChange={(name) => setNewName(name)}
+                        onBlur={() => finishRenaming(scene.id)}
+                      />
                     ) : (
                       <InfoTooltip
                         title={scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}
@@ -188,14 +200,44 @@ export default function ScenesPanel() {
                       </InfoTooltip>
                     )}
                   </div>
-                  <button className="truncate p-2" onClick={(e) => openContextMenu(e, scene)}>
+                  <button
+                    className="truncate p-2"
+                    onClick={(e) => {
+                      setRenaming(false)
+                      openContextMenu(e, scene)
+                    }}
+                  >
                     <HiDotsHorizontal className="truncate text-white" />
                   </button>
+                  {isContextMenuOpen && loadedScene && loadedScene?.assetURL === scene.assetURL && (
+                    <div className="absolute right-0 z-10 mt-2 w-24 rounded-md bg-neutral-900 shadow-lg">
+                      <div className="flex flex-col py-1">
+                        <button
+                          className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
+                          onClick={startRenaming}
+                        >
+                          {t('editor:hierarchy.lbl-rename')}
+                        </button>
+                        <button
+                          className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
+                          onClick={openDeleteDialog}
+                        >
+                          {t('editor:hierarchy.lbl-delete')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
+        <DeleteDialog
+          open={isDeleteOpen}
+          onClose={closeDeleteDialog}
+          onCancel={closeDeleteDialog}
+          onConfirm={deleteActiveScene}
+        />
       </div>
       {/*<Menu
             id="menu"
@@ -212,12 +254,7 @@ export default function ScenesPanel() {
               {t('editor:hierarchy.lbl-delete')}
             </MenuItem>
         </Menu>
-        <DeleteDialog
-          open={isDeleteOpen}
-          onClose={closeDeleteDialog}
-          onCancel={closeDeleteDialog}
-          onConfirm={deleteActiveScene}
-    />*/}
+        */}
     </>
   )
 }
