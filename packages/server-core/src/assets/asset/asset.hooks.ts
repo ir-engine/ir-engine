@@ -39,9 +39,9 @@ import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.type.module'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
@@ -88,12 +88,13 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
     await storageProvider.deleteResources([assetIterationURL])
 
-    if (isDev) {
+    if (config.fsProjectSyncEnabled) {
       const assetFilePath = path.resolve(projectPathLocal, assetIterationURL)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
       }
-    } else {
+    }
+    if (config.server.edgeCachingEnabled) {
       await context.app.service(invalidationPath).create([{ path: assetURL }])
     }
   }
@@ -209,7 +210,7 @@ export const createSceneInStorageProvider = async (context: HookContext<AssetSer
     )
   )
   try {
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await context.app.service(invalidationPath).create(
         GLTF_ASSET_FILES.map((file) => {
           return { path: `${context.directory}${data.name}${file}` }
@@ -240,7 +241,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   // ignore if we are seeding data
   if (data.assetURL) return
 
-  if (isDev) {
+  if (config.fsProjectSyncEnabled) {
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
     for (const ext of GLTF_ASSET_FILES) {
       fs.copyFileSync(
@@ -290,8 +291,9 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
         true
       )
 
-      if (isDev) fs.renameSync(oldLocalFile, newLocalFile)
-      else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
+      if (config.fsProjectSyncEnabled) fs.renameSync(oldLocalFile, newLocalFile)
+      if (config.server.edgeCachingEnabled)
+        await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
     }
 
     data.assetURL = newPath
