@@ -137,6 +137,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
    * On dev, sync the db with any projects installed locally
    */
   async _fetchDevLocalProjects() {
+    return this._syncDevLocalProjects(true)
+  }
+
+  async _syncDevLocalProjects(removeProjects) {
     if (getState(ServerState).serverMode !== ServerMode.API) return
 
     const data = (await super._find({ paginate: false })) as ProjectType[]
@@ -182,13 +186,14 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await this._callOnLoad()
 
-    for (const { name, id } of data) {
-      if (!locallyInstalledProjects.includes(name)) {
-        await deleteProjectFilesInStorageProvider(this.app, name)
-        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
-        await super._remove(id)
+    if (removeProjects)
+      for (const { name, id } of data) {
+        if (!locallyInstalledProjects.includes(name)) {
+          await deleteProjectFilesInStorageProvider(this.app, name)
+          logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
+          await super._remove(id)
+        }
       }
-    }
 
     const refetchedData = (await super._find({ paginate: false })) as ProjectType[]
 
