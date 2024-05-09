@@ -39,7 +39,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
@@ -136,7 +135,7 @@ export const updateBuilder = async (
 ) => {
   try {
     // invalidate cache for all installed projects
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await app.service(invalidationPath).create({
         path: 'projects*'
       })
@@ -1646,7 +1645,7 @@ export const deleteProjectFilesInStorageProvider = async (
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
       await storageProvider.deleteResources(existingFiles)
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await app.service(invalidationPath).create({
           path: `projects/${projectName}*`
         })
