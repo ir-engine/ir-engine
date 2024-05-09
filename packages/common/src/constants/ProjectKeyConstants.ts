@@ -33,3 +33,4 @@ export const projectThumbnailsRegex = /projects\/[a-zA-Z0-9-_]+\/thumbnails\//
 //are moved to the /public folder
 export const rootImageRegex = /projects\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_.]+.(jpg|jpeg|ktx2|png)/
 export const rootSceneJsonRegex = /projects\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+.scene.json/
+export const rootGLTFRegex = /projects\/[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+.gltf/
