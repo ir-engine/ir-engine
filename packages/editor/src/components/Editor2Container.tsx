@@ -182,13 +182,13 @@ const EditorContainer = () => {
           <DragLayer />
           <Toolbar />
           {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
-          <div className="flex overflow-hidden">
+          <div className="mt-1 flex overflow-hidden">
             <AssetDropZone />
             <DockContainer>
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 45, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </div>

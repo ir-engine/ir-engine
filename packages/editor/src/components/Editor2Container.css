@@ -1,83 +1,36 @@
-/* this is basically style for the editor page*/
-/* we can drill down furthur if needed*/
+/** references https://github.com/ticlo/rc-dock/blob/master/dist/rc-dock.css */
 
-
-.dock-panel {
-  background: transparent;
-  pointer-events: auto;
-  border: none;
-  color: var(--textColor); 
-  font-family: var(--lato);
-  font-size: 12px;
+.dock.dock-top {
+  background: var(--bg-primary);
 }
 
-.dock-panel:first-child {
-  position: relative;
-  z-index: 99;
-}
-
-.dock-panel[data-dockid='+5'] {
-  pointer-events: none;
-}
-
-.dock-panel[data-dockid='+5'] .dock-bar {
-  display: none;
-}
-
-.dock-panel[data-dockid='+5'] .dock {
-  background: transparent;
-}
-.dock-divider {
-  pointer-events: auto;
-  background: rgba(1, 1, 1, var(--dividerAlpha , 0));
-}
-
-.dock-nav {
-  display: flex;
-  flex: none;
-  position: relative;
-  height: 1.5rem;
-}
-
-.dock {
-  border-radius: 4px;
-  background: #1A1B1E;
+.dock-nav-list {
+  background: var(--bg-surface-main);
+  justify-content: center;
+  align-items: center;
 }
 
 .dock-top .dock-bar {
-  font-size: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  background: transparent;
+  border-bottom: none !important;
 }
-.dock-tab-close-btn{
-  display: none;
-}
+
 .dock-tab {
-  background: transparent;
-  border-bottom: none;
-}
-
-.dock-tab:hover,
-.dock-tab-active,
-
-.dock-tab:hover div,
-.dock-tab:hover svg {
-  color: var(--textColor);
+  margin: 0;
+  border-bottom: none !important;
 }
 
 .dock-tab > div {
-  padding: 2px 12px;
-  width: 100%;  
-}
-
-.dock-tab-active {
-  color: var(--textColor);
+  padding: 0 !important;
 }
 
 .dock-ink-bar {
   display: none;
 }
 
-.dock-panel-max-btn:before {
-  border-color: var(--iconButtonColor);
+.dock-tab-close-btn{
+  display: none;
+}
+
+.dock-bar.drag-initiator{
+  padding: 0;
 }

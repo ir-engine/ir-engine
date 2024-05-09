@@ -100,7 +100,7 @@ const ViewPortPanelContainer = () => {
   const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
   return (
     <div className="bg-theme-surface-main flex h-full w-full flex-col">
-      <div className="flex gap-1">
+      <div className="flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
