@@ -60,7 +60,8 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
         center: new Vector3(),
         distance: 2,
         exponent: 2,
-        calculationType: ditherCalculationType.worldTransformed
+        calculationType: ditherCalculationType.worldTransformed,
+        shaders: [] as string[]
       }
     },
 
@@ -98,7 +99,6 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
         /#include <common>/,
         '#include <common>\n' + ditheringFragUniform
       )
-
     shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
     setPluginShaderParameters(pluginEntity, shader, {
       centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),

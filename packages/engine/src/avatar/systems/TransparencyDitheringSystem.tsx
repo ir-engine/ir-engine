@@ -43,13 +43,14 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
-import { FrontSide, Vector3 } from 'three'
+import { FrontSide } from 'three'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
   TransparencyDitheringComponent,
-  TransparencyDitheringPlugin
+  TransparencyDitheringPlugin,
+  maxDitherPoints
 } from '../components/TransparencyDitheringComponent'
 
 const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0]])
@@ -57,31 +58,21 @@ const execute = () => {
   const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
   const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
 
-  getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters['Character'][
-    'centers'
-  ].set([new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0), new Vector3(0, 1, 0)])
-
   for (const entity of TransparencyDitheringQuery()) {
     const ditherComponent = getComponent(entity, TransparencyDitheringComponent[0])
-    // for (const uuid of ditherComponent.materialUUIDs) {
-    //   const materialComponent = getComponent(
-    //     UUIDComponent.getEntityByUUID(uuid),
-    //     MaterialComponent[MaterialComponents.State]
-    //   )
-    //   const material = materialComponent.material
-    //   if (!material) continue
-    //   for (let i = 0; i < maxDitherPoints; i++) {
-    //     const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
-    //     if (!ditherComponent) break
-    //     if (!material.shader || !pluginComponent.shader) break
-    //     const shader = pluginComponent.shader[material.name]
-    //     if (!shader?.uniforms) break
-    //     shader.uniforms.centers.value[i] = ditherComponent.center
-    //     shader.uniforms.exponents.value[i] = ditherComponent.exponent
-    //     shader.uniforms.distances.value[i] = ditherComponent.distance
-    //     shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
-    //   }
-    // }
+    for (const shader of ditherComponent.shaders) {
+      for (let i = 0; i < maxDitherPoints; i++) {
+        // const ditherComponent = getOptionalComponent(entity, TransparencyDitheringComponent[i])
+        // if (!ditherComponent) break
+        // if (!material.shader || !pluginComponent.shader) break
+        // const shader = pluginComponent.shader[material.name]
+        // if (!shader?.uniforms) break
+        // shader.uniforms.centers.value[i] = ditherComponent.center
+        // shader.uniforms.exponents.value[i] = ditherComponent.exponent
+        // shader.uniforms.distances.value[i] = ditherComponent.distance
+        // shader.uniforms.useWorldCalculation.value[i] = ditherComponent.calculationType
+      }
+    }
   }
 }
 
@@ -124,7 +115,7 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
       materialComponent.material.value!.alphaTest = 0.5
       materialComponent.material.value!.side = FrontSide
       const ditheringComponent = getMutableComponent(rootEntity, TransparencyDitheringComponent[0])
-      //ditheringComponent.materialUUIDs.set([...ditheringComponent.materialUUIDs.value, materialUUID])
+      ditheringComponent.shaders.set([...ditheringComponent.shaders.value, materialUUID])
     }
   }, [materialComponentUUID])
 

@@ -109,7 +109,7 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
   }
 }
 
-export const createMaterialEntity = (material: Material, path: string) => {
+export const createMaterialEntity = (material: Material, path: string, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, path)
@@ -123,7 +123,8 @@ export const createMaterialEntity = (material: Material, path: string) => {
           getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeArguments
         )
       ).map((k) => [k, material[k]])
-    )
+    ),
+    instances: user != undefined ? [user] : []
   })
   setMaterialName(materialEntity, material.name)
 

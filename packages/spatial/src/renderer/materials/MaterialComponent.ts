@@ -109,6 +109,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
             // material & material specific data
             material: {} as Material,
             parameters: {} as { [key: string]: any },
+            // all entities using this material. an undefined entity at index 0 is a fake user
             instances: [] as Entity[],
             pluginEntities: [] as Entity[],
             prototypeEntity: UndefinedEntity as Entity
