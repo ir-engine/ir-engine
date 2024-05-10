@@ -42,7 +42,6 @@ import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
-import { GLTFSourceState } from './GLTFState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 
@@ -84,8 +83,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
-      const gltfEntity = getState(GLTFSourceState)[props.documentID]
-      getMutableComponent(gltfEntity, GLTFComponent).progress.set(100)
+      getMutableComponent(props.entity, GLTFComponent).progress.set(100)
       return
     }
 

@@ -23,28 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { matches } from 'ts-matches'
-import { TransformComponent } from './TransformComponent'
+import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import type { Knex } from 'knex'
 
-export const ComputedTransformComponent = defineComponent({
-  name: 'ComputedTransformComponent',
-
-  onInit(entity) {
-    return {
-      referenceEntities: [] as Entity[],
-      computeFunction: () => {}
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    matches.arrayOf(matches.number).test(json.referenceEntities) &&
-      component.referenceEntities.set(json.referenceEntities)
-    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
-
-    TransformComponent.transformsNeedSorting = true
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const assetsOnlyColumnExists = await knex.schema.hasColumn(projectPath, 'assetsOnly')
+  if (!assetsOnlyColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.boolean('assetsOnly').defaultTo(false)
+    })
   }
-})
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const assetsOnlyColumnExists = await knex.schema.hasColumn(projectPath, 'assetsOnly')
+
+  if (assetsOnlyColumnExists) {
+    await knex.schema.alterTable(projectPath, async (table) => {
+      table.dropColumn('assetsOnly')
+    })
+  }
+}

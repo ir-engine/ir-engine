@@ -61,9 +61,7 @@ export default function ProjectTopMenu() {
   }, [projectState.rebuilding.value])
 
   const handleSubmit = async () => {
-    modalProcessing.set(true)
     const projectUpdateStatus = getMutableState(ProjectUpdateState)['tempProject'].get(NO_PROXY)
-
     try {
       await ProjectService.uploadProject({
         sourceURL: projectUpdateStatus.sourceURL,
@@ -79,7 +77,6 @@ export default function ProjectTopMenu() {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-    modalProcessing.set(false)
   }
 
   const authState = useHookstate(getMutableState(AuthState))
@@ -132,9 +129,7 @@ export default function ProjectTopMenu() {
           startIcon={<HiPlus />}
           size="small"
           onClick={() => {
-            PopoverState.showPopupover(
-              <AddEditProjectModal processing={modalProcessing.value} onSubmit={handleSubmit} update={false} />
-            )
+            PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
           }}
         >
           {t('admin:components.project.addProject')}

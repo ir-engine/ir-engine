@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,28 +24,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { matches } from 'ts-matches'
-import { TransformComponent } from './TransformComponent'
+process.env.APP_ENV = 'test'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
-export const ComputedTransformComponent = defineComponent({
-  name: 'ComputedTransformComponent',
-
-  onInit(entity) {
-    return {
-      referenceEntities: [] as Entity[],
-      computeFunction: () => {}
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    matches.arrayOf(matches.number).test(json.referenceEntities) &&
-      component.referenceEntities.set(json.referenceEntities)
-    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
-
-    TransformComponent.transformsNeedSorting = true
-  }
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
 })
+
+require("fix-esm").register()

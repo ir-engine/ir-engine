@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,28 +24,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { matches } from 'ts-matches'
-import { TransformComponent } from './TransformComponent'
-
-export const ComputedTransformComponent = defineComponent({
-  name: 'ComputedTransformComponent',
-
-  onInit(entity) {
-    return {
-      referenceEntities: [] as Entity[],
-      computeFunction: () => {}
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    matches.arrayOf(matches.number).test(json.referenceEntities) &&
-      component.referenceEntities.set(json.referenceEntities)
-    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
-
-    TransformComponent.transformsNeedSorting = true
-  }
-})
+module.exports = {
+  failZero: false,
+  parallel: false,
+  require: [
+    'tests/mocha.env', // init env here
+    'jsdom-global/register'
+  ],
+  spec: [
+    './**/*.test.ts',
+    './**/*.test.tsx'
+  ],
+  extension: [
+    'ts',
+    'tsx'
+  ],
+  bail: true,
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '60000'
+};

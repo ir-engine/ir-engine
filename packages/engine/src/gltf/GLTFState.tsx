@@ -138,22 +138,28 @@ export const GLTFSnapshotState = defineState({
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (!state.value) {
         state.set({ index: 0, snapshots: [data] })
+        getMutableState(GLTFDocumentState)[action.source].set(data)
         return
       }
-      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
       state.index.set(state.index.value + 1)
+      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+      getMutableState(GLTFDocumentState)[action.source].set(data)
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value <= 0) return
       state.index.set(Math.max(state.index.value - action.count, 0))
+      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
+      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
     }),
 
     onRedo: GLTFSnapshotAction.redo.receive((action) => {
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value >= state.snapshots.value.length - 1) return
       state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
+      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
+      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
     }),
 
     onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
@@ -163,6 +169,7 @@ export const GLTFSnapshotState = defineState({
         index: 0,
         snapshots: [data]
       })
+      getMutableState(GLTFDocumentState)[action.source].set(data)
     })
   },
 
@@ -173,6 +180,7 @@ export const GLTFSnapshotState = defineState({
         {state.keys.map((source: string) => (
           <GLTFSnapshotReactor source={source} key={source} />
         ))}
+        <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ChildGLTFReactor} />
       </>
     )
   },
@@ -193,16 +201,13 @@ export const GLTFSnapshotState = defineState({
 export const EditorTopic = 'editor' as Topic
 
 const GLTFSnapshotReactor = (props: { source: string }) => {
-  const gltfState = useHookstate(getMutableState(GLTFSnapshotState)[props.source])
+  const index = useHookstate(getMutableState(GLTFSnapshotState)[props.source].index).value
 
   useLayoutEffect(() => {
-    // update gltf state with the current snapshot
-    if (gltfState.index.value > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
-    const snapshotData = gltfState.snapshots[gltfState.index.value].get(NO_PROXY)
-    getMutableState(GLTFDocumentState)[props.source].set(snapshotData)
-  }, [gltfState.index.value])
+    if (index > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
+  }, [index])
 
-  return <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ChildGLTFReactor} />
+  return null
 }
 
 const ChildGLTFReactor = () => {
@@ -250,7 +255,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const selfEntity = useHookstate(UndefinedEntity)
   const entity = selfEntity.value
 
-  const parentEntity = UUIDComponent.getEntityByUUID(props.parentUUID)
+  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   useEffect(() => {
     if (!parentEntity) return
@@ -294,7 +299,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!entity) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
-  }, [entity, parentEntity])
+  }, [entity, parentEntity, props.childIndex])
 
   useEffect(() => {
     if (!entity) return
