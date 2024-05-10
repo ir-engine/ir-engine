@@ -63,9 +63,6 @@ import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
-/**
- * initializes object containing Properties multiple, accepts.
- */
 const uploadOptions = {
   multiple: true,
   accepts: AllFileTypes
@@ -469,29 +466,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     </>
   )
   {
-    /*<div className={styles.panelContainer}>
-        <div className={styles.dockableTabButtons}>
-          <Search elementsName="hierarchy" handleInputChange={searchHierarchy.set} />
-        </div>
-        <div style={{ height: '100%' }}>
-          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-        </div>
-        <PropertiesPanelButton
-          variant="contained"
-          // TODO see why we have to specify capitalize here
-          style={{
-            textTransform: 'capitalize',
-            margin: '5px auto',
-            width: 'auto',
-            fontSize: '12px',
-            lineHeight: '0.5'
-          }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
-        >
-          {t('editor:hierarchy.lbl-addEntity')}
-        </PropertiesPanelButton>
-      </div>
-      <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+    /*<ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}

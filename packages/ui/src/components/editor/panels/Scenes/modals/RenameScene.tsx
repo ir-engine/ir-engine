@@ -23,37 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import ScenesPanel from './container'
 
-const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 
-/**
- * Displays the scenes that exist in the current project.
- */
+import { AssetType } from '@etherealengine/common/src/schema.type.module'
+import { renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Input from '../../../../../primitives/tailwind/Input'
+import Modal from '../../../../../primitives/tailwind/Modal'
 
-export const ScenePanelTitle = () => {
+export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: AssetType }) {
   const { t } = useTranslation()
+  const newSceneName = useHookstate(sceneName)
+
+  const handleSubmit = async () => {
+    const newData = await renameScene(scene.id, newSceneName.value)
+    getMutableState(EditorState).scenePath.set(newData.assetURL)
+    PopoverState.hidePopupover()
+  }
 
   return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
-      </PanelDragContainer>
-    </div>
+    <Modal
+      title={t('editor:hierarchy.lbl-rename')}
+      className="w-[50vw] max-w-2xl"
+      onSubmit={handleSubmit}
+      onClose={PopoverState.hidePopupover}
+    >
+      <Input value={newSceneName.value} onChange={(event) => newSceneName.set(event.target.value)} />
+    </Modal>
   )
 }
-
-export const ScenePanelTab: TabData = {
-  id: 'scenePanel',
-  closable: true,
-  cached: true,
-  title: <ScenePanelTitle />,
-  content: <ScenesPanel />
-}
-
-export default ScenePanelTitle

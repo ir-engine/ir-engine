@@ -35,9 +35,7 @@ export const HierarchyPanelTitle = () => {
   return (
     <div>
       <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Hierarchy'}</span>
-        </PanelTitle>
+        <PanelTitle>{t('editor:hierarchy.lbl')}</PanelTitle>
       </PanelDragContainer>
     </div>
   )
