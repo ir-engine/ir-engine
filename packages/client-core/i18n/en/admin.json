@@ -355,8 +355,10 @@
         "subtitle": "Edit Middleware Settings",
         "main": "Main",
         "toggle0": "Test Toggle Label",
-        "sub0": "Sub",
-        "sub1": "Sub"
+        "sub0": "Sub0",
+        "sub0opt0": "Option",
+        "sub1": "Sub1",
+        "sub1opt0": "Option"
       },
       "authentication": {
         "header": "Authentication",
