@@ -32,8 +32,8 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { UUIDComponent, createEntity } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
@@ -48,7 +48,9 @@ import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/comp
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -110,6 +112,12 @@ export async function addMediaNode(
           mesh.material = material
         })
       })
+    } else if (contentType.startsWith('model/prefab')) {
+      //create entity
+      const entity = createEntity()
+      setComponent(entity, SourceComponent, getComponent(getState(EditorState).rootEntity, SourceComponent))
+      setComponent(entity, EntityTreeComponent, { parentEntity: parent ?? getState(EditorState).rootEntity })
+      setComponent(entity, ModelComponent, { src: url })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],

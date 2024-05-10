@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, createEntity, generateEntityUUID, removeEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
   NO_PROXY,
   Topic,
@@ -41,8 +41,11 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '../gltf/GLTFState'
 import { SourceComponent } from './components/SourceComponent'
 import { migrateDirectionalLightUseInCSM } from './functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from './functions/migrateOldColliders'
@@ -88,7 +91,55 @@ export const SceneState = defineState({
       return createRootEntity(sceneID, data)
     }
   },
+  injectScene: (modelEntity: Entity, data: Record<EntityUUID, EntityJsonType>) => {
+    //get model UUID and parent UUID
+    const modelUUID = getComponent(modelEntity, UUIDComponent)
+    const parentEntity = getComponent(modelEntity, EntityTreeComponent)?.parentEntity
+    const childEntity = getComponent(modelEntity, EntityTreeComponent).children[0]
+    if (!parentEntity) return
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
+    //get the sceneID from the parent entity
+    const sceneID = getComponent(parentEntity, SourceComponent)
+    if (!sceneID) return
+    // //get snapshot from the sceneID
 
+    const parentSource = getComponent(parentEntity, SourceComponent)
+    const entitySource = getComponent(modelEntity, SourceComponent)
+    const childSource = getComponent(getComponent(modelEntity, EntityTreeComponent).children[0], SourceComponent)
+    if (getState(GLTFSourceState)[parentSource]) {
+      const parentGLTFSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(parentSource)
+      const sourceGLTF = getState(GLTFDocumentState)[entitySource]
+      //set current entity as child of parentGLTFSnapshot
+      const modelUUID = getComponent(modelEntity, UUIDComponent)
+      const node = sourceGLTF.nodes?.find((n) => n.extensions?.[UUIDComponent.jsonID] === modelUUID)
+      const nodeClone = JSON.parse(JSON.stringify(node)) as GLTF.INode
+      parentGLTFSnapshot.data.nodes!.push(nodeClone)
+      nodeClone.extensions![UUIDComponent.jsonID] = generateEntityUUID()
+      if (nodeClone.children) nodeClone.children = []
+      const index = parentGLTFSnapshot.data.nodes!.length - 1
+      const parentNode = parentGLTFSnapshot.data.nodes?.find(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === parentUUID
+      ) as GLTF.INode
+      if (!parentNode) {
+        parentGLTFSnapshot.data.scenes![0].nodes.push(index)
+      } else {
+        if (!parentNode.children) parentNode.children = []
+        parentNode.children.push(index)
+      }
+      dispatchAction(GLTFSnapshotAction.createSnapshot(parentGLTFSnapshot))
+    } else {
+      const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+      //add new data as child of the parent entity
+      for (const [uuid, entityJson] of Object.entries(data)) {
+        if (entityJson.parent === parentUUID) {
+          entityJson.parent = parentUUID
+        }
+      }
+      snapshot.data.entities = { ...snapshot.data.entities, ...data }
+      //create a new snapshot
+      dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
+    }
+  },
   unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return

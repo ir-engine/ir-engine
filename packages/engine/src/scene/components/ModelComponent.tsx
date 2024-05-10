@@ -34,14 +34,13 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -80,7 +79,8 @@ export const ModelComponent = defineComponent({
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      dereference: true
     }
   },
 
@@ -169,26 +169,56 @@ function ModelReactor() {
   // update scene
   useEffect(() => {
     const { scene, asset, src } = getComponent(entity, ModelComponent)
+
     if (!scene || !asset) return
 
     /**hotfix for gltf animations being stored in the root and not scene property */
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
-    const uuid = getModelSceneID(entity)
+    let uuid: string | null = null
+    if (modelComponent.dereference.value) {
+      // update authoring layer
+      SceneState.injectScene(entity, loadedJsonHierarchy)
 
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
+      // perform runtime reparent and delete model entity
+      //  reparenting
+      const entityTreeComp = getComponent(entity, EntityTreeComponent)
+
+      const parentEntity = entityTreeComp.parentEntity
+
+      let children = entityTreeComp.children
+      const parentEntityTreeComp = getComponent(parentEntity, EntityTreeComponent)
+
+      for (const child of children) {
+        const childTreeComp = getComponent(child, EntityTreeComponent)
+        if (childTreeComp) {
+          if (!childTreeComp.parentEntity) return
+          childTreeComp.parentEntity = parentEntity
+          if (!parentEntityTreeComp.children) return
+          parentEntityTreeComp.children.push(child)
+        }
+      }
+      // remove the model entity since it has been dereferenced
+      children = []
+      removeEntity(entity)
+    } else {
+      uuid = getModelSceneID(entity)
+
+      SceneState.loadScene(uuid, {
+        scene: {
+          entities: loadedJsonHierarchy,
+          root: getComponent(entity, UUIDComponent),
+          version: 0
+        },
+        name: '',
+        project: '',
+        thumbnailUrl: ''
+      })
+    }
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
+
     if (renderer)
       renderer.renderer.compileAsync(scene, getComponent(Engine.instance.viewerEntity, CameraComponent)).catch(() => {
         addError(entity, ModelComponent, 'LOADING_ERROR', 'Error compiling model')
@@ -202,46 +232,9 @@ function ModelReactor() {
         animations: scene.animations
       })
     }
-
-    const assettype = gltf.scene.userData.type
-    if (assettype === 'prefab') {
-      //reparenting
-      const entityTreeComp = getComponent(entity, EntityTreeComponent)
-
-      const parentEntity = entityTreeComp.parentEntity
-
-      const children = entityTreeComp.children
-      const parentEntityTreeComp = getComponent(parentEntity, EntityTreeComponent)
-
-      for (const child of children) {
-        const childTreeComp = getComponent(child, EntityTreeComponent)
-        if (childTreeComp) {
-          childTreeComp.parentEntity = parentEntity
-          parentEntityTreeComp.children.push(child)
-        }
-      }
-
-      //dereference model with current entity
-      removeComponent(entity, SourceComponent)
-      //const modelComponent = getComponent(entity, ModelComponent)
-      // modelComponent.src=''
-      // modelComponent.asset=null
-      // modelComponent.scene=null
-    }
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
-
     return () => {
+      if (!uuid) return
       SceneState.unloadScene(uuid, false)
-
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return
       for (const child of children) {
@@ -265,15 +258,7 @@ export const useMeshOrModel = (entity: Entity) => {
   const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
   return isEntityHierarchyOrMesh
 }
-export const dereferenceModel = (entity: Entity) => {
-  const modelComponent = getComponent(entity, ModelComponent)
-  const asset = modelComponent.asset
-  if (asset?.userData) {
-    const sceneInstanceID = getModelSceneID(entity)
-  }
 
-  removeComponent(entity, ModelComponent)
-}
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
   const ModelReactor = () => {
     const entity = useEntityContext()

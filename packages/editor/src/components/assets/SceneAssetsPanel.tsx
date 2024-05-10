@@ -41,14 +41,7 @@ import { StaticResourceType, staticResourcePath } from '@etherealengine/common/s
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
-import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
-import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Vector3 } from 'three'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -78,59 +71,59 @@ const ResourceIcons = {
   [AssetClass.Audio]: PositionalAudioNodeEditor.iconComponent
 }
 
-const DEFAULT_PREFAB_COMPONENTS: PrefabricatedComponentsType[] = [
-  // {
-  //   components: [{ name: ModelComponent.jsonID }, { name: ShadowComponent.jsonID }, { name: EnvmapComponent.jsonID }],
-  //   label: 'Simple Model',
-  //   type: ItemTypes.PrefabComponents
-  // },
-  // {
-  //   components: [
-  //     { name: ModelComponent.jsonID },
-  //     {
-  //       name: ColliderComponent.jsonID,
-  //       props: {
-  //         shape: ShapeType.TriMesh
-  //       }
-  //     }
-  //   ],
-  //   label: 'Mesh Collider',
-  //   type: ItemTypes.PrefabComponents
-  // },
-  {
-    components: [{ name: PointLightComponent.jsonID }],
-    label: 'Point Light Prefab',
-    type: ItemTypes.PrefabComponents
-  },
-  {
-    components: [{ name: SpotLightComponent.jsonID }],
-    label: 'Spot Light Prefab',
-    type: ItemTypes.PrefabComponents
-  },
-  {
-    components: [{ name: DirectionalLightComponent.jsonID }],
-    label: 'Directional Light Prefab',
-    type: ItemTypes.PrefabComponents
-  },
-  {
-    components: [
-      { name: ColliderComponent.jsonID },
-      { name: RigidBodyComponent.jsonID },
-      { name: TriggerComponent.jsonID }
-    ],
-    label: 'Physics Prefab',
-    type: ItemTypes.PrefabComponents
-  },
-  {
-    components: [
-      { name: PrimitiveGeometryComponent.jsonID },
-      { name: RigidBodyComponent.jsonID },
-      { name: TriggerComponent.jsonID }
-    ],
-    label: 'Geometry Prefab',
-    type: ItemTypes.PrefabComponents
-  }
-]
+// const DEFAULT_PREFAB_COMPONENTS: PrefabricatedComponentsType[] = [
+//   // {
+//   //   components: [{ name: ModelComponent.jsonID }, { name: ShadowComponent.jsonID }, { name: EnvmapComponent.jsonID }],
+//   //   label: 'Simple Model',
+//   //   type: ItemTypes.PrefabComponents
+//   // },
+//   // {
+//   //   components: [
+//   //     { name: ModelComponent.jsonID },
+//   //     {
+//   //       name: ColliderComponent.jsonID,
+//   //       props: {
+//   //         shape: ShapeType.TriMesh
+//   //       }
+//   //     }
+//   //   ],
+//   //   label: 'Mesh Collider',
+//   //   type: ItemTypes.PrefabComponents
+//   // },
+//   {
+//     components: [{ name: PointLightComponent.jsonID }],
+//     label: 'Point Light Prefab',
+//     type: ItemTypes.PrefabComponents
+//   },
+//   {
+//     components: [{ name: SpotLightComponent.jsonID }],
+//     label: 'Spot Light Prefab',
+//     type: ItemTypes.PrefabComponents
+//   },
+//   {
+//     components: [{ name: DirectionalLightComponent.jsonID }],
+//     label: 'Directional Light Prefab',
+//     type: ItemTypes.PrefabComponents
+//   },
+//   {
+//     components: [
+//       { name: ColliderComponent.jsonID },
+//       { name: RigidBodyComponent.jsonID },
+//       { name: TriggerComponent.jsonID }
+//     ],
+//     label: 'Physics Prefab',
+//     type: ItemTypes.PrefabComponents
+//   },
+//   {
+//     components: [
+//       { name: PrimitiveGeometryComponent.jsonID },
+//       { name: RigidBodyComponent.jsonID },
+//       { name: TriggerComponent.jsonID }
+//     ],
+//     label: 'Geometry Prefab',
+//     type: ItemTypes.PrefabComponents
+//   }
+// ]
 
 const FolderItem = ({
   data: { resources, onClick, selectedCategory },
@@ -258,7 +251,7 @@ const SceneAssetsPanel = () => {
           }
 
           const categorizedResources: Record<string, ResourceItemType[]> = {
-            'Default Prefabs': DEFAULT_PREFAB_COMPONENTS
+            //'Default Prefabs': DEFAULT_PREFAB_COMPONENTS
           }
 
           resources.data.forEach((resource) => {

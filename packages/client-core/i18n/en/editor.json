@@ -1034,6 +1034,8 @@
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
+      "prefab": "Prefab",
+      "prefab-search" : "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {

@@ -346,7 +346,6 @@ const assetLoadCallback =
     if (assetClass === AssetClass.Prefab) {
       //load prefab gltf without parent model
       const gltf = asset as GLTF
-      gltf.scene.userData.type = 'assetType'
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture
