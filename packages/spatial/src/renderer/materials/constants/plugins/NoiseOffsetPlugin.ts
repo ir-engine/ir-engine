@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { Uniform } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import {
-  getComponent,
-  getOptionalComponent,
-  PresentationSystemGroup,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent, PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
 import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents, pluginByName } from '../../MaterialComponent'
+import { setPluginShaderParameters } from '../../materialFunctions'
+
+export type NoiseOffsetParameters = {
+  textureSize: Uniform
+  frequency: Uniform
+  noiseTexture: Uniform
+  time: Uniform
+}
 
 export const NoiseOffsetPlugin: PluginObjectType = {
   id: 'noiseOffset',
@@ -49,13 +49,13 @@ export const NoiseOffsetPlugin: PluginObjectType = {
     const pluginEntity = pluginByName[NoiseOffsetPlugin.id]
     const plugin = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin || !plugin.parameters) return
-    const parameters = plugin.parameters!
-    shader.uniforms['textureSize'] = new Uniform(parameters.textureSize)
-    shader.uniforms['noiseTexture'] = new Uniform(parameters.noiseTexture)
-    shader.uniforms['frequency'] = new Uniform(parameters.frequency)
-    const elapsedSeconds = getState(ECSState).elapsedSeconds
-    setComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]), { parameters: { time: elapsedSeconds } }
-    shader.uniforms['time'] = plugin.parameters['time']
+    setPluginShaderParameters(pluginEntity, shader, {
+      textureSize: 64,
+      frequency: 0.5,
+      noiseTexture: generateNoiseTexture(64),
+      time: 0
+    })
+
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
       `
@@ -78,13 +78,13 @@ export const NoiseOffsetPlugin: PluginObjectType = {
 
           for (int i = 0; i < 4; i++) {
               vec3 p = position * frequency;
-              p.z += time * 0.002;
+              p.z += time * 0.0025;
               p = fract(p);
           
               sum += sampleNoise(p).rgb * amplitude;
           
               frequency *= 2.0;
-              amplitude *= 0.5;
+              amplitude *= 5.0;
           }
         
           return sum;
@@ -114,31 +114,16 @@ export const NoiseOffsetPlugin: PluginObjectType = {
 
 const execute = () => {
   const plugin = getOptionalComponent(pluginByName[NoiseOffsetPlugin.id], MaterialComponent[MaterialComponents.Plugin])
-  if (!plugin || !plugin.parameters || !plugin.parameters['noiseTexture']) return
-
-  const elapsedSeconds = getState(ECSState).elapsedSeconds
-  plugin.parameters.time.set(elapsedSeconds)
-}
-
-const reactor = () => {
-  if (!isClient) return null
-
-  const noiseOffset = useComponent(pluginByName[NoiseOffsetPlugin.id], MaterialComponent[MaterialComponents.Plugin])
-
-  useEffect(() => {
-    if (!noiseOffset?.value || noiseOffset.parameters['noiseTexture']) return
-
-    // Create new Perlin noise instance
-    const noiseTexture = generateNoiseTexture(noiseOffset.parameters['textureSize'].value)
-    noiseOffset.parameters['noiseTexture'].set(noiseTexture)
-  }, [noiseOffset])
-
-  return null
+  if (!plugin || !plugin.parameters) return
+  for (const key in plugin.parameters) {
+    const parameters = plugin.parameters[key] as NoiseOffsetParameters
+    const elapsedSeconds = getState(ECSState).elapsedSeconds
+    parameters.time.value = elapsedSeconds
+  }
 }
 
 export const NoiseOffsetSystem = defineSystem({
   uuid: 'ee.spatial.material.NoiseOffsetSystem',
   insert: { before: PresentationSystemGroup },
-  execute,
-  reactor
+  execute
 })
