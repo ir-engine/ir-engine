@@ -56,12 +56,18 @@ export default function LocationTable({ search }: { search: string }) {
   useSearch(
     adminLocationQuery,
     {
-      name: {
-        $like: `%${search}%`
-      },
-      sceneId: {
-        $like: `%${search}%`
-      }
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          sceneId: {
+            $like: `%${search}%`
+          }
+        }
+      ]
     },
     search
   )
