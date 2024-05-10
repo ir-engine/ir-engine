@@ -150,8 +150,6 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
-  if (!context.data.project) throw new BadRequest('Project is required')
-
   const name = context.data.name ?? NEW_SCENE_NAME
   context.data.name = name
   const storageProvider = getStorageProvider()

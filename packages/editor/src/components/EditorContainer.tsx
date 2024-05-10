@@ -372,7 +372,6 @@ const tabs = [
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
-  const sceneURL = sceneQuery?.[0]?.assetURL
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -411,15 +410,14 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene())
 
   useEffect(() => {
-    if (!sceneURL) return
-    const scene = scenePath.value?.substring(scenePath.value.lastIndexOf('/') + 1)
-    const project = scenePath.value?.substring(scenePath.value.indexOf('/') + 1, scenePath.value.lastIndexOf('/'))
+    const scene = sceneQuery[0]
+    if (!scene) return
 
-    sceneName.set(scene ?? null)
-    projectName.set(project ?? null)
+    projectName.set(scene.projectName)
+    sceneName.set(scene.assetURL.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
-  }, [sceneURL])
+    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.assetURL])
 
   useEffect(() => {
     return () => {

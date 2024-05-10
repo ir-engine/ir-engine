@@ -46,7 +46,7 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
-import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
+import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import {
   deleteProjectFilesInStorageProvider,
   engineVersion,
@@ -105,11 +105,12 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = getProjectConfig(projectName) ?? {}
     const enabled = getProjectEnabled(projectName)
+    const projectManifest = getProjectManifest(projectName)
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-    await super._create({
+    const project = await super._create({
       id: uuidv4(),
       name: projectName,
       enabled,
@@ -125,6 +126,11 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     })
+
+    if (projectManifest?.scenes) {
+      await seedSceneAssets(this.app, project.name, projectManifest.scenes)
+    }
+
     // run project install script
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
@@ -193,9 +199,5 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
           await super._remove(id)
         }
       }
-
-    const refetchedData = (await super._find({ paginate: false })) as ProjectType[]
-
-    await syncAllSceneJSONAssets(refetchedData, this.app)
   }
 }

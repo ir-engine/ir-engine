@@ -71,7 +71,11 @@ export default function LocationTable({ search }: { search: string }) {
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
       name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
-      sceneId: <a href={`/studio/${row.sceneId.split('/')[0]}`}>{row.sceneId}</a>,
+      sceneId: (
+        <a href={`/studio?projectName=${row.sceneAsset.projectName}&scenePath=${row.sceneAsset.assetURL}`}>
+          {row.sceneId}
+        </a>
+      ),
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
       locationType: row.locationSetting.locationType,

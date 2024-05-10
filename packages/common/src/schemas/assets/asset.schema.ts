@@ -34,6 +34,7 @@ export const assetSchema = Type.Object(
     id: Type.String(),
     assetURL: Type.String(),
     thumbnailURL: Type.String(),
+    projectName: Type.String(),
     projectId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

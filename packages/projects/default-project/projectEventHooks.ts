@@ -49,7 +49,8 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       pagination: false
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
+    const projectName = locationResult[0].sceneAsset.projectName
+    const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
     const storageProvider = getStorageProvider()
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
@@ -81,7 +82,8 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
+        const projectName = locationResult[0].sceneAsset.projectName
+        const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
         const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'

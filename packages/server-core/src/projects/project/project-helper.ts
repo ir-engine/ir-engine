@@ -76,7 +76,7 @@ import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
+import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
@@ -1622,9 +1622,9 @@ export const updateProject = async (
 
   // sync assets with latest query data
 
-  const latestProjectResult = await app.service(projectPath).get(returned.id)
+  const latestProjectResult = getProjectManifest(projectName)
 
-  await syncAllSceneJSONAssets([latestProjectResult], app)
+  if (latestProjectResult?.scenes) await seedSceneAssets(app, returned.name, latestProjectResult.scenes)
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
