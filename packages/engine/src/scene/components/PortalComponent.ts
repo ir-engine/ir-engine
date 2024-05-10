@@ -44,7 +44,7 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { matches } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_100 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Right } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -191,7 +191,7 @@ export const PortalComponent = defineComponent({
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setVisibleComponent(helperEntity, true)
       getComponent(helperEntity, TransformComponent).rotation.copy(
-        new Quaternion().setFromAxisAngle(V_100, Math.PI / 2)
+        new Quaternion().setFromAxisAngle(Vector3_Right, Math.PI / 2)
       )
 
       portalComponent.helperEntity.set(helperEntity)
