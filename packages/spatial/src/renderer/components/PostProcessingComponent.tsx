@@ -116,6 +116,9 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const renderer = useComponent(rendererEntity, RendererComponent)
   const composer = new EffectComposer(renderer.value.renderer)
   renderer.value.effectComposer = composer
+  const renderPass = new RenderPass()
+  renderer.value.effectComposer.addPass(renderPass)
+  renderer.value.renderPass = renderPass
 
   let lut1DEffectTexturePath: string | undefined
   if (
@@ -602,11 +605,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   }, [postprocessingComponent.effects[Effects.VignetteEffect]])
 
   useEffect(() => {
-    // we always want to have at least the render pass enabled
-    const renderPass = new RenderPass()
-    renderer.value.effectComposer.addPass(renderPass)
-    renderer.value.renderPass = renderPass
-
     const renderSettings = getState(RendererState)
     if (!renderSettings.usePostProcessing) return
 
