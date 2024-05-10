@@ -192,6 +192,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   }
 
   const handleSubmit = async () => {
+    confirmWindowOpen.set(false)
+
     state.formErrors.merge({
       name: state.name.value ? '' : t('admin:components.location.nameCantEmpty'),
       maxUsers: state.maxUsers.value ? '' : t('admin:components.location.maxUserCantEmpty'),
