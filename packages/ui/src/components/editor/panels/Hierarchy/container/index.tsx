@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
+import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -57,9 +58,9 @@ import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { BsPlusCircle } from 'react-icons/bs'
-import AutoSizer from 'react-virtualized-auto-sizer'
+import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
+import Input from '../../../../../primitives/tailwind/Input'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
 /**
@@ -440,21 +441,32 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
-      <div className="ml-auto flex h-8 bg-zinc-900">
+    <>
+      <div className="mb-1 flex items-center gap-2">
+        <Input
+          placeholder={t('common:components.search')}
+          value={searchHierarchy.value}
+          onChange={(event) => {
+            searchHierarchy.set(event.target.value)
+          }}
+          className="bg-theme-primary rounded"
+          startComponent={<HiMagnifyingGlass />}
+        />
         <Button
-          textContainerClassName="mx-0"
-          startIcon={<BsPlusCircle />}
-          className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          rounded="none"
+          className="bg-theme-highlight w-40 px-2"
+          size="small"
           onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
         >
           {t('editor:hierarchy.lbl-addEntity')}
         </Button>
       </div>
-      <div className="h-[100%] overflow-x-hidden overflow-y-hidden">
+      <div className="h-full overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-    </div>
+    </>
   )
   {
     /*<div className={styles.panelContainer}>
