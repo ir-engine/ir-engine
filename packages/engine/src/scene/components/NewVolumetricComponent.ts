@@ -179,6 +179,12 @@ export const NewVolumetricComponent = defineComponent({
     const geometryBufferData = geometryBufferDataContainer.getIntersectionDuration(startTime, geometryEndTime)
     if (geometryBufferData.missingDuration > 0 || geometryBufferData.pendingDuration > 0) {
       NewVolumetricComponent.adjustGeometryTarget(entity, 1) // lower the target, by signalling that the metric is 1
+      console.log(
+        `Geometry buffer not enough for ${startTime / TIME_UNIT_MULTIPLIER} ${
+          geometryEndTime / TIME_UNIT_MULTIPLIER
+        }, `,
+        geometryBufferData
+      )
       return false
     }
 
@@ -294,6 +300,10 @@ function NewVolumetricComponentReactor() {
 
   useEffect(() => {
     if (!component.geometry.initialBufferLoaded.value) {
+      return
+    }
+    if (component.useVideoTextureForBaseColor.value) {
+      addObjectToGroup(entity, group.current)
       return
     }
     const textureInitialBufferLoaded = component.textureInfo.initialBufferLoaded.get(NO_PROXY)
@@ -658,7 +668,7 @@ function NewVolumetricComponentReactor() {
                 ;(videoTexture as any).isVideoTexture = true
                 ;(videoTexture as any).update = () => {}
                 videoTexture.colorSpace = SRGBColorSpace
-                videoTexture.flipY = false
+                videoTexture.flipY = true
 
                 mesh.current!.material.uniforms['map'].value = videoTexture
                 videoTexture.needsUpdate = true
@@ -667,16 +677,17 @@ function NewVolumetricComponentReactor() {
               }
             })
 
-            const processFrame = (now: DOMHighResTimeStamp) => {
-              console.log('processFrame: ', now)
-              const currentTimeInMS = now
+            const processFrame = (now: DOMHighResTimeStamp, metadata) => {
+              const currentTimeInMS = metadata.mediaTime * 1000
               component.time.currentTime.set(currentTimeInMS)
 
               if (NewVolumetricComponent.canPlayWithoutPause(entity)) {
                 console.log('processFrame Can play without pause')
                 component.notEnoughBuffers.set(false)
                 updateGeometry(currentTimeInMS)
+                mesh.current!.material.uniforms['map'].value.needsUpdate = true
               } else {
+                console.log('processFrame Cannot play without pause')
                 component.notEnoughBuffers.set(true)
               }
 
@@ -972,8 +983,6 @@ function NewVolumetricComponentReactor() {
 
       if (!component.useVideoTextureForBaseColor.value) {
         updateTexture(__currentTime)
-      } else {
-        mesh.current!.material.uniforms['map'].value.needsUpdate = true
       }
     },
     {
