@@ -31,7 +31,7 @@ import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { ObjectDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -226,7 +226,7 @@ describe('Physics', () => {
     const raycastComponentData = {
       type: SceneQueryType.Closest,
       origin: new Vector3().set(0, 0, 0),
-      direction: ObjectDirection.Left,
+      direction: ObjectDirection.Right,
       maxDistance: 20,
       groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     }

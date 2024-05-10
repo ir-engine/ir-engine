@@ -85,9 +85,7 @@ export const saveSceneGLTF = async (
   const file = new File(blob, `${sceneName}.gltf`)
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
 
-  const pathURL = new URL(newPath).pathname.slice(1) // remove leading slash
-
-  const assetURL = pathURL.replace(pathURL.substring(0, pathURL.indexOf('/') + 1), '')
+  const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
 
   const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
 

@@ -50,7 +50,7 @@ import { Not } from 'bitecs'
 import React from 'react'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
-import { ObjectDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/MathConstants'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -198,8 +198,10 @@ const execute = () => {
 
     const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
     inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+
     TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
     inputRay.set(inputRaycast.origin, inputRaycast.direction)
+    console.log('input raycast direction = ' + sourceRotation.toArray())
 
     // only heuristic is scene objects when in the editor
     if (getState(EngineState).isEditing) {
@@ -238,6 +240,7 @@ const execute = () => {
       // 2nd heuristic is physics colliders
       if (physicsWorld) {
         const hits = Physics.castRay(physicsWorld, inputRaycast)
+        // console.log("objDir inputraycast direction = " + inputRaycast.direction.toArray())
         for (const hit of hits) {
           if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
           intersectionData.push({ entity: hit.entity, distance: hit.distance })
@@ -262,6 +265,10 @@ const execute = () => {
     const capturedEntity = getState(InputState).capturingEntity
 
     const inputEntity = capturedEntity || sortedIntersections[0]?.entity
+
+    // if(sortedIntersections.length > 0) console.log('sortedIntersections = ' + sortedIntersections[0].entity + '   capturedentity = ' + capturedEntity )
+    // else console.log('capturedentity = ' + capturedEntity )
+
     if (inputEntity && hasComponent(inputEntity, InputComponent)) {
       getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
     }

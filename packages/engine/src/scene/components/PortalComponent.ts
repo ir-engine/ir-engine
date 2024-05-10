@@ -37,15 +37,14 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Right } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -146,7 +145,6 @@ export const PortalComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(entity, PortalComponent)
-    const arrowHelper = useOptionalComponent(entity, ArrowHelperComponent)
 
     useEffect(() => {
       setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {
@@ -181,7 +179,7 @@ export const PortalComponent = defineComponent({
         setComponent(entity, ArrowHelperComponent, {
           name: 'portal-helper',
           length: 1,
-          dir: V_010,
+          dir: Vector3_Right,
           color: 0x000000
         })
       }

@@ -40,7 +40,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
@@ -111,7 +111,7 @@ export const AvatarAxesControlSchemeBehavior = {
 
     if (canRotate) {
       const angle = (Math.PI / 6) * (x > 0 ? -1 : 1) // 30 degrees
-      translateAndRotateAvatar(selfAvatarEntity, V_000, _quat.setFromAxisAngle(V_010, angle))
+      translateAndRotateAvatar(selfAvatarEntity, Vector3_Zero, _quat.setFromAxisAngle(Vector3_Up, angle))
       InputSourceAxesDidReset.set(inputSource, false)
     } else if (canTeleport) {
       setComponent(selfAvatarEntity, AvatarTeleportComponent, { side: inputSource.handedness })

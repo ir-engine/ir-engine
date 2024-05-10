@@ -34,7 +34,7 @@ import { PopoverState } from '../../../common/services/PopoverState'
 import InstanceTable from './InstanceTable'
 import PatchServerModal from './PatchServerModal'
 
-export default function Invites() {
+export default function Instances() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()

@@ -33,7 +33,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { Physics, PhysicsWorld, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
@@ -124,7 +124,7 @@ export async function placeMarker(rayNormal: Vector3) {
   const marker = markerState.markerEntity!
   setVisibleComponent(marker, true)
 
-  const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
+  const newRotation = new Quaternion().setFromUnitVectors(Vector3_Up, rayNormal)
 
   const markerTransform = getComponent(marker, TransformComponent)
   markerTransform.position.copy(markerState.walkTarget)
@@ -146,7 +146,7 @@ export const assessWalkability = (
 
   toWalkPoint.copy(castedRay[0].position as Vector3).sub(targetPosition)
 
-  const flatEnough = rayNormal.dot(V_010) > minDot && toWalkPoint.lengthSq() < 0.5
+  const flatEnough = rayNormal.dot(Vector3_Up) > minDot && toWalkPoint.lengthSq() < 0.5
   return flatEnough
 }
 
