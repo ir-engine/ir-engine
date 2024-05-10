@@ -23,22 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ActiveCollisionTypes,
-  ActiveEvents,
-  ColliderDesc,
-  RigidBodyDesc,
-  RigidBodyType,
-  ShapeType
-} from '@dimforge/rapier3d-compat'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { ObjectDirection } from '../../common/constants/Axis3D'
+import { ObjectDirection } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -49,9 +42,11 @@ import {
   RigidBodyFixedTagComponent,
   getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
+import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
+import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -59,7 +54,7 @@ export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
   bodyType: RigidBodyType.Fixed,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
+  collisionMask: DefaultCollisionMask | CollisionGroups.Avatars | CollisionGroups.Ground,
   friction: 1,
   restitution: 0,
   isTrigger: false,
@@ -92,17 +87,16 @@ describe('Physics', () => {
 
     const entity = createEntity()
     setComponent(entity, TransformComponent)
-
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
     setComponent(entity, ColliderComponent, { shape: Shapes.Sphere })
-
-    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    handlePhysicsEnterExitQueries(physicsWorld)
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(physicsWorld.colliders.len(), 1)
-    assert.deepEqual((rigidBody.userData as any)['entity'], entity)
 
-    physicsWorld.removeRigidBody(rigidBody)
+    removeComponent(entity, RigidBodyComponent)
+    handlePhysicsEnterExitQueries(physicsWorld)
+
     assert.deepEqual(physicsWorld.bodies.len(), 0)
   })
 
@@ -223,15 +217,16 @@ describe('Physics', () => {
     setComponent(entity, ColliderComponent, {
       shape: Shapes.Box,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default
+      collisionMask: DefaultCollisionMask
     })
 
+    handlePhysicsEnterExitQueries(physicsWorld)
     physicsWorld.step()
 
     const raycastComponentData = {
       type: SceneQueryType.Closest,
       origin: new Vector3().set(0, 0, 0),
-      direction: ObjectDirection.Left,
+      direction: ObjectDirection.Right,
       maxDistance: 20,
       groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
     }
@@ -240,7 +235,7 @@ describe('Physics', () => {
     assert.deepEqual(hits.length, 1)
     assert.deepEqual(hits[0].normal.x, -1)
     assert.deepEqual(hits[0].distance, 5)
-    assert.deepEqual(hits[0].body, getComponent(entity, RigidBodyComponent).body)
+    assert.deepEqual((hits[0].body.userData as any)['entity'], entity)
   })
 
   it('should generate a collision event', async () => {
@@ -253,26 +248,27 @@ describe('Physics', () => {
 
     setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
     setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    setComponent(entity1, ColliderComponent, {
+      shape: Shapes.Sphere,
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: DefaultCollisionMask
+    })
+    setComponent(entity2, ColliderComponent, {
+      shape: Shapes.Sphere,
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: DefaultCollisionMask
+    })
 
-    setComponent(entity1, CollisionComponent)
-    setComponent(entity2, CollisionComponent)
+    handlePhysicsEnterExitQueries(physicsWorld)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const colliderDesc = ColliderDesc.ball(1)
-      .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
-      .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-      .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
-
-    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc)
-    physicsWorld.createCollider(colliderDesc, rigidBody1)
-    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc)
-    physicsWorld.createCollider(colliderDesc, rigidBody2)
-
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
+
+    const rigidBody1 = Physics._Rigidbodies.get(entity1)!
+    const rigidBody2 = Physics._Rigidbodies.get(entity2)!
 
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
@@ -318,24 +314,29 @@ describe('Physics', () => {
 
     setComponent(entity1, RigidBodyComponent, { type: BodyTypes.Dynamic })
     setComponent(entity2, RigidBodyComponent, { type: BodyTypes.Dynamic })
+    setComponent(entity1, ColliderComponent, {
+      shape: Shapes.Sphere,
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: DefaultCollisionMask
+    })
+    setComponent(entity2, ColliderComponent, {
+      shape: Shapes.Sphere,
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: DefaultCollisionMask
+    })
+    setComponent(entity1, TriggerComponent)
+    setComponent(entity2, TriggerComponent)
+
+    handlePhysicsEnterExitQueries(physicsWorld)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
 
-    const rigidBodyDesc = RigidBodyDesc.dynamic()
-    const colliderDesc = ColliderDesc.ball(1)
-      .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
-      .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-      .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
-      .setSensor(true)
-
-    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc)
-    physicsWorld.createCollider(colliderDesc, rigidBody1)
-    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc)
-    physicsWorld.createCollider(colliderDesc, rigidBody2)
-
     physicsWorld.step(collisionEventQueue)
     collisionEventQueue.drainCollisionEvents(drainCollisions)
+
+    const rigidBody1 = Physics._Rigidbodies.get(entity1)!
+    const rigidBody2 = Physics._Rigidbodies.get(entity2)!
 
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)

@@ -34,7 +34,6 @@ import DataTable from '../../common/Table'
 import { instanceColumns } from '../../common/constants/instance'
 
 import { InstanceType } from '@etherealengine/common/src/schema.type.module'
-import { useHookstate } from '@etherealengine/hyperflux'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiEye, HiTrash } from 'react-icons/hi2'
@@ -51,9 +50,30 @@ export default function InstanceTable({ search }: { search: string }) {
     }
   })
 
-  useSearch(instancesQuery, { search }, search)
+  useSearch(
+    instancesQuery,
+    {
+      $or: [
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          locationId: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          channelId: {
+            $like: `%${search}%`
+          }
+        }
+      ]
+    },
+    search
+  )
 
-  const modalProcessing = useHookstate(false)
   const removeInstance = useMutation(instancePath).remove
 
   const createRows = (rows: readonly InstanceType[]) =>

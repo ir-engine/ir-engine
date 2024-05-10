@@ -28,7 +28,6 @@ import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import { Raycaster } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -89,8 +88,6 @@ export const InputSourceComponent = defineComponent({
     if (source.hand) {
       setComponent(entity, XRHandComponent)
     }
-
-    setComponent(entity, TransformComponent)
   },
 
   getMergedButtons(inputSourceEntities = inputSourceQuery()) {

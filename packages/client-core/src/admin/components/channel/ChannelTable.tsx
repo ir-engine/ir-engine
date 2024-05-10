@@ -64,8 +64,13 @@ export default function ChannelTable({
     {
       $or: [
         {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
           name: {
-            $like: '%' + search + '%'
+            $like: `%${search}%`
           }
         }
       ]

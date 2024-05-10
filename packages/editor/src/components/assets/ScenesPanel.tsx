@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useState } from 'react'
@@ -36,8 +36,11 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import config from '@etherealengine/common/src/config'
 import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { getComponent } from '@etherealengine/ecs'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { TabData } from 'rc-dock'
@@ -95,7 +98,6 @@ export default function ScenesPanel() {
     if (loadedScene) {
       await deleteScene(loadedScene.id)
       if (editorState.sceneAssetID.value === loadedScene.id) {
-        getMutableState(SceneState).sceneLoaded.set(false)
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)
       }
@@ -118,11 +120,15 @@ export default function ScenesPanel() {
   }
 
   const startRenaming = () => {
-    if (sceneState.sceneModified.value) {
-      DialogState.setDialog(
-        <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
-      )
-      return
+    const rootEntity = getState(EditorState).rootEntity
+    if (rootEntity) {
+      const modified = getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+      if (modified) {
+        DialogState.setDialog(
+          <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
+        )
+        return
+      }
     }
     setContextMenuOpen(false)
     setAnchorEl(null)

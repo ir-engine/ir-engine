@@ -39,9 +39,9 @@ import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.type.module'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
@@ -49,12 +49,7 @@ import { assetDataResolver, assetExternalResolver, assetResolver } from './asset
 const DEFAULT_DIRECTORY = 'packages/projects/default-project'
 const NEW_SCENE_NAME = 'New-Scene'
 const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2']
-
-export const getSceneFiles = async (directory: string, storageProviderName?: string) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const fileResults = await storageProvider.listObjects(directory, false)
-  return fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json'))
-}
+const GLTF_ASSET_FILES = ['.gltf', '.thumbnail.jpg', '.envmap.ktx2']
 
 /**
  * Checks if project in query exists
@@ -85,31 +80,23 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
   const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
 
-  if (assetURL.endsWith('.scene.json')) {
-    for (const ext of SCENE_ASSET_FILES) {
-      console.log(assetURL, ext, projectPathLocal)
+  const format = assetURL.endsWith('.scene.json') ? '.scene.json' : '.gltf'
 
-      await storageProvider.deleteResources([assetURL.replace('.scene.json', '') + ext])
+  for (const ext of format === '.gltf' ? GLTF_ASSET_FILES : SCENE_ASSET_FILES) {
+    const assetIterationURL = assetURL.replace('.scene.json', '').replace('.gltf', '') + ext
+    console.log(assetURL, ext, projectPathLocal, assetIterationURL)
 
-      if (isDev) {
-        const assetFilePath = path.resolve(projectPathLocal, assetURL.replace('.scene.json', '') + ext)
-        if (fs.existsSync(assetFilePath)) {
-          fs.rmSync(path.resolve(assetFilePath))
-        }
-      } else {
-        await context.app.service(invalidationPath).create([{ path: assetURL }])
-      }
-    }
-  } else {
-    if (isDev) {
-      const assetFilePath = path.resolve(projectPathLocal, assetURL)
+    await storageProvider.deleteResources([assetIterationURL])
+
+    if (config.fsProjectSyncEnabled) {
+      const assetFilePath = path.resolve(projectPathLocal, assetIterationURL)
       if (fs.existsSync(assetFilePath)) {
         fs.rmSync(path.resolve(assetFilePath))
       }
-    } else {
+    }
+    if (config.server.edgeCachingEnabled) {
       await context.app.service(invalidationPath).create([{ path: assetURL }])
     }
-    await storageProvider.deleteResources([assetURL])
   }
 }
 
@@ -173,7 +160,9 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     if (counter > 0) context.data.name = name + '-' + counter
-    const sceneNameExists = await storageProvider.doesExist(`${context.data.name}.scene.json`, context.directory)
+    const sceneNameExists =
+      (await storageProvider.doesExist(`${context.data.name}.scene.json`, context.directory)) ||
+      (await storageProvider.doesExist(`${context.data.name}.gltf`, context.directory))
     if (!sceneNameExists) break
 
     counter++
@@ -210,7 +199,7 @@ export const createSceneInStorageProvider = async (context: HookContext<AssetSer
   const storageProvider = getStorageProvider()
 
   await Promise.all(
-    SCENE_ASSET_FILES.map((ext) =>
+    GLTF_ASSET_FILES.map((ext) =>
       storageProvider.moveObject(
         `default${ext}`,
         `${data.name}${ext}`,
@@ -221,15 +210,15 @@ export const createSceneInStorageProvider = async (context: HookContext<AssetSer
     )
   )
   try {
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await context.app.service(invalidationPath).create(
-        SCENE_ASSET_FILES.map((file) => {
+        GLTF_ASSET_FILES.map((file) => {
           return { path: `${context.directory}${data.name}${file}` }
         })
       )
   } catch (e) {
     logger.error(e)
-    logger.info(SCENE_ASSET_FILES)
+    logger.info(GLTF_ASSET_FILES)
   }
 
   if (!data.thumbnailURL) data.thumbnailURL = `projects/${data.project}/${data.name}.thumbnail.jpg`
@@ -252,9 +241,9 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
   // ignore if we are seeding data
   if (data.assetURL) return
 
-  if (isDev) {
+  if (config.fsProjectSyncEnabled) {
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
-    for (const ext of SCENE_ASSET_FILES) {
+    for (const ext of GLTF_ASSET_FILES) {
       fs.copyFileSync(
         path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
         path.resolve(projectPathLocal + '/' + data.name + ext)
@@ -262,7 +251,7 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
     }
   }
 
-  data.assetURL = `projects/${data.project}/${data.name}.scene.json`
+  data.assetURL = `projects/${data.project}/${data.name}.gltf`
 }
 
 export const renameAsset = async (context: HookContext<AssetService>) => {
@@ -273,22 +262,23 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   const asset = await context.app.service(assetPath).get(context.id!)
 
   const data = context.data! as AssetPatch
-  if (!asset.assetURL.endsWith('.scene.json')) return
+
+  const format = asset.assetURL.endsWith('.scene.json') ? '.scene.json' : '.gltf'
 
   const storageProvider = getStorageProvider()
-  const oldName = asset.assetURL!.split('/').pop()!.replace('.scene.json', '')
+  const oldName = asset.assetURL!.split('/').pop()!.replace(format, '')
   const newName = data.name
 
   if (newName && newName !== oldName) {
     const oldPath = asset.assetURL
-    const newPath = asset.assetURL.replace(oldName + '.scene.json', newName + '.scene.json')
+    const newPath = asset.assetURL.replace(oldName + format, newName + format)
 
     const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
     const directory = oldPath.split('/').slice(0, -1).join('/')
 
-    for (const ext of SCENE_ASSET_FILES) {
-      const oldDirPath = oldPath.replace('.scene.json', '') + ext
-      const newDirPath = newPath.replace('.scene.json', '') + ext
+    for (const ext of format === '.gltf' ? GLTF_ASSET_FILES : SCENE_ASSET_FILES) {
+      const oldDirPath = oldPath.replace(format, '') + ext
+      const newDirPath = newPath.replace(format, '') + ext
 
       const oldLocalFile = path.resolve(projectPathLocal, oldDirPath)
       const newLocalFile = path.resolve(projectPathLocal, newDirPath)
@@ -301,12 +291,13 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
         true
       )
 
-      if (isDev) fs.renameSync(oldLocalFile, newLocalFile)
-      else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
+      if (config.fsProjectSyncEnabled) fs.renameSync(oldLocalFile, newLocalFile)
+      if (config.server.edgeCachingEnabled)
+        await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
     }
 
     data.assetURL = newPath
-    data.thumbnailURL = newPath.replace('.scene.json', '.thumbnail.jpg')
+    data.thumbnailURL = newPath.replace(format, '.thumbnail.jpg')
   }
 }
 

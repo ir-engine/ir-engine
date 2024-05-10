@@ -43,11 +43,30 @@ export default function AdminProject() {
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
+  ProjectService.useAPIListeners()
+
   useEffect(() => {
     if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
       ProjectService.getBuilderInfo()
     }
   }, [user])
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    ProjectService.checkReloadStatus()
+
+    if (projectState.rebuilding.value) {
+      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    } else {
+      if (interval) clearInterval(interval)
+      ProjectService.fetchProjects()
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [projectState.rebuilding.value])
 
   return (
     <>
@@ -95,7 +114,7 @@ export default function AdminProject() {
                         ? 'bg-red-500'
                         : projectState.rebuilding.value === true
                         ? 'bg-yellow-500'
-                        : ''
+                        : 'hidden'
                     )}
                   />
                 )}

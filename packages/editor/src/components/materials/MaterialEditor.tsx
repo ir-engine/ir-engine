@@ -27,22 +27,23 @@ import React, { useCallback, useEffect } from 'react'
 import { Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
-import { MaterialLibraryState } from '@etherealengine/engine/src/scene/materials/MaterialLibrary'
-import { LibraryEntryType } from '@etherealengine/engine/src/scene/materials/constants/LibraryEntry'
-import {
-  changeMaterialPrototype,
-  entryId,
-  materialFromId
-} from '@etherealengine/engine/src/scene/materials/functions/MaterialLibraryFunctions'
-import { removeMaterialPlugin } from '@etherealengine/engine/src/scene/materials/functions/MaterialPluginFunctions'
-import { NO_PROXY, State, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+
+import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
-
 import { Box, Divider, Stack } from '@mui/material'
 
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { materialPrototypeUnavailableComponent } from '@etherealengine/engine/src/scene/materials/components/MaterialPrototypeComponent'
+import { EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
+import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName,
+  prototypeByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -50,7 +51,6 @@ import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
-import PaginatedList from '../layout/PaginatedList'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
 
@@ -67,21 +67,18 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
-export function MaterialEditor(props: { materialID: string }) {
+export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const { materialID } = props
-  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
-  const materialComponent = materialLibrary.materials[materialID]
-  const prototypeComponent =
-    materialLibrary.prototypes.value[materialComponent.prototype.value] ?? materialPrototypeUnavailableComponent
-  const material = materialFromId(materialID).material
-  const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
-    label: prototype.prototypeId,
-    value: prototype.prototypeId
+  const prototypes = Object.keys(prototypeByName).map((prototype) => ({
+    label: prototype,
+    value: prototype
   }))
+
+  const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
+  const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
+  const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
-  const selectedPlugin = useHookstate('vegetation')
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {
@@ -133,30 +130,40 @@ export function MaterialEditor(props: { materialID: string }) {
     thumbnails.set({})
   }, [])
 
+  const prototypeName = useHookstate('')
+  const materialName = useHookstate('')
+
   useEffect(() => {
     clearThumbs().then(createThumbnails).then(checkThumbs)
-  }, [materialComponent.prototype, materialComponent.material.uuid])
+  }, [materialName, prototypeName])
 
+  const prototypeEntity = materialComponent.prototypeEntity.value!
+  const prototype = getMutableComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+
+  const selectedPlugin = useHookstate(TransparencyDitheringPlugin.id)
+
+  materialName.set(material.name)
+  prototypeName.set(material.type)
+
+  const parameters = useHookstate(0)
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput value={materialComponent.material.name.value} onChange={materialComponent.material.name.set} />
+        <StringInput
+          value={materialComponent.material.value!.name}
+          onChange={(name) => setMaterialName(entity, name)}
+        />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className={styles.contentContainer}>
           <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
             <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
-              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}>
-                <div>
-                  <label>{t('editor:properties.mesh.material.type')}</label>
-                </div>
-                <div>{materialComponent.src.type.value}</div>
-              </Stack>
+              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}></Stack>
               <Stack className="Stack" spacing={2} direction="row">
                 <div>
                   <label>{t('editor:properties.mesh.material.path')}</label>
                 </div>
-                <div>{materialComponent.src.value.path}</div>
+                <div>{getComponent(entity, SourceComponent)}</div>
               </Stack>
             </Stack>
           </Box>
@@ -165,22 +172,21 @@ export function MaterialEditor(props: { materialID: string }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={materialComponent.prototype.value}
+          value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
-            const nuMat = changeMaterialPrototype(material, protoId)
-            materialComponent.set(materialFromId(nuMat!.uuid))
-            // prototypeComponent = prototypeFromId(materialComponent.prototype.value)
+            if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
+            prototypeName.set(protoId)
           }}
         />
       </InputGroup>
       <Divider className={styles.divider} />
       <ParameterInput
-        entity={material.uuid}
-        values={materialComponent.parameters.value}
+        entity={props.materialUUID}
+        values={materialComponent.parameters.value!}
         onChange={(k) => async (val) => {
           let prop
-          if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -196,13 +202,14 @@ export function MaterialEditor(props: { materialID: string }) {
             prop = val
           }
           EditorControlFunctions.modifyMaterial(
-            [materialID],
-            entryId(materialComponent.value, LibraryEntryType.MATERIAL),
+            [materialComponent.material.value!.uuid],
+            materialComponent.material.value!.uuid as EntityUUID,
             [{ [k]: prop }]
           )
-          materialComponent.parameters[k].set(prop)
+          parameters.set(parameters.value + 1)
+          if (materialComponent.parameters.value) materialComponent.parameters[k].set(prop)
         }}
-        defaults={prototypeComponent.arguments}
+        defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
       <br />
@@ -219,42 +226,19 @@ export function MaterialEditor(props: { materialID: string }) {
       >
         <SelectInput
           value={selectedPlugin.value}
-          options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+          options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
           onChange={selectedPlugin.set}
         />
         <Button
           onClick={() => {
-            materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
+            setComponent(entity, MaterialComponent[MaterialComponents.State], {
+              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]!]
+            })
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}
         </Button>
       </div>
-      <PaginatedList
-        list={materialComponent.plugins}
-        element={(plugin: State<string>) => {
-          return (
-            <div className={styles.contentContainer}>
-              <InputGroup name="Plugin" label={t('editor:properties.mesh.material.plugin')}>
-                <SelectInput
-                  value={plugin.value}
-                  options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
-                  onChange={plugin.set}
-                />
-              </InputGroup>
-              <Button
-                onClick={() => {
-                  removeMaterialPlugin(material, plugin.value)
-                  materialComponent.plugins.set(materialComponent.plugins.value.filter((val) => val !== plugin.value))
-                }}
-                style={{ backgroundColor: '#f00' }}
-              >
-                x
-              </Button>
-            </div>
-          )
-        }}
-      />
     </div>
   )
 }
