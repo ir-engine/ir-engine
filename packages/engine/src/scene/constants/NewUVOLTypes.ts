@@ -459,3 +459,11 @@ export type KeyframeAttribute = {
   position: InterleavedBufferAttribute
   normal?: InterleavedBufferAttribute
 }
+
+export const textureTypeToUniformKey: Record<TextureType, string> = {
+  baseColor: 'map',
+  normal: 'normalMap',
+  metallicRoughness: 'metallicRoughnessMap',
+  emissive: 'emissiveMap',
+  occlusion: 'aoMap'
+}

@@ -180,7 +180,7 @@ export const fetchGeometry = ({
         continue
       }
 
-      bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
+      bufferData.addPendingRange(currentFrameStartTime, currentFrameEndTime)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: GeometryType.Corto,
@@ -193,7 +193,7 @@ export const fetchGeometry = ({
         .then((currentFrameData) => {
           const geometry = currentFrameData.geometry
           collection[_currentFrame] = geometry
-          bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, false)
+          bufferData.addBufferedRange(currentFrameStartTime, currentFrameEndTime, -1)
 
           if (!initialBufferLoaded.value) {
             const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
@@ -219,7 +219,7 @@ export const fetchGeometry = ({
         continue
       }
 
-      bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
+      bufferData.addPendingRange(currentFrameStartTime, currentFrameEndTime)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: geometryType,
@@ -238,7 +238,7 @@ export const fetchGeometry = ({
               ? (currentFrameData as DracoResponse).geometry
               : (currentFrameData as GLTFResponse).mesh
           collection[currentFrame] = geometry
-          bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, false)
+          bufferData.addBufferedRange(currentFrameStartTime, currentFrameEndTime, -1)
 
           if (!initialBufferLoaded.value) {
             const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
@@ -269,7 +269,7 @@ export const fetchGeometry = ({
         continue
       }
 
-      bufferData.addRange(currentSegmentStartTime, currentSegmentEndTime, -1, true)
+      bufferData.addPendingRange(currentSegmentStartTime, currentSegmentEndTime)
       const resourceURL = getResourceURL({
         type: 'geometry',
         geometryType: GeometryType.Unify,
@@ -328,7 +328,7 @@ export const fetchGeometry = ({
             mesh.morphTargetInfluences = undefined
           }
 
-          bufferData.addRange(currentSegmentStartTime, currentSegmentEndTime, currentFrameData.fetchTime, false)
+          bufferData.addBufferedRange(currentSegmentStartTime, currentSegmentEndTime, currentFrameData.fetchTime)
 
           if (!initialBufferLoaded.value) {
             const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
@@ -389,10 +389,9 @@ export const deleteUsedGeometryBuffers = ({
 
         ;(geometryObj as BufferGeometry).dispose()
         toBeDeletedKeys.push(frameNo)
-        bufferData.removeRange(
+        bufferData.removeBufferedRange(
           frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          false
+          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
         )
       })
 
@@ -438,10 +437,9 @@ export const deleteUsedGeometryBuffers = ({
         }
 
         toBeDeletedKeys.push(frameNo)
-        bufferData.removeRange(
+        bufferData.removeBufferedRange(
           frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          false
+          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
         )
       })
 
@@ -523,7 +521,7 @@ export const fetchTextures = ({
       continue
     }
 
-    bufferData.addRange(currentFrameStartTime, currentFrameEndTime, -1, true)
+    bufferData.addPendingRange(currentFrameStartTime, currentFrameEndTime)
 
     const resourceURL = getResourceURL({
       type: 'texture',
@@ -540,7 +538,7 @@ export const fetchTextures = ({
       .then((currentFrameData) => {
         collection[_currentFrame] = currentFrameData.texture
 
-        bufferData.addRange(currentFrameStartTime, currentFrameEndTime, currentFrameData.fetchTime, false)
+        bufferData.addBufferedRange(currentFrameStartTime, currentFrameEndTime, currentFrameData.fetchTime)
 
         if (!initialBufferLoaded.value) {
           const startTime = (startTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
@@ -595,10 +593,9 @@ export const deleteUsedTextureBuffers = ({
 
       texture.dispose()
       toBeDeletedKeys.push(frameNo)
-      bufferData.removeRange(
+      bufferData.removeBufferedRange(
         frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-        frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-        false
+        frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
       )
     })
 

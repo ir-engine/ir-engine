@@ -40,8 +40,8 @@ export type CommonBufferDataType = {
 }[]
 
 export default class BufferData {
-  private bufferedRange: BufferedDataType
-  private pendingRange: PendingBufferDataType
+  public bufferedRange: BufferedDataType
+  public pendingRange: PendingBufferDataType
   private metrics: {
     totalFetchTime: number
     totalPlayTime: number
@@ -127,14 +127,23 @@ export default class BufferData {
     array.splice(index + 1, i - 1 - index)
   }
 
-  public addRange(startTime: number, endTime: number, fetchTime: number, pending: boolean) {
+  public addBufferedRange(startTime: number, endTime: number, fetchTime: number) {
+    this.removePendingRange(startTime, endTime)
+    this.addRange(startTime, endTime, fetchTime, false)
+  }
+
+  public addPendingRange(startTime: number, endTime: number) {
+    this.removeBufferedRange(startTime, endTime)
+    this.addRange(startTime, endTime, 0, true)
+  }
+
+  private addRange(startTime: number, endTime: number, fetchTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (startTime >= endTime) {
       return
     }
 
     if (!pending) {
-      this.removeRange(startTime, endTime, true)
       this.metrics.totalFetchTime += fetchTime
       this.metrics.totalPlayTime += endTime - startTime
     }
@@ -181,6 +190,14 @@ export default class BufferData {
     this.updateEndTime(lb)
   }
 
+  public removeBufferedRange(startTime: number, endTime: number) {
+    this.removeRange(startTime, endTime, false)
+  }
+
+  public removePendingRange(startTime: number, endTime: number) {
+    this.removeRange(startTime, endTime, true)
+  }
+
   public removeRange(startTime: number, endTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (
@@ -189,14 +206,20 @@ export default class BufferData {
       endTime <= array[0].startTime ||
       startTime >= array[array.length - 1].endTime
     ) {
-      return 0
+      return
     }
 
     startTime = Math.max(startTime, array[0].startTime)
 
     endTime = Math.min(endTime, array[array.length - 1].endTime)
 
-    const lb = this.lowerBound(array, startTime, 'startTime')
+    let lb = this.lowerBound(array, startTime, 'startTime')
+    if (lb === -1) {
+      return
+    } else if (array[lb].endTime <= startTime) {
+      lb++
+    }
+
     let ub = this.upperBound(array, endTime, 'startTime')
     if (ub === -1) {
       ub = array.length - 1
@@ -204,7 +227,22 @@ export default class BufferData {
       ub--
     }
 
+    if (lb > ub) return
+
     if (lb < ub) {
+      const ubStoredDuration = array[ub].endTime - array[ub].startTime
+      const ubFetchTime = pending ? 0 : (array as BufferedDataType)[ub].fetchTime
+
+      if (endTime < array[ub].endTime) {
+        array[ub].startTime = endTime
+        if (!pending) {
+          ;(array as BufferedDataType)[ub].fetchTime =
+            (ubFetchTime * (array[ub].endTime - array[ub].startTime)) / ubStoredDuration
+        }
+      } else {
+        array.splice(ub, 1)
+      }
+
       array.splice(lb + 1, ub - lb - 1)
 
       const lbStoredDuration = array[lb].endTime - array[lb].startTime
@@ -220,26 +258,19 @@ export default class BufferData {
         array.splice(lb, 1)
         ub--
       }
-
-      const ubStoredDuration = array[ub].endTime - array[ub].startTime
-      const ubFetchTime = pending ? 0 : (array as BufferedDataType)[ub].fetchTime
-
-      if (endTime < array[ub].endTime) {
-        array[ub].startTime = endTime
-        if (!pending) {
-          ;(array as BufferedDataType)[ub].fetchTime =
-            (ubFetchTime * (array[ub].endTime - array[ub].startTime)) / ubStoredDuration
-        }
-      } else {
-        array.splice(ub, 1)
-      }
     } else {
       let index = lb
       const storedDuration = array[index].endTime - array[index].startTime
       const fetchTime = pending ? 0 : (array as BufferedDataType)[index].fetchTime
       const oldEndTime = array[index].endTime
 
-      // new intervals: [array[index].startTime, startTime] and [endTime, array[index].endTime]
+      if (endTime < oldEndTime) {
+        array.splice(index + 1, 0, { startTime: endTime, endTime: oldEndTime })
+        if (!pending) {
+          ;(array as BufferedDataType)[index + 1].fetchTime =
+            (fetchTime * (array[index + 1].endTime - array[index + 1].startTime)) / storedDuration
+        }
+      }
 
       if (array[index].startTime < startTime) {
         array[index].endTime = startTime
@@ -250,14 +281,6 @@ export default class BufferData {
       } else {
         array.splice(index, 1)
         index--
-      }
-
-      if (endTime < oldEndTime) {
-        array.splice(index + 1, 0, { startTime: endTime, endTime: oldEndTime })
-        if (!pending) {
-          ;(array as BufferedDataType)[index + 1].fetchTime =
-            (fetchTime * (array[index + 1].endTime - array[index + 1].startTime)) / storedDuration
-        }
       }
     }
   }

@@ -69,7 +69,8 @@ import {
   TIME_UNIT_MULTIPLIER,
   TextureType,
   UniformSolveEncodeOptions,
-  UniformSolveTarget
+  UniformSolveTarget,
+  textureTypeToUniformKey
 } from '../constants/NewUVOLTypes'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import BufferDataContainer from '../util/BufferDataContainer'
@@ -106,7 +107,8 @@ export const NewVolumetricComponent = defineComponent({
       start: 0,
       checkpointAbsolute: -1,
       checkpointRelative: 0,
-      currentTime: 0
+      currentTime: 0,
+      duration: 0
     },
     geometry: {
       bufferData: new BufferDataContainer(),
@@ -399,7 +401,8 @@ function NewVolumetricComponentReactor() {
           start: 0,
           checkpointAbsolute: -1,
           checkpointRelative: 0,
-          currentTime: 0
+          currentTime: 0,
+          duration: 0
         },
         paused: true,
         hasAudio: false,
@@ -425,7 +428,6 @@ function NewVolumetricComponentReactor() {
       })
     }
 
-    // TODO: Dispose all textures before disposing the material
     if (material.current) {
       material.current.dispose()
     }
@@ -457,6 +459,9 @@ function NewVolumetricComponentReactor() {
         component.useVideoTextureForBaseColor.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
+        component.time.duration.set(
+          (manifest as OldManifestSchema).frameData.length / (manifest as OldManifestSchema).frameRate
+        )
         component.texture.set({
           baseColor: {
             bufferData: undefined as unknown as BufferDataContainer, // VideoTexture does not require BufferDataContainer
@@ -483,6 +488,7 @@ function NewVolumetricComponentReactor() {
         }
 
         component.useVideoTextureForBaseColor.set(false)
+        component.time.duration.set(_manifest.duration)
         const geometryTargets = Object.keys(_manifest.geometry.targets)
         if (geometryTargets.length === 0) {
           addError(entity, NewVolumetricComponent, 'GEOMETRY_ERROR', 'No geometry targets found')
@@ -865,9 +871,28 @@ function NewVolumetricComponentReactor() {
       } else if (keyframeAResult && keyframeBResult) {
         const keyframeATimeInMS = (keyframeAResult.index * 1000) / targetData![keyframeAResult.target].frameRate
         const keyframeBTimeInMS = (keyframeBResult.index * 1000) / targetData![keyframeBResult.target].frameRate
+
         const distanceFromA = Math.abs(currentTimeInMS - keyframeATimeInMS)
         const distanceFromB = Math.abs(currentTimeInMS - keyframeBTimeInMS)
+
         const mixRatio = distanceFromA + distanceFromB > 0 ? distanceFromA / (distanceFromA + distanceFromB) : 0.5
+
+        console.log({
+          A: {
+            index: keyframeAResult.index,
+            time: keyframeATimeInMS,
+            target: keyframeAResult.target,
+            distance: distanceFromA
+          },
+          B: {
+            index: keyframeBResult.index,
+            time: keyframeBTimeInMS,
+            target: keyframeBResult.target,
+            distance: distanceFromB
+          },
+          currentTimeInMS,
+          mixRatio
+        })
         mesh.current!.material.uniforms.mixRatio.value = mixRatio
       }
     }
@@ -908,14 +933,30 @@ function NewVolumetricComponentReactor() {
           console.warn(`Texture frame not found at time: ${currentTimeInMS / 1000}`)
           return
         }
+        const textureKey = textureTypeToUniformKey[textureType]
+        const tranformKey = `${textureKey}Transform`
 
-        if (mesh.current!.material.uniforms['map'].value !== result.texture) {
+        if (mesh.current!.material.uniforms[textureKey].value !== result.texture) {
           result.texture.repeat.set(repeat.current.x, repeat.current.y)
           result.texture.offset.set(offset.current.x, offset.current.y)
           result.texture.updateMatrix()
-          mesh.current!.material.uniforms['map'].value = result.texture
-          mesh.current!.material.uniforms['map'].value.needsUpdate = true
-          mesh.current!.material.uniforms.mapTransform.value.copy(result.texture.matrix)
+          result.texture.matrixAutoUpdate = false
+          if (textureKey in mesh.current!.material.uniforms) {
+            mesh.current!.material.uniforms[textureKey].value = result.texture
+          } else {
+            mesh.current!.material.uniforms[textureKey] = {
+              value: result.texture
+            }
+          }
+          mesh.current!.material.uniforms[textureKey].value.needsUpdate = true
+
+          if (tranformKey in mesh.current!.material.uniforms) {
+            mesh.current!.material.uniforms[tranformKey].value.copy(result.texture.matrix)
+          } else {
+            mesh.current!.material.uniforms[tranformKey] = {
+              value: result.texture.matrix
+            }
+          }
         }
       }
     })
@@ -975,6 +1016,10 @@ function NewVolumetricComponentReactor() {
         __currentTime = component.paused.value
           ? component.time.checkpointRelative.value
           : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
+      }
+      if (__currentTime > component.time.duration.value * 1000) {
+        PlaylistComponent.playNextTrack(entity)
+        return
       }
       const currentTime = __currentTime
       component.time.currentTime.set(currentTime)

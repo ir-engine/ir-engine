@@ -587,7 +587,7 @@ export const getGeometry = ({
 
   for (const target of targets) {
     if (geometryBuffer.has(target)) {
-      let index = (currentTimeInMS * (props as GetGeometryModernProps).targetData[preferredTarget].frameRate) / 1000
+      let index = (currentTimeInMS * (props as GetGeometryModernProps).targetData[target].frameRate) / 1000
       if (geometryType === GeometryType.Unify) {
         index = keyframeName === 'keyframeA' ? Math.floor(index) : Math.ceil(index)
       } else {
