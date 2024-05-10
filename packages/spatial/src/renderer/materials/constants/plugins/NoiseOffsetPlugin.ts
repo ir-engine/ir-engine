@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Uniform } from 'three'
+import { Uniform, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -40,6 +40,7 @@ export type NoiseOffsetParameters = {
   frequency: Uniform
   noiseTexture: Uniform
   time: Uniform
+  offsetAxis: Uniform
 }
 
 export const NoiseOffsetPlugin: PluginObjectType = {
@@ -51,9 +52,10 @@ export const NoiseOffsetPlugin: PluginObjectType = {
     if (!plugin || !plugin.parameters) return
     applyPluginShaderParameters(pluginEntity, shader, {
       textureSize: 64,
-      frequency: 0.001,
+      frequency: 0.00025,
       amplitude: 0.25,
       noiseTexture: generateNoiseTexture(64),
+      offsetAxis: new Vector3(0, 1, 0),
       time: 0
     })
 
@@ -82,7 +84,6 @@ export const NoiseOffsetPlugin: PluginObjectType = {
               vec3 p = position * frequencyMutliplied;
               p.z += time * 0.0015;
 
-          
               sum += sampleNoise(p).rgb * amplitudeMultiplied;
           
               frequencyMutliplied *= 2.0;
@@ -96,17 +97,20 @@ export const NoiseOffsetPlugin: PluginObjectType = {
       `
     )
     shader.vertexShader = shader.vertexShader.replace(
+      'void main() {',
+      `uniform vec3 offsetAxis;
+    void main() {`
+    )
+    shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
       `
         #include <begin_vertex>
-        float yMagnitude = smoothstep(0.2, 0.7, position.y);
         vec4 noiseWorldPosition = vec4(transformed, 1.0);
         noiseWorldPosition = modelMatrix * noiseWorldPosition;
         #ifdef USE_INSTANCING
           noiseWorldPosition = instanceMatrix * noiseWorldPosition;
         #endif
-        vec3 offset = turbulence(noiseWorldPosition.xyz) * 1.0;
-        //offset *= yMagnitude;
+        vec3 offset = turbulence(noiseWorldPosition.xyz) * offsetAxis;
         transformed += offset;
       `
     )
