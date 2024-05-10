@@ -41,94 +41,6 @@ export const middlewareSocialLinkSchema = Type.Object(
 )
 export interface MiddlewareSocialLinkType extends Static<typeof middlewareSocialLinkSchema> {}
 
-// export const audioSettingsSchema = Type.Object(
-//   {
-//     maxBitrate: Type.Number()
-//   },
-//   { $id: 'AudioSettingsSchema', additionalProperties: false }
-// )
-//
-// export interface AudioSettingsType extends Static<typeof audioSettingsSchema> {}
-//
-// export const videoSettingsSchema = Type.Object(
-//   {
-//     codec: Type.String(),
-//     maxResolution: Type.String(),
-//     lowResMaxBitrate: Type.Number(),
-//     midResMaxBitrate: Type.Number(),
-//     highResMaxBitrate: Type.Number()
-//   },
-//   { $id: 'VideoSettingsSchema', additionalProperties: false }
-// )
-//
-// export const screenshareSettingsSchema = Type.Object(
-//   {
-//     codec: Type.String(),
-//     lowResMaxBitrate: Type.Number(),
-//     midResMaxBitrate: Type.Number(),
-//     highResMaxBitrate: Type.Number()
-//   },
-//   { $id: 'ScreenshareSettingsSchema', additionalProperties: false }
-// )
-//
-// export interface VideoSettingsType extends Static<typeof videoSettingsSchema> {}
-//
-// export const mediaSettingsSchema = Type.Object(
-//   {
-//     audio: Type.Ref(audioSettingsSchema),
-//     video: Type.Ref(videoSettingsSchema),
-//     screenshare: Type.Ref(screenshareSettingsSchema)
-//   },
-//   { $id: 'MediaSettingsSchema', additionalProperties: false }
-// )
-
-// export interface MediaSettingsType extends Static<typeof mediaSettingsSchema> {}
-
-// export const middlewareThemeOptionsSchema = Type.Object(
-//   {
-//     textColor: Type.String(),
-//     navbarBackground: Type.String(),
-//     sidebarBackground: Type.String(),
-//     sidebarSelectedBackground: Type.String(),
-//     mainBackground: Type.String(),
-//     panelBackground: Type.String(),
-//     panelCards: Type.String(),
-//     panelCardHoverOutline: Type.String(),
-//     panelCardIcon: Type.String(),
-//     textHeading: Type.String(),
-//     textSubheading: Type.String(),
-//     textDescription: Type.String(),
-//     iconButtonColor: Type.String(),
-//     iconButtonHoverColor: Type.String(),
-//     iconButtonBackground: Type.String(),
-//     iconButtonSelectedBackground: Type.String(),
-//     buttonOutlined: Type.String(),
-//     buttonFilled: Type.String(),
-//     buttonGradientStart: Type.String(),
-//     buttonGradientEnd: Type.String(),
-//     buttonTextColor: Type.String(),
-//     scrollbarThumbXAxisStart: Type.String(),
-//     scrollbarThumbXAxisEnd: Type.String(),
-//     scrollbarThumbYAxisStart: Type.String(),
-//     scrollbarThumbYAxisEnd: Type.String(),
-//     scrollbarCorner: Type.String(),
-//     inputOutline: Type.String(),
-//     inputBackground: Type.String(),
-//     primaryHighlight: Type.String(),
-//     dropdownMenuBackground: Type.String(),
-//     dropdownMenuHoverBackground: Type.String(),
-//     dropdownMenuSelectedBackground: Type.String(),
-//     drawerBackground: Type.String(),
-//     popupBackground: Type.String(),
-//     tableHeaderBackground: Type.String(),
-//     tableCellBackground: Type.String(),
-//     tableFooterBackground: Type.String(),
-//     dockBackground: Type.String()
-//   },
-//   { $id: 'MiddlewareThemeOptions', additionalProperties: false }
-// )
-// export interface MiddlewareThemeOptionsType extends Static<typeof middlewareThemeOptionsSchema> {}
-
 // Main data model schema
 export const middlewareSettingSchema = Type.Object(
   {
@@ -176,13 +88,6 @@ export const middlewareSettingQuerySchema = Type.Intersect(
 )
 export interface MiddlewareSettingQuery extends Static<typeof middlewareSettingQuerySchema> {}
 
-// export const audioSettingsValidator = /* @__PURE__ */ getValidator(audioSettingsSchema, dataValidator)
-// export const videoSettingsValidator = /* @__PURE__ */ getValidator(videoSettingsSchema, dataValidator)
-// export const screenshareSettingsValidator = /* @__PURE__ */ getValidator(screenshareSettingsSchema, dataValidator)
-// export const mediaSettingsValidator = /* @__PURE__ */ getValidator(mediaSettingsSchema, dataValidator)
-// export const middlewareSocialLinkValidator = /* @__PURE__ */ getValidator(middlewareSocialLinkSchema, dataValidator)
-// export const middlewareThemeOptionsValidator = /* @__PURE__ */ getValidator(middlewareThemeOptionsSchema, dataValidator)
-// export const middlewareSettingValidator = /* @__PURE__ */ getValidator(middlewareSettingSchema, dataValidator)
 export const middlewareSettingDataValidator = /* @__PURE__ */ getValidator(middlewareSettingDataSchema, dataValidator)
 export const middlewareSettingPatchValidator = /* @__PURE__ */ getValidator(middlewareSettingPatchSchema, dataValidator)
 export const middlewareSettingQueryValidator = /* @__PURE__ */ getValidator(
