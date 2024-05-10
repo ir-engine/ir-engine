@@ -36,7 +36,7 @@ import {
   assetPath,
   locationPath
 } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
@@ -44,7 +44,10 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { EntityUUID } from '@etherealengine/ecs'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { saveSceneGLTF, setCurrentEditorScene } from '../../../../../editor/src/functions/sceneFunctions'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -220,6 +223,22 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
 
   const publishScene = async (bake: boolean) => {
     // TODO: Save current scene in place, and create new version to publish
+    const { sceneAssetID, projectName, sceneName, scenePath } = getState(EditorState)
+
+    if (projectName && sceneName && scenePath) {
+      const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath ?? '' } }).data
+      const sceneURL = sceneQuery?.[0]?.assetURL
+      const abortController = new AbortController()
+      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+
+      // TODO: Bake implementation
+      if (bake) {
+        await saveSceneGLTF(sceneAssetID, projectName, sceneName + '-optimized', abortController.signal)
+      }
+
+      setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
+    }
+
     // TODO: In duplicated scene, perform mesh baking to de-reference all models in the scene (saving scene as GLTF & fuse/compress scenes)
     // TODO: Publish the duplicated scene
 
