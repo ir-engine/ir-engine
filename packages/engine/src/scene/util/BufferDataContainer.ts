@@ -333,6 +333,10 @@ export default class BufferData {
     }
   }
 
+  public getMetrics() {
+    return this.metrics
+  }
+
   public resetMetrics() {
     this.metrics.totalFetchTime = 0
     this.metrics.totalPlayTime = 0

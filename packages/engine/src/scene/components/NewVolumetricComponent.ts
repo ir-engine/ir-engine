@@ -178,6 +178,7 @@ export const NewVolumetricComponent = defineComponent({
 
     const geometryBufferData = geometryBufferDataContainer.getIntersectionDuration(startTime, geometryEndTime)
     if (geometryBufferData.missingDuration > 0 || geometryBufferData.pendingDuration > 0) {
+      NewVolumetricComponent.adjustGeometryTarget(entity, 1) // lower the target, by signalling that the metric is 1
       return false
     }
 
@@ -202,11 +203,72 @@ export const NewVolumetricComponent = defineComponent({
 
       const textureBufferData = textureBufferDataContainer.getIntersectionDuration(startTime, endTime)
       if (textureBufferData.missingDuration > 0 || textureBufferData.pendingDuration > 0) {
+        NewVolumetricComponent.adjustTextureTarget(entity, textureType, 1) // lower the target, by signalling that the metric is 1
         return false
       }
     }
 
     return true
+  },
+
+  adjustGeometryTarget: (entity: Entity, externalMetric?: number) => {
+    const component = getMutableComponent(entity, NewVolumetricComponent)
+    const geometryType = component.geometryType.value
+    const bufferData = component.geometry.bufferData.get(NO_PROXY)
+
+    if (geometryType !== GeometryType.Corto) {
+      const { totalFetchTime, totalPlayTime } = bufferData.getMetrics()
+      if (externalMetric === undefined && totalPlayTime < 4 * TIME_UNIT_MULTIPLIER) {
+        return
+      }
+
+      const metric = externalMetric === undefined ? totalFetchTime / totalPlayTime : externalMetric
+      if (metric >= 0.5) {
+        if (component.geometry.currentTarget.value > 0) {
+          console.log('Decreasing geometry target, from ', component.geometry.currentTarget.value)
+          component.geometry.currentTarget.set((v) => v - 1)
+        }
+      } else if (metric <= 0.1) {
+        if (component.geometry.currentTarget.value < component.geometry.targets.value.length - 1) {
+          console.log('Increasing geometry target from ', component.geometry.currentTarget.value)
+          component.geometry.currentTarget.set((v) => v + 1)
+        }
+      }
+      if (externalMetric === undefined) {
+        bufferData.resetMetrics()
+      }
+    }
+  },
+
+  adjustTextureTarget: (entity: Entity, textureType: TextureType, externalMetric?: number) => {
+    const component = getMutableComponent(entity, NewVolumetricComponent)
+
+    const textureInfo = component.texture[textureType].get(NO_PROXY)
+    if (textureInfo) {
+      const bufferData = textureInfo.bufferData
+      const { totalFetchTime, totalPlayTime } = bufferData.getMetrics()
+      if (externalMetric === undefined && totalPlayTime < 4 * TIME_UNIT_MULTIPLIER) {
+        return
+      }
+
+      const metric = externalMetric === undefined ? totalFetchTime / totalPlayTime : externalMetric
+      if (metric >= 0.5) {
+        if (textureInfo.currentTarget > 0) {
+          component.texture[textureType].merge({
+            currentTarget: textureInfo.currentTarget - 1
+          })
+        }
+      } else if (metric <= 0.1) {
+        if (textureInfo.currentTarget < textureInfo.targets.length - 1) {
+          component.texture[textureType].merge({
+            currentTarget: textureInfo.currentTarget + 1
+          })
+        }
+      }
+      if (externalMetric === undefined) {
+        bufferData.resetMetrics()
+      }
+    }
   },
 
   reactor: NewVolumetricComponentReactor
@@ -677,7 +739,6 @@ function NewVolumetricComponentReactor() {
 
   const updateGeometry = (currentTimeInMS: number) => {
     const geometryType = component.geometryType.value
-    const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
     const targetData =
       component.geometryType.value !== GeometryType.Corto
         ? (component.manifest as State<ManifestSchema>).geometry.targets.get(NO_PROXY)
@@ -687,6 +748,9 @@ function NewVolumetricComponentReactor() {
         ? (component.manifest as State<OldManifestSchema>).frameRate.get(NO_PROXY)
         : undefined
     const bufferData = component.geometry.bufferData.get(NO_PROXY)
+
+    NewVolumetricComponent.adjustGeometryTarget(entity)
+    const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
 
     deleteUsedGeometryBuffers({
       geometryBuffer: geometryBuffer.current,
@@ -807,6 +871,7 @@ function NewVolumetricComponentReactor() {
       const targetData = manifest.texture[textureType]!.targets
 
       if (textureInfo) {
+        NewVolumetricComponent.adjustTextureTarget(entity, textureType)
         deleteUsedTextureBuffers({
           textureBuffer: textureBuffer.current,
           currentTimeInMS,
