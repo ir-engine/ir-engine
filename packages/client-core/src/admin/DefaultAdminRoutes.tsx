@@ -64,8 +64,6 @@ const Settings = lazy(() => import('./components/settings'))
 
 const Channels = lazy(() => import('./components/channel'))
 
-const Middleware = lazy(() => import('./components/middleware'))
-
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   settings: {
     name: 'user:dashboard.setting',
