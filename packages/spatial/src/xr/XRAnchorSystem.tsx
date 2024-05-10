@@ -56,7 +56,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NameComponent } from '../common/NameComponent'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { V_010 } from '../common/constants/MathConstants'
+import { Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
@@ -138,7 +138,7 @@ const getTargetWorldSize = (transform: ComponentType<typeof TransformComponent>)
   const lifeSize =
     xrState.session!.interactionMode === 'world-space'
       ? xrState.sceneScaleAutoMode
-      : dist > maxDollhouseDist && upDir.angleTo(V_010) < Math.PI * 0.02
+      : dist > maxDollhouseDist && upDir.angleTo(Vector3_Up) < Math.PI * 0.02
 
   if (lifeSize) return 1
 
@@ -178,7 +178,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   xrState.scenePosition.copy(transform.position)
   xrState.sceneRotation.multiplyQuaternions(
     transform.rotation,
-    _quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset)
+    _quat.setFromAxisAngle(Vector3_Up, xrState.sceneRotationOffset)
   )
 }
 

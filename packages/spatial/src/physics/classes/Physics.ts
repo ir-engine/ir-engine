@@ -58,7 +58,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { V_000 } from '../../common/constants/MathConstants'
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -123,8 +123,8 @@ function createRigidBody(entity: Entity, world: World) {
   const body = world.createRigidBody(rigidBodyDesc)
   body.setTranslation(position, false)
   body.setRotation(rotation, false)
-  body.setLinvel(V_000, false)
-  body.setAngvel(V_000, false)
+  body.setLinvel(Vector3_Zero, false)
+  body.setAngvel(Vector3_Zero, false)
 
   rigidBody.previousPosition.copy(position)
   rigidBody.previousRotation.copy(rotation)
@@ -132,8 +132,8 @@ function createRigidBody(entity: Entity, world: World) {
   rigidBody.targetKinematicRotation.copy(rotation)
   rigidBody.position.copy(position)
   rigidBody.rotation.copy(rotation)
-  rigidBody.linearVelocity.copy(V_000)
-  rigidBody.angularVelocity.copy(V_000)
+  rigidBody.linearVelocity.copy(Vector3_Zero)
+  rigidBody.angularVelocity.copy(Vector3_Zero)
 
   // set entity in userdata for fast look up when required.
   const rigidBodyUserdata = { entity: entity }

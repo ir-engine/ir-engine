@@ -44,7 +44,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -67,15 +67,15 @@ export const SplineComponent = defineComponent({
         { position: new Vector3(-1, 0, -1), quaternion: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
-          quaternion: new Quaternion().setFromAxisAngle(V_010, Math.PI / 2)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
         },
         {
           position: new Vector3(1, 0, 1),
-          quaternion: new Quaternion().setFromAxisAngle(V_010, Math.PI)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
         },
         {
           position: new Vector3(-1, 0, 1),
-          quaternion: new Quaternion().setFromAxisAngle(V_010, (3 * Math.PI) / 2)
+          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
         }
       ] as Array<{
         position: Vector3

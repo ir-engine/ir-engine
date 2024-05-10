@@ -37,7 +37,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
@@ -186,7 +186,7 @@ const execute = () => {
       delta.setFromSpherical(spherical)
 
       transform.position.copy(editorCameraCenter).add(delta)
-      transform.matrix.lookAt(transform.position, editorCameraCenter, V_010)
+      transform.matrix.lookAt(transform.position, editorCameraCenter, Vector3_Up)
       transform.rotation.setFromRotationMatrix(transform.matrix)
 
       getMutableComponent(cameraEid, CameraOrbitComponent).isOrbiting.set(false)

@@ -33,7 +33,7 @@ import { getComponent, getMutableComponent, setComponent } from '@etherealengine
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { V_000 } from '../common/constants/MathConstants'
+import { Vector3_Zero } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
@@ -142,7 +142,7 @@ const execute = () => {
     directionalLightState.intensity.set(intensityScalar)
 
     getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
-      V_000,
+      Vector3_Zero,
       lightEstimate.primaryLightDirection as any as Vector3
     )
   }
