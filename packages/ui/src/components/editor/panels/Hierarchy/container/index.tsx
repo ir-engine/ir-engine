@@ -414,7 +414,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
 
-  console.log('DEBUG validNodes', validNodes)
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
       height={height}

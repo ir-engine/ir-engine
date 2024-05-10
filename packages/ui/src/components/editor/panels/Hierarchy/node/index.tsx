@@ -97,7 +97,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
 
-  console.log('DEBUG', node)
   const uuid = useComponent(node.entity, UUIDComponent)
 
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)

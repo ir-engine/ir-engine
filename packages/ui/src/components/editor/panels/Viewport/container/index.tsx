@@ -44,26 +44,9 @@ import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
-export const ViewportEngineCanvas = () => {
+const ViewportDnD = () => {
   const ref = useRef(null as null | HTMLDivElement)
 
-  useEffect(() => {
-    if (!ref?.current) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    ref.current.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    // return () => {
-    //   const canvas = document.getElementById('engine-renderer-canvas')!
-    //   parent.removeChild(canvas)
-    // }
-  }, [ref])
-
-  return <div ref={ref} className="w-fulh-full h-full" />
-}
-const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Component],
     collect: (monitor) => ({
@@ -80,18 +63,36 @@ const ViewportDnD = () => {
     }
   })
 
+  useEffect(() => {
+    if (!ref?.current) return
+
+    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
+    ref.current.appendChild(canvas)
+
+    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
+
+    const observer = new ResizeObserver(() => {
+      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
+    })
+
+    observer.observe(ref.current)
+    return () => {
+      observer.disconnect()
+      //   const canvas = document.getElementById('engine-renderer-canvas')!
+      //   parent.removeChild(canvas)
+    }
+  }, [ref])
+
   return (
     <div
       id="viewport-panel"
-      ref={dropRef}
+      ref={((el: HTMLDivElement) => dropRef(el)) && ref}
       className={twMerge(
         'h-full w-full border border-white',
         isDragging && isOver ? 'border-4' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
-    >
-      <ViewportEngineCanvas />
-    </div>
+    ></div>
   )
 }
 
@@ -99,7 +100,7 @@ const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
   const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
   return (
-    <div className="bg-theme-surface-main flex h-full w-full flex-col">
+    <div className="bg-theme-surface-main z-30 flex h-full w-full flex-col">
       <div className="flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
