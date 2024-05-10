@@ -39,7 +39,7 @@ import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useGLTF } from '../../assets/functions/resourceHooks'
+import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 

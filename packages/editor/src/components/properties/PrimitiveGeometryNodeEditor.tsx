@@ -34,6 +34,8 @@ import { GeometryTypeEnum } from '@etherealengine/engine/src/scene/constants/Geo
 import InterestsIcon from '@mui/icons-material/Interests'
 
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import InputGroup from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
@@ -111,16 +113,15 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const hasError = getEntityErrors(entity, PrimitiveGeometryComponent)
   const primitiveGeometry = useComponent(entity, PrimitiveGeometryComponent)
-  const geometry = primitiveGeometry.geometry.get(NO_PROXY)
+  const geometry = useComponent(entity, MeshComponent).geometry.get(NO_PROXY) as Geometry & {
+    parameters?: Record<string, any>
+  }
+
   const renderPrimitiveGeometrySettings = () => (
     <ParameterInput
       entity={`${props.entity}-primitive-geometry`}
-      values={(primitiveGeometry.geometry.value as any)?.parameters ?? {}}
-      onChange={(k) => (val) => {
-        const params = primitiveGeometry.geometryParams.get(NO_PROXY)
-        params[k] = val
-        commitProperty(PrimitiveGeometryComponent, 'geometryParams')(params)
-      }}
+      values={geometry.parameters ?? {}}
+      onChange={(key) => commitProperty(PrimitiveGeometryComponent, `geometryParams.${key}` as any)}
     />
   )
 

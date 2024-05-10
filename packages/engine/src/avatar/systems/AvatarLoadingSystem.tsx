@@ -36,7 +36,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React from 'react'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'

@@ -23,28 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { PerformanceState } from '../PerformanceState'
+import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { Camera, CameraHelper } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
+import { useHelperEntity } from './DebugComponentUtils'
 
-export const usePerformanceTier = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceTier = useHookstate(performanceState.tier.value)
+export const CameraHelperComponent = defineComponent({
+  name: 'CameraHelperComponent',
 
-  useEffect(() => {
-    performanceTier.set(performanceState.tier.value)
-  }, [performanceState.tier])
+  onInit: (entity) => {
+    return {
+      name: 'camera-helper',
+      camera: null! as Camera,
+      entity: undefined as undefined | Entity
+    }
+  },
 
-  return performanceTier
-}
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
+    component.camera.set(json.camera)
+    if (typeof json.name === 'string') component.name.set(json.name)
+  },
 
-export const usePerformanceOffset = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, CameraHelperComponent)
+    const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
+    useHelperEntity(entity, component, helper)
+    helper.update()
 
-  useEffect(() => {
-    performanceOffset.set(performanceState.performanceOffset.value)
-  }, [performanceState.performanceOffset])
-
-  return performanceOffset
-}
+    return null
+  }
+})

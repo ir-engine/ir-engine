@@ -32,7 +32,6 @@ import {
   BufferGeometry,
   Color,
   DoubleSide,
-  FileLoader,
   Group,
   ImageBitmapLoader,
   InterleavedBuffer,
@@ -46,6 +45,7 @@ import {
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
   LoaderUtils,
+  LoadingManager,
   Material,
   MathUtils,
   Matrix4,
@@ -71,7 +71,7 @@ import {
   Vector2,
   VectorKeyframeTrack
 } from 'three'
-import { ResourceType } from '../../state/ResourceState'
+import { FileLoader } from '../base/FileLoader'
 import {
   ALPHA_MODES,
   INTERPOLATION,
@@ -94,6 +94,7 @@ import {
   getNormalizedComponentScale,
   updateMorphTargets
 } from './GLTFLoaderFunctions'
+import { KTX2Loader } from './KTX2Loader'
 
 function getImageURIMimeType(uri) {
   if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'
@@ -120,6 +121,16 @@ declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
   }
 }
 
+type GLTFParserOptions = {
+  crossOrigin: 'anonymous' | string
+  ktx2Loader: KTX2Loader
+  manager: LoadingManager | any
+  meshoptDecoder: any
+  path: string
+  requestHeader: Record<string, any>
+  url: string
+}
+
 /** Override GLTF.IGLTF types that threejs uses as temp defintions */
 
 const _identityMatrix = new Matrix4()
@@ -130,7 +141,7 @@ export class GLTFParser {
   json: GLTF.IGLTF
   extensions
   plugins
-  options
+  options: GLTFParserOptions
   cache
   associations
   primitiveCache
@@ -148,7 +159,7 @@ export class GLTFParser {
     this.json = json
     this.extensions = {}
     this.plugins = {}
-    this.options = options
+    this.options = options as GLTFParserOptions
 
     // loader object cache
     this.cache = new GLTFRegistry()
@@ -720,9 +731,6 @@ export class GLTFParser {
 
         parser.associations.set(texture, { textures: textureIndex })
 
-        if (parser.fileLoader.manager.itemEndFor)
-          parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Texture, texture.source.uuid, texture)
-
         return texture
       })
       .catch(function (error) {
@@ -1062,9 +1070,6 @@ export class GLTFParser {
 
       if (materialDef.extensions) addUnknownExtensionsToUserData(extensions, material, materialDef)
 
-      if (parser.fileLoader.manager.itemEndFor)
-        parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Material, material.uuid, material)
-
       return material
     })
   }
@@ -1222,9 +1227,6 @@ export class GLTFParser {
         if (primitive.extensions) addUnknownExtensionsToUserData(extensions, mesh, primitive)
 
         parser.assignFinalMaterial(mesh)
-
-        if (parser.fileLoader.manager.itemEndFor)
-          parser.fileLoader.manager.itemEndFor(parser.options.url, ResourceType.Mesh, mesh.name, mesh)
 
         meshes.push(mesh)
       }
