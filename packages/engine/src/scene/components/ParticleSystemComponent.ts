@@ -781,6 +781,7 @@ export const ParticleSystemComponent = defineComponent({
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
       behaviorParameters: [],
+      behaviors: undefined,
       _loadIndex: 0,
       _refresh: 0
     } as ParticleSystemComponentType
@@ -798,15 +799,6 @@ export const ParticleSystemComponent = defineComponent({
       component._refresh.set((component._refresh.value + 1) % 1000)
   },
 
-  onRemove: (entity, component) => {
-    if (component.system.value) {
-      removeObjectFromGroup(entity, component.system.value.emitter as unknown as Object3D)
-      component.system.get(NO_PROXY)?.dispose()
-      component.system.set(none)
-    }
-    component.behaviors.set(none)
-  },
-
   toJSON: (entity, component) => ({
     systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
     behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
@@ -816,6 +808,7 @@ export const ParticleSystemComponent = defineComponent({
     const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
+    const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
 
     const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, {}, (url) => {
       metadata.geometries.nested(url).set(none)
@@ -828,7 +821,6 @@ export const ParticleSystemComponent = defineComponent({
       dudMaterial.map = null
     })
 
-    const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
       color: 0xffffff,
       transparent: componentState.value.systemParameters.transparent ?? true,
@@ -865,34 +857,53 @@ export const ParticleSystemComponent = defineComponent({
     }, [texture])
 
     useEffect(() => {
+      // loadIndex of 0 means particle system dependencies haven't loaded yet
+      if (!componentState._loadIndex.value) return
+
       const component = componentState.get(NO_PROXY)
-      if (component.system) {
-        const emitterAsObj3D = component.system.emitter as unknown as Object3D
-        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
+      const renderer = batchRenderer.get(NO_PROXY)
+
+      const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
+      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value, {})
+      renderer.addSystem(nuSystem)
+      const behaviors = component.behaviorParameters.map((behaviorJSON) => {
+        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+        nuSystem.addBehavior(behavior)
+        return behavior
+      })
+      componentState.behaviors.set(behaviors)
+
+      const emitterAsObj3D = nuSystem.emitter
+      emitterAsObj3D.userData['_refresh'] = component._refresh
+      addObjectToGroup(entity, emitterAsObj3D)
+      emitterAsObj3D.parent = getState(ParticleState).batchRenderer
+      const transformComponent = getComponent(entity, TransformComponent)
+      emitterAsObj3D.matrix = transformComponent.matrix
+      componentState.system.set(nuSystem)
+
+      return () => {
+        const index = renderer.systemToBatchIndex.get(nuSystem)
+        if (typeof index !== 'undefined') {
+          renderer.deleteSystem(nuSystem)
+          renderer.children.splice(index, 1)
+          const [batch] = renderer.batches.splice(index, 1)
+          batch.dispose()
+          renderer.systemToBatchIndex.clear()
+          for (let i = 0; i < renderer.batches.length; i++) {
+            for (const system of renderer.batches[i].systems) {
+              renderer.systemToBatchIndex.set(system, i)
+            }
+          }
+        }
+
         removeObjectFromGroup(entity, emitterAsObj3D)
-        component.system.dispose()
-        componentState.system.set(none)
+        nuSystem.dispose()
+        emitterAsObj3D.dispose()
       }
+    }, [componentState._loadIndex])
 
-      function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
-        const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
-        batchRenderer.value.addSystem(nuSystem)
-        componentState.behaviors.set(
-          component.behaviorParameters.map((behaviorJSON) => {
-            const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-            nuSystem.addBehavior(behavior)
-            return behavior
-          })
-        )
-
-        const emitterAsObj3D = nuSystem.emitter
-        emitterAsObj3D.userData['_refresh'] = component._refresh
-        addObjectToGroup(entity, emitterAsObj3D)
-        emitterAsObj3D.parent = getState(ParticleState).batchRenderer
-        const transformComponent = getComponent(entity, TransformComponent)
-        emitterAsObj3D.matrix = transformComponent.matrix
-        componentState.system.set(nuSystem)
-      }
+    useEffect(() => {
+      const component = componentState.value
 
       const doLoadEmissionGeo =
         component.systemParameters.shape.type === 'mesh_surface' &&
@@ -911,31 +922,7 @@ export const ParticleSystemComponent = defineComponent({
       const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
 
       if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
-        const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-
         componentState._loadIndex.set(componentState._loadIndex.value + 1)
-        const currentIndex = componentState._loadIndex.value
-        currentIndex === componentState._loadIndex.value && initParticleSystem(processedParms, metadata.value)
-      }
-
-      return () => {
-        if (component.system) {
-          const index = batchRenderer.value.systemToBatchIndex.get(component.system)
-          batchRenderer.value.deleteSystem(component.system)
-          if (typeof index === 'undefined') return
-          batchRenderer.value.children.splice(index, 1)
-          const [batch] = batchRenderer.value.batches.splice(index, 1)
-          for (const value of Object.values(batch)) {
-            if (typeof value?.dispose === 'function') value.dispose()
-          }
-          batch.dispose()
-          batchRenderer.value.systemToBatchIndex.clear()
-          for (let i = 0; i < batchRenderer.value.batches.length; i++) {
-            for (const system of batchRenderer.value.batches[i].systems) {
-              batchRenderer.value.systemToBatchIndex.set(system, i)
-            }
-          }
-        }
       }
     }, [geoDependency, shapeMesh, texture, componentState._refresh])
 
