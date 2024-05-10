@@ -30,46 +30,15 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   MiddlewareSettingDatabaseType,
   MiddlewareSettingQuery,
-  MiddlewareSettingType,
-  MiddlewareSocialLinkType,
-  MiddlewareThemeOptionsType
+  MiddlewareSettingType
 } from '@etherealengine/common/src/schemas/setting/middleware-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../../../common/src/utils/datetime-sql'
 
 export const middlewareDbToSchema = (rawData: MiddlewareSettingDatabaseType): MiddlewareSettingType => {
-  let appSocialLinks = JSON.parse(rawData.appSocialLinks) as MiddlewareSocialLinkType[]
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof appSocialLinks === 'string') {
-    appSocialLinks = JSON.parse(appSocialLinks)
-  }
-
-  let themeSettings = JSON.parse(rawData.themeSettings) as Record<string, MiddlewareThemeOptionsType>
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeSettings === 'string') {
-    themeSettings = JSON.parse(themeSettings)
-  }
-
-  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeModes === 'string') {
-    themeModes = JSON.parse(themeModes)
-  }
-
-  // if (typeof rawData.mediaSettings === 'string') rawData.mediaSettings = JSON.parse(rawData.mediaSettings)
-
   return {
-    ...rawData,
-    appSocialLinks,
-    themeSettings,
-    themeModes
+    ...rawData
   }
 }
 
@@ -100,11 +69,7 @@ export const middlewareSettingDataResolver = resolve<MiddlewareSettingDatabaseTy
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
       return {
-        ...rawData,
-        appSocialLinks: JSON.stringify(rawData.appSocialLinks),
-        themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
-        // mediaSettings: JSON.stringify(rawData.mediaSettings)
+        ...rawData
       }
     }
   }
@@ -118,11 +83,7 @@ export const middlewareSettingPatchResolver = resolve<MiddlewareSettingType, Hoo
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
       return {
-        ...rawData,
-        appSocialLinks: JSON.stringify(rawData.appSocialLinks),
-        themeSettings: JSON.stringify(rawData.themeSettings),
-        themeModes: JSON.stringify(rawData.themeModes)
-        // mediaSettings: JSON.stringify(rawData.mediaSettings)
+        ...rawData
       }
     }
   }
