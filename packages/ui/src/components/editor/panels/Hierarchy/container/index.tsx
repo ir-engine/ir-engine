@@ -452,7 +452,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           {t('editor:hierarchy.lbl-addEntity')}
         </Button>
       </div>
-      <div className="h-[300px]">
+      <div className="h-[100%] overflow-x-hidden overflow-y-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
     </div>

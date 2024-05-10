@@ -289,28 +289,28 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const marginLeft = node.depth > 0 ? node.depth * 2 + 2 : 0
 
   return (
-    <li style={props.style}>
+    <li style={props.style} className={`bg-${props.index % 2 ? 'neutral-800' : 'zinc-800'}`}>
       <div
         ref={drag}
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={`ml-3.5 h-7 py-1 pr-2 bg-[${props.index % 2 ? '#141619' : '#111113'}] items-center justify-between`}
+        className={`ml-3.5 h-7 items-center justify-between bg-inherit py-1 pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}
       >
         <div
-          className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft}`)}
+          className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex pr-2', `pl-${node.depth * 2}`)} ref={onDropTarget}>
+        <div className={twMerge('flex pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (
             <button
               type="button"
-              className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'}
+              className={'m-0 h-5 w-5 border-[none] bg-inherit p-0 hover:opacity-80'}
               onClick={onClickToggle as any}
               onMouseDown={(e) => e.stopPropagation()}
             >
@@ -322,7 +322,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             </button>
           )}
 
-          <div className={'flex flex-1 py-0.5 pl-0 pr-1'}>
+          <div className={'flex flex-1 bg-inherit py-0.5 pl-0 pr-1'}>
             {IconComponent ? <IconComponent className={'h-5 w-5 text-white'} /> : null}
             <div className={'flex flex-1'}>
               {renaming ? (
