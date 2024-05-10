@@ -29,13 +29,18 @@ import { t } from 'i18next'
 import React from 'react'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
 export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, NewVolumetricComponent)
 
   return (
-    <>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.volumetric.name')}
+      description={t('editor:properties.volumetric.description')}
+    >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
           onChange={commitProperty(NewVolumetricComponent, 'useLoadingEffect')}
@@ -46,6 +51,6 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="hasAudio" label={'hasAudio'}>
         <BooleanInput onChange={commitProperty(NewVolumetricComponent, 'hasAudio')} value={component.hasAudio.value} />
       </InputGroup>
-    </>
+    </NodeEditor>
   )
 }

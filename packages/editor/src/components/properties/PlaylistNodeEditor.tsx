@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -45,9 +45,12 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import 'react-scrubber/lib/scrubber.css'
 import { v4 as uuidv4 } from 'uuid'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
 const PlayModeOptions = [
@@ -127,143 +130,138 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
     component.paused.set(!component.paused.value)
   }
 
-  useEffect(() => {
-    if (component.tracks.length === 0) {
-      component.merge({
-        currentTrackUUID: '',
-        currentTrackIndex: -1
-      })
-      return
-    }
-  }, [component.tracks])
-
-  useEffect(() => {
-    const index = findTrack(component.currentTrackUUID.value).index
-    component.currentTrackIndex.set(index)
-  }, [component.currentTrackUUID, component.tracks])
-
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div
-        ref={drop}
-        style={{
-          width: '100%',
-          paddingLeft: '20px',
-          paddingRight: '10px'
-        }}
-      >
-        {component.tracks.length > 0 ? (
-          <>
-            {component.tracks.value.map((track, index) => {
-              return (
-                <Track
-                  track={component.tracks[index]}
-                  moveTrack={moveTrack}
-                  findTrack={findTrack}
-                  key={track.uuid}
-                  active={track.uuid === component.currentTrackUUID.value}
-                  onChange={() => {
-                    if (track.uuid === component.currentTrackUUID.value) {
-                      const newUUID = uuidv4()
-                      component.tracks[index].uuid.set(newUUID)
-                      component.currentTrackUUID.set(newUUID)
-                    }
-                  }}
-                  playing={track.uuid === component.currentTrackUUID.value && !component.paused.value}
-                  togglePlay={() => {
-                    if (track.uuid === component.currentTrackUUID.value) {
-                      component.paused.set((p) => !p)
-                    } else {
-                      component.merge({
-                        currentTrackUUID: track.uuid,
-                        currentTrackIndex: index,
-                        paused: false
-                      })
-                    }
-                  }}
-                />
-              )
-            })}
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                gap: '8px',
-                alignItems: 'center'
+    <NodeEditor {...props} name="Playlist">
+      <DndProvider backend={HTML5Backend}>
+        <div
+          ref={drop}
+          style={{
+            width: '100%',
+            paddingLeft: '20px',
+            paddingRight: '10px'
+          }}
+        >
+          <InputGroup name="Autoplay" label="Autoplay">
+            <BooleanInput
+              onChange={() => {
+                component.autoplay.set((v) => !v)
               }}
-            >
-              <div
-                style={{
-                  gridColumn: 'span 1 / span 1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'start'
-                }}
-              >
-                <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, -1)}>
-                  <SkipPreviousIcon
-                    style={{
-                      color: 'white'
+              value={component.autoplay.value}
+            />
+          </InputGroup>
+          {component.tracks.length > 0 ? (
+            <>
+              {component.tracks.value.map((track, index) => {
+                return (
+                  <Track
+                    track={component.tracks[index]}
+                    moveTrack={moveTrack}
+                    findTrack={findTrack}
+                    key={track.uuid}
+                    active={track.uuid === component.currentTrackUUID.value}
+                    onChange={() => {
+                      if (track.uuid === component.currentTrackUUID.value) {
+                        const newUUID = uuidv4()
+                        component.tracks[index].uuid.set(newUUID)
+                        component.currentTrackUUID.set(newUUID)
+                      }
+                    }}
+                    playing={track.uuid === component.currentTrackUUID.value && !component.paused.value}
+                    togglePlay={() => {
+                      if (track.uuid === component.currentTrackUUID.value) {
+                        component.paused.set((p) => !p)
+                      } else {
+                        component.merge({
+                          currentTrackUUID: track.uuid,
+                          currentTrackIndex: index,
+                          paused: false
+                        })
+                      }
                     }}
                   />
-                </IconButton>
-                <IconButton onClick={togglePause}>
-                  {component.paused.value ? (
-                    <PlayArrowIcon
-                      style={{
-                        color: 'white'
-                      }}
-                    />
-                  ) : (
-                    <PauseIcon
-                      style={{
-                        color: 'white'
-                      }}
-                    />
-                  )}
-                </IconButton>
-                <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, 1)}>
-                  <SkipNextIcon
-                    style={{
-                      color: 'white'
-                    }}
-                  />
-                </IconButton>
-                <IconButton onClick={addTrack}>
-                  <AddIcon
-                    style={{
-                      color: 'white'
-                    }}
-                  />
-                </IconButton>
-              </div>
+                )
+              })}
 
               <div
                 style={{
-                  gridColumn: 'span 2 / span 2'
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: '8px',
+                  alignItems: 'center'
                 }}
               >
-                <SelectInput
-                  options={PlayModeOptions}
-                  value={component.playMode.value}
-                  onChange={commitProperty(PlaylistComponent, 'playMode')}
-                />
+                <div
+                  style={{
+                    gridColumn: 'span 1 / span 1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'start'
+                  }}
+                >
+                  <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, -1)}>
+                    <SkipPreviousIcon
+                      style={{
+                        color: 'white'
+                      }}
+                    />
+                  </IconButton>
+                  <IconButton onClick={togglePause}>
+                    {component.paused.value ? (
+                      <PlayArrowIcon
+                        style={{
+                          color: 'white'
+                        }}
+                      />
+                    ) : (
+                      <PauseIcon
+                        style={{
+                          color: 'white'
+                        }}
+                      />
+                    )}
+                  </IconButton>
+                  <IconButton onClick={() => PlaylistComponent.playNextTrack(props.entity, 1)}>
+                    <SkipNextIcon
+                      style={{
+                        color: 'white'
+                      }}
+                    />
+                  </IconButton>
+                  <IconButton onClick={addTrack}>
+                    <AddIcon
+                      style={{
+                        color: 'white'
+                      }}
+                    />
+                  </IconButton>
+                </div>
+
+                <div
+                  style={{
+                    gridColumn: 'span 2 / span 2'
+                  }}
+                >
+                  <SelectInput
+                    options={PlayModeOptions}
+                    value={component.playMode.value}
+                    onChange={commitProperty(PlaylistComponent, 'playMode')}
+                  />
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <Button
-            style={{
-              width: '100%'
-            }}
-            onClick={addTrack}
-          >
-            Add track
-          </Button>
-        )}
-      </div>
-    </DndProvider>
+            </>
+          ) : (
+            <Button
+              style={{
+                width: '100%'
+              }}
+              onClick={addTrack}
+            >
+              Add track
+            </Button>
+          )}
+        </div>
+      </DndProvider>
+    </NodeEditor>
   )
 }
 

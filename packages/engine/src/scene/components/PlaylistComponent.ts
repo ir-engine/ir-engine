@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/ecs'
+import { defineComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { PlayMode } from '../constants/PlayMode'
 
@@ -36,25 +39,30 @@ export const PlaylistComponent = defineComponent({
     currentTrackUUID: '',
     currentTrackIndex: -1,
     paused: true,
-    playMode: PlayMode.loop
+    playMode: PlayMode.loop,
+    autoplay: true
   }),
 
   onSet: (entity, component, json) => {
+    console.log('onSet', json)
     if (!json) return
     if (json.tracks && Array.isArray(json.tracks)) component.tracks.set(json.tracks)
     if (typeof json.currentTrackUUID === 'string') component.currentTrackUUID.set(json.currentTrackUUID)
     if (typeof json.currentTrackIndex === 'number') component.currentTrackIndex.set(json.currentTrackIndex)
     if (typeof json.playMode === 'string') component.playMode.set(json.playMode)
     if (typeof json.paused === 'boolean') component.paused.set(json.paused)
+    if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
   },
 
   toJSON: (entity, component) => {
+    console.log('toJSON', component.get(NO_PROXY))
     return {
       tracks: component.tracks.value,
       currentTrackUUID: component.currentTrackUUID.value,
       currentTrackIndex: component.currentTrackIndex.value,
       playMode: component.playMode.value,
-      paused: component.paused.value
+      paused: component.paused.value,
+      autoplay: component.autoplay.value
     }
   },
 
@@ -85,5 +93,62 @@ export const PlaylistComponent = defineComponent({
 
       component.currentTrackUUID.set(component.tracks[randomIndex].uuid.value)
     }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, PlaylistComponent)
+
+    const findTrack = (trackUUID: string) => {
+      for (let i = 0; i < component.tracks.length; i++) {
+        if (component.tracks[i].uuid.value === trackUUID) {
+          return {
+            track: component.tracks[i].get(NO_PROXY),
+            index: i
+          }
+        }
+      }
+      return {
+        track: undefined,
+        index: -1
+      }
+    }
+
+    useEffect(() => {
+      const index = findTrack(component.currentTrackUUID.value).index
+      component.currentTrackIndex.set(index)
+    }, [component.currentTrackUUID, component.tracks])
+
+    useEffect(() => {
+      if (component.tracks.length === 0) {
+        component.merge({
+          currentTrackUUID: '',
+          currentTrackIndex: -1
+        })
+        return
+      }
+    }, [component.tracks])
+
+    useEffect(() => {
+      if (component.autoplay.value && component.tracks.length > 0) {
+        let nonEmptyTrackIndex = -1
+        for (let i = 0; i < component.tracks.length; i++) {
+          if (component.tracks[i].src.value !== '') {
+            nonEmptyTrackIndex = i
+            break
+          }
+        }
+        if (nonEmptyTrackIndex === -1) return
+
+        if (component.currentTrackUUID.value === '') {
+          component.merge({
+            currentTrackUUID: component.tracks[nonEmptyTrackIndex].uuid.value,
+            currentTrackIndex: nonEmptyTrackIndex
+          })
+          component.paused.set(false)
+        }
+      }
+    }, [component.autoplay, component.tracks])
+
+    return null
   }
 })
