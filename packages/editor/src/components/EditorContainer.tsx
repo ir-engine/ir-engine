@@ -412,7 +412,9 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!sceneURL) return
-    const [_, project, scene] = scenePath.value?.split('/') ?? []
+    const scene = scenePath.value?.substring(scenePath.value.lastIndexOf('/') + 1)
+    const project = scenePath.value?.substring(scenePath.value.indexOf('/') + 1, scenePath.value.lastIndexOf('/'))
+
     sceneName.set(scene ?? null)
     projectName.set(project ?? null)
     sceneAssetID.set(sceneQuery[0].id)
