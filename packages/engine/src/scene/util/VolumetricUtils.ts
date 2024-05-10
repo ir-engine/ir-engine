@@ -97,9 +97,10 @@ const cortoQueue = [] as {
   reject: (error: string) => void
 }[]
 let pendingRequests = 0
+const MAX_CORTO_REQUESTS_AT_A_TIME = 6
 
 const processCortoQueue = () => {
-  if (pendingRequests > 0 || cortoQueue.length === 0) {
+  if (pendingRequests >= MAX_CORTO_REQUESTS_AT_A_TIME || cortoQueue.length === 0) {
     return
   }
 

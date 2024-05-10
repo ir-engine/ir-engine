@@ -59,9 +59,9 @@ type GLTFResponse = ResolvedType<ReturnType<typeof loadGLTF>>
 export const bufferLimits = {
   geometry: {
     [GeometryType.Corto]: {
-      desktopMaxBufferDuration: 15, // seconds
-      mobileMaxBufferDuration: 5,
-      initialBufferDuration: 5,
+      desktopMaxBufferDuration: 36, // seconds
+      mobileMaxBufferDuration: 15,
+      initialBufferDuration: 7,
       minBufferDurationToPlay: 3
     },
     [GeometryType.Draco]: {
@@ -350,12 +350,13 @@ export const fetchGeometry = ({
 
 interface deleteUsedGeometryBuffersProps {
   currentTimeInMS: number
-  bufferData: BufferDataContainer
+  bufferData?: BufferDataContainer
   geometryType: GeometryType
   geometryBuffer: Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>
   mesh: Mesh<BufferGeometry, ShaderMaterial>
   targetData?: Record<string, DRACOTarget | UniformSolveTarget>
   frameRate?: number
+  clearAll?: boolean
 }
 
 export const deleteUsedGeometryBuffers = ({
@@ -365,17 +366,18 @@ export const deleteUsedGeometryBuffers = ({
   geometryBuffer,
   targetData,
   frameRate,
-  mesh
+  mesh,
+  clearAll = false
 }: deleteUsedGeometryBuffersProps) => {
   if (geometryType === GeometryType.Corto || geometryType === GeometryType.Draco) {
-    let _frameRate = frameRate!
+    let _frameRate = frameRate || 1
 
     for (const [target, collection] of geometryBuffer) {
       if (!geometryBuffer.has(target) || !collection) {
         continue
       }
       if (geometryType === GeometryType.Draco) {
-        _frameRate = targetData![target].frameRate
+        _frameRate = targetData ? targetData[target].frameRate : 1
       }
 
       const toBeDeletedKeys = [] as number[]
@@ -383,16 +385,19 @@ export const deleteUsedGeometryBuffers = ({
       collection.every((geometryObj, frameNo) => {
         const frameStartTimeInMS = (frameNo * 1000) / _frameRate
         const frameEndTimeInMS = ((frameNo + 1) * 1000) / _frameRate
-        if (frameEndTimeInMS >= currentTimeInMS) {
+        if (!clearAll && frameEndTimeInMS >= currentTimeInMS) {
           return false
         }
 
         ;(geometryObj as BufferGeometry).dispose()
         toBeDeletedKeys.push(frameNo)
-        bufferData.removeBufferedRange(
-          frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
-        )
+        if (!clearAll && bufferData) {
+          bufferData.removeBufferedRange(
+            frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
+            frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
+          )
+        }
+        return true
       })
 
       toBeDeletedKeys.forEach((key) => {
@@ -421,12 +426,12 @@ export const deleteUsedGeometryBuffers = ({
       }
 
       const toBeDeletedKeys = [] as number[]
-      const _frameRate = targetData![target].frameRate
+      const _frameRate = targetData ? targetData[target].frameRate : 1
 
       collection.every((geometryObj, frameNo) => {
         const frameStartTimeInMS = (frameNo * 1000) / _frameRate
         const frameEndTimeInMS = ((frameNo + 1) * 1000) / _frameRate
-        if (frameEndTimeInMS >= currentTimeInMS) {
+        if (!clearAll && frameEndTimeInMS >= currentTimeInMS) {
           return false
         }
 
@@ -437,10 +442,14 @@ export const deleteUsedGeometryBuffers = ({
         }
 
         toBeDeletedKeys.push(frameNo)
-        bufferData.removeBufferedRange(
-          frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
-        )
+        if (!clearAll && bufferData) {
+          bufferData.removeBufferedRange(
+            frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
+            frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
+          )
+        }
+
+        return true
       })
 
       toBeDeletedKeys.forEach((key) => {
@@ -558,10 +567,11 @@ export const fetchTextures = ({
 
 interface deleteUsedTextureBuffersProps {
   currentTimeInMS: number
-  bufferData: BufferDataContainer
+  bufferData?: BufferDataContainer
   textureBuffer: Map<string, Map<string, CompressedTexture[]>>
-  targetData: Record<string, TextureTarget>
+  targetData?: Record<string, TextureTarget>
   textureType: TextureType
+  clearAll?: boolean
 }
 
 export const deleteUsedTextureBuffers = ({
@@ -569,7 +579,8 @@ export const deleteUsedTextureBuffers = ({
   bufferData,
   textureBuffer,
   textureType,
-  targetData
+  targetData,
+  clearAll = false
 }: deleteUsedTextureBuffersProps) => {
   const textureTypeCollection = textureBuffer.get(textureType)
   if (!textureTypeCollection) {
@@ -580,23 +591,26 @@ export const deleteUsedTextureBuffers = ({
       continue
     }
 
-    const _frameRate = targetData[target].frameRate
+    const _frameRate = targetData ? targetData[target].frameRate : 1
 
     const toBeDeletedKeys = [] as number[]
 
     collection.every((texture, frameNo) => {
       const frameStartTimeInMS = (frameNo * 1000) / _frameRate
       const frameEndTimeInMS = ((frameNo + 1) * 1000) / _frameRate
-      if (frameEndTimeInMS >= currentTimeInMS) {
+      if (!clearAll && frameEndTimeInMS >= currentTimeInMS) {
         return false
       }
 
       texture.dispose()
       toBeDeletedKeys.push(frameNo)
-      bufferData.removeBufferedRange(
-        frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
-        frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
-      )
+      if (!clearAll && bufferData) {
+        bufferData.removeBufferedRange(
+          frameStartTimeInMS * (TIME_UNIT_MULTIPLIER / 1000),
+          frameEndTimeInMS * (TIME_UNIT_MULTIPLIER / 1000)
+        )
+      }
+      return true
     })
 
     toBeDeletedKeys.forEach((key) => {

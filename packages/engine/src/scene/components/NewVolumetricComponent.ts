@@ -92,42 +92,44 @@ import {
 import { MediaElementComponent } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
 
+const initialState = {
+  useVideoTextureForBaseColor: false, // legacy for UVOL1
+  useLoadingEffect: true,
+  hasAudio: false,
+  volume: 1,
+  manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
+  checkForEnoughBuffers: true,
+  notEnoughBuffers: true,
+  time: {
+    start: 0,
+    checkpointAbsolute: -1,
+    checkpointRelative: 0,
+    currentTime: 0,
+    duration: 0
+  },
+  geometry: {
+    bufferData: new BufferDataContainer(),
+    targets: [],
+    initialBufferLoaded: false,
+    firstFrameLoaded: false,
+    currentTarget: 0,
+    userTarget: -1
+  } as BufferInfo,
+  geometryType: undefined as unknown as GeometryType,
+  texture: {} as Partial<Record<TextureType, BufferInfo>>,
+  textureInfo: {
+    textureTypes: [] as TextureType[],
+    initialBufferLoaded: {} as Partial<Record<TextureType, boolean>>,
+    firstFrameLoaded: {} as Partial<Record<TextureType, boolean>>
+  },
+  paused: true,
+  preTrackBufferingCallback: undefined as undefined | Pretrackbufferingcallback
+}
+
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
   jsonID: 'EE_NewVolumetric',
-  onInit: (entity) => ({
-    useVideoTextureForBaseColor: false, // legacy for UVOL1
-    useLoadingEffect: true,
-    hasAudio: false,
-    volume: 1,
-    manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
-    checkForEnoughBuffers: true,
-    notEnoughBuffers: true,
-    time: {
-      start: 0,
-      checkpointAbsolute: -1,
-      checkpointRelative: 0,
-      currentTime: 0,
-      duration: 0
-    },
-    geometry: {
-      bufferData: new BufferDataContainer(),
-      targets: [],
-      initialBufferLoaded: false,
-      firstFrameLoaded: false,
-      currentTarget: 0,
-      userTarget: -1
-    } as BufferInfo,
-    geometryType: undefined as unknown as GeometryType,
-    texture: {} as Partial<Record<TextureType, BufferInfo>>,
-    textureInfo: {
-      textureTypes: [] as TextureType[],
-      initialBufferLoaded: {} as Partial<Record<TextureType, boolean>>,
-      firstFrameLoaded: {} as Partial<Record<TextureType, boolean>>
-    },
-    paused: true,
-    preTrackBufferingCallback: undefined as undefined | Pretrackbufferingcallback
-  }),
+  onInit: (entity) => initialState,
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.useVideoTextureForBaseColor === 'boolean') {
@@ -181,12 +183,6 @@ export const NewVolumetricComponent = defineComponent({
     const geometryBufferData = geometryBufferDataContainer.getIntersectionDuration(startTime, geometryEndTime)
     if (geometryBufferData.missingDuration > 0 || geometryBufferData.pendingDuration > 0) {
       NewVolumetricComponent.adjustGeometryTarget(entity, 1) // lower the target, by signalling that the metric is 1
-      console.log(
-        `Geometry buffer not enough for ${startTime / TIME_UNIT_MULTIPLIER} ${
-          geometryEndTime / TIME_UNIT_MULTIPLIER
-        }, `,
-        geometryBufferData
-      )
       return false
     }
 
@@ -317,7 +313,6 @@ function NewVolumetricComponentReactor() {
     }
     console.log('All initial buffers loaded')
     addObjectToGroup(entity, group.current)
-    const playlistComponent = getComponent(entity, PlaylistComponent)
   }, [component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
 
   const bufferLoop = () => {
@@ -382,49 +377,43 @@ function NewVolumetricComponentReactor() {
 
     return () => {
       cleanupTrack()
-      removeObjectFromGroup(entity, group.current)
     }
   }, [])
 
   const cleanupTrack = () => {
-    removeComponent(entity, MediaElementComponent)
+    console.log('Cleaning up track')
     clearInterval(setIntervalId.value)
+    removeComponent(entity, MediaElementComponent)
+    removeObjectFromGroup(entity, group.current)
+
     if (mesh.current) {
       group.current.remove(mesh.current)
     }
 
-    if (hasComponent(entity, NewVolumetricComponent)) {
-      setIntervalId.set(-1)
-      component.merge({
-        manifest: {},
-        time: {
-          start: 0,
-          checkpointAbsolute: -1,
-          checkpointRelative: 0,
-          currentTime: 0,
-          duration: 0
-        },
-        paused: true,
-        hasAudio: false,
-        useVideoTextureForBaseColor: false
+    const duration = component.time.duration.value
+    const manifest = component.manifest.get(NO_PROXY)
+
+    const targets = Array.from(geometryBuffer.current.keys())
+    if (targets.length > 0) {
+      const collection = geometryBuffer.current.get(targets[0])!
+      const firstFrameNo = parseInt(Object.keys(collection)[0])
+      const geometryType = 'isBufferGeometry' in collection[firstFrameNo] ? GeometryType.Corto : GeometryType.Unify
+
+      deleteUsedGeometryBuffers({
+        currentTimeInMS: (duration + 1) * 1000,
+        geometryBuffer: geometryBuffer.current,
+        geometryType: geometryType,
+        mesh: mesh.current!,
+        clearAll: true
       })
     }
 
-    // TODO: Dispose buffers before removing the data about the buffers
-
-    if (hasComponent(entity, NewVolumetricComponent)) {
-      component.geometry.merge({
-        initialBufferLoaded: false,
-        firstFrameLoaded: false,
-        targets: []
-      })
-      component.geometryType.set(undefined as unknown as GeometryType)
-
-      component.texture.set({})
-      component.textureInfo.merge({
-        textureTypes: [],
-        initialBufferLoaded: {},
-        firstFrameLoaded: {}
+    for (const [textureType, collection] of textureBuffer.current) {
+      deleteUsedTextureBuffers({
+        currentTimeInMS: (duration + 1) * 1000,
+        textureBuffer: textureBuffer.current,
+        textureType: textureType as TextureType,
+        clearAll: true
       })
     }
 
@@ -436,9 +425,13 @@ function NewVolumetricComponentReactor() {
       mesh.current.geometry.dispose()
     }
 
+    component.set(structuredClone(initialState))
+    component.geometry.bufferData.set(new BufferDataContainer())
+
     if (hasComponent(entity, NewVolumetricComponent)) {
       clearErrors(entity, NewVolumetricComponent)
     }
+    console.log('Track cleaned up: ', component.get(NO_PROXY))
   }
 
   const validateManifest = (manifest: OldManifestSchema | ManifestSchema) => {
@@ -643,7 +636,7 @@ function NewVolumetricComponentReactor() {
           // @ts-ignore
           overrideMaterialProperties
         )
-        mesh.current = new Mesh(new SphereGeometry(3, 32, 32) as BufferGeometry, material.current)
+        mesh.current = new Mesh(new SphereGeometry(0.001, 32, 32) as BufferGeometry, material.current)
         group.current.add(mesh.current)
 
         console.log('Material created successfully: ', material.current)
@@ -687,14 +680,11 @@ function NewVolumetricComponentReactor() {
               const currentTimeInMS = metadata.mediaTime * 1000
               component.time.currentTime.set(currentTimeInMS)
 
-              if (NewVolumetricComponent.canPlayWithoutPause(entity)) {
-                console.log('processFrame Can play without pause')
-                component.notEnoughBuffers.set(false)
+              const frameNo = Math.round(metadata.mediaTime * (manifest as OldManifestSchema).frameRate)
+              const collection = geometryBuffer.current.get('corto')
+              if (collection && collection[frameNo]) {
                 updateGeometry(currentTimeInMS)
                 mesh.current!.material.uniforms['map'].value.needsUpdate = true
-              } else {
-                console.log('processFrame Cannot play without pause')
-                component.notEnoughBuffers.set(true)
               }
 
               element.requestVideoFrameCallback(processFrame)
@@ -795,10 +785,6 @@ function NewVolumetricComponentReactor() {
     if (!result) {
       if (geometryType !== GeometryType.Unify) {
         console.warn('Geometry frame not found at time: ', currentTimeInMS / 1000)
-        const _geometryBuffer = geometryBuffer.current
-        const bufferData = component.geometry.bufferData.get(NO_PROXY)
-        console.log('Geometry buffer: ', _geometryBuffer)
-        console.log('BufferData: ', bufferData)
         return
       }
     } else {
@@ -807,6 +793,7 @@ function NewVolumetricComponentReactor() {
         if (mesh.current!.geometry !== geometry) {
           mesh.current!.geometry = geometry
           mesh.current!.geometry.attributes['position'].needsUpdate = true
+          console.log('Updating geometry at time: ', currentTimeInMS / 1000)
         }
       }
     }
@@ -877,22 +864,6 @@ function NewVolumetricComponentReactor() {
 
         const mixRatio = distanceFromA + distanceFromB > 0 ? distanceFromA / (distanceFromA + distanceFromB) : 0.5
 
-        console.log({
-          A: {
-            index: keyframeAResult.index,
-            time: keyframeATimeInMS,
-            target: keyframeAResult.target,
-            distance: distanceFromA
-          },
-          B: {
-            index: keyframeBResult.index,
-            time: keyframeBTimeInMS,
-            target: keyframeBResult.target,
-            distance: distanceFromB
-          },
-          currentTimeInMS,
-          mixRatio
-        })
         mesh.current!.material.uniforms.mixRatio.value = mixRatio
       }
     }
@@ -1011,13 +982,14 @@ function NewVolumetricComponentReactor() {
       if ((component.useVideoTextureForBaseColor.value || component.hasAudio.value) && mediaElement) {
         const element = mediaElement.element.get(NO_PROXY)!
         __currentTime = element.currentTime * 1000
-        console.log('Current video time: ', __currentTime)
       } else {
         __currentTime = component.paused.value
           ? component.time.checkpointRelative.value
           : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
       }
       if (__currentTime > component.time.duration.value * 1000) {
+        console.log('CurrentTime: ', __currentTime, ' Duration: ', component.time.duration.value * 1000)
+        console.log('Track ended')
         PlaylistComponent.playNextTrack(entity)
         return
       }
