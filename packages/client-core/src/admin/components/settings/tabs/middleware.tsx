@@ -25,8 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { middlewareSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -38,60 +41,48 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   const { t } = useTranslation()
 
   const middlewareSetting = useFind(middlewareSettingPath).data.at(0)
-  // const middlewareSetting = Engine.instance.api(middlewareSettingPath).find()
   console.log('middlewareSetting', middlewareSetting)
   const id = middlewareSetting?.id
   console.log('id', id)
 
-  // const state = useHookstate({
-  //   loading: false,
-  //   errorMessage: ''
-  // })
-  // const user = useHookstate(getMutableState(AuthState).user)
+  const conf0 = useHookstate(middlewareSetting?.conf0)
+  const conf1 = useHookstate(middlewareSetting?.conf1)
+  const conf2 = useHookstate(middlewareSetting?.conf2)
 
-  // const middlewareSettingState = useHookstate(getMutableState(AdminMiddlewareSettingsState))
-  // const [middlewareSetting] = middlewareSettingState?.middleware?.get({ noproxy: true }) || []
-  // const id = middlewareSetting?.id
-  //
-  // const settings = useHookstate(middlewareSetting)
-  //
-  // console.log('# middleware settings', settings)
+  conf0.set(middlewareSetting?.conf0)
+  conf1.set(middlewareSetting?.conf1)
+  conf2.set(middlewareSetting?.conf2)
 
-  // const gaTrackingId = useHookstate(middlewareSetting?.gaTrackingId)
-
-  // console.log('gaTrackingId', gaTrackingId.value)
-  // const githubWebhookSecret = useHookstate(middlewareSetting?.githubWebhookSecret)
-  // const instanceserverUnreachableTimeoutSeconds = useHookstate(middlewareSetting?.instanceserverUnreachableTimeoutSeconds)
-  // const dryRun = useHookstate(true)
-  // const local = useHookstate(true)
+  console.log('HOOK', conf0.value, conf1.value, conf2.value)
 
   const state = useHookstate({
     loading: false,
     errorMessage: ''
   })
 
-  // const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
+  const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
 
-  // const handleSubmit = (event) => {
-  //   if (!id) return
-  //   state.loading.set(true)
-  //   patchMiddlewareSetting(id, {
-  //     gaTrackingId: gaTrackingId.value,
-  //     githubWebhookSecret: githubWebhookSecret.value,
-  //     instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
-  //   })
-  //     .then(() => {
-  //       state.set({ loading: false, errorMessage: '' })
-  //     })
-  //     .catch((e) => {
-  //       state.set({ loading: false, errorMessage: e.message })
-  //     })
-  // }
+  const handleSubmit = (event) => {
+    if (!id) return
+    state.loading.set(true)
+    patchMiddlewareSetting(id, {
+      conf0: conf0.value,
+      conf1: conf1.value,
+      conf2: conf2.value
+    })
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
+  }
 
-  // const handleCancel = () => {
-  //   gaTrackingId.set(middlewareSetting?.gaTrackingId)
-  //   githubWebhookSecret.set(middlewareSetting?.githubWebhookSecret)
-  // }
+  const handleCancel = () => {
+    conf0.set(middlewareSetting?.conf0)
+    conf1.set(middlewareSetting?.conf1)
+    conf2.set(middlewareSetting?.conf2)
+  }
 
   return (
     <Accordion
@@ -107,57 +98,57 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           {t('admin:components.setting.middleware.main')}
         </Text>
 
-        {/*  <Input*/}
-        {/*    className="col-span-1"*/}
-        {/*    label={t('admin:components.setting.middleware.conf0')}*/}
-        {/*    value={settings.conf0.value || ''}*/}
-        {/*    onChange={(e) => settings.conf0.set(e.target.value)}*/}
-        {/*  />*/}
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.middleware.main')}
+          value={conf0.value || ''}
+          onChange={(e) => conf0.set(e.target.value)}
+        />
 
         {/*  <Toggle*/}
         {/*    containerClassName="justify-start col-span-full"*/}
         {/*    label={t('admin:components.setting.middleware.toggle0')}*/}
-        {/*    value={settings.toggle0.value}*/}
-        {/*    onChange={(value) => settings.toggle0.set(value)}*/}
+        {/*    value={middlewareSetting.toggle0.value}*/}
+        {/*    onChange={(value) => middlewareSetting.toggle0.set(value)}*/}
         {/*  />*/}
 
-        {/*  <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">*/}
-        {/*    {t('admin:components.setting.middleware.sub0')}*/}
-        {/*  </Text>*/}
+        <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
+          {t('admin:components.setting.middleware.sub0')}
+        </Text>
 
-        {/*  <Input*/}
-        {/*    className="col-span-1"*/}
-        {/*    label={t('admin:components.setting.middleware.conf1')}*/}
-        {/*    value={settings.conf1.value || ''}*/}
-        {/*    onChange={(e) => settings.conf1.set(e.target.value)}*/}
-        {/*  />*/}
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.middleware.sub0opt0')}
+          value={conf1.value || ''}
+          onChange={(e) => conf1.set(e.target.value)}
+        />
 
-        {/*  <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">*/}
-        {/*    {t('admin:components.setting.middleware.sub1')}*/}
-        {/*  </Text>*/}
+        <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
+          {t('admin:components.setting.middleware.sub1')}
+        </Text>
 
-        {/*  <Input*/}
-        {/*    className="col-span-1"*/}
-        {/*    label={t('admin:components.setting.middleware.conf2')}*/}
-        {/*    value={settings.conf2.value || ''}*/}
-        {/*    onChange={(e) => settings.conf2.set(e.target.value)}*/}
-        {/*  />*/}
-        {/*</div>*/}
+        <Input
+          className="col-span-1"
+          label={t('admin:components.setting.middleware.sub1opt0')}
+          value={conf2.value || ''}
+          onChange={(e) => conf2.set(e.target.value)}
+        />
+      </div>
 
-        {/*<div className="mt-6 grid grid-cols-8 gap-6">*/}
-        {/*  <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>*/}
-        {/*    {t('admin:components.common.reset')}*/}
-        {/*  </Button>*/}
-        {/*  <Button*/}
-        {/*    size="small"*/}
-        {/*    variant="primary"*/}
-        {/*    className="col-span-1"*/}
-        {/*    onClick={handleSubmit}*/}
-        {/*    startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}*/}
-        {/*    fullWidth*/}
-        {/*  >*/}
-        {/*    {t('admin:components.common.save')}*/}
-        {/*  </Button>*/}
+      <div className="mt-6 grid grid-cols-8 gap-6">
+        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+          {t('admin:components.common.reset')}
+        </Button>
+        <Button
+          size="small"
+          variant="primary"
+          className="col-span-1"
+          onClick={handleSubmit}
+          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
+          fullWidth
+        >
+          {t('admin:components.common.save')}
+        </Button>
       </div>
     </Accordion>
   )
