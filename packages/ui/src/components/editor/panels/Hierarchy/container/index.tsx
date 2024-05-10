@@ -28,9 +28,9 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FixedSizeList } from 'react-window'
 
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
@@ -43,7 +43,6 @@ import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
-import { useModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
@@ -57,6 +56,7 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { BsPlusCircle } from 'react-icons/bs'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -73,39 +73,36 @@ const uploadOptions = {
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  */
-function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID }) {
-  const { sceneURL, rootEntityUUID } = props
+function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: EntityUUID; index: number }) {
+  const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
-  const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const expandedNodes = useHookstate(getMutableState(EditorState).expandedNodes)
   const entityHierarchy = useHookstate<HeirarchyTreeNodeType[]>([])
-  const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
 
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
-  const index = SceneSnapshotState.useSnapshotIndex(sceneURL)
+  const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
 
   const MemoTreeNode = useCallback(
-    (props: HierarchyTreeNodeProps) => {
-      return (
-        <HierarchyTreeNode
-          {...props}
-          key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
-          onContextMenu={onContextMenu}
-        />
-      )
-    },
+    (props: HierarchyTreeNodeProps) => (
+      <HierarchyTreeNode
+        {...props}
+        key={props.data.nodes[props.index].depth + ' ' + props.index + ' ' + props.data.nodes[props.index].entity}
+        onContextMenu={onContextMenu}
+      />
+    ),
     [entityHierarchy]
   )
 
+  const nodeSearch: HeirarchyTreeNodeType[] = []
   if (searchHierarchy.value.length > 0) {
     const condition = new RegExp(searchHierarchy.value.toLowerCase())
     entityHierarchy.value.forEach((node) => {
@@ -121,8 +118,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }, [])
 
   useEffect(() => {
-    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, SceneState.getRootEntity(sceneURL))))
-  }, [expandedNodes, index])
+    entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
+  }, [expandedNodes, index, rootEntityTree.children])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -417,6 +414,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   let validNodes = nodeSearch?.length > 0 ? nodeSearch : entityHierarchy.value
   validNodes = validNodes.filter((node) => entityExists(node.entity))
 
+  console.log('DEBUG validNodes', validNodes)
   const HierarchyList = ({ height, width }) => (
     <FixedSizeList
       height={height}
@@ -545,45 +543,25 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   }
 }
 
-const GLTFHierarchy = (props: { sceneID: string }) => {
+export default function HierarchyPanel() {
+  const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
   const gltfEntity = useMutableState(EditorState).rootEntity.value
-  if (!gltfEntity) return null
+  if (!sceneID || !gltfEntity) return null
 
   const GLTFHierarchySub = () => {
-    const sceneState = useHookstate(getMutableState(SceneState)).value
-    const scenePath = useModelSceneID(gltfEntity)
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const sourceID = `${rootEntityUUID}-${sceneID}`
+    const index = GLTFSnapshotState.useSnapshotIndex(sourceID)
 
-    const sceneJson = SceneState.getScene(scenePath!)?.scene
-    const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
-
-    if (!scenePath || !sceneState.scenes[scenePath] || !sceneJson || !snapshots[scenePath]) return null
-
-    return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root} sceneURL={scenePath} />
+    return (
+      <HierarchyPanelContents
+        key={`${sourceID}-${index.value}`}
+        rootEntityUUID={rootEntityUUID}
+        sceneURL={sourceID}
+        index={index.value}
+      />
+    )
   }
 
   return <GLTFHierarchySub />
-}
-
-const JSONHierarchy = (props: { sceneID: string }) => {
-  const { sceneID } = props
-  const sceneState = useHookstate(getMutableState(SceneState)).value
-
-  const sceneJson = SceneState.getScene(sceneID!)?.scene
-
-  const snapshots = useHookstate(getMutableState(SceneSnapshotState)).value
-
-  if (!sceneID || !sceneState.scenes[sceneID] || !sceneJson || !snapshots[sceneID]) return null
-
-  return <HierarchyPanelContents key={sceneJson.root} rootEntityUUID={sceneJson.root as any} sceneURL={sceneID} />
-}
-
-export default function HierarchyPanel() {
-  //const sceneID = useHookstate(getMutableState(EditorState).scenePath).value
-  const sceneID = 'test.json'
-  if (!sceneID) return null
-  return sceneID.endsWith('.json') ? (
-    <JSONHierarchy sceneID={sceneID} key={sceneID} />
-  ) : (
-    <GLTFHierarchy sceneID={sceneID} key={sceneID} />
-  )
 }

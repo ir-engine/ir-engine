@@ -35,7 +35,6 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { BsPlusCircle } from 'react-icons/bs'
 import Popover from '../../../../../primitives/mui/Popover'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -118,11 +117,8 @@ export const PropertiesPanelContainer = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const multiEdit = selectedEntities.length > 1
-  //const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
-  const uuid = 'hello testing one two three' as any //  storybook debug remove later
+  const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
   const { t } = useTranslation()
-
-  const materialID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
     <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">

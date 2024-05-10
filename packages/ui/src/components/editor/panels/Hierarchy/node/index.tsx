@@ -31,6 +31,7 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
+  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -40,8 +41,9 @@ import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/tra
 
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
 import { HeirarchyTreeNodeType } from '@etherealengine/editor/src/components/hierarchy/HeirarchyTreeWalker'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -49,6 +51,8 @@ import { ComponentEditorsState } from '@etherealengine/editor/src/functions/Comp
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { MdOutlineRemoveRedEye } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
@@ -94,15 +98,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const data = props.data
 
   console.log('DEBUG', node)
-  //const uuid = useComponent(node.entity, UUIDComponent)
+  const uuid = useComponent(node.entity, UUIDComponent)
 
-  //const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
 
   const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
-  //const errors = useOptionalComponent(node.entity, ErrorComponent)
+  const errors = useOptionalComponent(node.entity, ErrorComponent)
 
-  // const sceneAssetLoading = useOptionalComponent(node.entity, SceneAssetPendingTagComponent)
+  const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
