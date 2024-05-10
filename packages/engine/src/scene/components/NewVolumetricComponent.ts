@@ -311,6 +311,10 @@ function NewVolumetricComponentReactor() {
         return
       }
     }
+    if (playlistComponent?.autoplay.value) {
+      component.time.checkpointAbsolute.set(Date.now())
+      component.paused.set(false)
+    }
     console.log('All initial buffers loaded')
     addObjectToGroup(entity, group.current)
   }, [component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
