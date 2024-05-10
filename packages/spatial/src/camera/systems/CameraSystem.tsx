@@ -39,7 +39,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
@@ -107,9 +107,12 @@ const execute = () => {
   for (const networkCameraEntity of ownedNetworkCamera.enter()) {
     const networkTransform = getComponent(networkCameraEntity, TransformComponent)
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    setComputedTransformComponent(networkCameraEntity, Engine.instance.cameraEntity, () => {
-      networkTransform.position.copy(cameraTransform.position)
-      networkTransform.rotation.copy(cameraTransform.rotation)
+    setComponent(networkCameraEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        networkTransform.position.copy(cameraTransform.position)
+        networkTransform.rotation.copy(cameraTransform.rotation)
+      }
     })
   }
 }
