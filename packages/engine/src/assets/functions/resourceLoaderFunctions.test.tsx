@@ -28,13 +28,17 @@ import assert from 'assert'
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { LoadingManager } from 'three'
+import {
+  ResourceManager,
+  ResourceState,
+  ResourceStatus,
+  ResourceType
+} from '@etherealengine/spatial/src/resources/ResourceState'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { ResourceManager, ResourceState, ResourceStatus, ResourceType } from './ResourceState'
+import { loadResource } from './resourceLoaderFunctions'
 
-describe('ResourceState', () => {
+describe('resourceLoaderFunctions', () => {
   const url = '/packages/projects/default-project/assets/collisioncube.glb'
 
   beforeEach(async () => {
@@ -52,7 +56,7 @@ describe('ResourceState', () => {
     const controller = new AbortController()
     const nonExistingUrl = '/doesNotExist.glb'
     assert.doesNotThrow(() => {
-      ResourceManager.load(
+      loadResource(
         nonExistingUrl,
         ResourceType.GLTF,
         entity,
@@ -77,7 +81,7 @@ describe('ResourceState', () => {
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
     assert.doesNotThrow(() => {
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity,
@@ -102,7 +106,7 @@ describe('ResourceState', () => {
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
     assert.doesNotThrow(() => {
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity,
@@ -128,7 +132,7 @@ describe('ResourceState', () => {
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
     assert.doesNotThrow(() => {
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity,
@@ -137,7 +141,7 @@ describe('ResourceState', () => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
 
-          ResourceManager.load<GLTF>(
+          loadResource<GLTF>(
             url,
             ResourceType.GLTF,
             entity2,
@@ -178,7 +182,7 @@ describe('ResourceState', () => {
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
     assert.doesNotThrow(() => {
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity,
@@ -187,7 +191,7 @@ describe('ResourceState', () => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
 
-          ResourceManager.load<GLTF>(
+          loadResource<GLTF>(
             url,
             ResourceType.GLTF,
             entity,
@@ -229,7 +233,7 @@ describe('ResourceState', () => {
     const controller2 = new AbortController()
     let oneDone = false
     assert.doesNotThrow(() => {
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity,
@@ -246,7 +250,7 @@ describe('ResourceState', () => {
         },
         controller1.signal
       )
-      ResourceManager.load<GLTF>(
+      loadResource<GLTF>(
         url,
         ResourceType.GLTF,
         entity2,
@@ -266,27 +270,29 @@ describe('ResourceState', () => {
     }, done)
   })
 
-  it('Calls loading manager', (done) => {
+  it('Tracks assets referenced by GLTFs', (done) => {
     const entity = createEntity()
     const resourceState = getState(ResourceState)
     const controller = new AbortController()
     assert.doesNotThrow(() => {
-      ResourceManager.setDefaultLoadingManager(
-        new ResourceLoadingManager((startUrl) => {
-          assert(startUrl === url)
-          assert(resourceState.resources[url] !== undefined, 'Asset not added to resource manager')
-          done()
-          ResourceManager.setDefaultLoadingManager()
-        }) as LoadingManager
-      )
-
-      ResourceManager.load<GLTF>(
+      loadResource(
         url,
         ResourceType.GLTF,
         entity,
         {},
-        (response) => {},
-        (resquest) => {},
+        (response) => {
+          assert(resourceState.resources[url])
+          assert(resourceState.resources[url].assetRefs?.Mesh.length === 2)
+          const referencedMeshes = resourceState.resources[url].assetRefs.Mesh
+          for (const refMesh of referencedMeshes) assert(resourceState.resources[refMesh])
+          ResourceManager.unload(url, entity)
+          assert(!resourceState.resources[url])
+          for (const refMesh of referencedMeshes) assert(!resourceState.resources[refMesh])
+          done()
+        },
+        (resquest) => {
+          assert(false)
+        },
         (error) => {
           assert(false)
         },

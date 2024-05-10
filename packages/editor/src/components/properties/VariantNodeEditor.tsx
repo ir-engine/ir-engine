@@ -35,13 +35,14 @@ import DeblurIcon from '@mui/icons-material/Deblur'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { loadResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
-} from '@etherealengine/engine/src/assets/state/ResourceState'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+} from '@etherealengine/spatial/src/resources/ResourceState'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -68,7 +69,7 @@ const buildBudgetVariantMetadata = (
     return
   }
 
-  ResourceManager.load(
+  loadResource(
     src,
     ResourceType.GLTF,
     UndefinedEntity,
