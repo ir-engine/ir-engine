@@ -126,13 +126,19 @@ export const applyMaterialPlugins = (materialEntity: Entity) => {
   }
 }
 
-export const setPluginShaderParameters = (pluginEntity: Entity, shader: Shader, parameters: { [key: string]: any }) => {
+export const applyPluginShaderParameters = (
+  pluginEntity: Entity,
+  shader: Shader,
+  parameters: { [key: string]: any }
+) => {
   const pluginComponent = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
   const name = (shader as any).shaderName
-  pluginComponent.parameters[name].set({})
+  if (!pluginComponent.parameters[name].value) pluginComponent.parameters[name].set({})
+  const parameterObject = pluginComponent.parameters[name]
   for (const key in parameters) {
-    pluginComponent.parameters[name][key].set(new Uniform(parameters[key]))
-    shader.uniforms[key] = pluginComponent.parameters[name][key].value
+    const parameterExists = !!parameterObject[key].value
+    if (!parameterExists) parameterObject[key].set(new Uniform(parameters[key]))
+    shader.uniforms[key] = parameterObject[key].value
   }
 }
 

@@ -33,7 +33,7 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
 import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents, pluginByName } from '../../MaterialComponent'
-import { setPluginShaderParameters } from '../../materialFunctions'
+import { applyPluginShaderParameters } from '../../materialFunctions'
 
 export type NoiseOffsetParameters = {
   textureSize: Uniform
@@ -49,9 +49,10 @@ export const NoiseOffsetPlugin: PluginObjectType = {
     const pluginEntity = pluginByName[NoiseOffsetPlugin.id]
     const plugin = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin || !plugin.parameters) return
-    setPluginShaderParameters(pluginEntity, shader, {
+    applyPluginShaderParameters(pluginEntity, shader, {
       textureSize: 64,
-      frequency: 0.5,
+      frequency: 0.001,
+      amplitude: 0.25,
       noiseTexture: generateNoiseTexture(64),
       time: 0
     })
@@ -62,10 +63,11 @@ export const NoiseOffsetPlugin: PluginObjectType = {
         uniform sampler2D noiseTexture;
         uniform float textureSize; // The width of a slice
         uniform float frequency;
+        uniform float amplitude;
         uniform float time;
 
         vec3 sampleNoise(vec3 pos) {
-            float zSlice = floor(pos.z * textureSize);
+            float zSlice = (pos.z * textureSize);
             vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
             vec2 noisePos = slicePos + pos.xy / textureSize;
             return vec3(texture2D(noiseTexture, noisePos).r);
@@ -73,18 +75,18 @@ export const NoiseOffsetPlugin: PluginObjectType = {
 
         vec3 turbulence(vec3 position) {
           vec3 sum = vec3(0.0);
-          float frequency = 0.01;
-          float amplitude = 0.5;
+          float frequencyMutliplied = frequency;
+          float amplitudeMultiplied = amplitude;
 
           for (int i = 0; i < 4; i++) {
-              vec3 p = position * frequency;
-              p.z += time * 0.0025;
-              p = fract(p);
+              vec3 p = position * frequencyMutliplied;
+              p.z += time * 0.0015;
+
           
-              sum += sampleNoise(p).rgb * amplitude;
+              sum += sampleNoise(p).rgb * amplitudeMultiplied;
           
-              frequency *= 2.0;
-              amplitude *= 5.0;
+              frequencyMutliplied *= 2.0;
+              amplitudeMultiplied *= 7.0;
           }
         
           return sum;
@@ -104,7 +106,6 @@ export const NoiseOffsetPlugin: PluginObjectType = {
           noiseWorldPosition = instanceMatrix * noiseWorldPosition;
         #endif
         vec3 offset = turbulence(noiseWorldPosition.xyz) * 1.0;
-        offset.y *= 0.2;
         //offset *= yMagnitude;
         transformed += offset;
       `

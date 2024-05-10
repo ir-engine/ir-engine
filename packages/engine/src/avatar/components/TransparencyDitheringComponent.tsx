@@ -32,7 +32,7 @@ import {
   MaterialComponents,
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { setPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Vector3 } from 'three'
 import {
   ditheringAlphatestChunk,
@@ -98,7 +98,7 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
         '#include <common>\n' + ditheringFragUniform
       )
     shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-    setPluginShaderParameters(pluginEntity, shader, {
+    applyPluginShaderParameters(pluginEntity, shader, {
       centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
       exponents: Array.from({ length: maxDitherPoints }, () => 2),
       distances: Array.from({ length: maxDitherPoints }, () => 3),
