@@ -50,6 +50,7 @@ import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
 import DrawerView from '../DrawerView'
 import { validateForm } from '../validation/formValidation'
+import ConfirmSubmitDialog from './ConfirmSubmitDialog'
 
 export enum LocationDrawerMode {
   Create,
@@ -87,6 +88,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
+  const confirmWindowOpen = useHookstate(false)
 
   const scenes = useFind(assetPath)
   // const locationTypes = useFind(locationTypePath).data
@@ -151,6 +153,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       loadSelectedLocation()
       editMode.set(false)
     } else handleClose()
+  }
+
+  const handleConfirmWindowOpen = () => {
+    confirmWindowOpen.set(true)
+  }
+
+  const handleConfirmCancel = () => {
+    confirmWindowOpen.set(false)
   }
 
   const handleClose = () => {
@@ -322,7 +332,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === LocationDrawerMode.Create || editMode.value) && (
-            <Button className={styles.gradientButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleConfirmWindowOpen}>
               {t('admin:components.common.submit')}
             </Button>
           )}
@@ -333,6 +343,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           )}
         </DialogActions>
       </Container>
+
+      <ConfirmSubmitDialog
+        open={confirmWindowOpen.value}
+        onConfirm={handleSubmit}
+        handleCancel={handleConfirmCancel}
+        onClose={handleConfirmCancel}
+      />
     </DrawerView>
   )
 }
