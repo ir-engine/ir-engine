@@ -311,7 +311,7 @@ function NewVolumetricComponentReactor() {
         return
       }
     }
-    if (playlistComponent?.autoplay.value) {
+    if (playlistComponent?.autoplay.value || !playlistComponent?.paused.value) {
       component.time.checkpointAbsolute.set(Date.now())
       component.paused.set(false)
     }
@@ -420,6 +420,8 @@ function NewVolumetricComponentReactor() {
         clearAll: true
       })
     }
+    geometryBuffer.current.clear()
+    textureBuffer.current.clear()
 
     if (material.current) {
       material.current.dispose()
