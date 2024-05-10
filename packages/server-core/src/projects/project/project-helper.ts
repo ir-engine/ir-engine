@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -315,18 +316,79 @@ export const getProjectConfig = (projectName: string): ProjectConfigInterface =>
     return null!
   }
 }
-
-export const getProjectPackageJson = (projectName: string): ProjectPackageJsonType => {
-  return require(path.resolve(projectsRootFolder, projectName, 'package.json'))
+export const getProjectManifest = (projectName: string): ManifestJson => {
+  const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
+  const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
+  if (fs.existsSync(manifestJsonPath)) {
+    return require(manifestJsonPath)
+  }
+  if (fs.existsSync(packageJsonPath)) {
+    const packageJson = require(path.resolve(
+      projectsRootFolder,
+      projectName,
+      'manifest.json'
+    )) as ProjectPackageJsonType
+    return {
+      name: packageJson.name!,
+      version: packageJson.version!,
+      engineVersion: packageJson.etherealEngine?.version,
+      description: packageJson.description,
+      thumbnail: packageJson.etherealEngine?.thumbnail
+    }
+  }
+  throw new Error('No manifest.json or package.json found in project')
 }
 
-export const getEnginePackageJson = (): ProjectPackageJsonType => {
-  return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
-}
+export const engineVersion = (
+  require(path.resolve(appRootPath.path, 'packages/server-core/package.json')) as ProjectPackageJsonType
+).version!
 
 export const getProjectEnabled = (projectName: string) => {
-  const matchesVersion = getProjectPackageJson(projectName).etherealEngine?.version === getEnginePackageJson().version
+  const matchesVersion = getProjectManifest(projectName).engineVersion === engineVersion
   return config.allowOutOfDateProjects ? true : matchesVersion
+}
+
+export const getProjectManifestFromRemote = async (
+  octoKit: Awaited<ReturnType<typeof getOctokitForChecking>>['octoKit'],
+  owner: string,
+  repo: string,
+  sha?: string
+): Promise<ManifestJson> => {
+  try {
+    const blobResponse = await octoKit.rest.repos.getContent({
+      owner,
+      repo,
+      path: 'manifest.json',
+      ref: sha
+    })
+    return JSON.parse(
+      Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
+    ) as ManifestJson
+  } catch (err) {
+    logger.warn("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+
+    try {
+      const blobResponse = await octoKit.rest.repos.getContent({
+        owner,
+        repo,
+        path: 'package.json',
+        ref: sha
+      })
+      const packageJson = JSON.parse(
+        Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
+      ) as ProjectPackageJsonType
+      return {
+        name: packageJson.name,
+        version: packageJson.version,
+        engineVersion: packageJson.etherealEngine?.version,
+        description: packageJson.description,
+        thumbnail: packageJson.etherealEngine?.thumbnail
+      } as ManifestJson
+    } catch (err) {
+      logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+      return Promise.reject(err)
+    }
+  }
 }
 
 //DO NOT REMOVE!
@@ -381,28 +443,21 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
   }
 
   try {
-    const blobResponse = await sourceOctoKit.rest.repos.getContent({
-      owner,
-      repo,
-      path: 'package.json',
-      ref: commit.data.sha
-    })
-    const content = JSON.parse(Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString())
-    const enginePackageJson = getEnginePackageJson()
+    const content = await getProjectManifestFromRemote(sourceOctoKit, owner, repo, commit.data.sha)
     return {
       projectName: content.name,
       projectVersion: content.version,
-      engineVersion: content.etherealEngine?.version,
+      engineVersion: content.engineVersion,
       commitSHA: commit.data.sha,
       error: '',
       text: '',
       datetime: commit.data.commit.committer?.date,
-      matchesEngineVersion: content.etherealEngine?.version
-        ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
+      matchesEngineVersion: content.engineVersion
+        ? compareVersions(content.engineVersion, engineVersion || '0.0.0') === 0
         : false
     } as ProjectCheckUnfetchedCommitType
   } catch (err) {
-    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    logger.error("Error getting commit's manifest.json %s/%s %s", owner, repo, err.toString())
     return Promise.reject(err)
   }
 }
@@ -443,57 +498,49 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidDestinationURL',
       text: 'The destination URL is not valid, or you do not have access to it'
     }
-  const [sourceBlobResponse, destinationBlobResponse]: [sourceBlobResponse: any, destinationBlobResponse: any] =
-    await Promise.all([
-      new Promise(async (resolve, reject) => {
-        try {
-          const sourcePackage = await sourceOctoKit.rest.repos.getContent({
-            owner: sourceOwner,
-            repo: sourceRepo,
-            path: 'package.json',
-            ref: selectedSHA
+  const [sourceContent, destinationContent] = await Promise.all([
+    new Promise<ManifestJson | { error: string; text: string }>(async (resolve, reject) => {
+      try {
+        const sourceManifest = await getProjectManifestFromRemote(sourceOctoKit, sourceOwner, sourceRepo, selectedSHA)
+        resolve(sourceManifest)
+      } catch (err) {
+        logger.error(err)
+        if (err.status === 404) {
+          resolve({
+            error: 'sourceManifestMissing',
+            text: 'There is no manifest.json in the source repo'
           })
-          resolve(sourcePackage)
-        } catch (err) {
-          logger.error(err)
-          if (err.status === 404) {
-            resolve({
-              error: 'sourcePackageMissing',
-              text: 'There is no package.json in the source repo'
-            })
-          } else reject(err)
-        }
-      }),
-      new Promise(async (resolve, reject) => {
-        try {
-          const destinationPackage = await destinationOctoKit.rest.repos.getContent({
-            owner: destinationOwner,
-            repo: destinationRepo,
-            path: 'package.json'
+        } else reject(err)
+      }
+    }),
+    new Promise<ManifestJson | { error: string; text: string }>(async (resolve, reject) => {
+      try {
+        const destinationPackage = await getProjectManifestFromRemote(
+          destinationOctoKit,
+          destinationOwner,
+          destinationRepo
+        )
+        resolve(destinationPackage)
+      } catch (err) {
+        logger.error('destination package fetch error %o', err)
+        if (err.status === 404) {
+          resolve({
+            error: 'destinationManifestMissing',
+            text: 'There is no manifest.json in the destination repo'
           })
-          resolve(destinationPackage)
-        } catch (err) {
-          logger.error('destination package fetch error %o', err)
-          if (err.status === 404) {
-            resolve({
-              error: 'destinationPackageMissing',
-              text: 'There is no package.json in the destination repo'
-            })
-          } else reject(err)
-        }
-      })
-    ])
+        } else reject(err)
+      }
+    })
+  ])
 
-  if (sourceBlobResponse.error) return sourceBlobResponse
-  const sourceContent = JSON.parse(
-    Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
-  )
+  if ('error' in sourceContent) return sourceContent
+  if ('error' in destinationContent) return destinationContent
 
-  if (!sourceContent.etherealEngine)
+  if (!sourceContent.engineVersion)
     return {
       sourceProjectMatchesDestination: false,
-      error: 'notEtherealEngineProject',
-      text: `The source repo's package.json does not have an 'etherealEngine' key, suggesting it is not a project`
+      error: 'noEngineVersion',
+      text: `The source repo's manifest.json does not have an 'engineVersion' key, suggesting it is not a project`
     }
   if (!existingProject) {
     const projectExists = (await app.service(projectPath).find({
@@ -513,12 +560,12 @@ export const checkProjectDestinationMatch = async (
         text: `The source project, ${sourceContent.name}, is already installed`
       }
   }
-  if (destinationBlobResponse.error && destinationBlobResponse.error !== 'destinationPackageMissing')
-    return destinationBlobResponse
-  if (destinationBlobResponse.error === 'destinationPackageMissing')
-    return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
-  // console.log('destination content', Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
-  const destinationContent = JSON.parse(Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
+  if (sourceContent.engineVersion !== engineVersion)
+    return {
+      sourceProjectMatchesDestination: false,
+      error: 'engineVersionMismatch',
+      text: `The source project's engine version, ${sourceContent.engineVersion}, does not match the server's engine version, ${engineVersion}`
+    }
   if (sourceContent.name.toLowerCase() !== destinationContent.name.toLowerCase())
     return {
       error: 'invalidRepoProjectName',
@@ -575,15 +622,14 @@ export const checkDestination = async (app: Application, url: string, params?: P
         error: 'invalidPermission',
         text: 'You do not have personal push, maintain, or admin access to this repo.'
       }
-    let destinationPackage
+    let destinationManifest: ManifestJson | undefined
     try {
-      destinationPackage = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
+      destinationManifest = await getProjectManifestFromRemote(octoKit, owner, repo)
     } catch (err) {
       logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
-    if (destinationPackage)
-      returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
+    if (destinationManifest) returned.projectName = destinationManifest.name
     else returned.repoEmpty = true
 
     if (inputProjectURL?.length > 0) {
@@ -599,16 +645,10 @@ export const checkDestination = async (app: Application, url: string, params?: P
           error: 'invalidDestinationURL',
           text: 'The destination URL is not valid, or you do not have access to it'
         }
-      let existingProjectPackage
+      let existingProjectManifest: ManifestJson
       try {
-        existingProjectPackage = await projectOctoKit.rest.repos.getContent({
-          owner: existingOwner,
-          repo: existingRepo,
-          path: 'package.json'
-        })
-        const existingProjectName = JSON.parse(
-          Buffer.from(existingProjectPackage.data.content, 'base64').toString()
-        ).name
+        existingProjectManifest = await getProjectManifestFromRemote(projectOctoKit, existingOwner, existingRepo)
+        const existingProjectName = existingProjectManifest.name
         if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
@@ -709,7 +749,6 @@ export const getProjectCommits = async (
         text: 'You does not have access to the destination GitHub repo'
       }
 
-    const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
     const branchName = params!.query!.sourceBranch || (repoResponse as any).default_branch
     const headResponse = await octoKit.rest.repos.listCommits({
@@ -724,27 +763,19 @@ export const getProjectCommits = async (
         (commit) =>
           new Promise(async (resolve, reject) => {
             try {
-              const blobResponse = await octoKit.rest.repos.getContent({
-                owner,
-                repo,
-                path: 'package.json',
-                ref: commit.sha
-              })
-              const content = JSON.parse(
-                Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
-              )
+              const content = await getProjectManifestFromRemote(octoKit, owner, repo, commit.sha)
               resolve({
                 projectName: content.name,
                 projectVersion: content.version,
-                engineVersion: content.etherealEngine?.version,
+                engineVersion: content.engineVersion,
                 commitSHA: commit.sha,
                 datetime: commit?.commit?.committer?.date || new Date().toString(),
-                matchesEngineVersion: content.etherealEngine?.version
-                  ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
+                matchesEngineVersion: content.engineVersion
+                  ? compareVersions(content.engineVersion, engineVersion || '0.0.0') === 0
                   : false
               })
             } catch (err) {
-              logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
+              logger.error("Error getting commit's manifest.json %s/%s:%s %s", owner, repo, branchName, err.toString())
               resolve({
                 projectName: undefined,
                 projectVersion: undefined,

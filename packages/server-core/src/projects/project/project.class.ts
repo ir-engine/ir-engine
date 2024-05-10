@@ -49,12 +49,12 @@ import config from '../../appconfig'
 import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
 import {
   deleteProjectFilesInStorageProvider,
+  engineVersion,
   getCommitSHADate,
-  getEnginePackageJson,
   getGitProjectData,
   getProjectConfig,
   getProjectEnabled,
-  getProjectPackageJson,
+  getProjectManifest,
   onProjectEvent,
   uploadLocalProjectToProvider
 } from './project-helper'
@@ -169,9 +169,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      const engineVersion = getProjectPackageJson(projectName).etherealEngine?.version
-      const version = getEnginePackageJson().version
-      const enabled = config.allowOutOfDateProjects ? true : engineVersion === version
+      const projectEngineVersion = getProjectManifest(projectName).engineVersion
+      const enabled = config.allowOutOfDateProjects ? true : projectEngineVersion === engineVersion
 
       await super._patch(
         null,

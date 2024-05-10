@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
-import packageJson from './package.json'
+import manifestJson from './manifest.json'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { createLocations } from '@etherealengine/projects/createLocations'
@@ -101,7 +101,11 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
 
 const config = {
   onInstall: async (app: Application) => {
-    await createLocations(app, packageJson.name, ['apartment.gltf', 'default.gltf', 'sky-station.gltf'])
+    await createLocations(app, manifestJson.name, {
+      apartment: 'public/scenes/apartment.gltf',
+      default: 'public/scenes/default.gltf',
+      ['sky-station']: 'public/scenes/sky-station.gltf'
+    })
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onUpdate: (app: Application) => {
