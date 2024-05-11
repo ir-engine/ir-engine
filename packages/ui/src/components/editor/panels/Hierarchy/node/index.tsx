@@ -296,7 +296,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const marginLeft = node.depth > 0 ? node.depth * 2 + 2 : 0
 
   return (
-    <li style={props.style} className={`bg-${props.index % 2 ? 'neutral-800' : 'zinc-800'}`}>
+    <li
+      style={props.style}
+      className={twMerge(
+        `bg-${props.index % 2 ? 'neutral-800' : 'zinc-800'}`,
+        selected ? 'border border-gray-100' : 'border-none'
+      )}
+    >
       <div
         ref={drag}
         id={getNodeElId(node)}
