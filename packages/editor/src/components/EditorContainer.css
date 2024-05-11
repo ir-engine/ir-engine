@@ -13,7 +13,6 @@
 
 .dock-panel:first-child {
   position: relative;
-  z-index: 99;
 }
 
 .dock-panel[data-dockid='+5'] {

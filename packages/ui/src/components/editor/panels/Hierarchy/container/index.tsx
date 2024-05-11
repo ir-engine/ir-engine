@@ -193,7 +193,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     setAnchorEl(event.currentTarget)
     setAnchorPosition({
       left: event.clientX + 2,
-      top: event.clientY - 6
+      top: event.clientY + 24
     })
   }
 
