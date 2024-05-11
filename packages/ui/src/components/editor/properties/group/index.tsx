@@ -55,11 +55,15 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
         {icon}
         <Text>{name}</Text>
         <div className="ml-auto mr-0 flex items-center gap-3 text-[#444444]">
-          <HiMiniXMark />
+          {onClose && (
+            <button onPointerUp={onClose}>
+              <HiMiniXMark />
+            </button>
+          )}
           <MdDragIndicator className="rotate-90" />
         </div>
       </div>
-      {description && (
+      {!minimized && description && (
         <Text fontSize="xs" className="ml-8 py-2">
           {description.split('\\n').map((line, idx) => (
             <Fragment key={idx}>

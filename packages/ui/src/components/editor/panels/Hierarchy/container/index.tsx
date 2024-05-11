@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect, useState } from 'react'
-import { useDrop } from 'react-dnd'
-import { useTranslation } from 'react-i18next'
-import { FixedSizeList } from 'react-window'
-
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -38,6 +33,11 @@ import {
   isAncestor,
   traverseEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useDrop } from 'react-dnd'
+import Hotkeys from 'react-hot-keys'
+import { useTranslation } from 'react-i18next'
+import { FixedSizeList } from 'react-window'
 
 import { PopoverPosition } from '@mui/material/Popover'
 
@@ -54,12 +54,14 @@ import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/consta
 import { CopyPasteFunctions } from '@etherealengine/editor/src/functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
+import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { BsPlusCircle } from 'react-icons/bs'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import Button from '../../../../../primitives/tailwind/Button'
+import ContextMenu from '../../../layout/ContextMenu'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
 /**
@@ -77,8 +79,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { sceneURL, rootEntityUUID, index } = props
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -440,47 +442,23 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   )
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
-      <div className="ml-auto flex h-8 bg-zinc-900">
-        <Button
-          textContainerClassName="mx-0"
-          startIcon={<BsPlusCircle />}
-          className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
-        >
-          {t('editor:hierarchy.lbl-addEntity')}
-        </Button>
-      </div>
-      <div className="h-[100%] overflow-x-hidden overflow-y-hidden">
-        <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-      </div>
-    </div>
-  )
-  {
-    /*<div className={styles.panelContainer}>
-        <div className={styles.dockableTabButtons}>
-          <Search elementsName="hierarchy" handleInputChange={searchHierarchy.set} />
+    <>
+      <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
+        <div className="ml-auto flex h-8 bg-zinc-900">
+          <Button
+            textContainerClassName="mx-0"
+            startIcon={<BsPlusCircle />}
+            className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
+            onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+          >
+            {t('editor:hierarchy.lbl-addEntity')}
+          </Button>
         </div>
-        <div style={{ height: '100%' }}>
+        <div className="h-[100%] overflow-x-hidden overflow-y-hidden">
           <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
         </div>
-        <PropertiesPanelButton
-          variant="contained"
-          // TODO see why we have to specify capitalize here
-          style={{
-            textTransform: 'capitalize',
-            margin: '5px auto',
-            width: 'auto',
-            fontSize: '12px',
-            lineHeight: '0.5'
-          }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
-        >
-          {t('editor:hierarchy.lbl-addEntity')}
-        </PropertiesPanelButton>
       </div>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-        <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
           onKeyUp={(_, e) => {
@@ -489,10 +467,13 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onDuplicateNode(selectedNode!)
           }}
         >
-          <MenuItem onClick={() => onDuplicateNode(contextSelectedItem!)}>
+          <button
+            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+            onClick={() => onDuplicateNode(contextSelectedItem!)}
+          >
             {t('editor:hierarchy.lbl-duplicate')}
-            <div>{cmdOrCtrlString + ' + d'}</div>
-          </MenuItem>
+            <div className="text-right">{cmdOrCtrlString + ' + d'}</div>
+          </button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+g'}
@@ -502,10 +483,13 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onGroupNodes(selectedNode!)
           }}
         >
-          <MenuItem onClick={() => onGroupNodes(contextSelectedItem!)}>
+          <button
+            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+            onClick={() => onGroupNodes(contextSelectedItem!)}
+          >
             {t('editor:hierarchy.lbl-group')}
-            <div>{cmdOrCtrlString + ' + g'}</div>
-          </MenuItem>
+            <div className="text-right">{cmdOrCtrlString + ' + g'}</div>
+          </button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+c'}
@@ -515,10 +499,13 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onCopyNode(selectedNode)
           }}
         >
-          <MenuItem onClick={() => onCopyNode(contextSelectedItem!)}>
+          <button
+            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+            onClick={() => onCopyNode(contextSelectedItem!)}
+          >
             {t('editor:hierarchy.lbl-copy')}
-            <div>{cmdOrCtrlString + ' + c'}</div>
-          </MenuItem>
+            <div className="text-right">{cmdOrCtrlString + ' + c'}</div>
+          </button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+v'}
@@ -528,18 +515,35 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onPasteNode(selectedNode)
           }}
         >
-          <MenuItem onClick={() => onPasteNode(contextSelectedItem!)}>
+          <button
+            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+            onClick={() => onPasteNode(contextSelectedItem!)}
+          >
             {t('editor:hierarchy.lbl-paste')}
-            <div>{cmdOrCtrlString + ' + v'}</div>
-          </MenuItem>
+            <div className="text-right">{cmdOrCtrlString + ' + v'}</div>
+          </button>
         </Hotkeys>
-        <MenuItem onClick={() => onDeleteNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
-        <MenuItem onClick={() => expandChildren(contextSelectedItem!)}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
-        <MenuItem onClick={() => collapseChildren(contextSelectedItem!)}>
+        <button
+          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          onClick={() => onDeleteNode(contextSelectedItem!)}
+        >
+          {t('editor:hierarchy.lbl-delete')}
+        </button>
+        <button
+          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          onClick={() => expandChildren(contextSelectedItem!)}
+        >
+          {t('editor:hierarchy.lbl-expandAll')}
+        </button>
+        <button
+          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          onClick={() => collapseChildren(contextSelectedItem!)}
+        >
           {t('editor:hierarchy.lbl-collapseAll')}
-        </MenuItem>
-        </ContextMenu>*/
-  }
+        </button>
+      </ContextMenu>
+    </>
+  )
 }
 
 export default function HierarchyPanel() {

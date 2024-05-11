@@ -31,6 +31,7 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -38,6 +39,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
 
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 
@@ -53,7 +55,7 @@ import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { MdOutlineRemoveRedEye } from 'react-icons/md'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { twMerge } from 'tailwind-merge'
 import TransformPropertyGroup from '../../../properties/transform'
 
@@ -103,9 +105,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = useOptionalComponent(node.entity, NameComponent)?.value
 
+  const visible = useOptionalComponent(node.entity, VisibleComponent)
+
   const errors = useOptionalComponent(node.entity, ErrorComponent)
 
   const sceneAssetLoading = useOptionalComponent(node.entity, ResourcePendingComponent)
+
+  const toggleVisible = () => {
+    setVisibleComponent(node.entity, !hasComponent(node.entity, VisibleComponent))
+  }
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -343,13 +351,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             {/*sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />*/}
           </div>
 
-          <button
-            type="button"
-            className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'}
-            onClick={onClickToggle as any}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <MdOutlineRemoveRedEye className="font-small text-[#6B7280]" />
+          <button type="button" className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'} onClick={toggleVisible}>
+            {visible ? (
+              <PiEyeBold className=" font-small text-[#6B7280]" />
+            ) : (
+              <PiEyeClosedBold className=" font-small text-[#6B7280]" />
+            )}
           </button>
         </div>
 
