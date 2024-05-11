@@ -92,12 +92,15 @@ export default function ScenesPanel() {
         ) : (
           <div className="flex flex-wrap gap-4">
             {scenes.map((scene: AssetType) => (
-              <div className="bg-theme-surface-main w-56 rounded">
+              <div className="bg-theme-surface-main h-40 w-56 rounded">
                 <img
                   src={config.client.fileServer + '/' + scene.thumbnailURL}
                   alt={scene.assetURL}
+                  onError={(e) => {
+                    e.currentTarget.src = 'static/etherealengine_logo.png'
+                  }}
                   crossOrigin="anonymous"
-                  className="cursor-pointer"
+                  className="h-[100%] w-[100%] cursor-pointer object-contain"
                   onClick={() => onClickScene(scene)}
                 />
                 <div className="flex items-center justify-between px-4 py-2">
@@ -110,7 +113,7 @@ export default function ScenesPanel() {
                       onClick={() => isContextMenuOpen.set(scene.id)}
                     />
                     {isContextMenuOpen.value === scene.id ? (
-                      <div className={'absolute top-1 flex flex-col gap-1'} ref={contextMenuRef}>
+                      <div className={'absolute top-1 flex flex-col'} ref={contextMenuRef}>
                         <Button
                           variant="outline"
                           size="small"
