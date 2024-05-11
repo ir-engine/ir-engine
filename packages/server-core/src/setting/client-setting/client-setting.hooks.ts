@@ -34,7 +34,6 @@ import {
   clientSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
@@ -111,7 +110,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         type: getContentType(icon512px!)
       }
     ]
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await context.app.service(invalidationPath).create({
         path: webmanifestPath
       })

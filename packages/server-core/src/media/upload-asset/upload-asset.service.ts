@@ -38,11 +38,11 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
@@ -122,7 +122,7 @@ const addFileToStorageProvider = async (app: Application, file: Buffer, mimeType
   logger.info(`Uploading ${key} to storage provider`)
   const provider = getStorageProvider()
   try {
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await app.service(invalidationPath).create({
         path: key
       })

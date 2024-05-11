@@ -37,6 +37,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
+import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
 import { PopoverPosition } from '@mui/material/Popover'
@@ -59,14 +60,12 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { BsPlusCircle } from 'react-icons/bs'
-import AutoSizer from 'react-virtualized-auto-sizer'
+import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
+import Input from '../../../../../primitives/tailwind/Input'
 import ContextMenu from '../../../layout/ContextMenu'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
-/**
- * initializes object containing Properties multiple, accepts.
- */
 const uploadOptions = {
   multiple: true,
   accepts: AllFileTypes
@@ -458,7 +457,37 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
         </div>
       </div>
+      <div className="mb-1 flex items-center gap-2">
+        <Input
+          placeholder={t('common:components.search')}
+          value={searchHierarchy.value}
+          onChange={(event) => {
+            searchHierarchy.set(event.target.value)
+          }}
+          className="bg-theme-primary rounded"
+          startComponent={<HiMagnifyingGlass />}
+        />
+        <Button
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          rounded="none"
+          className="bg-theme-highlight w-40 px-2"
+          size="small"
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+        >
+          {t('editor:hierarchy.lbl-addEntity')}
+        </Button>
+      </div>
+      <div className="h-full overflow-hidden">
+        <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+      </div>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+        <button
+          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          onClick={() => onRenameNode(contextSelectedItem!)}
+        >
+          {t('editor:hierarchy.lbl-rename')}
+        </button>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
           onKeyUp={(_, e) => {

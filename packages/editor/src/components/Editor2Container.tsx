@@ -33,6 +33,7 @@ import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/pan
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
 
+import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import Dialog from '@mui/material/Dialog'
 import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
@@ -172,7 +173,7 @@ const EditorContainer = () => {
   }, [errorState])
 
   return (
-    <>
+    <main className="pointer-events-auto">
       <div
         id="editor-container"
         className="flex flex-col bg-black"
@@ -201,7 +202,8 @@ const EditorContainer = () => {
           </Dialog>
         </DndWrapper>
       </div>
-    </>
+      <PopupMenu />
+    </main>
   )
 }
 

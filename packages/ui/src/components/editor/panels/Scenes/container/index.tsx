@@ -23,31 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import config from '@etherealengine/common/src/config'
 import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
-import { getComponent } from '@etherealengine/ecs'
-import { DialogState } from '@etherealengine/editor/src/components/dialogs/DialogState'
-import ErrorDialog from '@etherealengine/editor/src/components/dialogs/ErrorDialog'
-import { deleteScene, onNewScene, renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
-import { ClickAwayListener } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BsPlusCircle } from 'react-icons/bs'
 import { HiDotsHorizontal } from 'react-icons/hi'
-import Typography from '../../../../../primitives/mui/Typography'
+import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
-import StringInput from '../../../input/String'
-import { InfoTooltip } from '../../../layout/Tooltip'
-import DeleteDialog from '../dialog/delete'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Text from '../../../../../primitives/tailwind/Text'
+import ConfirmDialog from '../../../../tailwind/ConfirmDialog'
+import RenameSceneModal from '../modals/RenameScene'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
@@ -55,188 +47,106 @@ export default function ScenesPanel() {
   const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 
-  const [isContextMenuOpen, setContextMenuOpen] = useState(false)
-  const [isDeleteOpen, setDeleteOpen] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [isRenaming, setRenaming] = useState(false)
-  const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const contextMenuRef = useRef(null)
+  const isContextMenuOpen = useHookstate<AssetType['id']>('')
   const scenesLoading = scenesQuery.status === 'pending'
-  const onCreateScene = async () => {
-    await onNewScene()
-  }
+  const onCreateScene = async () => onNewScene()
 
-  const onClickExisting = async (e, scene: AssetType) => {
-    e.preventDefault()
+  const onClickScene = (scene: AssetType) => {
     getMutableState(EditorState).scenePath.set(scene.assetURL)
   }
 
-  const openDeleteDialog = () => {
-    setContextMenuOpen(false)
-    setDeleteOpen(true)
-  }
-
-  const closeDeleteDialog = () => {
-    setLoadedScene(null)
-    setDeleteOpen(false)
-  }
-  const deleteActiveScene = async () => {
-    if (loadedScene) {
-      await deleteScene(loadedScene.id)
-      if (editorState.sceneAssetID.value === loadedScene.id) {
+  const deleteSelectedScene = async (scene: AssetType) => {
+    if (scene) {
+      await deleteScene(scene.id)
+      if (editorState.sceneAssetID.value === scene.id) {
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)
       }
     }
-
-    closeDeleteDialog()
+    PopoverState.hidePopupover()
   }
 
-  const openContextMenu = (e, scene) => {
-    e.stopPropagation()
-    setLoadedScene(scene)
-    setContextMenuOpen(true)
-  }
+  const getSceneName = (scene: AssetType) =>
+    scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
 
-  const closeContextMenu = () => {
-    setContextMenuOpen(false)
-    setLoadedScene(null)
-  }
-
-  const startRenaming = () => {
-    const rootEntity = getState(EditorState).rootEntity
-    if (rootEntity) {
-      const modified = getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
-      if (modified) {
-        DialogState.setDialog(
-          <ErrorDialog title={t('editor:errors.unsavedChanges')} message={t('editor:errors.unsavedChangesMsg')} />
-        )
-        return
-      }
-    }
-    setContextMenuOpen(false)
-    setRenaming(true)
-    setNewName(loadedScene!.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', ''))
-  }
-
-  const finishRenaming = async (id: string) => {
-    setRenaming(false)
-    const newData = await renameScene(id, newName)
-    if (loadedScene) getMutableState(EditorState).scenePath.set(newData.assetURL)
-    setNewName('')
-  }
-
-  const renameSceneToNewName = async (e, id: string) => {
-    if (e.key == 'Enter' && loadedScene) finishRenaming(id)
-  }
-
-  const getSceneURL = async (url) => {
-    const [texture, unload] = await getTextureAsync(url)
-    if (texture) {
-      const outUrl = (await createReadableTexture(texture, { url: true })) as string
-      unload()
-      return outUrl
-    }
-  }
+  useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
   return (
-    <>
-      <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
-        <div className="ml-auto flex h-8 bg-zinc-900">
-          <Button
-            textContainerClassName="mx-0"
-            startIcon={<BsPlusCircle />}
-            className="mr-0 inline-flex h-8 w-[136px] items-center justify-start gap-2 bg-neutral-800 px-2 py-[7px] text-center font-['Figtree'] text-xs font-normal leading-[18px] text-neutral-200"
-            onClick={onCreateScene}
-          >
-            {t(`editor:newScene`)}
-          </Button>
-        </div>
-
+    <div className="bg-theme-primary">
+      <div className="bg-theme-surface-main mb-4 w-full">
+        <Button
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          rounded="none"
+          className="bg-theme-highlight ml-auto w-32 px-2"
+          size="small"
+          onClick={onCreateScene}
+        >
+          {t('editor:newScene')}
+        </Button>
+      </div>
+      <div className="bg-theme-primary mx-5">
         {scenesLoading ? (
-          <div>
-            <div>
-              <LoadingCircle />
-              <Typography>{t('editor:loadingScenes')}</Typography>
-            </div>
-          </div>
+          <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
-          <div className="relative grid grid-cols-4 gap-6 p-5">
+          <div className="flex flex-wrap gap-4">
             {scenes.map((scene: AssetType) => (
-              <div
-                key={scene.assetURL}
-                onClick={(e) => {
-                  onClickExisting(e, scene)
-                }}
-                className="relative flex h-[100%] w-[100%] flex-col items-center pb-[3px]"
-              >
-                <div className="flex h-[100%] w-[100%] items-center justify-center rounded-tl-lg rounded-tr-lg bg-white">
-                  <div className="h-[100%] w-auto rounded bg-neutral-900">
-                    <img
-                      className="h-[100%] w-[100%] rounded-bl-[5px] rounded-br-[5px] object-contain"
-                      src={config.client.fileServer + '/' + scene.thumbnailURL}
-                      alt=""
-                      crossOrigin="anonymous"
+              <div className="bg-theme-surface-main w-56 rounded">
+                <img
+                  src={config.client.fileServer + '/' + scene.thumbnailURL}
+                  alt={scene.assetURL}
+                  crossOrigin="anonymous"
+                  className="cursor-pointer"
+                  onClick={() => onClickScene(scene)}
+                />
+                <div className="flex items-center justify-between px-4 py-2">
+                  <Text>{getSceneName(scene)}</Text>
+                  <div className="relative">
+                    <Button
+                      variant="transparent"
+                      startIcon={<HiDotsHorizontal />}
+                      iconContainerClassName="mx-0"
+                      onClick={() => isContextMenuOpen.set(scene.id)}
                     />
-                  </div>
-                </div>
-                <div className="flex w-[100%] flex-row items-center justify-between rounded-bl-lg rounded-br-lg bg-zinc-900 px-4 py-2">
-                  <div className="truncate font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400">
-                    {loadedScene === scene && isRenaming ? (
-                      <StringInput
-                        value={newName}
-                        onChange={(name) => setNewName(name)}
-                        onBlur={() => finishRenaming(scene.id)}
-                      />
-                    ) : (
-                      <InfoTooltip
-                        title={scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}
-                      >
-                        <span>{scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')}</span>
-                      </InfoTooltip>
-                    )}
-                  </div>
-                  <button
-                    className="truncate p-2"
-                    onClick={(e) => {
-                      setRenaming(false)
-                      openContextMenu(e, scene)
-                    }}
-                  >
-                    <HiDotsHorizontal className="truncate text-white" />
-                  </button>
-                  {isContextMenuOpen && loadedScene && loadedScene?.assetURL === scene.assetURL && (
-                    <ClickAwayListener onClickAway={() => closeContextMenu()}>
-                      <div className="absolute right-0 z-10 mt-2 w-24 rounded-md bg-neutral-900 shadow-lg">
-                        <div className="flex flex-col py-1">
-                          <button
-                            className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
-                            onClick={startRenaming}
-                          >
-                            {t('editor:hierarchy.lbl-rename')}
-                          </button>
-                          <button
-                            className="truncate px-4 py-2 text-sm text-white hover:bg-zinc-800"
-                            onClick={openDeleteDialog}
-                          >
-                            {t('editor:hierarchy.lbl-delete')}
-                          </button>
-                        </div>
+                    {isContextMenuOpen.value === scene.id ? (
+                      <div className={'absolute top-1 flex flex-col gap-1'} ref={contextMenuRef}>
+                        <Button
+                          variant="outline"
+                          size="small"
+                          fullWidth
+                          onClick={() =>
+                            PopoverState.showPopupover(
+                              <RenameSceneModal sceneName={getSceneName(scene)} scene={scene} />
+                            )
+                          }
+                        >
+                          {t('editor:hierarchy.lbl-rename')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="small"
+                          fullWidth
+                          onClick={() => {
+                            PopoverState.showPopupover(
+                              <ConfirmDialog
+                                text={t('editor:hierarchy.lbl-deleteScene')}
+                                onSubmit={async () => deleteSelectedScene(scene)}
+                              />
+                            )
+                          }}
+                        >
+                          {t('editor:hierarchy.lbl-delete')}
+                        </Button>
                       </div>
-                    </ClickAwayListener>
-                  )}
+                    ) : null}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-      <DeleteDialog
-        open={isDeleteOpen}
-        onClose={closeDeleteDialog}
-        onCancel={closeDeleteDialog}
-        onConfirm={deleteActiveScene}
-      />
-    </>
+    </div>
   )
 }
