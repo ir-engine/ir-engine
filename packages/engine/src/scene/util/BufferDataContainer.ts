@@ -40,8 +40,8 @@ export type CommonBufferDataType = {
 }[]
 
 export default class BufferData {
-  public bufferedRange: BufferedDataType
-  public pendingRange: PendingBufferDataType
+  private bufferedRange: BufferedDataType
+  private pendingRange: PendingBufferDataType
   private metrics: {
     totalFetchTime: number
     totalPlayTime: number
@@ -198,7 +198,7 @@ export default class BufferData {
     this.removeRange(startTime, endTime, true)
   }
 
-  public removeRange(startTime: number, endTime: number, pending: boolean) {
+  private removeRange(startTime: number, endTime: number, pending: boolean) {
     const array = pending ? this.pendingRange : this.bufferedRange
     if (
       array.length === 0 ||
@@ -354,6 +354,14 @@ export default class BufferData {
       }
       current = this.pendingRange[pendingLb].endTime
     }
+  }
+
+  public getBufferedUntil(currentTime: number) {
+    const lb = this.lowerBound(this.bufferedRange, currentTime, 'startTime')
+    if (lb === -1) {
+      return currentTime
+    }
+    return this.bufferedRange[lb].endTime
   }
 
   public getMetrics() {

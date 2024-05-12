@@ -201,11 +201,6 @@ export const fetchGeometry = ({
 
             const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
             if (startFrameBufferData.missingDuration === 0 && startFrameBufferData.pendingDuration === 0) {
-              console.log(
-                `FetchGeometry: I have all buffers from ${startTime / TIME_UNIT_MULTIPLIER} to ${
-                  endTime / TIME_UNIT_MULTIPLIER
-                }`
-              )
               initialBufferLoaded.set(true)
             }
           }
@@ -250,7 +245,7 @@ export const fetchGeometry = ({
             const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
 
             const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
-            if (startFrameBufferData.missingDuration === 0) {
+            if (startFrameBufferData.missingDuration === 0 && startFrameBufferData.pendingDuration === 0) {
               initialBufferLoaded.set(true)
             }
           }
@@ -340,7 +335,7 @@ export const fetchGeometry = ({
             const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
 
             const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
-            if (startFrameBufferData.missingDuration === 0) {
+            if (startFrameBufferData.missingDuration === 0 && startFrameBufferData.pendingDuration === 0) {
               initialBufferLoaded.set(true)
             }
           }
@@ -378,7 +373,7 @@ export const deleteUsedGeometryBuffers = ({
     let _frameRate = frameRate || 1
 
     for (const [target, collection] of geometryBuffer) {
-      if (!geometryBuffer.has(target) || !collection) {
+      if (!geometryBuffer.has(target) || !collection || !targetData || !targetData[target]) {
         continue
       }
       if (geometryType === GeometryType.Draco) {
@@ -426,7 +421,7 @@ export const deleteUsedGeometryBuffers = ({
     mesh.geometry = newGeometry
 
     for (const [target, collection] of geometryBuffer) {
-      if (!geometryBuffer.has(target) || !collection) {
+      if (!geometryBuffer.has(target) || !collection || !targetData || !targetData[target]) {
         continue
       }
 
@@ -528,8 +523,11 @@ export const fetchTextures = ({
 
   for (let currentFrame = startFrame; currentFrame <= endFrame; currentFrame++) {
     const _currentFrame = currentFrame
-    const currentFrameStartTime = (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate
-    const currentFrameEndTime = ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate
+    const currentFrameStartTime = frameRate > 0 ? (_currentFrame * TIME_UNIT_MULTIPLIER) / frameRate : 0
+    const currentFrameEndTime =
+      frameRate > 0
+        ? ((_currentFrame + 1) * TIME_UNIT_MULTIPLIER) / frameRate
+        : (manifest as ManifestSchema).duration * TIME_UNIT_MULTIPLIER
     const currentFrameBufferData = bufferData.getIntersectionDuration(currentFrameStartTime, currentFrameEndTime)
     if (currentFrameBufferData.missingDuration === 0) {
       continue
@@ -559,7 +557,7 @@ export const fetchTextures = ({
           const endTime = startTime + bufferLimits.texture[textureFormat].initialBufferDuration * TIME_UNIT_MULTIPLIER
 
           const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
-          if (startFrameBufferData.missingDuration === 0) {
+          if (startFrameBufferData.missingDuration === 0 && startFrameBufferData.pendingDuration === 0) {
             initialBufferLoaded.set(true)
           }
         }
@@ -592,17 +590,35 @@ export const deleteUsedTextureBuffers = ({
     return
   }
   for (const [target, collection] of textureTypeCollection) {
-    if (!collection) {
+    if (!collection || !targetData || !targetData[target]) {
       continue
     }
 
     const _frameRate = targetData ? targetData[target].frameRate : 1
+
+    if (_frameRate === 0) {
+      // TODO: Handle this case
+      continue
+    }
 
     const toBeDeletedKeys = [] as number[]
 
     collection.every((texture, frameNo) => {
       const frameStartTimeInMS = (frameNo * 1000) / _frameRate
       const frameEndTimeInMS = ((frameNo + 1) * 1000) / _frameRate
+
+      if (_frameRate === 0) {
+        if (clearAll) {
+          texture.dispose()
+          toBeDeletedKeys.push(frameNo)
+          if (bufferData) {
+            bufferData?.removeBufferedRange(0, Infinity)
+          }
+        }
+
+        return false
+      }
+
       if (!clearAll && frameEndTimeInMS >= currentTimeInMS) {
         return false
       }
