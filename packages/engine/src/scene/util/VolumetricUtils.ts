@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { Engine, getComponent } from '@etherealengine/ecs'
+import { State, getState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
@@ -661,4 +663,45 @@ export const getTexture = ({
   }
 
   return false
+}
+
+interface handleAutoplayProps {
+  audioContext: AudioContext
+  media: HTMLMediaElement
+  paused: State<boolean>
+}
+
+export const handleMediaAutoplay = ({ audioContext, media, paused }: handleAutoplayProps) => {
+  const attachEventListeners = () => {
+    const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const playMedia = () => {
+      media.play()
+      audioContext.resume()
+      paused.set(false)
+      window.removeEventListener('pointerdown', playMedia)
+      window.removeEventListener('keypress', playMedia)
+      window.removeEventListener('touchstart', playMedia)
+      renderer.canvas.removeEventListener('pointerdown', playMedia)
+      renderer.canvas.removeEventListener('touchstart', playMedia)
+    }
+    window.addEventListener('pointerdown', playMedia)
+    window.addEventListener('keypress', playMedia)
+    window.addEventListener('touchstart', playMedia)
+    renderer.canvas.addEventListener('pointerdown', playMedia)
+    renderer.canvas.addEventListener('touchstart', playMedia)
+  }
+
+  // Try to play. If it fails, attach event listeners to play on user interaction
+  media
+    .play()
+    .catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        attachEventListeners()
+        console.log('Ready to play Sir!')
+      }
+    })
+    .then(() => {
+      console.log('Media playback started by handleAutoplay')
+      paused.set(false)
+    })
 }

@@ -62,7 +62,7 @@ export const bufferLimits = {
       desktopMaxBufferDuration: 36, // seconds
       mobileMaxBufferDuration: 15,
       initialBufferDuration: 7,
-      minBufferDurationToPlay: 3
+      minBufferDurationToPlay: 4
     },
     [GeometryType.Draco]: {
       desktopMaxBufferDuration: 4,
@@ -200,7 +200,12 @@ export const fetchGeometry = ({
             const endTime = startTime + bufferLimits.geometry[geometryType].initialBufferDuration * TIME_UNIT_MULTIPLIER
 
             const startFrameBufferData = bufferData.getIntersectionDuration(startTime, endTime)
-            if (startFrameBufferData.missingDuration === 0) {
+            if (startFrameBufferData.missingDuration === 0 && startFrameBufferData.pendingDuration === 0) {
+              console.log(
+                `FetchGeometry: I have all buffers from ${startTime / TIME_UNIT_MULTIPLIER} to ${
+                  endTime / TIME_UNIT_MULTIPLIER
+                }`
+              )
               initialBufferLoaded.set(true)
             }
           }

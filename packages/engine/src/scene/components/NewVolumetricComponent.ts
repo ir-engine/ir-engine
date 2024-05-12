@@ -29,9 +29,9 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useEntityContext,
@@ -57,6 +57,7 @@ import {
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
+import { AudioState } from '../../audio/AudioState'
 import {
   BufferInfo,
   DRACOTarget,
@@ -85,17 +86,16 @@ import {
   GetGeometryProps,
   createMaterial,
   getGeometry,
-  getResourceURL,
   getSortedSupportedTargets,
-  getTexture
+  getTexture,
+  handleMediaAutoplay
 } from '../util/VolumetricUtils'
-import { MediaElementComponent } from './MediaComponent'
+import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
 
 const initialState = {
   useVideoTextureForBaseColor: false, // legacy for UVOL1
   useLoadingEffect: true,
-  hasAudio: false,
   volume: 1,
   manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
   checkForEnoughBuffers: true,
@@ -138,9 +138,6 @@ export const NewVolumetricComponent = defineComponent({
     if (typeof json.useLoadingEffect === 'boolean') {
       component.useLoadingEffect.set(json.useLoadingEffect)
     }
-    if (typeof json.hasAudio === 'boolean') {
-      component.hasAudio.set(json.hasAudio)
-    }
     if (typeof json.volume === 'number') {
       component.volume.set(json.volume)
     }
@@ -148,7 +145,6 @@ export const NewVolumetricComponent = defineComponent({
   toJSON: (entity, component) => ({
     useVideoTexture: component.useVideoTextureForBaseColor.value,
     useLoadingEffect: component.useLoadingEffect.value,
-    hasAudio: component.hasAudio.value,
     volume: component.volume.value
   }),
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
@@ -290,7 +286,9 @@ function NewVolumetricComponentReactor() {
     new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>()
   )
   const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
-  const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+
+  const audioContext = getState(AudioState).audioContext
+  const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
   // Used by GeometryType.Unify
   const repeat = useRef(new Vector2(1, 1))
@@ -302,6 +300,12 @@ function NewVolumetricComponentReactor() {
     }
     if (component.useVideoTextureForBaseColor.value) {
       addObjectToGroup(entity, group.current)
+      const media = getComponent(entity, MediaElementComponent).element
+      handleMediaAutoplay({
+        audioContext,
+        media,
+        paused: playlistComponent?.paused!
+      })
       return
     }
     const textureInitialBufferLoaded = component.textureInfo.initialBufferLoaded.get(NO_PROXY)
@@ -378,24 +382,49 @@ function NewVolumetricComponentReactor() {
     if (!hasComponent(entity, PlaylistComponent)) {
       setComponent(entity, PlaylistComponent)
     }
+    if (!hasComponent(entity, MediaElementComponent)) {
+      setComponent(entity, MediaElementComponent, {
+        element: document.createElement('video')
+      })
+    }
+
+    const mediaElement = getComponent(entity, MediaElementComponent)
+    const element = mediaElement.element
+
+    if (!AudioNodeGroups.get(element)) {
+      const source = audioContext.createMediaElementSource(element)
+      const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
+
+      audioNodes.gain.gain.setTargetAtTime(component.volume.value, audioContext.currentTime, 0.1)
+    }
 
     return () => {
       cleanupTrack()
     }
   }, [])
 
+  useEffect(() => {
+    const volume = component.volume.value
+    const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+    if (mediaElement) {
+      const element = mediaElement.element
+      const audioNodes = AudioNodeGroups.get(element)
+      if (audioNodes) {
+        audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+      }
+    }
+  }, [component.volume])
+
   const cleanupTrack = () => {
     console.log('Cleaning up track')
     clearInterval(setIntervalId.value)
-    removeComponent(entity, MediaElementComponent)
     removeObjectFromGroup(entity, group.current)
 
     if (mesh.current) {
       group.current.remove(mesh.current)
     }
 
-    const duration = component.time.duration.value
-    const manifest = component.manifest.get(NO_PROXY)
+    const MAX_PROBABLE_DURATION = 5 * 60 * 1000 // 5 minutes
 
     const targets = Array.from(geometryBuffer.current.keys())
     if (targets.length > 0) {
@@ -404,7 +433,7 @@ function NewVolumetricComponentReactor() {
       const geometryType = 'isBufferGeometry' in collection[firstFrameNo] ? GeometryType.Corto : GeometryType.Unify
 
       deleteUsedGeometryBuffers({
-        currentTimeInMS: (duration + 1) * 1000,
+        currentTimeInMS: MAX_PROBABLE_DURATION,
         geometryBuffer: geometryBuffer.current,
         geometryType: geometryType,
         mesh: mesh.current!,
@@ -414,7 +443,7 @@ function NewVolumetricComponentReactor() {
 
     for (const [textureType, collection] of textureBuffer.current) {
       deleteUsedTextureBuffers({
-        currentTimeInMS: (duration + 1) * 1000,
+        currentTimeInMS: MAX_PROBABLE_DURATION,
         textureBuffer: textureBuffer.current,
         textureType: textureType as TextureType,
         clearAll: true
@@ -434,6 +463,12 @@ function NewVolumetricComponentReactor() {
     component.set(structuredClone(initialState))
     component.geometry.bufferData.set(new BufferDataContainer())
 
+    const mediaElement = getOptionalMutableComponent(entity, MediaElementComponent)
+    if (mediaElement) {
+      const element = mediaElement.element.get(NO_PROXY)
+      element.src = ''
+    }
+
     if (hasComponent(entity, NewVolumetricComponent)) {
       clearErrors(entity, NewVolumetricComponent)
     }
@@ -451,10 +486,6 @@ function NewVolumetricComponentReactor() {
         (manifest as OldManifestSchema).frameData !== undefined &&
         (manifest as OldManifestSchema).frameRate !== undefined
       ) {
-        const video = document.createElement('video')
-        setComponent(entity, MediaElementComponent, {
-          element: video
-        })
         component.useVideoTextureForBaseColor.set(true)
         component.geometryType.set(GeometryType.Corto)
         component.textureInfo.textureTypes.set(['baseColor'])
@@ -682,9 +713,27 @@ function NewVolumetricComponentReactor() {
               }
             })
 
+            let recheckForBuffersIntervalId = -1
+
             const processFrame = (now: DOMHighResTimeStamp, metadata) => {
+              console.log('ProcessFrame heartbeat: ', metadata.mediaTime)
               const currentTimeInMS = metadata.mediaTime * 1000
               component.time.currentTime.set(currentTimeInMS)
+
+              if (!NewVolumetricComponent.canPlayWithoutPause(entity)) {
+                if (!element.paused) {
+                  element.pause()
+                  recheckForBuffersIntervalId = setInterval(() => {
+                    if (NewVolumetricComponent.canPlayWithoutPause(entity) && recheckForBuffersIntervalId !== -1) {
+                      clearInterval(recheckForBuffersIntervalId)
+                      recheckForBuffersIntervalId = -1
+                      if (!playlistComponent?.paused.value) {
+                        element.play()
+                      }
+                    }
+                  }, 500) as unknown as number
+                }
+              }
 
               const frameNo = Math.round(metadata.mediaTime * (manifest as OldManifestSchema).frameRate)
               const collection = geometryBuffer.current.get('corto')
@@ -697,14 +746,6 @@ function NewVolumetricComponentReactor() {
             }
 
             element.requestVideoFrameCallback(processFrame)
-          } else if (component.hasAudio.value && (manifest as ManifestSchema).audio) {
-            const audioData = (manifest as ManifestSchema).audio!
-            element.src = getResourceURL({
-              type: 'audio',
-              manifestPath: track.src,
-              path: audioData.path,
-              format: audioData.formats[0]
-            })
           }
           element.currentTime = component.time.currentTime.value / 1000
           element.load()
@@ -717,14 +758,14 @@ function NewVolumetricComponentReactor() {
   }, [playlistComponent?.currentTrackUUID])
 
   useEffect(() => {
+    console.log('Paused: ', component.paused.value)
     const now = Date.now()
-    const mediaElement = getOptionalMutableComponent(entity, MediaElementComponent)
+    const mediaElement = getOptionalComponent(entity, MediaElementComponent)
 
     if (!playlistComponent || playlistComponent?.paused.value) {
       component.paused.set(true)
-      if (mediaElement) {
-        const element = mediaElement.element.get(NO_PROXY)
-        element.pause()
+      if (component.useVideoTextureForBaseColor.value && mediaElement && !mediaElement.element.paused) {
+        mediaElement.element.pause()
       }
 
       const currentCheckpointAbsolute = component.time.checkpointAbsolute.value
@@ -742,13 +783,17 @@ function NewVolumetricComponentReactor() {
     } else {
       const currentTimeAbs = now
       component.time.checkpointAbsolute.set(currentTimeAbs)
-      if (mediaElement) {
-        const element = mediaElement.element.get(NO_PROXY)
-        element.play()
+      if (
+        component.useVideoTextureForBaseColor.value &&
+        mediaElement &&
+        mediaElement.element.paused &&
+        mediaElement.element.src
+      ) {
+        mediaElement.element.play()
       }
       component.paused.set(false)
     }
-  }, [playlistComponent?.paused, mediaElement])
+  }, [playlistComponent?.paused])
 
   const updateGeometry = (currentTimeInMS: number) => {
     const geometryType = component.geometryType.value
@@ -983,16 +1028,10 @@ function NewVolumetricComponentReactor() {
         }
       }
 
-      let __currentTime = component.time.currentTime.value
+      const __currentTime = component.paused.value
+        ? component.time.checkpointRelative.value
+        : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
 
-      if ((component.useVideoTextureForBaseColor.value || component.hasAudio.value) && mediaElement) {
-        const element = mediaElement.element.get(NO_PROXY)!
-        __currentTime = element.currentTime * 1000
-      } else {
-        __currentTime = component.paused.value
-          ? component.time.checkpointRelative.value
-          : component.time.checkpointRelative.value + now - component.time.checkpointAbsolute.value
-      }
       if (__currentTime > component.time.duration.value * 1000) {
         console.log('CurrentTime: ', __currentTime, ' Duration: ', component.time.duration.value * 1000)
         console.log('Track ended')
