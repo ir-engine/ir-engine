@@ -34,7 +34,7 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { V_000 } from '../../common/constants/MathConstants'
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TransformSystem, computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
@@ -139,7 +139,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
       rotation.w
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  Physics.setRigidbodyPose(entity, rigidbody.position, rigidbody.rotation, V_000, V_000)
+  Physics.setRigidbodyPose(entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
   TransformComponent.dirtyTransforms[entity] = false
 

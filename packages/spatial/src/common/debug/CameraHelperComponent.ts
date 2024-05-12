@@ -23,30 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Common readonly 3D Axis definitions
-import { Vector3 } from 'three'
+import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { Camera, CameraHelper } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
+import { useHelperEntity } from './DebugComponentUtils'
 
-import { V_001, V_010, V_100 } from './MathConstants'
+export const CameraHelperComponent = defineComponent({
+  name: 'CameraHelperComponent',
 
-export const Axis = {
-  /** X Axis (1,0,0) */
-  X: V_100,
-  /** Y Axis (0,1,0) */
-  Y: V_010,
-  /** Z Axis (0,0,1) */
-  Z: V_001
-}
+  onInit: (entity) => {
+    return {
+      name: 'camera-helper',
+      camera: null! as Camera,
+      entity: undefined as undefined | Entity
+    }
+  },
 
-Object.freeze(Axis)
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
+    component.camera.set(json.camera)
+    if (typeof json.name === 'string') component.name.set(json.name)
+  },
 
-/** Right handed coordinate direction */
-export const ObjectDirection = {
-  Right: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
-  Left: Axis.X,
-  Up: Axis.Y,
-  Down: Object.freeze(new Vector3().copy(Axis.Y).multiplyScalar(-1)),
-  Forward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1)),
-  Backward: Axis.Z
-}
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, CameraHelperComponent)
+    const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
+    useHelperEntity(entity, component, helper)
+    helper.update()
 
-Object.freeze(ObjectDirection)
+    return null
+  }
+})
