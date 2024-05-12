@@ -51,5 +51,6 @@ export const seedSceneAssets = async (app: Application, projectName: string, ass
       }) as AssetData
   )
 
+  console.log({ sceneAssetData })
   await Promise.all(sceneAssetData.map((asset) => app.service(assetPath).create(asset)))
 }

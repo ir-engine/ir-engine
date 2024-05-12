@@ -18,16 +18,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isDev } from '@etherealengine/common/src/config'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
+import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+
+const projectResolvePath = path.resolve(appRootPath.path, 'packages/projects')
+const fsProjectSyncEnabled = config.fsProjectSyncEnabled
 
 describe('asset.test', () => {
   let app: Application
@@ -36,11 +41,9 @@ describe('asset.test', () => {
   const params = { isInternal: true }
 
   before(async () => {
+    config.fsProjectSyncEnabled = true
     app = createFeathersKoaApp()
     await app.setup()
-  })
-
-  before(async () => {
     projectName = `test-scene-project-${uuidv4()}`
     project = await app.service(projectPath).create({ name: projectName })
   })
@@ -51,25 +54,35 @@ describe('asset.test', () => {
       .find({ query: { name: projectName }, paginate: false })) as ProjectType[]
     await app.service(projectPath).remove(foundProjects[0].id, { ...params })
     await destroyEngine()
+    config.fsProjectSyncEnabled = fsProjectSyncEnabled
   })
 
   describe('"scene" service', () => {
     it('should add a new scene from default with increment', async () => {
       const storageProvider = getStorageProvider()
+      const directory = `projects/${projectName}/public/scenes`
 
-      const addedSceneData = await app.service(assetPath).create({ project: projectName })
-      assert.equal(addedSceneData.assetURL, 'projects/' + projectName + '/New-Scene.gltf')
+      const addedSceneData = await app.service(assetPath).create({
+        project: projectName,
+        sourceURL: 'projects/default-project/public/scenes/default.gltf',
+        assetURL: directory + '/New-Scene.gltf'
+      })
+      assert.equal(addedSceneData.assetURL, directory + '/New-Scene.gltf')
       assert.equal(addedSceneData.projectId, project.id)
-      assert(storageProvider.doesExist('New-Scene.gltf', 'projects/' + projectName))
+      assert(await storageProvider.doesExist('New-Scene.gltf', directory))
+      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
 
-      const secondAddedSceneData = await app.service(assetPath).create({ project: projectName })
-      assert.equal(secondAddedSceneData.assetURL, 'projects/' + projectName + '/New-Scene-1.gltf')
+      const secondAddedSceneData = await app.service(assetPath).create({
+        project: projectName,
+        sourceURL: 'projects/default-project/public/scenes/default.gltf',
+        assetURL: directory + '/New-Scene.gltf'
+      })
+      assert.equal(secondAddedSceneData.assetURL, directory + '/New-Scene-1.gltf')
       assert.equal(addedSceneData.projectId, project.id)
-      assert(storageProvider.doesExist('New-Scene-1.gltf', 'projects/' + projectName))
+      assert(await storageProvider.doesExist('New-Scene-1.gltf', directory))
 
-      if (isDev) {
-        assert(fs.existsSync('projects/' + projectName + '/New-Scene.gltf'))
-      }
+      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
+      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene-1.gltf')))
     })
 
     it('should query assets by projectName', async () => {
@@ -82,14 +95,14 @@ describe('asset.test', () => {
     it('should update scene name', async () => {
       const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
       const data = queryResult.data[0]
-      const updatedData = await app.service(assetPath).patch(data.id, { name: 'Updated-Scene' }, params)
+      const updatedData = await app
+        .service(assetPath)
+        .patch(data.id, { assetURL: 'projects/' + projectName + '/Updated-Scene.gltf' }, params)
       assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.gltf')
       const storageProvider = getStorageProvider()
       assert(storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName))
-      if (isDev) {
-        assert(!fs.existsSync('projects/' + projectName + '/New-Scene.gltf'))
-        assert(fs.existsSync('projects/' + projectName + '/Updated-Scene.gltf'))
-      }
+      assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/New-Scene.gltf')))
+      assert(fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/Updated-Scene.gltf')))
     })
 
     it('should remove scene', async () => {
@@ -99,9 +112,7 @@ describe('asset.test', () => {
       assert.rejects(async () => await app.service(assetPath).get(data.id, params))
       const storageProvider = getStorageProvider()
       assert(!(await storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName)))
-      if (isDev) {
-        assert(!fs.existsSync('projects/' + projectName + '/Updated-Scene.gltf'))
-      }
+      assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/Updated-Scene.gltf')))
     })
   })
 })

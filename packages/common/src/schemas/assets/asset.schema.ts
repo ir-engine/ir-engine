@@ -47,8 +47,8 @@ export interface AssetType extends Static<typeof assetSchema> {}
 export const assetDataSchema = Type.Object(
   {
     id: Type.Optional(Type.String()),
-    name: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
+    sourceURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),
     projectId: Type.Optional(Type.String())
@@ -69,7 +69,6 @@ export interface AssetUpdate extends Static<typeof assetUpdateSchema> {}
 // Schema for updating existing entries
 export const assetPatchSchema = Type.Object(
   {
-    name: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.String())
@@ -90,9 +89,7 @@ export const assetQuerySchema = Type.Intersect(
         projectId: Type.Optional(Type.String()),
         assetURL: Type.Optional(Type.String()),
         internal: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean()),
-        directory: Type.Optional(Type.String()),
-        localDirectory: Type.Optional(Type.String())
+        paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

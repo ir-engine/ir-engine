@@ -57,9 +57,9 @@ export const deleteScene = async (sceneID: string): Promise<any> => {
   return true
 }
 
-export const renameScene = async (id: string, name: string, params?: AssetParams) => {
+export const renameScene = async (id: string, newURL: string, params?: AssetParams) => {
   try {
-    return await Engine.instance.api.service(assetPath).patch(id, { name }, params)
+    return await Engine.instance.api.service(assetPath).patch(id, { assetURL: newURL }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -87,12 +87,8 @@ export const saveSceneGLTF = async (
 
   const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
 
-  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
-
   if (sceneAssetID) {
-    const result = await Engine.instance.api
-      .service(assetPath)
-      .patch(sceneAssetID, { name: sceneNameWithoutExtension, assetURL, project: projectName })
+    const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
 
     getMutableState(EditorState).merge({
       sceneName,
@@ -103,9 +99,7 @@ export const saveSceneGLTF = async (
 
     return
   }
-  const result = await Engine.instance.api
-    .service(assetPath)
-    .create({ name: sceneNameWithoutExtension, assetURL, project: projectName })
+  const result = await Engine.instance.api.service(assetPath).create({ assetURL, project: projectName })
 
   getMutableState(EditorState).merge({
     sceneName,
@@ -120,21 +114,16 @@ export const onNewScene = async () => {
   if (!projectName) return
 
   try {
-    const sceneData = await createNewScene(projectName)
+    const sceneData = await Engine.instance.api.service(assetPath).create({
+      project: projectName,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: `projects/${projectName}/public/scenes/New-Scene.gltf`
+    })
     if (!sceneData) return
 
     getMutableState(EditorState).scenePath.set(sceneData.assetURL as any)
   } catch (error) {
     logger.error(error)
-  }
-}
-
-export const createNewScene = async (projectName: string, params?: AssetParams) => {
-  try {
-    return Engine.instance.api.service(assetPath).create({ project: projectName }, params)
-  } catch (error) {
-    logger.error(error, 'Error in creating project')
-    throw error
   }
 }
 

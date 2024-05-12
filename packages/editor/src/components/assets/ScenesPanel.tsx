@@ -138,7 +138,9 @@ export default function ScenesPanel() {
 
   const finishRenaming = async (id: string) => {
     setRenaming(false)
-    const newData = await renameScene(id, newName)
+    const currentURL = loadedScene!.assetURL
+    const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
+    const newData = await renameScene(id, newURL)
     if (loadedScene) getMutableState(EditorState).scenePath.set(newData.assetURL)
     setNewName('')
   }

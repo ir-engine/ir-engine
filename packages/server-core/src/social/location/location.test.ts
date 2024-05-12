@@ -55,7 +55,6 @@ describe('location.test', () => {
 
     const scene = await app.service(assetPath).create({
       id: uuidv4(),
-      name,
       assetURL: 'projects/default-project/test.scene.json',
       thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
       project: 'default-project'
