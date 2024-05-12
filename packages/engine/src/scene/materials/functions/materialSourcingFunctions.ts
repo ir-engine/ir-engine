@@ -44,10 +44,12 @@ import {
   MaterialComponents,
   materialByHash,
   materialByName,
+  pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { Material } from 'three'
+import { MaterialExtensionPluginType } from '../../../assets/exporters/gltf/extensions/EEMaterialExporterExtension'
 import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
@@ -124,10 +126,24 @@ export const createMaterialEntity = (material: Material, path: string, user?: En
         )
       ).map((k) => [k, material[k]])
     ),
-    instances: user != undefined ? [user] : []
+    instances: user != undefined ? [user] : [],
+    pluginEntities: material.userData.plugins
+      ? material.userData.plugins.map((plugin: MaterialExtensionPluginType) => pluginByName[plugin.id])
+      : []
   })
+  if (material.userData?.plugins) {
+    for (const pluginEntity of getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+      .pluginEntities!) {
+      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
+        getComponent(materialEntity, NameComponent)
+      ].set(
+        material.userData.plugins.find(
+          (plugin: MaterialExtensionPluginType) => plugin.id === getComponent(pluginEntity, NameComponent)
+        ).parameters
+      )
+    }
+  }
   setMaterialName(materialEntity, material.name)
-
   return materialEntity
 }
 
@@ -176,22 +192,13 @@ const uniqueSuffix = (name: string) => {
   return `${name}${i}`
 }
 
-// export function registerMaterialPlugin(component: MaterialPluginType) {
-//   const materialLibrary = getMutableState(MaterialLibraryState)
-//   const src = component.src
-//   addMaterialSource(src)
-//   const srcItems = getSourceItems(src)!
-//   !srcItems.includes(component.plugin.id) &&
-//     materialLibrary.sources[hashMaterialSource(component.src)].entries.set([...srcItems, component.plugin.id])
-//   materialLibrary.plugins[component.plugin.id].set(component)
-// }
-
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
-  const material = getComponent(
+  const material = getOptionalComponent(
     UUIDComponent.getEntityByUUID(materialUUID),
     MaterialComponent[MaterialComponents.State]
   )
-  if (!material.prototypeEntity) return
+  console.log(UUIDComponent.getEntityByUUID(materialUUID))
+  if (!material?.prototypeEntity) return
   const prototype = getComponent(
     material.prototypeEntity,
     MaterialComponent[MaterialComponents.Prototype]
