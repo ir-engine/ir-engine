@@ -197,7 +197,6 @@ export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
     UUIDComponent.getEntityByUUID(materialUUID),
     MaterialComponent[MaterialComponents.State]
   )
-  console.log(UUIDComponent.getEntityByUUID(materialUUID))
   if (!material?.prototypeEntity) return
   const prototype = getComponent(
     material.prototypeEntity,

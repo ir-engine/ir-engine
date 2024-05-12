@@ -37,6 +37,7 @@ import {
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -138,10 +139,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   }
 }
 
-export const testst = {
-  setComponent: function () {}
-}
-
 const modifyName = (entities: Entity[], name: string) => {
   const scenes = getSourcesForEntities(entities)
 
@@ -241,12 +238,11 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         typeof material[k] === 'object' &&
         typeof material[k].set === 'function'
       ) {
-        material[k].set(v)
+        if (material[k].isTexture) getTextureAsync(v).then((texture) => material[k].set(texture[0]))
       } else {
-        material[k] = v
+        if (material[k].isTexture) getTextureAsync(v).then((texture) => (material[k] = texture[0]))
       }
     })
-    material.needsUpdate = true
   }
 }
 
