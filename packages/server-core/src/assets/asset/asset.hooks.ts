@@ -89,7 +89,6 @@ export const removeProjectForAssetData = async (context: HookContext<AssetServic
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
-  console.log(context.data)
 }
 
 const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
@@ -133,7 +132,6 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   while (true) {
     if (counter > 0) name = fileNameWithoutExtension + '-' + counter + '.' + fileExtension
     const sceneNameExists = await context.app.service(assetPath).find({ query: { assetURL: fileDirectory + name } })
-    console.log({ sceneNameExists }, fileDirectory, name)
     if (sceneNameExists.total === 0) break
     counter++
   }

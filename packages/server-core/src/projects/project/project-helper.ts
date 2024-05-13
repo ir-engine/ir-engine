@@ -596,11 +596,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
 
   try {
-    console.log('getting user')
-    const authUser = await octoKit.rest.users.getAuthenticated()
-    console.log('getting repos', authUser)
-    const repos = await getUserRepos(token)
-    console.log('repos', repos)
+    const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
     const matchingRepo = repos.find(
       (repo) =>
         repo.html_url.toLowerCase() === url.toLowerCase() ||
@@ -632,7 +628,6 @@ export const checkDestination = async (app: Application, url: string, params?: P
     let destinationManifest: ManifestJson | undefined
     try {
       destinationManifest = await getProjectManifestFromRemote(octoKit, owner, repo)
-      console.log({ destinationManifest })
     } catch (err) {
       logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
@@ -656,7 +651,6 @@ export const checkDestination = async (app: Application, url: string, params?: P
       let existingProjectManifest: ManifestJson
       try {
         existingProjectManifest = await getProjectManifestFromRemote(projectOctoKit, existingOwner, existingRepo)
-        console.log({ existingProjectManifest })
         const existingProjectName = existingProjectManifest.name
         if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
@@ -669,8 +663,6 @@ export const checkDestination = async (app: Application, url: string, params?: P
     }
     return returned
   } catch (err) {
-    console.log('err')
-    console.log(err)
     logger.error('error checking destination URL %o', err)
     if (err.status === 404)
       return {
