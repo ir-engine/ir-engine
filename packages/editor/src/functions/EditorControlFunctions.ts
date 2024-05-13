@@ -223,6 +223,15 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
+const isURL = (parameter: string) => {
+  try {
+    new URL(parameter)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
 const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -238,9 +247,11 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         typeof material[k] === 'object' &&
         typeof material[k].set === 'function'
       ) {
-        if (material[k].isTexture) getTextureAsync(v).then((texture) => material[k].set(texture[0]))
+        if (isURL(v)) getTextureAsync(v).then((texture) => material[k].set(texture[0]))
+        else material[k].set(v)
       } else {
-        if (material[k].isTexture) getTextureAsync(v).then((texture) => (material[k] = texture[0]))
+        if (isURL(v)) getTextureAsync(v).then((texture) => (material[k] = texture[0]))
+        else material[k] = v
       }
     })
   }
