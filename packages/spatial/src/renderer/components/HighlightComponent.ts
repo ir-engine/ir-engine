@@ -39,18 +39,9 @@ const execute = () => {
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
   // @ts-ignore @todo why does typescript freak out here?
-  const effectComposer = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer
-  if (effectComposer) {
-    const OutlineEffect = effectComposer.OutlineEffect
-    if (OutlineEffect) {
-      const ents = highlightQuery()
-      OutlineEffect.selection.set(ents.map((entity) => getComponent(entity, MeshComponent)))
-      console.log('test')
-    }
-  }
-  //getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect?.selection.set(
-  //  highlightQuery().map((entity) => getComponent(entity, MeshComponent))
-  //)
+  getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect?.selection.set(
+    highlightQuery().map((entity) => getComponent(entity, MeshComponent))
+  )
 }
 
 export const HighlightSystem = defineSystem({
