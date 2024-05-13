@@ -30,6 +30,7 @@ import path from 'path'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
@@ -143,7 +144,18 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     await uploadLocalProjectToProvider(this.app, projectName)
 
     if (projectManifest?.scenes) {
-      await seedSceneAssets(this.app, project.name, projectManifest.scenes)
+      // check all scene assets exist in the storage provider
+      const sceneAssets = (
+        await Promise.all(
+          projectManifest.scenes.map(async (assetKey) =>
+            (await this.app.service(fileBrowserPath).get(`projects/${projectName}/${assetKey}`)) ? assetKey : undefined
+          )
+        )
+      ).filter(Boolean) as string[]
+      // update manifest json
+      projectManifest.scenes = sceneAssets
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(projectManifest, null, 2))
+      await seedSceneAssets(this.app, project.name, sceneAssets)
     }
 
     // run project install script

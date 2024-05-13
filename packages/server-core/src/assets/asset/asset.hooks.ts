@@ -81,7 +81,8 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
   const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
   if (!projectManifest.scenes?.length) return // no scenes to update
 
-  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === asset.assetURL)
+  const projectRelativeAssetURL = asset.assetURL.replace(`projects/${asset.projectName}/`, '')
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === projectRelativeAssetURL)
   if (sceneIndex === -1) return // scene not found in manifest
 
   projectManifest.scenes.splice(sceneIndex, 1)
@@ -278,10 +279,13 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
   if (!projectManifest.scenes?.length) return // no scenes to update
 
-  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === asset.assetURL)
+  const projectRelativeAssetURL = data.assetURL!.replace(`projects/${asset.projectName}/`, '')
+  const projectRelativeOldAssetURL = asset.assetURL!.replace(`projects/${asset.projectName}/`, '')
+
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === projectRelativeOldAssetURL)
   if (sceneIndex === -1) return // scene not found in manifest
 
-  projectManifest.scenes[sceneIndex] = data.assetURL!.replace(`projects/${data.project}/`, '')
+  projectManifest.scenes[sceneIndex] = projectRelativeAssetURL
 
   await context.app.service(fileBrowserPath).patch(null, {
     fileName: 'manifest.json',
