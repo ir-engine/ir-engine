@@ -441,43 +441,41 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   return (
     <>
-      <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 ">
-        <div className="mb-1 flex h-8 items-center gap-2 bg-zinc-900">
-          <Input
-            placeholder={t('common:components.search')}
-            value={searchHierarchy.value}
-            onChange={(event) => {
-              searchHierarchy.set(event.target.value)
-            }}
-            className="bg-theme-primary rounded"
-            startComponent={<HiMagnifyingGlass />}
-          />
-          <Button
-            startIcon={<HiOutlinePlusCircle />}
-            variant="transparent"
-            rounded="none"
-            className="bg-theme-highlight ml-auto w-32 px-2"
-            size="small"
-            textContainerClassName="mx-0"
-            onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
-          >
-            {t('editor:hierarchy.lbl-addEntity')}
-          </Button>
-        </div>
-        <div className="h-[100%] overflow-x-hidden overflow-y-hidden">
-          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-        </div>
+      <div className="mb-1 ml-1 flex items-center gap-2">
+        <Input
+          placeholder={t('common:components.search')}
+          value={searchHierarchy.value}
+          onChange={(event) => {
+            searchHierarchy.set(event.target.value)
+          }}
+          className="bg-theme-primary rounded"
+          startComponent={<HiMagnifyingGlass />}
+        />
+        <Button
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          rounded="none"
+          className="bg-theme-highlight ml-auto w-32 px-2"
+          size="small"
+          textContainerClassName="mx-0"
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+        >
+          {t('editor:hierarchy.lbl-addEntity')}
+        </Button>
       </div>
       <div className="h-full overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-        <button
-          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
           onClick={() => onRenameNode(contextSelectedItem!)}
         >
           {t('editor:hierarchy.lbl-rename')}
-        </button>
+        </Button>
         <Hotkeys
           keyName={cmdOrCtrlString + '+d'}
           onKeyUp={(_, e) => {
@@ -486,13 +484,15 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onDuplicateNode(selectedNode!)
           }}
         >
-          <button
-            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
             onClick={() => onDuplicateNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + d'}
           >
             {t('editor:hierarchy.lbl-duplicate')}
-            <div className="text-right">{cmdOrCtrlString + ' + d'}</div>
-          </button>
+          </Button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+g'}
@@ -502,13 +502,15 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onGroupNodes(selectedNode!)
           }}
         >
-          <button
-            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
             onClick={() => onGroupNodes(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + g'}
           >
             {t('editor:hierarchy.lbl-group')}
-            <div className="text-right">{cmdOrCtrlString + ' + g'}</div>
-          </button>
+          </Button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+c'}
@@ -518,13 +520,15 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onCopyNode(selectedNode)
           }}
         >
-          <button
-            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
             onClick={() => onCopyNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + c'}
           >
             {t('editor:hierarchy.lbl-copy')}
-            <div className="text-right">{cmdOrCtrlString + ' + c'}</div>
-          </button>
+          </Button>
         </Hotkeys>
         <Hotkeys
           keyName={cmdOrCtrlString + '+v'}
@@ -534,32 +538,43 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             selectedNode && onPasteNode(selectedNode)
           }}
         >
-          <button
-            className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+          <Button
+            size="small"
+            variant="transparent"
+            className="w-full text-left text-xs"
             onClick={() => onPasteNode(contextSelectedItem!)}
+            endIcon={cmdOrCtrlString + ' + v'}
           >
             {t('editor:hierarchy.lbl-paste')}
-            <div className="text-right">{cmdOrCtrlString + ' + v'}</div>
-          </button>
+          </Button>
         </Hotkeys>
-        <button
-          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
           onClick={() => onDeleteNode(contextSelectedItem!)}
         >
           {t('editor:hierarchy.lbl-delete')}
-        </button>
-        <button
-          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+        </Button>
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
           onClick={() => expandChildren(contextSelectedItem!)}
         >
           {t('editor:hierarchy.lbl-expandAll')}
-        </button>
-        <button
-          className="flex flex-row justify-between gap-1 truncate p-2 text-left text-xs text-white hover:bg-zinc-800"
+        </Button>
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
           onClick={() => collapseChildren(contextSelectedItem!)}
         >
           {t('editor:hierarchy.lbl-collapseAll')}
-        </button>
+        </Button>
       </ContextMenu>
     </>
   )
