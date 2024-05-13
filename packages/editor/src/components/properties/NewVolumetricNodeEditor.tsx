@@ -30,11 +30,11 @@ import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { Scrubber } from 'react-scrubber'
-import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 interface OptionsType {
   value: number
@@ -78,10 +78,14 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
     >
-      <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
-        <BooleanInput
-          onChange={commitProperty(NewVolumetricComponent, 'useLoadingEffect')}
-          value={component.useLoadingEffect.value}
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={component.volume.value}
+          onChange={updateProperty(NewVolumetricComponent, 'volume')}
+          onRelease={commitProperty(NewVolumetricComponent, 'volume')}
         />
       </InputGroup>
 

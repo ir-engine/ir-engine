@@ -776,6 +776,15 @@ function NewVolumetricComponentReactor() {
 
             element.src = track.src.replace('.manifest', '.mp4')
 
+            element.currentTime = component.time.currentTime.value / 1000
+            element.load()
+
+            element.addEventListener('ended', () => {
+              if (playlistComponent) {
+                PlaylistComponent.playNextTrack(entity)
+              }
+            })
+
             const setTexture = () => {
               const firstFrameLoaded = component.textureInfo.firstFrameLoaded.get(NO_PROXY)
 
@@ -836,8 +845,6 @@ function NewVolumetricComponentReactor() {
 
             element.requestVideoFrameCallback(processFrame)
           }
-          element.currentTime = component.time.currentTime.value / 1000
-          element.load()
         }
       })
       .catch((err) => {
