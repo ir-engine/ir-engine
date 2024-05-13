@@ -35,7 +35,7 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   shrinkIcon: ReactNode
   prefixIcon: ReactNode
   children?: ReactNode
-  classNameTitle?: string
+  titleClassName?: string
   className?: string
   open?: boolean
 }
@@ -50,14 +50,14 @@ const Accordion = forwardRef(
       prefixIcon,
       children,
       className,
-      classNameTitle,
+      titleClassName,
       open,
       ...props
     }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
     const twClassName = twMerge('bg-theme-surface-main w-full rounded-2xl p-6 ', className)
-    const twClassNameTitle = twMerge('flex flex-row items-center', classNameTitle)
+    const twClassNameTitle = twMerge('flex flex-row items-center', titleClassName)
     const openState = useHookstate(false)
 
     useEffect(() => {
@@ -75,7 +75,6 @@ const Accordion = forwardRef(
           <div className={twClassNameTitle}>
             {prefixIcon && <div className="mr-2">{prefixIcon}</div>}
             <Text component="h2" fontSize="xl" fontWeight="semibold">
-              {' '}
               {title}
             </Text>
           </div>
