@@ -146,6 +146,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   prototypeName.set(material.type)
 
   const parameters = useHookstate(0)
+
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -186,7 +187,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         values={materialComponent.parameters.value!}
         onChange={(k) => async (val) => {
           let prop
-          if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments[k].type.value === 'texture') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {

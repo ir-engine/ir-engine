@@ -37,7 +37,6 @@ import {
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
@@ -223,15 +222,6 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
-const isURL = (parameter: string) => {
-  try {
-    new URL(parameter)
-    return true
-  } catch (_) {
-    return false
-  }
-}
-
 const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -247,11 +237,9 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         typeof material[k] === 'object' &&
         typeof material[k].set === 'function'
       ) {
-        if (isURL(v)) getTextureAsync(v).then((texture) => material[k].set(texture[0]))
-        else material[k].set(v)
+        material[k].set(v)
       } else {
-        if (isURL(v)) getTextureAsync(v).then((texture) => (material[k] = texture[0]))
-        else material[k] = v
+        material[k] = v
       }
     })
   }
