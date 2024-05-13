@@ -231,6 +231,8 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     if (/\.(material.gltf)$/.test(assetFileName)) {
       console.log('Material asset')
       return AssetClass.Material
+    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
+      console.log('Lookdev asset')
     }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
