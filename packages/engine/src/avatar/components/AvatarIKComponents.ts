@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -32,6 +32,7 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
+  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
@@ -39,11 +40,9 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Types } from 'bitecs'
 import { ikTargets } from '../animation/Util'
@@ -68,13 +67,16 @@ export const AvatarIKTargetComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-      const helper = new AxesHelper(0.5)
-      addObjectToGroup(entity, helper)
-      setObjectLayers(helper, ObjectLayers.AvatarHelper)
-      setComponent(entity, VisibleComponent)
+      if (debugEnabled.value) {
+        setComponent(entity, AxesHelperComponent, {
+          name: 'avatar-ik-helper',
+          size: 0.5,
+          layerMask: ObjectLayerMasks.AvatarHelper
+        })
+      }
+
       return () => {
-        removeObjectFromGroup(entity, helper)
+        removeComponent(entity, AxesHelperComponent)
       }
     }, [debugEnabled])
 
