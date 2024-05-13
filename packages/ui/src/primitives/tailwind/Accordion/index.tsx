@@ -33,17 +33,31 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   subtitle?: string
   expandIcon: ReactNode
   shrinkIcon: ReactNode
+  prefixIcon: ReactNode
   children?: ReactNode
+  classNameTitle?: string
   className?: string
   open?: boolean
 }
 
 const Accordion = forwardRef(
   (
-    { title, subtitle, expandIcon, shrinkIcon, children, className, open, ...props }: AccordionProps,
+    {
+      title,
+      subtitle,
+      expandIcon,
+      shrinkIcon,
+      prefixIcon,
+      children,
+      className,
+      classNameTitle,
+      open,
+      ...props
+    }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
     const twClassName = twMerge('bg-theme-surface-main w-full rounded-2xl p-6 ', className)
+    const twClassNameTitle = twMerge('flex flex-row items-center', classNameTitle)
     const openState = useHookstate(false)
 
     useEffect(() => {
@@ -58,14 +72,18 @@ const Accordion = forwardRef(
             openState.set((v) => !v)
           }}
         >
-          <Text component="h2" fontSize="xl" fontWeight="semibold">
-            {title}
-          </Text>
+          <div className={twClassNameTitle}>
+            {prefixIcon && <div className="mr-2">{prefixIcon}</div>}
+            <Text component="h2" fontSize="xl" fontWeight="semibold">
+              {' '}
+              {title}
+            </Text>
+          </div>
 
           {openState.value ? shrinkIcon : expandIcon}
         </div>
 
-        {!openState.value && (
+        {!openState.value && subtitle && (
           <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-[#A3A3A3]">
             {subtitle}
           </Text>
