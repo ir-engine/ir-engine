@@ -236,7 +236,7 @@ export const createSceneFiles = async (context: HookContext<AssetService>) => {
   const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
 
   if (!projectManifest.scenes) projectManifest.scenes = []
-  projectManifest.scenes.push(data.assetURL!)
+  projectManifest.scenes.push(data.assetURL!.replace(`projects/${data.project}/`, ''))
 
   await context.app.service(fileBrowserPath).patch(null, {
     fileName: 'manifest.json',
@@ -281,7 +281,7 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === asset.assetURL)
   if (sceneIndex === -1) return // scene not found in manifest
 
-  projectManifest.scenes[sceneIndex] = data.assetURL!
+  projectManifest.scenes[sceneIndex] = data.assetURL!.replace(`projects/${data.project}/`, '')
 
   await context.app.service(fileBrowserPath).patch(null, {
     fileName: 'manifest.json',

@@ -121,6 +121,7 @@ export const onNewScene = async () => {
   try {
     const sceneData = await Engine.instance.api.service(assetPath).create({
       project: projectName,
+      isScene: true,
       sourceURL: 'projects/default-project/public/scenes/default.gltf',
       assetURL: `projects/${projectName}/public/scenes/New-Scene.gltf`
     })
