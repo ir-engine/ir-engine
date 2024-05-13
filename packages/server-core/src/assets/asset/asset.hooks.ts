@@ -35,8 +35,10 @@ import projectPermissionAuthenticate from '../../hooks/project-permission-authen
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { assetPath, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
 
@@ -70,6 +72,26 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
   const resourceKeys = thumbnailURL ? [assetURL, thumbnailURL] : [assetURL]
 
   await Promise.all(resourceKeys.map((key) => context.app.service(fileBrowserPath).remove(key)))
+
+  // update manifest if necessary
+  const manifestKey = `projects/${asset.projectName}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
+
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+  if (!projectManifest.scenes?.length) return // no scenes to update
+
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === asset.assetURL)
+  if (sceneIndex === -1) return // scene not found in manifest
+
+  projectManifest.scenes.splice(sceneIndex, 1)
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${asset.projectName}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) => {
@@ -85,10 +107,11 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   }
 }
 
-export const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
+export const removeFieldsForAssetData = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
+  delete context.data.isScene
 }
 
 const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
@@ -202,6 +225,25 @@ export const createSceneFiles = async (context: HookContext<AssetService>) => {
       isCopy: true
     })
   }
+
+  if (!context.data.isScene) return
+
+  // update manifest if necessary
+  const manifestKey = `projects/${data.project}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
+
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+
+  if (!projectManifest.scenes) projectManifest.scenes = []
+  projectManifest.scenes.push(data.assetURL!)
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${data.project}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 export const renameAsset = async (context: HookContext<AssetService>) => {
@@ -227,6 +269,26 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
       isCopy: false
     })
   }
+
+  // update manifest if necessary
+  const manifestKey = `projects/${asset.projectName}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
+
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+  if (!projectManifest.scenes?.length) return // no scenes to update
+
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === asset.assetURL)
+  if (sceneIndex === -1) return // scene not found in manifest
+
+  projectManifest.scenes[sceneIndex] = data.assetURL!
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${asset.projectName}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 export default createSkippableHooks(
@@ -244,21 +306,21 @@ export default createSkippableHooks(
         resolveProjectIdForAssetData,
         ensureUniqueName,
         createSceneFiles,
-        removeProjectForAssetData
+        removeFieldsForAssetData
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
-        removeProjectForAssetData
+        removeFieldsForAssetData
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
-        removeProjectForAssetData
+        removeFieldsForAssetData
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),

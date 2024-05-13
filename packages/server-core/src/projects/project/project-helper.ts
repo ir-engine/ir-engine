@@ -320,10 +320,12 @@ export const getProjectManifest = (projectName: string): ManifestJson => {
   const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
   const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
   if (fs.existsSync(manifestJsonPath)) {
-    return require(manifestJsonPath)
+    const data = fs.readFileSync(manifestJsonPath)
+    return JSON.parse(data.toString()) as ManifestJson
   }
   if (fs.existsSync(packageJsonPath)) {
-    const packageJson = require(path.resolve(projectsRootFolder, projectName, 'package.json')) as ProjectPackageJsonType
+    const data = fs.readFileSync(packageJsonPath)
+    const packageJson = JSON.parse(data.toString()) as ProjectPackageJsonType
     return {
       name: packageJson.name!,
       version: packageJson.version!,

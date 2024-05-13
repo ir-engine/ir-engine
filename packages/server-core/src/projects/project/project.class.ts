@@ -105,6 +105,15 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
     const projectConfig = getProjectConfig(projectName) ?? {}
     const enabled = getProjectEnabled(projectName)
+
+    // if no manifest.json exists, add one
+    const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
+    const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
+    if (!fs.existsSync(manifestJsonPath) && fs.existsSync(packageJsonPath)) {
+      const json = getProjectManifest(projectName)
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
+    }
+
     const projectManifest = getProjectManifest(projectName)
 
     const gitData = getGitProjectData(projectName)

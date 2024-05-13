@@ -46,6 +46,7 @@ export const assetDataSchema = Type.Object(
   {
     id: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
+    isScene: Type.Optional(Type.Boolean()),
     sourceURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),

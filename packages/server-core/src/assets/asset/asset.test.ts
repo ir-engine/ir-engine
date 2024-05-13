@@ -30,6 +30,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getProjectManifest } from '../../projects/project/project-helper'
 
 const projectResolvePath = path.resolve(appRootPath.path, 'packages/projects')
 const fsProjectSyncEnabled = config.fsProjectSyncEnabled
@@ -40,7 +41,7 @@ describe('asset.test', () => {
   let project: ProjectType
   const params = { isInternal: true }
 
-  before(async () => {
+  beforeEach(async () => {
     config.fsProjectSyncEnabled = true
     app = createFeathersKoaApp()
     await app.setup()
@@ -48,7 +49,7 @@ describe('asset.test', () => {
     project = await app.service(projectPath).create({ name: projectName })
   })
 
-  after(async () => {
+  afterEach(async () => {
     const foundProjects = (await app
       .service(projectPath)
       .find({ query: { name: projectName }, paginate: false })) as ProjectType[]
@@ -57,62 +58,117 @@ describe('asset.test', () => {
     config.fsProjectSyncEnabled = fsProjectSyncEnabled
   })
 
-  describe('"scene" service', () => {
-    it('should add a new scene from default with increment', async () => {
-      const storageProvider = getStorageProvider()
-      const directory = `projects/${projectName}/public/scenes`
+  it('should add a new asset from default but not populate to manifest', async () => {
+    const storageProvider = getStorageProvider()
+    const directory = `projects/${projectName}/public/scenes`
 
-      const addedSceneData = await app.service(assetPath).create({
-        project: projectName,
-        sourceURL: 'projects/default-project/public/scenes/default.gltf',
-        assetURL: directory + '/New-Scene.gltf'
-      })
-      assert.equal(addedSceneData.assetURL, directory + '/New-Scene.gltf')
-      assert.equal(addedSceneData.projectId, project.id)
-      assert(await storageProvider.doesExist('New-Scene.gltf', directory))
-      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
+    const addedSceneData = await app.service(assetPath).create({
+      project: projectName,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
+    })
+    assert.equal(addedSceneData.assetURL, directory + '/New-Scene.gltf')
+    assert.equal(addedSceneData.projectId, project.id)
+    assert(await storageProvider.doesExist('New-Scene.gltf', directory))
+    assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
+    const manifest = getProjectManifest(projectName)
+    assert(!manifest.scenes?.includes(directory + '/New-Scene.gltf'))
+  })
 
-      const secondAddedSceneData = await app.service(assetPath).create({
-        project: projectName,
-        sourceURL: 'projects/default-project/public/scenes/default.gltf',
-        assetURL: directory + '/New-Scene.gltf'
-      })
-      assert.equal(secondAddedSceneData.assetURL, directory + '/New-Scene-1.gltf')
-      assert.equal(addedSceneData.projectId, project.id)
-      assert(await storageProvider.doesExist('New-Scene-1.gltf', directory))
+  it('should add a new asset from default with increment', async () => {
+    const storageProvider = getStorageProvider()
+    const directory = `projects/${projectName}/public/scenes`
 
-      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
-      assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene-1.gltf')))
+    const addedSceneData = await app.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
+    })
+    assert.equal(addedSceneData.assetURL, directory + '/New-Scene.gltf')
+    assert.equal(addedSceneData.projectId, project.id)
+    assert(await storageProvider.doesExist('New-Scene.gltf', directory))
+    assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
+    const manifest = getProjectManifest(projectName)
+    assert(manifest.scenes!.includes(directory + '/New-Scene.gltf'))
+
+    const secondAddedSceneData = await app.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
+    })
+    assert.equal(secondAddedSceneData.assetURL, directory + '/New-Scene-1.gltf')
+    assert.equal(addedSceneData.projectId, project.id)
+    assert(await storageProvider.doesExist('New-Scene-1.gltf', directory))
+
+    assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene.gltf')))
+    assert(fs.existsSync(path.resolve(projectResolvePath, directory, 'New-Scene-1.gltf')))
+    const manifest2 = getProjectManifest(projectName)
+    assert(manifest2.scenes!.includes(directory + '/New-Scene.gltf'))
+    assert(manifest2.scenes!.includes(directory + '/New-Scene-1.gltf'))
+  })
+
+  it('should query assets by projectName', async () => {
+    const directory = `projects/${projectName}/public/scenes`
+
+    const asset = await app.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
     })
 
-    it('should query assets by projectName', async () => {
-      const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
-      assert.equal(queryResult.data.length, 2)
-      const data = queryResult.data[0]
-      assert.equal(data.projectId, project.id)
+    const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
+    assert.equal(queryResult.data.length, 1)
+    assert.equal(queryResult.data[0].projectId, project.id)
+    assert.equal(queryResult.data[0].id, asset.id)
+    assert.equal(queryResult.data[0].assetURL, directory + '/New-Scene.gltf')
+  })
+
+  it('should update asset name', async () => {
+    const directory = `projects/${projectName}/public/scenes`
+
+    const asset = await app.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
     })
 
-    it('should update scene name', async () => {
-      const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
-      const data = queryResult.data[0]
-      const updatedData = await app
-        .service(assetPath)
-        .patch(data.id, { assetURL: 'projects/' + projectName + '/Updated-Scene.gltf' }, params)
-      assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.gltf')
-      const storageProvider = getStorageProvider()
-      assert(storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName))
-      assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/New-Scene.gltf')))
-      assert(fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/Updated-Scene.gltf')))
+    const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
+    const data = queryResult.data[0]
+    const updatedData = await app
+      .service(assetPath)
+      .patch(data.id, { assetURL: 'projects/' + projectName + '/Updated-Scene.gltf' }, params)
+    assert.equal(updatedData.assetURL, 'projects/' + projectName + '/Updated-Scene.gltf')
+    const storageProvider = getStorageProvider()
+    assert(storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName))
+    assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/New-Scene.gltf')))
+    assert(fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/Updated-Scene.gltf')))
+    const manifest = getProjectManifest(projectName)
+    assert(!manifest.scenes!.includes('projects/' + projectName + '/New-Scene.gltf'))
+    assert(manifest.scenes!.includes('projects/' + projectName + '/Updated-Scene.gltf'))
+  })
+
+  it('should remove asset', async () => {
+    const directory = `projects/${projectName}/public/scenes`
+
+    const asset = await app.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: directory + '/New-Scene.gltf'
     })
 
-    it('should remove scene', async () => {
-      const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
-      const data = queryResult.data[0]
-      await app.service(assetPath).remove(data.id, params)
-      assert.rejects(async () => await app.service(assetPath).get(data.id, params))
-      const storageProvider = getStorageProvider()
-      assert(!(await storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName)))
-      assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/Updated-Scene.gltf')))
-    })
+    const queryResult = await app.service(assetPath).find({ query: { project: projectName } })
+    const data = queryResult.data[0]
+    await app.service(assetPath).remove(data.id, params)
+    assert.rejects(async () => await app.service(assetPath).get(data.id, params))
+    const storageProvider = getStorageProvider()
+    assert(!(await storageProvider.doesExist('Updated-Scene.gltf', 'projects/' + projectName)))
+    assert(!fs.existsSync(path.resolve(projectResolvePath, 'projects/' + projectName + '/New-Scene.gltf')))
+    const manifest = getProjectManifest(projectName)
+    assert(!manifest.scenes!.includes('projects/' + projectName + '/New-Scene.gltf'))
   })
 })
