@@ -24,8 +24,6 @@ import { Type, getValidator } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
 
 export const assetPath = 'asset'
-/** @deprecated use assetPath instead */
-export const scenePath = assetPath
 
 export const assetMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
