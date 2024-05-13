@@ -32,6 +32,7 @@ import {
 } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
+import { PBRBoxProjectionPlugin } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { Material, Shader, WebGLRenderer } from 'three'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
@@ -80,7 +81,7 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin]
+export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin, PBRBoxProjectionPlugin]
 
 export enum MaterialComponents {
   Instance,

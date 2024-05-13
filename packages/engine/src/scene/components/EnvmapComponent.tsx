@@ -32,10 +32,13 @@ import {
   EquirectangularReflectionMapping,
   Mesh,
   MeshMatcapMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Object3D,
   RGBAFormat,
   SRGBColorSpace,
-  Texture
+  Texture,
+  Vector3
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
@@ -45,20 +48,31 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTexture } from '../../assets/functions/resourceHooks'
+import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
+import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 
 const tempColor = new Color()
 
@@ -242,5 +256,70 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
     })
   } else {
     ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+  }
+}
+
+export type BoxProjectionParameters = {
+  cubeMapSize: Vector3
+  cubeMapPos: Vector3
+}
+
+export const PBRBoxProjectionPlugin = {
+  id: 'BoxProjectionPlugin',
+  compile: (shader, renderer) => {
+    const pluginEntity = pluginByName[PBRBoxProjectionPlugin.id]
+    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+    if (!plugin) return
+
+    if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+      shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+
+    shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <envmap_physical_pars_fragment>',
+      envmapPhysicalParsReplace
+    )
+
+    applyPluginShaderParameters(pluginEntity, shader, {
+      cubeMapSize: new Vector3(0, 0, 0),
+      cubeMapPos: new Vector3(0, 0, 0)
+    })
+  }
+}
+
+const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+  for (const target of targets) {
+    const child = target as Mesh<any, MeshStandardMaterial>
+    if (!child.material || child.type == 'VFXBatch') return
+
+    if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
+      const pluginEntity = pluginByName[PBRBoxProjectionPlugin.id]
+      const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
+      setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
+      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
+        getComponent(materialEntity, NameComponent)
+      ].set({
+        cubeMapSize: { value: bakeComponent.bakeScale },
+        cubeMapPos: { value: bakeComponent.bakePositionOffset }
+      })
+    }
+
+    // if ((child.material as any) instanceof MeshLambertMaterial) {
+    //   child.material.onBeforeCompile = function (shader) {
+    //     //these parameters are for the cubeCamera texture
+    //     shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+    //     shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+    //     //replace shader chunks with box projection chunks
+
+    //     shader.fragmentShader = shader.fragmentShader.replace(
+    //       '#include <envmap_pars_fragment>',
+    //       envmapParsReplaceLambert
+    //     )
+    //     shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+
+    //     shader.uniforms.envMap = { value: child.material.envMap }
+    //   }
+    // }
   }
 }

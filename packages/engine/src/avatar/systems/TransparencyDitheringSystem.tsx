@@ -68,7 +68,6 @@ const execute = () => {
         if (!ditherComponent) break
         if (!pluginComponent.parameters) break
         const parameters = pluginComponent.parameters[shader]
-        console.log(parameters, shader)
         if (!parameters) break
         parameters['centers'].value[i] = ditherComponent.center
         parameters['exponents'].value[i] = ditherComponent.exponent
