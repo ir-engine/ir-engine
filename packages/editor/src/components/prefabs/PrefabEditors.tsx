@@ -17,6 +17,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import config from '@etherealengine/common/src/config'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const PrefabShelfCategories = defineState({
@@ -24,8 +25,8 @@ export const PrefabShelfCategories = defineState({
   initial: () => {
     return {
       //hardcode to test replace with parseStorageProviderURLs
-      'Point Light Prefab': 'https://localhost:8642/projects/default-project/assets/pointLight.prefab.gltf',
-      'Geometry Prefab': 'https://localhost:8642/projects/default-project/assets/geo.prefab.gltf',
+      'Point Light Prefab': `${config.client.fileServer}/projects/default-project/assets/pointLight.prefab.gltf`,
+      'Geometry Prefab': `${config.client.fileServer}/projects/default-project/assets/geo.prefab.gltf`,
       'Empty Prefab': 'empty'
 
       //will continue to add more prefabs

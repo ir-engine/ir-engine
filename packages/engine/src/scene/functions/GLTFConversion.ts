@@ -26,9 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 
 import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { getState } from '@etherealengine/hyperflux'
+import { GLTF } from '@gltf-transform/core'
+import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '../../gltf/GLTFState'
+import { SceneSnapshotState } from '../SceneState'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -101,5 +106,60 @@ export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
         }
       }
     }
+  }
+}
+
+export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: EntityUUID): GLTF.INode {
+  const node: GLTF.INode = {
+    name: entityJson.name,
+    extensions: {
+      [UUIDComponent.jsonID]: entityUUID
+    }
+  }
+  if (entityJson.components) {
+    for (const componentJson of entityJson.components) {
+      node.extensions![componentJson.name] = componentJson.props
+    }
+  }
+  return node
+}
+
+export function getGLTFSnapshot(sourceID: string) {
+  if (getState(GLTFDocumentState)[sourceID]) {
+    return GLTFSnapshotState.cloneCurrentSnapshot(sourceID)
+  } else {
+    const sceneJSONSnapshot = SceneSnapshotState.cloneCurrentSnapshot(sourceID)
+    const result: GLTF.IGLTF = {
+      asset: {
+        version: '2.0',
+        generator: 'Infinite Reality Engine'
+      },
+      nodes: []
+    }
+    const nodes: GLTF.INode[] = []
+    const roots: number[] = []
+    for (const [entityUUID, entityJson] of Object.entries(sceneJSONSnapshot.data.entities)) {
+      const node = entityJSONToGLTFNode(entityJson, entityUUID as EntityUUID)
+      nodes.push(node)
+      if (entityJson.parent === sceneJSONSnapshot.data.root) {
+        roots.push(nodes.length - 1)
+      }
+    }
+    //add parent child info
+    for (const [entityUUID, entityJson] of Object.entries(sceneJSONSnapshot.data.entities)) {
+      const node = nodes.find((node) => node.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      if (!node) continue
+      const parentUUID = entityJson.parent
+      if (!parentUUID) continue
+      const parent = nodes.find((node) => node.extensions?.[UUIDComponent.jsonID] === parentUUID)
+      if (!parent) continue
+      if (!parent.children) parent.children = []
+      parent.children.push(nodes.indexOf(node))
+    }
+    //add root nodes
+    result.scene = 0
+    result.scenes = [{ nodes: roots }]
+    result.nodes = nodes
+    return { data: result, source: sourceID }
   }
 }

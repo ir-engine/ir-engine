@@ -40,7 +40,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -58,6 +58,7 @@ import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
+import { GLTFSnapshotState } from '../../gltf/GLTFState'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -80,7 +81,7 @@ export const ModelComponent = defineComponent({
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null,
-      dereference: true
+      dereference: false
     }
   },
 
@@ -152,7 +153,7 @@ function ModelReactor() {
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
-    const asset = model.asset as GLTF | null
+    const asset = model.asset as GLTF | VRM
     if (!asset) return
 
     const group = getOptionalComponent(entity, GroupComponent)
@@ -180,28 +181,6 @@ function ModelReactor() {
     if (modelComponent.dereference.value) {
       // update authoring layer
       SceneState.injectScene(entity, loadedJsonHierarchy)
-
-      // perform runtime reparent and delete model entity
-      //  reparenting
-      const entityTreeComp = getComponent(entity, EntityTreeComponent)
-
-      const parentEntity = entityTreeComp.parentEntity
-
-      let children = entityTreeComp.children
-      const parentEntityTreeComp = getComponent(parentEntity, EntityTreeComponent)
-
-      for (const child of children) {
-        const childTreeComp = getComponent(child, EntityTreeComponent)
-        if (childTreeComp) {
-          if (!childTreeComp.parentEntity) return
-          childTreeComp.parentEntity = parentEntity
-          if (!parentEntityTreeComp.children) return
-          parentEntityTreeComp.children.push(child)
-        }
-      }
-      // remove the model entity since it has been dereferenced
-      children = []
-      removeEntity(entity)
     } else {
       uuid = getModelSceneID(entity)
 
@@ -243,6 +222,17 @@ function ModelReactor() {
     }
   }, [modelComponent.scene])
 
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (!modelComponent.dereference.value) return
+    const modelUUID = getComponent(entity, UUIDComponent)
+    const sourceID = getModelSceneID(entity)
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    if (!parentEntity) return
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
+    const parentSource = getComponent(parentEntity, SourceComponent)
+    GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
+  }, [modelComponent.dereference])
   return null
 }
 

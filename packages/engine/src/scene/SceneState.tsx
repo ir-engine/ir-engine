@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, createEntity, generateEntityUUID, removeEntity } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, createEntity, removeEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import {
@@ -45,8 +45,9 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useLayoutEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../gltf/GLTFDocumentState'
-import { GLTFSnapshotState, GLTFSourceState } from '../gltf/GLTFState'
+import { GLTFSnapshotState } from '../gltf/GLTFState'
 import { SourceComponent } from './components/SourceComponent'
+import { entityJSONToGLTFNode } from './functions/GLTFConversion'
 import { migrateDirectionalLightUseInCSM } from './functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from './functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from './functions/migrateOldComponentJSONIDs'
@@ -95,40 +96,54 @@ export const SceneState = defineState({
     //get model UUID and parent UUID
     const modelUUID = getComponent(modelEntity, UUIDComponent)
     const parentEntity = getComponent(modelEntity, EntityTreeComponent)?.parentEntity
-    const childEntity = getComponent(modelEntity, EntityTreeComponent).children[0]
     if (!parentEntity) return
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     //get the sceneID from the parent entity
     const sceneID = getComponent(parentEntity, SourceComponent)
     if (!sceneID) return
     // //get snapshot from the sceneID
-
-    const parentSource = getComponent(parentEntity, SourceComponent)
-    const entitySource = getComponent(modelEntity, SourceComponent)
-    const childSource = getComponent(getComponent(modelEntity, EntityTreeComponent).children[0], SourceComponent)
-    if (getState(GLTFSourceState)[parentSource]) {
-      const parentGLTFSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(parentSource)
-      const sourceGLTF = getState(GLTFDocumentState)[entitySource]
-      //set current entity as child of parentGLTFSnapshot
-      const modelUUID = getComponent(modelEntity, UUIDComponent)
-      const node = sourceGLTF.nodes?.find((n) => n.extensions?.[UUIDComponent.jsonID] === modelUUID)
-      const nodeClone = JSON.parse(JSON.stringify(node)) as GLTF.INode
-      parentGLTFSnapshot.data.nodes!.push(nodeClone)
-      nodeClone.extensions![UUIDComponent.jsonID] = generateEntityUUID()
-      if (nodeClone.children) nodeClone.children = []
-      const index = parentGLTFSnapshot.data.nodes!.length - 1
-      const parentNode = parentGLTFSnapshot.data.nodes?.find(
-        (n) => n.extensions?.[UUIDComponent.jsonID] === parentUUID
-      ) as GLTF.INode
-      if (!parentNode) {
-        parentGLTFSnapshot.data.scenes![0].nodes.push(index)
-      } else {
-        if (!parentNode.children) parentNode.children = []
-        parentNode.children.push(index)
+    if (!getState(SceneSnapshotState)[sceneID]) {
+      const parentGLTFSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+      //remove the model entity from the snapshot, if it exists
+      const modelIndex = parentGLTFSnapshot.data.nodes?.findIndex(
+        (n) => n.extensions?.[UUIDComponent.jsonID] === modelUUID
+      )
+      if (typeof modelIndex === 'number' && modelIndex >= 0) {
+        parentGLTFSnapshot.data.nodes?.splice(modelIndex, 1)
       }
+      //set current entity as child of parentGLTFSnapshot
+      const nodes: Record<EntityUUID, GLTF.INode> = {}
+      for (const [uuid, entityJson] of Object.entries(data)) {
+        const entityUUID = uuid as EntityUUID
+        if (entityUUID === modelUUID) continue
+        const node = entityJSONToGLTFNode(entityJson, entityUUID)
+        nodes[entityUUID] = node
+      }
+      parentGLTFSnapshot.data.nodes = [...parentGLTFSnapshot.data.nodes!, ...Object.values(nodes)]
+      //transfer parent-child relationships
+      for (const [uuid, entityJson] of Object.entries(data)) {
+        const entityUUID = uuid as EntityUUID
+        if (entityUUID === modelUUID) continue
+        const thisParentUUID = entityJson.parent === modelUUID ? parentUUID : entityJson.parent
+        const parentNode = parentGLTFSnapshot.data.nodes?.find(
+          (n) => n.extensions?.[UUIDComponent.jsonID] === thisParentUUID
+        ) as GLTF.INode
+        const childIndex = parentGLTFSnapshot.data.nodes?.findIndex(
+          (n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID
+        )
+        if (!parentNode) continue
+        if (parentNode.children && !parentNode.children.includes(childIndex)) {
+          parentNode.children.push(childIndex)
+        } else {
+          parentNode.children = [childIndex]
+        }
+      }
+      console.log(getState(GLTFDocumentState))
       dispatchAction(GLTFSnapshotAction.createSnapshot(parentGLTFSnapshot))
     } else {
       const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+      //remove the model entity from the snapshot, if it exists
+      delete snapshot.data.entities[modelUUID]
       //add new data as child of the parent entity
       for (const [uuid, entityJson] of Object.entries(data)) {
         if (entityJson.parent === parentUUID) {
