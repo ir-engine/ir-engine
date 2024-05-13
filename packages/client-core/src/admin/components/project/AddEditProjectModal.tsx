@@ -109,7 +109,6 @@ export default function AddEditProjectModal({
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
   useEffect(() => {
-    console.log('debug1 the project name was', project)
     ProjectUpdateService.initializeProjectUpdate(project.name)
     if (inputProject) {
       ProjectUpdateService.setTriggerSetDestination(
@@ -121,7 +120,6 @@ export default function AddEditProjectModal({
     }
     return () => ProjectUpdateService.clearProjectUpdate(project.name)
   }, [project.name])
-  console.log('debug1 the project update status ', projectUpdateStatus)
 
   const user = useHookstate(getMutableState(AuthState).user)
   const hasGithubProvider = user.identityProviders.value.find((ip) => ip.type === 'github')
