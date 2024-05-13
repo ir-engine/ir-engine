@@ -28,7 +28,6 @@ import { RouterState } from '@etherealengine/client-core/src/common/services/Rou
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, getComponent, useComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
@@ -197,11 +196,6 @@ const onSaveAs = async () => {
 
         const sourceID = getComponent(rootEntity, SourceComponent)
         getMutableState(GLTFModifiedState)[sourceID].set(none)
-
-        const newSceneData = await Engine.instance.api
-          .service(assetPath)
-          .find({ query: { assetURL: getState(EditorState).scenePath! } })
-        getMutableState(EditorState).scenePath.set(newSceneData.data[0].assetURL as any)
       }
     }
   } catch (error) {

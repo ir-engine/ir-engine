@@ -122,15 +122,15 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   const assetURL = context.data.assetURL
   const fileName = assetURL.split('/').pop()!
 
-  const fileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.')
+  const cleanedFileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.')
   const fileExtension = fileName.split('/').pop()!.split('.').pop()
-  const fileDirectory = context.data.assetURL!.split('/').slice(0, -1).join('/') + '/'
+  const fileDirectory = assetURL!.split('/').slice(0, -1).join('/') + '/'
   let counter = 0
-  let name = fileName
+  let name = cleanedFileNameWithoutExtension + '.' + fileExtension
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    if (counter > 0) name = fileNameWithoutExtension + '-' + counter + '.' + fileExtension
+    if (counter > 0) name = cleanedFileNameWithoutExtension + '-' + counter + '.' + fileExtension
     const sceneNameExists = await context.app.service(assetPath).find({ query: { assetURL: fileDirectory + name } })
     if (sceneNameExists.total === 0) break
     counter++

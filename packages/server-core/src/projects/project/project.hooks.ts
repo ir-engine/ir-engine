@@ -57,6 +57,7 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
@@ -70,7 +71,6 @@ import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
-import { cleanString } from '../../util/cleanString'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {

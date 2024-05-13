@@ -28,6 +28,7 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -77,13 +78,14 @@ export const saveSceneGLTF = async (
   const { rootEntity } = getState(EditorState)
   const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
 
-  const sceneName = sceneFile!.replace('.scene.json', '').replace('.gltf', '')
+  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
 
   const gltfData = getState(GLTFSnapshotState)[sourceID].snapshots.at(-1)
 
   const blob = [JSON.stringify(gltfData, null, 2)]
   const file = new File(blob, `${sceneName}.gltf`)
-  const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
   const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
 
