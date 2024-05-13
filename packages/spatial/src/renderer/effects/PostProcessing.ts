@@ -706,7 +706,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
 export const effectInOrder = [
   /** 1. input aliasing */
   Effects.SMAAEffect,
-  //Effects.OutlineEffect,
+  Effects.OutlineEffect,
 
   /** 2. world effects */
   // Effects.PaniniProjection,
