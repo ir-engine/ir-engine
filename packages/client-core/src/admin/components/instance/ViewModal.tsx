@@ -63,7 +63,8 @@ const useKickUser = () => {
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
-      instanceId
+      instanceId,
+      ended: false
     }
   })
 

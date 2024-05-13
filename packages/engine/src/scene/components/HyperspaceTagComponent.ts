@@ -41,7 +41,7 @@ import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -66,7 +66,7 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
