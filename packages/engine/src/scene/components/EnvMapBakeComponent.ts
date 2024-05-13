@@ -34,25 +34,19 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
   getComponent,
-  hasComponent,
-  setComponent,
-  useComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -61,6 +55,9 @@ import {
 } from '../classes/BPCEMShader'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
+
+const sphereGeometry = new SphereGeometry(0.75)
+const helperMeshMaterial = new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
@@ -75,8 +72,7 @@ export const EnvMapBakeComponent = defineComponent({
       resolution: 1024,
       refreshMode: EnvMapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',
-      boxProjection: true,
-      helperEntity: null as Entity | null
+      boxProjection: true
     }
   },
 
@@ -108,26 +104,18 @@ export const EnvMapBakeComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const bake = useComponent(entity, EnvMapBakeComponent)
 
     useLayoutEffect(() => {
-      if (!debugEnabled.value) return
-
-      const helper = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
-      helper.name = `envmap-bake-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      bake.helperEntity.set(helperEntity)
+      if (debugEnabled.value) {
+        setComponent(entity, DebugMeshComponent, {
+          name: 'envmap-bake-helper',
+          geometry: sphereGeometry,
+          material: helperMeshMaterial
+        })
+      }
 
       return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, EnvMapBakeComponent)) return
-        bake.helperEntity.set(none)
+        removeComponent(entity, DebugMeshComponent)
       }
     }, [debugEnabled])
 

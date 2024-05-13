@@ -65,6 +65,7 @@ export const executeSystems = (elapsedTime: number) => {
   if (duration > 150) {
     logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
+  ecsState.lastSystemExecutionDuration.set(duration)
 }
 
 /**

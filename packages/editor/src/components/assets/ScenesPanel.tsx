@@ -37,7 +37,7 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 import config from '@etherealengine/common/src/config'
 import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
