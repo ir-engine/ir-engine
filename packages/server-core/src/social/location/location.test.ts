@@ -53,18 +53,17 @@ describe('location.test', () => {
   it('should create a new location', async () => {
     const name = `Test Location ${uuidv4()}`
 
-    const scene = await app.service(assetPath).create({
-      id: uuidv4(),
-      assetURL: 'projects/default-project/test.scene.json',
-      thumbnailURL: 'projects/default-project/test.thumbnail.jpg',
-      project: 'default-project'
+    const scene = await app.service(assetPath).find({
+      query: {
+        assetURL: 'projects/default-project/public/scenes/default.gltf'
+      }
     })
 
     const item = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
-        sceneId: scene.id,
+        sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
@@ -114,6 +113,7 @@ describe('location.test', () => {
     delete locationData.locationAdmin
     delete locationData.createdAt
     delete locationData.updatedAt
+    delete locationData.sceneAsset
 
     const item = (await app
       .service(locationPath)

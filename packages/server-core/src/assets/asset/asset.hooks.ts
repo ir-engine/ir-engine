@@ -89,6 +89,7 @@ export const removeProjectForAssetData = async (context: HookContext<AssetServic
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
+  console.log(context.data)
 }
 
 const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
