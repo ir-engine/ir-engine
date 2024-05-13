@@ -26,25 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import {
-  LocationData,
-  LocationID,
-  LocationType,
-  assetPath,
-  locationPath
-} from '@etherealengine/common/src/schema.type.module'
+import { LocationData, LocationID, LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -72,9 +62,6 @@ const defaultState = {
   videoEnabled: true,
   audioEnabled: true,
   screenSharingEnabled: true,
-  // faceStreamingEnabled: false,
-  // isLobby: false,
-  // isFeatured: false,
   formErrors: {
     name: '',
     maxUsers: '',
@@ -87,42 +74,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
-
-  const scenes = useFind(assetPath)
-  // const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
-
   const locationMutation = useMutation(locationPath)
-
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
-
-  const selectedSceneData = useGet(assetPath, selectedScene!)
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
   }, [selectedScene])
-
-  const sceneMenu: InputMenuItem[] = selectedSceneData.data
-    ? [
-        {
-          value: selectedSceneData.data.id,
-          label: selectedSceneData.data.assetURL
-        }
-      ]
-    : scenes.data.map((el: AssetType) => {
-        return {
-          value: el.id,
-          label: el.assetURL
-        }
-      })
-
-  // const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
-  //   return {
-  //     value: el.type,
-  //     label: el.type
-  //   }
-  // })
 
   useEffect(() => {
     loadSelectedLocation()
@@ -139,9 +98,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
         videoEnabled: selectedLocation.locationSetting?.videoEnabled,
         audioEnabled: selectedLocation.locationSetting?.audioEnabled,
         screenSharingEnabled: selectedLocation.locationSetting?.screenSharingEnabled
-        // faceStreamingEnabled: selectedLocation.locationSetting?.faceStreamingEnabled,
-        // isLobby: selectedLocation.isLobby,
-        // isFeatured: selectedLocation.isFeatured
       })
     }
   }
@@ -156,29 +112,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const handleClose = () => {
     onClose()
     state.set({ ...defaultState })
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-
-    switch (name) {
-      case 'name':
-        state.formErrors.merge({ name: value.length < 2 ? t('admin:components.location.nameRequired') : '' })
-        break
-      case 'maxUsers':
-        state.formErrors.merge({ maxUsers: value.length < 1 ? t('admin:components.location.maxUsersRequired') : '' })
-        break
-      case 'scene':
-        state.formErrors.merge({ scene: value.length < 2 ? t('admin:components.location.sceneRequired') : '' })
-        break
-      case 'type':
-        state.formErrors.merge({ type: value.length < 2 ? t('admin:components.location.typeRequired') : '' })
-        break
-      default:
-        break
-    }
-
-    state.merge({ [name]: value })
   }
 
   const handleSubmit = async () => {
@@ -222,13 +155,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
         locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,
-        faceStreamingEnabled: false, //state.faceStreamingEnabled.value,
+        faceStreamingEnabled: false,
         videoEnabled: state.videoEnabled.value,
         createdAt: '',
         updatedAt: ''
       },
-      isLobby: false, //state.isLobby.value,
-      isFeatured: false //state.isFeatured.value
+      isLobby: false,
+      isFeatured: false
     }
 
     const onError = (error) => NotificationService.dispatchNotify(error.message, { variant: 'error' })
@@ -258,65 +191,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           value={state?.value?.name || ''}
           error={state?.value?.formErrors?.name}
           disabled={viewMode}
-          onChange={handleChange}
+          onChange={({ name, value }) => {
+            state.formErrors.merge({ name: value.length < 2 ? t('admin:components.location.nameRequired') : '' })
+            state.merge({ [name]: value })
+          }}
         />
 
-        <InputText
-          name="maxUsers"
-          label={t('admin:components.location.lbl-maxuser')}
-          value={state?.value?.maxUsers}
-          error={state?.value?.formErrors?.maxUsers}
-          type="number"
-          disabled={viewMode}
-          onChange={handleChange}
-        />
-
-        <InputSelect
-          name="scene"
-          label={t('admin:components.location.lbl-scene')}
-          value={state?.value?.scene}
-          error={state?.value?.formErrors?.scene}
-          menu={sceneMenu}
-          disabled={viewMode || selectedScene !== undefined}
-          onChange={handleChange}
-        />
-
-        {/* <InputSelect
-          name="type"
-          label={t('admin:components.location.type')}
-          value={state?.value?.type}
-          menu={locationTypesMenu}
-          disabled={viewMode}
-          onChange={handleChange}
-        /> */}
-
-        <Grid container spacing={5} className={styles.mb15px}>
-          <Grid item xs={6}>
-            <InputSwitch
-              name="videoEnabled"
-              label={t('admin:components.location.lbl-ve')}
-              checked={state?.value?.videoEnabled}
-              disabled={viewMode}
-              onChange={(e) => state.merge({ videoEnabled: e.target.checked })}
-            />
-
-            <InputSwitch
-              name="audioEnabled"
-              label={t('admin:components.location.lbl-ae')}
-              checked={state?.value?.audioEnabled}
-              disabled={viewMode}
-              onChange={(e) => state.merge({ audioEnabled: e.target.checked })}
-            />
-
-            <InputSwitch
-              name="screenSharingEnabled"
-              label={t('admin:components.location.lbl-se')}
-              checked={state?.value?.screenSharingEnabled}
-              disabled={viewMode}
-              onChange={(e) => state.merge({ screenSharingEnabled: e.target.checked })}
-            />
-          </Grid>
-        </Grid>
         <DialogActions>
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
