@@ -95,16 +95,16 @@ describe('PerformanceState', () => {
 
   it('Increments performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
-    const initialOffset = performanceState.performanceOffset.value
+    const initialOffset = performanceState.gpuPerformanceOffset.value
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === initialOffset + 1)
+        if (initialOffset !== performance.gpuPerformanceOffset.value) {
+          assert(performance.gpuPerformanceOffset.value === initialOffset + 1)
         }
-      }, [performance.performanceOffset])
+      }, [performance.gpuPerformanceOffset])
 
       return <></>
     }
@@ -112,7 +112,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      PerformanceManager.decrementPerformance()
+      PerformanceManager.decrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -124,16 +124,16 @@ describe('PerformanceState', () => {
 
   it('Increments performance tier', (done) => {
     const performanceState = getMutableState(PerformanceState)
-    const initialTier = performanceState.tier.value
+    const initialTier = performanceState.gpuTier.value
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        if (initialTier !== performance.tier.value) {
-          assert(performance.tier.value === initialTier + 1)
+        if (initialTier !== performance.gpuTier.value) {
+          assert(performance.gpuTier.value === initialTier + 1)
         }
-      }, [performanceState.tier])
+      }, [performanceState.gpuTier])
 
       return <></>
     }
@@ -141,7 +141,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      PerformanceManager.incrementPerformance()
+      PerformanceManager.incrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -153,20 +153,20 @@ describe('PerformanceState', () => {
 
   it('Debounces performance offset', (done) => {
     const performanceState = getMutableState(PerformanceState)
-    const initialOffset = performanceState.performanceOffset.value
-    const initialTier = performanceState.tier.value
+    const initialOffset = performanceState.gpuPerformanceOffset.value
+    const initialTier = performanceState.gpuTier.value
 
     const Reactor = () => {
       const performance = useHookstate(performanceState)
 
       useEffect(() => {
-        if (initialOffset !== performance.performanceOffset.value) {
-          assert(performance.performanceOffset.value === initialOffset + 1)
+        if (initialOffset !== performance.gpuPerformanceOffset.value) {
+          assert(performance.gpuPerformanceOffset.value === initialOffset + 1)
         }
-        if (initialTier !== performance.tier.value) {
-          assert(performance.tier.value === initialTier - 1)
+        if (initialTier !== performance.gpuTier.value) {
+          assert(performance.gpuTier.value === initialTier - 1)
         }
-      }, [performance.performanceOffset, performance.tier])
+      }, [performance.gpuPerformanceOffset, performance.gpuTier])
 
       return <></>
     }
@@ -174,8 +174,8 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
-      PerformanceManager.decrementPerformance()
-      PerformanceManager.decrementPerformance()
+      PerformanceManager.decrementGPUPerformance()
+      PerformanceManager.incrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
@@ -187,7 +187,7 @@ describe('PerformanceState', () => {
 
   it('Updates render settings reactively', (done) => {
     const performanceState = getMutableState(PerformanceState)
-    const initialTier = performanceState.tier.value
+    const initialTier = performanceState.gpuTier.value
     let updatedTier = 5
     if (updatedTier === initialTier) updatedTier -= 1
 
@@ -202,7 +202,7 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
 
     act(async () => {
-      performanceState.tier.set(updatedTier as any)
+      performanceState.gpuTier.set(updatedTier as any)
       rerender(<Reactor />)
     }).then(() => {
       assert(smaaPreset !== renderSettings.smaaPreset)

@@ -85,6 +85,18 @@
             "type": "node-terminal",
         },
         {
+            "command": "cd packages/spatial && npm run test",
+            "name": "npm run test - spatial",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/engine && npm run test",
+            "name": "npm run test - engine",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
             "command": "npm run dev",
             "name": "npm run dev",
             "request": "launch",
