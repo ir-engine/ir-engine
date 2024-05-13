@@ -158,7 +158,6 @@ export const createSceneFiles = async (context: HookContext<AssetService>) => {
     const fileExists = await context.app.service(fileBrowserPath).get(data.assetURL!)
     if (fileExists) return
   }
-
   const sourceAsset = (
     await context.app.service(assetPath).find({
       query: {

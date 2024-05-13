@@ -90,6 +90,9 @@ export const saveSceneGLTF = async (
   if (sceneAssetID) {
     const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
 
+    // no need to update state if the assetURL is the same
+    if (getState(EditorState).scenePath === result.assetURL && getState(EditorState).sceneAssetID === result.id) return
+
     getMutableState(EditorState).merge({
       sceneName,
       scenePath: assetURL,
@@ -120,8 +123,15 @@ export const onNewScene = async () => {
       assetURL: `projects/${projectName}/public/scenes/New-Scene.gltf`
     })
     if (!sceneData) return
+    const sceneName = sceneData.assetURL.split('/').pop()
+    const newProjectName = sceneData.projectName
 
-    getMutableState(EditorState).scenePath.set(sceneData.assetURL as any)
+    getMutableState(EditorState).merge({
+      sceneName,
+      scenePath: sceneData.assetURL,
+      projectName: newProjectName,
+      sceneAssetID: sceneData.id
+    })
   } catch (error) {
     logger.error(error)
   }

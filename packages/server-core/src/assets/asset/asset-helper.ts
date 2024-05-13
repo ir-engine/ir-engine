@@ -36,7 +36,7 @@ export const seedSceneAssets = async (app: Application, projectName: string, ass
   assetPaths = assetPaths.map((asset) => `projects/${projectName}/${asset}`)
 
   const sceneAssets = await Promise.all(
-    assetPaths.filter(async (asset) => !(await app.service(assetPath).find({ query: { assetURL: asset } })))
+    assetPaths.filter(async (asset) => (await app.service(assetPath).find({ query: { assetURL: asset } })).total > 0)
   )
   if (!sceneAssets.length) return
   const sceneAssetData: AssetData[] = sceneAssets.map(

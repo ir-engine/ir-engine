@@ -127,6 +127,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       updatedAt: await getDateTimeSql()
     })
 
+    await uploadLocalProjectToProvider(this.app, projectName)
+
     if (projectManifest?.scenes) {
       await seedSceneAssets(this.app, project.name, projectManifest.scenes)
     }
@@ -183,8 +185,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
         { query: { name: projectName } }
       )
-
-      promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
