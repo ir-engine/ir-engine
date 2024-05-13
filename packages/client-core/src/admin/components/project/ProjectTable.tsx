@@ -85,6 +85,8 @@ export default function ProjectTable() {
   const RowActions = ({ project }: { project: ProjectType }) => {
     const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
+    console.log('debug1 the project update status was', projectUpdateStatus)
+
     return (
       <div className="flex items-center justify-evenly p-1">
         <Button
