@@ -57,9 +57,18 @@ export default function AvatarTable({ search }: { search: string }) {
   useSearch(
     adminAvatarQuery,
     {
-      name: {
-        $like: `%${search}%`
-      }
+      $or: [
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        }
+      ]
     },
     search
   )
