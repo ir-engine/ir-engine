@@ -50,6 +50,7 @@ import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/s
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Material, Mesh, Raycaster, Vector2 } from 'three'
+import { MathUtils } from 'three/src/math/MathUtils'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -115,6 +116,8 @@ export async function addMediaNode(
     } else if (contentType.startsWith('model/prefab')) {
       //create entity
       const entity = createEntity()
+      const uuid = MathUtils.generateUUID() as EntityUUID
+      setComponent(entity, UUIDComponent, uuid)
       setComponent(entity, SourceComponent, getComponent(getState(EditorState).rootEntity, SourceComponent))
       setComponent(entity, EntityTreeComponent, { parentEntity: parent ?? getState(EditorState).rootEntity })
       setComponent(entity, ModelComponent, { src: url })
