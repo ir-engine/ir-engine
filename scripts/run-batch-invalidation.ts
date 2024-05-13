@@ -75,7 +75,7 @@ cli.main(async () => {
       let pathArray: string[] = []
       let idArray: string[] = []
       for (let invalidation of invalidations) {
-        pathArray.push(invalidation.path)
+        pathArray.push(encodeURIComponent(invalidation.path))
         idArray.push(invalidation.id)
       }
       pathArray = [...new Set(pathArray)]
