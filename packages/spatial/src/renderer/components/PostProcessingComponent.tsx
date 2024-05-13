@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { NO_PROXY, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import {
   BloomEffect,
@@ -35,6 +35,7 @@ import {
   DepthDownsamplingPass,
   DepthOfFieldEffect,
   DotScreenEffect,
+  EdgeDetectionMode,
   Effect,
   EffectComposer,
   EffectPass,
@@ -65,8 +66,10 @@ import { Scene } from 'three'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { RendererComponent } from '../WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { changeRenderMode } from '../functions/changeRenderMode'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
@@ -406,20 +409,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   }, [postprocessingComponent.effects[Effects.NoiseEffect]])
 
   useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.OutlineEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new OutlineEffect(scene.value, camera.value, effectOptions)
-      //composer[Effects.OutlineEffect].set(eff)
-      effects[Effects.OutlineEffect].set(eff)
-
-      return () => {
-        //composer[Effects.OutlineEffect].set(none)
-        effects[Effects.OutlineEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.OutlineEffect]])
-
-  useEffect(() => {
     const effectOptions = postprocessingComponent.value.effects[Effects.PixelationEffect] as any
     if (effectOptions && effectOptions.isActive) {
       const eff = new PixelationEffect(effectOptions.granularity)
@@ -606,13 +595,30 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
 
   useEffect(() => {
     const renderSettings = getState(RendererState)
-    if (!renderSettings.usePostProcessing) return
 
     const effectsVal = effects.get(NO_PROXY)
-    for (const key in effectsVal) {
-      const val = effectsVal[key]
-      composer[key] = val
+
+    if (renderSettings.usePostProcessing) {
+      for (const key in effectsVal) {
+        const val = effectsVal[key]
+        composer[key] = val
+      }
     }
+
+    //always have the smaa effect
+    const smaaPreset = getState(RenderSettingsState).smaaPreset
+    const smaaEffect = new SMAAEffect({
+      preset: smaaPreset,
+      edgeDetectionMode: EdgeDetectionMode.COLOR
+    })
+    effectsVal[Effects.SMAAEffect] = smaaEffect
+    composer[Effects.SMAAEffect] = smaaEffect
+
+    //always have the outline effect for the highlight selection
+    const outlineEffect = new OutlineEffect(scene.value, camera.value, getState(HighlightState))
+    outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+    effectsVal[Effects.OutlineEffect] = outlineEffect
+    composer[Effects.OutlineEffect] = outlineEffect
 
     const effectArray = Object.values(effectsVal)
     composer.EffectPass = new EffectPass(camera.value, ...effectArray)

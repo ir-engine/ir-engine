@@ -179,6 +179,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     premultiply: { propertyType: PropertyTypes.Boolean, name: 'Premultiply' }
   },
+  /*
   OutlineEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     patternScale: { propertyType: PropertyTypes.Number, name: 'Pattern Scale', min: 0, max: 10, step: 0.01 },
@@ -196,6 +197,7 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     //width: Resolution.AUTO_SIZE,
     //height: 480,
   },
+  */
   PixelationEffect: {
     granularity: { propertyType: PropertyTypes.Number, name: 'Granularity', min: 0, max: 1000, step: 1 }
   },
@@ -211,9 +213,11 @@ const EffectsOptions: Partial<EffectOptionsType> = {
     waveSize: { propertyType: PropertyTypes.Number, name: 'Wave Size', min: 0, max: 10, step: 0.05 },
     amplitude: { propertyType: PropertyTypes.Number, name: 'Amplitude', min: 0, max: 10, step: 0.05 }
   },
+  /*
   SMAAEffect: {
     preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
   },
+  */
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },

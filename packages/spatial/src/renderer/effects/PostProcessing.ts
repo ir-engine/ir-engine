@@ -33,7 +33,6 @@ import {
   EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
-  OutlineEffect,
   PredicationMode,
   Resolution,
   SMAAEffect,
@@ -111,7 +110,7 @@ export type SMAAEffectProps = EffectProps & {
   edgeDetectionMode?: EdgeDetectionMode
   predicationMode?: PredicationMode
 }
-
+/*
 export type OutlineEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   patternTexture?: Texture
@@ -130,6 +129,7 @@ export type OutlineEffectProps = EffectProps & {
   blur?: boolean
   xRay?: boolean
 }
+*/
 
 export type SSAOEffectProps = EffectProps & {
   blendFunction?: BlendFunction
@@ -378,7 +378,7 @@ export type LensDistortionEffectProps = EffectProps & {
 
 export type EffectPropsSchema = {
   [Effects.SMAAEffect]: SMAAEffectProps
-  [Effects.OutlineEffect]: OutlineEffectProps
+  //[Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -419,6 +419,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     edgeDetectionMode: EdgeDetectionMode.COLOR,
     predicationMode: PredicationMode.DISABLED
   },
+  /*
   [Effects.OutlineEffect]: {
     isActive: false,
     blendFunction: BlendFunction.SCREEN,
@@ -437,6 +438,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     blur: false,
     xRay: true
   },
+  */
   [Effects.SSREffect]: {
     isActive: false,
     ...defaultSSROptions
@@ -704,7 +706,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
 export const effectInOrder = [
   /** 1. input aliasing */
   Effects.SMAAEffect,
-  Effects.OutlineEffect,
+  //Effects.OutlineEffect,
 
   /** 2. world effects */
   // Effects.PaniniProjection,
