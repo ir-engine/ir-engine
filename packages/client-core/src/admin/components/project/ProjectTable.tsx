@@ -82,124 +82,119 @@ export default function ProjectTable() {
     projectQuery.refetch()
   }
 
-  const RowActions = ({ project }: { project: ProjectType }) => {
-    const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
+  const RowActions = ({ project }: { project: ProjectType }) => (
+    <div className="flex items-center justify-evenly p-1">
+      <Button
+        startIcon={<HiOutlineArrowPath />}
+        size="small"
+        className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+        disabled={project.name === 'default-project'}
+        onClick={() => {
+          PopoverState.showPopupover(
+            <AddEditProjectModal
+              update={true}
+              inputProject={project}
+              onSubmit={async () => {
+                const projectUpdateStatus = getMutableState(ProjectUpdateState)[project.name].value
+                await ProjectService.uploadProject({
+                  sourceURL: projectUpdateStatus.sourceURL,
+                  destinationURL: projectUpdateStatus.destinationURL,
+                  name: projectUpdateStatus.projectName,
+                  reset: true,
+                  commitSHA: projectUpdateStatus.selectedSHA,
+                  sourceBranch: projectUpdateStatus.selectedBranch,
+                  updateType: projectUpdateStatus.updateType,
+                  updateSchedule: projectUpdateStatus.updateSchedule
+                }).catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+                PopoverState.hidePopupover()
+              }}
+            />
+          )
+        }}
+      >
+        {t('admin:components.project.actions.update')}
+      </Button>
+      <Button
+        startIcon={<GrGithub />}
+        size="small"
+        className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+        disabled={!project || !project.repositoryPath || project.name === 'default-project'}
+        onClick={() => {
+          PopoverState.showPopupover(
+            <ConfirmDialog
+              text={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
+                project.repositoryPath
+              }`}
+              onSubmit={async () => {
+                await ProjectService.pushProject(project.id)
+              }}
+            />
+          )
+        }}
+      >
+        {t('admin:components.project.actions.push')}
+      </Button>
 
-    console.log('debug1 the project update status was', projectUpdateStatus)
-
-    return (
-      <div className="flex items-center justify-evenly p-1">
-        <Button
-          startIcon={<HiOutlineArrowPath />}
-          size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={project.name === 'default-project'}
-          onClick={() => {
-            PopoverState.showPopupover(
-              <AddEditProjectModal
-                update={true}
-                inputProject={project}
-                onSubmit={async () => {
-                  await ProjectService.uploadProject({
-                    sourceURL: projectUpdateStatus.sourceURL,
-                    destinationURL: projectUpdateStatus.destinationURL,
-                    name: projectUpdateStatus.projectName,
-                    reset: true,
-                    commitSHA: projectUpdateStatus.selectedSHA,
-                    sourceBranch: projectUpdateStatus.selectedBranch,
-                    updateType: projectUpdateStatus.updateType,
-                    updateSchedule: projectUpdateStatus.updateSchedule
-                  }).catch((err) => {
-                    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                  })
-                  PopoverState.hidePopupover()
-                }}
-              />
-            )
-          }}
-        >
-          {t('admin:components.project.actions.update')}
-        </Button>
-        <Button
-          startIcon={<GrGithub />}
-          size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={!project || !project.repositoryPath || project.name === 'default-project'}
-          onClick={() => {
-            PopoverState.showPopupover(
-              <ConfirmDialog
-                text={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project.name} - ${
-                  project.repositoryPath
-                }`}
-                onSubmit={async () => {
-                  await ProjectService.pushProject(project.id)
-                }}
-              />
-            )
-          }}
-        >
-          {t('admin:components.project.actions.push')}
-        </Button>
-
-        <Button
-          startIcon={<HiOutlineUsers />}
-          size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          onClick={() => {
-            activeProjectId.set(project.id)
-            PopoverState.showPopupover(
-              <ManageUserPermissionModal project={project} projectPermissions={projectPermissionsFindQuery.data} />
-            )
-          }}
-        >
-          {t('admin:components.project.actions.access')}
-        </Button>
-        <Button
-          startIcon={<HiOutlineCommandLine />}
-          size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={config.client.localBuildOrDev}
-          onClick={() => {
-            PopoverState.showPopupover(
-              <ConfirmDialog
-                text={`${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`}
-                onSubmit={async () => {
-                  await ProjectService.invalidateProjectCache(project.name)
-                }}
-              />
-            )
-          }}
-        >
-          {t('admin:components.project.actions.invalidateCache')}
-        </Button>
-        <Button
-          startIcon={<HiOutlineFolder />}
-          size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-        >
-          {t('admin:components.common.view')}
-        </Button>
-        <Button
-          startIcon={<HiOutlineTrash />}
-          size="small"
-          className="bg-theme-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={project.name === 'default-project'}
-          onClick={() => {
-            PopoverState.showPopupover(
-              <ConfirmDialog
-                text={`${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`}
-                onSubmit={async () => {
-                  await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
-                }}
-              />
-            )
-          }}
-        >
-          {t('admin:components.common.remove')}
-        </Button>
-      </div>
-    )
-  }
+      <Button
+        startIcon={<HiOutlineUsers />}
+        size="small"
+        className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+        onClick={() => {
+          activeProjectId.set(project.id)
+          PopoverState.showPopupover(
+            <ManageUserPermissionModal project={project} projectPermissions={projectPermissionsFindQuery.data} />
+          )
+        }}
+      >
+        {t('admin:components.project.actions.access')}
+      </Button>
+      <Button
+        startIcon={<HiOutlineCommandLine />}
+        size="small"
+        className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+        disabled={config.client.localBuildOrDev}
+        onClick={() => {
+          PopoverState.showPopupover(
+            <ConfirmDialog
+              text={`${t('admin:components.project.confirmProjectInvalidate')} '${project.name}'?`}
+              onSubmit={async () => {
+                await ProjectService.invalidateProjectCache(project.name)
+              }}
+            />
+          )
+        }}
+      >
+        {t('admin:components.project.actions.invalidateCache')}
+      </Button>
+      <Button
+        startIcon={<HiOutlineFolder />}
+        size="small"
+        className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+      >
+        {t('admin:components.common.view')}
+      </Button>
+      <Button
+        startIcon={<HiOutlineTrash />}
+        size="small"
+        className="bg-theme-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+        disabled={project.name === 'default-project'}
+        onClick={() => {
+          PopoverState.showPopupover(
+            <ConfirmDialog
+              text={`${t('admin:components.project.confirmProjectDelete')} '${project.name}'?`}
+              onSubmit={async () => {
+                await ProjectService.removeProject(project.id).catch((err) => logger.error(err))
+              }}
+            />
+          )
+        }}
+      >
+        {t('admin:components.common.remove')}
+      </Button>
+    </div>
+  )
 
   const createRows = (rows: readonly ProjectType[]): ProjectRowType[] =>
     rows.map((row) => {
