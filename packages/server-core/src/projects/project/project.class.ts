@@ -111,6 +111,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
     if (!fs.existsSync(manifestJsonPath) && fs.existsSync(packageJsonPath)) {
       const json = getProjectManifest(projectName)
+      const sceneJsonFiles = fs
+        .readdirSync(path.resolve(projectsRootFolder, projectName))
+        .filter((file) => file.endsWith('.scene.json'))
+      if (sceneJsonFiles.length) json.scenes = [...sceneJsonFiles]
       fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
     }
 
