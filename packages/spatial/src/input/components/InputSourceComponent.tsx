@@ -107,6 +107,8 @@ export const InputSourceComponent = defineComponent({
         [key]: aliases.reduce((acc, alias) => acc || buttons[alias], undefined)
       })
     }
+
+    return buttons
   },
 
   getMergedAxes(inputSourceEntities = inputSourceQuery()) {
