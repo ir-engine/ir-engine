@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect, useLayoutEffect } from 'react'
 import { Texture } from 'three'
@@ -32,9 +33,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
-import { AssetType, ResourceManager, ResourceType } from '../state/ResourceState'
+import { loadResource } from './resourceLoaderFunctions'
 
-function useLoader<T extends AssetType>(
+function useLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
@@ -77,7 +78,7 @@ function useLoader<T extends AssetType>(
       ResourcePendingComponent.setResource(entity, url, 0, 0)
     }
 
-    ResourceManager.load<T>(
+    loadResource<T>(
       url,
       resourceType,
       entity,
@@ -119,7 +120,7 @@ function useLoader<T extends AssetType>(
   return [value.get(NO_PROXY), error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
-function useBatchLoader<T extends AssetType>(
+function useBatchLoader<T extends ResourceAssetType>(
   urls: string[],
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
@@ -149,7 +150,7 @@ function useBatchLoader<T extends AssetType>(
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i]
       if (!url) continue
-      ResourceManager.load<T>(
+      loadResource<T>(
         url,
         resourceType,
         entity,
@@ -184,7 +185,7 @@ function useBatchLoader<T extends AssetType>(
   return [values, errors, progress, unload]
 }
 
-async function getLoader<T extends AssetType>(
+async function getLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
@@ -196,7 +197,7 @@ async function getLoader<T extends AssetType>(
 
   return new Promise((resolve) => {
     const controller = new AbortController()
-    ResourceManager.load<T>(
+    loadResource<T>(
       url,
       resourceType,
       entity,

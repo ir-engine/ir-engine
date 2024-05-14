@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { act, render } from '@testing-library/react'
+import { ResourceState } from '@etherealengine/spatial/src/resources/ResourceState'
+import { act, render, renderHook } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { ResourceState } from '../state/ResourceState'
-import { useGLTF, useTexture } from './resourceHooks'
+import { useGLTF, useTexture } from './resourceLoaderHooks'
 
-describe('ResourceHooks', () => {
+describe('ResourceLoaderHooks', () => {
   const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
   const gltfURL2 = '/packages/projects/default-project/assets/portal_frame.glb'
   const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
@@ -46,6 +46,26 @@ describe('ResourceHooks', () => {
 
   afterEach(() => {
     return destroyEngine()
+  })
+
+  it('Renders hook', (done) => {
+    const entity = createEntity()
+
+    let gltfRender = 0
+
+    const { result } = renderHook(() => {
+      const [gltf, error] = useGLTF(gltfURL, entity)
+      useEffect(() => {
+        assert(!error)
+        if (gltfRender > 0) {
+          assert(gltf)
+          done()
+        }
+        gltfRender += 1
+      }, [gltf])
+
+      return <></>
+    })
   })
 
   it('Loads GLTF file', (done) => {
@@ -122,6 +142,33 @@ describe('ResourceHooks', () => {
       const resourceState = getState(ResourceState)
       assert(!resourceState.resources[gltfURL])
       done()
+    })
+  })
+
+  it('Asset changes are reactive', (done) => {
+    const entity = createEntity()
+
+    let updatedCount = 0
+    let lastID = 0
+    const { result } = renderHook(() => {
+      const url = useHookstate(gltfURL)
+      const [gltf, error] = useGLTF(url.value, entity)
+      useEffect(() => {
+        assert(!error)
+        if (updatedCount == 0) {
+          assert(!gltf)
+        } else if (updatedCount == 1) {
+          assert(gltf)
+          lastID = gltf.scene.id
+          url.set(gltfURL2)
+        } else if (updatedCount >= 2 && gltf) {
+          assert(gltf.scene.id !== lastID)
+          done()
+        }
+        updatedCount += 1
+      }, [gltf])
+
+      return <></>
     })
   })
 

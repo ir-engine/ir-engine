@@ -65,12 +65,12 @@ import { GroupComponent, GroupQueryReactor } from '@etherealengine/spatial/src/r
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { ResourceManager } from '../../assets/state/ResourceState'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'

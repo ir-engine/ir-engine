@@ -27,7 +27,6 @@ import React from 'react'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -60,8 +59,6 @@ export default function ResourceTable({ search }: { search: string }) {
     },
     search
   )
-
-  const modalProcessing = useHookstate(false)
 
   const createData = (el: StaticResourceType) => {
     return {

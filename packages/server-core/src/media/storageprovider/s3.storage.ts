@@ -73,6 +73,7 @@ import {
   projectPublicRegex,
   projectRegex,
   projectThumbnailsRegex,
+  rootGLTFRegex,
   rootImageRegex,
   rootSceneJsonRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
@@ -120,7 +121,8 @@ export const getACL = (key: string) =>
   !projectThumbnailsRegex.test(key) &&
   !assetsRegex.test(key) &&
   !rootImageRegex.test(key) &&
-  !rootSceneJsonRegex.test(key)
+  !rootSceneJsonRegex.test(key) &&
+  !rootGLTFRegex.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 
@@ -504,7 +506,6 @@ export class S3Provider implements StorageProviderInterface {
             break
           case '/location':
           case '/auth':
-          case '/xadm':
           case '/capture':
             routeRegex += `^${route}/|`
             break
