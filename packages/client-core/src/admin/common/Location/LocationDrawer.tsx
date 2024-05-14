@@ -86,6 +86,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
+  // TODO: use editor state's scene asset ID instead of selectedScene
+  // const sceneID = useHookstate(getMutableState(EditorState).sceneAssetID)
+
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
   }, [selectedScene])
