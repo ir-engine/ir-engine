@@ -157,7 +157,12 @@ const execute = () => {
     const inputSource = getComponent(eid, InputSourceComponent)
     pointer.movement.copy(pointer.position).sub(pointer.lastPosition)
     pointer.lastPosition.copy(pointer.position)
-    inputSource.raycaster.setFromCamera(pointer.position, camera)
+    pointer.raycaster.setFromCamera(pointer.position, camera)
+    inputSource.ray.set(pointer.raycaster.ray.origin, pointer.raycaster.ray.direction) //inputsource shouldn't have a raycaster/camera, so the pointer should update the ray
+    //ray in xr is built off the transform forward vect basically, no pointer involved then
+    //phone xr will still have a pointer in webxr sessions
+
+    // inputSource.raycaster.setFromCamera(pointer.position, camera)
     TransformComponent.position.x[eid] = inputSource.raycaster.ray.origin.x
     TransformComponent.position.y[eid] = inputSource.raycaster.ray.origin.y
     TransformComponent.position.z[eid] = inputSource.raycaster.ray.origin.z
@@ -397,6 +402,7 @@ const usePointerInputSources = () => {
       }
     }
 
+    //TODO add or remove the emulatedInputSourceEntity instead to support multi-touch
     const pointerEnter = (event: PointerEvent) => {
       setComponent(emulatedInputSourceEntity, InputPointerComponent, {
         pointerId: event.pointerId,

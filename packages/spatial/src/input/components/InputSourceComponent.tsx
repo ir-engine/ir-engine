@@ -27,7 +27,7 @@ import { defineQuery } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
-import { Raycaster } from 'three'
+import { Ray, Raycaster } from 'three'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -40,6 +40,7 @@ export const InputSourceComponent = defineComponent({
     return {
       source: {} as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
+      ray: new Ray(),
       raycaster: new Raycaster(),
       intersections: [] as Array<{
         entity: Entity

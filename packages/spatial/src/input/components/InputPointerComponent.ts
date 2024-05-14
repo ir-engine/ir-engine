@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, UndefinedEntity, defineComponent, defineQuery, getComponent } from '@etherealengine/ecs'
-import { Vector2 } from 'three'
+import { Raycaster, Vector2 } from 'three'
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
@@ -33,6 +33,7 @@ export const InputPointerComponent = defineComponent({
     return {
       pointerId: -1 as number,
       position: new Vector2(),
+      raycaster: new Raycaster(),
       lastPosition: new Vector2(),
       movement: new Vector2(),
       canvasEntity: UndefinedEntity
