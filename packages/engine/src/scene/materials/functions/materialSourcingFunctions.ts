@@ -163,6 +163,7 @@ export const getPrototypeConstructorFromName = (name: string) => {
 
 /**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
+  if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
@@ -187,7 +188,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
 }
 
 const uniqueSuffix = (name: string) => {
-  let i = 0
+  let i = 1
   while (materialByName[`${name}${i}`]) i++
   return `${name}${i}`
 }
