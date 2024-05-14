@@ -94,12 +94,19 @@ export const InputSourceComponent = defineComponent({
     inputSourceEntities = inputSourceQuery(),
     buttonAlias: AliasType = DefaultButtonAlias as unknown as AliasType
   ) {
-    return Object.assign(
+    const buttons = Object.assign(
       {} as ButtonStateMap,
       ...inputSourceEntities.map((eid) => {
         return getComponent(eid, InputSourceComponent).buttons
       })
     ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
+
+    for (const key of Object.keys(buttonAlias)) {
+      const aliases = buttonAlias[key]
+      Object.assign(buttons, {
+        [key]: aliases.reduce((acc, alias) => acc || buttons[alias], undefined)
+      })
+    }
   },
 
   getMergedAxes(inputSourceEntities = inputSourceQuery()) {
