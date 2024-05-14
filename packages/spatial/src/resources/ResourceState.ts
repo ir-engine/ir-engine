@@ -144,6 +144,9 @@ export const ResourceState = defineState({
 
   debugLog: (...data: any[]) => {
     if (getState(ResourceState).debug) console.log(...data)
+  },
+  debugWarn: (...data: any[]) => {
+    if (getState(ResourceState).debug) console.warn(...data)
   }
 })
 
@@ -529,7 +532,7 @@ const addReferencedAsset = (assetKey: string, asset: ResourceAssetType) => {
 
   switch (resourceType) {
     case ResourceType.GLTF:
-      console.warn("ResourceState:addReferencedAsset GLTFs shouldn't be a referenced asset")
+      ResourceState.debugWarn("ResourceState:addReferencedAsset GLTFs shouldn't be a referenced asset")
       break
     case ResourceType.Mesh:
       onItemLoadedFor(assetKey, resourceType, (asset as Mesh).uuid, asset as Mesh)
@@ -580,7 +583,7 @@ const unload = (id: string, entity: Entity, uuid?: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[id].value) {
-    console.warn('ResourceManager:unload No resource exists for id: ' + id)
+    ResourceState.debugWarn('ResourceManager:unload No resource exists for id: ' + id)
     return
   }
 
@@ -662,7 +665,7 @@ const removeResource = (id: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   if (!resources[id].value) {
-    console.warn('ResourceManager:removeResource No resource exists at id: ' + id)
+    ResourceState.debugWarn('ResourceManager:removeResource No resource exists at id: ' + id)
     return
   }
 
