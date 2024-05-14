@@ -32,14 +32,14 @@ export const middlewareSettingPath = 'middleware-setting'
 
 export const middlewareSettingMethods = ['find', 'get', 'patch'] as const
 
-export const middlewareSocialLinkSchema = Type.Object(
-  {
-    link: Type.String(),
-    icon: Type.String()
-  },
-  { $id: 'MiddlewareSocialLink', additionalProperties: false }
-)
-export interface MiddlewareSocialLinkType extends Static<typeof middlewareSocialLinkSchema> {}
+// export const middlewareSocialLinkSchema = Type.Object(
+//   {
+//     link: Type.String(),
+//     icon: Type.String()
+//   },
+//   { $id: 'MiddlewareSocialLink', additionalProperties: false }
+// )
+// export interface MiddlewareSocialLinkType extends Static<typeof middlewareSocialLinkSchema> {}
 
 // Main data model schema
 export const middlewareSettingSchema = Type.Object(
@@ -57,11 +57,10 @@ export const middlewareSettingSchema = Type.Object(
 )
 export interface MiddlewareSettingType extends Static<typeof middlewareSettingSchema> {}
 
-export interface MiddlewareSettingDatabaseType
-  extends Omit<MiddlewareSettingType, 'appSocialLinks' | 'themeSettings' | 'themeModes'> {
-  appSocialLinks: string
-  themeSettings: string
-  themeModes: string
+export interface MiddlewareSettingDatabaseType extends Omit<MiddlewareSettingType, 'conf0' | 'conf1' | 'conf2'> {
+  conf0: string
+  conf1: string
+  conf2: string
 }
 
 // Schema for creating new entries
@@ -77,7 +76,12 @@ export const middlewareSettingPatchSchema = Type.Partial(middlewareSettingSchema
 export interface MiddlewareSettingPatch extends Static<typeof middlewareSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, ['id', 'conf0', 'conf1', 'conf2'])
+export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, [
+  'id'
+  // 'conf0',
+  // 'conf1',
+  // 'conf2'
+])
 export const middlewareSettingQuerySchema = Type.Intersect(
   [
     querySyntax(middlewareSettingQueryProperties),

@@ -40,48 +40,47 @@ console.log('#### middleware')
 const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
+  const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
   const middlewareSetting = useFind(middlewareSettingPath).data.at(0)
   console.log('middlewareSetting', middlewareSetting)
+
   const id = middlewareSetting?.id
-  console.log('id', id)
-
-  const conf0 = useHookstate(middlewareSetting?.conf0)
-  const conf1 = useHookstate(middlewareSetting?.conf1)
-  const conf2 = useHookstate(middlewareSetting?.conf2)
-
-  conf0.set(middlewareSetting?.conf0)
-  conf1.set(middlewareSetting?.conf1)
-  conf2.set(middlewareSetting?.conf2)
-
-  console.log('HOOK', conf0.value, conf1.value, conf2.value)
+  const c0 = useHookstate(middlewareSetting?.conf0)
+  const c1 = useHookstate(middlewareSetting?.conf1)
+  const c2 = useHookstate(middlewareSetting?.conf2)
 
   const state = useHookstate({
     loading: false,
     errorMessage: ''
   })
 
-  const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
-
   const handleSubmit = (event) => {
+    event.preventDefault()
+    console.log('#### M handleSubmit')
     if (!id) return
+    console.log('#### id')
     state.loading.set(true)
+    console.log('#### state', state)
+    console.log('#### hookstate', c0.value, c1.value, c2.value)
     patchMiddlewareSetting(id, {
-      conf0: conf0.value,
-      conf1: conf1.value,
-      conf2: conf2.value
+      conf0: c0.value,
+      conf1: c1.value,
+      conf2: c2.value
     })
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
       .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
+        state.set({ loading: false, errorMesSavesage: e.message })
       })
+    console.log('#### DONE', c0.value, c1.value, c2.value)
+    console.log('middlewareSetting', middlewareSetting)
   }
 
   const handleCancel = () => {
-    conf0.set(middlewareSetting?.conf0)
-    conf1.set(middlewareSetting?.conf1)
-    conf2.set(middlewareSetting?.conf2)
+    c0.set(middlewareSetting?.conf0)
+    c1.set(middlewareSetting?.conf1)
+    c2.set(middlewareSetting?.conf2)
   }
 
   return (
@@ -101,8 +100,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         <Input
           className="col-span-1"
           label={t('admin:components.setting.middleware.main')}
-          value={conf0.value || ''}
-          onChange={(e) => conf0.set(e.target.value)}
+          defaultValue={middlewareSetting?.conf0 || ''}
+          type="text"
+          onChange={(e) => c0.set(e.target.value)}
         />
 
         {/*  <Toggle*/}
@@ -119,8 +119,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         <Input
           className="col-span-1"
           label={t('admin:components.setting.middleware.sub0opt0')}
-          value={conf1.value || ''}
-          onChange={(e) => conf1.set(e.target.value)}
+          // value={conf1.value || ''}
+          defaultValue={middlewareSetting?.conf1 || ''}
+          onChange={(e) => c1.set(e.target.value)}
         />
 
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
@@ -130,8 +131,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         <Input
           className="col-span-1"
           label={t('admin:components.setting.middleware.sub1opt0')}
-          value={conf2.value || ''}
-          onChange={(e) => conf2.set(e.target.value)}
+          // value={conf2.value || ''}
+          defaultValue={middlewareSetting?.conf2 || ''}
+          onChange={(e) => c2.set(e.target.value)}
         />
       </div>
 
