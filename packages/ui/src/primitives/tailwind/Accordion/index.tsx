@@ -33,7 +33,7 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   subtitle?: string
   expandIcon: ReactNode
   shrinkIcon: ReactNode
-  prefixIcon: ReactNode
+  prefixIcon?: ReactNode
   children?: ReactNode
   titleClassName?: string
   className?: string
