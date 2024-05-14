@@ -43,7 +43,7 @@ import {
   getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
@@ -317,14 +317,13 @@ describe('Physics', () => {
     setComponent(entity1, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: AllCollisionMask
     })
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: AllCollisionMask
     })
-    setComponent(entity1, TriggerComponent)
     setComponent(entity2, TriggerComponent)
 
     handlePhysicsEnterExitQueries(physicsWorld)
