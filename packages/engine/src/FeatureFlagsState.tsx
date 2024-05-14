@@ -61,13 +61,3 @@ export const FeatureFlagSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor
 })
-
-const SocialMenuFlag = 'ir.client.menu.social' as FeatureFlag
-const EmoteMenuFlag = 'ir.client.menu.emote' as FeatureFlag
-
-export const FeatureFlags = {
-  menus: {
-    social: SocialMenuFlag,
-    emote: EmoteMenuFlag
-  }
-}

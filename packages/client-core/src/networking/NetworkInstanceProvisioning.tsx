@@ -43,8 +43,8 @@ import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
 
-import { InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
-import { FeatureFlags, FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { FeatureFlag, InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
@@ -245,10 +245,12 @@ export const SocialMenus = {
   Messages: 'Messages'
 }
 
+const SocialMenuFlag = 'ir.client.menu.social' as FeatureFlag
+
 export const FriendMenus = () => {
   const { t } = useTranslation()
 
-  const socialsEnabled = FeatureFlagsState.useEnabled(FeatureFlags.menus.social)
+  const socialsEnabled = FeatureFlagsState.useEnabled(SocialMenuFlag)
 
   useEffect(() => {
     if (!socialsEnabled) return

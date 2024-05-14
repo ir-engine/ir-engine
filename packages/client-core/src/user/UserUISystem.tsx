@@ -28,8 +28,9 @@ import React, { lazy, useEffect } from 'react'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
+import { FeatureFlag } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { FeatureFlags, FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
@@ -65,11 +66,13 @@ export const UserMenus = {
   Emote: 'user.Emote'
 }
 
+const EmoteMenuFlag = 'ir.client.menu.emote' as FeatureFlag
+
 const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
-  const emotesEnabled = FeatureFlagsState.useEnabled(FeatureFlags.menus.emote)
+  const emotesEnabled = FeatureFlagsState.useEnabled(EmoteMenuFlag)
 
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
