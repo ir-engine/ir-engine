@@ -28,14 +28,11 @@ import { Not } from 'bitecs'
 import { getMutableComponent, hasComponent, InputSystemGroup, removeComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
@@ -86,8 +83,8 @@ export const InteractableSystem = defineSystem({
 const executeInput = () => {
   if (getState(EngineState).isEditing) return
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
+  // const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  // if (!inputPointerEntity) return
 
   for (const entity of InputSourceComponent.nonCapturedInputSources()) {
     const inputSource = getComponent(entity, InputSourceComponent)
@@ -97,14 +94,15 @@ const executeInput = () => {
   }
 
   for (const entity of hoverInputInteractablesQuery()) {
-    // const capturingEntity = getState(InputState).capturingEntity
     const inputComponent = getComponent(entity, InputComponent)
     const buttons = InputSourceComponent.getMergedButtons(inputComponent.inputSources)
     if (
       buttons.PrimaryClick?.down /*&& clickButtons.PrimaryClick.up*/ ||
       buttons[XRStandardGamepadButton.Trigger]?.down
+      // buttons.KeyE?.down
+      // TODO: the input system should be smart enough to assign non-spatial input sources to these input components
     ) {
-      clickInteract(entity)
+      getMutableComponent(entity, InteractableComponent).active.set(true)
     }
   }
 }
@@ -113,19 +111,18 @@ const executeInput = () => {
 
 // let clicking = false
 
-const clickInteract = (entity: Entity) => {
-  const interactable = getMutableComponent(entity, InteractableComponent)
-  interactable.active.set(true)
-  // for (const callback of interactable.callbacks) {
-  //   if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-  //   const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
-  //   if (targetEntity && callback.callbackID) {
-  //     const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
-  //     if (!callbacks) continue
-  //     callbacks.get(callback.callbackID)?.(entity, targetEntity)
-  //   }
-  // }
-}
+// const clickInteract = (entity: Entity) => {
+//   const interactable =
+// for (const callback of interactable.callbacks) {
+//   if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+//   const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+//   if (targetEntity && callback.callbackID) {
+//     const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+//     if (!callbacks) continue
+//     callbacks.get(callback.callbackID)?.(entity, targetEntity)
+//   }
+// }
+// }
 
 const interactWithClosestInteractable = () => {
   //TODO use other method for gathering candidate interactable, available is going away
