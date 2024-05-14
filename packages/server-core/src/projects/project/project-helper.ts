@@ -785,7 +785,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
 
     const ecr = new ECRPUBLICClient({
       credentials: fromIni({
@@ -826,7 +826,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
 
     const ecr = new ECRClient({
       credentials: fromIni({
