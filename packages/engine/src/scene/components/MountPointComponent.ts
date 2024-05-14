@@ -37,15 +37,13 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { dispatchAction, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -165,10 +163,10 @@ export const MountPointComponent = defineComponent({
 
   reactor: function () {
     InputComponent.useInput((entity) => {
-      const inputComponent = getComponent(entity, InputComponent)
-
-      const buttons = InputSourceComponent.getMergedButtons(inputComponent.inputSources)
+      const input = getComponent(entity, InputComponent)
+      const buttons = InputSourceComponent.getMergedButtons(input.inputSources)
       if (buttons.Interact?.down) {
+        mountEntity(AvatarComponent.getSelfAvatarEntity(), entity)
       }
     })
 
@@ -177,15 +175,15 @@ export const MountPointComponent = defineComponent({
     const mountPoint = useComponent(entity, MountPointComponent)
     const mountedEntities = useHookstate(getMutableState(MountPointState))
 
-    useEffect(() => {
-      setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-      setComponent(entity, BoundingBoxComponent, {
-        box: new Box3().setFromCenterAndSize(
-          getComponent(entity, TransformComponent).position,
-          new Vector3(0.1, 0.1, 0.1)
-        )
-      })
-    }, [])
+    // useEffect(() => {
+    //   setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
+    //   setComponent(entity, BoundingBoxComponent, {
+    //     box: new Box3().setFromCenterAndSize(
+    //       getComponent(entity, TransformComponent).position,
+    //       new Vector3(0.1, 0.1, 0.1)
+    //     )
+    //   })
+    // }, [])
 
     useEffect(() => {
       // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)
