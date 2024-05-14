@@ -32,7 +32,6 @@ import {
   EquirectangularReflectionMapping,
   Mesh,
   MeshMatcapMaterial,
-  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   RGBAFormat,
@@ -42,7 +41,6 @@ import {
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -58,7 +56,6 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
@@ -68,7 +65,12 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTexture } from '../../assets/functions/resourceHooks'
-import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
+import {
+  envmapParsReplaceLambert,
+  envmapPhysicalParsReplace,
+  envmapReplaceLambert,
+  worldposReplace
+} from '../classes/BPCEMShader'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -212,18 +214,16 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
-  const renderState = useHookstate(getMutableState(RendererState))
+  const uuid = useComponent(envmapEntity, MaterialComponent[MaterialComponents.Instance]).uuid
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
-
-  /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
     const texture = envMaptexture
+    console.log(envmapEntity)
     if (!texture) return
-
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
     if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
-  }, [envMaptexture])
+  }, [envMaptexture, uuid])
 
   useEffect(() => {
     if (!error) return
@@ -264,21 +264,33 @@ export type BoxProjectionParameters = {
   cubeMapPos: Vector3
 }
 
-export const PBRBoxProjectionPlugin = {
+export const BoxProjectionPlugin = {
   id: 'BoxProjectionPlugin',
   compile: (shader, renderer) => {
-    const pluginEntity = pluginByName[PBRBoxProjectionPlugin.id]
+    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
     const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
 
-    if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-      shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+    const shaderType = shader.shaderType
+    console.log(shaderType)
+    const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+    const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+    if (!isSupported) return
 
-    shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <envmap_physical_pars_fragment>',
-      envmapPhysicalParsReplace
-    )
+    console.log(isPhysical)
+
+    if (isPhysical) {
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    } else {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplaceLambert)
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+    }
 
     applyPluginShaderParameters(pluginEntity, shader, {
       cubeMapSize: new Vector3(0, 0, 0),
@@ -293,33 +305,14 @@ const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
     const child = target as Mesh<any, MeshStandardMaterial>
     if (!child.material || child.type == 'VFXBatch') return
 
-    if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
-      const pluginEntity = pluginByName[PBRBoxProjectionPlugin.id]
-      const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
-      setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
-      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
-        getComponent(materialEntity, NameComponent)
-      ].set({
-        cubeMapSize: { value: bakeComponent.bakeScale },
-        cubeMapPos: { value: bakeComponent.bakePositionOffset }
-      })
-    }
-
-    // if ((child.material as any) instanceof MeshLambertMaterial) {
-    //   child.material.onBeforeCompile = function (shader) {
-    //     //these parameters are for the cubeCamera texture
-    //     shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-    //     shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
-    //     //replace shader chunks with box projection chunks
-
-    //     shader.fragmentShader = shader.fragmentShader.replace(
-    //       '#include <envmap_pars_fragment>',
-    //       envmapParsReplaceLambert
-    //     )
-    //     shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
-
-    //     shader.uniforms.envMap = { value: child.material.envMap }
-    //   }
-    // }
+    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
+    const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
+    setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
+    getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
+      getComponent(materialEntity, NameComponent)
+    ].set({
+      cubeMapSize: { value: bakeComponent.bakeScale },
+      cubeMapPos: { value: bakeComponent.bakePositionOffset }
+    })
   }
 }
