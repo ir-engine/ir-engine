@@ -38,9 +38,9 @@ export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Appli
       projects.map(async (project) => {
         const projectPath = `projects/${project.name}/`
         const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
-        const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
+        const assets = await app.service(assetPath).find({ query: { projectId: project.id }, paginate: false })
         const sceneJSONAssets = projectAssets.filter(
-          (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
+          (asset) => asset.endsWith('.scene.json') && !assets.find((item: AssetType) => item.assetURL === asset)
         )
         if (!sceneJSONAssets.length) return
         return sceneJSONAssets.map((asset) => ({
