@@ -30,7 +30,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const middlewareSettingPath = 'middleware-setting'
 
-export const middlewareSettingMethods = ['find', 'get', 'patch'] as const
+export const middlewareSettingMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
 // export const middlewareSocialLinkSchema = Type.Object(
 //   {
