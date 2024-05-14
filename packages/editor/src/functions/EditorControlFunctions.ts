@@ -138,10 +138,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   }
 }
 
-export const testst = {
-  setComponent: function () {}
-}
-
 const modifyName = (entities: Entity[], name: string) => {
   const scenes = getSourcesForEntities(entities)
 
@@ -246,7 +242,6 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
-    material.needsUpdate = true
   }
 }
 
