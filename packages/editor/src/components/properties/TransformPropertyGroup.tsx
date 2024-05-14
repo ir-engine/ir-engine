@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Vector3 } from 'three'
 
 import {
   getComponent,
@@ -34,13 +34,11 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
 import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
 import BooleanInput from '../inputs/BooleanInput'
@@ -51,10 +49,6 @@ import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
-const position = new Vector3()
-const rotation = new Quaternion()
-const scale = new Vector3()
-
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  */
@@ -63,13 +57,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
-  const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
-
-  transformSpace.value === TransformSpace.world
-    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-    : transformComponent.matrix.value.decompose(position, rotation, scale)
-
-  scale.copy(transformComponent.scale.value)
 
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
@@ -118,7 +105,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
-          value={position}
+          value={transformComponent.position.value}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
@@ -127,7 +114,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
+        <EulerInput
+          quaternion={transformComponent.rotation.value}
+          onChange={onChangeRotation}
+          unit="°"
+          onRelease={onRelease}
+        />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -135,7 +127,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={scale}
+          value={transformComponent.scale.value}
           onChange={onChangeScale}
           onRelease={onRelease}
         />
