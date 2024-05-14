@@ -237,6 +237,7 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
 
 const forceRefetch = (serviceName: keyof ServiceTypes) => {
   const feathersState = getState(FeathersState)
+  console.log(feathersState[serviceName])
   if (!feathersState[serviceName]) return
   for (const queryId in feathersState[serviceName]) {
     feathersState[serviceName][queryId].fetch()
@@ -273,6 +274,10 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceR
     data: null as unknown | null,
     error: null as string | null
   })
+
+  console.log('# useMutation')
+  console.log('# serviceName', serviceName)
+  console.log('# state', state)
 
   const create = useMethod(
     'create',

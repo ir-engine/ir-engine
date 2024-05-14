@@ -38,7 +38,7 @@ export const middlewareSettingSeedData = {
   // logo: process.env.APP_LOGO || '',
   conf0: process.env.CONF0 || 'Test Value',
   conf1: process.env.CONF1 || 'Test Value',
-  conf2: process.env.CONF2 || 'test Value'
+  conf2: process.env.CONF2 || 'Test Value'
 }
 
 export async function seed(knex: Knex): Promise<void> {
