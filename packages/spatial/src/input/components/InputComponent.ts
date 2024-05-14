@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { InputSystemGroup, useExecute } from '@etherealengine/ecs'
+import { getMutableComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -50,7 +50,8 @@ export const InputComponent = defineComponent({
 
       //internal
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
+      inputSources: [] as Entity[],
+      hasFocus: false
     }
   },
 
@@ -68,21 +69,30 @@ export const InputComponent = defineComponent({
     }
   },
 
-  useInput: (executeOnInput: (inputEntity: Entity) => void) => {
+  useInput: (executeOnInput?: (inputEntity: Entity) => void) => {
     const entity = useEntityContext()
     const inputSinkEntity = useAncestorWithComponent(entity, InputSinkComponent)
     const inputEntity = useOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntity.value ?? UndefinedEntity
 
-    useExecute(
-      () => {
-        executeOnInput(inputEntity)
-      },
-      {
-        with: InputSystemGroup
-      }
-    )
+    executeOnInput &&
+      useExecute(
+        () => {
+          executeOnInput(inputEntity)
+        },
+        {
+          with: InputSystemGroup
+        }
+      )
 
     return inputEntity
+  },
+
+  /** InputComponent is focused by the ClientInputSystem heuristics */
+  useHasFocus() {
+    const entity = InputComponent.useInput()
+    const inputComponent = useComponent(entity, InputComponent)
+
+    return inputComponent.hasFocus
   },
 
   reactor: () => {
@@ -97,6 +107,13 @@ export const InputComponent = defineComponent({
       }
     }, [input.inputSources, input.highlight])
 
+    useExecute(
+      () => {
+        const inputComponent = getMutableComponent(entity, InputComponent)
+        inputComponent.hasFocus.set(inputComponent.inputSources.value.length > 0)
+      },
+      { with: InputSystemGroup }
+    )
     /** @todo - fix */
     // useLayoutEffect(() => {
     //   if (!input.inputSources.length || !input.grow.value) return
