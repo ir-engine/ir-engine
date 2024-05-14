@@ -275,10 +275,6 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S, forceR
     error: null as string | null
   })
 
-  console.log('# useMutation')
-  console.log('# serviceName', serviceName)
-  console.log('# state', state)
-
   const create = useMethod(
     'create',
     forceRefetch ? created : undefined,
