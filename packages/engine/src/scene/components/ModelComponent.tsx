@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -58,7 +58,9 @@ import { useGLTF } from '../../assets/functions/resourceHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '../../gltf/GLTFState'
+import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -110,6 +112,8 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
+  const modelSceneID = getModelSceneID(entity)
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
@@ -178,23 +182,20 @@ function ModelReactor() {
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
     let uuid: string | null = null
-    if (modelComponent.dereference.value) {
-      // update authoring layer
-      SceneState.injectScene(entity, loadedJsonHierarchy)
-    } else {
-      uuid = getModelSceneID(entity)
-
-      SceneState.loadScene(uuid, {
-        scene: {
-          entities: loadedJsonHierarchy,
-          root: getComponent(entity, UUIDComponent),
-          version: 0
-        },
-        name: '',
-        project: '',
-        thumbnailUrl: ''
-      })
+    uuid = getModelSceneID(entity)
+    const sceneJson: SceneJsonType = {
+      entities: loadedJsonHierarchy,
+      root: getComponent(entity, UUIDComponent),
+      version: 0
     }
+    const sceneGLTF = convertSceneJSONToGLTF(sceneJson)
+    dispatchAction(
+      GLTFSnapshotAction.createSnapshot({
+        source: uuid,
+        data: sceneGLTF
+      })
+    )
+    //}
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -225,6 +226,7 @@ function ModelReactor() {
   useEffect(() => {
     if (!modelComponent.scene.value) return
     if (!modelComponent.dereference.value) return
+    if (!gltfDocumentState[modelSceneID].value) return
     const modelUUID = getComponent(entity, UUIDComponent)
     const sourceID = getModelSceneID(entity)
     const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
@@ -232,7 +234,7 @@ function ModelReactor() {
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     const parentSource = getComponent(parentEntity, SourceComponent)
     GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
-  }, [modelComponent.dereference])
+  }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
   return null
 }
 

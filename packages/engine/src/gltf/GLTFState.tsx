@@ -36,6 +36,7 @@ import {
   createEntity,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -47,7 +48,6 @@ import {
   State,
   Topic,
   defineState,
-  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -56,14 +56,20 @@ import {
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { ModelComponent } from '../scene/components/ModelComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { getGLTFSnapshot } from '../scene/functions/GLTFConversion'
+import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
+import { getModelSceneID } from '../scene/functions/loaders/ModelFunctions'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from './GLTFDocumentState'
 
@@ -113,6 +119,10 @@ export const GLTFSourceState = defineState({
     const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
+    const obj3d = new Group()
+    setComponent(entity, Object3DComponent, obj3d)
+    addObjectToGroup(entity, obj3d)
+    proxifyParentChildRelationships(obj3d)
     getMutableState(GLTFSourceState)[sourceID].set(entity)
     return entity
   },
@@ -123,6 +133,18 @@ export const GLTFSourceState = defineState({
     removeEntity(entity)
   }
 })
+
+function applySnapshot(source: string, data: GLTF.IGLTF) {
+  const state = getMutableState(GLTFSnapshotState)[source]
+  if (!state.value) {
+    state.set({ index: 0, snapshots: [data] })
+    getMutableState(GLTFDocumentState)[source].set(data)
+    return
+  }
+  state.index.set(state.index.value + 1)
+  state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+  getMutableState(GLTFDocumentState)[source].set(data)
+}
 
 export const GLTFSnapshotState = defineState({
   name: 'ee.engine.gltf.GLTFSnapshotState',
@@ -136,16 +158,7 @@ export const GLTFSnapshotState = defineState({
 
   receptors: {
     onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
-      const { data } = action
-      const state = getMutableState(GLTFSnapshotState)[action.source]
-      if (!state.value) {
-        state.set({ index: 0, snapshots: [data] })
-        getMutableState(GLTFDocumentState)[action.source].set(data)
-        return
-      }
-      state.index.set(state.index.value + 1)
-      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
-      getMutableState(GLTFDocumentState)[action.source].set(data)
+      applySnapshot(action.source, action.data)
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
@@ -183,6 +196,7 @@ export const GLTFSnapshotState = defineState({
           <GLTFSnapshotReactor source={source} key={source} />
         ))}
         <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ChildGLTFReactor} />
+        <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelGLTFReactor} />
       </>
     )
   },
@@ -238,7 +252,9 @@ export const GLTFSnapshotState = defineState({
       //otherwise, add the child indices to the scene's nodes as roots
       parentSnapshot.data.scenes![0].nodes.push(...childIndices)
     }
-    dispatchAction(GLTFSnapshotAction.createSnapshot(parentSnapshot))
+    applySnapshot(dstSnapshotID, parentSnapshot.data)
+    getMutableState(GLTFSnapshotState)[srcSnapshotID].set(none)
+    getMutableState(GLTFDocumentState)[srcSnapshotID].set(none)
   }
 })
 
@@ -252,6 +268,18 @@ const GLTFSnapshotReactor = (props: { source: string }) => {
   }, [index])
 
   return null
+}
+
+const ModelGLTFReactor = () => {
+  const entity = useEntityContext()
+
+  const source = getModelSceneID(entity)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState)[source])
+
+  const parentUUID = useComponent(entity, UUIDComponent).value
+  if (!gltfDocumentState.value) return null
+
+  return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
 
 const ChildGLTFReactor = () => {
@@ -334,7 +362,25 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       }
     }
 
+    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
+      const obj3d = new Group()
+      obj3d.entity = entity
+      addObjectToGroup(entity, obj3d)
+      proxifyParentChildRelationships(obj3d)
+      setComponent(entity, Object3DComponent, obj3d)
+    }
+
     return () => {
+      //check if entity is in some other document
+      const uuid = getComponent(entity, UUIDComponent)
+      const documents = getState(GLTFDocumentState)
+      for (const documentID in documents) {
+        const document = documents[documentID]
+        if (!document?.nodes) continue
+        for (const node of document.nodes) {
+          if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
+        }
+      }
       removeEntity(entity)
     }
   }, [parentEntity])
