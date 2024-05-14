@@ -100,7 +100,8 @@ const executeInput = () => {
       buttons.PrimaryClick?.down /*&& clickButtons.PrimaryClick.up*/ ||
       buttons[XRStandardGamepadButton.Trigger]?.down
       // buttons.KeyE?.down
-      // TODO: the input system should be smart enough to assign non-spatial input sources to these input components
+      // TODO: the input system should be smart enough to assign non-spatial input sources to these input components;
+      // Then we can further simplify this system.
     ) {
       getMutableComponent(entity, InteractableComponent).active.set(true)
     }
