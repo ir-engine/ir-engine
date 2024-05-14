@@ -112,7 +112,7 @@ function handler(event) {
 }
 `
 
-const awsPath = './.aws'
+const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
