@@ -287,6 +287,12 @@
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
       "geometryEditor": "Geometry Editor",
       "materialEditor": "Material Editor",
+      "geometry": {
+        "name": "Name:",
+        "count": "Count:",
+        "itemSize": "Item Size:",
+        "recalculateNormals": "Recalculate Normals"
+      },
       "material": {
         "name": "Name",
         "source": "Source",

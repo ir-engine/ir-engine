@@ -78,7 +78,6 @@ import { FogSettingsEditor } from '../components/properties/FogSettingsEditor'
 import { GrabbableComponentNodeEditor } from '../components/properties/GrabbableComponentNodeEditor'
 import { InstancingNodeEditor } from '../components/properties/InstancingNodeEditor'
 import InteractableComponentNodeEditor from '../components/properties/InteractableComponentNodeEditor'
-import { MeshNodeEditor } from '../components/properties/MeshNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
@@ -112,6 +111,7 @@ import {
   default as MediaNodeEditor,
   default as MediaSettingsEditor
 } from '@etherealengine/ui/src/components/editor/properties/media'
+import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PositionalAudioNodeEditor from '@etherealengine/ui/src/components/editor/properties/positionalAudio'
