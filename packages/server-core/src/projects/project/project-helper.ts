@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECRClient } from '@aws-sdk/client-ecr'
+import { DescribeImagesCommand as DescribePrivateImagesCommand, ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import { fromIni } from '@aws-sdk/credential-providers'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
@@ -100,6 +101,9 @@ export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaw
 
 const BRANCH_PER_PAGE = 100
 const COMMIT_PER_PAGE = 10
+
+const awsPath = './.aws/eks'
+const credentialsPath = `${awsPath}/credentials`
 
 const execAsync = promisify(exec)
 
@@ -814,63 +818,87 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
     const ecr = new ECRPUBLICClient({
-      credentials: {
-        accessKeyId: config.aws.eks.accessKeyId,
-        secretAccessKey: config.aws.eks.secretAccessKey
-      },
+      credentials: fromIni({
+        profile: config.aws.eks.roleArn ? 'role' : 'default',
+        filepath: credentialsPath
+      }),
       region: 'us-east-1'
     })
     const command = {
       repositoryName: publicECRExec[1]
     }
     const result = new DescribeImagesCommand(command)
-    const response = await ecr.send(result)
-    if (!response || !response.imageDetails) return []
-    return response.imageDetails
-      .filter(
-        (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-      )
-      .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
-      .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
-        const tagSplit = tag ? tag.split('_') : ''
-        return {
-          tag,
-          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-          pushedAt: imageDetails.imagePushedAt!.toJSON()
-        }
-      })
+    try {
+      const response = await ecr.send(result)
+      if (!response || !response.imageDetails) return []
+      return response.imageDetails
+        .filter(
+          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
+        )
+        .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
+        .map((imageDetails) => {
+          const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
+          const tagSplit = tag ? tag.split('_') : ''
+          return {
+            tag,
+            commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+            engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+            pushedAt: imageDetails.imagePushedAt!.toJSON()
+          }
+        })
+    } catch (err) {
+      logger.error('Failure to get public ECR images')
+      logger.error('Command that was sent', result)
+      logger.error(err)
+      return []
+    }
   } else if (privateECRExec) {
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
     const ecr = new ECRClient({
-      credentials: {
-        accessKeyId: config.aws.eks.accessKeyId,
-        secretAccessKey: config.aws.eks.secretAccessKey
-      },
+      credentials: fromIni({
+        profile: config.aws.eks.roleArn ? 'role' : 'default',
+        filepath: credentialsPath
+      }),
       region: privateECRExec[1]
     })
     const command = {
       repositoryName: privateECRExec[2]
     }
-    const result = new DescribeImagesCommand(command)
-    const response = await ecr.send(result)
-    if (!response || !response.imageDetails) return []
-    return response.imageDetails
-      .filter(
-        (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-      )
-      .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
-      .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
-        const tagSplit = tag ? tag.split('_') : ''
-        return {
-          tag,
-          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-          pushedAt: imageDetails.imagePushedAt!.toJSON()
-        }
-      })
+    const result = new DescribePrivateImagesCommand(command)
+    try {
+      const response = await ecr.send(result)
+      if (!response || !response.imageDetails) return []
+      return response.imageDetails
+        .filter(
+          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
+        )
+        .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
+        .map((imageDetails) => {
+          const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
+          const tagSplit = tag ? tag.split('_') : ''
+          return {
+            tag,
+            commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+            engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+            pushedAt: imageDetails.imagePushedAt!.toJSON()
+          }
+        })
+    } catch (err) {
+      logger.error('Failure to get private ECR images')
+      logger.error('Command that was sent %o', result)
+      logger.error(err)
+      return []
+    }
   } else {
     const registry = /docker.io\//.test(process.env.SOURCE_REPO_URL!)
       ? process.env.SOURCE_REPO_URL!.split('/')[1]
@@ -891,7 +919,8 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
         }
       })
     } catch (e) {
-      console.error(e)
+      logger.error('Failure to get Docker Hub images')
+      logger.error(e)
       return []
     }
   }
