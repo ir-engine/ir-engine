@@ -17,7 +17,7 @@ specific language governing rights and limitations under the License.
 The Original Code is Ethereal Engine.
 
 The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
+Original Code is the Ethereal EngineTest Value team.
 
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
