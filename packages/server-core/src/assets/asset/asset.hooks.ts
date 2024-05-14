@@ -226,8 +226,18 @@ export const createSceneFiles = async (context: HookContext<AssetService>) => {
       isCopy: true
     })
   }
+}
 
-  if (!context.data.isScene) return
+export const updateManifestCreate = async (context: HookContext<AssetService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  const data = context.data
+
+  if (!data.isScene) return
 
   // update manifest if necessary
   const manifestKey = `projects/${data.project}/manifest.json`
@@ -310,6 +320,7 @@ export default createSkippableHooks(
         resolveProjectIdForAssetData,
         ensureUniqueName,
         createSceneFiles,
+        updateManifestCreate,
         removeFieldsForAssetData
       ],
       update: [
