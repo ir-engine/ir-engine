@@ -25,14 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import {
-  getMutableComponent,
-  hasComponent,
-  InputSystemGroup,
-  removeComponent,
-  UndefinedEntity
-} from '@etherealengine/ecs'
-import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getMutableComponent, hasComponent, InputSystemGroup, removeComponent } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -44,7 +38,6 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -96,52 +89,29 @@ const executeInput = () => {
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
   if (!inputPointerEntity) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
-
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSource) {
+  for (const entity of InputSourceComponent.nonCapturedInputSources()) {
     const inputSource = getComponent(entity, InputSourceComponent)
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down) {
+    if (inputSource.buttons.KeyE?.down) {
       interactWithClosestInteractable()
     }
   }
 
   for (const entity of hoverInputInteractablesQuery()) {
-    const capturingEntity = getState(InputState).capturingEntity
+    // const capturingEntity = getState(InputState).capturingEntity
     const inputComponent = getComponent(entity, InputComponent)
-    const inputSourceEntity = inputComponent?.inputSources[0]
-
-    if (inputSourceEntity) {
-      const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-      if (capturingEntity !== UndefinedEntity) {
-        // return
-
-        const clickButtons = inputSource?.buttons
-        clicking = !!clickButtons //clicking on our boundingbox this frame
-
-        //TODO firing play on video each click, but for some reason only plays first time
-        //TODO refactor this, changing the execute timing is the only thing that makes this logic work, otherwise timings are different
-        //between PrimaryClick.up and capturingEntity being undefined or not
-        if (clicking && clickButtons) {
-          if (
-            clickButtons.PrimaryClick?.touched /*&& clickButtons.PrimaryClick.up*/ ||
-            clickButtons[XRStandardGamepadButton.Trigger]?.down
-          ) {
-            clickInteract(entity)
-          }
-        }
-      }
-    }
-
-    if (clicking && !inputSourceEntity && capturingEntity === UndefinedEntity) {
-      clicking = false
+    const buttons = InputSourceComponent.getMergedButtons(inputComponent.inputSources)
+    if (
+      buttons.PrimaryClick?.down /*&& clickButtons.PrimaryClick.up*/ ||
+      buttons[XRStandardGamepadButton.Trigger]?.down
+    ) {
+      clickInteract(entity)
     }
   }
 }
 //TODO only activate the one interactable closest to the camera center and within range or hovered
 //TODO look into the design language (opacity, font size, etc) to differentiate between UI on and targeted for activation
 
-let clicking = false
+// let clicking = false
 
 const clickInteract = (entity: Entity) => {
   const interactable = getMutableComponent(entity, InteractableComponent)
