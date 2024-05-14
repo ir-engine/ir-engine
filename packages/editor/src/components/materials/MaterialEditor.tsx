@@ -233,7 +233,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <Button
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]!]
+              pluginEntities: [pluginByName[selectedPlugin.value]]
             })
           }}
         >

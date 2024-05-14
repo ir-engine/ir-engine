@@ -284,12 +284,9 @@ export const BoxProjectionPlugin = {
     if (!plugin) return
 
     const shaderType = shader.shaderType
-    console.log(shaderType)
     const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
     const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
     if (!isSupported) return
-
-    console.log(isPhysical)
 
     if (isPhysical) {
       if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))

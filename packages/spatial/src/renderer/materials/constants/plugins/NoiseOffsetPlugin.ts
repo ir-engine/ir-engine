@@ -53,7 +53,7 @@ export const NoiseOffsetPlugin: PluginObjectType = {
     applyPluginShaderParameters(pluginEntity, shader, {
       textureSize: 64,
       frequency: 0.00025,
-      amplitude: 0.25,
+      amplitude: 0.005,
       noiseTexture: generateNoiseTexture(64),
       offsetAxis: new Vector3(0, 1, 0),
       time: 0
