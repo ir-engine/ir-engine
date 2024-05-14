@@ -27,14 +27,21 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationData, LocationID, LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  LocationData,
+  LocationID,
+  LocationType,
+  assetPath,
+  locationPath
+} from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
@@ -134,7 +141,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
 
     await publishScene(isBaked)
 
-    // TODO: After publish succeeds or fails, restore original scene and close blocking modal
+    // Reload the original scene
+    const sceneData = useGet(assetPath, state.scene.value!).data!
+    await new Promise<void>((resolve) => {
+      GLTFAssetState.loadScene(sceneData.assetURL, sceneData.id)
+      resolve() // TODO: await load completion
+    })
 
     handleClose()
   }
