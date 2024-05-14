@@ -104,7 +104,7 @@ export const saveSceneGLTF = async (
 
     return
   }
-  const result = await Engine.instance.api.service(assetPath).create({ assetURL, project: projectName })
+  const result = await Engine.instance.api.service(assetPath).create({ assetURL, project: projectName, isScene: true })
 
   getMutableState(EditorState).merge({
     sceneName,
