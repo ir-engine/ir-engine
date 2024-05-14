@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,14 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-process.env.APP_ENV = 'test'
-process.env.NODE_ENV = 'test'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import type { Knex } from 'knex'
 
-require("ts-node").register({
-  project: './tsconfig.json',
-  files: true,
-  swc: true
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-require("fix-esm").register()
+  await trx.schema.alterTable(identityProviderPath, (table) => {
+    table.string('token', 255).defaultTo(null).alter()
+  })
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await trx.schema.alterTable(identityProviderPath, (table) => {
+    table.uuid('token').defaultTo(null).alter()
+  })
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}

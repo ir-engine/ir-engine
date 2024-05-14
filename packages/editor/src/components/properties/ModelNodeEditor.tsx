@@ -53,7 +53,7 @@ import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
 
-import { ResourceManager } from '@etherealengine/engine/src/assets/state/ResourceState'
+import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { VRM } from '@pixiv/three-vrm'
 
 /**
@@ -131,7 +131,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           value={modelComponent.src.value}
           onRelease={(src) => {
             if (src !== modelComponent.src.value) commitProperty(ModelComponent, 'src')(src)
-            else ResourceManager.update(src)
+            else updateResource(src)
           }}
         />
         {errors?.LOADING_ERROR ||

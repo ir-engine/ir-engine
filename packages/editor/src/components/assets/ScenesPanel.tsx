@@ -35,9 +35,9 @@ import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from 
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import config from '@etherealengine/common/src/config'
-import { AssetType, scenePath } from '@etherealengine/common/src/schema.type.module'
+import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getComponent } from '@etherealengine/ecs'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -62,7 +62,7 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
-  const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
+  const scenesQuery = useFind(assetPath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
@@ -138,7 +138,9 @@ export default function ScenesPanel() {
 
   const finishRenaming = async (id: string) => {
     setRenaming(false)
-    const newData = await renameScene(id, newName)
+    const currentURL = loadedScene!.assetURL
+    const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
+    const newData = await renameScene(id, newURL)
     if (loadedScene) getMutableState(EditorState).scenePath.set(newData.assetURL)
     setNewName('')
   }
