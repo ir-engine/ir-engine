@@ -132,11 +132,11 @@ export const ResourceState = defineState({
     useEffect(() => {
       if (debugEnabled.value) {
         //@ts-ignore
-        window.resources = getState(ResourceState)
+        globalThis.resources = getState(ResourceState)
         resourceState.debug.set(true)
       } else {
         //@ts-ignore
-        window.resources = undefined
+        globalThis.resources = undefined
         resourceState.debug.set(false)
       }
     }, [debugEnabled])
