@@ -64,7 +64,8 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -142,11 +143,22 @@ export const EnvmapComponent = defineComponent({
 
       const col = component.envMapSourceColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
+      const [texture, unload] = createDisposable(
+        DataTexture,
+        entity,
+        getRGBArray(col),
+        resolution,
+        resolution,
+        RGBAFormat
+      )
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
       component.envmap.set(texture)
+
+      return () => {
+        unload()
+      }
     }, [component.type, component.envMapSourceColor])
 
     useEffect(() => {

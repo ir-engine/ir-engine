@@ -23,28 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { PerformanceState } from '../PerformanceState'
+import { useEffect, useRef } from 'react'
 
-export const usePerformanceTier = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceTier = useHookstate(performanceState.tier.value)
+export const useDidMount = (func: () => (() => void) | void, deps: any[] = []) => {
+  const didMount = useRef(false)
 
   useEffect(() => {
-    performanceTier.set(performanceState.tier.value)
-  }, [performanceState.tier])
+    let ret: (() => void) | void = undefined
+    if (didMount.current) ret = func()
+    else didMount.current = true
 
-  return performanceTier
-}
-
-export const usePerformanceOffset = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
-
-  useEffect(() => {
-    performanceOffset.set(performanceState.performanceOffset.value)
-  }, [performanceState.performanceOffset])
-
-  return performanceOffset
+    return ret
+  }, deps)
 }
