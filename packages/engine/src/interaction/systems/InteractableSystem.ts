@@ -96,6 +96,7 @@ const executeInput = () => {
   for (const entity of hoverInputInteractablesQuery()) {
     const inputComponent = getComponent(entity, InputComponent)
     const buttons = InputSourceComponent.getMergedButtons(inputComponent.inputSources)
+
     if (
       buttons.PrimaryClick?.down /*&& clickButtons.PrimaryClick.up*/ ||
       buttons[XRStandardGamepadButton.Trigger]?.down
@@ -104,6 +105,14 @@ const executeInput = () => {
       // Then we can further simplify this system.
     ) {
       getMutableComponent(entity, InteractableComponent).active.set(true)
+      // When do we want to deactivate the interactable?
+      // Does it make sense for more than one interactable to be active at the same time?
+      // Do we really even need interactables, or are input components sufficient?
+      // What value do we get from interactables?
+      // The concept of an isomorphic "interact" button seems important, but that is just a button mapping.
+      // The concept of an interactable object is a bit more nebulous; it's seems to be little more than
+      // a way to attach this specific button mapping to an object
+      // (and maybe to provide a way to highlight it, but even that seems like a separate concern).
     }
   }
 }

@@ -24,11 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Engine, Entity, getComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
+import { Engine, getComponent, useComponent, useEntityContext, useOptionalComponent } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import {
+  KeyboardButton,
+  MouseButton,
+  XRStandardGamepadButton
+} from '@etherealengine/spatial/src/input/state/ButtonState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
@@ -129,36 +134,39 @@ import { useEffect } from 'react'
  * Adds an interactable UI to the entity if it has label text
  * @param entity
  */
-const addInteractableUI = (entity: Entity) => {
-  //TODO create interactable label component
-  // const interactable = getMutableComponent(entity, InteractableComponent)
-  // if (!interactable.label.value || interactable.label.value === '' || interactable.uiEntity.value != UndefinedEntity)
-  //   return //null or empty label = no ui
-  //
-  // interactable.uiEntity.set(createUI(entity, interactable.label.value, interactable.uiInteractable.value).entity)
-  // setComponent(interactable.uiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-  // setComponent(interactable.uiEntity.value, ComputedTransformComponent, {
-  //   referenceEntities: [entity, Engine.instance.viewerEntity],
-  //   computeFunction: () => updateInteractableUI(entity)
-  // })
-  //
-  // const transition = createTransitionState(0.25)
-  // transition.setState('OUT')
-  // InteractableTransitions.set(entity, transition)
-}
+// const addInteractableUI = (entity: Entity) => {
+//TODO create interactable label component
+// const interactable = getMutableComponent(entity, InteractableComponent)
+// if (!interactable.label.value || interactable.label.value === '' || interactable.uiEntity.value != UndefinedEntity)
+//   return //null or empty label = no ui
+//
+// interactable.uiEntity.set(createUI(entity, interactable.label.value, interactable.uiInteractable.value).entity)
+// setComponent(interactable.uiEntity.value, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+// setComponent(interactable.uiEntity.value, ComputedTransformComponent, {
+//   referenceEntities: [entity, Engine.instance.viewerEntity],
+//   computeFunction: () => updateInteractableUI(entity)
+// })
+//
+// const transition = createTransitionState(0.25)
+// transition.setState('OUT')
+// InteractableTransitions.set(entity, transition)
+// }
 
-const removeInteractableUI = (entity: Entity) => {
-  //TODO remove interactable label component
-  // const interactable = getMutableComponent(entity, InteractableComponent)
-  // if (!interactable.label || interactable.label.value === '' || interactable.uiEntity.value == UndefinedEntity) return //null or empty label = no ui
-  //
-  // removeEntity(interactable.uiEntity.value)
-  // interactable.uiEntity.set(UndefinedEntity)
-}
+// const removeInteractableUI = (entity: Entity) => {
+//TODO remove interactable label component
+// const interactable = getMutableComponent(entity, InteractableComponent)
+// if (!interactable.label || interactable.label.value === '' || interactable.uiEntity.value == UndefinedEntity) return //null or empty label = no ui
+//
+// removeEntity(interactable.uiEntity.value)
+// interactable.uiEntity.set(UndefinedEntity)
+// }
 
 export const InteractableComponent = defineComponent({
   name: 'InteractableComponent',
   jsonID: 'EE_interactable',
+
+  interactButtons: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE],
+
   onInit: () => {
     return {
       active: false
