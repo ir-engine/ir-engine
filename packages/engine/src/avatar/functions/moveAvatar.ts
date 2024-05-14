@@ -135,8 +135,8 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = getInteractionGroups(
-    bodyCollider.collisionLayer & ~CollisionGroups.Trigger,
-    bodyCollider.collisionMask
+    bodyCollider.collisionLayer,
+    bodyCollider.collisionMask & ~CollisionGroups.Trigger
   )
 
   Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
