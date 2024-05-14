@@ -84,7 +84,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
               : publicECRRegexExec
               ? publicECRRegexExec[1]
               : privateECRRegexExec
-              ? privateECRRegexExec[0]
+              ? privateECRRegexExec[2]
               : ''
         }
       }
