@@ -25,33 +25,64 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
+import { InputSystemGroup, useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { InputSinkComponent } from './InputSinkComponent'
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
 
   onInit: () => {
     return {
-      /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[],
+      inputSinks: [] as EntityUUID[],
       highlight: true,
-      grow: false
+      grow: false,
+
+      //internal
+      /** populated automatically by ClientInputSystem */
+      inputSources: [] as Entity[]
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
 
+    if (typeof json.inputSinks === 'object') component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
     if (typeof json.grow === 'boolean') component.grow.set(json.grow)
+  },
+
+  toJSON: (entity, component) => {
+    return {
+      inputSinks: component.inputSinks
+    }
+  },
+
+  useInput: (executeOnInput: (inputEntity: Entity) => void) => {
+    const entity = useEntityContext()
+    const inputSinkEntity = useAncestorWithComponent(entity, InputSinkComponent)
+    const inputEntity = useOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntity.value ?? UndefinedEntity
+
+    useExecute(
+      () => {
+        executeOnInput(inputEntity)
+      },
+      {
+        with: InputSystemGroup
+      }
+    )
+
+    return inputEntity
   },
 
   reactor: () => {

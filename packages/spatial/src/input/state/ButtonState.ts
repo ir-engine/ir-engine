@@ -230,3 +230,8 @@ export const createInitialButtonState = (initial: Readonly<Partial<ButtonState>>
     value: initial.value ?? 1
   }
 }
+
+export type ButtonAlias = Record<string, (string | number)[]>
+export const DefaultButtonAlias = {
+  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE]
+}

@@ -40,6 +40,8 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { useEffect } from 'react'
@@ -162,6 +164,14 @@ export const MountPointComponent = defineComponent({
   mountPointInteractMessages,
 
   reactor: function () {
+    InputComponent.useInput((entity) => {
+      const inputComponent = getComponent(entity, InputComponent)
+
+      const buttons = InputSourceComponent.getMergedButtons(inputComponent.inputSources)
+      if (buttons.Interact?.down) {
+      }
+    })
+
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
