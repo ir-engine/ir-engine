@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 
-import { NO_PROXY, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -41,7 +41,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -157,7 +156,7 @@ function ModelReactor() {
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
-    const asset = model.asset as GLTF | VRM
+    const asset = model.asset as GLTF | VRM | null
     if (!asset) return
 
     const group = getOptionalComponent(entity, GroupComponent)
@@ -214,7 +213,8 @@ function ModelReactor() {
     }
     return () => {
       if (!uuid) return
-      SceneState.unloadScene(uuid, false)
+      getMutableState(GLTFDocumentState)[uuid].set(none)
+      getMutableState(GLTFSnapshotState)[uuid].set(none)
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return
       for (const child of children) {

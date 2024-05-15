@@ -39,7 +39,6 @@ import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.mod
 import { getComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -71,7 +70,6 @@ export default function ScenesPanel() {
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
-  const sceneState = useHookstate(getMutableState(SceneState))
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onCreateScene = async () => {
