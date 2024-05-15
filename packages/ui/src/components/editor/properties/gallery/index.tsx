@@ -34,9 +34,6 @@ import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
 
-/**
- * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- */
 export const GalleryNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
