@@ -36,6 +36,7 @@ import {
   createEntity,
   getComponent,
   getMutableComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -63,7 +64,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -122,6 +123,15 @@ export const GLTFSourceState = defineState({
   }
 })
 
+const updateGLTFStates = (source: string, data: GLTF.IGLTF) => {
+  // update the document state
+  getMutableState(GLTFDocumentState)[source].set(data)
+
+  // update the nodes dictionary
+  const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+  getMutableState(GLTFNodeState)[source].set(nodesDictionary)
+}
+
 export const GLTFSnapshotState = defineState({
   name: 'ee.engine.gltf.GLTFSnapshotState',
   initial: {} as Record<
@@ -134,42 +144,46 @@ export const GLTFSnapshotState = defineState({
 
   receptors: {
     onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
+      // update the snapshot state
       const { data } = action
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (!state.value) {
         state.set({ index: 0, snapshots: [data] })
-        getMutableState(GLTFDocumentState)[action.source].set(data)
+        updateGLTFStates(action.source, data)
         return
       }
       state.index.set(state.index.value + 1)
       state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
-      getMutableState(GLTFDocumentState)[action.source].set(data)
+      updateGLTFStates(action.source, data)
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
+      // update the snapshot state
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value <= 0) return
       state.index.set(Math.max(state.index.value - action.count, 0))
       const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
+      updateGLTFStates(action.source, snapshotData)
     }),
 
     onRedo: GLTFSnapshotAction.redo.receive((action) => {
+      // update the snapshot state
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value >= state.snapshots.value.length - 1) return
       state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
       const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
+      updateGLTFStates(action.source, snapshotData)
     }),
 
     onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
+      // update the snapshot state
       const state = getState(GLTFSnapshotState)[action.source]
       const data = state.snapshots[0]
       getMutableState(GLTFSnapshotState)[action.source].set({
         index: 0,
         snapshots: [data]
       })
-      getMutableState(GLTFDocumentState)[action.source].set(data)
+      updateGLTFStates(action.source, data)
     })
   },
 
@@ -224,21 +238,16 @@ const ChildGLTFReactor = () => {
 }
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  if (!documentState.scenes.value) return null
-
-  const nodes = documentState.scenes![documentState.scene.value!].nodes as State<number[]>
-
-  const document = documentState.get(NO_PROXY)
-
+  const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
+  if (!nodeState.value) return null
   return (
     <>
-      {nodes.get(NO_PROXY).map((nodeIndex, childIndex) => (
+      {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
         <NodeReactor
-          key={(document.nodes![nodeIndex].extensions![UUIDComponent.jsonID] as EntityUUID) ?? nodeIndex}
+          key={uuid}
           childIndex={childIndex}
           nodeIndex={nodeIndex}
-          parentUUID={props.parentUUID}
+          parentUUID={parentUUID ?? props.parentUUID}
           documentID={props.documentID}
         />
       ))}
@@ -323,22 +332,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   if (!entity) return null
 
-  const uuid = getComponent(entity, UUIDComponent)
-
   return (
     <>
       {/* {node.mesh.value && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )} */}
-      {node.children.value?.map((nodeIndex, childIndex) => (
-        <NodeReactor
-          key={nodeIndex}
-          nodeIndex={nodeIndex}
-          childIndex={childIndex}
-          parentUUID={uuid}
-          documentID={props.documentID}
-        />
-      ))}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
@@ -365,9 +363,9 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
     /** @todo fix gizmo then re-enable this */
-    // return () => {
-    //   removeComponent(props.entity, Component)
-    // }
+    return () => {
+      removeComponent(props.entity, Component)
+    }
   }, [extension])
 
   return null
