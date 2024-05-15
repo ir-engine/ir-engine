@@ -36,6 +36,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSourceState } from './GLTFState'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
@@ -101,6 +102,10 @@ describe('GLTFState', () => {
 
     assert.equal(nodeEntityTree.parentEntity, gltfEntity)
     assert.equal(nodeName, 'node')
+    assert.equal(
+      getComponent(nodeEntity, SourceComponent),
+      getComponent(gltfEntity, UUIDComponent) + '-' + '/test.gltf'
+    )
 
     GLTFSourceState.unload(gltfEntity)
 
