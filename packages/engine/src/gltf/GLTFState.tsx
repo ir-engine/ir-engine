@@ -273,16 +273,12 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   const node = nodes[props.nodeIndex]!
 
-  const selfEntity = useHookstate(UndefinedEntity)
-  const entity = selfEntity.value
-
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
-  useEffect(() => {
+  const entity = useHookstate(() => {
     const uuid = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
-    selfEntity.set(entity)
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, SourceComponent, props.documentID)
 
@@ -309,6 +305,10 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       }
     }
 
+    return entity
+  }).value
+
+  useEffect(() => {
     return () => {
       removeEntity(entity)
     }
