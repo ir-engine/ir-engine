@@ -41,10 +41,12 @@ import { InputSinkComponent } from './InputSinkComponent'
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
+  jsonID: 'EE_Input_Component',
 
   onInit: () => {
     return {
       inputSinks: [] as EntityUUID[],
+      activationDistance: 2,
       highlight: true,
       grow: false,
 
@@ -60,16 +62,18 @@ export const InputComponent = defineComponent({
 
     if (typeof json.inputSinks === 'object') component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
+    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
     if (typeof json.grow === 'boolean') component.grow.set(json.grow)
   },
 
   toJSON: (entity, component) => {
     return {
-      inputSinks: component.inputSinks
+      inputSinks: component.inputSinks,
+      activationDistance: component.activationDistance.value
     }
   },
 
-  useInput: (executeOnInput?: (inputEntity: Entity) => void) => {
+  useInputs: (executeOnInput?: (inputEntity: Entity) => void) => {
     const entity = useEntityContext()
     const inputSinkEntity = useAncestorWithComponent(entity, InputSinkComponent)
     const inputEntity = useOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntity.value ?? UndefinedEntity
@@ -110,6 +114,7 @@ export const InputComponent = defineComponent({
     useExecute(
       () => {
         const inputComponent = getMutableComponent(entity, InputComponent)
+        if (!inputComponent) return
         inputComponent.hasFocus.set(inputComponent.inputSources.value.length > 0)
       },
       { with: InputSystemGroup }

@@ -228,6 +228,7 @@ export const defineComponent = <
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
+
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -236,9 +237,14 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.stateMap = {}
+  if (Component.name === 'InputComponent') console.log('InputComponent', Component)
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  } else if (def.toJSON) {
+    console.warn(
+      `Component ${Component.name} has toJson defined, but no jsonID defined. This will cause serialization issues.`
+    )
   }
   ComponentMap.set(Component.name, Component)
 

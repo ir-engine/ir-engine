@@ -162,8 +162,9 @@ export const MountPointComponent = defineComponent({
   mountPointInteractMessages,
 
   reactor: function () {
-    InputComponent.useInput((entity) => {
-      const input = getComponent(entity, InputComponent)
+    InputComponent.useInputs((entity) => {
+      const input = getOptionalComponent(entity, InputComponent)
+      if (!input || !input.inputSources) return
       const buttons = InputSourceComponent.getMergedButtons(input.inputSources)
       if (buttons.Interact?.down) {
         mountEntity(AvatarComponent.getSelfAvatarEntity(), entity)

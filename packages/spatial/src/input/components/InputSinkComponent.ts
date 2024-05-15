@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent, UndefinedEntity } from '@etherealengine/ecs'
 
+/** InputSinkComponent - receives input from an InputComponent targeting its entity or child entity (walks up the ECS tree to find an InputSinkComponent)*/
 export const InputSinkComponent = defineComponent({
   name: 'InputSinkComponent',
 

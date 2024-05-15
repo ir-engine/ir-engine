@@ -52,7 +52,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -135,7 +135,7 @@ const inputRaycast = {
   origin: new Vector3(),
   direction: new Vector3(),
   maxDistance: 1000,
-  groups: getInteractionGroups(AllCollisionMask, AllCollisionMask),
+  groups: getInteractionGroups(CollisionGroups.Input, CollisionGroups.Input),
   excludeRigidBody: undefined //
 } as RaycastArgs
 
@@ -257,6 +257,8 @@ const execute = () => {
     }
 
     const sortedIntersections = intersectionData.sort((a, b) => a.distance - b.distance)
+
+    //TODO add proximity here, 2nd priority to the raycasting
 
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
