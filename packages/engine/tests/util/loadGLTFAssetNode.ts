@@ -40,20 +40,21 @@ const toArrayBuffer = (buf) => {
 const original = FileLoader.prototype.load
 
 export function overrideFileLoaderLoad() {
-  function overrideLoad(url, onLoad, onProgress, onError) {
-    try {
-      const assetPathAbsolute = path.join(appRootPath.path, url)
-      const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-      onLoad(buffer)
-    } catch (e) {
-      onError(e)
+  beforeEach(() => {
+    function overrideLoad(url, onLoad, onProgress, onError) {
+      try {
+        const assetPathAbsolute = path.join(appRootPath.path, url)
+        const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
+        onLoad(buffer)
+      } catch (e) {
+        onError(e)
+      }
     }
-  }
-  FileLoader.prototype.load = overrideLoad
-}
-
-export function restoreFileLoaderLoad() {
-  FileLoader.prototype.load = original
+    FileLoader.prototype.load = overrideLoad
+  })
+  afterEach(() => {
+    FileLoader.prototype.load = original
+  })
 }
 
 // export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {

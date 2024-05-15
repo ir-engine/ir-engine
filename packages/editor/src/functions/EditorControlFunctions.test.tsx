@@ -48,7 +48,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { overrideFileLoaderLoad, restoreFileLoaderLoad } from '../../../engine/tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderLoad } from '../../../engine/tests/util/loadGLTFAssetNode'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -69,7 +69,6 @@ describe('EditorControlFunctions', () => {
   for (const format of ['.gltf', '.scene.json']) {
     describe(format, () => {
       beforeEach(() => {
-        overrideFileLoaderLoad()
         createEngine()
         getMutableState(PhysicsState).physicsWorld.set({} as any)
         getMutableState(EngineState).isEditing.set(true)
@@ -100,8 +99,8 @@ describe('EditorControlFunctions', () => {
         getMutableState(EditorState).rootEntity.set(rootEntity)
       })
 
+      overrideFileLoaderLoad()
       afterEach(() => {
-        restoreFileLoaderLoad()
         return destroyEngine()
       })
 
