@@ -63,8 +63,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     transformSpace.value === TransformSpace.world
       ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
       : transformComponent.matrix.value.decompose(position, rotation, scale)
-
-    scale.copy(transformComponent.scale.value)
   }, [transformComponent.position, transformComponent.scale])
 
   const onRelease = () => {
