@@ -207,7 +207,13 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties"
+      "description": "environment map properties",
+      "lbl-source": "Envmap Source",
+      "lbl-color": "Envmap Color",
+      "lbl-bake": "Envmap Bake",
+      "lbl-textureType": "Texture Type",
+      "lbl-textureUrl": "Texture URL",
+      "lbl-intensity": "Envmap Intensity"
     },
     "trigger": {
       "name": "Trigger",
@@ -383,7 +389,8 @@
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-timeScale": "Time Scale"
+      "lbl-timeScale": "Time Scale",
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
     },
     "variant": {
       "name": "Variant",

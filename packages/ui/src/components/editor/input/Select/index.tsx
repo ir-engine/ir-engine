@@ -34,7 +34,7 @@ const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
     <Select
       className="text-theme-primary h-10 w-72 bg-[#212226]"
       menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none"
+      inputClassName="rounded-none text-xs p-1"
       {...rest}
     />
   )

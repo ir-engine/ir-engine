@@ -48,11 +48,6 @@ import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
 import SpawnPointNodeEditor from '../spawnPoint'
 
-/**
- * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
- *
- * @type {Class component}
- */
 export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
@@ -80,6 +75,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     })
     getCallback(props.entity, 'xre.play')!()
   }
+
   return (
     <NodeEditor
       {...props}
@@ -96,7 +92,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {modelComponent?.asset.value instanceof VRM && (
-        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+        <InputGroup name="Animation Pack" label={t('editor:properties.loopAnimation.lbl-animationPack')}>
           <ModelInput
             value={loopAnimationComponent.animationPack.value}
             onRelease={commitProperty(LoopAnimationComponent, 'animationPack')}

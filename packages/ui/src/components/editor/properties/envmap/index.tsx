@@ -53,22 +53,15 @@ import NodeEditor from '../nodeEditor'
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapSourceOptions = Object.values(EnvMapSourceType).map((value) => {
-  return { label: value, value }
-})
+const EnvMapSourceOptions = Object.values(EnvMapSourceType).map((value) => ({ label: value, value }))
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => {
-  return { label: value, value }
-})
+const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => ({ label: value, value }))
 
 /**
  * EnvMapEditor provides the editor view for environment map property customization.
- *
- * @param       props
- * @constructor
  */
 export const EnvMapEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -100,7 +93,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       description={t('editor:properties.envmap.description')}
       icon={<IoMapOutline />}
     >
-      <InputGroup name="Envmap Source" label="Envmap Source">
+      <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')}>
         <SelectInput
           key={props.entity}
           options={EnvMapSourceOptions}
@@ -109,7 +102,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {envmapComponent.type.value === EnvMapSourceType.Color && (
-        <InputGroup name="EnvMapColor" label="EnvMap Color">
+        <InputGroup name="EnvMapColor" label={t('editor:properties.envmap.lbl-color')}>
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
             onChange={commitProperty(EnvmapComponent, 'envMapSourceColor')}
@@ -117,7 +110,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         </InputGroup>
       )}
       {envmapComponent.type.value === EnvMapSourceType.Bake && (
-        <InputGroup name="EnvMapBake" label="EnvMap Bake">
+        <InputGroup name="EnvMapBake" label={t('editor:properties.envmap.lbl-bake')}>
           <SelectInput
             options={bakeEntities}
             value={envmapComponent.envMapSourceEntityUUID.value}
@@ -127,7 +120,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       )}
       {envmapComponent.type.value === EnvMapSourceType.Texture && (
         <div>
-          <InputGroup name="Texture Type" label="Texture Type">
+          <InputGroup name="Texture Type" label={t('editor:properties.envmap.lbl-textureType')}>
             <SelectInput
               key={props.entity}
               options={EnvMapTextureOptions}
@@ -135,7 +128,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
-          <InputGroup name="Texture URL" label="Texture URL">
+          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')}>
             {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
               <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
             )}
@@ -153,7 +146,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       )}
 
       {envmapComponent.type.value !== EnvMapSourceType.None && (
-        <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
+        <InputGroup name="EnvMap Intensity" label={t('editor:properties.envmap.lbl-intensity')}>
           <Slider
             min={0}
             max={20}

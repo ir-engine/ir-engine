@@ -34,9 +34,9 @@ import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
-import Select from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
+import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
 
@@ -58,11 +58,10 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.collider.description')}
     >
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
-        <Select
+        <SelectInput
           options={shapeTypeOptions}
           value={colliderComponent.shape.value}
           onChange={commitProperty(ColliderComponent, 'shape')}
-          inputClassName="text-xs"
         />
       </InputGroup>
       <InputGroup name="Mass" label={t('editor:properties.collider.lbl-mass')}>
