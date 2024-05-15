@@ -110,6 +110,11 @@ export async function addMediaNode(
           mesh.material = material
         })
       })
+    } else if (contentType.startsWith('model/lookdev')) {
+      EditorControlFunctions.overwriteLookdevObject([
+        { name: ModelComponent.jsonID, props: { src: url } },
+        ...extraComponentJson
+      ])
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
@@ -154,4 +159,7 @@ export async function addMediaNode(
       before
     )
   }
+}
+function getSourcesForEntities(arg0: Entity[]) {
+  throw new Error('Function not implemented.')
 }

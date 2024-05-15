@@ -40,11 +40,14 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
@@ -249,7 +252,67 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     material.needsUpdate = true
   }
 }
+const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
+  const parentEntity = getState(EditorState).rootEntity
+  const scenes = getSourcesForEntities([parentEntity])
+  const entityUUID =
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const name = 'Lookdev Object'
+    if (getState(GLTFSourceState)[sceneID]) {
+      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+      const nodeIndex = gltf.data.nodes!.length
+
+      const extensions = {} as Record<string, any>
+      for (const comp of componentJson) {
+        extensions[comp.name] = {
+          ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
+          ...comp.props
+        }
+      }
+      if (!extensions[UUIDComponent.jsonID]) {
+        extensions[UUIDComponent.jsonID] = entityUUID
+      }
+      if (!extensions[VisibleComponent.jsonID]) {
+        extensions[VisibleComponent.jsonID] = true
+      }
+
+      const node = {
+        name,
+        extensions
+      } as GLTF.INode
+
+      //skybox, light, postprocess
+      let overwriteIndex: number[] = []
+      overwriteIndex.push(
+        gltf.data.nodes?.findIndex((n) => n.extensions?.[PostProcessingComponent.jsonID] !== undefined) as number
+      )
+      overwriteIndex.push(
+        gltf.data.nodes?.findIndex((n) => n.extensions?.[HemisphereLightComponent.jsonID] !== undefined) as number
+      )
+      overwriteIndex.push(
+        gltf.data.nodes?.findIndex((n) => n.extensions?.[DirectionalLightComponent.jsonID] !== undefined) as number
+      )
+      overwriteIndex.push(
+        gltf.data.nodes?.findIndex((n) => n.extensions?.[SkyboxComponent.jsonID] !== undefined) as number
+      )
+      overwriteIndex = overwriteIndex.toSorted().reverse()
+      //add current node
+      const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
+      gltf.data.nodes!.push(node)
+      let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
+      gltf.data.scenes![sceneIndex].nodes.splice(beforeIndex, 0, nodeIndex)
+      //remove overwrite node
+      for (const index of overwriteIndex) {
+        if (typeof index === 'number' && index > -1) {
+          gltf.data.scenes![sceneIndex].nodes.splice(index, 1)
+        }
+      }
+      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+    }
+  }
+}
 const createObjectFromSceneElement = (
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
@@ -991,5 +1054,6 @@ export const EditorControlFunctions = {
   addToSelection,
   replaceSelection,
   toggleSelection,
-  commitTransformSave
+  commitTransformSave,
+  overwriteLookdevObject
 }
