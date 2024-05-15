@@ -78,7 +78,6 @@ describe('GLTFState', () => {
 
     applyIncomingActions()
 
-    console.log(UUIDComponent.getEntityByUUID(nodeUUID))
     assert(UUIDComponent.getEntityByUUID(nodeUUID))
 
     GLTFSourceState.unload(gltfEntity)
