@@ -67,6 +67,8 @@ export const renameScene = async (id: string, newURL: string, params?: AssetPara
   }
 }
 
+const fileServer = config.client.fileServer
+
 export const saveSceneGLTF = async (
   sceneAssetID: string | null,
   projectName: string,
@@ -86,8 +88,6 @@ export const saveSceneGLTF = async (
   const file = new File(blob, `${sceneName}.gltf`)
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
-
-  const fileServer = config.client.fileServer
 
   const assetURL = new URL(newPath).toString().replace(fileServer, '').slice(1) // remove leading slash
 
@@ -141,8 +141,6 @@ export const onNewScene = async () => {
     logger.error(error)
   }
 }
-
-const fileServer = config.client.fileServer
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)
