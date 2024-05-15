@@ -34,7 +34,7 @@ type ContextMenuProps = {
   onClose: () => void
 }
 
-export const ContextMenu = ({
+export const PopOver = ({
   children,
   open,
   anchorEl,
@@ -42,9 +42,8 @@ export const ContextMenu = ({
   anchorPosition,
   onClose
 }: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
+  const positionX = anchorPosition?.left - anchorEl?.getBoundingClientRect().left!
+  const positionY = anchorPosition?.top - anchorEl?.parentElement?.parentElement?.getBoundingClientRect().top!
 
   console.log('DEBUG', positionX, positionY)
   return (
@@ -55,7 +54,7 @@ export const ContextMenu = ({
             className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
             style={{ top: `${positionY}px`, left: `${positionX}px` }}
           >
-            <div className="flex flex-col truncate py-1">{children}</div>
+            {children}
           </div>
         )}
       </div>
@@ -63,4 +62,4 @@ export const ContextMenu = ({
   )
 }
 
-export default ContextMenu
+export default PopOver

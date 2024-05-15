@@ -35,28 +35,35 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
-import { FileIcon } from './FileIcon'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
-import { SupportedFileTypes } from '../../../constants/AssetTypes'
-import { addMediaNode } from '../../../functions/addMediaNode'
-import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
-import { ContextMenu } from '../../layout/ContextMenu'
-import styles from '../styles.module.scss'
-import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
-import { FileDataType } from './FileDataType'
+
+import { ContextMenu } from '../../../layout/ContextMenu'
+//import styles from '../styles.module.scss'
+import {
+  FilesViewModeSettings,
+  availableTableColumns
+} from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
+import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+
+import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
+import { IoIosArrowForward } from 'react-icons/io'
+import { VscBlank } from 'react-icons/vsc'
+import { FileIcon } from '../icon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
   const newFileName = useHookstate(fileName)
+  //className={styles.inputContainer}
   return (
-    <Paper component="div" className={styles.inputContainer}>
+    <Paper component="div">
       <InputBase
         autoFocus={true}
-        className={styles.input}
+        //className={styles.input}
         name="name"
         autoComplete="off"
         value={newFileName.value}
@@ -87,8 +94,25 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
-
   return (
+    <div className="table-container">
+      <table className="w-full">
+        <thead>
+          <tr className="table-header-row h-8">
+            {availableTableColumns
+              .filter((header) => selectedTableColumns[header])
+              .map((header) => (
+                <th key={header} className="table-cell text-xs font-normal ">
+                  {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+                </th>
+              ))}
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </div>
+  )
+  /*return (
     <TableContainer component="div">
       <Table size="small" className={styles.table}>
         <TableHead>
@@ -105,7 +129,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
         <TableBody>{children}</TableBody>
       </Table>
     </TableContainer>
-  )
+  )*/
 }
 
 export const FileTableListBody = ({
@@ -141,8 +165,9 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className={styles.cellName}>
-        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
+      <span className="flex max-h-7 flex-row items-center gap-2">
+        {file.isFolder ? <IoIosArrowForward className="text-grey" /> : <VscBlank className="text-grey" />}
+        <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
       </span>
     ),
@@ -151,23 +176,22 @@ export const FileTableListBody = ({
     size: file.size
   }
   return (
-    <TableRow
+    <tr
       key={file.key}
-      sx={{ border: file.isFolder ? (isOver ? '3px solid #ccc' : '') : '', height: fontSize * 3 }}
+      className={`h-[${fontSize * 3}px]`}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
-      hover
       ref={(ref) => dragFn(dropFn(ref))}
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <TableCell key={idx} className={styles.tableCell} style={{ fontSize }}>
+          <td key={idx} className={`text-base`} style={{ fontSize }}>
             {tableColumns[header]}
-          </TableCell>
+          </td>
         ))}
-    </TableRow>
+    </tr>
   )
 }
 
@@ -185,17 +209,15 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className={styles.fileListItemContainer}
+      className="flex flex-col items-center text-center"
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
       style={{
-        fontSize: 0.2 * iconSize,
         width: iconSize + 10,
         margin: 0.1 * iconSize
       }}
     >
       <div
-        className={styles.fileNameContainer}
         style={{
           height: iconSize,
           width: iconSize,
@@ -205,8 +227,9 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
         <FileIcon thumbnailURL={thumbnailURL} type={props.item.type} isFolder={props.item.isFolder} showRibbon />
       </div>
       {props.isRenaming ? (
-        <RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />
+        <></>
       ) : (
+        /*<RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />*/
         props.item.fullName
       )}
     </div>
@@ -259,7 +282,6 @@ export function FileBrowserItem({
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-
     setAnchorEl(event.currentTarget)
     setAnchorPosition({
       left: event.clientX + 2,
@@ -414,19 +436,27 @@ export function FileBrowserItem({
         <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              <FileGridItem
-                item={item}
-                onClick={onClickItem}
-                onDoubleClick={onClickItem}
-                isRenaming={renamingAsset}
-                onNameChanged={onNameChanged}
-              />
+              {
+                <FileGridItem
+                  item={item}
+                  onClick={onClickItem}
+                  onDoubleClick={onClickItem}
+                  isRenaming={renamingAsset}
+                  onNameChanged={onNameChanged}
+                />
+              }
             </div>
           </div>
         </div>
       )}
 
-      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu
+        open={open}
+        anchorEl={anchorEl}
+        panelId={'file-browser-panel'}
+        anchorPosition={anchorPosition}
+        onClose={handleClose}
+      >
         <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
         {!item.isFolder && (

@@ -23,32 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+import Component from './index'
 
-import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
-import FilesPanelContainer from './container'
+const argTypes = {}
 
-export const FilesPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div>
-      <PanelDragContainer>
-        <PanelTitle>
-          <span>{'Files'}</span>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+export default {
+  title: 'Editor/Panel/Files/Container',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'FilesPanel',
+    jest: 'FilesPanelTitle.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-export default FilesPanelTitle
-
-export const FilesPanelTab: TabData = {
-  id: 'viewPanel',
-  closable: true,
-  title: <FilesPanelTitle />,
-  content: <FilesPanelContainer />
-}
+export const Default = { args: {} }

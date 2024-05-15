@@ -23,45 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
-import DescriptionIcon from '@mui/icons-material/Description'
-import FolderIcon from '@mui/icons-material/Folder'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import React from 'react'
-import styles from '../styles.module.scss'
+//import styles from '../styles.module.scss'
+import { IoAccessibilityOutline, IoFolderOpenSharp } from 'react-icons/io5'
+import { MdOutlineAudioFile, MdOutlinePhotoSizeSelectActual, MdOutlineViewInAr } from 'react-icons/md'
+import { PiVideoCameraBold } from 'react-icons/pi'
+import { TbFileDescription } from 'react-icons/tb'
 
 const FileIconType = {
-  gltf: ViewInArIcon,
-  'gltf-binary': ViewInArIcon,
-  glb: ViewInArIcon,
-  vrm: AccessibilityNewIcon,
-  usdz: ViewInArIcon,
-  fbx: ViewInArIcon,
-  png: PhotoSizeSelectActualIcon,
-  jpeg: PhotoSizeSelectActualIcon,
-  jpg: PhotoSizeSelectActualIcon,
-  ktx2: PhotoSizeSelectActualIcon,
-  m3u8: VideocamIcon,
-  mp4: VideocamIcon,
-  mpeg: VolumeUpIcon,
-  mp3: VolumeUpIcon,
-  'model/gltf-binary': ViewInArIcon,
-  'model/gltf': ViewInArIcon,
-  'model/glb': ViewInArIcon,
-  'model/vrm': AccessibilityNewIcon,
-  'model/usdz': ViewInArIcon,
-  'model/fbx': ViewInArIcon,
-  'image/png': PhotoSizeSelectActualIcon,
-  'image/jpeg': PhotoSizeSelectActualIcon,
-  'image/jpg': PhotoSizeSelectActualIcon,
+  gltf: MdOutlineViewInAr,
+  'gltf-binary': MdOutlineViewInAr,
+  glb: MdOutlineViewInAr,
+  vrm: IoAccessibilityOutline,
+  usdz: MdOutlineViewInAr,
+  fbx: MdOutlineViewInAr,
+  png: MdOutlinePhotoSizeSelectActual,
+  jpeg: MdOutlinePhotoSizeSelectActual,
+  jpg: MdOutlinePhotoSizeSelectActual,
+  ktx2: MdOutlinePhotoSizeSelectActual,
+  m3u8: PiVideoCameraBold,
+  mp4: PiVideoCameraBold,
+  mpeg: MdOutlineAudioFile,
+  mp3: MdOutlineAudioFile,
+  'model/gltf-binary': MdOutlineViewInAr,
+  'model/gltf': MdOutlineViewInAr,
+  'model/glb': MdOutlineViewInAr,
+  'model/vrm': IoAccessibilityOutline,
+  'model/usdz': MdOutlineViewInAr,
+  'model/fbx': MdOutlineViewInAr,
+  'image/png': MdOutlinePhotoSizeSelectActual,
+  'image/jpeg': MdOutlinePhotoSizeSelectActual,
+  'image/jpg': MdOutlinePhotoSizeSelectActual,
   'application/pdf': null,
-  'application/vnd.apple.mpegurl': VideocamIcon,
-  'video/mp4': VideocamIcon,
-  'audio/mpeg': VolumeUpIcon,
-  'audio/mp3': VolumeUpIcon
+  'application/vnd.apple.mpegurl': PiVideoCameraBold,
+  'video/mp4': PiVideoCameraBold,
+  'audio/mpeg': MdOutlineAudioFile,
+  'audio/mp3': MdOutlineAudioFile
 }
 
 export const FileIcon = ({
@@ -70,7 +67,7 @@ export const FileIcon = ({
   isFolder,
   showRibbon
 }: {
-  thumbnailURL: string
+  thumbnailURL: string | null
   type: string
   isFolder?: boolean
   showRibbon?: boolean
@@ -80,20 +77,20 @@ export const FileIcon = ({
   return (
     <>
       {isFolder ? (
-        <FolderIcon fontSize={'inherit'} />
+        <IoFolderOpenSharp className="text-blue-800" />
       ) : thumbnailURL != null ? (
         <img
-          className="mw-[90px] h-[100%] w-[100%] object-scale-down"
+          className="h-[100%] w-[100%] min-w-[90px] object-contain"
           crossOrigin="anonymous"
           src={thumbnailURL}
           alt=""
         />
       ) : FallbackIcon ? (
-        <FallbackIcon fontSize={'inherit'} />
+        <FallbackIcon className="text-blue-800 " />
       ) : (
         <>
-          <DescriptionIcon fontSize={'inherit'} />
-          {type && type.length > 0 && showRibbon && <span className={styles.extensionRibbon}>{type}</span>}
+          <TbFileDescription className="text-blue-800 " />
+          {/* type && type.length > 0 && showRibbon && <span className='text-xs'>{type}</span> */}
         </>
       )}
     </>
