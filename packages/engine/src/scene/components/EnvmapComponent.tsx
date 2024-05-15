@@ -230,7 +230,6 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
   useEffect(() => {
     const texture = envMaptexture
-    console.log(envmapEntity)
     if (!texture) return
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
