@@ -47,7 +47,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   const color = (() => {
     switch (axis) {
       case 'x':
-        return 'theme-iconRed'
+        return 'red-400'
       case 'y':
         return 'green-400' // must be fushsia-400 , but these colors doesnt show up
       case 'z':
@@ -57,7 +57,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
     }
   })()
 
-  props.className = twMerge([`text-${color}`])
+  props.className = twMerge(`text-${color}`)
   const content = children ?? axis?.toUpperCase()
   return (
     <Scrubber onChange={onChange} value={value} {...props}>
@@ -73,8 +73,6 @@ export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children 
     </div>
   )
 }
-
-let uniqueId = 0
 
 interface Vector3InputProp {
   uniformScaling?: boolean
@@ -98,13 +96,7 @@ export const Vector3Input = ({
   onRelease,
   ...rest
 }: Vector3InputProp) => {
-  const id = uniqueId++
   const uniformEnabled = useHookstate(uniformScaling)
-
-  const onToggleUniform = () => {
-    uniformEnabled.set((v) => !v)
-  }
-
   const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled.value) {
       value.set(fieldValue, fieldValue, fieldValue)
@@ -146,10 +138,9 @@ export const Vector3Input = ({
   const vx = value.x
   const vy = value.y
   const vz = value.z
-  const checkboxId = 'uniform-button-' + id
 
   return (
-    <div className="flex flex-auto flex-row justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-start gap-1.5">
       <NumericInput
         {...rest}
         value={vx}

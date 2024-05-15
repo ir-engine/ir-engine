@@ -26,21 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import Portal from '@etherealengine/editor/src/components/layout/Portal'
 import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode, useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { MathUtils } from 'three'
 import Overlay from './Overlay'
 
-type ScrubberContainerProps = {
-  tag?: any
-  children?: ReactNode
-  onMouseDown: any
-  className: string
-}
-
 type ScrubberProps = {
   className?: string
-  children?: ReactNode
+  children?: React.ReactNode
   smallStep?: number
   mediumStep?: number
   largeStep?: number
@@ -74,23 +67,23 @@ const Scrubber: React.FC<ScrubberProps> = ({
 }) => {
   const containerClassName = twMerge(
     'flex items-center',
-    'cursor-ew-resize',
-    "font-['Figtree'] text-xs font-normal leading-[18px]",
+    'cursor-ew-resize p-1',
+    "font-['Figtree'] text-xs font-normal",
     className
   )
 
   const state = useHookstate({
     isDragging: false,
-    startValue: null as number | null,
-    delta: null as number | null,
-    mouseX: null,
-    currentValue: null as number | null,
-    mouseY: null
+    startValue: 0,
+    delta: 0,
+    mouseX: 0,
+    mouseY: 0,
+    currentValue: 0
   })
 
   const scrubberEl = useRef<HTMLDivElement>(null)
 
-  const handleMouseMove = (event) => {
+  const handleMouseMove = (event: React.MouseEvent) => {
     if (state.isDragging.value) {
       const mX = state.mouseX.value + event.movementX
       const mY = state.mouseY.value + event.movementY
@@ -102,21 +95,24 @@ const Scrubber: React.FC<ScrubberProps> = ({
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
 
-      state.currentValue.set(finalValue)
-
-      state.delta.set(nextDelta)
-      state.mouseX.set(mX)
-      state.mouseY.set(mY)
+      state.merge({
+        currentValue: finalValue,
+        delta: nextDelta,
+        mouseX: mX,
+        mouseY: mY
+      })
     }
   }
 
   const handleMouseUp = () => {
     if (state.isDragging.value) {
-      state.isDragging.set(false)
-      state.startValue.set(null)
-      state.delta.set(null)
-      state.mouseX.set(null)
-      state.mouseY.set(null)
+      state.merge({
+        isDragging: false,
+        startValue: 0,
+        delta: 0,
+        mouseX: 0,
+        mouseY: 0
+      })
 
       if (onRelease) {
         onRelease(state.currentValue.value)
@@ -124,31 +120,28 @@ const Scrubber: React.FC<ScrubberProps> = ({
 
       document.exitPointerLock()
     }
-
-    window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('mouseup', handleMouseUp)
   }
 
-  useEffect(() => {
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [])
-
-  const handleMouseDown = (event) => {
-    state.isDragging.set(true)
-    state.startValue.set(convertFrom(value))
-    state.delta.set(0)
-    state.mouseX.set(event.clientX)
-    state.mouseY.set(event.clientY)
+  const handleMouseDown = (event: React.MouseEvent) => {
+    state.merge({
+      isDragging: true,
+      startValue: convertFrom(value),
+      delta: 0,
+      mouseX: event.clientX,
+      mouseY: event.clientY
+    })
     scrubberEl?.current?.requestPointerLock()
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
   }
 
   return (
-    <div className={containerClassName} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
+    <div
+      className={containerClassName}
+      ref={scrubberEl}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      {...rest}
+    >
       {children}
       {state.isDragging.value && (
         <Portal>

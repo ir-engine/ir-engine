@@ -46,14 +46,14 @@ function toPrecisionString(value: number, precision: number) {
   return value.toLocaleString('fullwide', { useGrouping: false })
 }
 
-export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange' | 'prefix'> {
   value: number
   onChange: (value: number) => void
   onRelease?: (value: number) => void
   className?: string
   inputClassName?: string
   unit?: string
-  prefix?: string
+  prefix?: React.ReactNode
   displayPrecision?: any
   precision?: number
   mediumStep?: number
