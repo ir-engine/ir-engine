@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import React from 'react'
-import { Vector3 } from 'three'
-
-// style inheritance
-
+import { useHookstate } from '@etherealengine/hyperflux'
 import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { Vector3 } from 'three'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -68,7 +65,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
 
 export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
   return (
-    <div className="flex w-[18px] items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
+    <div className="flex w-4 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
       {children}
     </div>
   )
@@ -105,33 +102,13 @@ export const Vector3Input = ({
     }
   }
 
-  const onChangeX = (x: number) => {
-    processChange('x', x)
+  const onChangeAxis = (axis: 'x' | 'y' | 'z') => (axisValue: number) => {
+    processChange(axis, axisValue)
     onChange(value)
   }
 
-  const onChangeY = (y: number) => {
-    processChange('y', y)
-    onChange(value)
-  }
-
-  const onChangeZ = (z: number) => {
-    processChange('z', z)
-    onChange(value)
-  }
-
-  const onReleaseX = (x: number) => {
-    processChange('x', x)
-    onRelease?.(value)
-  }
-
-  const onReleaseY = (y: number) => {
-    processChange('y', y)
-    onRelease?.(value)
-  }
-
-  const onReleaseZ = (z: number) => {
-    processChange('z', z)
+  const onReleaseAxis = (axis: 'x' | 'y' | 'z') => (axisValue: number) => {
+    processChange(axis, axisValue)
     onRelease?.(value)
   }
 
@@ -144,33 +121,33 @@ export const Vector3Input = ({
       <NumericInput
         {...rest}
         value={vx}
-        onChange={onChangeX}
-        onRelease={onReleaseX}
+        onChange={onChangeAxis('x')}
+        onRelease={onReleaseAxis('x')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
+            <Vector3Scrubber {...rest} value={vx} onChange={onChangeAxis('x')} onPointerUp={onRelease} axis="x" />
           )
         }
       />
       <NumericInput
         {...rest}
         value={vy}
-        onChange={onChangeY}
-        onRelease={onReleaseY}
+        onChange={onChangeAxis('y')}
+        onRelease={onReleaseAxis('y')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
+            <Vector3Scrubber {...rest} value={vy} onChange={onChangeAxis('y')} onPointerUp={onRelease} axis="y" />
           )
         }
       />
       <NumericInput
         {...rest}
         value={vz}
-        onChange={onChangeZ}
-        onRelease={onReleaseZ}
+        onChange={onChangeAxis('z')}
+        onRelease={onReleaseAxis('z')}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />
+            <Vector3Scrubber {...rest} value={vz} onChange={onChangeAxis('z')} onPointerUp={onRelease} axis="z" />
           )
         }
       />

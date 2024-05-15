@@ -62,6 +62,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
           options={shapeTypeOptions}
           value={colliderComponent.shape.value}
           onChange={commitProperty(ColliderComponent, 'shape')}
+          inputClassName="text-xs"
         />
       </InputGroup>
       <InputGroup name="Mass" label={t('editor:properties.collider.lbl-mass')}>
