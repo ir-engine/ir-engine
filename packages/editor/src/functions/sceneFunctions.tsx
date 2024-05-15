@@ -89,7 +89,7 @@ export const saveSceneGLTF = async (
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
-  const assetURL = new URL(newPath).toString().replace(fileServer, '').slice(1) // remove leading slash
+  const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
     const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
