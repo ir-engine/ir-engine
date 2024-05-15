@@ -631,8 +631,8 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           const entityTransform = getComponent(entity, TransformComponent)
           // Calculate the new matrix relative to the new parent entity, and apply the matrix to its GLTF node.matrix
           node.matrix = tempMatrix4
-            .copy(entityTransform.matrix)
-            .premultiply(parentTransform.matrix.clone().invert())
+            .copy(entityTransform.matrixWorld)
+            .premultiply(parentTransform.matrixWorld.clone().invert())
             .toArray()
         }
 
