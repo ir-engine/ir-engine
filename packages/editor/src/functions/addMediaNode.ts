@@ -37,7 +37,6 @@ import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/Compo
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
@@ -94,20 +93,21 @@ export async function addMediaNode(
           (mesh: Mesh) => mesh?.isMesh
         )[0]
         if (!material) return
+        if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, url)
+
         const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
         if (materialEntity) material = getMaterial(material.uuid as EntityUUID)!
+        const materialStateComponent = getMutableComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+
         iterateObject3D(intersected.object, (mesh: Mesh) => {
           if (!mesh?.isMesh) return
-          const src = getComponent(materialEntity, SourceComponent)
-          if (!src) return
-          if (!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)) createMaterialEntity(material, src)
-          const materialComponent = getMutableComponent(mesh.entity, MaterialComponent[MaterialComponents.State])
-          if (materialComponent.instances.value)
-            materialComponent.instances.set([...materialComponent.instances.value, mesh.entity])
-          //if (unregisterMaterialInstance(mesh.material as Material, mesh.entity) === 0) {
-          //  unregisterMaterial(mesh.material as Material)
-          //}
-          mesh.material = material
+          const materialInstanceComponent = getMutableComponent(
+            mesh.entity,
+            MaterialComponent[MaterialComponents.Instance]
+          )
+          if (materialInstanceComponent.uuid.value) materialInstanceComponent.uuid.set([material.uuid as EntityUUID])
+          if (materialStateComponent.instances.value)
+            materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
       })
     } else if (contentType.startsWith('model/lookdev')) {
