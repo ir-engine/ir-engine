@@ -55,6 +55,7 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
           options={bodyTypeOptions}
           value={rigidbodyComponent.type.value}
           onChange={commitProperty(RigidBodyComponent, 'type')}
+          inputClassName="text-xs p-2"
         />
       </InputGroup>
     </NodeEditor>
