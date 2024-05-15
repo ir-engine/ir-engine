@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
-import packageJson from './package.json'
+import manifestJson from './manifest.json'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { createLocations } from '@etherealengine/projects/createLocations'
@@ -49,7 +49,8 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
       pagination: false
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
+    const projectName = locationResult[0].sceneAsset.projectName
+    const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
     const storageProvider = getStorageProvider()
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
@@ -81,7 +82,8 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
+        const projectName = locationResult[0].sceneAsset.projectName
+        const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
         const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
@@ -101,7 +103,11 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: Oe
 
 const config = {
   onInstall: async (app: Application) => {
-    await createLocations(app, packageJson.name, ['apartment.gltf', 'default.gltf', 'sky-station.gltf'])
+    await createLocations(app, manifestJson.name, {
+      apartment: 'public/scenes/apartment.gltf',
+      default: 'public/scenes/default.gltf',
+      ['sky-station']: 'public/scenes/sky-station.gltf'
+    })
     return installAvatarsFromProject(app, avatarsFolder)
   },
   onUpdate: (app: Application) => {

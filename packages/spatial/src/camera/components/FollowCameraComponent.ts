@@ -28,7 +28,8 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
@@ -41,10 +42,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
@@ -136,7 +134,10 @@ export const FollowCameraComponent = defineComponent({
 
     useEffect(() => {
       const followCamera = getComponent(entity, FollowCameraComponent)
-      setComputedTransformComponent(entity, followCamera.targetEntity, computeCameraFollow)
+      setComponent(entity, ComputedTransformComponent, {
+        referenceEntities: [followCamera.targetEntity],
+        computeFunction: () => computeCameraFollow(entity, followCamera.targetEntity)
+      })
 
       return () => {
         removeComponent(entity, ComputedTransformComponent)

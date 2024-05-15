@@ -39,7 +39,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -97,7 +97,7 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
     const input = getComponent(entity, InputComponent)
 
-    movement.copy(V_000)
+    movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
       const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
       const pointer = getComponent(inputSourceEntity, InputPointerComponent)
@@ -132,7 +132,7 @@ const execute = () => {
 
     // rotate about the world y axis
     candidateWorldQuat.multiplyQuaternions(
-      quat.setFromAxisAngle(V_010, -movement.x * flyControlComponent.lookSensitivity),
+      quat.setFromAxisAngle(Vector3_Up, -movement.x * flyControlComponent.lookSensitivity),
       transform.rotation
     )
 

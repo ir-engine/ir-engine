@@ -49,7 +49,7 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -96,7 +96,7 @@ const onKeyQ = () => {
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
     nodes,
-    V_010,
+    Vector3_Up,
     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
   )
@@ -111,7 +111,7 @@ const onKeyE = () => {
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
     nodes,
-    V_010,
+    Vector3_Up,
     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
   )

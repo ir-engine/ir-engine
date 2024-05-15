@@ -38,8 +38,7 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
-import { V_000, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { ObjectDirection, Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -98,7 +97,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   const controller = getComponent(entity, AvatarControllerComponent)
   const eyeHeight = getComponent(entity, AvatarComponent).eyeHeight
   const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  desiredMovement.copy(V_000)
+  desiredMovement.copy(Vector3_Zero)
 
   const { isMovementControlsEnabled, isCameraAttachedToAvatar } = getState(XRControlsState)
 
@@ -121,7 +120,7 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
     desiredMovement.copy(viewerMovement)
     // desiredMovement.y = 0 // Math.max(desiredMovement.y, 0)
   } else {
-    viewerMovement.copy(V_000)
+    viewerMovement.copy(Vector3_Zero)
   }
 
   const isMovementCaptured = controller.movementCaptured.length
@@ -136,8 +135,8 @@ export function moveAvatar(entity: Entity, additionalMovement?: Vector3) {
   if (additionalMovement) desiredMovement.add(additionalMovement)
 
   const avatarCollisionGroups = getInteractionGroups(
-    bodyCollider.collisionLayer & ~CollisionGroups.Trigger,
-    bodyCollider.collisionMask
+    bodyCollider.collisionLayer,
+    bodyCollider.collisionMask & ~CollisionGroups.Trigger
   )
 
   Physics.computeColliderMovement(entity, colliderEntity, desiredMovement, avatarCollisionGroups)
@@ -415,7 +414,7 @@ const _updateLocalAvatarRotationAttachedMode = (entity: Entity) => {
   if (angle > Math.PI * 0.25 || rotationNeedsUpdate == true) {
     // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
     avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
-    avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
+    avatarRotation.setFromAxisAngle(Vector3_Up, avatarRotationAroundY.y + Math.PI)
     rotationNeedsUpdate = false
   }
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
@@ -478,7 +477,7 @@ const _slerpBodyTowardsCameraDirection = (entity: Entity, alpha: number) => {
 
   const cameraRotation = getComponent(Engine.instance.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
-  targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
+  targetOrientation.setFromRotationMatrix(_mat.lookAt(Vector3_Zero, direction, Vector3_Up))
   rigidbody.targetKinematicRotation.slerp(targetOrientation, alpha)
 }
 
@@ -499,11 +498,11 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
   }
 
   _velXZ.set(vector.x, 0, vector.z)
-  const isZero = _velXZ.distanceTo(V_000) < 0.1
+  const isZero = _velXZ.distanceTo(Vector3_Zero) < 0.1
   if (isZero) _velXZ.copy(prevVector)
   if (!isZero) prevVector.copy(_velXZ)
 
-  rotMatrix.lookAt(_velXZ, V_000, V_010)
+  rotMatrix.lookAt(_velXZ, Vector3_Zero, Vector3_Up)
   targetOrientation.setFromRotationMatrix(rotMatrix)
 
   rigidbody.targetKinematicRotation.slerp(targetOrientation, alpha)

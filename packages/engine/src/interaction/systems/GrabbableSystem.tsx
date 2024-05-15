@@ -50,7 +50,7 @@ import {
 } from '@etherealengine/ecs'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
-import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -174,7 +174,7 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditing) return
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
@@ -190,7 +190,7 @@ const execute = () => {
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)
       rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-      Physics.setRigidbodyPose(entity, target.position, target.rotation, V_000, V_000)
+      Physics.setRigidbodyPose(entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
     }
 
     const grabbableTransform = getComponent(entity, TransformComponent)

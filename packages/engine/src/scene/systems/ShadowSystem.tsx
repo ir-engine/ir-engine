@@ -57,7 +57,7 @@ import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunction
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_001 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -86,7 +86,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
@@ -416,7 +416,7 @@ const updateDropShadowTransforms = () => {
     const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as any).material as Material
     shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 0.6
 
-    shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
+    shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
     dropShadowTransform.position.copy(intersected.point).add(shadowOffset)

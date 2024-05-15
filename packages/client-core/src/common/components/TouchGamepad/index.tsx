@@ -27,7 +27,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { InteractableState } from '@etherealengine/engine/src/interaction/systems/InteractableSystem'
+import { InteractableState } from '@etherealengine/engine/src/interaction/functions/interactableFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
 import { AnyButton, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'

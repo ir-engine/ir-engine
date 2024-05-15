@@ -138,10 +138,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   }
 }
 
-export const testst = {
-  setComponent: function () {}
-}
-
 const modifyName = (entities: Entity[], name: string) => {
   const scenes = getSourcesForEntities(entities)
 
@@ -246,7 +242,6 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
-    material.needsUpdate = true
   }
 }
 
@@ -613,6 +608,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
         const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
         const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
+        // Remove from current parent
         if (isCurrentlyChildOfRoot) {
           gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
         } else {
@@ -623,9 +619,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
         }
 
         const newParentUUID = getComponent(parent, UUIDComponent)
-        const newParentIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === newParentUUID)
-        const isParentRoot = gltf.data.scenes![0].nodes.includes(newParentIndex)
+        const isParentRoot = parent === getState(EditorState).rootEntity
 
+        // Add to new parent
         if (isParentRoot) {
           if (before) {
             const beforeIndex = gltf.data.nodes!.findIndex(
@@ -835,19 +831,36 @@ const removeObject = (entities: Entity[]) => {
           false
         )
         for (const entityUUID of uuidsToDelete) {
-          const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
-          const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
+          const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+          // immediately remove the node from the document
+          gltf.data.nodes!.splice(oldNodeIndex, 1)
+          const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
 
-          if (isCurrentlyChildOfRoot) {
-            gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(nodeIndex), 1)
+          // remove the node from parent
+          if (childRootIndex > -1) {
+            gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
           } else {
             const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
             if (!currentParentNode) continue
-            const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
+            const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
             currentParentNode.children!.splice(currentParentNodeIndex, 1)
           }
 
-          gltf.data.nodes!.splice(nodeIndex, 1)
+          // update all node indices in parents
+          for (let i = oldNodeIndex; i < gltf.data.nodes!.length; i++) {
+            const node = gltf.data.nodes![i]
+            const uuid = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+            const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
+            if (childRootIndex > -1) {
+              gltf.data.scenes![0].nodes[childRootIndex]--
+            }
+            const parentNode = getParentNodeByUUID(gltf.data, uuid)
+            if (!parentNode) continue
+            const childIndex = parentNode.children!.indexOf(i + 1)
+            if (childIndex > -1) {
+              parentNode.children![childIndex]--
+            }
+          }
         }
       }
 

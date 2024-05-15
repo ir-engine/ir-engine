@@ -22,3 +22,37 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { Camera, CameraHelper } from 'three'
+import { useDisposable } from '../../resources/resourceHooks'
+import { useHelperEntity } from './DebugComponentUtils'
+
+export const CameraHelperComponent = defineComponent({
+  name: 'CameraHelperComponent',
+
+  onInit: (entity) => {
+    return {
+      name: 'camera-helper',
+      camera: null! as Camera,
+      entity: undefined as undefined | Entity
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
+    component.camera.set(json.camera)
+    if (typeof json.name === 'string') component.name.set(json.name)
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, CameraHelperComponent)
+    const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
+    useHelperEntity(entity, component, helper)
+    helper.update()
+
+    return null
+  }
+})

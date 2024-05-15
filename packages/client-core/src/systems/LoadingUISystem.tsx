@@ -39,7 +39,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
@@ -54,10 +54,7 @@ import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/re
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent, useChildWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -93,10 +90,13 @@ export const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
 
-    setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
-      getComponent(meshEntity, TransformComponent).position.copy(
-        getComponent(Engine.instance.cameraEntity, TransformComponent).position
-      )
+    setComponent(meshEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        getComponent(meshEntity, TransformComponent).position.copy(
+          getComponent(Engine.instance.viewerEntity, TransformComponent).position
+        )
+      }
     })
 
     setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
@@ -266,20 +266,23 @@ const execute = () => {
 
   if (transition.state === 'IN' && transition.alpha === 1) {
     if (!hasComponent(ui.entity, ComputedTransformComponent))
-      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-        const distance = camera.near * 1.1 // 10% in front of camera
-        const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
-        if (!uiContainer) return
-        const uiSize = uiContainer.domSize
-        const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
-        const aspectRatio = screenSize.x / screenSize.y
-        const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-        const scale =
-          ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
-          0.25 *
-          scaleMultiplier
-        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      setComponent(ui.entity, ComputedTransformComponent, {
+        referenceEntities: [Engine.instance.cameraEntity],
+        computeFunction: () => {
+          const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+          const distance = camera.near * 1.1 // 10% in front of camera
+          const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+          if (!uiContainer) return
+          const uiSize = uiContainer.domSize
+          const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
+          const aspectRatio = screenSize.x / screenSize.y
+          const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+          const scale =
+            ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+            0.25 *
+            scaleMultiplier
+          ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+        }
       })
   }
 

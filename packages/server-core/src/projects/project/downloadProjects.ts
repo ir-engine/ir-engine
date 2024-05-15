@@ -30,6 +30,7 @@ import path from 'path'
 import {
   assetsRegex,
   projectPublicRegex,
+  rootGLTFRegex,
   rootImageRegex,
   rootSceneJsonRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
@@ -56,7 +57,8 @@ export const download = async (projectName: string, storageProviderName?: string
         !assetsRegex.test(file) &&
         !projectPublicRegex.test(file) &&
         !rootImageRegex.test(file) &&
-        !rootSceneJsonRegex.test(file)
+        !rootSceneJsonRegex.test(file) &&
+        !rootGLTFRegex.test(file)
     )
     logger.info('[ProjectLoader]: Found files:' + files)
 
