@@ -43,7 +43,7 @@ import { act, render, waitFor } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import testSceneJson from '../../../tests/assets/SceneLoadingTest.scene.json'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderLoad, restoreFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -60,7 +60,6 @@ const testScene = {
 } as any
 
 const sceneID = 'test'
-overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
@@ -69,6 +68,8 @@ describe('SceneLoadingSystem', () => {
     Engine.instance.store.defaultDispatchDelay = () => 0
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+
+    overrideFileLoaderLoad()
 
     const eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
@@ -86,6 +87,7 @@ describe('SceneLoadingSystem', () => {
   })
 
   afterEach(() => {
+    restoreFileLoaderLoad()
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = NODE_TLS_REJECT_UNAUTHORIZED
     return destroyEngine()
   })

@@ -119,4 +119,9 @@ export class GLTFSnapshotAction {
     type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
     source: matches.string as Validator<unknown, string>
   })
+
+  static unload = defineAction({
+    type: 'ee.gltf.snapshot.UNLOAD' as const,
+    source: matches.string as Validator<unknown, string>
+  })
 }

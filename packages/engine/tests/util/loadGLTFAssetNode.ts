@@ -37,9 +37,9 @@ const toArrayBuffer = (buf) => {
   return arrayBuffer
 }
 
-export function overrideFileLoaderLoad() {
-  FileLoader.prototype.load = overrideLoad
+const original = FileLoader.prototype.load
 
+export function overrideFileLoaderLoad() {
   function overrideLoad(url, onLoad, onProgress, onError) {
     try {
       const assetPathAbsolute = path.join(appRootPath.path, url)
@@ -49,6 +49,11 @@ export function overrideFileLoaderLoad() {
       onError(e)
     }
   }
+  FileLoader.prototype.load = overrideLoad
+}
+
+export function restoreFileLoaderLoad() {
+  FileLoader.prototype.load = original
 }
 
 // export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {
