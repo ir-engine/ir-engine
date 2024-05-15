@@ -24,16 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NO_PROXY, defineAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
+import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '../functions/assetFunctions'
-
-const clearUploadQueueAction = defineAction({
-  type: 'ee.editor.clearUploadQueueAction'
-})
+import { EditorState } from '../services/EditorServices'
 
 export const UploadRequestSystem = defineSystem({
   uuid: 'ee.editor.UploadRequestSystem',
@@ -43,10 +41,17 @@ export const UploadRequestSystem = defineSystem({
     useEffect(() => {
       const uploadRequests = uploadRequestState.queue.get(NO_PROXY)
       if (uploadRequests.length === 0) return
+
+      const importSettings = getState(ImportSettingsState)
+      const projectName = getState(EditorState).projectName
       const uploadPromises = uploadRequests.map((uploadRequest) => {
-        return Promise.all(uploadProjectFiles(uploadRequest.projectName, [uploadRequest.file], true).promises).then(
-          uploadRequest.callback
-        )
+        return Promise.all(
+          uploadProjectFiles(
+            uploadRequest.projectName,
+            [uploadRequest.file],
+            [`projects/${projectName}${importSettings.importFolder}`]
+          ).promises
+        ).then(uploadRequest.callback)
       })
       uploadRequestState.queue.set([])
     }, [uploadRequestState.queue.length])
