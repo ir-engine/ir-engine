@@ -71,24 +71,24 @@ export const bufferLimits = {
       minBufferDurationToPlay: 2
     },
     [GeometryType.Unify]: {
-      desktopMaxBufferDuration: 6,
+      desktopMaxBufferDuration: 10,
       mobileMaxBufferDuration: 5,
       initialBufferDuration: 3,
-      minBufferDurationToPlay: 2
+      minBufferDurationToPlay: 0.75
     }
   },
   texture: {
     ['ktx2' as TextureFormat]: {
-      desktopMaxBufferDuration: 4, // seconds
+      desktopMaxBufferDuration: 8, // seconds
       mobileMaxBufferDuration: 3,
       initialBufferDuration: 3,
-      minBufferDurationToPlay: 2
+      minBufferDurationToPlay: 0.75
     },
     ['astc/ktx2' as TextureFormat]: {
-      desktopMaxBufferDuration: 4, // seconds
+      desktopMaxBufferDuration: 6, // seconds
       mobileMaxBufferDuration: 3,
       initialBufferDuration: 3,
-      minBufferDurationToPlay: 2
+      minBufferDurationToPlay: 0.75
     }
   }
 }
