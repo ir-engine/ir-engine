@@ -138,7 +138,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.envMap = prevMaterial.envMap
       newBasicMaterial.vertexColors = prevMaterial.vertexColors
       newBasicMaterial.uuid = basicUUID
-      createMaterialEntity(newBasicMaterial, '')
+      createMaterialEntity(newBasicMaterial, '', entity)
       setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID

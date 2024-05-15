@@ -374,7 +374,6 @@ export default function AddEditProjectModal({
 
   const handleSubmit = async () => {
     modalProcessing.set(true)
-
     try {
       await onSubmit?.()
     } catch (err) {

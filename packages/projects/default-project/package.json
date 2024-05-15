@@ -1,17 +1,10 @@
 {
   "name": "default-project",
   "version": "0.0.0",
-  "description": "",
   "main": "",
-  "etherealEngine": {
-    "version": "1.6.0",
-    "thumbnail": "/static/etherealengine_thumbnail.jpg"
-  },
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --config .mocharc.js"
   },
-  "dependencies": {},
-  "peerDependencies": {},
-  "license": "ISC"
+  "license": "CPAL"
 }

@@ -1,12 +1,6 @@
 {
   "name": "ee-template",
   "version": "0.0.0",
-  "description": "",
-  "main": "",
-  "etherealEngine": {
-    "version": "1.6.0",
-    "thumbnail": "/static/etherealengine_thumbnail.jpg"
-  },
   "scripts": {
     "test": "mocha --config .mocharc.js",
     "check-errors": "tsc --noemit",
@@ -15,9 +9,6 @@
     "format-staged": "lint-staged",
     "precommit": "no-master-commits -b master"
   },
-  "peerDependencies": {},
-  "dependencies": {},
-  "devDependencies": {},
   "license": "ISC",
   "pre-commit": [
     "format-staged"

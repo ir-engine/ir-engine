@@ -146,7 +146,6 @@ export const PerformanceState = defineState({
       const { averageRenderTime, maxRenderTime, minRenderTime, averageSystemTime, maxSystemTime, minSystemTime } =
         performanceState.value
 
-      console.log()
       const renderMean = averageRenderTime.mean
       if (renderMean > maxRenderTime) {
         decrementGPUPerformance()
