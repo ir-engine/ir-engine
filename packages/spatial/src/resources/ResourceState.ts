@@ -111,7 +111,7 @@ export const ResourceState = defineState({
     resources: {} as Record<string, Resource>,
     totalVertexCount: 0,
     totalBufferCount: 0,
-    debug: true
+    debug: false
   }),
 
   debugLog: (...data: any[]) => {
