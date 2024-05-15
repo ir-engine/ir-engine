@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
@@ -34,7 +33,6 @@ import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/S
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
 
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
-import Dialog from '@mui/material/Dialog'
 import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
@@ -46,15 +44,11 @@ import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import './Editor2Container.css'
 import AssetDropZone from './assets/AssetDropZone'
-import { DialogState } from './dialogs/DialogState'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import Toolbar from '../components/toolbar/Toolbar2'
 import { generateToolbarMenu, onEditorError, onSaveScene } from './EditorContainer'
-import * as styles from './styles.module.scss'
-
-const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -111,7 +105,6 @@ const EditorContainer = () => {
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
-  const dialogComponent = useHookstate(getMutableState(DialogState).dialog).value
   const dockPanelRef = useRef<DockLayout>(null)
 
   const panelMenu = tabs.map((tab) => {
@@ -193,13 +186,6 @@ const EditorContainer = () => {
               />
             </DockContainer>
           </div>
-          <Dialog
-            open={!!dialogComponent}
-            onClose={() => DialogState.setDialog(null)}
-            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-          >
-            {getState(DialogState).dialog}
-          </Dialog>
         </DndWrapper>
       </div>
       <PopupMenu />
