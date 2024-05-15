@@ -24,7 +24,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { pathResolver } from '../../../assets/functions/pathResolver'
-import { getGLTFAsync } from '../../../assets/functions/resourceHooks'
+import { getGLTFAsync } from '../../../assets/functions/resourceLoaderHooks'
 import { InstancingComponent } from '../../components/InstancingComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { Heuristic, VariantComponent, VariantLevel, distanceBased } from '../../components/VariantComponent'

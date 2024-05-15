@@ -23,30 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Common readonly 3D Axis definitions
-import { Vector3 } from 'three'
+import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
+import { Object3D } from 'three'
+import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
+import { ImporterExtension } from './ImporterExtension'
 
-import { V_001, V_010, V_100 } from './MathConstants'
+class ResourceManagerLoadExtension extends ImporterExtension implements GLTFLoaderPlugin {
+  name = 'EE_resourceManagerLoadExtension'
 
-export const Axis = {
-  /** X Axis (1,0,0) */
-  X: V_100,
-  /** Y Axis (0,1,0) */
-  Y: V_010,
-  /** Z Axis (0,0,1) */
-  Z: V_001
+  beforeRoot(): Promise<void> | null {
+    return null
+  }
+
+  afterRoot(result: GLTF): Promise<void> | null {
+    this.AddAssetToResourceManager(result.scene)
+    return null
+  }
+
+  AddAssetToResourceManager(asset: Object3D) {
+    const parser = this.parser
+    const assetKey = parser.options.url
+    ResourceManager.addReferencedAsset(assetKey, asset)
+    if (asset.children) for (const child of asset.children) this.AddAssetToResourceManager(child)
+  }
 }
 
-Object.freeze(Axis)
-
-/** Right handed coordinate direction */
-export const ObjectDirection = {
-  Right: Object.freeze(new Vector3().copy(Axis.X).multiplyScalar(-1)),
-  Left: Axis.X,
-  Up: Axis.Y,
-  Down: Object.freeze(new Vector3().copy(Axis.Y).multiplyScalar(-1)),
-  Forward: Object.freeze(new Vector3().copy(Axis.Z).multiplyScalar(-1)),
-  Backward: Axis.Z
-}
-
-Object.freeze(ObjectDirection)
+export { ResourceManagerLoadExtension }

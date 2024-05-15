@@ -77,6 +77,7 @@
     "tick": "Tick",
     "state": "State",
     "systems": "Systems",
+    "avgDuration": "Avg Duration: ",
     "entities": "Entities",
     "networks": "Networks",
     "actionsHistory": "Actions History",

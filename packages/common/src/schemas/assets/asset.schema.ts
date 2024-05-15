@@ -24,8 +24,6 @@ import { Type, getValidator } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
 
 export const assetPath = 'asset'
-/** @deprecated use assetPath instead */
-export const scenePath = assetPath
 
 export const assetMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
@@ -34,6 +32,7 @@ export const assetSchema = Type.Object(
     id: Type.String(),
     assetURL: Type.String(),
     thumbnailURL: Type.String(),
+    projectName: Type.String(),
     projectId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -46,8 +45,9 @@ export interface AssetType extends Static<typeof assetSchema> {}
 export const assetDataSchema = Type.Object(
   {
     id: Type.Optional(Type.String()),
-    name: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
+    isScene: Type.Optional(Type.Boolean()),
+    sourceURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),
     projectId: Type.Optional(Type.String())
@@ -68,7 +68,6 @@ export interface AssetUpdate extends Static<typeof assetUpdateSchema> {}
 // Schema for updating existing entries
 export const assetPatchSchema = Type.Object(
   {
-    name: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.String())
@@ -89,9 +88,7 @@ export const assetQuerySchema = Type.Intersect(
         projectId: Type.Optional(Type.String()),
         assetURL: Type.Optional(Type.String()),
         internal: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean()),
-        directory: Type.Optional(Type.String()),
-        localDirectory: Type.Optional(Type.String())
+        paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

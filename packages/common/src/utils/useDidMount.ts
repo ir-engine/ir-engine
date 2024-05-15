@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,24 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-module.exports = {
-  failZero: false,
-  parallel: false,
-  require: [
-    'tests/mocha.env', // init env here
-    'jsdom-global/register'
-  ],
-  spec: [
-    './**/*.test.ts',
-    './**/*.test.tsx'
-  ],
-  extension: [
-    'ts',
-    'tsx'
-  ],
-  bail: true,
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '60000'
-};
+import { useEffect, useRef } from 'react'
+
+export const useDidMount = (func: () => (() => void) | void, deps: any[] = []) => {
+  const didMount = useRef(false)
+
+  useEffect(() => {
+    let ret: (() => void) | void = undefined
+    if (didMount.current) ret = func()
+    else didMount.current = true
+
+    return ret
+  }, deps)
+}
