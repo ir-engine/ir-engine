@@ -108,6 +108,26 @@ export const Shapes = {
   Heightfield: 'heightfield' as const
 }
 
+export const RapierShapeToString = {
+  [ShapeType.Ball]: 'sphere' as const,
+  [ShapeType.Cuboid]: 'box' as const,
+  [ShapeType.Capsule]: 'capsule' as const,
+  // [ShapeType.Segment]:
+  // [ShapeType.Polyline]:
+  // [ShapeType.Triangle]:
+  [ShapeType.TriMesh]: 'mesh' as const,
+  [ShapeType.HeightField]: 'heightfield' as const,
+  [ShapeType.ConvexPolyhedron]: 'convex_hull' as const,
+  [ShapeType.Cylinder]: 'cylinder' as const
+  // [ShapeType.Cone]:
+  // [ShapeType.RoundCuboid]:
+  // [ShapeType.RoundTriangle]:
+  // [ShapeType.RoundCylinder]:
+  // [ShapeType.RoundCone]:
+  // [ShapeType.RoundConvexPolyhedron]:
+  // [ShapeType.HalfSpace]:
+}
+
 export type Shape = (typeof Shapes)[keyof typeof Shapes]
 
 export type ColliderOptions = {

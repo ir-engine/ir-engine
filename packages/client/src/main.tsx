@@ -58,17 +58,6 @@ const App = () => {
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
           <Route
-            key="adminold"
-            path="/adminold/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'adminold'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
             key="location"
             path="/location/*"
             element={

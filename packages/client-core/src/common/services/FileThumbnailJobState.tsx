@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'

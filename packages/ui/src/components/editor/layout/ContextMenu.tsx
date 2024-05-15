@@ -29,6 +29,7 @@ import ClickAwayListener from './ClickAwayListener'
 type ContextMenuProps = {
   open: boolean
   anchorEl: null | HTMLElement
+  panelId: string
   anchorPosition: any
   onClose: () => void
 }
@@ -37,11 +38,13 @@ export const ContextMenu = ({
   children,
   open,
   anchorEl,
+  panelId,
   anchorPosition,
   onClose
 }: React.PropsWithChildren<ContextMenuProps>) => {
-  const positionX = anchorPosition?.left - anchorEl?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - anchorEl?.parentElement?.parentElement?.getBoundingClientRect().top!
+  const panel = document.getElementById(panelId)
+  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
+  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
 
   console.log('DEBUG', positionX, positionY)
   return (
@@ -52,7 +55,7 @@ export const ContextMenu = ({
             className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
             style={{ top: `${positionY}px`, left: `${positionX}px` }}
           >
-            <div className="flex flex-col py-1">{children}</div>
+            <div className="flex flex-col truncate py-1">{children}</div>
           </div>
         )}
       </div>

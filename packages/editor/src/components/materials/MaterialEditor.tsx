@@ -34,7 +34,7 @@ import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
-import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
@@ -146,6 +146,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   prototypeName.set(material.type)
 
   const parameters = useHookstate(0)
+
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -186,7 +187,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         values={materialComponent.parameters.value!}
         onChange={(k) => async (val) => {
           let prop
-          if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments[k].type.value === 'texture') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -232,7 +233,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <Button
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]!]
+              pluginEntities: [pluginByName[selectedPlugin.value]]
             })
           }}
         >

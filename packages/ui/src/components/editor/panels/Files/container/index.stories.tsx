@@ -1,3 +1,4 @@
+/*
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
@@ -20,3 +21,24 @@ Original Code is the Ethereal Engine team.
 
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
+*/
+
+import Component from './index'
+
+const argTypes = {}
+
+export default {
+  title: 'Editor/Panel/Files/Container',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'FilesPanel',
+    jest: 'FilesPanelTitle.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+
+export const Default = { args: {} }

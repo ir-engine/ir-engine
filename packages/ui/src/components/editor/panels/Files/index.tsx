@@ -28,6 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+import FilesPanelContainer from './container'
 
 export const FilesPanelTitle = () => {
   const { t } = useTranslation()
@@ -49,5 +50,5 @@ export const FilesPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
   title: <FilesPanelTitle />,
-  content: <></>
+  content: <FilesPanelContainer />
 }

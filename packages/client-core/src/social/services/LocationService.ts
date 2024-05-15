@@ -39,6 +39,7 @@ export const LocationSeed: LocationType = {
   slugifiedName: '',
   maxUsersPerInstance: 10,
   sceneId: '',
+  sceneAsset: {} as any,
   isLobby: false,
   isFeatured: false,
   locationSetting: {

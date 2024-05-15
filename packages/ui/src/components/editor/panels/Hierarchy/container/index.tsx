@@ -193,7 +193,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     setAnchorEl(event.currentTarget)
     setAnchorPosition({
       left: event.clientX + 2,
-      top: event.clientY + 24
+      top: event.clientY - 6
     })
   }
 
@@ -463,10 +463,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           {t('editor:hierarchy.lbl-addEntity')}
         </Button>
       </div>
-      <div className="h-full overflow-hidden">
+      <div id="heirarchy-panel" className="h-full overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+        panelId={'heirarchy-panel'}
+        anchorPosition={anchorPosition}
+        onClose={handleClose}
+      >
         <Button
           fullWidth
           size="small"

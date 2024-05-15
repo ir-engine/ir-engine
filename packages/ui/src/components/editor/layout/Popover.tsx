@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,14 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-process.env.APP_ENV = 'test'
-process.env.NODE_ENV = 'test'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+import React from 'react'
+import ClickAwayListener from './ClickAwayListener'
 
-require("ts-node").register({
-  project: './tsconfig.json',
-  files: true,
-  swc: true
-})
+type ContextMenuProps = {
+  open: boolean
+  anchorEl: null | HTMLElement
+  panelId: string
+  anchorPosition: any
+  onClose: () => void
+}
 
-require("fix-esm").register()
+export const PopOver = ({
+  children,
+  open,
+  anchorEl,
+  panelId,
+  anchorPosition,
+  onClose
+}: React.PropsWithChildren<ContextMenuProps>) => {
+  const positionX = anchorPosition?.left - anchorEl?.getBoundingClientRect().left!
+  const positionY = anchorPosition?.top - anchorEl?.parentElement?.parentElement?.getBoundingClientRect().top!
+
+  console.log('DEBUG', positionX, positionY)
+  return (
+    <ClickAwayListener onClickAway={() => onClose()}>
+      <div className={`${open ? 'block' : 'hidden'}`}>
+        {open && anchorEl && (
+          <div
+            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
+            style={{ top: `${positionY}px`, left: `${positionX}px` }}
+          >
+            {children}
+          </div>
+        )}
+      </div>
+    </ClickAwayListener>
+  )
+}
+
+export default PopOver

@@ -33,7 +33,6 @@ import DataTable from '../../common/Table'
 
 import { recordingColumns } from '../../common/constants/recordings'
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { HiTrash } from 'react-icons/hi2'
@@ -49,10 +48,26 @@ export default function RecordingsTable({ search }: { search: string }) {
     }
   })
 
-  useSearch(recordingsQuery, { search }, search)
+  useSearch(
+    recordingsQuery,
+    {
+      $or: [
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          userId: {
+            $like: `%${search}%`
+          }
+        }
+      ]
+    },
+    search
+  )
 
   const removeRecording = useMutation(recordingPath).remove
-  const modalProcessing = useHookstate(false)
 
   const createRows = (rows: readonly RecordingType[]) =>
     rows.map((row) => ({

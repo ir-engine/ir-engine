@@ -23,10 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
+import { findAncestorWithComponent } from '../../transform/components/EntityTree'
+import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
+import { RigidBodyComponent } from './RigidBodyComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -67,6 +73,50 @@ export const ColliderComponent = defineComponent({
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value
     }
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, ColliderComponent)
+
+    useLayoutEffect(() => {
+      const shape = Physics.getShape(entity)
+      if (!shape || shape === component.shape.value) return
+
+      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+      if (ancestor) {
+        const physicsWorld = getState(PhysicsState).physicsWorld
+        Physics.removeCollider(physicsWorld, entity)
+        const colliderDesc = Physics.createColliderDesc(entity, ancestor)
+        if (colliderDesc) Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
+      }
+    }, [component.shape])
+
+    useLayoutEffect(() => {
+      Physics.setMass(entity, component.mass.value)
+    }, [component.mass])
+
+    // useLayoutEffect(() => {
+    // @todo
+    // }, [component.massCenter])
+
+    useLayoutEffect(() => {
+      Physics.setFriction(entity, component.friction.value)
+    }, [component.friction])
+
+    useLayoutEffect(() => {
+      Physics.setRestitution(entity, component.restitution.value)
+    }, [component.restitution])
+
+    useLayoutEffect(() => {
+      Physics.setCollisionLayer(entity, component.collisionLayer.value)
+    }, [component.collisionLayer])
+
+    useLayoutEffect(() => {
+      Physics.setCollisionMask(entity, component.collisionMask.value)
+    }, [component.collisionMask])
+
+    return null
   }
 })
 

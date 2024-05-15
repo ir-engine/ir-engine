@@ -37,6 +37,7 @@ export interface ModalProps {
   className?: string
   children: ReactNode
   submitLoading?: boolean
+  showCloseButton?: boolean
   closeButtonDisabled?: boolean
   submitButtonDisabled?: boolean
   closeButtonText?: string
@@ -74,7 +75,8 @@ export const ModalFooter = ({
   closeButtonDisabled,
   submitButtonDisabled,
   closeButtonText,
-  submitButtonText
+  submitButtonText,
+  showCloseButton = true
 }: {
   onCancel?: (isHeader: boolean) => void
   onSubmit?: () => void
@@ -83,13 +85,16 @@ export const ModalFooter = ({
   submitButtonDisabled?: boolean
   closeButtonText?: string
   submitButtonText?: string
+  showCloseButton?: boolean
 }) => {
   const { t } = useTranslation()
   return (
     <div className="border-t-theme-primary grid grid-flow-col border-t px-6 py-5">
-      <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
-        {closeButtonText || t('common:components.cancel')}
-      </Button>
+      {showCloseButton && (
+        <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+          {closeButtonText || t('common:components.cancel')}
+        </Button>
+      )}
       {onSubmit && (
         <Button
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
@@ -115,7 +120,8 @@ const Modal = ({
   closeButtonText,
   submitButtonText,
   closeButtonDisabled,
-  submitButtonDisabled
+  submitButtonDisabled,
+  showCloseButton = true
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
   return (
@@ -132,6 +138,7 @@ const Modal = ({
             onCancel={onClose}
             onSubmit={onSubmit}
             submitLoading={submitLoading}
+            showCloseButton={showCloseButton}
           />
         )}
       </div>

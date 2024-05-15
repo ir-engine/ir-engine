@@ -23,28 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { PerformanceState } from '../PerformanceState'
+import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
+import { Object3D } from 'three'
+import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
+import { ImporterExtension } from './ImporterExtension'
 
-export const usePerformanceTier = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceTier = useHookstate(performanceState.tier.value)
+class ResourceManagerLoadExtension extends ImporterExtension implements GLTFLoaderPlugin {
+  name = 'EE_resourceManagerLoadExtension'
 
-  useEffect(() => {
-    performanceTier.set(performanceState.tier.value)
-  }, [performanceState.tier])
+  beforeRoot(): Promise<void> | null {
+    return null
+  }
 
-  return performanceTier
+  afterRoot(result: GLTF): Promise<void> | null {
+    this.AddAssetToResourceManager(result.scene)
+    return null
+  }
+
+  AddAssetToResourceManager(asset: Object3D) {
+    const parser = this.parser
+    const assetKey = parser.options.url
+    ResourceManager.addReferencedAsset(assetKey, asset)
+    if (asset.children) for (const child of asset.children) this.AddAssetToResourceManager(child)
+  }
 }
 
-export const usePerformanceOffset = (): State<number> => {
-  const performanceState = useMutableState(PerformanceState)
-  const performanceOffset = useHookstate(performanceState.performanceOffset.value)
-
-  useEffect(() => {
-    performanceOffset.set(performanceState.performanceOffset.value)
-  }, [performanceState.performanceOffset])
-
-  return performanceOffset
-}
+export { ResourceManagerLoadExtension }
