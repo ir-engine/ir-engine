@@ -279,28 +279,32 @@ describe('PostProcessingComponent', () => {
 
       const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
 
-      const test: string[] = []
       effectKeys.forEach((effectKey) => {
         const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
         propKeys.forEach((propKey) => {
           if (masterKeys.includes(propKey)) {
-            console.log('Key = ' + effectKey + ' - ' + propKey + ' = ' + masterProps[propKey])
             postProcessingComponent.effects[effectKey][propKey].set(masterProps[propKey])
           }
         })
       })
-
-      console.log(test)
 
       rerender(<Reactor />)
     }).then(() => {
       const postProcessingComponent = getComponent(entity, PostProcessingComponent)
 
       effectKeys.forEach((effectKey) => {
-        const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
-        propKeys.forEach((propKey) => {
-          //assert(postProcessingComponent.effects[effectKey][propKey] == masterProps[propKey], effectKey +" - "+ propKey +"was set")
-        })
+        if (postProcessingComponent.effects[effectKey]) {
+          const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
+          propKeys.forEach((propKey) => {
+            if (masterKeys.includes(propKey)) {
+              console.log('Key = ' + effectKey + ' - ' + propKey + ' = ' + masterProps[propKey])
+              assert(
+                postProcessingComponent.effects[effectKey][propKey] == masterProps[propKey],
+                effectKey + ' - ' + propKey + 'was set'
+              )
+            }
+          })
+        }
       })
 
       removeEntity(entity)
