@@ -134,17 +134,14 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       <Select
         options={projectsMenu}
         currentValue={selectedProjectId.value}
-        onChange={(value) => {
-          console.log('selectedProject', value)
-          selectedProjectId.set(value)
-        }}
+        onChange={(value) => selectedProjectId.set(value)}
         label={t('admin:components.setting.project.header')}
         className="mb-8 mt-6 max-w-[50%]"
       />
 
       {settings?.length > 0 ? (
         <>
-          {settings.value.map((setting, index) => (
+          {settings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
               <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
               <Input

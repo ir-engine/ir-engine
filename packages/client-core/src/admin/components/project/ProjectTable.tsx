@@ -51,6 +51,7 @@ import {
   HiOutlineUsers
 } from 'react-icons/hi2'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
+import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
@@ -106,7 +107,11 @@ export default function ProjectTable() {
           size="small"
           className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
-          onClick={handleProjectUpdate}
+          onClick={() =>
+            PopoverState.showPopupover(
+              <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
+            )
+          }
         >
           {t('admin:components.project.actions.update')}
         </Button>

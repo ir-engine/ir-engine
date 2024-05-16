@@ -34,7 +34,7 @@ import { getMutableState, getState, useHookstate, useState } from '@etherealengi
 import { Stack } from '@mui/material'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, UndefinedEntity, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   createMaterialEntity,
@@ -109,7 +109,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '')
+                createMaterialEntity(newMaterial, '', UndefinedEntity)
               }}
             >
               New
