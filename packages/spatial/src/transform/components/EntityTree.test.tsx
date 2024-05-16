@@ -51,25 +51,23 @@ import {
   useTreeQuery
 } from './EntityTree'
 
-const Validate = {
-  /**
-   * @description An Entity is considered valid when:
-   * - Its value is truthy
-   * - It has an EntityTreeComponent
-   * - Its parent is the given parent entity, or has no parent when omitted
-   * @param name The name of the Entity used for reporting assertions to CLI
-   * @param entity The entity to validate
-   * @param parent The entity that the validated entity must have as a parent  _(default: UndefinedEntity)_
-   */
-  entity: (name: string, entity: Entity, parent: Entity = UndefinedEntity): void => {
-    assert(entity, name + " wasn't found")
-    assert.equal(true, hasComponent(entity, EntityTreeComponent), name + ' does not have an EntityTreeComponent')
-    assert.equal(
-      parent,
-      getComponent(entity, EntityTreeComponent).parentEntity,
-      parent ? name + "'s parent is not " + getComponent(parent, NameComponent) : name + ' does not have a parentEntity'
-    )
-  }
+/**
+ * @description An Entity's Hierarchy is considered valid when:
+ * - The entity's value is truthy
+ * - The entity has an EntityTreeComponent
+ * - Its parent is the given parent entity, or has no parent when omitted
+ * @param name The name of the Entity used for reporting assertions to CLI
+ * @param entity The entity to validate
+ * @param parent The entity that the validated entity must have as a parent  _(default: UndefinedEntity)_
+ */
+function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = UndefinedEntity): void {
+  assert(entity, name + " wasn't found")
+  assert.equal(true, hasComponent(entity, EntityTreeComponent), name + ' does not have an EntityTreeComponent')
+  assert.equal(
+    parent,
+    getComponent(entity, EntityTreeComponent).parentEntity,
+    parent ? name + "'s parent is not " + getComponent(parent, NameComponent) : name + ' does not have a parentEntity'
+  )
 }
 
 describe('EntityTreeComponent', () => {
@@ -548,8 +546,8 @@ describe('useChildWithComponent', () => {
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_1, component)
     // Case1: Validate
-    Validate.entity('rootEntity', rootEntity)
-    Validate.entity('child_1', child_1, rootEntity)
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
     assert.equal(
       true,
       hasComponent(child_1, component),
@@ -557,7 +555,7 @@ describe('useChildWithComponent', () => {
     )
     // Case1: Check
     const R1 = render(tag)
-    Validate.entity('Case1: result', result, rootEntity)
+    assertEntityHierarchy('Case1: result', result, rootEntity)
     assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
     // Case1: Terminate
     destroyEntityTree(rootEntity)
@@ -575,9 +573,9 @@ describe('useChildWithComponent', () => {
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_2, component)
     // Case2: Validate
-    Validate.entity('rootEntity', rootEntity)
-    Validate.entity('child_1', child_1, rootEntity)
-    Validate.entity('child_2', child_2, child_1)
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
     assert.equal(
       true,
       hasComponent(child_2, component),
@@ -585,7 +583,7 @@ describe('useChildWithComponent', () => {
     )
     // Case2: Check
     const R2 = render(tag)
-    Validate.entity('Case2: result', result, child_1)
+    assertEntityHierarchy('Case2: result', result, child_1)
     assert.equal(child_2, result, `Case2: Did not return the correct entity. result = ${result}`)
     // Case2: Terminate
     destroyEntityTree(rootEntity)
@@ -603,9 +601,9 @@ describe('useChildWithComponent', () => {
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     //setComponent(child_2, component)  // The Component for the third case is not set at all
     // Case3: Validate
-    Validate.entity('rootEntity', rootEntity)
-    Validate.entity('child_1', child_1, rootEntity)
-    Validate.entity('child_2', child_2, child_1)
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
     // Case3: Check
     const R3 = render(tag)
     assert.equal(
@@ -629,9 +627,9 @@ describe('useChildWithComponent', () => {
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     setComponent(child_1, component)
     // Case4: Validate
-    Validate.entity('rootEntity', rootEntity)
-    Validate.entity('child_1', child_1, rootEntity)
-    Validate.entity('child_2', child_2, child_1)
+    assertEntityHierarchy('rootEntity', rootEntity)
+    assertEntityHierarchy('child_1', child_1, rootEntity)
+    assertEntityHierarchy('child_2', child_2, child_1)
     // Case4: Check
     const R4 = render(tag)
     assert.equal(child_1, result, `Case4: Did not return the correct entity. result = ${result}`)
@@ -679,8 +677,8 @@ describe('useAncestorWithComponent', () => {
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     setComponent(parent_1, component)
     // Case1: Validate
-    Validate.entity('parent_1', parent_1)
-    Validate.entity('rootEntity', rootEntity, parent_1)
+    assertEntityHierarchy('parent_1', parent_1)
+    assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     assert.equal(
       true,
       hasComponent(parent_1, component),
@@ -688,7 +686,7 @@ describe('useAncestorWithComponent', () => {
     )
     // Case1: Check
     const R1 = render(tag)
-    Validate.entity('Case1: result', result)
+    assertEntityHierarchy('Case1: result', result)
     assert.equal(parent_1, result, `Case1: Did not return the correct entity. result = ${result}`)
     // Case1: Terminate
     destroyEntityTree(parent_1)
@@ -706,9 +704,9 @@ describe('useAncestorWithComponent', () => {
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case2: Validate
-    Validate.entity('parent_2', parent_2)
-    Validate.entity('parent_1', parent_1, parent_2)
-    Validate.entity('rootEntity', rootEntity, parent_1)
+    assertEntityHierarchy('parent_2', parent_2)
+    assertEntityHierarchy('parent_1', parent_1, parent_2)
+    assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     assert.equal(
       true,
       hasComponent(parent_2, component),
@@ -716,7 +714,7 @@ describe('useAncestorWithComponent', () => {
     )
     // Case2: Check
     const R2 = render(tag)
-    Validate.entity('Case2: result', result)
+    assertEntityHierarchy('Case2: result', result)
     assert.equal(parent_2, result, `Case2: Did not return the correct entity. result = ${result}`)
     // Case2: Terminate
     destroyEntityTree(rootEntity)
@@ -734,9 +732,9 @@ describe('useAncestorWithComponent', () => {
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     //setComponent(parent_2, component)  // The Component for the third case is not set at all
     // Case3: Validate
-    Validate.entity('parent_2', parent_2)
-    Validate.entity('parent_1', parent_1, parent_2)
-    Validate.entity('rootEntity', rootEntity, parent_1)
+    assertEntityHierarchy('parent_2', parent_2)
+    assertEntityHierarchy('parent_1', parent_1, parent_2)
+    assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     // Case3: Check
     const R3 = render(tag)
     assert.equal(
@@ -760,9 +758,9 @@ describe('useAncestorWithComponent', () => {
     setComponent(parent_1, component)
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case4: Validate
-    Validate.entity('parent_2', parent_2)
-    Validate.entity('parent_1', parent_1, parent_2)
-    Validate.entity('rootEntity', rootEntity, parent_1)
+    assertEntityHierarchy('parent_2', parent_2)
+    assertEntityHierarchy('parent_1', parent_1, parent_2)
+    assertEntityHierarchy('rootEntity', rootEntity, parent_1)
     // Case4: Check
     const R4 = render(tag)
     assert.equal(parent_1, result, `Case4: Did not return the correct entity. result = ${result}`)
