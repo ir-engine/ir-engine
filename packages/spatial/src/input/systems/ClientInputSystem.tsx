@@ -201,7 +201,6 @@ const execute = () => {
 
     TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
     inputRay.set(inputRaycast.origin, inputRaycast.direction)
-    console.log('input raycast direction = ' + sourceRotation.toArray())
 
     // only heuristic is scene objects when in the editor
     if (getState(EngineState).isEditing) {
