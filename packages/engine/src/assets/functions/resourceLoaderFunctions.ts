@@ -117,7 +117,6 @@ export const updateResource = (id: string) => {
   }
 
   ResourceState.debugLog('ResourceManager:update Updating asset for id: ' + id)
-  ResourceManager.removeReferencedResources(resource)
   for (const [_, onLoad] of Object.entries(onLoads)) {
     AssetLoader.load(
       id,
