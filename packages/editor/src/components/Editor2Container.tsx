@@ -48,8 +48,10 @@ import AssetDropZone from './assets/AssetDropZone'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import Toolbar from '../components/toolbar/Toolbar2'
-import { generateToolbarMenu, onEditorError, onSaveScene } from './EditorContainer'
+import { onEditorError } from './EditorContainer'
+import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -62,8 +64,6 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
     </div>
   )
 }
-
-const toolbarMenu = generateToolbarMenu()
 
 const defaultLayout: LayoutData = {
   dockbox: {
@@ -137,7 +137,7 @@ const EditorContainer = () => {
     }
   })
 
-  useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene())
+  useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
   useEffect(() => {
     if (!sceneURL) return

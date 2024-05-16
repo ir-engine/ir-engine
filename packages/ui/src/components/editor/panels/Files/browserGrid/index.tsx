@@ -23,37 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
-import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
-import { getEmptyImage } from 'react-dnd-html5-backend'
-import { useTranslation } from 'react-i18next'
-
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
-
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
-import { Vector3 } from 'three'
-
-import { ContextMenu } from '../../../layout/ContextMenu'
-//import styles from '../styles.module.scss'
 import {
   FilesViewModeSettings,
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
+import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
+import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
+import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
+import { Vector3 } from 'three'
+import Button from '../../../../../primitives/tailwind/Button'
+import Input from '../../../../../primitives/tailwind/Input'
+import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
@@ -61,11 +54,9 @@ const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChan
   //className={styles.inputContainer}
   return (
     <Paper component="div">
-      <InputBase
+      <Input
         autoFocus={true}
         //className={styles.input}
-        name="name"
-        autoComplete="off"
         value={newFileName.value}
         onChange={(event) => newFileName.set(event.target.value)}
         onKeyUp={async (e) => {
@@ -112,24 +103,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
       </table>
     </div>
   )
-  /*return (
-    <TableContainer component="div">
-      <Table size="small" className={styles.table}>
-        <TableHead>
-          <TableRow className={styles.tableHeaderRow} style={{ height: fontSize * 3 }}>
-            {availableTableColumns
-              .filter((header) => selectedTableColumns[header])
-              .map((header) => (
-                <TableCell key={header} className={styles.tableCell} style={{ fontSize }}>
-                  {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
-                </TableCell>
-              ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>{children}</TableBody>
-      </Table>
-    </TableContainer>
-  )*/
 }
 
 export const FileTableListBody = ({
@@ -274,7 +247,7 @@ export function FileBrowserItem({
   staticResourceModifiedDates
 }: FileBrowserItemType) {
   const { t } = useTranslation()
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
@@ -291,14 +264,13 @@ export function FileBrowserItem({
 
   const handleClose = () => {
     setAnchorEl(null)
-    setAnchorPosition(undefined)
+    setAnchorPosition({ left: 0, top: 0 })
   }
 
-  const onClickItem = (_) => onClick(item)
+  const onClickItem = () => onClick(item)
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
-
     handleClose()
   }
 
@@ -306,7 +278,6 @@ export function FileBrowserItem({
     const vec3 = new Vector3()
     getSpawnPositionAtCenter(vec3)
     addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
-
     handleClose()
   }
 
@@ -314,25 +285,21 @@ export function FileBrowserItem({
     if (navigator.clipboard) {
       navigator.clipboard.writeText(item.url)
     }
-
     handleClose()
   }
 
   const openURL = () => {
     window.open(item.url)
-
     handleClose()
   }
 
   const Copy = () => {
     currentContent.current = { item: item, isCopy: true }
-
     handleClose()
   }
 
   const Cut = () => {
     currentContent.current = { item: item, isCopy: false }
-
     handleClose()
   }
 
@@ -357,27 +324,23 @@ export function FileBrowserItem({
     setFileProperties(item)
 
     setOpenPropertiesModal(true)
-
     handleClose()
   }
 
   const viewCompress = () => {
     setFileProperties(item)
     setOpenCompress(true)
-
     handleClose()
   }
 
   const viewConvert = () => {
     setFileProperties(item)
     setOpenConvert(true)
-
     handleClose()
   }
 
   const deleteContentCallback = () => {
     deleteContent(item.key, item.type)
-
     handleClose()
   }
 
@@ -412,7 +375,6 @@ export function FileBrowserItem({
         })
       })
 
-  //showing the object in viewport once it drag and droped
   useEffect(() => {
     if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
@@ -456,24 +418,53 @@ export function FileBrowserItem({
         panelId={'file-browser-panel'}
         anchorPosition={anchorPosition}
         onClose={handleClose}
+        className="gap-1"
       >
-        <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-        {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
+        <Button variant="outline" size="small" fullWidth onClick={addFolder}>
+          {t('editor:layout.filebrowser.addNewFolder')}
+        </Button>
         {!item.isFolder && (
-          <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+          <Button variant="outline" size="small" fullWidth onClick={placeObject}>
+            {t('editor:layout.assetGrid.placeObject')}
+          </Button>
         )}
-        {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-        <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
-        <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
-        <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
-        <MenuItem disabled={!currentContent.current} onClick={pasteContent}>
+        {!item.isFolder && (
+          <Button variant="outline" size="small" fullWidth onClick={placeObjectAtOrigin}>
+            {t('editor:layout.assetGrid.placeObjectAtOrigin')}
+          </Button>
+        )}
+        {!item.isFolder && (
+          <Button variant="outline" size="small" fullWidth onClick={openURL}>
+            {t('editor:layout.assetGrid.openInNewTab')}
+          </Button>
+        )}
+        <Button variant="outline" size="small" fullWidth onClick={copyURL}>
+          {t('editor:layout.assetGrid.copyURL')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={Cut}>
+          {t('editor:layout.filebrowser.cutAsset')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={Copy}>
+          {t('editor:layout.filebrowser.copyAsset')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth disabled={!currentContent.current} onClick={pasteContent}>
           {t('editor:layout.filebrowser.pasteAsset')}
-        </MenuItem>
-        <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
-        <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
-        <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
-        <MenuItem onClick={viewCompress}>{t('editor:layout.filebrowser.compress')}</MenuItem>
-        <MenuItem onClick={viewConvert}>{t('editor:layout.filebrowser.convert')}</MenuItem>
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={rename}>
+          {t('editor:layout.filebrowser.renameAsset')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={deleteContentCallback}>
+          {t('editor:layout.assetGrid.deleteAsset')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
+          {t('editor:layout.filebrowser.viewAssetProperties')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={viewCompress}>
+          {t('editor:layout.filebrowser.compress')}
+        </Button>
+        <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
+          {t('editor:layout.filebrowser.convert')}
+        </Button>
       </ContextMenu>
     </>
   )

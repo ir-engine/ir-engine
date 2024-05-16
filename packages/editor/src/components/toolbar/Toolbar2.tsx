@@ -23,31 +23,129 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { PiSquaresFourThin } from 'react-icons/pi'
-
-import MainMenu from '@etherealengine/ui/src/components/editor/toolbar/mainMenu'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-
+import { t } from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { PiSquaresFourThin } from 'react-icons/pi'
+import { inputFileWithAddToScene } from '../../functions/assetFunctions'
+import { onNewScene } from '../../functions/sceneFunctions'
+import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorState } from '../../services/EditorServices'
+import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
+import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
-type ToolBarProps = {
-  menu?: any
-  panels?: any
+const onImportAsset = async () => {
+  const { projectName } = getState(EditorState)
+
+  if (projectName) {
+    try {
+      await inputFileWithAddToScene({ projectName })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
 }
 
-export default function Toolbar(props: ToolBarProps) {
+const onCloseProject = () => {
+  const editorState = getMutableState(EditorState)
+  getMutableState(GLTFModifiedState).set({})
+  editorState.projectName.set(null)
+  editorState.scenePath.set(null)
+  editorState.sceneName.set(null)
+  RouterState.navigate('/studio')
+
+  const parsed = new URL(window.location.href)
+  const query = parsed.searchParams
+
+  query.delete('project')
+  query.delete('scenePath')
+
+  parsed.search = query.toString()
+  if (typeof history.pushState !== 'undefined') {
+    window.history.replaceState({}, '', parsed.toString())
+  }
+}
+
+const generateToolbarMenu = () => {
+  return [
+    {
+      name: t('editor:menubar.newScene'),
+      action: onNewScene
+    },
+    {
+      name: t('editor:menubar.saveScene'),
+      hotkey: `${cmdOrCtrlString}+s`,
+      action: () => PopoverState.showPopupover(<SaveSceneDialog />)
+    },
+    {
+      name: t('editor:menubar.saveAs'),
+      action: () => PopoverState.showPopupover(<SaveNewSceneDialog />)
+    },
+    {
+      name: t('editor:menubar.importSettings'),
+      action: () => PopoverState.showPopupover(<ImportSettingsPanel />)
+    },
+    {
+      name: t('editor:menubar.importAsset'),
+      action: onImportAsset
+    },
+    {
+      name: t('editor:menubar.quit'),
+      action: onCloseProject
+    }
+  ]
+}
+
+const toolbarMenu = generateToolbarMenu()
+
+export default function Toolbar() {
   const { t } = useTranslation()
+  const anchorEl = useHookstate<HTMLElement | null>(null)
+  const anchorPosition = useHookstate({ left: 0, top: 0 })
+  const anchorOpen = useHookstate(false)
 
   return (
-    <div className="bg-theme-primary flex items-center justify-between">
-      <MainMenu icon={<PiSquaresFourThin />} commands={props.menu} />
-      <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
-        <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-        <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+    <>
+      <div className="bg-theme-primary flex items-center justify-between">
+        <Button
+          variant="outline"
+          rounded="none"
+          startIcon={<PiSquaresFourThin />}
+          className="border-0 bg-transparent"
+          onClick={(event) => {
+            anchorOpen.set(true)
+            anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
+            anchorEl.set(event.currentTarget)
+          }}
+        />
+        <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
+          <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
+          <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+        </div>
+        <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
       </div>
-      <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
-    </div>
+      <ContextMenu
+        anchorEl={anchorEl.value}
+        anchorPosition={anchorPosition.value}
+        open={anchorOpen.value}
+        panelId="toolbar-menu"
+        onClose={() => anchorOpen.set(false)}
+      >
+        {toolbarMenu.map(({ name, action, hotkey }) => (
+          <div className="m-1">
+            <Button size="small" variant="outline" fullWidth onClick={action} endIcon={hotkey}>
+              {name}
+            </Button>
+          </div>
+        ))}
+      </ContextMenu>
+    </>
   )
 }
