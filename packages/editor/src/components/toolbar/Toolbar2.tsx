@@ -33,6 +33,7 @@ import { useTranslation } from 'react-i18next'
 import { PiSquaresFourThin } from 'react-icons/pi'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
 
 const generateToolbarMenu = () => {
@@ -49,11 +50,11 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveAs'),
       action: () => PopoverState.showPopupover(<SaveNewSceneDialog />)
+    },
+    {
+      name: t('editor:menubar.importSettings'),
+      action: () => PopoverState.showPopupover(<ImportSettingsPanel />)
     }
-    // {
-    //   name: t('editor:menubar.importSettings'),
-    //   action: onImportSettings
-    // },
     // {
     //   name: t('editor:menubar.importAsset'),
     //   action: onImportAsset
@@ -101,7 +102,7 @@ export default function Toolbar() {
         onClose={() => anchorOpen.set(false)}
       >
         {toolbarMenu.map(({ name, action, hotkey }) => (
-          <Button variant="outline" fullWidth className="m-1 mx-2" onClick={action}>
+          <Button variant="outline" fullWidth className="m-1 mx-2" onClick={action} endIcon={hotkey}>
             {name}
           </Button>
         ))}
