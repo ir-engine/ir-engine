@@ -41,7 +41,7 @@ import { InputSinkComponent } from './InputSinkComponent'
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
-  jsonID: 'EE_Input_Component',
+  jsonID: 'EE_input_component',
 
   onInit: () => {
     return {

@@ -39,7 +39,6 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useState } from '@etherealengine/hyperflux'
-import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import PanToolIcon from '@mui/icons-material/PanTool'
@@ -60,6 +59,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
 
   const inputComponent = useComponent(props.entity, InputComponent)
 
+  console.log(inputComponent.inputSinks.value)
   useEffect(() => {
     const options = [] as OptionsType
     options.push({
@@ -69,7 +69,6 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
 
     for (const entity of inputSinkQuery()) {
       if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
-      const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent)
@@ -95,6 +94,11 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
     commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
   }
 
+  // const onChangeSinks = (index: number) => {
+  //   if(inputComponent.inputSinks.value.length > 0)
+  //
+  // }
+
   return (
     <NodeEditor
       {...props}
@@ -114,13 +118,13 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       </PropertiesPanelButton>
 
       <div id={`inputSinks-list`}>
-        {inputComponent.inputSinks.map((sink, index) => {
+        {inputComponent.inputSinks.value.map((sink, index) => {
           return (
             <div key={index}>
               <InputGroup name="Target" label={t('editor:properties.input.lbl-target')}>
                 <SelectInput
                   key={props.entity}
-                  value={sink.value ?? 'Self'}
+                  value={sink ?? 'Self'}
                   onChange={commitProperty(InputComponent, `inputSinks.${index}` as any)}
                   options={targets.value}
                   disabled={props.multiEdit}
