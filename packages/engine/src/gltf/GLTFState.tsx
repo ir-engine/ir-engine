@@ -37,7 +37,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -219,6 +218,29 @@ export const GLTFSnapshotState = defineState({
     const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(dstSnapshotID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
+    const srcEntity = UUIDComponent.getEntityByUUID(srcNode)
+    const srcTransform = getComponent(srcEntity, TransformComponent)
+    const childEntities = getComponent(srcEntity, EntityTreeComponent).children
+    for (const child of childEntities) {
+      const transform = getComponent(child, TransformComponent)
+      //apply the model's transform to the children, such that it has the same world transform after the model is removed
+      //combine position
+      const position = new Vector3().copy(transform.position)
+      position.applyQuaternion(srcTransform.rotation)
+      position.add(srcTransform.position)
+      //combine rotation
+      const rotation = new Quaternion().copy(srcTransform.rotation)
+      rotation.multiply(transform.rotation)
+      //combine scale
+      const scale = new Vector3().copy(transform.scale)
+      scale.multiply(srcTransform.scale)
+      //set new transform on the node in the new snapshot
+      const childNode = snapshot.data.nodes?.find(
+        (node) => node.extensions?.[UUIDComponent.jsonID] === getComponent(child, UUIDComponent)
+      )
+      if (!childNode) continue
+      childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
+    }
     const modelIndex = parentSnapshot.data.nodes?.findIndex(
       (node) => node.extensions?.[UUIDComponent.jsonID] === srcNode
     )
@@ -252,6 +274,26 @@ export const GLTFSnapshotState = defineState({
     } else {
       //otherwise, add the child indices to the scene's nodes as roots
       parentSnapshot.data.scenes![0].nodes.push(...childIndices)
+    }
+
+    //recalculate child indices of newly added nodes
+    for (const node of parentSnapshot.data.nodes!) {
+      if (!node.children) continue
+      //only operate on nodes that are being injected
+      if (!snapshot.data.nodes!.includes(node)) continue
+
+      const newChildren: number[] = []
+      for (const child of node.children) {
+        const childNode = snapshot.data.nodes?.[child]
+        const childUUID = childNode?.extensions?.[UUIDComponent.jsonID]
+        if (!childUUID) continue
+        const newChildIndex = parentSnapshot.data.nodes!.findIndex(
+          (node) => node.extensions?.[UUIDComponent.jsonID] === childUUID
+        )
+        if (newChildIndex === -1) continue
+        newChildren.push(newChildIndex)
+      }
+      node.children = newChildren
     }
     applySnapshot(dstSnapshotID, parentSnapshot.data)
     getMutableState(GLTFSnapshotState)[srcSnapshotID].set(none)
@@ -451,12 +493,11 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
 
   const extension = node.extensions![props.extension]
   useEffect(() => {
-    return () => {
-      const Component = ComponentJSONIDMap.get(props.extension)
-      if (!Component) return console.warn('no component found for extension', props.extension)
-
-      removeComponent(props.entity, Component)
-    }
+    // return () => {
+    //   const Component = ComponentJSONIDMap.get(props.extension)
+    //   if (!Component) return console.warn('no component found for extension', props.extension)
+    //   removeComponent(props.entity, Component)
+    // }
   }, [])
 
   useEffect(() => {
