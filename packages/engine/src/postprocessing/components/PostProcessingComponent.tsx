@@ -26,6 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { NO_PROXY, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { HighlightState } from '@etherealengine/spatial/src/renderer/HighlightState'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { RenderSettingsState, RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { LinearTosRGBEffect } from '@etherealengine/spatial/src/renderer/effects/LinearTosRGBEffect'
+import { changeRenderMode } from '@etherealengine/spatial/src/renderer/functions/changeRenderMode'
 import {
   BloomEffect,
   BrightnessContrastEffect,
@@ -63,17 +72,8 @@ import {
 import React, { useEffect } from 'react'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
-import { EngineState } from '../../EngineState'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
-import { HighlightState } from '../HighlightState'
-import { RendererState } from '../RendererState'
-import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
-import { changeRenderMode } from '../functions/changeRenderMode'
+import { Effects, defaultPostProcessingSchema } from '../PostProcessing'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
-import { useScene } from './SceneComponents'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -611,8 +611,8 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
       preset: smaaPreset,
       edgeDetectionMode: EdgeDetectionMode.COLOR
     })
-    effectsVal[Effects.SMAAEffect] = smaaEffect
-    composer[Effects.SMAAEffect] = smaaEffect
+    //effectsVal[Effects.SMAAEffect] = smaaEffect
+    //composer[Effects.SMAAEffect] = smaaEffect
 
     //always have the outline effect for the highlight selection
     const outlineEffect = new OutlineEffect(scene.value, camera.value, getState(HighlightState))

@@ -35,6 +35,7 @@ import {
 } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import {
   BlendFunction,
@@ -46,8 +47,7 @@ import {
   VignetteTechnique
 } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { createEngine } from '../../initializeEngine'
-import { Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
+import { Effects, defaultPostProcessingSchema } from '../PostProcessing'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
 describe('PostProcessingComponent', () => {
