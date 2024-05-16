@@ -87,10 +87,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
-    if (middlewareSetting) {
-      // middlewareThemeSettings.set(middlewareSetting?.themeSettings)
-      console.log('#### themeContext', middlewareSetting)
-    }
     if (middlewareSettingState?.updateNeeded?.value) MiddlewareSettingService.fetchMiddlewareSettings()
   }, [middlewareSettingState?.updateNeeded?.value])
 

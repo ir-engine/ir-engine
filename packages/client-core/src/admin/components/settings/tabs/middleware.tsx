@@ -31,9 +31,12 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
+import MiddlewareInput from './middleware-components/MiddlewareInput'
+import MiddlewareToggle from './middleware-components/MiddlewareToggle'
 
 console.log('#### middleware')
 
@@ -48,6 +51,66 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   const c0 = useHookstate(middlewareSetting?.conf0)
   const c1 = useHookstate(middlewareSetting?.conf1)
   const c2 = useHookstate(middlewareSetting?.conf2)
+
+  /////// Dynamic Menu Experiment
+
+  const [testSettings, setTestSettings] = useState([
+    {
+      Dynamic0: [
+        {
+          component: 'MiddlewareToggle',
+          label: 'Dyn Toggle 0',
+          value: true,
+          action: 'mwHandleToggle'
+        },
+        {
+          component: 'MiddlewareInput',
+          label: 'Dyn Label 0',
+          value: 'Default Value',
+          action: 'mwHandleChange'
+        },
+        {
+          component: 'MiddlewareInput',
+          label: 'Dyn Label 1',
+          value: 'Default Value'
+        }
+      ],
+      Dynamic1: [
+        {
+          component: 'MiddlewareInput',
+          label: 'Dyn Label 2',
+          value: 'Default Value'
+        },
+        {
+          component: 'MiddlewareInput',
+          label: 'Dyn Label 3',
+          value: 'Default Value'
+        }
+      ]
+    }
+  ])
+
+  const components = {
+    MiddlewareInput: MiddlewareInput,
+    MiddlewareToggle: MiddlewareToggle
+    // other middleware components
+  }
+  const mwHandleChange = (inputValue: string) => {
+    // some logic
+    console.log(inputValue)
+  }
+
+  const mwHandleToggle = (inputValue: boolean) => {
+    // some logic
+    console.log(inputValue)
+  }
+
+  const actions = {
+    mwHandleChange: mwHandleChange,
+    mwHandleToggle: mwHandleToggle
+  }
+
+  ///////
 
   const state = useHookstate({
     loading: false,
@@ -92,6 +155,27 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       ref={ref}
       open={open}
     >
+      {/* Dynamic Menu Experiment */}
+      {testSettings.map((dynamicObject, index) => {
+        return Object.entries(dynamicObject).map(([key, value]) => {
+          return (
+            <div className="mt-6 grid grid-cols-2 gap-4" key={key}>
+              <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">
+                {key}
+              </Text>
+              {value.map((setting, idx) => {
+                const Component = components[setting.component]
+                const onAction = actions[setting.action]
+                return (
+                  <Component key={idx} mwLabel={setting.label} mwDefaultValue={setting.value} mwOnAction={onAction} />
+                )
+              })}
+            </div>
+          )
+        })
+      })}
+      {/* Dynamic Menu Experiment */}
+
       <div className="mt-6 grid grid-cols-2 gap-4">
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">
           {t('admin:components.setting.middleware.main')}
