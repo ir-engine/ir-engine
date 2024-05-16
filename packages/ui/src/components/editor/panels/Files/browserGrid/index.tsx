@@ -34,7 +34,6 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
 
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -274,7 +273,7 @@ export function FileBrowserItem({
   staticResourceModifiedDates
 }: FileBrowserItemType) {
   const { t } = useTranslation()
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
@@ -291,7 +290,7 @@ export function FileBrowserItem({
 
   const handleClose = () => {
     setAnchorEl(null)
-    setAnchorPosition(undefined)
+    setAnchorPosition({ left: 0, top: 0 })
   }
 
   const onClickItem = (_) => onClick(item)

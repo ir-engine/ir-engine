@@ -23,24 +23,89 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { PiSquaresFourThin } from 'react-icons/pi'
-
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
+import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import { t } from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { PiSquaresFourThin } from 'react-icons/pi'
+import { onNewScene } from '../../functions/sceneFunctions'
+import { cmdOrCtrlString } from '../../functions/utils'
+import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
+
+const generateToolbarMenu = () => {
+  return [
+    {
+      name: t('editor:menubar.newScene'),
+      action: onNewScene
+    },
+    {
+      name: t('editor:menubar.saveScene'),
+      hotkey: `${cmdOrCtrlString}+s`,
+      action: () => PopoverState.showPopupover(<SaveSceneDialog />)
+    },
+    {
+      name: t('editor:menubar.saveAs'),
+      action: () => PopoverState.showPopupover(<SaveNewSceneDialog />)
+    }
+    // {
+    //   name: t('editor:menubar.importSettings'),
+    //   action: onImportSettings
+    // },
+    // {
+    //   name: t('editor:menubar.importAsset'),
+    //   action: onImportAsset
+    // },
+    // {
+    //   name: t('editor:menubar.quit'),
+    //   action: onCloseProject
+    // }
+  ]
+}
+
+const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
+  const anchorEl = useHookstate<HTMLElement | null>(null)
+  const anchorPosition = useHookstate({ left: 0, top: 0 })
+  const anchorOpen = useHookstate(false)
 
   return (
-    <div className="bg-theme-primary flex items-center justify-between">
-      <Button variant="outline" rounded="none" startIcon={<PiSquaresFourThin />} className="border-0 bg-transparent" />
-      <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
-        <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-        <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+    <>
+      <div className="bg-theme-primary flex items-center justify-between">
+        <Button
+          variant="outline"
+          rounded="none"
+          startIcon={<PiSquaresFourThin />}
+          className="border-0 bg-transparent"
+          onClick={(event) => {
+            anchorOpen.set(true)
+            anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
+            anchorEl.set(event.currentTarget)
+          }}
+        />
+        <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
+          <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
+          <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+        </div>
+        <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
       </div>
-      <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
-    </div>
+      <ContextMenu
+        anchorEl={anchorEl.value}
+        anchorPosition={anchorPosition.value}
+        open={anchorOpen.value}
+        panelId="toolbar-menu"
+        onClose={() => anchorOpen.set(false)}
+      >
+        {toolbarMenu.map(({ name, action, hotkey }) => (
+          <Button variant="outline" fullWidth className="m-1 mx-2" onClick={action}>
+            {name}
+          </Button>
+        ))}
+      </ContextMenu>
+    </>
   )
 }

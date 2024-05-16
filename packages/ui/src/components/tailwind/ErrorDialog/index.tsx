@@ -22,44 +22,31 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { t } from 'i18next'
 import React from 'react'
-import ClickAwayListener from './ClickAwayListener'
+import ErrorView from '../../../primitives/tailwind/ErrorView'
+import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 
-type ContextMenuProps = {
-  open: boolean
-  anchorEl: null | HTMLElement
-  panelId: string
-  anchorPosition: { left: number; top: number }
-  onClose: () => void
+interface ErrorDialogProps {
+  title: string
+  description?: string
+  modalProps?: ModalProps
 }
 
-export const ContextMenu = ({
-  children,
-  open,
-  anchorEl,
-  panelId,
-  anchorPosition,
-  onClose
-}: React.PropsWithChildren<ContextMenuProps>) => {
-  const panel = document.getElementById(panelId)
-  const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
-  const positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
-
+const ErrorDialog = ({ title, description, modalProps }: ErrorDialogProps) => {
   return (
-    <ClickAwayListener onClickAway={() => onClose()}>
-      <div className={`${open ? 'block' : 'hidden'}`}>
-        {open && anchorEl && (
-          <div
-            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
-          >
-            <div className="flex flex-col truncate py-1">{children}</div>
-          </div>
-        )}
-      </div>
-    </ClickAwayListener>
+    <Modal
+      title={t('admin:components.common.confirmation')}
+      onClose={PopoverState.hidePopupover}
+      showCloseButton={false}
+      onSubmit={() => PopoverState.hidePopupover()}
+      className="w-[50vw] max-w-2xl"
+      {...modalProps}
+    >
+      <ErrorView title={title} description={description} />
+    </Modal>
   )
 }
 
-export default ContextMenu
+export default ErrorDialog
