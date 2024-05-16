@@ -27,9 +27,8 @@ import React from 'react'
 
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
-
-import { ContextMenu } from '../layout/ContextMenu'
-import ToolButton from '../toolbar/ToolButton'
+import Button from '../../../../primitives/tailwind/Button'
+import ContextMenu from '../../layout/ContextMenu'
 
 interface Command {
   name: string
@@ -81,17 +80,15 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
 
   return (
     <>
-      <ToolButton icon={icon} onClick={onOpen} isSelected={open} id="menu" />
-
-      <ContextMenu
-        open={open}
-        anchorEl={anchorEl}
-        anchorPosition={anchorPosition}
-        rootStyle={{
-          transform: 'translateX(-12px)'
-        }}
-        onClose={handleClose}
-      >
+      <div id="menu" className="bg-theme-surfaceInput flex items-center ">
+        <Button
+          variant="transparent"
+          startIcon={icon}
+          className="p-0 text-3xl"
+          onClick={(event) => onOpen(event as any)}
+        />
+      </div>
+      <ContextMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
         {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>

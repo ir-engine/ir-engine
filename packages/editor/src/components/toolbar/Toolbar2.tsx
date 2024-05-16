@@ -27,15 +27,22 @@ import React from 'react'
 
 import { PiSquaresFourThin } from 'react-icons/pi'
 
+import MainMenu from '@etherealengine/ui/src/components/editor/toolbar/mainMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+
 import { useTranslation } from 'react-i18next'
 
-export default function Toolbar() {
+type ToolBarProps = {
+  menu?: any
+  panels?: any
+}
+
+export default function Toolbar(props: ToolBarProps) {
   const { t } = useTranslation()
 
   return (
     <div className="bg-theme-primary flex items-center justify-between">
-      <Button variant="outline" rounded="none" startIcon={<PiSquaresFourThin />} className="border-0 bg-transparent" />
+      <MainMenu icon={<PiSquaresFourThin />} commands={props.menu} />
       <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
         <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
         <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>

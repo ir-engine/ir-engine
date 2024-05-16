@@ -48,7 +48,7 @@ const Checkbox = ({ className, containerClassName, label, value, onChange, disab
 
   return (
     <div className={twMerge('flex w-full items-center gap-4', containerClassName)}>
-      <input type="checkbox" className={twClassName} {...rest} />
+      <input type="checkbox" onChange={(e) => onChange(e.target.value as any)} className={twClassName} {...rest} />
       {label && (
         <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
           {label}

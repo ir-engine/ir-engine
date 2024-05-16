@@ -175,7 +175,7 @@ const EditorContainer = () => {
       >
         <DndWrapper id="editor-container">
           <DragLayer />
-          <Toolbar />
+          <Toolbar menu={toolbarMenu} panels={panelMenu} />
           {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
           <div className="mt-1 flex overflow-hidden">
             <AssetDropZone />

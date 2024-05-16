@@ -43,7 +43,7 @@ export interface ModalProps {
   closeButtonText?: string
   submitButtonText?: string
   onClose?: (isHeader: boolean) => void
-  onSubmit?: () => void
+  onSubmit?: (e) => void
 }
 
 export const ModalHeader = ({
@@ -79,7 +79,7 @@ export const ModalFooter = ({
   showCloseButton = true
 }: {
   onCancel?: (isHeader: boolean) => void
-  onSubmit?: () => void
+  onSubmit?: (e) => void
   submitLoading?: boolean
   closeButtonDisabled?: boolean
   submitButtonDisabled?: boolean

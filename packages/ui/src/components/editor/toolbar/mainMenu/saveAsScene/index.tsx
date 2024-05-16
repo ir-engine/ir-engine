@@ -22,53 +22,53 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
-import { t } from 'i18next'
-import React from 'react'
-import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
-import Text from '../../../primitives/tailwind/Text'
+import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import Input from '../../../../../primitives/tailwind/Input'
+import Modal from '../../../../../primitives/tailwind/Modal'
 
-interface ConfirmDialogProps {
-  text: string
-  onSubmit: (e) => Promise<void>
-  onClose?: () => void
-  modalProps?: Partial<ModalProps>
-}
+/**
+ * SaveNewSceneDialog used to show dialog when to save new scene.
+ */
+export function SaveNewSceneDialog({
+  initialName,
+  onConfirm,
+  onCancel
+}: {
+  initialName: string
+  onConfirm: (value: { name: string }) => void
+  onCancel: () => void
+}) {
+  const [name, setName] = useState(initialName)
+  const { t } = useTranslation()
 
-export const ConfirmDialog = ({ text, onSubmit, onClose, modalProps }: ConfirmDialogProps) => {
-  const errorText = useHookstate('')
-  const modalProcessing = useHookstate(false)
+  const onConfirmCallback = useCallback(
+    (e) => {
+      e.preventDefault()
+      onConfirm({ name })
+    },
+    [name, onConfirm]
+  )
 
-  const handled = async (e) => {
-    modalProcessing.set(true)
-    try {
-      await onSubmit(e)
-      PopoverState.hidePopupover()
-    } catch (error) {
-      errorText.set(error.message)
-    }
-    modalProcessing.set(false)
-  }
+  const onCancelCallback = useCallback(() => {
+    onCancel()
+  }, [onCancel])
 
   return (
     <Modal
-      title={t('admin:components.common.confirmation')}
-      onSubmit={handled}
-      onClose={() => {
-        PopoverState.hidePopupover()
-        onClose?.()
-      }}
+      title={t('editor:dialog.saveNewScene.title')}
       className="w-[50vw] max-w-2xl"
-      submitLoading={modalProcessing.value}
-      {...modalProps}
+      onSubmit={onConfirmCallback}
+      onClose={() => {
+        onCancelCallback()
+        PopoverState.hidePopupover()
+      }}
     >
-      <div className="flex flex-col items-center gap-2">
-        <Text>{text}</Text>
-        {errorText.value && <Text className="text-red-700	">{errorText.value}</Text>}
-      </div>
+      <Input value={name} onChange={(event) => setName(event.target.value)} />
     </Modal>
   )
 }
 
-export default ConfirmDialog
+export default SaveNewSceneDialog

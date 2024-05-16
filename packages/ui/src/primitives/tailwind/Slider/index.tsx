@@ -112,7 +112,6 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
           className
         )}
       />
-      <span className="ml-2">{value}</span>
     </div>
   )
 }
