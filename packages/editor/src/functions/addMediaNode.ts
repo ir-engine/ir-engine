@@ -155,6 +155,3 @@ export async function addMediaNode(
     )
   }
 }
-function getSourcesForEntities(arg0: Entity[]) {
-  throw new Error('Function not implemented.')
-}
