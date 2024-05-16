@@ -32,7 +32,7 @@ import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
 import { Grid } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -58,10 +58,12 @@ export type MaterialLibraryEntryProps = {
 }
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  return getComponent(
-    UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
-    MaterialComponent[MaterialComponents.State]
-  ).material?.name
+  return (
+    getOptionalComponent(
+      UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
+      MaterialComponent[MaterialComponents.State]
+    )?.material?.name ?? ''
+  )
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {

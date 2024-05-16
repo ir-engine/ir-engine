@@ -34,7 +34,7 @@ import { getMutableState, getState, useHookstate, useState } from '@etherealengi
 import { Stack } from '@mui/material'
 
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, UndefinedEntity, getComponent, useQuery } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   createMaterialEntity,
@@ -51,6 +51,7 @@ import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibrar
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { SelectionState } from '../../services/SelectionServices'
+import { ImportSettingsState } from '../assets/ImportSettingsPanel'
 
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
@@ -108,7 +109,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '')
+                createMaterialEntity(newMaterial, '', UndefinedEntity)
               }}
             >
               New
@@ -131,7 +132,11 @@ export default function MaterialLibraryPanel() {
                 })!) as { [key: string]: any }
                 const blob = [JSON.stringify(gltf)]
                 const file = new File(blob, libraryName)
-                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
+                const importSettings = getState(ImportSettingsState)
+                const urls = await Promise.all(
+                  uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
+                    .promises
+                )
                 console.log('exported material data to ', ...urls)
               }}
             >

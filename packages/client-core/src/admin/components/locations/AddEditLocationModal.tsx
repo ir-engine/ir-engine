@@ -159,9 +159,8 @@ export default function AddEditLocationModal({ location }: { location?: Location
               : [
                   { value: '', label: t('admin:components.location.selectScene'), disabled: true },
                   ...scenes.data.map((scene) => {
-                    const split = scene.assetURL.split('/')
-                    const project = split.at(1)
-                    const name = split.at(-1)!.split('.').at(0)
+                    const project = scene.projectName
+                    const name = scene.assetURL.split('/').pop()!.split('.').at(0)!
                     return {
                       label: `${name} (${project})`,
                       value: scene.id
