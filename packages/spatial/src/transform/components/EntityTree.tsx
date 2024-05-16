@@ -267,19 +267,20 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 }
 
 /**
- * @todo rename to getAncestorWithComponent
- * @param entity
- * @param component
- * @param closest
+ * Returns the closest ancestor of an entity that has the given component by walking up the entity tree
+ * @param entity Entity to start from
+ * @param component Component to search for
+ * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
+ * @param includeSelf (default true) - whether to include the entity itself in the search
  * @returns
  */
-export function findAncestorWithComponent(
+export function getAncestorWithComponent(
   entity: Entity,
   component: ComponentType<any>,
   closest = true,
   includeSelf = true
-): Entity | undefined {
-  let result: Entity | undefined
+): Entity {
+  let result = UndefinedEntity
   if (includeSelf && closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
     if (closest && result) return

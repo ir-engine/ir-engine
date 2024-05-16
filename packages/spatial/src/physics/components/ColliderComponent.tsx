@@ -27,7 +27,7 @@ import { defineComponent, useComponent, useEntityContext } from '@etherealengine
 import { getState } from '@etherealengine/hyperflux'
 import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
-import { findAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -83,7 +83,7 @@ export const ColliderComponent = defineComponent({
       const shape = Physics.getShape(entity)
       if (!shape || shape === component.shape.value) return
 
-      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+      const ancestor = getAncestorWithComponent(entity, RigidBodyComponent)
       if (ancestor) {
         const physicsWorld = getState(PhysicsState).physicsWorld
         Physics.removeCollider(physicsWorld, entity)

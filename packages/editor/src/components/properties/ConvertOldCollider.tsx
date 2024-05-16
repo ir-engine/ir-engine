@@ -32,7 +32,7 @@ import { OldShapeTypes } from '@etherealengine/spatial/src/physics/types/Physics
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
-  findAncestorWithComponent,
+  getAncestorWithComponent,
   iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React from 'react'
@@ -45,7 +45,7 @@ const convert = (entity: Entity, hierarchy: boolean) => {
   )!
 
   const rigidbodyType = objWithMetadata?.userData?.['xrengine.collider.bodyType'] ?? 'static'
-  const modelEntity = findAncestorWithComponent(entity, ModelComponent)!
+  const modelEntity = getAncestorWithComponent(entity, ModelComponent)!
   setComponent(modelEntity, RigidBodyComponent, {
     type: rigidbodyType
   })
@@ -108,7 +108,7 @@ const detectOldColliders = (entity: Entity) => {
 }
 
 export const ConvertOldCollider = (props: { entity: Entity }) => {
-  const modelEntity = findAncestorWithComponent(props.entity, ModelComponent)
+  const modelEntity = getAncestorWithComponent(props.entity, ModelComponent)
   if (!modelEntity) return <></>
 
   const needsConversion = detectOldColliders(props.entity)

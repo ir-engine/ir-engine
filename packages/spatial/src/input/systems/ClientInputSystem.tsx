@@ -45,7 +45,10 @@ import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunction
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Not } from 'bitecs'
 import React from 'react'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -189,6 +192,8 @@ const execute = () => {
     }
   }
 
+  const capturedEntity = getState(InputState).capturingEntity
+
   // assign input sources (InputSourceComponent) to input sinks (InputComponent)
   for (const sourceEid of spatialInputSourceQuery()) {
     const intersectionData = [] as {
@@ -262,14 +267,10 @@ const execute = () => {
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
 
-    const capturedEntity = getState(InputState).capturingEntity
+    const hitEntity = capturedEntity || sortedIntersections[0]?.entity
 
-    const inputEntity = capturedEntity || sortedIntersections[0]?.entity
-
-    // if(sortedIntersections.length > 0) console.log('sortedIntersections = ' + sortedIntersections[0].entity + '   capturedentity = ' + capturedEntity )
-    // else console.log('capturedentity = ' + capturedEntity )
-
-    if (inputEntity && hasComponent(inputEntity, InputComponent)) {
+    const inputEntity = getAncestorWithComponent(hitEntity, InputComponent)
+    if (hasComponent(inputEntity, InputComponent)) {
       getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
     }
   }

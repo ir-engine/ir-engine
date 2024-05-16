@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect, useLayoutEffect } from 'react'
 
-import { getMutableComponent, getOptionalComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
+import { getMutableComponent, hasComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -36,8 +36,11 @@ import {
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { BodyTypes } from '../../physics/types/PhysicsTypes'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { InputSinkComponent } from './InputSinkComponent'
 
@@ -114,13 +117,30 @@ export const InputComponent = defineComponent({
     }, [input.inputSources, input.highlight])
 
     useEffect(() => {
-      let collider = getOptionalComponent(entity, ColliderComponent)
+      // perhaps we don't need to create a rigidbody; we just want to be able to add anything in this tree to the `input` layer,
+      // whether or not it's a rigidbody or a mesh
 
-      if (!collider) {
-        //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
-        collider = setComponent(entity, ColliderComponent)
+      //then we might just need to abandon the Input layer raycast, leave that as-is, add the distance heuristic and call it a day
+
+      // the input system can still perform physics and mesh bvh raycasts on things that have an InputComponent as an entity ancestor
+      // I think I know how this can work
+      //awesome
+
+      //techincally if we add the distance heuristic a rigidbody / collider are not needed
+
+      // after entity tree has loaded (how do we check for this...)
+      // create an input rigidbody if one doesn't exist
+      if (!hasComponent(entity, RigidBodyComponent)) {
+        setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed }) //assume kinematic if it had no rigidbody before
       }
-      collider.collisionLayer |= CollisionGroups.Input
+      // create an input colliderComponent if one doesn't exist
+      if (!hasComponent(entity, ColliderComponent)) {
+        //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
+        setComponent(entity, ColliderComponent)
+      }
+      const hasMesh = hasComponent(entity, MeshComponent)
+      const collider = getMutableComponent(entity, ColliderComponent)
+      collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
     }, [])
 
     useExecute(
