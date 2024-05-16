@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
@@ -156,7 +156,7 @@ export const Vector3Input = ({
 }
 
 Vector3Input.defaultProps = {
-  value: V_000,
+  value: Vector3_Zero,
   hideLabels: false,
   onChange: () => {}
 }

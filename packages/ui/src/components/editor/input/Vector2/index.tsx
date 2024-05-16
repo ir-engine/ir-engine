@@ -29,7 +29,7 @@ import { Vector2 } from 'three'
 
 // style inheritance
 
-import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector2_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import NumericInput from '../Numeric'
 import { Vector3Scrubber } from '../Vector3'
 
@@ -66,7 +66,7 @@ export const Vector2Input = ({
 
   const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled.value) {
-      value.set(fieldValue, fieldValue, fieldValue)
+      value.set(fieldValue, fieldValue)
     } else {
       value[field] = fieldValue
     }
@@ -125,7 +125,7 @@ export const Vector2Input = ({
 }
 
 Vector2Input.defaultProps = {
-  value: V_000,
+  value: Vector2_Zero,
   hideLabels: false,
   onChange: () => {}
 }

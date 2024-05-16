@@ -23,19 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
 import ScenesPanel from './container'
 
-const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
-
 /**
  * Displays the scenes that exist in the current project.
  */
-
 export const ScenePanelTitle = () => {
   const { t } = useTranslation()
 
