@@ -110,11 +110,6 @@ export async function addMediaNode(
             materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
       })
-    } else if (contentType.startsWith('model/lookdev')) {
-      EditorControlFunctions.overwriteLookdevObject([
-        { name: ModelComponent.jsonID, props: { src: url } },
-        ...extraComponentJson
-      ])
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],

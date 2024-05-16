@@ -49,6 +49,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
@@ -63,7 +64,6 @@ import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-
 // import { instanceGLTF } from '../functions/transformGLTF'
 
 /**
@@ -233,6 +233,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
       return AssetClass.Material
     } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
       console.log('Lookdev asset')
+      return AssetClass.Lookdev
     }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
@@ -340,6 +341,11 @@ const assetLoadCallback =
     if (assetClass === AssetClass.Material) {
       const material = asset as Material
       material.userData.type = assetType
+    }
+    if (assetClass === AssetClass.Lookdev) {
+      const componentjson = asset.scene.children[0].userData.componentJson
+      EditorControlFunctions.overwriteLookdevObject(componentjson)
+      delete asset.scene.children[0]
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture

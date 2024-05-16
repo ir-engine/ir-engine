@@ -40,6 +40,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
@@ -258,7 +259,7 @@ const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
       const nodeIndex = gltf.data.nodes!.length
-
+      const sceneIndex = 0
       const extensions = {} as Record<string, any>
       for (const comp of componentJson) {
         extensions[comp.name] = {
@@ -273,37 +274,27 @@ const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
         extensions[VisibleComponent.jsonID] = true
       }
 
-      const node = {
-        name,
-        extensions
-      } as GLTF.INode
-
-      //skybox, light, postprocess
-      let overwriteIndex: number[] = []
-      overwriteIndex.push(
-        gltf.data.nodes?.findIndex((n) => n.extensions?.[PostProcessingComponent.jsonID] !== undefined) as number
-      )
-      overwriteIndex.push(
-        gltf.data.nodes?.findIndex((n) => n.extensions?.[HemisphereLightComponent.jsonID] !== undefined) as number
-      )
-      overwriteIndex.push(
-        gltf.data.nodes?.findIndex((n) => n.extensions?.[DirectionalLightComponent.jsonID] !== undefined) as number
-      )
-      overwriteIndex.push(
-        gltf.data.nodes?.findIndex((n) => n.extensions?.[SkyboxComponent.jsonID] !== undefined) as number
-      )
-      overwriteIndex = overwriteIndex.toSorted().reverse()
-      //add current node
-      const sceneIndex = 0 // TODO: how should this work? gltf.data.scenes!.findIndex((s) => s.nodes.includes(nodeIndex))
-      gltf.data.nodes!.push(node)
-      let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
-      gltf.data.scenes![sceneIndex].nodes.splice(beforeIndex, 0, nodeIndex)
-      //remove overwrite node
-      for (const index of overwriteIndex) {
-        if (typeof index === 'number' && index > -1) {
-          gltf.data.scenes![sceneIndex].nodes.splice(index, 1)
+      //check lookdev entity
+      const lookDevComponent: Component[] = [
+        SkyboxComponent,
+        HemisphereLightComponent,
+        DirectionalLightComponent,
+        PostProcessingComponent,
+        PrimitiveGeometryComponent //this component is for test will remove later
+      ]
+      for (const comp of lookDevComponent) {
+        if (extensions[comp.jsonID as string]) {
+          const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID as string] !== undefined) as number
+          if (typeof index === 'number' && index > -1) {
+            if (gltf.data.nodes !== undefined) {
+              gltf.data.nodes[index].extensions![comp.jsonID as string] = extensions[comp.jsonID as string]
+            }
+          }
         }
       }
+      const t = gltf.data.nodes!.length
+      gltf.data.scenes![sceneIndex].nodes.splice(gltf.data.nodes!.length - 1, 1)
+      gltf.data.nodes!.splice(gltf.data.nodes!.length - 1, 1)
       dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
     }
   }
