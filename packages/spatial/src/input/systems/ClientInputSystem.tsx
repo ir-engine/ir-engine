@@ -441,8 +441,8 @@ const usePointerInputSources = () => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
       pointerComponent.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
+        (event.clientX / canvas.clientWidth) * 2 - 1,
+        (event.clientY / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -451,8 +451,8 @@ const usePointerInputSources = () => {
       if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
+        (touch.clientX / canvas.clientWidth) * 2 - 1,
+        (touch.clientY / canvas.clientHeight) * -2 + 1
       )
     }
 
