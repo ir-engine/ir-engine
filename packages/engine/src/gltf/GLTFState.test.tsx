@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -37,7 +37,8 @@ import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
-import { GLTFSourceState } from './GLTFState'
+import { GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
   assert.deepStrictEqual(toSignificantFigures(actual, figures), toSignificantFigures(expected, figures))
@@ -358,5 +359,62 @@ describe('GLTFState', () => {
     assert.equal(getComponent(nodeEntity!, HemisphereLightComponent).skyColor.getHex(), new Color('green').getHex())
     assert.equal(getComponent(nodeEntity!, HemisphereLightComponent).groundColor.getHex(), new Color('purple').getHex())
     assert.equal(getComponent(nodeEntity!, HemisphereLightComponent).intensity, 0.5)
+  })
+
+  it('should update ECS extension via snapshot without removing and reloading it via', () => {
+    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+
+    let onInitCount = 0
+    let onRemoveCount = 0
+
+    const refCountComponent = defineComponent({
+      name: '__TEST__RefCountComponent',
+      jsonID: '__TEST__RefCountComponent',
+      onInit(entity) {
+        onInitCount++
+        return { fakeVal: 0 }
+      },
+      onRemove(entity, component) {
+        onRemoveCount++
+      }
+    })
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [UUIDComponent.jsonID]: nodeUUID,
+            [VisibleComponent.jsonID]: true,
+            [refCountComponent.jsonID!]: {
+              fakeVal: 100
+            }
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+    const newSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    newSnapshot.data.nodes![0].extensions![refCountComponent.jsonID!] = {
+      fakeVal: 200
+    }
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
+    applyIncomingActions()
+
+    assert.equal(onInitCount, 1)
+    assert.equal(onRemoveCount, 0)
   })
 })
