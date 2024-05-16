@@ -188,7 +188,6 @@ export const GLTFSnapshotState = defineState({
       getMutableState(GLTFSnapshotState)[action.source].set(none)
       getMutableState(GLTFDocumentState)[action.source].set(none)
       getMutableState(GLTFNodeState)[action.source].set(none)
-      console.log('GLTFSnapshotAction.unload')
     })
   },
 
