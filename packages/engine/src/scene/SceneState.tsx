@@ -55,13 +55,11 @@ export interface SceneSnapshotInterface {
   data: SceneJsonType
 }
 
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export const SceneState = defineState({
   name: 'SceneState',
   initial: () => ({
-    scenes: {} as Record<string, SceneJSONDataType>,
-    sceneLoaded: false,
-    loadingProgress: 0,
-    sceneModified: false
+    scenes: {} as Record<string, SceneJSONDataType>
   }),
 
   getScene: (sceneID: string) => {
@@ -108,6 +106,7 @@ export const SceneState = defineState({
   }
 })
 
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export class SceneSnapshotAction {
   static createSnapshot = defineAction({
     type: 'ee.scene.snapshot.CREATE_SNAPSHOT' as const,
@@ -138,7 +137,7 @@ export class SceneSnapshotAction {
   })
 }
 
-/**@todo rename to GLTFSnapshotState */
+/** @deprecated - will be removed in favour of comprehensive loading via GLTF */
 export const SceneSnapshotState = defineState({
   name: 'SceneSnapshotState',
   initial: {} as Record<
@@ -254,7 +253,6 @@ const SceneSnapshotReactor = (props: { sceneID: string }) => {
 
   useLayoutEffect(() => {
     if (!sceneState.index.value) return
-    getMutableState(SceneState).sceneModified.set(true)
     // update scene state with the current snapshot
     getMutableState(SceneState).scenes[props.sceneID].scene.set(
       sceneState.snapshots[sceneState.index.value].data.get(NO_PROXY)

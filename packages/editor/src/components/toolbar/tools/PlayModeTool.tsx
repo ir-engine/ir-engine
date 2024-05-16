@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, getOptionalComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VisualScriptActions, visualScriptQuery } from '@etherealengine/engine'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -54,14 +54,15 @@ const PlayModeTool = () => {
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
   const authState = useHookstate(getMutableState(AuthState))
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded).value
+
+  const sceneEntity = useHookstate(getMutableState(EditorState).rootEntity)
+  const gltfComponent = getOptionalComponent(sceneEntity.value, GLTFComponent)
 
   const onTogglePlayMode = () => {
     const entity = AvatarComponent.getSelfAvatarEntity()
     if (entity) {
       dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(entity, UUIDComponent) }))
-      const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
-      removeEntity(cameraComputed.referenceEntity)
+      removeEntity(entity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
@@ -72,7 +73,7 @@ const PlayModeTool = () => {
       const avatarDetails = authState.user.avatar.value
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
-      const currentScene = getState(SceneState).scenes[getState(EditorState).scenePath!].scene.root
+      const currentScene = getComponent(getState(EditorState).rootEntity, UUIDComponent)
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({
@@ -83,7 +84,7 @@ const PlayModeTool = () => {
         })
 
       // todo
-      // getMutableState(EngineState).isEditing.set(false)
+      getMutableState(EngineState).isEditing.set(false)
       // run all visual script logic
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
@@ -102,7 +103,7 @@ const PlayModeTool = () => {
         }
       >
         <button
-          disabled={!sceneLoaded}
+          disabled={gltfComponent ? gltfComponent?.progress < 100 : false}
           onClick={onTogglePlayMode}
           className={styles.toolButton + ' ' + (isEditing.value ? '' : styles.selected)}
         >

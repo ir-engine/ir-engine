@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
@@ -65,7 +64,7 @@ export const instancedMeshVariantQuery = defineQuery([
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!getState(SceneState).sceneLoaded || engineState.isEditing) return
+  if (engineState.isEditing) return
 
   const ecsState = getState(ECSState)
 
@@ -84,16 +83,15 @@ function execute() {
 }
 
 function reactor() {
-  const performanceOffset = usePerformanceOffset()
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const performanceOffset = useMutableState(PerformanceState).gpuPerformanceOffset
 
   useEffect(() => {
-    if (!sceneState.sceneLoaded.value || getState(EngineState).isEditing) return
+    if (getState(EngineState).isEditing) return
     const offset = performanceOffset.value
     for (const entity of modelVariantQuery()) {
       setModelVariantLOD(entity, offset)
     }
-  }, [performanceOffset, sceneState.sceneLoaded])
+  }, [performanceOffset])
 
   return null
 }

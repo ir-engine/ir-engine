@@ -70,9 +70,16 @@ export const inputFileWithAddToScene = async ({
         if (el.files && el.files.length > 0) {
           const files = Array.from(el.files)
           if (projectName) {
-            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
-              (url) => url[0]
-            )
+            const importSettings = getState(ImportSettingsState)
+            uploadedURLs = (
+              await Promise.all(
+                uploadProjectFiles(
+                  projectName,
+                  files,
+                  files.map(() => `projects/${projectName}${importSettings.importFolder}`)
+                ).promises
+              )
+            ).map((url) => url[0])
             for (const url of uploadedURLs) {
               if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
                 const importSettings = getState(ImportSettingsState)
@@ -123,15 +130,12 @@ export const inputFileWithAddToScene = async ({
     el.remove()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
-  const importSettings = getState(ImportSettingsState)
 
-  for (const file of files) {
-    const path = `projects/${projectName}${isAsset ? importSettings.importFolder : ''}`
-    // if (importSettings.LODsEnabled) {
-    //   path = `projects/${projectName}${isAsset ? importSettings.LODFolder : ''}`
-    // }
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const path = paths[i]
     promises.push(
       uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
     )

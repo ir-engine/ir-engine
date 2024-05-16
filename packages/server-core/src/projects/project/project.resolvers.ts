@@ -79,6 +79,18 @@ export const projectResolver = resolve<ProjectType, HookContext>(
         : []
     }),
 
+    assetsOnly: virtual(async (project, context) => {
+      return !!project.assetsOnly
+    }),
+
+    hasLocalChanges: virtual(async (project, context) => {
+      return !!project.hasLocalChanges
+    }),
+
+    needsRebuild: virtual(async (project, context) => {
+      return !!project.needsRebuild
+    }),
+
     commitDate: virtual(async (project) => {
       if (project.commitDate) return fromDateTimeSql(project.commitDate)
     }),
@@ -95,7 +107,7 @@ export const projectResolver = resolve<ProjectType, HookContext>(
 
 export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 
-export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
+export const projectDataResolver = resolve<ProjectType, HookContext>(
   {
     id: async () => {
       return uuidv4()

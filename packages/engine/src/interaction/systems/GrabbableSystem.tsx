@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { EntityUUID, useOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineActionQueue,
   defineState,
@@ -50,10 +50,11 @@ import {
 } from '@etherealengine/ecs'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
+import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
@@ -104,7 +105,6 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   const entity = UUIDComponent.useEntityByUUID(entityUUID)
   const grabberEntity = UUIDComponent.useEntityByUUID(state.grabberUserId.value as EntityUUID)
   const attachmentPoint = state.attachmentPoint.value
-  const bodyState = useOptionalComponent(entity, RigidBodyComponent)?.body
 
   useEffect(() => {
     if (!entity || !grabberEntity) return
@@ -115,16 +115,14 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
       attachmentPoint
     })
 
-    const body = bodyState?.value
-
-    if (body) {
+    if (hasComponent(entity, RigidBodyComponent)) {
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Kinematic })
-      for (let i = 0; i < body.numColliders(); i++) {
-        const collider = body.collider(i)
-        let oldCollisionGroups = collider.collisionGroups()
-        oldCollisionGroups ^= CollisionGroups.Default << 16
-        collider.setCollisionGroups(oldCollisionGroups)
-      }
+      // for (let i = 0; i < body.numColliders(); i++) {
+      //   const collider = body.collider(i)
+      //   let oldCollisionGroups = collider.collisionGroups()
+      //   oldCollisionGroups ^= CollisionGroups.Default << 16
+      //   collider.setCollisionGroups(oldCollisionGroups)
+      // }
     }
 
     return () => {
@@ -132,17 +130,17 @@ const GrabbableReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
         setComponent(grabberEntity, GrabberComponent, { [attachmentPoint]: null })
       if (!entityExists(entity)) return
       removeComponent(entity, GrabbedComponent)
-      if (body) {
+      if (hasComponent(entity, RigidBodyComponent)) {
         setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        for (let i = 0; i < body.numColliders(); i++) {
-          const collider = body.collider(i)
-          let oldCollisionGroups = collider.collisionGroups()
-          oldCollisionGroups ^= CollisionGroups.Default << 16
-          collider.setCollisionGroups(oldCollisionGroups)
-        }
+        // for (let i = 0; i < body.numColliders(); i++) {
+        //   const collider = body.collider(i)
+        //   let oldCollisionGroups = collider.collisionGroups()
+        //   oldCollisionGroups ^= CollisionGroups.Default << 16
+        //   collider.setCollisionGroups(oldCollisionGroups)
+        // }
       }
     }
-  }, [entity, grabberEntity, bodyState])
+  }, [entity, grabberEntity])
 
   return null
 }
@@ -176,7 +174,7 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditing) return
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
@@ -192,8 +190,7 @@ const execute = () => {
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)
       rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-      rigidbodyComponent.body.setTranslation(target.position, true)
-      rigidbodyComponent.body.setRotation(target.rotation, true)
+      Physics.setRigidbodyPose(entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
     }
 
     const grabbableTransform = getComponent(entity, TransformComponent)

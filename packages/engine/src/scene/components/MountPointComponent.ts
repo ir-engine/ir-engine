@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { ArrowHelper, Box3, Vector3 } from 'three'
-
-import { dispatchAction, getMutableState, getState, matches, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -39,19 +34,16 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { dispatchAction, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { useEffect } from 'react'
+import { Box3, Vector3 } from 'three'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -60,7 +52,6 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { InteractableComponent, XRUIVisibilityOverride } from '../../interaction/components/InteractableComponent'
 import { MountPointActions, MountPointState } from '../../interaction/functions/MountPointActions'
 import { SittingComponent } from './SittingComponent'
-import { SpawnPointComponent } from './SpawnPointComponent'
 
 export const MountPoint = {
   seat: 'seat' as const
@@ -114,7 +105,6 @@ const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
 
 const unmountEntity = (entity: Entity) => {
   if (!hasComponent(entity, SittingComponent)) return
-  const rigidBody = getComponent(entity, RigidBodyComponent)
 
   dispatchAction(
     AvatarNetworkAction.setAnimationState({
@@ -140,7 +130,6 @@ const unmountEntity = (entity: Entity) => {
   //we use teleport avatar only when rigidbody is not enabled, otherwise translation is called on rigidbody
   const dismountPoint = new Vector3().copy(mountComponent.dismountOffset).applyMatrix4(mountTransform.matrixWorld)
   teleportAvatar(entity, dismountPoint)
-  rigidBody.body.setEnabled(true)
   removeComponent(entity, SittingComponent)
 }
 
@@ -151,7 +140,6 @@ export const MountPointComponent = defineComponent({
   onInit: (entity) => {
     return {
       type: MountPoint.seat as MountPointTypes,
-      helperEntity: null as Entity | null,
       dismountOffset: new Vector3(0, 0, 0.75)
     }
   },
@@ -200,23 +188,11 @@ export const MountPointComponent = defineComponent({
     }, [mountedEntities])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
-
-      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-      helper.name = `mount-point-helper-${entity}`
-
-      const helperEntity = createEntity()
-      addObjectToGroup(helperEntity, helper)
-      setComponent(helperEntity, NameComponent, helper.name)
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      setVisibleComponent(helperEntity, true)
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      mountPoint.helperEntity.set(helperEntity)
-
+      if (debugEnabled.value) {
+        setComponent(entity, ArrowHelperComponent, { name: 'mount-point-helper' })
+      }
       return () => {
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, SpawnPointComponent)) return
-        mountPoint.helperEntity.set(none)
+        removeComponent(entity, ArrowHelperComponent)
       }
     }, [debugEnabled])
 

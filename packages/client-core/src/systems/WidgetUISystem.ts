@@ -41,14 +41,11 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { V_001, V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Back, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import {
@@ -72,12 +69,12 @@ const widgetRightMenuGripOffset = new Vector3(-0.08, 0, -0.05)
 const vec3 = new Vector3()
 
 const widgetLeftRotation = new Quaternion()
-  .setFromAxisAngle(V_010, Math.PI * 0.5)
-  .multiply(new Quaternion().setFromAxisAngle(V_001, -Math.PI * 0.5))
+  .setFromAxisAngle(Vector3_Up, Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(Vector3_Back, -Math.PI * 0.5))
 
 const widgetRightRotation = new Quaternion()
-  .setFromAxisAngle(V_010, -Math.PI * 0.5)
-  .multiply(new Quaternion().setFromAxisAngle(V_001, Math.PI * 0.5))
+  .setFromAxisAngle(Vector3_Up, -Math.PI * 0.5)
+  .multiply(new Quaternion().setFromAxisAngle(Vector3_Back, Math.PI * 0.5))
 
 const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
@@ -188,10 +185,13 @@ const execute = () => {
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setComputedTransformComponent(widgetMenuUI.entity, Engine.instance.viewerEntity, () => {
-        const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
-        const distance = camera.near * 1.1 // 10% in front of camera
-        ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
+      setComponent(widgetMenuUI.entity, ComputedTransformComponent, {
+        referenceEntities: [Engine.instance.viewerEntity],
+        computeFunction: () => {
+          const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+          const distance = camera.near * 1.1 // 10% in front of camera
+          ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
+        }
       })
     }
   }

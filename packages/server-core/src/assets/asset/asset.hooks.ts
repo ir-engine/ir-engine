@@ -23,38 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetPatch } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
-import fs from 'fs'
-import path from 'path'
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { assetPath, invalidationPath } from '@etherealengine/common/src/schema.type.module'
-import logger from '../../ServerLogger'
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { assetPath, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
-
-const DEFAULT_DIRECTORY = 'packages/projects/default-project'
-const NEW_SCENE_NAME = 'New-Scene'
-const SCENE_ASSET_FILES = ['.scene.json', '.thumbnail.jpg', '.envmap.ktx2']
-
-export const getSceneFiles = async (directory: string, storageProviderName?: string) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const fileResults = await storageProvider.listObjects(directory, false)
-  return fileResults.Contents.map((dirent) => dirent.Key).filter((name) => name.endsWith('.scene.json'))
-}
 
 /**
  * Checks if project in query exists
@@ -67,7 +53,7 @@ const checkIfProjectExists = async (context: HookContext<AssetService>, projectI
 }
 
 /**
- * Removes scene in local storage
+ * Removes asset and resource files
  * @param context Hook context
  * @returns
  */
@@ -80,37 +66,33 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
   checkIfProjectExists(context, asset.projectId!)
 
-  const storageProvider = getStorageProvider()
   const assetURL = asset.assetURL
+  const thumbnailURL = asset.thumbnailURL
 
-  const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
+  const resourceKeys = thumbnailURL ? [assetURL, thumbnailURL] : [assetURL]
 
-  if (assetURL.endsWith('.scene.json')) {
-    for (const ext of SCENE_ASSET_FILES) {
-      console.log(assetURL, ext, projectPathLocal)
+  await Promise.all(resourceKeys.map((key) => context.app.service(fileBrowserPath).remove(key)))
 
-      await storageProvider.deleteResources([assetURL.replace('.scene.json', '') + ext])
+  // update manifest if necessary
+  const manifestKey = `projects/${asset.projectName}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
 
-      if (isDev) {
-        const assetFilePath = path.resolve(projectPathLocal, assetURL.replace('.scene.json', '') + ext)
-        if (fs.existsSync(assetFilePath)) {
-          fs.rmSync(path.resolve(assetFilePath))
-        }
-      } else {
-        await context.app.service(invalidationPath).create([{ path: assetURL }])
-      }
-    }
-  } else {
-    if (isDev) {
-      const assetFilePath = path.resolve(projectPathLocal, assetURL)
-      if (fs.existsSync(assetFilePath)) {
-        fs.rmSync(path.resolve(assetFilePath))
-      }
-    } else {
-      await context.app.service(invalidationPath).create([{ path: assetURL }])
-    }
-    await storageProvider.deleteResources([assetURL])
-  }
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+  if (!projectManifest.scenes?.length) return // no scenes to update
+
+  const projectRelativeAssetURL = asset.assetURL.replace(`projects/${asset.projectName}/`, '')
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === projectRelativeAssetURL)
+  if (sceneIndex === -1) return // scene not found in manifest
+
+  projectManifest.scenes.splice(sceneIndex, 1)
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${asset.projectName}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) => {
@@ -126,16 +108,11 @@ const resolveProjectIdForAssetData = async (context: HookContext<AssetService>) 
   }
 }
 
-export const removeProjectForAssetData = async (context: HookContext<AssetService>) => {
+export const removeFieldsForAssetData = async (context: HookContext<AssetService>) => {
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
   if (!context.data) return
   delete context.data.project
-}
-
-export const removeNameField = async (context: HookContext<AssetService>) => {
-  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
-  if (!context.data) return
-  delete context.data.name
+  delete context.data.isScene
 }
 
 const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>) => {
@@ -152,7 +129,7 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
 }
 
 /**
- * Ensures new scene name is unique
+ * Ensures given assetURL name is unique by appending a number to it
  * @param context Hook context
  * @returns
  */
@@ -163,39 +140,35 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
 
   if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
 
-  if (!context.data.project) throw new BadRequest('Project is required')
+  if (!context.data.project) throw new BadRequest('project is required')
+  if (!context.data.assetURL) throw new BadRequest('assetURL is required')
 
-  const name = context.data.name ?? NEW_SCENE_NAME
-  context.data.name = name
-  const storageProvider = getStorageProvider()
+  const assetURL = context.data.assetURL
+  const fileName = assetURL.split('/').pop()!
+
+  const cleanedFileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.')
+  const fileExtension = fileName.split('/').pop()!.split('.').pop()
+  const fileDirectory = assetURL!.split('/').slice(0, -1).join('/') + '/'
   let counter = 0
+  let name = cleanedFileNameWithoutExtension + '.' + fileExtension
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    if (counter > 0) context.data.name = name + '-' + counter
-    const sceneNameExists = await storageProvider.doesExist(`${context.data.name}.scene.json`, context.directory)
-    if (!sceneNameExists) break
-
+    if (counter > 0) name = cleanedFileNameWithoutExtension + '-' + counter + '.' + fileExtension
+    const sceneNameExists = await context.app.service(assetPath).find({ query: { assetURL: fileDirectory + name } })
+    if (sceneNameExists.total === 0) break
     counter++
   }
-}
 
-const setDirectoryFromData = async (context: HookContext<AssetService>) => {
-  if (!context.data) {
-    throw new BadRequest(`${context.path} service. No data provided`)
-  }
-
-  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
-
-  if (!context.directory) context.directory = `projects/` + context.data.project
+  context.data.assetURL = fileDirectory + name
 }
 
 /**
- * Creates new scene in storage provider
+ * Creates new asset from template file
  * @param context Hook context
  * @returns
  */
-export const createSceneInStorageProvider = async (context: HookContext<AssetService>) => {
+export const createSceneFiles = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -204,43 +177,58 @@ export const createSceneInStorageProvider = async (context: HookContext<AssetSer
 
   const data = context.data
 
-  // ignore if we are seeding data
-  if (data.assetURL) return
-
-  const storageProvider = getStorageProvider()
-
-  await Promise.all(
-    SCENE_ASSET_FILES.map((ext) =>
-      storageProvider.moveObject(
-        `default${ext}`,
-        `${data.name}${ext}`,
-        `projects/default-project`,
-        context.directory,
-        true
-      )
-    )
-  )
-  try {
-    if (!isDev)
-      await context.app.service(invalidationPath).create(
-        SCENE_ASSET_FILES.map((file) => {
-          return { path: `${context.directory}${data.name}${file}` }
-        })
-      )
-  } catch (e) {
-    logger.error(e)
-    logger.info(SCENE_ASSET_FILES)
+  // when seeding, no sourceURL is given, and the asset file exists, we just want to add the table entry
+  if (!data.sourceURL) {
+    const fileExists = await context.app.service(fileBrowserPath).get(data.assetURL!)
+    if (fileExists) return
   }
+  const sourceAsset = (
+    await context.app.service(assetPath).find({
+      query: {
+        assetURL: data.sourceURL
+      }
+    })
+  ).data[0] as AssetType | undefined
+  if (!sourceAsset) throw new Error(`No asset with assetURL ${data.sourceURL} exists`)
 
-  if (!data.thumbnailURL) data.thumbnailURL = `projects/${data.project}/${data.name}.thumbnail.jpg`
+  // we no longer need the sourceURL
+  delete context.data.sourceURL
+
+  const sourceAssetName = sourceAsset.assetURL.split('/').pop()!
+  const sourceAssetDirectory = sourceAsset.assetURL.split('/').slice(0, -1).join('/') + '/'
+
+  const targetAssetName = data.assetURL!.split('/').pop()!
+  const targetDirectory = data.assetURL!.split('/').slice(0, -1).join('/') + '/'
+
+  await context.app.service(fileBrowserPath).update(null, {
+    oldName: sourceAssetName,
+    newName: targetAssetName,
+    oldPath: sourceAssetDirectory,
+    newPath: targetDirectory,
+    isCopy: true
+  })
+
+  if (!data.thumbnailURL)
+    data.thumbnailURL = `${targetDirectory}${targetAssetName.split('.').slice(0, -1).join('.')}.thumbnail.jpg`
+
+  if (sourceAsset.thumbnailURL) {
+    const sourceThumbnailName = sourceAsset.thumbnailURL.split('/').pop()!
+    const sourceThumbnailDirectory = sourceAsset.thumbnailURL.split('/').slice(0, -1).join('/') + '/'
+
+    const targetThumbnailName = data.thumbnailURL.split('/').pop()!
+    const targetThumbnailDirectory = data.thumbnailURL.split('/').slice(0, -1).join('/') + '/'
+
+    await context.app.service(fileBrowserPath).update(null, {
+      oldName: sourceThumbnailName,
+      newName: targetThumbnailName,
+      oldPath: sourceThumbnailDirectory,
+      newPath: targetThumbnailDirectory,
+      isCopy: true
+    })
+  }
 }
 
-/**
- * Creates new scene in local storage
- * @param context Hook context
- * @returns
- */
-const createSceneLocally = async (context: HookContext<AssetService>) => {
+export const updateManifestCreate = async (context: HookContext<AssetService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
@@ -249,20 +237,24 @@ const createSceneLocally = async (context: HookContext<AssetService>) => {
 
   const data = context.data
 
-  // ignore if we are seeding data
-  if (data.assetURL) return
+  if (!data.isScene) return
 
-  if (isDev) {
-    const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects', data.project!)
-    for (const ext of SCENE_ASSET_FILES) {
-      fs.copyFileSync(
-        path.resolve(appRootPath.path, `${DEFAULT_DIRECTORY}/default${ext}`),
-        path.resolve(projectPathLocal + '/' + data.name + ext)
-      )
-    }
-  }
+  // update manifest if necessary
+  const manifestKey = `projects/${data.project}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
 
-  data.assetURL = `projects/${data.project}/${data.name}.scene.json`
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+
+  if (!projectManifest.scenes) projectManifest.scenes = []
+  projectManifest.scenes.push(data.assetURL!.replace(`projects/${data.project}/`, ''))
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${data.project}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 export const renameAsset = async (context: HookContext<AssetService>) => {
@@ -273,41 +265,44 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   const asset = await context.app.service(assetPath).get(context.id!)
 
   const data = context.data! as AssetPatch
-  if (!asset.assetURL.endsWith('.scene.json')) return
 
-  const storageProvider = getStorageProvider()
-  const oldName = asset.assetURL!.split('/').pop()!.replace('.scene.json', '')
-  const newName = data.name
+  const oldName = asset.assetURL.split('/').pop()!
+  const newName = data.assetURL!.split('/').pop()!
+  const oldDirectory = asset.assetURL.split('/').slice(0, -1).join('/') + '/'
+  const newDirectory = data.assetURL!.split('/').slice(0, -1).join('/') + '/'
 
   if (newName && newName !== oldName) {
-    const oldPath = asset.assetURL
-    const newPath = asset.assetURL.replace(oldName + '.scene.json', newName + '.scene.json')
-
-    const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects')
-    const directory = oldPath.split('/').slice(0, -1).join('/')
-
-    for (const ext of SCENE_ASSET_FILES) {
-      const oldDirPath = oldPath.replace('.scene.json', '') + ext
-      const newDirPath = newPath.replace('.scene.json', '') + ext
-
-      const oldLocalFile = path.resolve(projectPathLocal, oldDirPath)
-      const newLocalFile = path.resolve(projectPathLocal, newDirPath)
-
-      await storageProvider.moveObject(
-        oldDirPath.split('/').pop()!,
-        newDirPath.split('/').pop()!,
-        directory,
-        directory,
-        true
-      )
-
-      if (isDev) fs.renameSync(oldLocalFile, newLocalFile)
-      else await context.app.service(invalidationPath).create([{ path: oldDirPath }, { path: newDirPath }])
-    }
-
-    data.assetURL = newPath
-    data.thumbnailURL = newPath.replace('.scene.json', '.thumbnail.jpg')
+    await context.app.service(fileBrowserPath).update(null, {
+      oldName,
+      newName,
+      oldPath: oldDirectory,
+      newPath: newDirectory,
+      isCopy: false
+    })
   }
+
+  // update manifest if necessary
+  const manifestKey = `projects/${asset.projectName}/manifest.json`
+  if (!(await context.app.service(fileBrowserPath).get(manifestKey))) return // no manifest file to update
+
+  const projectManifestResponse = await getStorageProvider().getObject(manifestKey)
+  const projectManifest = JSON.parse(projectManifestResponse.Body.toString('utf-8')) as ManifestJson
+  if (!projectManifest.scenes?.length) return // no scenes to update
+
+  const projectRelativeAssetURL = data.assetURL!.replace(`projects/${asset.projectName}/`, '')
+  const projectRelativeOldAssetURL = asset.assetURL!.replace(`projects/${asset.projectName}/`, '')
+
+  const sceneIndex = projectManifest.scenes.findIndex((scene) => scene === projectRelativeOldAssetURL)
+  if (sceneIndex === -1) return // scene not found in manifest
+
+  projectManifest.scenes[sceneIndex] = projectRelativeAssetURL
+
+  await context.app.service(fileBrowserPath).patch(null, {
+    fileName: 'manifest.json',
+    path: `projects/${asset.projectName}`,
+    body: Buffer.from(JSON.stringify(projectManifest, null, 2)),
+    contentType: 'application/json'
+  })
 }
 
 export default createSkippableHooks(
@@ -323,28 +318,24 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
-        setDirectoryFromData,
         ensureUniqueName,
-        createSceneInStorageProvider,
-        createSceneLocally,
-        removeNameField,
-        removeProjectForAssetData
+        createSceneFiles,
+        updateManifestCreate,
+        removeFieldsForAssetData
       ],
       update: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
-        removeNameField,
-        removeProjectForAssetData
+        removeFieldsForAssetData
       ],
       patch: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
         renameAsset,
-        removeNameField,
-        removeProjectForAssetData
+        removeFieldsForAssetData
       ],
       remove: [
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),

@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECRClient } from '@aws-sdk/client-ecr'
+import { DescribeImagesCommand as DescribePrivateImagesCommand, ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import { fromIni } from '@aws-sdk/credential-providers'
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -39,7 +41,6 @@ import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
-import { isDev } from '@etherealengine/common/src/config'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
@@ -76,7 +77,7 @@ import { RestEndpointMethodTypes } from '@octokit/rest'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
+import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
@@ -100,6 +101,9 @@ export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaw
 
 const BRANCH_PER_PAGE = 100
 const COMMIT_PER_PAGE = 10
+
+const awsPath = './.aws/eks'
+const credentialsPath = `${awsPath}/credentials`
 
 const execAsync = promisify(exec)
 
@@ -136,7 +140,7 @@ export const updateBuilder = async (
 ) => {
   try {
     // invalidate cache for all installed projects
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await app.service(invalidationPath).create({
         path: 'projects*'
       })
@@ -235,8 +239,10 @@ export const checkBuilderService = async (
       if (builderJob && builderJob.body.items.length > 0) {
         const succeeded = builderJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
         const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
+        const running = builderJob.body.items.filter((item) => item.status && item.status.active === 1)
         jobStatus.succeeded = succeeded.length > 0
         jobStatus.failed = failed.length > 0
+        jobStatus.running = running.length > 0
       } else {
         const containerName = 'etherealengine-builder'
 
@@ -314,18 +320,77 @@ export const getProjectConfig = (projectName: string): ProjectConfigInterface =>
     return null!
   }
 }
-
-export const getProjectPackageJson = (projectName: string): ProjectPackageJsonType => {
-  return require(path.resolve(projectsRootFolder, projectName, 'package.json'))
+export const getProjectManifest = (projectName: string): ManifestJson => {
+  const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
+  const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
+  if (fs.existsSync(manifestJsonPath)) {
+    const data = fs.readFileSync(manifestJsonPath)
+    return JSON.parse(data.toString()) as ManifestJson
+  }
+  if (fs.existsSync(packageJsonPath)) {
+    const data = fs.readFileSync(packageJsonPath)
+    const packageJson = JSON.parse(data.toString()) as ProjectPackageJsonType
+    return {
+      name: packageJson.name!,
+      version: packageJson.version!,
+      engineVersion: packageJson.etherealEngine?.version,
+      description: packageJson.description,
+      thumbnail: packageJson.etherealEngine?.thumbnail
+    }
+  }
+  throw new Error('No manifest.json or package.json found in project')
 }
 
-export const getEnginePackageJson = (): ProjectPackageJsonType => {
-  return require(path.resolve(appRootPath.path, 'packages/server-core/package.json'))
-}
+export const engineVersion = (
+  require(path.resolve(appRootPath.path, 'packages/server-core/package.json')) as ProjectPackageJsonType
+).version!
 
 export const getProjectEnabled = (projectName: string) => {
-  const matchesVersion = getProjectPackageJson(projectName).etherealEngine?.version === getEnginePackageJson().version
+  const matchesVersion = getProjectManifest(projectName).engineVersion === engineVersion
   return config.allowOutOfDateProjects ? true : matchesVersion
+}
+
+export const getProjectManifestFromRemote = async (
+  octoKit: Awaited<ReturnType<typeof getOctokitForChecking>>['octoKit'],
+  owner: string,
+  repo: string,
+  sha?: string
+): Promise<ManifestJson> => {
+  try {
+    const blobResponse = await octoKit.rest.repos.getContent({
+      owner,
+      repo,
+      path: 'manifest.json',
+      ref: sha
+    })
+    return JSON.parse(
+      Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
+    ) as ManifestJson
+  } catch (err) {
+    logger.warn("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+
+    try {
+      const blobResponse = await octoKit.rest.repos.getContent({
+        owner,
+        repo,
+        path: 'package.json',
+        ref: sha
+      })
+      const packageJson = JSON.parse(
+        Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
+      ) as ProjectPackageJsonType
+      return {
+        name: packageJson.name,
+        version: packageJson.version,
+        engineVersion: packageJson.etherealEngine?.version,
+        description: packageJson.description,
+        thumbnail: packageJson.etherealEngine?.thumbnail
+      } as ManifestJson
+    } catch (err) {
+      logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+      return Promise.reject(err)
+    }
+  }
 }
 
 //DO NOT REMOVE!
@@ -380,28 +445,21 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
   }
 
   try {
-    const blobResponse = await sourceOctoKit.rest.repos.getContent({
-      owner,
-      repo,
-      path: 'package.json',
-      ref: commit.data.sha
-    })
-    const content = JSON.parse(Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString())
-    const enginePackageJson = getEnginePackageJson()
+    const content = await getProjectManifestFromRemote(sourceOctoKit, owner, repo, commit.data.sha)
     return {
       projectName: content.name,
       projectVersion: content.version,
-      engineVersion: content.etherealEngine?.version,
+      engineVersion: content.engineVersion,
       commitSHA: commit.data.sha,
       error: '',
       text: '',
       datetime: commit.data.commit.committer?.date,
-      matchesEngineVersion: content.etherealEngine?.version
-        ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
+      matchesEngineVersion: content.engineVersion
+        ? compareVersions(content.engineVersion, engineVersion || '0.0.0') === 0
         : false
     } as ProjectCheckUnfetchedCommitType
   } catch (err) {
-    logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
+    logger.error("Error getting commit's manifest.json %s/%s %s", owner, repo, err.toString())
     return Promise.reject(err)
   }
 }
@@ -442,73 +500,49 @@ export const checkProjectDestinationMatch = async (
       error: 'invalidDestinationURL',
       text: 'The destination URL is not valid, or you do not have access to it'
     }
-  const [sourceBlobResponse, sourceConfigResponse, destinationBlobResponse]: [
-    sourceBlobResponse: any,
-    sourceConfigResponse: any,
-    destinationBlobResponse: any
-  ] = await Promise.all([
-    new Promise(async (resolve, reject) => {
+  const [sourceContent, destinationContent] = await Promise.all([
+    new Promise<ManifestJson | { error: string; text: string }>(async (resolve, reject) => {
       try {
-        const sourcePackage = await sourceOctoKit.rest.repos.getContent({
-          owner: sourceOwner,
-          repo: sourceRepo,
-          path: 'package.json',
-          ref: selectedSHA
-        })
-        resolve(sourcePackage)
+        const sourceManifest = await getProjectManifestFromRemote(sourceOctoKit, sourceOwner, sourceRepo, selectedSHA)
+        resolve(sourceManifest)
       } catch (err) {
         logger.error(err)
         if (err.status === 404) {
           resolve({
-            error: 'sourcePackageMissing',
-            text: 'There is no package.json in the source repo'
+            error: 'sourceManifestMissing',
+            text: 'There is no manifest.json in the source repo'
           })
         } else reject(err)
       }
     }),
-    new Promise(async (resolve, reject) => {
+    new Promise<ManifestJson | { error: string; text: string }>(async (resolve, reject) => {
       try {
-        const sourceConfig = await sourceOctoKit.rest.repos.getContent({
-          owner: sourceOwner,
-          repo: sourceRepo,
-          path: 'xrengine.config.ts',
-          ref: selectedSHA
-        })
-        resolve(sourceConfig)
-      } catch (err) {
-        logger.error(err)
-        if (err.status === 404) {
-          resolve({
-            error: 'sourceConfigMissing',
-            text: 'There is no xrengine.config.ts in the source repo'
-          })
-        } else reject(err)
-      }
-    }),
-    new Promise(async (resolve, reject) => {
-      try {
-        const destinationPackage = await destinationOctoKit.rest.repos.getContent({
-          owner: destinationOwner,
-          repo: destinationRepo,
-          path: 'package.json'
-        })
+        const destinationPackage = await getProjectManifestFromRemote(
+          destinationOctoKit,
+          destinationOwner,
+          destinationRepo
+        )
         resolve(destinationPackage)
       } catch (err) {
         logger.error('destination package fetch error %o', err)
         if (err.status === 404) {
           resolve({
-            error: 'destinationPackageMissing',
-            text: 'There is no package.json in the source repo'
+            error: 'destinationManifestMissing',
+            text: 'There is no manifest.json or package.json in the destination repo'
           })
         } else reject(err)
       }
     })
   ])
-  if (sourceBlobResponse.error) return sourceBlobResponse
-  if (sourceConfigResponse.error) return sourceConfigResponse
-  const sourceContent = JSON.parse(
-    Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
-  )
+
+  if ('error' in sourceContent) return sourceContent
+
+  if (!sourceContent.engineVersion)
+    return {
+      sourceProjectMatchesDestination: false,
+      error: 'noEngineVersion',
+      text: `The source repo's manifest.json does not have an 'engineVersion' key, suggesting it is not a project`
+    }
   if (!existingProject) {
     const projectExists = (await app.service(projectPath).find({
       query: {
@@ -527,12 +561,21 @@ export const checkProjectDestinationMatch = async (
         text: `The source project, ${sourceContent.name}, is already installed`
       }
   }
-  if (destinationBlobResponse.error && destinationBlobResponse.error !== 'destinationPackageMissing')
-    return destinationBlobResponse
-  if (destinationBlobResponse.error === 'destinationPackageMissing')
+
+  if (sourceContent.engineVersion !== engineVersion)
+    return {
+      sourceProjectMatchesDestination: false,
+      error: 'engineVersionMismatch',
+      text: `The source project's engine version, ${sourceContent.engineVersion}, does not match the server's engine version, ${engineVersion}`
+    }
+
+  if ('error' in destinationContent && destinationContent.error !== 'destinationManifestMissing')
+    return destinationContent
+  if ('error' in destinationContent && destinationContent.error === 'destinationManifestMissing')
     return { sourceProjectMatchesDestination: true, projectName: sourceContent.name }
-  const destinationContent = JSON.parse(Buffer.from(destinationBlobResponse.data.content, 'base64').toString())
-  if (sourceContent.name.toLowerCase() !== destinationContent.name.toLowerCase())
+
+  const destinationManifest = destinationContent as ManifestJson
+  if (sourceContent.name.toLowerCase() !== destinationManifest.name.toLowerCase())
     return {
       error: 'invalidRepoProjectName',
       text: 'The repository you are attempting to update from contains a different project than the one you are updating'
@@ -588,15 +631,14 @@ export const checkDestination = async (app: Application, url: string, params?: P
         error: 'invalidPermission',
         text: 'You do not have personal push, maintain, or admin access to this repo.'
       }
-    let destinationPackage
+    let destinationManifest: ManifestJson | undefined
     try {
-      destinationPackage = await octoKit.rest.repos.getContent({ owner, repo, path: 'package.json' })
+      destinationManifest = await getProjectManifestFromRemote(octoKit, owner, repo)
     } catch (err) {
       logger.error('destination package fetch error %o', err)
       if (err.status !== 404) throw err
     }
-    if (destinationPackage)
-      returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
+    if (destinationManifest) returned.projectName = destinationManifest.name
     else returned.repoEmpty = true
 
     if (inputProjectURL?.length > 0) {
@@ -612,16 +654,10 @@ export const checkDestination = async (app: Application, url: string, params?: P
           error: 'invalidDestinationURL',
           text: 'The destination URL is not valid, or you do not have access to it'
         }
-      let existingProjectPackage
+      let existingProjectManifest: ManifestJson
       try {
-        existingProjectPackage = await projectOctoKit.rest.repos.getContent({
-          owner: existingOwner,
-          repo: existingRepo,
-          path: 'package.json'
-        })
-        const existingProjectName = JSON.parse(
-          Buffer.from(existingProjectPackage.data.content, 'base64').toString()
-        ).name
+        existingProjectManifest = await getProjectManifestFromRemote(projectOctoKit, existingOwner, existingRepo)
+        const existingProjectName = existingProjectManifest.name
         if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
@@ -722,7 +758,6 @@ export const getProjectCommits = async (
         text: 'You does not have access to the destination GitHub repo'
       }
 
-    const enginePackageJson = getEnginePackageJson()
     const repoResponse = await octoKit.rest.repos.get({ owner, repo })
     const branchName = params!.query!.sourceBranch || (repoResponse as any).default_branch
     const headResponse = await octoKit.rest.repos.listCommits({
@@ -737,27 +772,19 @@ export const getProjectCommits = async (
         (commit) =>
           new Promise(async (resolve, reject) => {
             try {
-              const blobResponse = await octoKit.rest.repos.getContent({
-                owner,
-                repo,
-                path: 'package.json',
-                ref: commit.sha
-              })
-              const content = JSON.parse(
-                Buffer.from((blobResponse.data as { content: string }).content, 'base64').toString()
-              )
+              const content = await getProjectManifestFromRemote(octoKit, owner, repo, commit.sha)
               resolve({
                 projectName: content.name,
                 projectVersion: content.version,
-                engineVersion: content.etherealEngine?.version,
+                engineVersion: content.engineVersion,
                 commitSHA: commit.sha,
                 datetime: commit?.commit?.committer?.date || new Date().toString(),
-                matchesEngineVersion: content.etherealEngine?.version
-                  ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
+                matchesEngineVersion: content.engineVersion
+                  ? compareVersions(content.engineVersion, engineVersion || '0.0.0') === 0
                   : false
               })
             } catch (err) {
-              logger.error("Error getting commit's package.json %s/%s:%s %s", owner, repo, branchName, err.toString())
+              logger.error("Error getting commit's manifest.json %s/%s:%s %s", owner, repo, branchName, err.toString())
               resolve({
                 projectName: undefined,
                 projectVersion: undefined,
@@ -791,63 +818,87 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
     const ecr = new ECRPUBLICClient({
-      credentials: {
-        accessKeyId: config.aws.eks.accessKeyId,
-        secretAccessKey: config.aws.eks.secretAccessKey
-      },
+      credentials: fromIni({
+        profile: config.aws.eks.roleArn ? 'role' : 'default',
+        filepath: credentialsPath
+      }),
       region: 'us-east-1'
     })
     const command = {
       repositoryName: publicECRExec[1]
     }
     const result = new DescribeImagesCommand(command)
-    const response = await ecr.send(result)
-    if (!response || !response.imageDetails) return []
-    return response.imageDetails
-      .filter(
-        (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-      )
-      .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
-      .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
-        const tagSplit = tag ? tag.split('_') : ''
-        return {
-          tag,
-          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-          pushedAt: imageDetails.imagePushedAt!.toJSON()
-        }
-      })
+    try {
+      const response = await ecr.send(result)
+      if (!response || !response.imageDetails) return []
+      return response.imageDetails
+        .filter(
+          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
+        )
+        .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
+        .map((imageDetails) => {
+          const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
+          const tagSplit = tag ? tag.split('_') : ''
+          return {
+            tag,
+            commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+            engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+            pushedAt: imageDetails.imagePushedAt!.toJSON()
+          }
+        })
+    } catch (err) {
+      logger.error('Failure to get public ECR images')
+      logger.error('Command that was sent', result)
+      logger.error(err)
+      return []
+    }
   } else if (privateECRExec) {
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
     const ecr = new ECRClient({
-      credentials: {
-        accessKeyId: config.aws.eks.accessKeyId,
-        secretAccessKey: config.aws.eks.secretAccessKey
-      },
+      credentials: fromIni({
+        profile: config.aws.eks.roleArn ? 'role' : 'default',
+        filepath: credentialsPath
+      }),
       region: privateECRExec[1]
     })
     const command = {
       repositoryName: privateECRExec[2]
     }
-    const result = new DescribeImagesCommand(command)
-    const response = await ecr.send(result)
-    if (!response || !response.imageDetails) return []
-    return response.imageDetails
-      .filter(
-        (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-      )
-      .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
-      .map((imageDetails) => {
-        const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
-        const tagSplit = tag ? tag.split('_') : ''
-        return {
-          tag,
-          commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
-          engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
-          pushedAt: imageDetails.imagePushedAt!.toJSON()
-        }
-      })
+    const result = new DescribePrivateImagesCommand(command)
+    try {
+      const response = await ecr.send(result)
+      if (!response || !response.imageDetails) return []
+      return response.imageDetails
+        .filter(
+          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
+        )
+        .sort((a, b) => b.imagePushedAt!.getTime() - a.imagePushedAt!.getTime())
+        .map((imageDetails) => {
+          const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
+          const tagSplit = tag ? tag.split('_') : ''
+          return {
+            tag,
+            commitSHA: tagSplit.length === 1 ? tagSplit[0] : tagSplit[1],
+            engineVersion: tagSplit.length === 1 ? 'unknown' : tagSplit[0],
+            pushedAt: imageDetails.imagePushedAt!.toJSON()
+          }
+        })
+    } catch (err) {
+      logger.error('Failure to get private ECR images')
+      logger.error('Command that was sent %o', result)
+      logger.error(err)
+      return []
+    }
   } else {
     const registry = /docker.io\//.test(process.env.SOURCE_REPO_URL!)
       ? process.env.SOURCE_REPO_URL!.split('/')[1]
@@ -868,7 +919,8 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
         }
       })
     } catch (e) {
-      console.error(e)
+      logger.error('Failure to get Docker Hub images')
+      logger.error(e)
       return []
     }
   }
@@ -1515,7 +1567,7 @@ export const updateProject = async (
     throw err
   }
 
-  await uploadLocalProjectToProvider(app, projectName)
+  const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
   const projectConfig = getProjectConfig(projectName) ?? {}
 
@@ -1555,6 +1607,7 @@ export const updateProject = async (
           updateUserId: userId,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
+          assetsOnly: assetsOnly,
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         },
@@ -1567,6 +1620,7 @@ export const updateProject = async (
           commitSHA,
           hasLocalChanges: false,
           commitDate: toDateTimeSql(commitDate),
+          assetsOnly: assetsOnly,
           sourceRepo: data.sourceURL,
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
@@ -1606,9 +1660,9 @@ export const updateProject = async (
 
   // sync assets with latest query data
 
-  const latestProjectResult = await app.service(projectPath).get(returned.id)
+  const latestProjectResult = getProjectManifest(projectName)
 
-  await syncAllSceneJSONAssets([latestProjectResult], app)
+  if (latestProjectResult?.scenes) await seedSceneAssets(app, returned.name, latestProjectResult.scenes)
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
@@ -1656,7 +1710,7 @@ export const deleteProjectFilesInStorageProvider = async (
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
     if (existingFiles.length) {
       await storageProvider.deleteResources(existingFiles)
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await app.service(invalidationPath).create({
           path: `projects/${projectName}*`
         })
@@ -1751,6 +1805,7 @@ export const uploadLocalProjectToProvider = async (
     }
   }
 
+  let assetsOnly = true
   for (const file of filtered) {
     try {
       const fileResult = fs.readFileSync(file)
@@ -1758,6 +1813,8 @@ export const uploadLocalProjectToProvider = async (
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
       const url = getCachedURL(key, getCacheDomain(storageProvider))
+      if (filePathRelative === '/xrengine.config.ts') assetsOnly = false
+
       await storageProvider.putObject(
         {
           Body: fileResult,
@@ -1823,5 +1880,5 @@ export const uploadLocalProjectToProvider = async (
     await app.service(projectResourcesPath).create({ project: projectName })
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
-  return results.filter((success) => !!success) as string[]
+  return { files: results.filter((success) => !!success) as string[], assetsOnly }
 }

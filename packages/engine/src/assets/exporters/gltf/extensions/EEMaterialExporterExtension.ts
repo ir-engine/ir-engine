@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { CubeTexture, Material, Texture } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
+import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
-import { MaterialLibraryState } from '../../../../scene/materials/MaterialLibrary'
-import { materialToDefaultArgs } from '../../../../scene/materials/functions/MaterialLibraryFunctions'
+import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -54,7 +53,7 @@ export function isOldEEMaterial(extension: any) {
 }
 
 export type EEMaterialExtensionType = {
-  uuid: string
+  uuid: EntityUUID
   name: string
   prototype: string
   args: {
@@ -76,9 +75,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
-    if (!materialEntry) return
-    const argData = materialToDefaultArgs(material)
+    const argData = injectMaterialDefaults(material.uuid as EntityUUID)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {
@@ -109,12 +106,17 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
+    const materialComponent = getComponent(
+      UUIDComponent.getEntityByUUID(material.uuid as EntityUUID),
+      MaterialComponent[MaterialComponents.State]
+    )
+    const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: material.uuid,
       name: material.name,
-      prototype: materialEntry?.prototype ?? material.userData.type ?? material.type,
-      plugins: materialEntry?.plugins ?? material.userData.plugins ?? [],
+      prototype: material.userData.type ?? Object.keys(prototype.prototypeConstructor!)[0],
+      plugins: [] /**@TODO PLUGINS */,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

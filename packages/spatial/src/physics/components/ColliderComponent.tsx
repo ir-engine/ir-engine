@@ -23,29 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Collider } from '@dimforge/rapier3d-compat'
-import {
-  Entity,
-  UndefinedEntity,
-  defineComponent,
-  entityExists,
-  getComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext,
-  useOptionalComponent
-} from '@etherealengine/ecs'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
-import React, { useLayoutEffect } from 'react'
+import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
-import { traverseEntityNodeParent } from '../../transform/components/EntityTree'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { findAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { Shape, Shapes } from '../types/PhysicsTypes'
 import { RigidBodyComponent } from './RigidBodyComponent'
-import { TriggerComponent } from './TriggerComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -59,9 +46,7 @@ export const ColliderComponent = defineComponent({
       friction: 0.5,
       restitution: 0.5,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask,
-      // internal
-      collider: null as Collider | null
+      collisionMask: DefaultCollisionMask
     }
   },
 
@@ -90,7 +75,49 @@ export const ColliderComponent = defineComponent({
     }
   },
 
-  reactor: ColliderComponentReactor
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, ColliderComponent)
+
+    useLayoutEffect(() => {
+      const shape = Physics.getShape(entity)
+      if (!shape || shape === component.shape.value) return
+
+      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+      if (ancestor) {
+        const physicsWorld = getState(PhysicsState).physicsWorld
+        Physics.removeCollider(physicsWorld, entity)
+        const colliderDesc = Physics.createColliderDesc(entity, ancestor)
+        if (colliderDesc) Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
+      }
+    }, [component.shape])
+
+    useLayoutEffect(() => {
+      Physics.setMass(entity, component.mass.value)
+    }, [component.mass])
+
+    // useLayoutEffect(() => {
+    // @todo
+    // }, [component.massCenter])
+
+    useLayoutEffect(() => {
+      Physics.setFriction(entity, component.friction.value)
+    }, [component.friction])
+
+    useLayoutEffect(() => {
+      Physics.setRestitution(entity, component.restitution.value)
+    }, [component.restitution])
+
+    useLayoutEffect(() => {
+      Physics.setCollisionLayer(entity, component.collisionLayer.value)
+    }, [component.collisionLayer])
+
+    useLayoutEffect(() => {
+      Physics.setCollisionMask(entity, component.collisionMask.value)
+    }, [component.collisionMask])
+
+    return null
+  }
 })
 
 export const supportedColliderShapes = [
@@ -102,69 +129,3 @@ export const supportedColliderShapes = [
   Shapes.Mesh
   // Shapes.Heightfield
 ]
-
-function ColliderComponentReactor() {
-  const entity = useEntityContext()
-  const rigidbodyEntity = useHookstate(UndefinedEntity)
-
-  /** @todo we may need to use a useHierarchyComponent sort of thing here */
-  useLayoutEffect(() => {
-    let parentRigidbodyEntity = UndefinedEntity
-    if (hasComponent(entity, RigidBodyComponent)) {
-      parentRigidbodyEntity = entity
-    }
-    traverseEntityNodeParent(entity, (parentEntity) => {
-      if (hasComponent(parentEntity, RigidBodyComponent)) {
-        parentRigidbodyEntity = parentEntity
-      }
-    })
-    rigidbodyEntity.set(parentRigidbodyEntity)
-  }, [])
-
-  return rigidbodyEntity.value ? (
-    <ColliderComponentRigidbodyReactor
-      entity={entity}
-      rigidbodyEntity={rigidbodyEntity.value}
-      key={rigidbodyEntity.value}
-    />
-  ) : null
-}
-
-function ColliderComponentRigidbodyReactor(props: { entity: Entity; rigidbodyEntity: Entity }) {
-  const rigidbodyComponent = useComponent(props.rigidbodyEntity, RigidBodyComponent)
-  const isTrigger = !!useOptionalComponent(props.entity, TriggerComponent)
-  const colliderComponent = useComponent(props.entity, ColliderComponent)
-  const transformComponent = useComponent(props.entity, TransformComponent)
-
-  useLayoutEffect(() => {
-    if (!rigidbodyComponent.body.value) return
-
-    const colliderDesc = Physics.createColliderDesc(
-      props.entity,
-      props.rigidbodyEntity,
-      getComponent(props.entity, ColliderComponent)
-    )
-    const rigidbody = rigidbodyComponent.body.value
-
-    const physicsWorld = getState(PhysicsState).physicsWorld
-    const collider = Physics.attachCollider(physicsWorld, colliderDesc, rigidbody)
-    colliderComponent.collider.set(collider)
-
-    return () => {
-      if (entityExists(props.entity) && hasComponent(props.entity, ColliderComponent)) {
-        colliderComponent.collider.set(null)
-      }
-      Physics.removeCollider(physicsWorld, collider)
-    }
-  }, [rigidbodyComponent.body, transformComponent.scale])
-
-  useLayoutEffect(() => {
-    if (!colliderComponent.collider.value) return
-
-    const collider = colliderComponent.collider.value
-
-    collider.setSensor(isTrigger)
-  }, [colliderComponent.collider, isTrigger])
-
-  return null
-}
