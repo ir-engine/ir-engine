@@ -29,7 +29,7 @@ import React from 'react'
 interface MiddlewareInputProps {
   mwLabel: string
   mwDefaultValue: string
-  mwOnAction: (value: string) => void
+  mwOnAction: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const MiddlewareInput: React.FC<MiddlewareInputProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {
@@ -39,7 +39,8 @@ const MiddlewareInput: React.FC<MiddlewareInputProps> = ({ mwLabel, mwDefaultVal
       label={mwLabel}
       defaultValue={mwDefaultValue || ''}
       type="text"
-      onChange={(e) => mwOnAction(e.target.value)}
+      // Pass the whole event
+      onChange={(e) => mwOnAction(e)}
     />
   )
 }

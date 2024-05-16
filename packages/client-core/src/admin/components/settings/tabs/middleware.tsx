@@ -12,7 +12,7 @@ Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
-specific language governing rights and limitations under the License.
+specific language governing rights and limitations under the LiDefault Valuecense.
 
 The Original Code is Ethereal Engine.
 
@@ -72,19 +72,22 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
         {
           component: 'MiddlewareInput',
           label: 'Dyn Label 1',
-          value: 'Default Value'
+          value: 'Default Value',
+          action: 'mwHandleChange'
         }
       ],
       Dynamic1: [
         {
           component: 'MiddlewareInput',
           label: 'Dyn Label 2',
-          value: 'Default Value'
+          value: 'Default Value',
+          action: 'mwHandleChange'
         },
         {
           component: 'MiddlewareInput',
           label: 'Dyn Label 3',
-          value: 'Default Value'
+          value: 'Default Value',
+          action: 'mwHandleChange'
         }
       ]
     }
@@ -95,14 +98,49 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     MiddlewareToggle: MiddlewareToggle
     // other middleware components
   }
-  const mwHandleChange = (inputValue: string) => {
-    // some logic
-    console.log(inputValue)
+
+  const mwHandleChange = (inputEvent: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = inputEvent.target.value
+    const inputLabel = inputEvent.target.labels?.[0]?.innerText || ''
+
+    console.log(inputLabel, inputValue)
+
+    setTestSettings((prevTestSettings) => {
+      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+
+      newTestSettings.forEach((dynamicObject, index) => {
+        Object.entries(dynamicObject).forEach(([key, value]) => {
+          value.forEach((setting, idx) => {
+            if (setting.component === 'MiddlewareInput' && setting.label === inputLabel) {
+              setting.value = inputValue
+            }
+          })
+        })
+      })
+
+      return newTestSettings
+    })
   }
 
-  const mwHandleToggle = (inputValue: boolean) => {
-    // some logic
-    console.log(inputValue)
+  const mwHandleToggle = (inputLabel: string) => {
+    console.log(inputLabel)
+
+    setTestSettings((prevTestSettings) => {
+      // Shallow copy
+      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+
+      newTestSettings.forEach((dynamicObject, index) => {
+        Object.entries(dynamicObject).forEach(([key, value]) => {
+          value.forEach((setting, idx) => {
+            if (setting.component === 'MiddlewareToggle' && setting.label === inputLabel) {
+              setting.value = !setting.value // toggle the value
+            }
+          })
+        })
+      })
+
+      return newTestSettings
+    })
   }
 
   const actions = {
@@ -188,13 +226,6 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           type="text"
           onChange={(e) => c0.set(e.target.value)}
         />
-
-        {/*  <Toggle*/}
-        {/*    containerClassName="justify-start col-span-full"*/}
-        {/*    label={t('admin:components.setting.middleware.toggle0')}*/}
-        {/*    value={middlewareSetting.toggle0.value}*/}
-        {/*    onChange={(value) => middlewareSetting.toggle0.set(value)}*/}
-        {/*  />*/}
 
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full my-4">
           {t('admin:components.setting.middleware.sub0')}
