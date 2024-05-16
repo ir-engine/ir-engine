@@ -41,7 +41,6 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
 import { RendererComponent, render } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -101,7 +100,7 @@ export async function previewScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -186,7 +185,7 @@ export async function takeScreenshot(
       setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
-        parentEntity: SceneState.getRootEntity(getState(EditorState).sceneID!)
+        parentEntity: getState(EditorState).rootEntity
       })
       scenePreviewCamera.updateMatrixWorld(true)
     }
@@ -203,7 +202,7 @@ export async function takeScreenshot(
   const { renderer, effectComposer, renderContext } = getComponent(Engine.instance.viewerEntity, RendererComponent)
 
   if (hideHelpers) {
-    effectComposer.HighlightEffect?.clearSelection()
+    effectComposer.OutlineEffect?.clearSelection()
   }
 
   const originalSize = renderer.getSize(new Vector2())

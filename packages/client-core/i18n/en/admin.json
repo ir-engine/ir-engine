@@ -217,6 +217,8 @@
       "rebuilding": "Rebuilding",
       "updateEngine": "Update Engine",
       "updateSelector": "Update projects",
+      "currentEngineVersion": "Current Engine Version: {{version}}",
+      "currentEngineCommit": "Current Engine Commit: {{commit}}",
       "projectWarning": "WARNING: Updating projects along with the Engine version may result in loss of work. If you revert to an old engine project and update projects with it, your copy of these projects will also be reverted. It is recommended that you back up the destination branch of these projects if you have made modifications that might be lost.",
       "updateAndRebuild": "Update Engine/Rebuild",
       "checking": "Checking Rebuild",
@@ -512,7 +514,7 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No schema available in xrengine.config.ts"
+        "noSettingsMessage": "No settings schema available in xrengine.config.ts"
       },
       "server": {
         "header": "Server",

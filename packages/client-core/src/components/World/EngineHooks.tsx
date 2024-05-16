@@ -27,32 +27,25 @@ import { none, useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine, UUIDComponent, UndefinedEntity, getComponent } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, getMutableState } from '@etherealengine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  WorldNetworkAction,
   addNetwork,
   createNetwork,
   removeNetwork
 } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 
@@ -66,75 +59,6 @@ export const useEngineInjection = () => {
     })
   }, [])
   return loaded.value
-}
-
-export const useLocationSpawnAvatar = (spectate = false) => {
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-  const sceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId)
-  const rootUUID = SceneState.useScene(sceneID.value)?.root?.value
-
-  useEffect(() => {
-    if (!sceneLoaded.value || !rootUUID) return
-
-    if (spectate) {
-      dispatchAction(CameraActions.spectateUser({}))
-      return
-    }
-
-    const spectateParam = getSearchParamFromURL('spectate')
-    if (spectateParam) return
-
-    // the avatar should only be spawned once, after user auth and scene load
-    const user = getState(AuthState).user
-    const spawnPoint = getSearchParamFromURL('spawnPoint')
-
-    const avatarSpawnPose = spawnPoint
-      ? getSpawnPoint(spawnPoint, Engine.instance.userID)
-      : getRandomSpawnPoint(Engine.instance.userID)
-
-    spawnLocalAvatarInWorld({
-      parentUUID: rootUUID,
-      avatarSpawnPose,
-      avatarID: user.avatar.id!,
-      name: user.name
-    })
-  }, [sceneLoaded.value, rootUUID])
-}
-
-/**
- * Spawns an avatar under the normal conditions, but also despawns it when the component unmounts.
- */
-export const useLocationSpawnAvatarWithDespawn = () => {
-  useLocationSpawnAvatar()
-  useEffect(() => {
-    return () => {
-      despawnSelfAvatar()
-    }
-  }, [])
-}
-
-export const despawnSelfAvatar = () => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  if (!selfAvatarEntity) return
-
-  const network = NetworkState.worldNetwork
-
-  const peersCountForUser = network?.users?.[Engine.instance.userID]?.length
-
-  // if we are the last peer in the world for this user, destroy the object
-  if (!peersCountForUser || peersCountForUser === 1) {
-    dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
-  }
-
-  /** @todo this logic should be handled by the camera system */
-  // const cameraEntity = Engine.instance.cameraEntity
-  // if (!cameraEntity) return
-
-  // const cameraComputed = getComponent(cameraEntity, ComputedTransformComponent)
-  // removeEntity(cameraComputed.referenceEntity)
-  // removeComponent(cameraEntity, ComputedTransformComponent)
-  // removeComponent(cameraEntity, FollowCameraComponent)
-  // removeComponent(cameraEntity, TargetCameraRotationComponent)
 }
 
 export const useLinkTeleport = () => {
@@ -207,23 +131,9 @@ export const usePortalTeleport = () => {
   }, [portalState.portalReady])
 }
 
-type Props = {
-  spectate?: boolean
-}
-
-export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-
-  useLocationSpawnAvatar(spectate)
+export const useLoadEngineWithScene = () => {
   usePortalTeleport()
   useLinkTeleport()
-
-  useEffect(() => {
-    if (sceneLoaded.value) {
-      /** used by the PWA service worker */
-      window.dispatchEvent(new Event('load'))
-    }
-  }, [sceneLoaded])
 }
 
 export const useNetwork = (props: { online?: boolean }) => {

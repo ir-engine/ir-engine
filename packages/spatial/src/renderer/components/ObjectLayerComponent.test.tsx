@@ -42,6 +42,21 @@ describe('ObjectLayerComponent', () => {
     return destroyEngine()
   })
 
+  it('Sets mask and layer', () => {
+    const entity = createEntity()
+
+    const layer = 8
+    const layerMask = 1 << layer
+
+    setComponent(entity, ObjectLayerMaskComponent, layerMask)
+
+    assert(hasComponent(entity, ObjectLayerMaskComponent))
+    const componentLayerMask = getComponent(entity, ObjectLayerMaskComponent)
+    assert(componentLayerMask === layerMask)
+    assert(componentLayerMask !== layer)
+    assert(hasComponent(entity, ObjectLayerComponents[layer]))
+  })
+
   it('Sets objectLayers on group', () => {
     const entity = createEntity()
     const geometry = new BoxGeometry(1, 1, 1)

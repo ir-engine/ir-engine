@@ -54,12 +54,14 @@ describe('upload-asset', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
+    const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
     const url2 = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
     mockFetch({
       [url]: {
         contentType: 'application/json',
-        response: fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/default.scene.json'))
+        response: fs.readFileSync(
+          path.join(appRootPath.path, '/packages/projects/default-project/public/scenes/default.gltf')
+        )
       },
       [url2]: {
         contentType: 'audio/mpeg',
@@ -118,8 +120,8 @@ describe('upload-asset', () => {
 
     it('should add asset as a new static resource from path', async () => {
       // todo - serve this file from a local server
-      const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/default.scene.json')
-      const name = 'default.scene.json'
+      const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/public/scenes/default.gltf')
+      const name = 'default.gltf'
       const hash = createStaticResourceHash(assetPath)
 
       const file = await downloadResourceAndMetadata(assetPath, true)
@@ -130,26 +132,26 @@ describe('upload-asset', () => {
       } as AdminAssetUploadArgumentsType
 
       const response = await addAssetAsStaticResource(app, file, args)
-      assert.equal(response.key, 'static-resources/test/default.scene.json')
+      assert.equal(response.key, 'static-resources/test/default.gltf')
       assert.equal(response.hash, hash)
-      assert.equal(response.mimeType, 'application/json')
+      assert.equal(response.mimeType, 'model/gltf')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service(staticResourcePath).get(response.id)
-      assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
+      assert.equal(staticResource.key, 'static-resources/test/default.gltf')
       assert.equal(staticResource.hash, hash)
-      assert.equal(staticResource.mimeType, 'application/json')
+      assert.equal(staticResource.mimeType, 'model/gltf')
       assert.equal(staticResource.project, testProject)
 
       const storageProvider = getStorageProvider()
       const fileResponse = await storageProvider.getObject(staticResource.key)
-      assert.equal(fileResponse.ContentType, 'application/json')
+      assert.equal(fileResponse.ContentType, 'model/gltf+json')
     })
 
     it('should add asset as a new static resource from url', async () => {
       const storageProvider = getStorageProvider()
-      const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
-      const name = 'default.scene.json'
+      const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
+      const name = 'default.gltf'
       const hash = createStaticResourceHash(url)
 
       const file = await downloadResourceAndMetadata(url, true)
@@ -160,19 +162,19 @@ describe('upload-asset', () => {
       } as AdminAssetUploadArgumentsType
 
       const response = await addAssetAsStaticResource(app, file, args)
-      assert.equal(response.key, 'static-resources/test/default.scene.json')
+      assert.equal(response.key, 'static-resources/test/default.gltf')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service(staticResourcePath).get(response.id)
-      assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
+      assert.equal(staticResource.key, 'static-resources/test/default.gltf')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
       assert.equal(staticResource.project, testProject)
 
       const fileResponse = await storageProvider.getObject(staticResource.key)
-      assert.equal(fileResponse.ContentType, 'application/json')
+      assert.equal(fileResponse.ContentType, 'model/gltf+json')
     })
   })
 

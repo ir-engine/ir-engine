@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneID } from '@etherealengine/common/src/schema.type.module'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
@@ -39,7 +38,6 @@ export type HeirarchyTreeNodeType = {
   lastChild: boolean
   isLeaf?: boolean
   isCollapsed?: boolean
-  active?: boolean
 }
 
 export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
@@ -50,11 +48,7 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  * @param  {entityNode}    expandedNodes
  */
 
-export function* heirarchyTreeWalker(
-  sceneID: SceneID,
-  treeNode: Entity,
-  selectedEntities: Entity[]
-): Generator<HeirarchyTreeNodeType> {
+export function* heirarchyTreeWalker(sceneID: string, treeNode: Entity): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 
   const stack = [] as HeirarchyTreeNodeType[]
@@ -82,7 +76,6 @@ export function* heirarchyTreeWalker(
       isCollapsed,
       depth,
       entity: entityNode,
-      active: selectedEntities.length > 0 && entityNode === selectedEntities[selectedEntities.length - 1],
       childIndex,
       lastChild
     }

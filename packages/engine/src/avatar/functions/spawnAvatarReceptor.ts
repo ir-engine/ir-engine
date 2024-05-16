@@ -30,6 +30,7 @@ import {
   UUIDComponent,
   createEntity,
   getComponent,
+  getOptionalComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
@@ -38,7 +39,6 @@ import { setTargetCameraRotation } from '@etherealengine/spatial/src/camera/func
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -62,13 +62,15 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-export const avatarRadius = 0.125
+import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
+import { eyeOffset } from '../systems/AvatarTransparencySystem'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
+  setComponent(entity, TransformComponent)
 
   const obj3d = new Object3D()
   obj3d.entity = entity
@@ -103,7 +105,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     allowRolling: false,
     enabledRotations: [false, true, false]
   })
-  setComponent(entity, CollisionComponent)
 
   createAvatarCollider(entity)
 
@@ -124,18 +125,30 @@ export const createAvatarCollider = (entity: Entity) => {
   const colliderEntity = createEntity()
   setComponent(entity, AvatarColliderComponent, { colliderEntity })
 
-  const avatarComponent = getComponent(entity, AvatarComponent)
-  const halfHeight = avatarComponent.avatarHeight * 0.5
-
+  setAvatarColliderTransform(colliderEntity)
   setComponent(colliderEntity, EntityTreeComponent, { parentEntity: entity })
-  setComponent(colliderEntity, TransformComponent, {
-    position: new Vector3(0, halfHeight + 0.25, 0),
-    scale: new Vector3(avatarRadius, halfHeight - avatarRadius - 0.25, avatarRadius)
-  })
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,
     collisionMask: AvatarCollisionMask
+  })
+}
+
+const avatarCapsuleOffset = 0.25
+export const setAvatarColliderTransform = (entity: Entity) => {
+  const avatarCollider = getOptionalComponent(entity, AvatarColliderComponent)
+  if (!avatarCollider) {
+    return
+  }
+  const colliderEntity = avatarCollider.colliderEntity
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const avatarRadius = eyeOffset + camera.near
+  const avatarComponent = getComponent(entity, AvatarComponent)
+  const halfHeight = avatarComponent.avatarHeight * 0.5
+
+  setComponent(colliderEntity, TransformComponent, {
+    position: new Vector3(0, halfHeight + avatarCapsuleOffset, 0),
+    scale: new Vector3(avatarRadius, halfHeight - avatarRadius - avatarCapsuleOffset, avatarRadius)
   })
 }
 
@@ -149,7 +162,6 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
 
-  setComponent(entity, AvatarControllerComponent, {
-    controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
-  })
+  Physics.createCharacterController(entity, getState(PhysicsState).physicsWorld, {})
+  setComponent(entity, AvatarControllerComponent)
 }

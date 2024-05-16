@@ -26,42 +26,41 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
+import { Entity } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent, useChildWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
-
-import { UUIDComponent } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
@@ -91,11 +90,17 @@ export const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
 
-    setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
-      getComponent(meshEntity, TransformComponent).position.copy(
-        getComponent(Engine.instance.cameraEntity, TransformComponent).position
-      )
+    setComponent(meshEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        getComponent(meshEntity, TransformComponent).position.copy(
+          getComponent(Engine.instance.viewerEntity, TransformComponent).position
+        )
+      }
     })
+
+    setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(meshEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     setComponent(meshEntity, VisibleComponent)
     addObjectToGroup(meshEntity, mesh)
@@ -106,6 +111,11 @@ export const LoadingUISystemState = defineState({
 
     return {
       ui,
+      colors: {
+        main: '',
+        background: '',
+        alternate: ''
+      },
       meshEntity,
       transition,
       ready: false
@@ -113,17 +123,79 @@ export const LoadingUISystemState = defineState({
   }
 })
 
-const LoadingReactor = () => {
-  const loadingProgress = useHookstate(getMutableState(SceneState).loadingProgress)
-  const sceneLoaded = useHookstate(getMutableState(SceneState).sceneLoaded)
-  const state = useHookstate(getMutableState(LoadingUISystemState))
+const LoadingReactor = (props: { sceneEntity: Entity }) => {
+  const { sceneEntity } = props
+  const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
+  const loadingProgress = gltfComponent.progress.value
+  const sceneLoaded = loadingProgress === 100
   const locationState = useHookstate(getMutableState(LocationState))
+  const state = useHookstate(getMutableState(LoadingUISystemState))
+
+  useEffect(() => {
+    getState(LoadingUISystemState).ui.state.progress.set(loadingProgress)
+  }, [loadingProgress])
+
+  /** Scene is loading */
+  useEffect(() => {
+    const transition = getState(LoadingUISystemState).transition
+    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded) transition.setState('IN')
+  }, [state.ready])
+
+  /** Scene has loaded */
+  useEffect(() => {
+    if (sceneLoaded && !state.ready.value) state.ready.set(true)
+    const transition = getState(LoadingUISystemState).transition
+    if (transition.state === 'IN' && sceneLoaded) transition.setState('OUT')
+    /** used by the PWA service worker */
+    /** @TODO find a better place for this */
+    window.dispatchEvent(new Event('load'))
+  }, [sceneLoaded])
+
+  useEffect(() => {
+    const xrui = getComponent(state.ui.entity.value, XRUIComponent)
+    const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
+    if (!progressBar) return
+
+    const scaleMultiplier = 0.01
+    const centerOffset = 0.05
+
+    progressBar.onBeforeApplyLayout = () => {
+      progressBar.domLayout.position.setX(loadingProgress * scaleMultiplier * centerOffset - centerOffset)
+      progressBar.domLayout.scale.setX(loadingProgress * scaleMultiplier)
+    }
+
+    progressBar.updateMatrixWorld(true)
+  }, [loadingProgress])
+
+  useEffect(() => {
+    if (locationState.invalidLocation.value || locationState.currentLocation.selfNotAuthorized.value) {
+      state.ready.set(true)
+      const transition = getState(LoadingUISystemState).transition
+      transition.setState('OUT')
+      return
+    }
+  }, [locationState.invalidLocation, locationState.currentLocation.selfNotAuthorized])
+
+  return (
+    <>
+      {!state.ready.value && <HideCanvas />}
+      <SceneSettingsReactor sceneEntity={sceneEntity} key={sceneEntity} />
+    </>
+  )
+}
+
+const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
+  const sceneSettingsEntity = useChildWithComponent(props.sceneEntity, SceneSettingsComponent)
+  if (!sceneSettingsEntity) return null
+  return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
+}
+
+const SceneSettingsChildReactor = (props: { entity: Entity }) => {
+  const state = useHookstate(getMutableState(LoadingUISystemState))
   const meshEntity = state.meshEntity.value
-  const locationSceneID = locationState.currentLocation.location.sceneId.value
-  const scene = SceneState.getScene(locationSceneID)
-  const sceneEntity = UUIDComponent.useEntityByUUID(scene.scene.root)
-  const sceneComponent = getOptionalComponent(sceneEntity, SceneSettingsComponent)
-  const [loadingTexture, error] = useTexture(sceneComponent ? sceneComponent.loadingScreenURL : '', sceneEntity)
+
+  const sceneComponent = useComponent(props.entity, SceneSettingsComponent)
+  const [loadingTexture, error] = useTexture(sceneComponent.loadingScreenURL.value, props.entity)
 
   useEffect(() => {
     if (!loadingTexture) return
@@ -154,66 +226,21 @@ const LoadingReactor = () => {
     state.ready.set(true)
   }, [error])
 
-  /** Scene is loading */
-  useEffect(() => {
-    const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded.value) return transition.setState('IN')
-  }, [state.ready])
-
-  /** Scene has loaded */
-  useEffect(() => {
-    const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'IN' && sceneLoaded.value) return transition.setState('OUT')
-  }, [sceneLoaded])
-
   /** Scene data changes */
   useEffect(() => {
-    if (!sceneEntity) return
-
-    if (!sceneComponent) {
-      state.ready.set(true)
-      return
-    }
-
-    const colors = getState(LoadingUISystemState).ui.state.colors
-    colors.main.set(sceneComponent.primaryColor)
-    colors.background.set(sceneComponent.backgroundColor)
-    colors.alternate.set(sceneComponent.alternativeColor)
+    const colors = getMutableState(LoadingUISystemState).colors
+    colors.main.set(sceneComponent.primaryColor.value)
+    colors.background.set(sceneComponent.backgroundColor.value)
+    colors.alternate.set(sceneComponent.alternativeColor.value)
 
     return () => {
       colors.main.set('black')
       colors.background.set('white')
       colors.alternate.set('black')
     }
-  }, [sceneEntity])
+  }, [sceneComponent])
 
-  useEffect(() => {
-    const xrui = getComponent(state.ui.entity.value, XRUIComponent)
-    const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
-    if (!progressBar) return
-
-    const percentage = loadingProgress.value
-    const scaleMultiplier = 0.01
-    const centerOffset = 0.05
-
-    progressBar.onBeforeApplyLayout = () => {
-      progressBar.domLayout.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
-      progressBar.domLayout.scale.setX(percentage * scaleMultiplier)
-    }
-
-    progressBar.updateMatrixWorld(true)
-  }, [loadingProgress])
-
-  useEffect(() => {
-    if (locationState.invalidLocation.value || locationState.currentLocation.selfNotAuthorized.value) {
-      state.ready.set(true)
-      const transition = getState(LoadingUISystemState).transition
-      transition.setState('OUT')
-      return
-    }
-  }, [locationState.invalidLocation, locationState.currentLocation.selfNotAuthorized])
-
-  return <>{!state.ready.value && <HideCanvas />}</>
+  return null
 }
 
 const HideCanvas = () => {
@@ -225,7 +252,7 @@ const mainThemeColor = new Color()
 const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, meshEntity, ready } = getState(LoadingUISystemState)
+  const { transition, ui, meshEntity, colors, ready } = getState(LoadingUISystemState)
   if (!transition) return
 
   const ecsState = getState(ECSState)
@@ -239,27 +266,30 @@ const execute = () => {
 
   if (transition.state === 'IN' && transition.alpha === 1) {
     if (!hasComponent(ui.entity, ComputedTransformComponent))
-      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-        const distance = camera.near * 1.1 // 10% in front of camera
-        const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
-        if (!uiContainer) return
-        const uiSize = uiContainer.domSize
-        const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
-        const aspectRatio = screenSize.x / screenSize.y
-        const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-        const scale =
-          ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
-          0.25 *
-          scaleMultiplier
-        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      setComponent(ui.entity, ComputedTransformComponent, {
+        referenceEntities: [Engine.instance.cameraEntity],
+        computeFunction: () => {
+          const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+          const distance = camera.near * 1.1 // 10% in front of camera
+          const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+          if (!uiContainer) return
+          const uiSize = uiContainer.domSize
+          const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
+          const aspectRatio = screenSize.x / screenSize.y
+          const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+          const scale =
+            ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+            0.25 *
+            scaleMultiplier
+          ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+        }
       })
   }
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
 
-  mainThemeColor.set(ui.state.colors.alternate.value)
+  mainThemeColor.set(colors.alternate)
 
   transition.update(ecsState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
@@ -291,18 +321,22 @@ const reactor = () => {
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const scenes = useHookstate(getMutableState(SceneState).scenes).value
+  const sceneEntity = GLTFAssetState.useScene(locationSceneID)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
 
   useEffect(() => {
     const theme = getAppTheme()
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes, clientSettings])
 
-  if (!locationSceneID || !scenes[locationSceneID]) return null
+  if (!sceneEntity) return null
+
+  // wait for scene gltf to load
+  if (!gltfDocumentState[getComponent(sceneEntity, GLTFComponent).src]) return null
 
   return (
     <>
-      <LoadingReactor />
+      <LoadingReactor sceneEntity={sceneEntity} key={sceneEntity} />
     </>
   )
 }

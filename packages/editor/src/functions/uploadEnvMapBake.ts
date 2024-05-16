@@ -28,7 +28,6 @@ import { Scene, Vector3 } from 'three'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -75,7 +74,7 @@ const getScenePositionForBake = (entity?: Entity) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const isSceneEntity = entity === SceneState.getRootEntity(getState(EditorState).sceneID!)
+  const isSceneEntity = entity === getState(EditorState).rootEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
@@ -112,7 +111,10 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const projectName = editorState.projectName!
   const filename = isSceneEntity ? `${sceneName}.envmap.ktx2` : `${sceneName}-${nameComponent.replace(' ', '-')}.ktx2`
 
-  const url = (await uploadProjectFiles(projectName, [new File([envmap], filename)]).promises[0])[0]
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const url = (
+    await uploadProjectFiles(projectName, [new File([envmap], filename)], [currentSceneDirectory]).promises[0]
+  )[0]
 
   setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
 }
@@ -178,7 +180,9 @@ export const uploadCubemapBakeToServer = async (name: string, data: ImageData) =
   const sceneName = editorState.sceneName!
   const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
-  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0]
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)], [currentSceneDirectory])
+    .promises[0]
   const url = urlList[0]
 
   return url

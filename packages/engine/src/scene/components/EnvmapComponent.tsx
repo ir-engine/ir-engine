@@ -33,33 +33,49 @@ import {
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
+  Object3D,
   RGBAFormat,
   SRGBColorSpace,
-  Texture
+  Texture,
+  Vector3
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import {
+  envmapParsReplaceLambert,
+  envmapPhysicalParsReplace,
+  envmapReplaceLambert,
+  worldposReplace
+} from '../classes/BPCEMShader'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { EnvMapBakeComponent, applyBoxProjection } from './EnvMapBakeComponent'
-import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 
 const tempColor = new Color()
 
@@ -88,16 +104,6 @@ export const EnvmapComponent = defineComponent({
     if (typeof json?.envMapSourceEntityUUID === 'string')
       component.envMapSourceEntityUUID.set(json.envMapSourceEntityUUID)
     if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
-    /**
-     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
-     */
-    // if (
-    //   isClient &&
-    //   !getState(SceneState).sceneLoaded &&
-    //   hasComponent(entity, SourceComponent) &&
-    //   component.type.value !== EnvMapSourceType.None
-    // )
-    //   SceneAssetPendingTagComponent.addResource(entity, EnvmapComponent.jsonID)
   },
 
   toJSON: (entity, component) => {
@@ -130,7 +136,6 @@ export const EnvmapComponent = defineComponent({
       if (component.type.value !== EnvMapSourceType.Skybox) return
       component.envmap.set(null)
       /** Setting the value from the skybox can be found in EnvironmentSystem */
-      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [component.type])
 
     useEffect(() => {
@@ -138,12 +143,22 @@ export const EnvmapComponent = defineComponent({
 
       const col = component.envMapSourceColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
+      const [texture, unload] = createDisposable(
+        DataTexture,
+        entity,
+        getRGBArray(col),
+        resolution,
+        resolution,
+        RGBAFormat
+      )
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
       component.envmap.set(texture)
-      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
+
+      return () => {
+        unload()
+      }
     }, [component.type, component.envMapSourceColor])
 
     useEffect(() => {
@@ -151,7 +166,6 @@ export const EnvmapComponent = defineComponent({
 
       envMapTexture.mapping = EquirectangularReflectionMapping
       component.envmap.set(envMapTexture)
-      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [envMapTexture])
 
     useEffect(() => {
@@ -159,7 +173,6 @@ export const EnvmapComponent = defineComponent({
 
       component.envmap.set(null)
       addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [error])
 
     useEffect(() => {
@@ -169,7 +182,6 @@ export const EnvmapComponent = defineComponent({
         loadCubeMapTexture(
           component.envMapSourceURL.value,
           (texture: CubeTexture | undefined) => {
-            SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
             if (texture) {
               texture.mapping = CubeReflectionMapping
               texture.colorSpace = SRGBColorSpace
@@ -181,7 +193,6 @@ export const EnvmapComponent = defineComponent({
           (_) => {
             component.envmap.set(null)
             addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-            SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
           }
         )
       }
@@ -190,7 +201,6 @@ export const EnvmapComponent = defineComponent({
     useEffect(() => {
       if (!component.envmap.value) return
       updateEnvMap(mesh, component.envmap.value)
-      SceneAssetPendingTagComponent.removeResource(entity, EnvmapComponent.jsonID)
     }, [mesh, component.envmap])
 
     useEffect(() => {
@@ -216,24 +226,19 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
-  const renderState = useHookstate(getMutableState(RendererState))
+  const uuid = useComponent(envmapEntity, MaterialComponent[MaterialComponents.Instance]).uuid
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
-
-  /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
     const texture = envMaptexture
     if (!texture) return
-
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
     if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
-    SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
-  }, [envMaptexture])
+  }, [envMaptexture, uuid])
 
   useEffect(() => {
     if (!error) return
     addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-    SceneAssetPendingTagComponent.removeResource(props.envmapEntity, EnvmapComponent.jsonID)
   }, [error])
 
   return null
@@ -262,5 +267,60 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
     })
   } else {
     ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+  }
+}
+
+export type BoxProjectionParameters = {
+  cubeMapSize: Vector3
+  cubeMapPos: Vector3
+}
+
+export const BoxProjectionPlugin = {
+  id: 'BoxProjectionPlugin',
+  compile: (shader, renderer) => {
+    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
+    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+    if (!plugin) return
+
+    const shaderType = shader.shaderType
+    const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+    const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+    if (!isSupported) return
+
+    if (isPhysical) {
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    } else {
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplaceLambert)
+      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+    }
+
+    applyPluginShaderParameters(pluginEntity, shader, {
+      cubeMapSize: new Vector3(0, 0, 0),
+      cubeMapPos: new Vector3(0, 0, 0)
+    })
+  }
+}
+
+const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+  for (const target of targets) {
+    const child = target as Mesh<any, MeshStandardMaterial>
+    if (!child.material || child.type == 'VFXBatch') return
+
+    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
+    const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
+    setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
+    getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
+      getComponent(materialEntity, NameComponent)
+    ].set({
+      cubeMapSize: { value: bakeComponent.bakeScale },
+      cubeMapPos: { value: bakeComponent.bakePositionOffset }
+    })
   }
 }

@@ -23,18 +23,17 @@ import {
   LocationData,
   LocationID,
   LocationType,
-  SceneID,
+  assetPath,
   locationPath
 } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 
 const getDefaultErrors = () => ({
   name: '',
@@ -42,6 +41,12 @@ const getDefaultErrors = () => ({
   scene: '',
   serverError: ''
 })
+
+const locationTypeOptions = [
+  { label: 'Private', value: 'private' },
+  { label: 'Public', value: 'public' },
+  { label: 'Showroom', value: 'showroom' }
+]
 
 export default function AddEditLocationModal({ location }: { location?: LocationType }) {
   const { t } = useTranslation()
@@ -57,18 +62,13 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
+  const locationType = useHookstate(location?.locationSetting.locationType || 'public')
 
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-
-  useEffect(() => {
-    AdminSceneService.fetchAdminScenes()
-    const sceneId = location?.sceneId || ''
-    if (sceneId) {
-      // sceneId is in the format of "projects/PROJECT_NAME/SCENE_NAME.scene.json"
-      // so we strip off projects & scene.json and set the scene state
-      scene.set(sceneId.slice(9, -11))
+  const scenes = useFind(assetPath, {
+    query: {
+      paginate: false
     }
-  }, [])
+  })
 
   const handleSubmit = async () => {
     errors.set(getDefaultErrors())
@@ -91,12 +91,12 @@ export default function AddEditLocationModal({ location }: { location?: Location
     const locationData: LocationData = {
       name: name.value,
       slugifiedName: '',
-      sceneId: `projects/${scene.value}.scene.json` as SceneID,
+      sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         id: '',
         locationId: '' as LocationID,
-        locationType: location?.locationSetting.locationType as 'private' | 'public' | 'showroom',
+        locationType: locationType.value,
         audioEnabled: audioEnabled.value,
         screenSharingEnabled: screenSharingEnabled.value,
         faceStreamingEnabled: false,
@@ -152,19 +152,29 @@ export default function AddEditLocationModal({ location }: { location?: Location
           label={t('admin:components.location.lbl-scene')}
           currentValue={scene.value}
           onChange={(value) => scene.set(value)}
-          disabled={adminSceneState.retrieving.value || submitLoading.value}
+          disabled={scenes.status !== 'success' || submitLoading.value}
           options={
-            adminSceneState.retrieving.value
+            scenes.status === 'pending'
               ? [{ value: '', label: t('common:select.fetching') }]
               : [
                   { value: '', label: t('admin:components.location.selectScene'), disabled: true },
-                  ...adminSceneState.scenes.value.map((scene) => ({
-                    label: `${scene.name} (${scene.project})`,
-                    value: `${scene.project}/${scene.name}`
-                  }))
+                  ...scenes.data.map((scene) => {
+                    const project = scene.projectName
+                    const name = scene.assetURL.split('/').pop()!.split('.').at(0)!
+                    return {
+                      label: `${name} (${project})`,
+                      value: scene.id
+                    }
+                  })
                 ]
           }
           error={errors.scene.value}
+        />
+        <Select
+          label={t('admin:components.location.type')}
+          currentValue={locationType.value}
+          onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
+          options={locationTypeOptions}
         />
         <Toggle
           label={t('admin:components.location.lbl-ve')}

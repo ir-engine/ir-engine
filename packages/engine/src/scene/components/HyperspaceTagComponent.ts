@@ -38,11 +38,10 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/Axis3D'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -67,7 +66,7 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'
@@ -244,9 +243,8 @@ export const HyperspaceTagComponent = defineComponent({
         const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const ecsState = getState(ECSState)
-        const sceneLoaded = getState(SceneState).sceneLoaded
 
-        if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
+        if (transition.alpha >= 1 && transition.state === 'IN') {
           transition.setState('OUT')
           camera.layers.enable(ObjectLayers.Scene)
         }
@@ -270,7 +268,7 @@ export const HyperspaceTagComponent = defineComponent({
           sceneVisible.set(false)
         }
 
-        if (sceneLoaded && transition.state === 'OUT' && transition.alpha <= 0 && !sceneVisible.value) {
+        if (transition.state === 'OUT' && transition.alpha <= 0 && !sceneVisible.value) {
           sceneVisible.set(true)
           removeComponent(entity, HyperspaceTagComponent)
           getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)

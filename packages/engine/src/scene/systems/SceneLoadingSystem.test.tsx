@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneDataType, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
@@ -44,8 +44,8 @@ import assert from 'assert'
 import React from 'react'
 import testSceneJson from '../../../tests/assets/SceneLoadingTest.scene.json'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneLoadingSystem } from './SceneLoadingSystem'
 
@@ -55,11 +55,11 @@ const testScene = {
   name: '',
   thumbnailUrl: '',
   project: '',
-  scenePath: 'test' as SceneID,
+  scenePath: 'test',
   scene: testSceneJson
-} as SceneDataType
+} as any
 
-const sceneID = 'test' as SceneID
+const sceneID = 'test'
 overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
@@ -504,23 +504,23 @@ describe('SceneLoadingSystem', () => {
     // load scene
     // force re-render
 
-    const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent]).enter
+    const sceneAssetPendingTagQuery = defineQuery([ResourcePendingComponent]).enter
     // will capture the sceneAssetPendingTag for the model component
     const inLoadingEntities = sceneAssetPendingTagQuery()
     //after loading
     for (const entity of inLoadingEntities) {
       if (entity === SceneState.getRootEntity(sceneID)) {
         assert.equal(
-          hasComponent(entity, SceneAssetPendingTagComponent),
+          hasComponent(entity, ResourcePendingComponent),
           true,
-          'root entity does not have SceneAssetPendingTagComponent'
+          'root entity does not have ResourcePendingComponent'
         )
       }
       if (hasComponent(entity, ModelComponent)) {
         assert.equal(
-          hasComponent(entity, SceneAssetPendingTagComponent),
+          hasComponent(entity, ResourcePendingComponent),
           true,
-          'entity with model does not have SceneAssetPendingTagComponent'
+          'entity with model does not have ResourcePendingComponent'
         )
       }
     }
@@ -529,9 +529,9 @@ describe('SceneLoadingSystem', () => {
     assert(rootEntity, 'root entity not found')
     assert.equal(hasComponent(rootEntity, EntityTreeComponent), true, 'root entity does not have EntityTreeComponent')
     assert.equal(
-      !hasComponent(rootEntity, SceneAssetPendingTagComponent),
+      !hasComponent(rootEntity, ResourcePendingComponent),
       true,
-      'root entity has SceneAssetPendingTagComponent after loading'
+      'root entity has ResourcePendingComponent after loading'
     )
 
     assert.equal(

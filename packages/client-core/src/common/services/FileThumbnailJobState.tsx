@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
@@ -94,7 +94,9 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
 const uploadThumbnail = async (key: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailType = 'automatic'
-  const thumbnailKey = `${key.replace(/^.*?\/projects\//, '').replaceAll('/', '-')}-thumbnail.png`
+  const thumbnailKey = `${decodeURI(key.replace(/^.*?\/projects\//, ''))
+    .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
+    .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
   const path = `projects/${projectName}/thumbnails`
   const upload: Promise<string[]> = uploadToFeathersService(fileBrowserUploadPath, [file], {

@@ -91,6 +91,14 @@ export class LoginService implements ServiceInterface {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
+
+      await this.app.service(identityProviderPath).remove(null, {
+        query: {
+          userId: identityProvider.userId,
+          type: 'guest'
+        }
+      })
+
       await this.app.service(loginTokenPath).remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false

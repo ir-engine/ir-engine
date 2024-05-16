@@ -30,7 +30,7 @@ import { locationSettingPath } from '@etherealengine/common/src/schemas/social/l
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { SceneID } from '@etherealengine/common/src/schemas/projects/scene.schema'
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -52,13 +52,18 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${uuidv4()}`
-    const sceneId = `test-scene-${uuidv4()}` as SceneID
+
+    const scene = await app.service(assetPath).find({
+      query: {
+        assetURL: 'projects/default-project/public/scenes/default.gltf'
+      }
+    })
 
     const item = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
-        sceneId,
+        sceneId: scene.data[0].id,
         maxUsersPerInstance: 20,
         locationSetting: {
           id: '',
@@ -108,6 +113,7 @@ describe('location.test', () => {
     delete locationData.locationAdmin
     delete locationData.createdAt
     delete locationData.updatedAt
+    delete locationData.sceneAsset
 
     const item = (await app
       .service(locationPath)

@@ -32,6 +32,7 @@ import { locationSettingPath } from '@etherealengine/common/src/schemas/social/l
 import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
@@ -66,6 +67,9 @@ export const locationResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBanType[]
   }),
+  sceneAsset: virtual(async (location, context) => {
+    return context.app.service(assetPath).get(location.sceneId)
+  }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
 })
@@ -83,7 +87,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
     return {
       ...location.locationSetting,
       id: uuidv4(),
-      locationType: location.locationSetting.locationType || 'private',
+      locationType: location.locationSetting.locationType || 'public',
       locationId: '' as LocationID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()

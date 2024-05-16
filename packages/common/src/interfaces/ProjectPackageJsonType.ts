@@ -28,7 +28,9 @@ import { IPackageJson } from 'package-json-type'
 export const DefaultUpdateSchedule = '0 * * * *'
 
 export interface ProjectPackageJsonType extends IPackageJson {
+  /** @deprecated */
   etherealEngine: {
     version: string
+    thumbnail?: string
   }
 }

@@ -94,14 +94,13 @@ export default function UpdateEngineModal() {
       PopoverState.showPopupover(
         <AddEditProjectModal
           inputProject={project}
-          processing={false}
           update={true}
-          onSubmit={() => {
-            PopoverState.hidePopupover()
+          onSubmit={async () => {
             projectsToUpdate.set((set) => {
               set.add(project.name)
               return set
             })
+            PopoverState.hidePopupover()
           }}
         />
       )
@@ -139,6 +138,7 @@ export default function UpdateEngineModal() {
       errors.set(err.message)
     }
     modalProcessing.set(false)
+    PopoverState.hidePopupover()
   }
 
   useEffect(() => {

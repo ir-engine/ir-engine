@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -26,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 process.env.APP_ENV = 'test'
 process.env.NODE_ENV = 'test'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+process.env.FS_PROJECT_SYNC_ENABLED = 'false'
 
-require("ts-node").register({
+require('ts-node').register({
   project: './tsconfig.json',
   files: true,
   swc: true

@@ -1,0 +1,28 @@
+{
+	"Define Component": {
+		"scope": "javascript,typescript",
+		"prefix": "defineComponent",
+		"body": [
+			"defineComponent({",
+			"\tname: '${TM_CURRENT_LINE/(.*const\\s)([^\\s]+)(.*\\s=).*/$2/}',",
+			"\tjsonID: 'EE_${TM_CURRENT_LINE/(.*const\\s)([^\\s]+)(.*\\s=).*/$2/}',",
+			"",
+			"\tonInit: (entity) => {",
+			"\t\treturn {}",
+			"},",
+			"",
+			"\ttoJSON: (entity, component) => {},",
+			"",
+			"\tonSet: (entity, component, json) => {},",
+			"",
+			"\tonRemove: (entity, component) => {},",
+			"",
+			"\treactor: function () {",
+			"\t\treturn null",
+			"\t},",
+			"",
+			"\terrors: []",
+			"})"
+		]
+	}
+}

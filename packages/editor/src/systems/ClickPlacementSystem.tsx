@@ -34,35 +34,43 @@ import {
   getOptionalComponent,
   removeEntity,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs'
-import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
+import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import { NO_PROXY, defineState, dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate,
+  useState
+} from '@etherealengine/hyperflux'
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { HolographicMaterial } from '@etherealengine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
-import { ObjectGridSnapState } from './ObjectGridSnapSystem'
-
-import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { HolographicMaterial } from '@etherealengine/engine/src/scene/materials/constants/material-prototypes/HolographicMaterial.mat'
-import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import React from 'react'
 import { EditorState } from '../services/EditorServices'
+import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
@@ -78,9 +86,69 @@ export const ClickPlacementState = defineState({
   }
 })
 
+const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
+  const { parentEntity } = props
+  const sceneState = useHookstate(getMutableState(GLTFDocumentState))
+  const clickState = useState(getMutableState(ClickPlacementState))
+  const editorState = useState(getMutableState(EditorHelperState))
+  const gltfComponent = useComponent(parentEntity, GLTFComponent)
+
+  // const renderers = defineQuery([RendererComponent])
+
+  // useEffect(() => {
+  //   const placementMode = editorState.placementMode.value
+  //   const renderer = getComponent(renderers()[0], RendererComponent)
+  //   const canvas = renderer.canvas
+  //   if (placementMode === PlacementMode.CLICK) {
+  //     canvas.addEventListener('click', clickListener)
+  //   } else {
+  //     canvas.removeEventListener('click', clickListener)
+  //   }
+  // }, [editorState.placementMode])
+
+  useEffect(() => {
+    if (gltfComponent.progress.value < 100) return
+    if (editorState.placementMode.value === PlacementMode.CLICK) {
+      if (clickState.placementEntity.value) return
+      clickState.placementEntity.set(createPlacementEntity(parentEntity))
+    } else {
+      if (!clickState.placementEntity.value) return
+      removeEntity(clickState.placementEntity.value)
+      clickState.placementEntity.set(UndefinedEntity)
+    }
+  }, [editorState.placementMode, gltfComponent.progress])
+
+  useEffect(() => {
+    if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
+    const assetURL = clickState.selectedAsset.get(NO_PROXY)!
+    const placementEntity = clickState.placementEntity.value
+    if (getOptionalComponent(placementEntity, ModelComponent)?.src === assetURL) return
+    setComponent(placementEntity, ModelComponent, { src: assetURL })
+  }, [clickState.selectedAsset, clickState.placementEntity])
+
+  useEffect(() => {
+    if (!clickState.placedEntity.value) return
+    const placedEntity = clickState.placedEntity.value
+    const sceneID = getComponent(placedEntity, SourceComponent)
+    const uuid = getComponent(placedEntity, UUIDComponent)
+    if (!sceneState.scenes[sceneID].value) return
+    const scene = sceneState.scenes[sceneID].value
+    if (!scene.scene.entities[uuid]) return
+    if (getState(ObjectGridSnapState).enabled) {
+      getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
+      getMutableState(ObjectGridSnapState).apply.set(true)
+    }
+    clickState.placedEntity.set(UndefinedEntity)
+  }, [sceneState.scenes.keys])
+
+  return (
+    <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
+  )
+}
+
 const PlacementModelReactor = (props: { placementEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
-  const sceneState = useState(getMutableState(SceneState))
+  const sceneState = useHookstate(getMutableState(GLTFDocumentState))
   const placementModel = useOptionalComponent(props.placementEntity, ModelComponent)
 
   useEffect(() => {
@@ -102,12 +170,7 @@ const PlacementModelReactor = (props: { placementEntity: Entity }) => {
 const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
 
 const getParentEntity = () => {
-  const editorState = getState(EditorState)
-  if (!editorState.sceneID) return null
-  const scene = SceneState.getScene(editorState.sceneID)
-  if (!scene) return null
-  const entity = UUIDComponent.getEntityByUUID(scene.scene.root)
-  return entity
+  return getState(EditorState).rootEntity
 }
 
 const createPlacementEntity = (parentEntity: Entity) => {
@@ -144,65 +207,11 @@ export const ClickPlacementSystem = defineSystem({
   uuid: 'ee.studio.ClickPlacementSystem',
   insert: { before: TransformSystem },
   reactor: () => {
-    const clickState = useState(getMutableState(ClickPlacementState))
-    const editorState = useState(getMutableState(EditorHelperState))
-    const sceneState = useState(getMutableState(SceneState))
+    const parentEntity = useHookstate(getMutableState(EditorState)).rootEntity
 
-    const renderers = defineQuery([RendererComponent])
-
-    // useEffect(() => {
-    //   const placementMode = editorState.placementMode.value
-    //   const renderer = getComponent(renderers()[0], RendererComponent)
-    //   const canvas = renderer.canvas
-    //   if (placementMode === PlacementMode.CLICK) {
-    //     canvas.addEventListener('click', clickListener)
-    //   } else {
-    //     canvas.removeEventListener('click', clickListener)
-    //   }
-    // }, [editorState.placementMode])
-
-    useEffect(() => {
-      const parentEntity = getParentEntity()
-      if (editorState.placementMode.value === PlacementMode.CLICK) {
-        if (!parentEntity) return
-        if (clickState.placementEntity.value) return
-        clickState.placementEntity.set(createPlacementEntity(parentEntity))
-      } else {
-        if (!clickState.placementEntity.value) return
-        removeEntity(clickState.placementEntity.value)
-        clickState.placementEntity.set(UndefinedEntity)
-      }
-    }, [editorState.placementMode, sceneState.sceneLoaded])
-
-    useEffect(() => {
-      if (!clickState.selectedAsset.value || !clickState.placementEntity.value) return
-      const assetURL = clickState.selectedAsset.get(NO_PROXY)!
-      const placementEntity = clickState.placementEntity.value
-      if (getOptionalComponent(placementEntity, ModelComponent)?.src === assetURL) return
-      setComponent(placementEntity, ModelComponent, { src: assetURL })
-    }, [clickState.selectedAsset, clickState.placementEntity])
-
-    useEffect(() => {
-      if (!clickState.placedEntity.value) return
-      const placedEntity = clickState.placedEntity.value
-      const sceneID = getComponent(placedEntity, SourceComponent)
-      const uuid = getComponent(placedEntity, UUIDComponent)
-      if (!sceneState.scenes[sceneID].value) return
-      const scene = sceneState.scenes[sceneID].value
-      if (!scene.scene.entities[uuid]) return
-      if (getState(ObjectGridSnapState).enabled) {
-        getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
-        getMutableState(ObjectGridSnapState).apply.set(true)
-      }
-      clickState.placedEntity.set(UndefinedEntity)
-    }, [sceneState.scenes.keys])
-
-    return (
-      <PlacementModelReactor
-        key={clickState.placementEntity.value}
-        placementEntity={clickState.placementEntity.value}
-      />
-    )
+    return parentEntity.value ? (
+      <ClickPlacementReactor key={parentEntity.value} parentEntity={parentEntity.value} />
+    ) : null
   },
   execute: () => {
     const editorHelperState = getState(EditorHelperState)

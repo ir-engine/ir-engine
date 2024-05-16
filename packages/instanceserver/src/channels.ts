@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
+import commonConfig from '@etherealengine/common/src/config'
 import { decode } from 'jsonwebtoken'
 
 import {
@@ -38,23 +39,23 @@ import {
   InstanceID,
   InstanceType,
   LocationID,
-  SceneDataType,
-  SceneID,
   UserID,
   UserKickType,
   UserType,
+  assetPath,
   channelPath,
   channelUserPath,
   identityProviderPath,
   instanceAttendancePath,
   instancePath,
   locationPath,
-  scenePath,
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
@@ -70,6 +71,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import './InstanceServerModule'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -264,7 +266,7 @@ const initializeInstance = async ({
  * @param headers
  */
 
-const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: SceneID; headers?: object }) => {
+const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId?: string; headers?: object }) => {
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
@@ -289,22 +291,21 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
-    getMutableState(SceneState).sceneLoaded.set(true)
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await app
-        .service(scenePath)
-        .get('', { query: { sceneKey: sceneId, metadataOnly: false }, headers })) as SceneDataType
-      SceneState.loadScene(sceneId, sceneData)
-      /** @todo - quick hack to wait until scene has loaded */
+      const scene = await app.service(assetPath).get(sceneId, { headers })
+      const sceneURL = scene.assetURL
+      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL, scene.id as EntityUUID)
+      getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
+      /** @todo - quick hack to wait until scene has loaded */
       await new Promise<void>((resolve) => {
         const interval = setInterval(() => {
-          if (getState(SceneState).sceneLoaded) {
+          if (getComponent(gltfEntity, GLTFComponent).progress === 100) {
             clearInterval(interval)
             resolve()
           }
@@ -312,7 +313,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       })
     }
 
-    app.service(scenePath).on('updated', sceneUpdatedListener)
+    app.service(assetPath).on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
@@ -412,7 +413,7 @@ const createOrUpdateInstance = async ({
   status: InstanceserverStatus
   locationId: LocationID
   channelId: ChannelID
-  sceneId?: SceneID
+  sceneId?: string
   headers: object
   userId?: UserID
 }) => {
@@ -787,7 +788,7 @@ export default (app: Application): void => {
       podName,
       locationId,
       sceneId
-    }: { id; ipAddress; podName; locationId: LocationID; sceneId: SceneID } = params
+    }: { id; ipAddress; podName; locationId: LocationID; sceneId: string } = params
 
     const serverState = getState(ServerState)
     const instanceServerState = getState(InstanceServerState)

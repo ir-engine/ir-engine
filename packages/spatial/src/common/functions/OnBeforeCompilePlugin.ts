@@ -39,7 +39,6 @@ import {
   MeshToonMaterial,
   PointsMaterial,
   RawShaderMaterial,
-  Shader,
   ShaderMaterial,
   ShadowMaterial,
   SpriteMaterial
@@ -195,14 +194,5 @@ export function overrideOnBeforeCompile() {
     }
 
     Object.defineProperty(Material.prototype, 'onBeforeCompile', onBeforeCompile)
-  }
-}
-
-declare module 'three/src/materials/Material' {
-  export interface Material {
-    shader: Shader
-    plugins?: PluginType[]
-    _onBeforeCompile: typeof Material.prototype.onBeforeCompile
-    needsUpdate: boolean
   }
 }

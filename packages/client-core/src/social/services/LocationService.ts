@@ -29,7 +29,7 @@ import { LocationID, locationPath, LocationType } from '@etherealengine/common/s
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { locationBanPath, SceneID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { locationBanPath, UserID } from '@etherealengine/common/src/schema.type.module'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -38,7 +38,8 @@ export const LocationSeed: LocationType = {
   name: '',
   slugifiedName: '',
   maxUsersPerInstance: 10,
-  sceneId: '' as SceneID,
+  sceneId: '',
+  sceneAsset: {} as any,
   isLobby: false,
   isFeatured: false,
   locationSetting: {

@@ -27,7 +27,7 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
-import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
+import { InteractableState } from '@etherealengine/engine/src/interaction/functions/interactableFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
 import { AnyButton, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
@@ -69,8 +69,8 @@ const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = [
 ]
 
 export const TouchGamepad = () => {
-  const interactState = useHookstate(getMutableState(InteractState))
-  const availableInteractable = interactState.available.value?.[0]
+  const interactableState = useHookstate(getMutableState(InteractableState))
+  const availableInteractable = interactableState.available.value?.[0]
   const appState = useHookstate(getMutableState(AppState))
 
   const isMovementControlsEnabled = useHookstate(getMutableState(XRControlsState).isMovementControlsEnabled)

@@ -24,15 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { defineQuery, defineSystem, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  Engine,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
@@ -77,7 +87,9 @@ const execute = () => {
 
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
 
-    if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    if (cameraOrbit.disabled.value || (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing))
+      continue
 
     if (buttons.PrimaryClick?.pressed) {
       cameraOrbit.isOrbiting.set(true)
@@ -127,10 +139,11 @@ const execute = () => {
       } else {
         box.makeEmpty()
         for (const object of cameraOrbit.focusedEntities.value) {
-          const group = getComponent(object, GroupComponent)
-          for (const obj of group) {
-            box.expandByObject(obj)
-          }
+          const group = getOptionalComponent(object, GroupComponent)
+          if (group)
+            for (const obj of group) {
+              box.expandByObject(obj)
+            }
         }
         if (box.isEmpty()) {
           const entity = cameraOrbit.focusedEntities[0].value
@@ -173,7 +186,7 @@ const execute = () => {
       delta.setFromSpherical(spherical)
 
       transform.position.copy(editorCameraCenter).add(delta)
-      transform.matrix.lookAt(transform.position, editorCameraCenter, V_010)
+      transform.matrix.lookAt(transform.position, editorCameraCenter, Vector3_Up)
       transform.rotation.setFromRotationMatrix(transform.matrix)
 
       getMutableComponent(cameraEid, CameraOrbitComponent).isOrbiting.set(false)
