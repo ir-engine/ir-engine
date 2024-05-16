@@ -30,10 +30,13 @@ import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { AssetQuery, AssetType } from '@etherealengine/common/src/schema.type.module'
+import { AssetQuery, AssetType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 export const assetResolver = resolve<AssetType, HookContext>({
+  projectName: virtual(async (asset, context) => {
+    return (await context.app.service(projectPath).get(asset.projectId)).name
+  }),
   createdAt: virtual(async (asset) => fromDateTimeSql(asset.createdAt)),
   updatedAt: virtual(async (asset) => fromDateTimeSql(asset.updatedAt))
 })

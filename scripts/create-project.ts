@@ -29,7 +29,9 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import path from 'path'
 
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { engineVersion } from '@etherealengine/server-core/src/projects/project/project-helper'
 import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
@@ -85,6 +87,12 @@ cli.main(async () => {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString())
     packageJson.name = name
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+
+    const packageManifestPath = path.resolve(projectFolder, 'manifest.json')
+    const manifestData = JSON.parse(fs.readFileSync(packageManifestPath).toString()) as ManifestJson
+    manifestData.name = name
+    manifestData.engineVersion = engineVersion
+    fs.writeFileSync(packageManifestPath, JSON.stringify(manifestData, null, 2))
 
     /** Init git */
     await execPromise(`git init`, { cwd: projectFolder })

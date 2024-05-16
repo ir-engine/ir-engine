@@ -28,7 +28,7 @@ import React, { ReactElement, useEffect } from 'react'
 import {
   PresentationSystemGroup,
   QueryReactor,
-  getComponent,
+  getOptionalComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
@@ -81,7 +81,7 @@ const MaterialEntityReactor = () => {
     if (materialComponent.instances.value)
       for (const sourceEntity of materialComponent.instances.value) {
         iterateEntityNode(sourceEntity, (childEntity) => {
-          const uuid = getComponent(childEntity, MaterialComponent[MaterialComponents.Instance]).uuid
+          const uuid = getOptionalComponent(childEntity, MaterialComponent[MaterialComponents.Instance])?.uuid
           if (uuid) setGroupMaterial(childEntity, uuid)
         })
       }

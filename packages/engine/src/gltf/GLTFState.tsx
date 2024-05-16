@@ -36,6 +36,7 @@ import {
   createEntity,
   getComponent,
   getMutableComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -359,15 +360,19 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const node = nodes[props.nodeIndex]!
 
   const extension = node.extensions![props.extension]
+  useEffect(() => {
+    return () => {
+      const Component = ComponentJSONIDMap.get(props.extension)
+      if (!Component) return console.warn('no component found for extension', props.extension)
+
+      removeComponent(props.entity, Component)
+    }
+  }, [])
 
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
-    /** @todo fix gizmo then re-enable this */
-    // return () => {
-    //   removeComponent(props.entity, Component)
-    // }
   }, [extension])
 
   return null
