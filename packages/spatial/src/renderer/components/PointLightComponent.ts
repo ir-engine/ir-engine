@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../xr/XRState'

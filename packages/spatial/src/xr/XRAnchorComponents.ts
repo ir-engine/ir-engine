@@ -28,7 +28,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { defineAction, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import {

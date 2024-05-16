@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hookstate } from '@hookstate/core'
 import React from 'react'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'

@@ -196,7 +196,7 @@ const reactor = () => {
       cameraFar: 2000,
       castShadow: true
     })
-    addObjectToGroup(directionalLightEntity, xrLightProbeState.lightProbe.value)
+    addObjectToGroup(directionalLightEntity, getState(XRLightProbeState).lightProbe)
     setVisibleComponent(directionalLightEntity, true)
 
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
@@ -207,7 +207,7 @@ const reactor = () => {
   }, [xrLightProbeState.isEstimatingLight])
 
   useEffect(() => {
-    const session = xrState.session.value
+    const session = getState(XRState).session
     const probe = xrLightProbeState.probe.value
     if (!probe || !session) return
 
