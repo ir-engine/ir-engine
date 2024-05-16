@@ -59,7 +59,6 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
 
   const inputComponent = useComponent(props.entity, InputComponent)
 
-  console.log(inputComponent.inputSinks.value)
   useEffect(() => {
     const options = [] as OptionsType
     options.push({
@@ -75,17 +74,16 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
+
+    //convenience to add a sink if none exist
+    if (inputComponent.inputSinks.value.length === 0) addSink()
   }, [])
 
   const addSink = () => {
-    const inputSinks = [
-      ...inputComponent.inputSinks.value,
-      {
-        label: 'Self',
-        value: getComponent(props.entity, UUIDComponent)
-      }
-    ]
-    commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(inputSinks)) }, [props.entity])
+    console.log(inputComponent.inputSinks.value)
+    const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
+    console.log(JSON.parse(JSON.stringify(sinks)))
+    commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
   }
 
   const removeSink = (index: number) => {
@@ -118,25 +116,27 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       </PropertiesPanelButton>
 
       <div id={`inputSinks-list`}>
-        {inputComponent.inputSinks.value.map((sink, index) => {
-          return (
-            <div key={index}>
-              <InputGroup name="Target" label={t('editor:properties.input.lbl-target')}>
-                <SelectInput
-                  key={props.entity}
-                  value={sink ?? 'Self'}
-                  onChange={commitProperty(InputComponent, `inputSinks.${index}` as any)}
-                  options={targets.value}
-                  disabled={props.multiEdit}
-                />
-              </InputGroup>
+        {targets.value.length > 1
+          ? inputComponent.inputSinks.value.map((sink, index) => {
+              return (
+                <div key={index}>
+                  <InputGroup name="Target" label={t('editor:properties.input.lbl-target')}>
+                    <SelectInput
+                      key={props.entity}
+                      value={sink ?? 'Self'}
+                      onChange={commitProperty(InputComponent, `inputSinks.${index}` as any)}
+                      options={targets.value}
+                      disabled={props.multiEdit}
+                    />
+                  </InputGroup>
 
-              <PropertiesPanelButton type="submit" onClick={() => removeSink(index)}>
-                {t('editor:properties.input.lbl-removeSinkTarget')}
-              </PropertiesPanelButton>
-            </div>
-          )
-        })}
+                  <PropertiesPanelButton type="submit" onClick={() => removeSink(index)}>
+                    {t('editor:properties.input.lbl-removeSinkTarget')}
+                  </PropertiesPanelButton>
+                </div>
+              )
+            })
+          : null}
       </div>
     </NodeEditor>
   )

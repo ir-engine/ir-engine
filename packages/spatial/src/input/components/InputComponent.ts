@@ -68,7 +68,7 @@ export const InputComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      inputSinks: component.inputSinks,
+      inputSinks: component.inputSinks.value,
       activationDistance: component.activationDistance.value
     }
   },
