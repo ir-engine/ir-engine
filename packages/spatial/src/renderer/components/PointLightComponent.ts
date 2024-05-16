@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, PointLight } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   removeComponent,
@@ -88,7 +86,7 @@ export const PointLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const [light] = useDisposable(PointLight, entity)

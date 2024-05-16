@@ -30,7 +30,7 @@ import ProjectDrawer from '@etherealengine/client-core/src/admin/common/Project/
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
 import Check from '@mui/icons-material/Check'
@@ -170,6 +170,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 const ProjectsPage = () => {
   const { t } = useTranslation()
   const activeProject = useHookstate<ProjectType | null>(null)
+  const activeProjectValue = activeProject.value as ProjectType | null
   const error = useHookstate<Error | null>(null)
   const search = useHookstate({ local: '', query: '' })
   const searchTimeoutCancelRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -186,9 +187,9 @@ const ProjectsPage = () => {
 
   const navigate = useNavigate()
   const hasWriteAccess =
-    activeProject.value?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
+    activeProjectValue?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
 
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const refreshingGithubRepoAccess = useHookstate(getMutableState(ProjectState).refreshingGithubRepoAccess)
   const authUser = authState.authUser
   const user = authState.user
@@ -237,8 +238,8 @@ const ProjectsPage = () => {
   communityProjects.sort(sortAlphabetical)
 
   useEffect(() => {
-    if (activeProject.value)
-      activeProject.set(installedProjects.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
+    if (activeProjectValue)
+      activeProject.set(installedProjects.find((item) => item.id === activeProjectValue?.id) as ProjectType | null)
   }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
@@ -293,8 +294,8 @@ const ProjectsPage = () => {
     closeDeleteConfirm()
 
     updatingProject.set(true)
-    if (activeProject.value) {
-      projectRemoveQuery(activeProject.value.id)
+    if (activeProjectValue) {
+      projectRemoveQuery(activeProjectValue.id)
     }
 
     closeProjectContextMenu()
@@ -534,7 +535,7 @@ const ProjectsPage = () => {
           </div>
         ) : null} */}
       </div>
-      {activeProject.value?.name !== 'default-project' && (
+      {activeProjectValue?.name !== 'default-project' && (
         <Menu
           anchorEl={projectAnchorEl.value}
           open={Boolean(projectAnchorEl.value)}
@@ -542,55 +543,46 @@ const ProjectsPage = () => {
           TransitionProps={{ onExited: () => activeProject.set(null) }}
           classes={{ paper: styles.filterMenu }}
         >
-          {activeProject.value && isInstalled(activeProject.value) && (
+          {activeProjectValue && isInstalled(activeProjectValue) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
               <Group />
               {t(`editor.projects.permissions`)}
             </MenuItem>
           )}
-          {activeProject.value &&
-            isInstalled(activeProject.value) &&
-            hasRepo(activeProject.value) &&
-            hasWriteAccess && (
-              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
-                <Download />
-                {t(`editor.projects.updateFromGithub`)}
-              </MenuItem>
-            )}
-          {activeProject.value &&
-            isInstalled(activeProject.value) &&
-            !hasRepo(activeProject.value) &&
-            hasWriteAccess && (
-              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-                <Link />
-                {t(`editor.projects.link`)}
-              </MenuItem>
-            )}
-          {activeProject.value &&
-            isInstalled(activeProject.value) &&
-            hasRepo(activeProject.value) &&
-            hasWriteAccess && (
-              <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
-                <LinkOff />
-                {t(`editor.projects.unlink`)}
-              </MenuItem>
-            )}
-          {hasWriteAccess && hasRepo(activeProject.value) && (
+          {activeProjectValue && isInstalled(activeProjectValue) && hasRepo(activeProjectValue) && hasWriteAccess && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
+              <Download />
+              {t(`editor.projects.updateFromGithub`)}
+            </MenuItem>
+          )}
+          {activeProjectValue && isInstalled(activeProjectValue) && !hasRepo(activeProjectValue) && hasWriteAccess && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
+              <Link />
+              {t(`editor.projects.link`)}
+            </MenuItem>
+          )}
+          {activeProjectValue && isInstalled(activeProjectValue) && hasRepo(activeProjectValue) && hasWriteAccess && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
+              <LinkOff />
+              {t(`editor.projects.unlink`)}
+            </MenuItem>
+          )}
+          {hasWriteAccess && hasRepo(activeProjectValue) && (
             <MenuItem
               classes={{ root: styles.filterMenuItem }}
-              onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
+              onClick={() => activeProject?.value?.id && pushProject(activeProjectValue!.id)}
             >
               {uploadingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject.value) && hasWriteAccess && (
+          {isInstalled(activeProjectValue) && hasWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}
             </MenuItem>
           )}
-          {!isInstalled(activeProject.value) && (
+          {!isInstalled(activeProjectValue) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
               {t(`editor.projects.install`)}
@@ -599,11 +591,11 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject.value && projectPermissionsFindQuery.data && (
+      {activeProjectValue && projectPermissionsFindQuery.data && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
-          project={activeProject.value}
+          project={activeProjectValue}
           projectPermissions={projectPermissionsFindQuery.data}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
@@ -612,8 +604,8 @@ const ProjectsPage = () => {
       )}
       <ProjectDrawer
         open={projectDrawerOpen.value}
-        inputProject={activeProject.value}
-        existingProject={activeProject.value != null}
+        inputProject={activeProjectValue}
+        existingProject={activeProjectValue != null}
         onClose={handleCloseProjectDrawer}
         changeDestination={changeDestination.value}
       />

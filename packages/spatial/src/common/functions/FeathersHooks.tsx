@@ -39,7 +39,7 @@ import { Params, Query } from '@feathersjs/feathers'
 import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, defineState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -86,7 +86,7 @@ export const FeathersState = defineState({
     >,
 
   reactor: () => {
-    const feathersState = useHookstate(getMutableState(FeathersState))
+    const feathersState = useMutableState(FeathersState)
     return (
       <>
         {feathersState.keys.map((serviceName: keyof ServiceTypes) => (
@@ -118,7 +118,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   ...args: Args
 ) => {
   const service = Engine.instance.api.service(serviceName)
-  const state = useHookstate(getMutableState(FeathersState))
+  const state = useMutableState(FeathersState)
 
   const queryId = `${method.substring(0, 1)}:${hashObject({
     serviceName,

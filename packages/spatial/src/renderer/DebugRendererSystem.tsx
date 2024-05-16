@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -58,7 +58,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
     /** @todo move physics debug to physics module */

@@ -42,7 +42,7 @@ import {
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -94,13 +94,13 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const channels = useFind(channelPath)
 
-  const friendState = useHookstate(getMutableState(FriendState))
-  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const friendState = useMutableState(FriendState)
+  const selfUser = useMutableState(AuthState).user
   const userId = selfUser.id.value
 
   const privateChannels = channels.data.filter((channel) => !channel.instanceId)
 
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
 
   const startMediaCall = (channelID: ChannelID) => {
     const inChannelCall = channelState.targetChannelId.value === channelID

@@ -256,7 +256,7 @@ export function MediaReactor() {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
-      const mediaComponent = getComponent(entity, MediaElementComponent)
+      const i = getComponent(entity, MediaElementComponent)
       // handle when we dont have autoplay enabled but have programatically started playback
       if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback

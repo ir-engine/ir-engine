@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
@@ -37,7 +37,7 @@ import styles from './index.module.scss'
 export const Shelves = () => {
   const { t } = useTranslation()
 
-  const appState = useHookstate(getMutableState(AppState))
+  const appState = useMutableState(AppState)
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
 

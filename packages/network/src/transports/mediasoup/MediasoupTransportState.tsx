@@ -35,7 +35,8 @@ import {
   matches,
   matchesPeerID,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Network } from '../../Network'
@@ -180,7 +181,7 @@ export const MediasoupTransportState = defineState({
   },
 
   reactor: () => {
-    const networkIDs = useHookstate(getMutableState(MediasoupTransportState))
+    const networkIDs = useMutableState(MediasoupTransportState)
     return (
       <>
         {networkIDs.keys.map((id: InstanceID) => (

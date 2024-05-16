@@ -56,9 +56,7 @@ const StateSearchState = defineState({
   initial: {
     search: ''
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(StateSearchState, ['search'])
-  }
+  extension: syncStateWithLocalStorage(['search'])
 })
 
 export function StateDebug() {

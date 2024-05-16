@@ -28,7 +28,7 @@ import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -173,7 +173,7 @@ function PersistentAnchorReactor() {
 
   const anchor = useComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
 
   const group = groupComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 

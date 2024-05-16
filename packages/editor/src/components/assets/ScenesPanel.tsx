@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useState } from 'react'
@@ -61,7 +61,7 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
   const scenesQuery = useFind(scenePath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 
@@ -71,7 +71,7 @@ export default function ScenesPanel() {
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [loadedScene, setLoadedScene] = useState<AssetType | null>(null)
-  const sceneState = useHookstate(getMutableState(SceneState))
+  const sceneState = useMutableState(SceneState)
   const scenesLoading = scenesQuery.status === 'pending'
 
   const onCreateScene = async () => {

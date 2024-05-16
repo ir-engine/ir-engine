@@ -33,13 +33,14 @@ import {
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
+  Object3D,
   RGBAFormat,
   SRGBColorSpace,
   Texture
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -184,7 +185,7 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!component.envmap.value) return
-      updateEnvMap(mesh, component.envmap.value)
+      updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
     useEffect(() => {
@@ -210,7 +211,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
-  const renderState = useHookstate(getMutableState(RendererState))
+  const renderState = useMutableState(RendererState)
   const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
 
   /** @todo add an unmount cleanup for applyBoxprojection */
@@ -220,7 +221,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value as Object3D[])
   }, [envMaptexture])
 
   useEffect(() => {

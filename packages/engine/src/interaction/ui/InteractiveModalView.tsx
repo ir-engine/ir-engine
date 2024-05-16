@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState } from '@hookstate/core'
+import { hookstate } from '@hookstate/core'
 import React from 'react'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -37,7 +37,7 @@ export interface InteractiveModalState {
 export const createModalView = (entity: Entity, interactMessage: string, isInteractable = true) => {
   const ui = createXRUI(
     InteractiveModalView,
-    createState({
+    hookstate({
       interactMessage
     } as InteractiveModalState),
     { interactable: isInteractable }
