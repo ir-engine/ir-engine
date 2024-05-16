@@ -32,6 +32,7 @@ import {
   RiFacebookBoxFill,
   RiGithubFill,
   RiGoogleFill,
+  RiLinkedinFill,
   RiMessage2Line,
   RiTwitterFill
 } from 'react-icons/ri'
@@ -70,7 +71,7 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
       ) : null}
       {linkedinIp ? (
         <Tooltip title={linkedinIp.accountIdentifier!}>
-          <RiTwitterFill className="h-6 w-6" />
+          <RiLinkedinFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {githubIp ? (

@@ -53,6 +53,7 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
 
   const data: ScopeData[] = Array.isArray(context.data) ? context.data : [context.data]
 
+  // TODO: Make this generic so that even if request contains different user ids, it should work
   const oldScopes = (await context.app.service(scopePath).find({
     query: { userId: data[0].userId },
     paginate: false
