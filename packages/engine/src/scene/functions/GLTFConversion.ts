@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
+import { Matrix4, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { EntityUUID, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, SerializedComponentType, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
 
 import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
 import { getState } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial'
 import { GLTF } from '@gltf-transform/core'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState } from '../../gltf/GLTFState'
@@ -118,7 +119,14 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   }
   if (entityJson.components) {
     for (const componentJson of entityJson.components) {
-      node.extensions![componentJson.name] = componentJson.props
+      //handle transform component map to matrix
+      if (componentJson.name === TransformComponent.jsonID) {
+        const transform = componentJson.props as SerializedComponentType<typeof TransformComponent>
+        const matrix = new Matrix4().compose(transform.position, transform.rotation, transform.scale)
+        node.matrix = matrix.toArray()
+      } else {
+        node.extensions![componentJson.name] = componentJson.props
+      }
     }
   }
   return node
