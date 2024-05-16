@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
-import { getMutableComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
+import { getMutableComponent, getOptionalComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -35,6 +35,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { InputSinkComponent } from './InputSinkComponent'
@@ -110,6 +112,16 @@ export const InputComponent = defineComponent({
         removeComponent(entity, HighlightComponent)
       }
     }, [input.inputSources, input.highlight])
+
+    useEffect(() => {
+      let collider = getOptionalComponent(entity, ColliderComponent)
+
+      if (!collider) {
+        //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
+        collider = setComponent(entity, ColliderComponent)
+      }
+      collider.collisionLayer |= CollisionGroups.Input
+    }, [])
 
     useExecute(
       () => {

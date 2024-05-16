@@ -239,7 +239,6 @@ const execute = () => {
       // 2nd heuristic is physics colliders
       if (physicsWorld) {
         const hits = Physics.castRay(physicsWorld, inputRaycast)
-        // console.log("objDir inputraycast direction = " + inputRaycast.direction.toArray())
         for (const hit of hits) {
           if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
           intersectionData.push({ entity: hit.entity, distance: hit.distance })

@@ -358,11 +358,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return
+    return getComponent(entity, Component) as ComponentType<C>
   }
 
   const root = Component.reactorMap.get(entity)
   root?.run()
+  return getComponent(entity, Component) as ComponentType<C>
 }
 
 /**

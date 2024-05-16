@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
@@ -32,15 +32,14 @@ import NumericInput from '@etherealengine/editor/src/components/inputs/NumericIn
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
 import {
-  EditorComponentType,
   commitProperties,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -58,26 +57,23 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const targets = useState<OptionsType>([{ label: 'Self', value: getComponent(props.entity, UUIDComponent) }])
 
   const inputComponent = useComponent(props.entity, InputComponent)
+  const authoringLayerEntities = useQuery([SourceComponent])
+
+  const options = authoringLayerEntities.map((entity) => {
+    return {
+      label: getComponent(entity, NameComponent),
+      value: getComponent(entity, UUIDComponent)
+    }
+  })
+  options.unshift({
+    label: 'Self',
+    value: getComponent(props.entity, UUIDComponent)
+  })
 
   useEffect(() => {
-    const options = [] as OptionsType
-    options.push({
-      label: 'Self',
-      value: getComponent(props.entity, UUIDComponent)
-    })
-
-    for (const entity of inputSinkQuery()) {
-      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
-      options.push({
-        label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent)
-      })
-    }
-    targets.set(options)
-
     //convenience to add a sink if none exist
     if (inputComponent.inputSinks.value.length === 0) addSink()
-  }, [])
+  }, [authoringLayerEntities.length])
 
   const addSink = () => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
@@ -109,7 +105,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       </PropertiesPanelButton>
 
       <div id={`inputSinks-list`}>
-        {targets.value.length > 1
+        {options.length > 1
           ? inputComponent.inputSinks.value.map((sink, index) => {
               return (
                 <div key={index}>
@@ -118,7 +114,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
                       key={props.entity}
                       value={sink ?? 'Self'}
                       onChange={commitProperty(InputComponent, `inputSinks.${index}` as any)}
-                      options={targets.value}
+                      options={options}
                       disabled={props.multiEdit}
                     />
                   </InputGroup>
