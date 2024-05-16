@@ -262,8 +262,6 @@ export const projectPath = 'project'
 export const projectsPath = 'projects'
 
 export const assetPath = 'asset'
-/** @deprecated use assetPath instead */
-export const scenePath = assetPath
 
 export const builderInfoPath = 'builder-info'
 

@@ -246,6 +246,12 @@ export class FileBrowserService
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
     if (config.fsProjectSyncEnabled) {
+      // ensure the directory exists
+      if (!fs.existsSync(path.dirname(newNamePath))) {
+        const dirname = path.dirname(newNamePath)
+        fs.mkdirSync(dirname, { recursive: true })
+      }
+      // move or copy the file
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }

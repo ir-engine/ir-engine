@@ -30,11 +30,12 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  getMutableComponent,
   getOptionalMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { isArray } from 'lodash'
-import { Color, Mesh, Texture } from 'three'
+import { Color, Mesh, Shader, Texture, Uniform } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
@@ -44,7 +45,6 @@ import {
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
   pluginByName,
-  pluginQuery,
   prototypeByName
 } from './MaterialComponent'
 
@@ -108,12 +108,8 @@ export const addMaterialPlugin = (materialEntity: Entity, pluginEntity: Entity) 
   })
 }
 
-export const getPluginByName = (name: string) => {
-  return pluginQuery().filter((plugin) => getComponent(plugin, NameComponent) === name)[0]
-}
-
 export const getPluginObject = (pluginId: string) => {
-  const pluginEntity = getPluginByName(pluginId)
+  const pluginEntity = pluginByName[pluginId]
   const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])?.plugin
   return plugin
 }
@@ -127,6 +123,22 @@ export const applyMaterialPlugins = (materialEntity: Entity) => {
       if (hasOBCPlugin(materialComponent.material, pluginComponent.plugin)) return
       addOBCPlugin(materialComponent.material, pluginComponent.plugin)
     }
+  }
+}
+
+export const applyPluginShaderParameters = (
+  pluginEntity: Entity,
+  shader: Shader,
+  parameters: { [key: string]: any }
+) => {
+  const pluginComponent = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+  const name = (shader as any).shaderName
+  if (!pluginComponent.parameters[name].value) pluginComponent.parameters[name].set({})
+  const parameterObject = pluginComponent.parameters[name]
+  for (const key in parameters) {
+    const parameterExists = !!parameterObject[key].value
+    if (!parameterExists) parameterObject[key].set(new Uniform(parameters[key]))
+    shader.uniforms[key] = parameterObject[key].value
   }
 }
 
@@ -153,12 +165,12 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
   const matKeys = Object.keys(material)
-  const commonParms = Object.fromEntries(
+  const commonParameters = Object.fromEntries(
     Object.keys(prototypeComponent.prototypeArguments)
       .filter((key) => matKeys.includes(key))
       .map((key) => [key, material[key]])
   )
-  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParms }
+  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParameters }
   const newMaterial = new prototypeConstructor(fullParameters)
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>

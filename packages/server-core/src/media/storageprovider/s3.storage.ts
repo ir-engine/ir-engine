@@ -112,7 +112,7 @@ function handler(event) {
 }
 `
 
-const awsPath = './.aws'
+const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
@@ -506,7 +506,6 @@ export class S3Provider implements StorageProviderInterface {
             break
           case '/location':
           case '/auth':
-          case '/xadm':
           case '/capture':
             routeRegex += `^${route}/|`
             break
