@@ -229,7 +229,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath ?? '' } }).data
       const sceneURL = sceneQuery?.[0]?.assetURL
       const abortController = new AbortController()
-      await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
 
       // TODO: Bake implementation
       if (bake) {
