@@ -303,7 +303,7 @@ const createObjectFromSceneElement = (
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
+          if (typeof beforeNodeIndex === 'number' && beforeNodeIndex > -1) {
             beforeIndex = gltf.data.scenes![sceneIndex].nodes.indexOf(beforeNodeIndex)
           }
         }
@@ -318,7 +318,7 @@ const createObjectFromSceneElement = (
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
+          if (typeof beforeNodeIndex == 'number' && beforeNodeIndex > -1) {
             beforeIndex = parentNode.children.indexOf(beforeNodeIndex)
           }
         }
@@ -616,6 +616,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           if (!currentParentNode) continue
           const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
           currentParentNode.children!.splice(currentParentNodeIndex, 1)
+          if (!currentParentNode.children?.length) delete currentParentNode.children
         }
 
         const newParentUUID = getComponent(parent, UUIDComponent)
