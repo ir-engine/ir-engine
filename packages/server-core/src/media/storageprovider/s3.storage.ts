@@ -72,10 +72,7 @@ import {
   assetsRegex,
   projectPublicRegex,
   projectRegex,
-  projectThumbnailsRegex,
-  rootGLTFRegex,
-  rootImageRegex,
-  rootSceneJsonRegex
+  projectThumbnailsRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { Client } from 'minio'
 
@@ -116,13 +113,7 @@ const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
-  projectRegex.test(key) &&
-  !projectPublicRegex.test(key) &&
-  !projectThumbnailsRegex.test(key) &&
-  !assetsRegex.test(key) &&
-  !rootImageRegex.test(key) &&
-  !rootSceneJsonRegex.test(key) &&
-  !rootGLTFRegex.test(key)
+  projectRegex.test(key) && !projectPublicRegex.test(key) && !projectThumbnailsRegex.test(key) && !assetsRegex.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 
