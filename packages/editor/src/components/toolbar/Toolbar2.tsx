@@ -23,18 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiSquaresFourThin } from 'react-icons/pi'
+import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorState } from '../../services/EditorServices'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
+
+const onImportAsset = async () => {
+  const { projectName } = getState(EditorState)
+
+  if (projectName) {
+    try {
+      await inputFileWithAddToScene({ projectName })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  }
+}
+
+const onCloseProject = () => {
+  const editorState = getMutableState(EditorState)
+  getMutableState(GLTFModifiedState).set({})
+  editorState.projectName.set(null)
+  editorState.scenePath.set(null)
+  editorState.sceneName.set(null)
+  RouterState.navigate('/studio')
+
+  const parsed = new URL(window.location.href)
+  const query = parsed.searchParams
+
+  query.delete('project')
+  query.delete('scenePath')
+
+  parsed.search = query.toString()
+  if (typeof history.pushState !== 'undefined') {
+    window.history.replaceState({}, '', parsed.toString())
+  }
+}
 
 const generateToolbarMenu = () => {
   return [
@@ -54,15 +91,15 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.importSettings'),
       action: () => PopoverState.showPopupover(<ImportSettingsPanel />)
+    },
+    {
+      name: t('editor:menubar.importAsset'),
+      action: onImportAsset
+    },
+    {
+      name: t('editor:menubar.quit'),
+      action: onCloseProject
     }
-    // {
-    //   name: t('editor:menubar.importAsset'),
-    //   action: onImportAsset
-    // },
-    // {
-    //   name: t('editor:menubar.quit'),
-    //   action: onCloseProject
-    // }
   ]
 }
 
@@ -102,9 +139,11 @@ export default function Toolbar() {
         onClose={() => anchorOpen.set(false)}
       >
         {toolbarMenu.map(({ name, action, hotkey }) => (
-          <Button variant="outline" fullWidth className="m-1 mx-2" onClick={action} endIcon={hotkey}>
-            {name}
-          </Button>
+          <div className="m-1">
+            <Button size="small" variant="outline" fullWidth onClick={action} endIcon={hotkey}>
+              {name}
+            </Button>
+          </div>
         ))}
       </ContextMenu>
     </>
