@@ -89,7 +89,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     <div className="table-container">
       <table className="w-full">
         <thead>
-          <tr className="table-header-row h-8">
+          <tr className="table-header-row h-8 text-left">
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
