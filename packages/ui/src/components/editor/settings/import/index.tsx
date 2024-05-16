@@ -218,9 +218,8 @@ export function ImportSettingsPanel() {
             <InputGroup name="LODGenEnabled" label={'Generate LODs'}>
               <BooleanInput
                 value={LODGenEnabled}
-                onChange={() => {
-                  console.log('boolean input changed')
-                  setLODGenEnabled(!LODGenEnabled)
+                onChange={(val) => {
+                  setLODGenEnabled(val)
                 }}
               />
             </InputGroup>
@@ -255,8 +254,8 @@ export function ImportSettingsPanel() {
             <InputGroup name="KTXEnabled" label={'Compress to KTX2'}>
               <BooleanInput
                 value={KTXEnabled}
-                onChange={() => {
-                  setKTXEnabled(!KTXEnabled)
+                onChange={(val) => {
+                  setKTXEnabled(val)
                 }}
               />
             </InputGroup>
