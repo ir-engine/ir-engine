@@ -36,6 +36,8 @@ import { startReactor } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
+import { NameComponent } from '../../common/NameComponent'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   EntityTreeComponent,
   destroyEntityTree,
@@ -44,8 +46,30 @@ import {
   removeFromEntityTree,
   traverseEntityNode,
   traverseEntityNodeParent,
+  useChildWithComponent,
   useTreeQuery
 } from './EntityTree'
+
+const Validate = {
+  /**
+   * @description An Entity is considered valid when:
+   * - Its value is truthy
+   * - It has an EntityTreeComponent
+   * - Its parent is the given parent entity, or has no parent when omitted
+   * @param name The name of the Entity used for reporting assertions to CLI
+   * @param entity The entity to validate
+   * @param parent The entity that the validated entity must have as a parent  _(default: UndefinedEntity)_
+   */
+  entity: (name: string, entity: Entity, parent: Entity = UndefinedEntity): void => {
+    assert(entity, name + " wasn't found")
+    assert.equal(true, hasComponent(entity, EntityTreeComponent), name + ' does not have an EntityTreeComponent')
+    assert.equal(
+      parent,
+      getComponent(entity, EntityTreeComponent).parentEntity,
+      parent ? name + "'s parent is not " + getComponent(parent, NameComponent) : name + ' does not have a parentEntity'
+    )
+  }
+}
 
 describe('EntityTreeComponent', () => {
   beforeEach(() => {
@@ -483,5 +507,136 @@ describe('useTreeQuery', () => {
     assert.equal(ents[3], undefined, 'deep child 2 entity still populated')
 
     unmount()
+  })
+})
+
+describe('useChildWithComponent', () => {
+  // Run before every test case
+  beforeEach(() => {
+    createEngine()
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('returns the closest entity that has the requested component', async () => {
+    // Initialize with dummy data for the test
+    let rootEntity = createEntity()
+    let child_1 = createEntity()
+    let child_2 = createEntity()
+    let result = UndefinedEntity
+    const component = HighlightComponent
+
+    // Define the Reactor that will run the tested hook
+    const Reactor = () => {
+      const entity = useChildWithComponent(rootEntity, component)
+      console.log('render', entity)
+      useEffect(() => {
+        console.log('effect', entity)
+        result = entity
+      }, [entity])
+      return null
+    }
+    const tag = <Reactor />
+
+    /**
+     * @description Case 1:  rootEntity -> child_1 (with component)
+     */
+    // Case 1: Initialize
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_1, component)
+    // Case1: Validate
+    Validate.entity('rootEntity', rootEntity)
+    Validate.entity('child_1', child_1, rootEntity)
+    assert.equal(
+      true,
+      hasComponent(child_1, component),
+      'Case1: The child entity did not get its test component set correctly'
+    )
+    // Case1: Check
+    const R1 = render(tag)
+    Validate.entity('Case1: result', result, rootEntity)
+    assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
+    // Case1: Terminate
+    destroyEntityTree(rootEntity)
+    R1.unmount()
+
+    /**
+     * @description Case 2:  rootEntity -> child_1 -> child_2 (with component)
+     */
+    // Case 2: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    setComponent(child_2, component)
+    // Case2: Validate
+    Validate.entity('rootEntity', rootEntity)
+    Validate.entity('child_1', child_1, rootEntity)
+    Validate.entity('child_2', child_2, child_1)
+    assert.equal(
+      true,
+      hasComponent(child_2, component),
+      'Case2: The child entity did not get its test component set correctly'
+    )
+    // Case2: Check
+    const R2 = render(tag)
+    Validate.entity('Case2: result', result, child_1)
+    assert.equal(child_2, result, `Case2: Did not return the correct entity. result = ${result}`)
+    // Case2: Terminate
+    destroyEntityTree(rootEntity)
+    R2.unmount()
+
+    /**
+     * @description Case 3:  rootEntity -> child_1 -> child_2    (none have the component)
+     */
+    // Case 3: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    //setComponent(child_2, component)  // The Component for the third case is not set at all
+    // Case3: Validate
+    Validate.entity('rootEntity', rootEntity)
+    Validate.entity('child_1', child_1, rootEntity)
+    Validate.entity('child_2', child_2, child_1)
+    // Case3: Check
+    const R3 = render(tag)
+    assert.equal(
+      result,
+      UndefinedEntity,
+      `Case3: Returned a valid entity, but should return UndefinedEntity. result = ${result}`
+    )
+    // Case3: Terminate
+    destroyEntityTree(rootEntity)
+    R3.unmount()
+
+    /**
+     * @description Case 4:  rootEntity -> child_1 (with component) -> child_2
+     */
+    // Case 4: Initialize
+    rootEntity = createEntity()
+    child_1 = createEntity()
+    child_2 = createEntity()
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
+    setComponent(child_1, component)
+    // Case4: Validate
+    Validate.entity('rootEntity', rootEntity)
+    Validate.entity('child_1', child_1, rootEntity)
+    Validate.entity('child_2', child_2, child_1)
+    // Case4: Check
+    const R4 = render(tag)
+    assert.equal(child_1, result, `Case4: Did not return the correct entity. result = ${result}`)
+    assert.notEqual(child_2, result, `Case4: Did not return the correct entity. result = ${result}`)
+    // Case4: Terminate
+    destroyEntityTree(rootEntity)
+    R4.unmount()
   })
 })
