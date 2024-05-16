@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
@@ -32,6 +33,7 @@ type ContextMenuProps = {
   panelId: string
   anchorPosition: { left: number; top: number }
   onClose: () => void
+  className?: string
 }
 
 export const ContextMenu = ({
@@ -40,7 +42,8 @@ export const ContextMenu = ({
   anchorEl,
   panelId,
   anchorPosition,
-  onClose
+  onClose,
+  className
 }: React.PropsWithChildren<ContextMenuProps>) => {
   const panel = document.getElementById(panelId)
   const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
@@ -54,7 +57,7 @@ export const ContextMenu = ({
             className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
             style={{ top: `${positionY}px`, left: `${positionX}px` }}
           >
-            <div className="flex flex-col truncate py-1">{children}</div>
+            <div className={twMerge('flex flex-col truncate py-1', className)}>{children}</div>
           </div>
         )}
       </div>
