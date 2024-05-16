@@ -80,9 +80,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const addSink = () => {
-    console.log(inputComponent.inputSinks.value)
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
-    console.log(JSON.parse(JSON.stringify(sinks)))
     commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
   }
 
@@ -91,11 +89,6 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
     sinks.splice(index, 1)
     commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
   }
-
-  // const onChangeSinks = (index: number) => {
-  //   if(inputComponent.inputSinks.value.length > 0)
-  //
-  // }
 
   return (
     <NodeEditor
