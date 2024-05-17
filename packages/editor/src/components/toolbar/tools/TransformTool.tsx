@@ -48,34 +48,34 @@ const TransformTool = () => {
   const transformMode = editorHelperState.transformMode.value
 
   return (
-    <InfoTooltip title={t('editor:toolbar.gizmo.description')} placement="right">
-      <>
-        <div className={styles.toolbarInputGroup}>
-          <InfoTooltip title={t('editor:toolbar.placement.click')} placement="bottom">
-            <button
-              className={
-                styles.toolButton +
-                ' ' +
-                (editorHelperState.placementMode.value === PlacementMode.CLICK ? styles.selected : '')
-              }
-              onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
-            >
-              <AdsClickIcon fontSize="small" />
-            </button>
-          </InfoTooltip>
-          <InfoTooltip title={t('editor:toolbar.placement.drag')} placement="bottom">
-            <button
-              className={
-                styles.toolButton +
-                ' ' +
-                (editorHelperState.placementMode.value === PlacementMode.DRAG ? styles.selected : '')
-              }
-              onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
-            >
-              <SwipeRightIcon fontSize="small" />
-            </button>
-          </InfoTooltip>
-        </div>
+    <>
+      <div className={styles.toolbarInputGroup}>
+        <InfoTooltip title={t('editor:toolbar.placement.click')} placement="bottom">
+          <button
+            className={
+              styles.toolButton +
+              ' ' +
+              (editorHelperState.placementMode.value === PlacementMode.CLICK ? styles.selected : '')
+            }
+            onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
+          >
+            <AdsClickIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+        <InfoTooltip title={t('editor:toolbar.placement.drag')} placement="bottom">
+          <button
+            className={
+              styles.toolButton +
+              ' ' +
+              (editorHelperState.placementMode.value === PlacementMode.DRAG ? styles.selected : '')
+            }
+            onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
+          >
+            <SwipeRightIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+      </div>
+      <InfoTooltip title={t('editor:toolbar.gizmo.description')} placement="right">
         <div className={styles.toolbarInputGroup}>
           <InfoTooltip title={t('editor:toolbar.gizmo.translate')} placement="bottom">
             <button
@@ -102,8 +102,8 @@ const TransformTool = () => {
             </button>
           </InfoTooltip>
         </div>
-      </>
-    </InfoTooltip>
+      </InfoTooltip>
+    </>
   )
 }
 
