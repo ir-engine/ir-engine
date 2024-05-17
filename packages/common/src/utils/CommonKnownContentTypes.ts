@@ -30,6 +30,7 @@ Ethereal Engine. All Rights Reserved.
  */
 export const CommonKnownContentTypes = {
   material: 'model/material',
+  prefab: 'model/prefab',
   lookdev: 'model/lookdev',
   xre: 'prefab/xre',
   gltf: 'model/gltf',

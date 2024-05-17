@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -41,7 +41,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -58,6 +57,9 @@ import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
+import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '../../gltf/GLTFState'
+import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
@@ -79,7 +81,8 @@ export const ModelComponent = defineComponent({
       // internal
       assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      dereference: false
     }
   },
 
@@ -108,6 +111,8 @@ export const ModelComponent = defineComponent({
 function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
+  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
+  const modelSceneID = getModelSceneID(entity)
 
   const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
     forceAssetType: modelComponent.assetTypeOverride.value,
@@ -151,7 +156,7 @@ function ModelReactor() {
 
   useEffect(() => {
     const model = modelComponent.get(NO_PROXY)!
-    const asset = model.asset as GLTF | null
+    const asset = model.asset as GLTF | VRM | null
     if (!asset) return
 
     const group = getOptionalComponent(entity, GroupComponent)
@@ -175,18 +180,21 @@ function ModelReactor() {
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
-    const uuid = getModelSceneID(entity)
-
-    SceneState.loadScene(uuid, {
-      scene: {
-        entities: loadedJsonHierarchy,
-        root: getComponent(entity, UUIDComponent),
-        version: 0
-      },
-      name: '',
-      project: '',
-      thumbnailUrl: ''
-    })
+    let uuid: string | null = null
+    uuid = getModelSceneID(entity)
+    const sceneJson: SceneJsonType = {
+      entities: loadedJsonHierarchy,
+      root: getComponent(entity, UUIDComponent),
+      version: 0
+    }
+    const sceneGLTF = convertSceneJSONToGLTF(sceneJson)
+    dispatchAction(
+      GLTFSnapshotAction.createSnapshot({
+        source: uuid,
+        data: sceneGLTF
+      })
+    )
+    //}
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -204,7 +212,9 @@ function ModelReactor() {
       })
     }
     return () => {
-      SceneState.unloadScene(uuid, false)
+      if (!uuid) return
+      getMutableState(GLTFDocumentState)[uuid].set(none)
+      getMutableState(GLTFSnapshotState)[uuid].set(none)
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return
       for (const child of children) {
@@ -213,6 +223,18 @@ function ModelReactor() {
     }
   }, [modelComponent.scene])
 
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (!modelComponent.dereference.value) return
+    if (!gltfDocumentState[modelSceneID].value) return
+    const modelUUID = getComponent(entity, UUIDComponent)
+    const sourceID = getModelSceneID(entity)
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    if (!parentEntity) return
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
+    const parentSource = getComponent(parentEntity, SourceComponent)
+    GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
+  }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
   return null
 }
 

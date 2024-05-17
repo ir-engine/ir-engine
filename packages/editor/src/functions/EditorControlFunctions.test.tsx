@@ -31,13 +31,14 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { SceneLoadingSystem } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import testSceneJson from '@etherealengine/engine/tests/assets/SceneLoadingTest.scene.json'
-import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -107,6 +108,9 @@ describe('EditorControlFunctions', () => {
       const SceneReactor = SystemDefinitions.get(SceneLoadingSystem)!.reactor!
       const sceneTag = <SceneReactor />
 
+      const GLTFSnapshotReactor = GLTFSnapshotState.reactor!
+      const gltfTag = <GLTFSnapshotReactor />
+
       it('modifyProperty', async () => {
         applyIncomingActions()
 
@@ -151,11 +155,15 @@ describe('EditorControlFunctions', () => {
         EditorControlFunctions.modifyProperty([child2_1Entity], FogSettingsComponent, prop)
 
         applyIncomingActions()
-        await act(() => rerender(sceneTag))
-
+        if (format === '.scene.json') {
+          await act(() => rerender(sceneTag))
+        } else {
+          await act(() => rerender(gltfTag))
+        }
         const child2_1Entity_2 = UUIDComponent.getEntityByUUID('child_2_1' as EntityUUID)
 
         const newComponent = getComponent(child2_1Entity_2, FogSettingsComponent)
+        const documentState = getState(GLTFDocumentState)
         assert.deepStrictEqual(newComponent, prop)
 
         unmount()
