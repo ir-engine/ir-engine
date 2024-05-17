@@ -481,7 +481,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         <Popover
           id={open ? 'add-component-popover' : undefined}
           open={open}
-          anchorEl={anchorElement.value}
+          anchorEl={anchorElement.value as HTMLButtonElement}
           onClose={() => anchorElement.set(null)}
           anchorOrigin={{
             vertical: 'center',

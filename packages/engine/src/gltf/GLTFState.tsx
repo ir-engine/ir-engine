@@ -143,7 +143,7 @@ function applySnapshot(source: string, data: GLTF.IGLTF) {
     return
   }
   state.index.set(state.index.value + 1)
-  state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+  state.snapshots.merge([data])
   getMutableState(GLTFDocumentState)[source].set(data)
 }
 
