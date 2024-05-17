@@ -203,7 +203,7 @@ describe('project-permission.test', () => {
         assert.ok(project1Permission2)
         assert.strictEqual(project1Permission2.userId, user2.id)
         assert.strictEqual(project1Permission2.projectId, project1.id)
-        assert.strictEqual(project1Permission2.type, 'user')
+        assert.strictEqual(project1Permission2.type, 'editor')
       })
 
       it('should return the same project-permission if another create request for a project/user combination is made', async function () {
@@ -376,11 +376,11 @@ describe('project-permission.test', () => {
           {
             projectId: project1.id,
             userId: user2.id,
-            type: 'user'
+            type: 'editor'
           },
           params
         )) as any as ProjectPermissionType
-        assert.strictEqual(update.type, 'user')
+        assert.strictEqual(update.type, 'editor')
         assert.strictEqual(update.userId, user2.id)
       })
 
