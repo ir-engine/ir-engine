@@ -219,7 +219,7 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('removeComponent', () => {
-    it('should have component', () => {
+    it('should remove component', () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
@@ -233,7 +233,7 @@ describe('ComponentFunctions', async () => {
       assert.ok(TestComponent.stateMap[entity]!.promised === true)
     })
 
-    it('should have component with AoS values', () => {
+    it('should remove component with AoS values', () => {
       const TestComponent = defineComponent({
         name: 'TestComponent',
 
@@ -257,7 +257,7 @@ describe('ComponentFunctions', async () => {
       assert.ok(!hasComponent(entity, TestComponent))
     })
 
-    it('should have component with SoA values', () => {
+    it('should remove component with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
       const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
