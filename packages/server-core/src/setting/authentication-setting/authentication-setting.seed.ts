@@ -36,6 +36,11 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import config from '../../appconfig'
 
+export const DISCORD_SCOPES = ['email', 'identify']
+export const GITHUB_SCOPES = ['repo', 'user', 'workflow']
+export const GOOGLE_SCOPES = ['profile', 'email']
+export const LINKEDIN_SCOPES = ['profile', 'email']
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
@@ -83,7 +88,7 @@ export async function seed(knex: Knex): Promise<void> {
           discord: {
             key: process.env.DISCORD_CLIENT_ID,
             secret: process.env.DISCORD_CLIENT_SECRET,
-            scope: ['email', 'identify'],
+            scope: DISCORD_SCOPES,
             custom_params: { prompt: 'none' }
           },
           facebook: {
@@ -93,17 +98,17 @@ export async function seed(knex: Knex): Promise<void> {
           github: {
             key: process.env.GITHUB_CLIENT_ID,
             secret: process.env.GITHUB_CLIENT_SECRET,
-            scope: ['repo', 'user', 'workflow']
+            scope: GITHUB_SCOPES
           },
           google: {
             key: process.env.GOOGLE_CLIENT_ID,
             secret: process.env.GOOGLE_CLIENT_SECRET,
-            scope: ['profile', 'email']
+            scope: GOOGLE_SCOPES
           },
           linkedin: {
             key: process.env.LINKEDIN_CLIENT_ID,
             secret: process.env.LINKEDIN_CLIENT_SECRET,
-            scope: ['r_liteprofile', 'r_emailaddress']
+            scope: LINKEDIN_SCOPES
           },
           twitter: {
             key: process.env.TWITTER_CLIENT_ID,
