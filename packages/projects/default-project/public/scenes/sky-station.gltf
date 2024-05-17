@@ -33,7 +33,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/sky-station.envmap.ktx2",
           "boxProjection": true
         },
         "EE_camera_settings": {
@@ -203,8 +203,8 @@
         },
         "EE_visible": true,
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/sky-station.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/sky-station.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/default-project/public/scenes/sky-station.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/sky-station.loadingscreen.ktx2",
           "primaryColor": "#0A6493",
           "backgroundColor": "rgb(238, 232, 243)",
           "alternativeColor": "#316F9E",
