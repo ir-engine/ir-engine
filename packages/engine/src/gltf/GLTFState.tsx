@@ -275,7 +275,7 @@ export const GLTFSnapshotState = defineState({
     }
     parentSnapshot.data.nodes = newNodes
 
-    const rootIndices = snapshot.data.scenes?.[0].nodes!
+    const rootIndices = snapshot.data.scenes![0].nodes!
     const roots = rootIndices.map((index) => snapshot.data.nodes?.[index])
     parentSnapshot.data.nodes = [...parentSnapshot.data.nodes!, ...snapshot.data.nodes!]
     const childIndices = roots.map((root) => parentSnapshot.data.nodes!.findIndex((node) => node === root)!)
