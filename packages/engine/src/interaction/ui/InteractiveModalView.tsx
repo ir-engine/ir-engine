@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { hookstate } from '@etherealengine/hyperflux'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
