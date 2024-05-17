@@ -55,6 +55,7 @@ import { EditorComponentType, commitProperty } from './Util'
 
 import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { VRM } from '@pixiv/three-vrm'
+import { Object3D, Scene } from 'three'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -116,7 +117,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (!modelComponent.asset.value) return
     bonematchable.set(
       modelComponent.asset.value &&
-        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+        (modelComponent.asset.value instanceof VRM ||
+          recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
     )
   }, [modelComponent.asset])
 

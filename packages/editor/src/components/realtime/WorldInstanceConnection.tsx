@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -33,11 +32,11 @@ import {
   SocketWebRTCClientNetwork,
   leaveNetwork
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
+import { useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
@@ -47,7 +46,7 @@ import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 
 export const WorldInstanceConnection = () => {
   const { t } = useTranslation()
-  const activeInstanceState = useHookstate(getMutableState(EditorActiveInstanceState))
+  const activeInstanceState = useMutableState(EditorActiveInstanceState)
   const activeInstances = [
     {
       label: t('editor:toolbar.instance.none'),
@@ -64,7 +63,7 @@ export const WorldInstanceConnection = () => {
     })
   )
 
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
   const sceneId = editorState.scenePath.value!
 
   const onSelectInstance = (selectedInstance: string) => {

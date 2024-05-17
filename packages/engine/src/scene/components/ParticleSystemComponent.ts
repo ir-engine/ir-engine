@@ -37,6 +37,7 @@ import {
 } from 'three'
 import {
   BatchedParticleRenderer,
+  BatchedRenderer,
   Behavior,
   BehaviorFromJSON,
   ParticleSystem,
@@ -861,10 +862,10 @@ export const ParticleSystemComponent = defineComponent({
       if (!componentState._loadIndex.value) return
 
       const component = componentState.get(NO_PROXY)
-      const renderer = batchRenderer.get(NO_PROXY)
+      const renderer = batchRenderer.get(NO_PROXY) as BatchedRenderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value, {})
+      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
       renderer.addSystem(nuSystem)
       const behaviors = component.behaviorParameters.map((behaviorJSON) => {
         const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)

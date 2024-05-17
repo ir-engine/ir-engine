@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import '@etherealengine/engine/src/EngineModule'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import React, { useEffect, useState } from 'react'
@@ -51,7 +51,7 @@ export const useStudioEditor = () => {
 
 export const EditorPage = () => {
   const [params] = useSearchParams()
-  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName } = useMutableState(EditorState)
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')

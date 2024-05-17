@@ -140,7 +140,7 @@ const MultiSelect = <T extends string | number>({
               onClick={() => {
                 if (option.disabled) return
                 if (!selectedOptions.find((opt) => opt === option.value)) {
-                  onChange([...selectedOptions, option.value])
+                  onChange([...selectedOptions, option.value as T])
                 } else {
                   onChange(selectedOptions.filter((opt) => opt && opt !== option.value))
                 }
@@ -152,7 +152,7 @@ const MultiSelect = <T extends string | number>({
                 <Checkbox
                   onChange={(selected) => {
                     if (selected) {
-                      onChange([...selectedOptions, option.value])
+                      onChange([...selectedOptions, option.value as T])
                     } else {
                       onChange(selectedOptions.filter((opt) => opt && opt !== option.value))
                     }

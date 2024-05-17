@@ -29,7 +29,15 @@ import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute, Line, LineBasicMaterial, MathUtils } from 'three'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  InterleavedBufferAttribute,
+  Line,
+  LineBasicMaterial,
+  Material,
+  MathUtils
+} from 'three'
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
@@ -73,10 +81,12 @@ export const PositionalAudioHelperComponent = defineComponent({
     const [geometryState] = useResource<BufferGeometry>(createGeometry, entity)
     const [materialInnerAngle] = useResource(() => new LineBasicMaterial({ color: 0x00ff00 }), entity)
     const [materialOuterAngle] = useResource(() => new LineBasicMaterial({ color: 0xffff00 }), entity)
-    const [line] = useDisposable(Line<BufferGeometry, LineBasicMaterial[]>, entity, geometryState.value, [
-      materialOuterAngle.value,
-      materialInnerAngle.value
-    ])
+    const [line] = useDisposable(
+      Line<BufferGeometry, LineBasicMaterial[]>,
+      entity,
+      geometryState.value as BufferGeometry,
+      [materialOuterAngle.value as LineBasicMaterial, materialInnerAngle.value as LineBasicMaterial]
+    )
     useHelperEntity(entity, component, line)
 
     useDidMount(() => {
@@ -85,7 +95,7 @@ export const PositionalAudioHelperComponent = defineComponent({
 
     useDidMount(() => {
       geometryState.set(createGeometry())
-      line.geometry = geometryState.get(NO_PROXY)
+      line.geometry = geometryState.get(NO_PROXY) as BufferGeometry
     }, [component.divisions])
 
     useEffect(() => {
@@ -145,7 +155,7 @@ export const PositionalAudioHelperComponent = defineComponent({
 
       positionAttribute.needsUpdate = true
 
-      if (coneInnerAngle === coneOuterAngle) materials[0].visible = false
+      if (coneInnerAngle === coneOuterAngle) (materials[0] as Material).visible = false
     }, [component.audio, component.range, component.divisions])
 
     return null

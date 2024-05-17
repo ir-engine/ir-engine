@@ -40,10 +40,10 @@ export const CameraComponent = defineComponent({
     return camera
   },
   onSet: (entity, component, json: undefined) => {
-    addObjectToGroup(entity, component.value)
+    addObjectToGroup(entity, component.value as ArrayCamera)
   },
   onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.value)
+    removeObjectFromGroup(entity, component.value as ArrayCamera)
   },
   toJSON: () => {
     return null

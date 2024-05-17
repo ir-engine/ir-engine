@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID, UUIDComponent, setComponent } from '@etherealengine/ecs'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { SpawnObjectActions } from './SpawnObjectActions'
@@ -51,7 +51,7 @@ export const SpawnPoseState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(SpawnPoseState))
+    const state = useMutableState(SpawnPoseState)
     return (
       <>
         {state.keys.map((uuid: EntityUUID) => (

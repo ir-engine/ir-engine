@@ -98,8 +98,8 @@ export const XRDetectedMeshComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      if (shadowMesh.geometry) shadowMesh.geometry = geometry
-      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
+      if (shadowMesh.geometry) (shadowMesh.geometry as any) = geometry
+      if (occlusionMesh.geometry) (occlusionMesh.geometry as any) = geometry
 
       return () => {
         geometry.dispose()
@@ -107,7 +107,7 @@ export const XRDetectedMeshComponent = defineComponent({
     }, [component.geometry])
 
     useEffect(() => {
-      const placementHelper = component.placementHelper.value
+      const placementHelper = component.placementHelper.value as Mesh
       placementHelper.visible = scenePlacementMode.value === 'placing'
     }, [scenePlacementMode])
 

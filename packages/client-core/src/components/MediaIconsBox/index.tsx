@@ -45,7 +45,7 @@ import {
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { SpectateActions, SpectateEntityState } from '@etherealengine/spatial/src/camera/systems/SpectateSystem'
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
@@ -63,8 +63,8 @@ import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
   const { t } = useTranslation()
-  const playbackState = useHookstate(getMutableState(PlaybackState))
-  const recordingState = useHookstate(getMutableState(RecordingState))
+  const playbackState = useMutableState(PlaybackState)
+  const recordingState = useMutableState(RecordingState)
 
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
@@ -72,8 +72,8 @@ export const MediaIconsBox = () => {
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
-  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
-  const networkState = useHookstate(getMutableState(NetworkState))
+  const channelConnectionState = useMutableState(MediaInstanceState)
+  const networkState = useMutableState(NetworkState)
   const mediaNetworkState = useMediaNetwork()
   const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
@@ -88,7 +88,7 @@ export const MediaIconsBox = () => {
     ? currentLocation?.locationSetting?.screenSharingEnabled?.value
     : false
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
   const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
@@ -96,7 +96,7 @@ export const MediaIconsBox = () => {
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
   const spectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value

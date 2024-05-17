@@ -38,6 +38,8 @@ export function guessContentType(url: string): string {
     return CommonKnownContentTypes.material
   } else if (/\.prefab\.gltf$/.test(contentPath)) {
     return CommonKnownContentTypes.prefab
+  } else if (/\.lookdev\.gltf$/.test(contentPath)) {
+    return CommonKnownContentTypes.lookdev
   }
   const extension = contentPath.split('.').pop()!
   return CommonKnownContentTypes[extension]

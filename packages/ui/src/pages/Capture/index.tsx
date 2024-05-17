@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -67,7 +67,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -151,7 +152,7 @@ export const CaptureState = defineState({
 })
 
 const CaptureMode = () => {
-  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const captureState = useMutableState(CaptureClientSettingsState)
   const captureSettings = captureState?.nested('settings')?.value
   const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
   const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
@@ -491,7 +492,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
 
 const PlaybackMode = () => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
 
   const recording = useGet(recordingPath, recordingID.value!)
   const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
@@ -576,9 +577,7 @@ const CapturePageState = defineState({
   initial: {
     mode: 'capture' as 'playback' | 'capture'
   },
-  onCreate: () => {
-    syncStateWithLocalStorage(CapturePageState, ['mode'])
-  }
+  extension: syncStateWithLocalStorage(['mode'])
 })
 
 const CaptureDashboard = () => {

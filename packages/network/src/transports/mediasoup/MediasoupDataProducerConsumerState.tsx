@@ -34,7 +34,8 @@ import {
   matches,
   matchesPeerID,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import { DataChannelType } from '../../DataChannelRegistry'
@@ -257,7 +258,7 @@ export const MediasoupDataProducerConsumerState = defineState({
   },
 
   reactor: () => {
-    const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
+    const networkIDs = useMutableState(MediasoupDataProducerConsumerState)
     return (
       <>
         {networkIDs.keys.map((id: InstanceID) => (

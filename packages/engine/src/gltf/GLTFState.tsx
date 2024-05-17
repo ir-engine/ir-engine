@@ -51,7 +51,8 @@ import {
   getMutableState,
   getState,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -79,7 +80,7 @@ export const GLTFAssetState = defineState({
 
   useScene: (sceneID: string | undefined) => {
     const scene = useGet(assetPath, sceneID).data
-    const scenes = useHookstate(getMutableState(GLTFAssetState))
+    const scenes = useMutableState(GLTFAssetState)
     const assetURL = scene?.assetURL
     return assetURL ? scenes[assetURL].value : null
   },
@@ -189,7 +190,7 @@ export const GLTFSnapshotState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(GLTFSnapshotState))
+    const state = useMutableState(GLTFSnapshotState)
     return (
       <>
         {state.keys.map((source: string) => (
@@ -362,8 +363,8 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
 }
 
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  const nodes = documentState.nodes! as State<GLTF.INode[]>
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const nodes = documentState.nodes! // as State<GLTF.INode[]>
 
   const node = nodes[props.nodeIndex]!
 
@@ -487,8 +488,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 }
 
 const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex: number; documentID: string }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  const nodes = documentState.nodes! as State<GLTF.INode[]>
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const nodes = documentState.nodes! // as State<GLTF.INode[]>
   const node = nodes[props.nodeIndex]!
 
   const extension = node.extensions![props.extension]

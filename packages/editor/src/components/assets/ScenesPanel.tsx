@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import React, { useState } from 'react'
@@ -60,7 +60,7 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
  */
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
   const scenesQuery = useFind(assetPath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 

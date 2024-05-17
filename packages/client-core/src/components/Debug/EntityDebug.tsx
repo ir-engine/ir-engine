@@ -39,13 +39,13 @@ import {
   HyperFlux,
   NO_PROXY,
   defineState,
-  getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -146,9 +146,7 @@ const EntitySearchState = defineState({
     search: '',
     query: ''
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EntitySearchState, ['search', 'query'])
-  }
+  extension: syncStateWithLocalStorage(['search', 'query'])
 })
 
 export const EntityDebug = () => {
@@ -157,8 +155,8 @@ export const EntityDebug = () => {
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
-  const entitySearch = useHookstate(getMutableState(EntitySearchState).search)
-  const entityQuery = useHookstate(getMutableState(EntitySearchState).query)
+  const entitySearch = useMutableState(EntitySearchState).search
+  const entityQuery = useMutableState(EntitySearchState).query
 
   erroredComponents.set(
     [...Engine.instance.store.activeReactors.values()]
