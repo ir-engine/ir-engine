@@ -24,9 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { LinearSRGBColorSpace, Vector2, Vector3 } from 'three'
+import { LinearSRGBColorSpace, MathUtils, Vector2, Vector3 } from 'three'
 
 import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -35,11 +38,16 @@ import {
 } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import {
   BlendFunction,
   EdgeDetectionMode,
+  EffectComposer,
   KernelSize,
   PredicationMode,
   SMAAPreset,
@@ -51,8 +59,28 @@ import { Effects, defaultPostProcessingSchema } from '../PostProcessing'
 import { PostProcessingComponent } from './PostProcessingComponent'
 
 describe('PostProcessingComponent', () => {
+  let rootEntity: Entity
+  let entity: Entity
+
+  const mockCanvas = () => {
+    return {
+      getDrawingBufferSize: () => 0
+    } as any as HTMLCanvasElement
+  }
+
   beforeEach(() => {
     createEngine()
+
+    rootEntity = createEntity()
+    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, CameraComponent)
+    setComponent(rootEntity, SceneComponent)
+    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
+
+    entity = createEntity()
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, PostProcessingComponent)
   })
 
   afterEach(() => {
@@ -60,89 +88,58 @@ describe('PostProcessingComponent', () => {
   })
 
   it('Create default post processing component', () => {
-    const entity = createEntity()
+    entity = createEntity()
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(entity, PostProcessingComponent)
     const postProcessingComponent = getComponent(entity, PostProcessingComponent)
-
     assert(postProcessingComponent.effects == defaultPostProcessingSchema, 'post processing matches default parameters')
   })
 
-  it('Test BloomEffect', (done) => {
-    const entity = createEntity()
-    let renderCount = 0
+  it('Test Effect Composure', async () => {
     const effectKey = Effects.BloomEffect
-
-    const Reactor = () => {
-      const postProcessingComponent = useOptionalComponent(entity, PostProcessingComponent)
-      renderCount += 1
-      console.log('renderCount = ' + renderCount)
-      useEffect(() => {
-        setComponent(entity, PostProcessingComponent)
-      }, [])
-
-      useEffect(() => {
-        if (postProcessingComponent) {
-          assert(postProcessingComponent.effects[effectKey].isActive.value, effectKey + ' is active')
-        }
-      }, [postProcessingComponent?.effects])
-      return <></>
-    }
-
-    const { rerender, unmount } = render(<Reactor />)
-
-    act(async () => {
-      assert(hasComponent(entity, PostProcessingComponent))
-
-      const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
-      const data = defaultPostProcessingSchema[effectKey]
-      data.isActive = true
-      postProcessingComponent.effects[effectKey].set(data)
-
-      rerender(<Reactor />)
-    }).then(() => {
-      removeEntity(entity)
-      unmount()
-      done()
-    })
-  })
-
-  it('Test SMAAEffect', (done) => {
     const entity = createEntity()
-    let renderCount = 0
-    const effectKey = Effects.SMAAEffect
-    const Reactor = () => {
-      const postProcessingComponent = useOptionalComponent(entity, PostProcessingComponent)
-      renderCount += 1
-      console.log('renderCount = ' + renderCount)
-      useEffect(() => {
-        setComponent(entity, PostProcessingComponent)
-      }, [])
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, EntityTreeComponent)
 
-      return <></>
+    //retain ref to original add Pass
+    const originalAddPass = EffectComposer.prototype.addPass
+
+    //override addpass to test data without dependency on Browser
+    let addPassCount = 0
+    EffectComposer.prototype.addPass = () => {
+      addPassCount++
     }
 
-    const { rerender, unmount } = render(<Reactor />)
+    //set data to test
+    setComponent(rootEntity, SceneComponent, { children: [entity] })
 
-    act(async () => {
-      assert(hasComponent(entity, PostProcessingComponent))
+    //force nested reactors to run
+    const { rerender, unmount } = render(<></>)
 
-      const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
-      postProcessingComponent.effects[effectKey].preset.set(SMAAPreset.HIGH)
+    setComponent(entity, PostProcessingComponent)
+    const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
 
-      rerender(<Reactor />)
-    }).then(() => {
-      const postProcessingComponent = getComponent(entity, PostProcessingComponent)
-      assert(postProcessingComponent.effects[effectKey].preset == SMAAPreset.HIGH, effectKey + ' is active')
+    await act(() => rerender(<></>))
 
-      removeEntity(entity)
-      unmount()
-      done()
-    })
+    //test that the effect composer is setup
+    assert(getComponent(rootEntity, RendererComponent).effectComposer, 'effect composer is setup')
+
+    //test that the effect pass has the the effect set
+    // @ts-ignore
+    assert(
+      getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects.find((el) => el.name == effectKey)
+    )
+
+    EffectComposer.prototype.addPass = originalAddPass
+
+    unmount()
   })
 
   it('Test Effects', (done) => {
     const entity = createEntity()
-    let renderCount = 0
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(entity, EntityTreeComponent)
+
     const effectKeys = Object.keys(Effects)
     const masterProps = {
       isActive: true,
@@ -258,13 +255,10 @@ describe('PostProcessingComponent', () => {
       principalPoint: new Vector2(1, 1),
       skew: 1
     }
-
     const masterKeys = Object.keys(masterProps)
 
     const Reactor = () => {
       const postProcessingComponent = useOptionalComponent(entity, PostProcessingComponent)
-      renderCount += 1
-      console.log('renderCount = ' + renderCount)
       useEffect(() => {
         setComponent(entity, PostProcessingComponent)
       }, [])
@@ -280,12 +274,14 @@ describe('PostProcessingComponent', () => {
       const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
 
       effectKeys.forEach((effectKey) => {
-        const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
-        propKeys.forEach((propKey) => {
-          if (masterKeys.includes(propKey)) {
-            postProcessingComponent.effects[effectKey][propKey].set(masterProps[propKey])
-          }
-        })
+        if (postProcessingComponent.effects[effectKey]) {
+          const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
+          propKeys.forEach((propKey) => {
+            if (masterKeys.includes(propKey)) {
+              postProcessingComponent.effects[effectKey][propKey].set(masterProps[propKey])
+            }
+          })
+        }
       })
 
       rerender(<Reactor />)
