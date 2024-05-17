@@ -36,6 +36,8 @@ export function guessContentType(url: string): string {
   //check for xre gltf extension
   if (/\.material\.gltf$/.test(contentPath)) {
     return CommonKnownContentTypes.material
+  } else if (/\.lookdev\.gltf$/.test(contentPath)) {
+    return CommonKnownContentTypes.lookdev
   }
   const extension = contentPath.split('.').pop()!
   return CommonKnownContentTypes[extension]
