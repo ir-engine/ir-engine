@@ -157,7 +157,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
 
   return (
     <button
-      className="bg-theme-primary flex items-center p-4"
+      className="bg-theme-primary flex w-full items-center p-4"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
@@ -165,11 +165,13 @@ const ComponentListItem = ({ item }: { item: Component }) => {
       }}
     >
       <Icon className="text-textColor h-6 w-6" />
-      <div className="ml-4">
-        <h3 className="text-subtitle1 text-textColor">
+      <div className="ml-4 w-full">
+        <h3 className="text-subtitle1 text-textColor text-center">
           {startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase())}
         </h3>
-        <p className="text-caption text-textColor">{t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}</p>
+        <p className="text-caption text-textColor text-center">
+          {t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}
+        </p>
       </div>
     </button>
   )
