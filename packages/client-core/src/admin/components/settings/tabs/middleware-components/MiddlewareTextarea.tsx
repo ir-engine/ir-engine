@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import React from 'react'
 
-interface MiddlewareToggleProps {
+interface MiddlewareTextareaProps {
   mwLabel: string
-  mwDefaultValue: boolean
-  mwOnAction: (value: string) => void
+  mwDefaultValue: string
+  mwOnAction: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
 }
 
-const MiddlewareToggle: React.FC<MiddlewareToggleProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {
-  return (
-    <Toggle
-      containerClassName="justify-start col-span-full"
-      label={mwLabel}
-      value={mwDefaultValue}
-      onChange={() => mwOnAction(mwLabel)}
+const MiddlewareTextarea: React.FC<MiddlewareTextareaProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => (
+  <div className="col-span-2 flex flex-col">
+    <label className="mb-2">{mwLabel}</label>
+    <textarea
+      className="resize-none overflow-auto rounded-lg border-2 p-2"
+      style={{ height: '8em' }}
+      defaultValue={mwDefaultValue || ''}
+      onChange={(e) => mwOnAction(e)}
     />
-  )
-}
+  </div>
+)
 
-export default MiddlewareToggle
+export default MiddlewareTextarea

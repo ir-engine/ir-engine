@@ -36,6 +36,8 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import MiddlewareInput from './middleware-components/MiddlewareInput'
+import MiddlewareSelect from './middleware-components/MiddlewareSelect'
+import MiddlewareTextarea from './middleware-components/MiddlewareTextarea'
 import MiddlewareToggle from './middleware-components/MiddlewareToggle'
 
 console.log('#### middleware')
@@ -45,15 +47,39 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
   const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
   const middlewareSetting = useFind(middlewareSettingPath).data.at(0)
-  console.log('middlewareSetting', middlewareSetting)
+  // console.log('middlewareSetting', middlewareSetting, middlewareSetting?.middlewareSettingMenu)
 
   const id = middlewareSetting?.id
+  const mS = middlewareSetting?.middlewareSettingMenu
   const c0 = useHookstate(middlewareSetting?.conf0)
   const c1 = useHookstate(middlewareSetting?.conf1)
   const c2 = useHookstate(middlewareSetting?.conf2)
+  // const mS = useHookstate(middlewareSetting?.middlewareSettingMenu)
 
-  /////// Dynamic Menu Experiment
+  // console.log(id, mS, c0.value, c1.value, c2.value)
+  console.log('#### mS', mS)
 
+  let mSJson
+  // if (middlewareSetting?.middlewareSettingMenu) {
+  //   try {
+  //     mSJson = JSON.parse(middlewareSetting?.middlewareSettingMenu);
+  //   } catch (e) {
+  //     console.error('Could not parse middlewareSettingMenu', e);
+  //   }
+  // }
+  if (mS) {
+    try {
+      mSJson = JSON.parse(mS)
+    } catch (e) {
+      console.error('#### Could not parse middlewareSettingMenu', e)
+    }
+  }
+  const mSmenu = useHookstate(mSJson)
+
+  console.log('#### mSmenu', mSmenu.value)
+
+  /* Dynamic Menu - Experimental */
+  // const [testSettings, setTestSettings] = useState(JSON.parse())
   const [testSettings, setTestSettings] = useState([
     {
       Dynamic0: [
@@ -62,6 +88,18 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           label: 'Dyn Toggle 0',
           value: true,
           action: 'mwHandleToggle'
+        },
+        {
+          component: 'MiddlewareSelect',
+          label: 'Dyn Select 0',
+          value: ['opt0', 'opt1', 'opt2'],
+          action: 'mwHandleSelect'
+        },
+        {
+          component: 'MiddlewareTextarea',
+          label: 'Textarea Label 0',
+          value: 'Default Value',
+          action: 'mwHandleTextarea'
         },
         {
           component: 'MiddlewareInput',
@@ -95,8 +133,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
 
   const components = {
     MiddlewareInput: MiddlewareInput,
-    MiddlewareToggle: MiddlewareToggle
-    // other middleware components
+    MiddlewareToggle: MiddlewareToggle,
+    MiddlewareSelect: MiddlewareSelect,
+    MiddlewareTextarea: MiddlewareTextarea
   }
 
   const mwHandleChange = (inputEvent: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +161,11 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     })
   }
 
+  const mwHandleTextarea = (inputEvent: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = inputEvent.target.value
+    console.log(inputValue)
+  }
+
   const mwHandleToggle = (inputLabel: string) => {
     console.log(inputLabel)
 
@@ -143,9 +187,15 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     })
   }
 
+  const mwHandleSelect = (value: string, label: string) => {
+    console.log(value, label)
+  }
+
   const actions = {
     mwHandleChange: mwHandleChange,
-    mwHandleToggle: mwHandleToggle
+    mwHandleToggle: mwHandleToggle,
+    mwHandleSelect: mwHandleSelect,
+    mwHandleTextarea: mwHandleTextarea
   }
 
   ///////
@@ -159,11 +209,9 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     event.preventDefault()
     console.log('#### M handleSubmit')
     if (!id) return
-    console.log('#### id')
     state.loading.set(true)
-    console.log('#### state', state)
-    console.log('#### hookstate', c0.value, c1.value, c2.value)
     patchMiddlewareSetting(id, {
+      // middlewareSettingMenu: JSON.stringify(testSettings.value),
       conf0: c0.value,
       conf1: c1.value,
       conf2: c2.value
@@ -174,11 +222,11 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       .catch((e) => {
         state.set({ loading: false, errorMesSavesage: e.message })
       })
-    console.log('#### DONE', c0.value, c1.value, c2.value)
-    console.log('middlewareSetting', middlewareSetting)
+    console.log('#### DONE', testSettings.value)
   }
 
   const handleCancel = () => {
+    // setTestSettings(JSON.parse(middlewareSetting?.middlewareSettingMenu))
     c0.set(middlewareSetting?.conf0)
     c1.set(middlewareSetting?.conf1)
     c2.set(middlewareSetting?.conf2)
@@ -193,7 +241,7 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       ref={ref}
       open={open}
     >
-      {/* Dynamic Menu Experiment */}
+      {/* Dynamic Menu - Experimental */}
       {testSettings.map((dynamicObject, index) => {
         return Object.entries(dynamicObject).map(([key, value]) => {
           return (
@@ -212,7 +260,7 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
           )
         })
       })}
-      {/* Dynamic Menu Experiment */}
+      {/* Dynamic Menu - Experimental */}
 
       <div className="mt-6 grid grid-cols-2 gap-4">
         <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">

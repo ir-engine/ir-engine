@@ -32,21 +32,13 @@ export const middlewareSettingPath = 'middleware-setting'
 
 export const middlewareSettingMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
-// export const middlewareSocialLinkSchema = Type.Object(
-//   {
-//     link: Type.String(),
-//     icon: Type.String()
-//   },
-//   { $id: 'MiddlewareSocialLink', additionalProperties: false }
-// )
-// export interface MiddlewareSocialLinkType extends Static<typeof middlewareSocialLinkSchema> {}
-
 // Main data model schema
 export const middlewareSettingSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
+    middlewareSettingMenu: Type.String(),
     conf0: Type.String(),
     conf1: Type.String(),
     conf2: Type.String(),
@@ -57,16 +49,22 @@ export const middlewareSettingSchema = Type.Object(
 )
 export interface MiddlewareSettingType extends Static<typeof middlewareSettingSchema> {}
 
-export interface MiddlewareSettingDatabaseType extends Omit<MiddlewareSettingType, 'conf0' | 'conf1' | 'conf2'> {
+export interface MiddlewareSettingDatabaseType
+  extends Omit<MiddlewareSettingType, 'middlewareSettingMenu' | 'conf0' | 'conf1' | 'conf2'> {
+  middlewareSettingMenu: string
   conf0: string
   conf1: string
   conf2: string
 }
 
 // Schema for creating new entries
-export const middlewareSettingDataSchema = Type.Pick(middlewareSettingSchema, ['conf0', 'conf1', 'conf2'], {
-  $id: 'MiddlewareSettingData'
-})
+export const middlewareSettingDataSchema = Type.Pick(
+  middlewareSettingSchema,
+  ['middlewareSettingMenu', 'conf0', 'conf1', 'conf2'],
+  {
+    $id: 'MiddlewareSettingData'
+  }
+)
 export interface MiddlewareSettingData extends Static<typeof middlewareSettingDataSchema> {}
 
 // Schema for updating existing entries
@@ -76,12 +74,7 @@ export const middlewareSettingPatchSchema = Type.Partial(middlewareSettingSchema
 export interface MiddlewareSettingPatch extends Static<typeof middlewareSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, [
-  'id'
-  // 'conf0',
-  // 'conf1',
-  // 'conf2'
-])
+export const middlewareSettingQueryProperties = Type.Pick(middlewareSettingSchema, ['id'])
 export const middlewareSettingQuerySchema = Type.Intersect(
   [
     querySyntax(middlewareSettingQueryProperties),
