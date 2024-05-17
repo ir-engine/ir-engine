@@ -27,8 +27,6 @@ import type { Knex } from 'knex'
 
 import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
-import { LINKEDIN_SCOPES } from '../authentication-setting.seed'
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
