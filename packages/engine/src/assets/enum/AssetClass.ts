@@ -35,6 +35,7 @@ export enum AssetClass {
   Document = 'Document',
   Text = 'Text',
   Script = 'Script',
+  Prefab = 'Prefab',
   Unknown = 'unknown',
   Volumetric = 'Volumetric'
 }

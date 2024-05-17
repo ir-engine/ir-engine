@@ -89,7 +89,6 @@ export const SceneState = defineState({
       return createRootEntity(sceneID, data)
     }
   },
-
   unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
