@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import {
   DoubleSide,
   LinearFilter,
+  Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   Side,
@@ -172,7 +173,7 @@ function VideoReactor() {
 
   // update mesh
   useEffect(() => {
-    const videoMesh = mesh.value
+    const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial>
     resizeImageMesh(videoMesh)
     const scale = ObjectFitFunctions.computeContentFitScale(
       videoMesh.scale.x,
@@ -196,7 +197,7 @@ function VideoReactor() {
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent.texture
     if (video.texture.value) {
-      video.texture.value.image = mediaElement.element.value as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {
