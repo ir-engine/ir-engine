@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
+import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 

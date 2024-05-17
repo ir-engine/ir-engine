@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { State } from '@etherealengine/hyperflux'
 import { Paginated } from '@feathersjs/feathers'
-import { State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'

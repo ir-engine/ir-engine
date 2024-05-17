@@ -41,11 +41,11 @@ import {
   defineState,
   getState,
   syncStateWithLocalStorage,
+  useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'

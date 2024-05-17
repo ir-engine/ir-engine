@@ -31,6 +31,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
+  none,
+  useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import {
@@ -43,7 +45,6 @@ import {
   NetworkState,
   NetworkTopics
 } from '@etherealengine/network'
-import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
