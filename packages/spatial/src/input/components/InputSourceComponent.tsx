@@ -30,7 +30,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Raycaster } from 'three'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
-import { ButtonAlias, ButtonState, ButtonStateMap, DefaultButtonAlias } from '../state/ButtonState'
+import { ButtonAlias, ButtonState, ButtonStateMap, DefaultInputAlias } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 export const InputSourceComponent = defineComponent({
@@ -90,9 +90,9 @@ export const InputSourceComponent = defineComponent({
     }
   },
 
-  getMergedButtons<AliasType extends ButtonAlias = typeof DefaultButtonAlias>(
+  getMergedButtons<AliasType extends ButtonAlias = typeof DefaultInputAlias>(
     inputSourceEntities = inputSourceQuery(),
-    buttonAlias: AliasType = DefaultButtonAlias as unknown as AliasType
+    buttonAlias: AliasType = DefaultInputAlias as unknown as AliasType
   ) {
     const buttons = Object.assign(
       {} as ButtonStateMap,

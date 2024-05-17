@@ -39,11 +39,12 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   EntityTreeComponent,
@@ -66,7 +67,7 @@ import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
-import { XRState } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -123,11 +124,22 @@ const pointers = defineQuery([InputPointerComponent, InputSourceComponent, Not(X
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const spatialInputSourceQuery = defineQuery([InputSourceComponent, TransformComponent])
 const inputSourceQuery = defineQuery([InputSourceComponent])
+const nonSpatialInputSourceQuery = defineQuery([InputSourceComponent, Not(TransformComponent)])
 const inputs = defineQuery([InputComponent])
+
+const worldPosInputSourceComponent = new Vector3()
+const worldPosInputComponent = new Vector3()
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const spatialInputObjects = defineQuery([
+  InputComponent,
+  VisibleComponent,
+  TransformComponent,
+  Not(CameraComponent),
+  Not(AvatarComponent)
+]) //TODO may be overkill if visible means it always has transform
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
@@ -138,7 +150,7 @@ const inputRaycast = {
   origin: new Vector3(),
   direction: new Vector3(),
   maxDistance: 1000,
-  groups: getInteractionGroups(CollisionGroups.Input, CollisionGroups.Input),
+  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default), //TODO - potentially change this to Input layer if we have a consistent way to ensure input layers are set up
   excludeRigidBody: undefined //
 } as RaycastArgs
 
@@ -154,7 +166,7 @@ const execute = () => {
       getMutableComponent(eid, InputComponent).inputSources.set([])
 
   // update 2D screen-based (driven by pointer api) input sources
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
@@ -194,7 +206,7 @@ const execute = () => {
 
   const capturedEntity = getState(InputState).capturingEntity
 
-  // assign input sources (InputSourceComponent) to input sinks (InputComponent)
+  // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of spatialInputSourceQuery()) {
     const intersectionData = [] as {
       entity: Entity
@@ -261,18 +273,42 @@ const execute = () => {
     }
 
     const sortedIntersections = intersectionData.sort((a, b) => a.distance - b.distance)
+    const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
 
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
-    //this part feels a bit wrong, not sure if ClientInputSystem makes sense for it.... are we still interested in doing proximity here?
-    // if(capturedEntity === UndefinedEntity && sortedIntersections.length === 0) {
-    //   //TODO add proximity here, 2nd priority to the raycasting
-    //   for (const entity of inputObjects()) { //inputs or inputObjects?  - inputObjects requires visible and group components
-    //     //TODO add proximity here, could add to the raycast intersections at the end for laziness if we wanted...
-    //
-    //   }
-    // }
+    //Proximity check ONLY if we have no raycast results, as it is always lower priority
+    if (capturedEntity === UndefinedEntity && sortedIntersections.length === 0) {
+      let closestEntity = UndefinedEntity
+      let closestDistanceSquared = Infinity
 
-    const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+      //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
+      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+      const inputSourceEntity = getState(XRControlsState).isCameraAttachedToAvatar ? sourceEid : selfAvatarEntity
+
+      //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
+      for (const inputEntity of spatialInputObjects()) {
+        if (inputSourceEntity === UndefinedEntity) continue
+        const inputComponent = getComponent(inputEntity, InputComponent)
+
+        TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
+        TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
+
+        const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+
+        //closer than our current closest AND within inputSource's activation distance
+        if (
+          distSquared < closestDistanceSquared &&
+          inputComponent.activationDistance * inputComponent.activationDistance > distSquared
+        ) {
+          closestDistanceSquared = distSquared
+          closestEntity = inputEntity
+        }
+      }
+      if (closestEntity !== UndefinedEntity) {
+        sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
+      }
+    }
+
     sourceState.intersections.set(sortedIntersections)
 
     const hitEntity = capturedEntity || sortedIntersections[0]?.entity
@@ -506,7 +542,7 @@ const useXRInputSources = () => {
       setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.cameraEntity
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
       })
       setComponent(eid, TransformComponent)
       setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)

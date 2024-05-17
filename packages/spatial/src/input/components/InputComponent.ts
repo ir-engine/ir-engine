@@ -23,26 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
-import { getMutableComponent, hasComponent, InputSystemGroup, useExecute } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  InputSystemGroup,
+  useExecute
+} from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { BodyTypes } from '../../physics/types/PhysicsTypes'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponent } from '../../transform/components/EntityTree'
+import {
+  ButtonState,
+  ButtonStateMap,
+  DefaultInputAlias,
+  KeyboardButton,
+  MouseButton,
+  XRStandardGamepadButton
+} from '../state/ButtonState'
 import { InputSinkComponent } from './InputSinkComponent'
+import { InputSourceComponent } from './InputSourceComponent'
+
+export type InputAlias = Record<string, (string | number)[]>
+
+export const DefaultInputAlias = {
+  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE]
+}
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
@@ -78,22 +93,73 @@ export const InputComponent = defineComponent({
     }
   },
 
-  useInputs: (executeOnInput?: (inputEntity: Entity) => void) => {
-    const entity = useEntityContext()
-    const inputSinkEntity = useAncestorWithComponent(entity, InputSinkComponent)
-    const inputEntity = useOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntity.value ?? UndefinedEntity
+  useExecuteWithInput: (executeOnInput: () => void) => {
+    return useExecute(executeOnInput, { with: InputSystemGroup })
+  },
 
-    executeOnInput &&
-      useExecute(
-        () => {
-          executeOnInput(inputEntity)
-        },
-        {
-          with: InputSystemGroup
+  getInputEntities(entityContext: Entity): Entity[] {
+    const inputSinkEntity = getAncestorWithComponent(entityContext, InputSinkComponent)
+    return getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
+  },
+
+  getInputSourceEntities(entityContext: Entity) {
+    const inputEntities = InputComponent.getInputEntities(entityContext)
+    return inputEntities.reduce<Entity[]>((prev, eid) => {
+      return [...prev, ...getComponent(eid, InputComponent).inputSources]
+    }, [])
+  },
+
+  getMergedButtons<AliasType extends InputAlias = typeof DefaultInputAlias>(
+    entityContext: Entity,
+    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+  ) {
+    const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
+
+    const buttons = Object.assign(
+      {} as ButtonStateMap,
+      ...inputSourceEntities.map((eid) => {
+        return getComponent(eid, InputSourceComponent).buttons
+      })
+    ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
+
+    for (const key of Object.keys(inputAlias)) {
+      const k = key as keyof AliasType
+      buttons[k] = inputAlias[key].reduce((acc, alias) => acc || buttons[alias], undefined)
+    }
+
+    return buttons
+  },
+
+  getMergedAxes<AliasType extends InputAlias = typeof DefaultInputAlias>(
+    entityContext: Entity,
+    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+  ) {
+    const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
+
+    const axes = {
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0
+    } as Record<string | number, number>
+
+    for (const eid of inputSourceEntities) {
+      const inputSource = getComponent(eid, InputSourceComponent)
+      if (inputSource.source.gamepad?.axes) {
+        for (let i = 0; i < 4; i++) {
+          // keep the largest value (positive or negative)
+          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
+          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
         }
-      )
+      }
+    }
 
-    return inputEntity
+    for (const key of Object.keys(inputAlias)) {
+      const aliases = inputAlias[key]
+      axes[key as keyof AliasType] = aliases.reduce((acc, alias) => acc || axes[alias], undefined)
+    }
+
+    return axes
   },
 
   /** InputComponent is focused by the ClientInputSystem heuristics */
@@ -116,32 +182,32 @@ export const InputComponent = defineComponent({
       }
     }, [input.inputSources, input.highlight])
 
-    useEffect(() => {
-      // perhaps we don't need to create a rigidbody; we just want to be able to add anything in this tree to the `input` layer,
-      // whether or not it's a rigidbody or a mesh
-
-      //then we might just need to abandon the Input layer raycast, leave that as-is, add the distance heuristic and call it a day
-
-      // the input system can still perform physics and mesh bvh raycasts on things that have an InputComponent as an entity ancestor
-      // I think I know how this can work
-      //awesome
-
-      //techincally if we add the distance heuristic a rigidbody / collider are not needed
-
-      // after entity tree has loaded (how do we check for this...)
-      // create an input rigidbody if one doesn't exist
-      if (!hasComponent(entity, RigidBodyComponent)) {
-        setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed }) //assume kinematic if it had no rigidbody before
-      }
-      // create an input colliderComponent if one doesn't exist
-      if (!hasComponent(entity, ColliderComponent)) {
-        //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
-        setComponent(entity, ColliderComponent)
-      }
-      const hasMesh = hasComponent(entity, MeshComponent)
-      const collider = getMutableComponent(entity, ColliderComponent)
-      collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
-    }, [])
+    // useEffect(() => {
+    //   // perhaps we don't need to create a rigidbody; we just want to be able to add anything in this tree to the `input` layer,
+    //   // whether or not it's a rigidbody or a mesh
+    //
+    //   //then we might just need to abandon the Input layer raycast, leave that as-is, add the distance heuristic and call it a day
+    //
+    //   // the input system can still perform physics and mesh bvh raycasts on things that have an InputComponent as an entity ancestor
+    //   // I think I know how this can work
+    //   //awesome
+    //
+    //   //techincally if we add the distance heuristic a rigidbody / collider are not needed
+    //
+    //   // after entity tree has loaded (how do we check for this...)
+    //   // create an input rigidbody if one doesn't exist
+    //   // if (!hasComponent(entity, RigidBodyComponent)) {
+    //   //   setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed }) //assume kinematic if it had no rigidbody before
+    //   // }
+    //   // // create an input colliderComponent if one doesn't exist
+    //   // if (!hasComponent(entity, ColliderComponent)) {
+    //   //   //TODO - check if we have a mesh, if we do, use the mesh as a collider type....if not then generate a bounding sphere
+    //   //   setComponent(entity, ColliderComponent)
+    //   // }
+    //   // const hasMesh = hasComponent(entity, MeshComponent)
+    //   // const collider = getMutableComponent(entity, ColliderComponent)
+    //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
+    // }, [])
 
     useExecute(
       () => {

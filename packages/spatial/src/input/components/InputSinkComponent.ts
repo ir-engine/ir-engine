@@ -23,20 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { defineComponent } from '@etherealengine/ecs'
 
-/** InputSinkComponent - receives input from an InputComponent targeting its entity or child entity (walks up the ECS tree to find an InputSinkComponent)*/
+/** InputSinkComponent - receives input from input entities.  */
 export const InputSinkComponent = defineComponent({
   name: 'InputSinkComponent',
 
   onInit: () => {
     return {
-      inputEntity: UndefinedEntity
+      /**
+       * The set of entities that are actively channeling input into this Entity Tree
+       */
+      inputEntities: []
     }
-  },
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.inputEntity === 'number') component.inputEntity.set(json.inputEntity)
   }
 })
