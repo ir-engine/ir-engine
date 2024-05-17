@@ -25,7 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 //import styles from '../styles.module.scss'
-import { IoAccessibilityOutline, IoFolderOpenSharp } from 'react-icons/io5'
+import { HiFolder } from 'react-icons/hi2'
+import { IoAccessibilityOutline } from 'react-icons/io5'
+
 import { MdOutlineAudioFile, MdOutlinePhotoSizeSelectActual, MdOutlineViewInAr } from 'react-icons/md'
 import { PiVideoCameraBold } from 'react-icons/pi'
 import { TbFileDescription } from 'react-icons/tb'
@@ -77,7 +79,7 @@ export const FileIcon = ({
   return (
     <>
       {isFolder ? (
-        <IoFolderOpenSharp className="text-blue-800" />
+        <HiFolder className="text-blue-800" />
       ) : thumbnailURL != null ? (
         <img
           className="h-[100%] w-[100%] min-w-[90px] object-contain"
