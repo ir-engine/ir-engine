@@ -39,6 +39,7 @@ import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
 export { useHookstate as useState } from '@hookstate/core'
+export * from '@hookstate/identifiable'
 
 /** @deprecated */
 export const createState = hookstate

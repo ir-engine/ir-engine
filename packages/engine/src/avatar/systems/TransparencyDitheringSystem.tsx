@@ -45,7 +45,7 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
-import { FrontSide } from 'three'
+import { FrontSide, Material } from 'three'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
@@ -115,8 +115,9 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
       const materialName = getComponent(material, NameComponent)
       if (materialComponent.pluginEntities.value)
         materialComponent.pluginEntities.set([pluginByName[TransparencyDitheringPlugin.id]])
-      materialComponent.material.value!.alphaTest = 0.5
-      materialComponent.material.value!.side = FrontSide
+      const materialValue = materialComponent.material.value as Material
+      materialValue.alphaTest = 0.5
+      materialValue.side = FrontSide
       const ditheringComponent = getMutableComponent(rootEntity, TransparencyDitheringComponent[0])
       if (!ditheringComponent.shaders.value.includes(materialName))
         ditheringComponent.shaders.set([...ditheringComponent.shaders.value, materialName])
