@@ -340,7 +340,7 @@ const ChildGLTFReactor = () => {
 }
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID] as State<GLTF.IGLTF>
   if (!documentState.scenes.value) return null
 
   const nodes = documentState.scenes![documentState.scene.value!].nodes as State<number[]>
