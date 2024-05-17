@@ -418,7 +418,7 @@ describe('GLTFState', () => {
     assert.equal(onRemoveCount, 0)
   })
 
-  it.only('should be able to parent a node to a child', () => {
+  it('should be able to parent a node to a child', () => {
     const parentUUID = MathUtils.generateUUID() as EntityUUID
     const childUUID = MathUtils.generateUUID() as EntityUUID
 
@@ -461,17 +461,11 @@ describe('GLTFState', () => {
     dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
     applyIncomingActions()
 
-    console.log(newSnapshot)
-
     const parent = UUIDComponent.getEntityByUUID(parentUUID)
     const child = UUIDComponent.getEntityByUUID(childUUID)
 
-    console.log({ parent, child })
-
     const parentEntityTree = getComponent(parent, EntityTreeComponent)
     const childEntityTree = getComponent(child, EntityTreeComponent)
-
-    console.log({ parentEntityTree, childEntityTree })
 
     assert.equal(parentEntityTree.parentEntity, gltfEntity)
     assert.equal(childEntityTree.parentEntity, parent)
