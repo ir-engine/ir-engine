@@ -39,17 +39,19 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists) {
     const project = await trx.select().from(projectPath).where({ name: 'default-project' }).first()
-    const assets = await trx.select().from(assetPath).where({ projectId: project.id })
-    for (const asset of assets) {
-      if (asset.assetURL.startsWith('projects/default-project')) {
-        await trx(assetPath)
-          .where({ id: asset.id })
-          .update({
-            assetURL: asset.assetURL.replace('projects/default-project', 'projects/default-project/public/scenes'),
-            thumbnailURL: asset.thumbnailURL
-              ? asset.thumbnailURL.replace('projects/default-project', 'projects/default-project/public/scenes')
-              : null
-          })
+    if (project) {
+      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      for (const asset of assets) {
+        if (asset.assetURL.startsWith('projects/default-project')) {
+          await trx(assetPath)
+            .where({ id: asset.id })
+            .update({
+              assetURL: asset.assetURL.replace('projects/default-project', 'projects/default-project/public/scenes'),
+              thumbnailURL: asset.thumbnailURL
+                ? asset.thumbnailURL.replace('projects/default-project', 'projects/default-project/public/scenes')
+                : null
+            })
+        }
       }
     }
   }
@@ -70,17 +72,19 @@ export async function down(knex: Knex): Promise<void> {
 
   if (tableExists) {
     const project = await trx.select().from(projectPath).where({ name: 'default-project' }).first()
-    const assets = await trx.select().from(assetPath).where({ projectId: project.id })
-    for (const asset of assets) {
-      if (asset.assetURL.startsWith('projects/default-project')) {
-        await trx(assetPath)
-          .where({ id: asset.id })
-          .update({
-            assetURL: asset.assetURL.replace('projects/default-project/public/scenes', 'projects/default-project'),
-            thumbnailURL: asset.thumbnailURL
-              ? asset.thumbnailURL.replace('projects/default-project/public/scenes', 'projects/default-project')
-              : null
-          })
+    if (project) {
+      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      for (const asset of assets) {
+        if (asset.assetURL.startsWith('projects/default-project')) {
+          await trx(assetPath)
+            .where({ id: asset.id })
+            .update({
+              assetURL: asset.assetURL.replace('projects/default-project/public/scenes', 'projects/default-project'),
+              thumbnailURL: asset.thumbnailURL
+                ? asset.thumbnailURL.replace('projects/default-project/public/scenes', 'projects/default-project')
+                : null
+            })
+        }
       }
     }
   }
