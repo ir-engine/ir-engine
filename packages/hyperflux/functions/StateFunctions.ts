@@ -142,15 +142,12 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
           if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
         }
       },
-      onSet: (state, desc, rootState) => {
-        for (const key of keys) {
-          if (rootState[key].value === undefined)
-            localStorage.removeItem(`${stateNamespaceKey}.${rootState.identifier}.${key}`)
-          else
-            localStorage.setItem(
-              `${stateNamespaceKey}.${rootState.identifier}.${key}`,
-              JSON.stringify(rootState[key].get({ noproxy: true }))
-            )
+      onSet: (state, desc) => {
+        const key = '' + desc.path[0]
+        if (keys.includes(key)) {
+          const storageKey = `${stateNamespaceKey}.${state.identifier}.${key}`
+          if (!state[key] || !state[key].get(NO_PROXY)) localStorage.removeItem(storageKey)
+          else localStorage.setItem(storageKey, JSON.stringify(state[key].get(NO_PROXY)))
         }
       }
     }
