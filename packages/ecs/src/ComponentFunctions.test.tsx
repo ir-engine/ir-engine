@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { render } from '@testing-library/react'
 import assert from 'assert'
 import { Types } from 'bitecs'
+import React, { useEffect } from 'react'
 
 import {
   ComponentMap,
@@ -33,10 +35,11 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from './ComponentFunctions'
 import { destroyEngine, startEngine } from './Engine'
-import { createEntity } from './EntityFunctions'
+import { createEntity, removeEntity } from './EntityFunctions'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -289,6 +292,51 @@ describe('ComponentFunctions', async () => {
       assert.ok(component1)
       assert.ok(component2)
       assert.ok(component3)
+    })
+  })
+
+  describe('useComponent', async () => {
+    it('returns the correct data', async () => {
+      const ResultValue = 'ResultValue'
+      const InitialValue = 'InitialValue'
+      const component = defineComponent({ name: 'TestComponent', onInit: () => ResultValue })
+      // Initialize dummy data for the test
+      let testEntity = createEntity()
+      let result: string = InitialValue
+
+      // Define the Reactor that will run the tested hook
+      const Reactor = () => {
+        const data = useComponent(testEntity, component)
+        console.log('render', data.value)
+        useEffect(() => {
+          console.log('effect', data.value)
+          result = data.value
+        }, [data])
+        return null
+      }
+      const tag = <Reactor />
+
+      /**
+       * @description Case 1:  Assigns the correct value with onInit
+       */
+      // Case1: Initialize
+      result = InitialValue
+      testEntity = createEntity()
+      setComponent(testEntity, component)
+      // Case1: Validate
+      assert.ok(testEntity, 'Case1: The test entity is undefined.')
+      assert.equal(
+        true,
+        hasComponent(testEntity, component),
+        'Case1: The test entity did not get its test component set correctly'
+      )
+      // Case1: Check
+      const R1 = render(tag)
+      assert.notEqual(result, InitialValue, "Case1: The result data didn't get assigned.")
+      assert.equal(result, ResultValue, `Case1: Did not return the correct data. result = ${result}`)
+      // Case1: Terminate
+      removeEntity(testEntity)
+      R1.unmount()
     })
   })
 
