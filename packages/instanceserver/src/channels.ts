@@ -56,7 +56,7 @@ import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/e
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
+import { HyperFlux, Identifiable, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NetworkConnectionParams,
   NetworkPeerFunctions,
@@ -319,7 +319,10 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     logger.info('Scene loaded!')
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCServerNetwork,
+    Identifiable
+  >
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)

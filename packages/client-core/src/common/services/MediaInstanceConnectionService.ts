@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import multiLogger from '@etherealengine/common/src/logger'
 import { ChannelID, InstanceID, RoomCode, instanceProvisionPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { State, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { Identifiable, State, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
@@ -53,7 +53,9 @@ export const MediaInstanceState = defineState({
 export function useMediaNetwork() {
   const mediaNetworkState = useState(getMutableState(NetworkState).networks)
   const mediaHostId = useState(getMutableState(NetworkState).hostIds.media)
-  return mediaHostId.value ? (mediaNetworkState[mediaHostId.value] as State<SocketWebRTCClientNetwork>) : null
+  return mediaHostId.value
+    ? (mediaNetworkState[mediaHostId.value] as State<SocketWebRTCClientNetwork, Identifiable>)
+    : null
 }
 
 export function useMediaInstance() {

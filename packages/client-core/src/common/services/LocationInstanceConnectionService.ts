@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@etherealengine/hyperflux'
+import { Identifiable, State } from '@etherealengine/hyperflux'
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
@@ -62,7 +62,9 @@ export const LocationInstanceState = defineState({
 export function useWorldNetwork() {
   const worldNetworkState = useState(getMutableState(NetworkState).networks)
   const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
-  return worldHostId.value ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork>) : null
+  return worldHostId.value
+    ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork, Identifiable>)
+    : null
 }
 
 export function useWorldInstance() {
