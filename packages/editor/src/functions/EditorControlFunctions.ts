@@ -53,6 +53,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
+  filterParentEntities,
   findCommonAncestors,
   iterateEntityNode,
   traverseEntityNode
@@ -64,7 +65,6 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { filterParentEntities } from './filterParentEntities'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
