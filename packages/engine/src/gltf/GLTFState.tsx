@@ -63,13 +63,13 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { getGLTFSnapshot } from '../scene/functions/GLTFConversion'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -132,15 +132,6 @@ export const GLTFSourceState = defineState({
   }
 })
 
-const updateGLTFStates = (source: string, data: GLTF.IGLTF) => {
-  // update the document state
-  getMutableState(GLTFDocumentState)[source].set(data)
-
-  // update the nodes dictionary
-  const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
-  getMutableState(GLTFNodeState)[source].set(nodesDictionary)
-}
-
 export const GLTFSnapshotState = defineState({
   name: 'ee.engine.gltf.GLTFSnapshotState',
   initial: {} as Record<
@@ -158,12 +149,10 @@ export const GLTFSnapshotState = defineState({
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (!state.value) {
         state.set({ index: 0, snapshots: [data] })
-        updateGLTFStates(action.source, data)
         return
       }
       state.index.set(state.index.value + 1)
       state.snapshots.merge([data])
-      updateGLTFStates(action.source, data)
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
@@ -171,8 +160,6 @@ export const GLTFSnapshotState = defineState({
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value <= 0) return
       state.index.set(Math.max(state.index.value - action.count, 0))
-      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      updateGLTFStates(action.source, snapshotData)
     }),
 
     onRedo: GLTFSnapshotAction.redo.receive((action) => {
@@ -180,8 +167,6 @@ export const GLTFSnapshotState = defineState({
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value >= state.snapshots.value.length - 1) return
       state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
-      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      updateGLTFStates(action.source, snapshotData)
     }),
 
     onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
@@ -192,13 +177,10 @@ export const GLTFSnapshotState = defineState({
         index: 0,
         snapshots: [data]
       })
-      updateGLTFStates(action.source, data)
     }),
 
     onUnload: GLTFSnapshotAction.unload.receive((action) => {
       getMutableState(GLTFSnapshotState)[action.source].set(none)
-      getMutableState(GLTFDocumentState)[action.source].set(none)
-      getMutableState(GLTFNodeState)[action.source].set(none)
     })
   },
 
@@ -316,6 +298,28 @@ export const EditorTopic = 'editor' as Topic
 
 const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
+
+  const index = useHookstate(getMutableState(GLTFSnapshotState)[props.source].index).value
+
+  useLayoutEffect(() => {
+    return () => {
+      getMutableState(GLTFDocumentState)[props.source].set(none)
+      getMutableState(GLTFNodeState)[props.source].set(none)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    // update the modified state
+    if (index > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
+
+    // update the document state
+    const data = getState(GLTFSnapshotState)[source].snapshots[index]
+    getMutableState(GLTFDocumentState)[source].set(data)
+
+    // update the nodes dictionary
+    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+    getMutableState(GLTFNodeState)[source].set(nodesDictionary)
+  }, [index])
 
   const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
   const parentUUID = useComponent(entity, UUIDComponent).value
