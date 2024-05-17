@@ -83,7 +83,7 @@ export default function Users() {
                   <ConfirmDialog
                     text={t('admin:components.user.confirmMultiUserDelete')}
                     onSubmit={async () => {
-                      removeUsers(modalProcessing, adminUserRemove, selectedUsers.value)
+                      removeUsers(modalProcessing, adminUserRemove, selectedUsers.value as UserType[])
                     }}
                   />
                 )
