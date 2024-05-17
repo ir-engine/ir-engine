@@ -30,12 +30,15 @@ import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 
+import { ImmutableArray } from '@etherealengine/hyperflux'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from './selectInput.module.scss'
 
 interface SelectInputProp<T> {
   value: T | string
-  options: Array<{ label: string; value: T; info?: string }>
+  options:
+    | Array<{ label: string; value: T; info?: string }>
+    | ImmutableArray<{ label: string; value: T; info?: string }>
   onChange?: (value: T | string) => void
   onRelease?: (value: T | string) => void
   placeholder?: string

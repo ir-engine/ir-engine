@@ -292,7 +292,6 @@ export const fetchGeometry = ({
 
       loadGLTF(resourceURL)
         .then((currentFrameData) => {
-          console.log('Uniform Solve Frame: ', currentFrameData)
           const positionMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
             .position as InterleavedBufferAttribute[]
           const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes

@@ -136,19 +136,18 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
 function TimeScrubber(props: { entity: Entity }) {
   const component = useComponent(props.entity, NewVolumetricComponent)
   return (
-    component.manifest.value && (
-      <InputGroup name="Current Time" label="Current Time">
-        <Scrubber
-          min={0}
-          max={component.time.duration.value}
-          value={component.time.currentTime.value / 1000}
-          bufferPosition={component.time.bufferedUntil.value / 1000}
-          tooltip={{
-            enabledOnHover: true
-          }}
-        />
-      </InputGroup>
-    )
+    <InputGroup name="Current Time" label="Current Time">
+      <Scrubber
+        min={0}
+        max={component.time.duration.value}
+        value={component.time.currentTime.value / 1000}
+        bufferPosition={component.time.bufferedUntil.value / 1000}
+        tooltip={{
+          enabledOnHover: true
+        }}
+      />
+    </InputGroup>
   )
+
   return null
 }
