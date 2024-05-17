@@ -143,11 +143,18 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
         }
       },
       onSet: (state, desc) => {
-        const key = '' + desc.path[0]
-        if (keys.includes(key)) {
-          const storageKey = `${stateNamespaceKey}.${state.identifier}.${key}`
-          if (!state[key] || !state[key].get(NO_PROXY)) localStorage.removeItem(storageKey)
-          else localStorage.setItem(storageKey, JSON.stringify(state[key].get(NO_PROXY)))
+        if (desc.actions) {
+          for (const [key, action] of Object.entries(desc.actions)) {
+            const storageKey = `${stateNamespaceKey}.${state.identifier}.${key}`
+            switch (action) {
+              case 'I':
+              case 'U':
+                localStorage.setItem(storageKey, JSON.stringify(state[key].get(NO_PROXY)))
+                break
+              case 'D':
+                localStorage.removeItem(storageKey)
+            }
+          }
         }
       }
     }
