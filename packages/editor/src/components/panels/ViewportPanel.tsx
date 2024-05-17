@@ -47,8 +47,9 @@ const ViewportDnD = () => {
     drop(item: SceneElementType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+
       EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentJsonID },
+        { name: (item as SceneElementType).componentJsonID },
         { name: TransformComponent.jsonID, props: { position: vec3 } }
       ])
     }

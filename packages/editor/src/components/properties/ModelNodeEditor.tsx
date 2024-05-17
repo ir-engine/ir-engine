@@ -41,7 +41,7 @@ import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBon
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
@@ -139,6 +139,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
+      <Button onClick={() => modelComponent.dereference.set(true)} disabled={!modelComponent.src.value}>
+        Dereference
+      </Button>
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
           value={modelComponent.cameraOcclusion.value}
