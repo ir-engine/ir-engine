@@ -138,7 +138,7 @@ export const GroupReactor = memo((props: { GroupChildReactor: FC<GroupReactorPro
   return (
     <>
       {groupComponent.value.map((obj, i) => (
-        <props.GroupChildReactor key={obj.uuid} entity={entity} obj={obj} />
+        <props.GroupChildReactor key={obj.uuid} entity={entity} obj={obj as Object3D} />
       ))}
     </>
   )

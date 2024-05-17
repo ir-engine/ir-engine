@@ -30,7 +30,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -265,7 +265,7 @@ function DepthOcclusionReactor({ obj }) {
     const mesh = obj as any as Mesh<any, Material>
     if (!mesh.isMesh || !depthDataTexture || !depthSupported) return
 
-    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value!)
+    XRDepthOcclusion.addDepthOBCPlugin(mesh.material, depthDataTexture.value! as DepthDataTexture)
     return () => {
       XRDepthOcclusion.removeDepthOBCPlugin(mesh.material)
     }
@@ -283,7 +283,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
 
   useEffect(() => {
     if (!xrState.sessionActive.value) {

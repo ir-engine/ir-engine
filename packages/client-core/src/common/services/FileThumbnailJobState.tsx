@@ -36,10 +36,10 @@ import {
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -112,7 +112,7 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {} as ThumbnailJob,
   reactor: () => {
-    const state = useHookstate(getMutableState(FileThumbnailJobState))
+    const state = useMutableState(FileThumbnailJobState)
     return (
       <>
         {state.keys.map((key) => (
@@ -152,7 +152,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     entity: UndefinedEntity
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
-  const sceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
+  const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
   const [tex] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
 
   // Load and render image

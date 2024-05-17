@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
   DataChannelType,
@@ -116,7 +116,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
 
 const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
-  const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
+  const dataChannelRegistry = useMutableState(DataChannelRegistryState)
   return (
     <>
       {dataChannelRegistry.keys.map((dataChannelType) => (

@@ -35,7 +35,8 @@ import {
   getMutableState,
   getState,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -88,7 +89,6 @@ export const SceneState = defineState({
       return createRootEntity(sceneID, data)
     }
   },
-
   unloadScene: (sceneID: string, remove = true) => {
     const sceneData = getState(SceneState).scenes[sceneID]
     if (!sceneData) return
@@ -186,7 +186,7 @@ export const SceneSnapshotState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(SceneSnapshotState))
+    const state = useMutableState(SceneSnapshotState)
     return (
       <>
         {state.keys.map((sceneID: string) => (

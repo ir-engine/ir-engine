@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { emailDataValidator } from '@etherealengine/common/src/schemas/user/email.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
+import refreshApiPods from '../../hooks/refresh-api-pods'
 
 export default {
   before: {
@@ -44,7 +45,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [refreshApiPods],
     remove: []
   },
 

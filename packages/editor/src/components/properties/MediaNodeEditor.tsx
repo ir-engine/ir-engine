@@ -148,7 +148,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={media.resources.value}
+        values={media.resources.value as string[]}
         onRelease={commitProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}

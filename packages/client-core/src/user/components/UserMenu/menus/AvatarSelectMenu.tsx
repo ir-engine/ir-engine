@@ -35,7 +35,7 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { SpawnEffectComponent } from '@etherealengine/engine/src/avatar/components/SpawnEffectComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -57,7 +57,7 @@ const AVATAR_PAGE_LIMIT = 100
 
 const AvatarMenu = () => {
   const { t } = useTranslation()
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)

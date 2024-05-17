@@ -150,7 +150,7 @@ export const SkyboxComponent = defineComponent({
 
       skyboxState.sky.set(new Sky())
 
-      const sky = skyboxState.sky.value!
+      const sky = skyboxState.sky.value! as Sky
 
       sky.azimuth = skyboxState.skyboxProps.value.azimuth
       sky.inclination = skyboxState.skyboxProps.value.inclination

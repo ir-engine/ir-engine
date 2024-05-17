@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
 
@@ -65,7 +64,7 @@ const transformPivotOptions = [
 const TransformPivotTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const editorHelperState = useMutableState(EditorHelperState)
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">

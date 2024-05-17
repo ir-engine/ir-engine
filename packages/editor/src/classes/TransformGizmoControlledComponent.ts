@@ -34,13 +34,12 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -64,7 +63,7 @@ export const TransformGizmoControlledComponent = defineComponent({
     const entity = useEntityContext()
     const transformGizmoControlledComponent = useComponent(entity, TransformGizmoControlledComponent)
     const selectedEntities = SelectionState.useSelectedEntities()
-    const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+    const editorHelperState = useMutableState(EditorHelperState)
     const box = new Box3()
 
     const createPivotEntity = () => {

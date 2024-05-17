@@ -37,7 +37,7 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import {
   ComponentType,
@@ -252,27 +252,25 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const xrState = getMutableState(XRState)
-  const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
-  const scenePlacementMode = useHookstate(xrState.scenePlacementMode)
-  const xrSession = useHookstate(xrState.session)
+  const { scenePlacementMode, session: xrSession } = useMutableState(XRState).value
+  const { scenePlacementEntity, originAnchorEntity } = useMutableState(XRAnchorSystemState).value
   const hitTest = useOptionalComponent(scenePlacementEntity, XRHitTestComponent)
 
   useEffect(() => {
-    if (!xrSession.value) return
+    if (!xrSession) return
 
     let active = true
 
-    if (scenePlacementMode.value === 'unplaced') {
+    if (scenePlacementMode === 'unplaced') {
       removeComponent(scenePlacementEntity, XRHitTestComponent)
       removeComponent(scenePlacementEntity, XRAnchorComponent)
       setVisibleComponent(originAnchorEntity, false)
       return
     }
 
-    if (scenePlacementMode.value === 'placing') {
+    if (scenePlacementMode === 'placing') {
       // create a hit test source for the viewer when the interaction mode is 'screen-space'
-      if (xrSession.value.interactionMode === 'screen-space') {
+      if (xrSession.interactionMode === 'screen-space') {
         setVisibleComponent(originAnchorEntity, true)
         setComponent(scenePlacementEntity, XRHitTestComponent, {
           space: ReferenceSpace.viewer!,
@@ -281,7 +279,7 @@ const reactor = () => {
       }
     }
 
-    if (scenePlacementMode.value === 'placed') {
+    if (scenePlacementMode === 'placed') {
       setVisibleComponent(originAnchorEntity, false)
       const hitTestResult = hitTest?.results?.value?.[0]
       if (hitTestResult) {
@@ -327,8 +325,7 @@ const reactor = () => {
 
   /** Immersive AR controller placement */
   useEffect(() => {
-    if (!xrSession.value || xrSession.value.interactionMode !== 'world-space' || scenePlacementMode.value !== 'placing')
-      return
+    if (!xrSession || xrSession.interactionMode !== 'world-space' || scenePlacementMode !== 'placing') return
 
     for (const entity of inputSourceEntities) {
       if (!entity) return
@@ -352,7 +349,7 @@ const reactor = () => {
   }, [scenePlacementMode, xrSession, inputSourceEntities.length])
 
   useEffect(() => {
-    if (scenePlacementMode.value !== 'placing' || !xrSession.value) return
+    if (scenePlacementMode !== 'placing' || !xrSession) return
     getMutableState(InputState).capturingEntity.set(scenePlacementEntity)
     return () => {
       if (getState(InputState).capturingEntity === scenePlacementEntity)

@@ -30,9 +30,7 @@ export const FilesViewModeState = defineState({
   initial: {
     viewMode: 'icons' as 'icons' | 'list'
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(FilesViewModeState, ['viewMode'])
-  }
+  extension: syncStateWithLocalStorage(['viewMode'])
 })
 
 export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
@@ -53,7 +51,5 @@ export const FilesViewModeSettings = defineState({
       }
     }
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(FilesViewModeSettings, ['icons', 'list'])
-  }
+  extension: syncStateWithLocalStorage(['icons', 'list'])
 })

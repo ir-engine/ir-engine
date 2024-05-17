@@ -39,7 +39,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -85,7 +85,7 @@ export const RendererComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
-    if (json?.canvas) component.value.canvas = json.canvas
+    if (json?.canvas) component.canvas.set(json.canvas)
   }
 })
 
@@ -356,13 +356,13 @@ const execute = () => {
 
 const rendererReactor = () => {
   const entity = useEntityContext()
-  const renderer = useComponent(entity, RendererComponent).value
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const renderer = useComponent(entity, RendererComponent)
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel
-    renderer.renderer.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor)
-    renderer.needsResize = true
+    renderer.scaleFactor.set(engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel.value)
+    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
+    renderer.needsResize.set(true)
   }, [engineRendererSettings.qualityLevel])
 
   useEffect(() => {
@@ -375,7 +375,7 @@ const rendererReactor = () => {
 const cameraReactor = () => {
   const entity = useEntityContext()
   const camera = useComponent(entity, CameraComponent).value
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
     if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)

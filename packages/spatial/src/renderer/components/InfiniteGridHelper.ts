@@ -38,7 +38,7 @@ import {
 import { Entity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
@@ -158,7 +158,7 @@ export const InfiniteGridComponent = defineComponent({
     const entity = useEntityContext()
 
     const component = useComponent(entity, InfiniteGridComponent)
-    const engineRendererSettings = useHookstate(getMutableState(RendererState))
+    const engineRendererSettings = useMutableState(RendererState)
     const mesh = useMeshComponent(
       entity,
       () => new PlaneGeometry(2, 2, 1, 1),

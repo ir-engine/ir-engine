@@ -153,7 +153,7 @@ const Select = <T extends OptionValueType>({
               onClick={() => {
                 if (option.disabled) return
                 showOptions.set(false)
-                onChange(option.value)
+                onChange(option.value as T)
               }}
             >
               {option.icon} {option.label}

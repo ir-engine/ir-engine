@@ -83,10 +83,20 @@ export const SplineHelperComponent = defineComponent({
     const [sphereGeometry] = useResource(() => new SphereGeometry(0.05, 4, 2), entity)
 
     const [greenMat] = useResource(greenMeshMaterial, entity)
-    const [greenSphere] = useDisposable(Mesh, entity, sphereGeometry.value, greenMat.value)
+    const [greenSphere] = useDisposable(
+      Mesh,
+      entity,
+      sphereGeometry.value as SphereGeometry,
+      greenMat.value as MeshBasicMaterial
+    )
 
     const [redMat] = useResource(redMeshMaterial, entity)
-    const [redSphere] = useDisposable(Mesh, entity, sphereGeometry.value, redMat.value)
+    const [redSphere] = useDisposable(
+      Mesh,
+      entity,
+      sphereGeometry.value as SphereGeometry,
+      redMat.value as MeshBasicMaterial
+    )
 
     useEffect(() => {
       const gizmoEntities = [] as Entity[]

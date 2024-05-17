@@ -45,7 +45,15 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  PeerID,
+  State,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -130,7 +138,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.value
+  } = peerMediaChannelState.value as PeerMediaStreamInterface
 
   const audioTrackClones = useHookstate<any[]>([])
   const videoTrackClones = useHookstate<any[]>([])
@@ -145,12 +153,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
 
-  const audioState = useHookstate(getMutableState(AudioState))
+  const audioState = useMutableState(AudioState)
 
   const _volume = useHookstate(1)
 
-  const selfUser = useHookstate(getMutableState(AuthState).user).get(NO_PROXY)
-  const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
+  const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
+  const currentLocation = useMutableState(LocationState).currentLocation.location
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
@@ -166,8 +174,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const isScreen = type === 'screen'
   const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.[peerID]?.userId
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
-  const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
+  const mediaStreamState = useMutableState(MediaStreamState)
+  const mediaSettingState = useMutableState(MediaSettingsState)
   const rendered = !mediaSettingState.immersiveMedia.value
 
   useEffect(() => {
@@ -476,7 +484,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
 
-  const { videoElement, audioElement } = peerMediaChannelState.value
+  const { videoElement, audioElement } = peerMediaChannelState.value as PeerMediaStreamInterface
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()

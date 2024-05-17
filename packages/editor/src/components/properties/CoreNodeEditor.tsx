@@ -33,7 +33,7 @@ import {
   setComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 
 import { Entity, EntityUUID } from '@etherealengine/ecs'
@@ -68,7 +68,7 @@ const visibleInputGroupStyle = {
 
 export const CoreNodeEditor = (props: { entity: Entity }) => {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
 
   const exportAsGLTF = () => {
     setComponent(props.entity, ModelComponent)

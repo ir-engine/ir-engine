@@ -63,7 +63,6 @@ import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-
 // import { instanceGLTF } from '../functions/transformGLTF'
 
 /**
@@ -231,6 +230,13 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     if (/\.(material.gltf)$/.test(assetFileName)) {
       console.log('Material asset')
       return AssetClass.Material
+    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
+      console.log('Lookdev asset')
+      return AssetClass.Lookdev
+    }
+    if (/\.(prefab.gltf)$/.test(assetFileName)) {
+      console.log('prefab asset')
+      return AssetClass.Prefab
     }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
@@ -338,6 +344,10 @@ const assetLoadCallback =
     if (assetClass === AssetClass.Material) {
       const material = asset as Material
       material.userData.type = assetType
+    }
+    if (assetClass === AssetClass.Prefab) {
+      //load prefab gltf without parent model
+      const gltf = asset as GLTF
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
@@ -368,7 +368,7 @@ const useGamepadInputSources = () => {
 
 const usePointerInputSources = () => {
   const canvasEntity = useEntityContext()
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 

@@ -36,8 +36,7 @@ import {
   convertImageDataToKTX2Blob,
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { getState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { Color } from 'three'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { takeScreenshot } from '../../functions/takeScreenshot'

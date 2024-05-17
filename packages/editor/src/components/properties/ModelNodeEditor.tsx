@@ -41,7 +41,7 @@ import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBon
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
@@ -55,6 +55,7 @@ import { EditorComponentType, commitProperty } from './Util'
 
 import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { VRM } from '@pixiv/three-vrm'
+import { Object3D, Scene } from 'three'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -116,7 +117,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (!modelComponent.asset.value) return
     bonematchable.set(
       modelComponent.asset.value &&
-        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+        (modelComponent.asset.value instanceof VRM ||
+          recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
     )
   }, [modelComponent.asset])
 
@@ -137,6 +139,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
+      <Button onClick={() => modelComponent.dereference.set(true)} disabled={!modelComponent.src.value}>
+        Dereference
+      </Button>
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
           value={modelComponent.cameraOcclusion.value}

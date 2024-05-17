@@ -73,7 +73,7 @@ export const PointerComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    PointerComponent.pointers.delete(component.inputSource.value)
+    PointerComponent.pointers.delete(component.inputSource.value as XRInputSource)
   },
 
   reactor: () => {
@@ -83,19 +83,14 @@ export const PointerComponent = defineComponent({
     const transition = useAnimationTransition(0.5, 'OUT', (alpha) => {
       const cursor = pointerComponentState.cursor.value
       const pointer = pointerComponentState.pointer.value
-      if (cursor) {
-        cursor.material.opacity = alpha
-        cursor.material.visible = alpha > 0
-      }
-      if (pointer) {
-        pointer.material.opacity = alpha
-        pointer.material.visible = alpha > 0
-      }
+      const material = cursor ? (cursor.material as MeshBasicMaterial) : (pointer.material as LineBasicMaterial)
+      material.opacity = alpha
+      material.visible = alpha > 0
     })
 
     useEffect(() => {
       const inputSource = pointerComponentState.inputSource.value
-      const pointer = createPointer(inputSource)
+      const pointer = createPointer(inputSource as XRInputSource)
       const cursor = createUICursor()
       const pointerEntity = createEntity()
       addObjectToGroup(pointerEntity, pointer)

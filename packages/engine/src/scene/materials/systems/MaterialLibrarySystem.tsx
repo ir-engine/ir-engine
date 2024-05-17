@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactElement, useEffect } from 'react'
 
 import {
+  EntityUUID,
   PresentationSystemGroup,
   QueryReactor,
   getOptionalComponent,
@@ -81,7 +82,9 @@ const MaterialEntityReactor = () => {
     if (materialComponent.instances.value)
       for (const sourceEntity of materialComponent.instances.value) {
         iterateEntityNode(sourceEntity, (childEntity) => {
-          const uuid = getOptionalComponent(childEntity, MaterialComponent[MaterialComponents.Instance])?.uuid
+          const uuid = getOptionalComponent(childEntity, MaterialComponent[MaterialComponents.Instance])?.uuid as
+            | EntityUUID[]
+            | undefined
           if (uuid) setGroupMaterial(childEntity, uuid)
         })
       }
@@ -106,7 +109,7 @@ const MaterialInstanceReactor = () => {
   const modelComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
   const uuid = modelComponent.uuid
   useEffect(() => {
-    if (uuid.value) setGroupMaterial(entity, uuid.value)
+    if (uuid.value) setGroupMaterial(entity, uuid.value as EntityUUID[])
   }, [modelComponent.uuid])
 
   return null

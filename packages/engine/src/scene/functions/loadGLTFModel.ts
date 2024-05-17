@@ -341,5 +341,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     createMaterialInstance(path, objEntity, material)
   })
   mesh.material = isArray(mesh.material) ? materials : materials[0]
+
+  if (!hasComponent(objEntity, MeshComponent)) {
+    setComponent(objEntity, Object3DComponent, obj)
+  }
   return eJson
 }
