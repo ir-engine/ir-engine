@@ -262,7 +262,15 @@ const execute = () => {
 
     const sortedIntersections = intersectionData.sort((a, b) => a.distance - b.distance)
 
-    //TODO add proximity here, 2nd priority to the raycasting
+    //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
+    //this part feels a bit wrong, not sure if ClientInputSystem makes sense for it.... are we still interested in doing proximity here?
+    // if(capturedEntity === UndefinedEntity && sortedIntersections.length === 0) {
+    //   //TODO add proximity here, 2nd priority to the raycasting
+    //   for (const entity of inputObjects()) { //inputs or inputObjects?  - inputObjects requires visible and group components
+    //     //TODO add proximity here, could add to the raycast intersections at the end for laziness if we wanted...
+    //
+    //   }
+    // }
 
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
     sourceState.intersections.set(sortedIntersections)
