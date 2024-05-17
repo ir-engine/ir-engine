@@ -309,8 +309,6 @@ export const GLTFSnapshotState = defineState({
     }
     dispatchAction(GLTFSnapshotAction.createSnapshot({ source: dstSnapshotID, data: parentSnapshot.data }))
     dispatchAction(GLTFSnapshotAction.unload({ source: srcSnapshotID }))
-    getMutableState(GLTFSnapshotState)[srcSnapshotID].set(none)
-    getMutableState(GLTFDocumentState)[srcSnapshotID].set(none)
   }
 })
 
