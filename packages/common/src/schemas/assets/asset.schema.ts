@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
 
 export const assetPath = 'asset'
@@ -80,15 +80,16 @@ export const assetPatchSchema = Type.Object(
 export interface AssetPatch extends Static<typeof assetPatchSchema> {}
 
 // Schema for allowed query properties
+export const assetQueryProperties = Type.Pick(assetDataSchema, ['assetURL', 'project', 'projectId'])
+
 export const assetQuerySchema = Type.Intersect(
   [
+    querySyntax(assetQueryProperties),
+    // Add additional query properties here
     Type.Object(
       {
-        project: Type.Optional(Type.String()),
-        projectId: Type.Optional(Type.String()),
-        assetURL: Type.Optional(Type.String()),
-        internal: Type.Optional(Type.Boolean()),
-        paginate: Type.Optional(Type.Boolean())
+        paginate: Type.Optional(Type.Boolean()),
+        internal: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
