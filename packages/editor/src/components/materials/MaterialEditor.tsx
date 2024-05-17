@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { Texture } from 'three'
+import { Texture, Uniform } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 
@@ -33,7 +33,14 @@ import createReadableTexture from '@etherealengine/spatial/src/renderer/function
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
 
-import { EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import {
+  EntityUUID,
+  UUIDComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -44,6 +51,8 @@ import {
   pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { FloatArg, StringArg, TextureArg } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
+import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
@@ -147,6 +156,35 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const parameters = useHookstate(0)
 
+  const pluginEntity = pluginByName[selectedPlugin.value]
+  const pluginState = useOptionalComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+  const pluginParameters = useHookstate({})
+  useEffect(() => {
+    const uniformParameters = pluginState?.parameters?.value
+    const pluginParameterValues = {}
+    Object.entries(
+      uniformParameters && uniformParameters[materialName.value] ? uniformParameters[materialName.value] : {}
+    ).map(([key, uniform]) => {
+      const value = (uniform as Uniform).value
+      if (!value) return
+      if (value.isTexture) {
+        pluginParameterValues[key] = TextureArg
+        return
+      }
+      switch (typeof value) {
+        case 'number':
+          pluginParameterValues[key] = FloatArg
+          break
+        case 'string':
+          pluginParameterValues[key] = StringArg
+          break
+      }
+    })
+
+    pluginParameters.set(formatMaterialArgs(pluginParameterValues))
+    console.log(pluginParameters.value)
+  }, [pluginState?.parameters, materialName])
+
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -233,11 +271,29 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <Button
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [pluginByName[selectedPlugin.value]]
+              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]]
             })
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}
+        </Button>
+      </div>
+      <div className={styles.contentContainer}>
+        <ParameterInput
+          entity={props.materialUUID}
+          values={materialComponent.parameters.value ?? {}}
+          onChange={(k) => (val) => {}}
+          defaults={pluginParameters.value}
+        />
+        <Button
+          onClick={() => {
+            if (materialComponent.pluginEntities.value)
+              materialComponent.pluginEntities.set(
+                materialComponent.pluginEntities.value.filter((val) => val !== pluginEntity)
+              )
+          }}
+        >
+          Remove Plugin
         </Button>
       </div>
     </div>
