@@ -27,7 +27,7 @@ import React from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { createState, dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -113,11 +113,11 @@ const HandednessWidgetButton = () => {
 }
 
 const WidgetButtons = () => {
-  const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
+  const widgetMutableState = useMutableState(WidgetAppState)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
   const mediaInstanceState = useMediaInstance()
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there

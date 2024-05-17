@@ -122,15 +122,6 @@ export function createHyperStore(options: {
     },
     receptors: {},
     activeReactors: new Set()
-    // toJSON: () => {
-    //   const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
-    //     return merge(obj, { [name]: state.attach(Downgraded).value })
-    //   }, {})
-    //   return {
-    //     ...store,
-    //     state
-    //   }
-    // },
   }
   HyperFlux.store = store
   return store

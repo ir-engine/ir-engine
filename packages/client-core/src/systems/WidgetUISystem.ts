@@ -32,14 +32,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import {
-  defineActionQueue,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, getState, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Vector3_Back, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
@@ -209,7 +202,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
 
   useEffect(() => {
     if (!xrState.sessionActive.value) {

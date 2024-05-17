@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectFields from '@etherealengine/client-core/src/admin/common/Project/ProjectFields'
 
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'

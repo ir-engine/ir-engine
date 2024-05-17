@@ -27,12 +27,14 @@ import { Entity, defineComponent, useComponent, useEntityContext } from '@ethere
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import {
+  Camera,
   ColorRepresentation,
   DirectionalLight,
   DirectionalLightHelper,
   HemisphereLight,
   HemisphereLightHelper,
   Light,
+  LightShadow,
   PointLightHelper,
   SpotLight,
   SpotLightHelper
@@ -73,7 +75,7 @@ export const LightHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LightHelperComponent)
-    const light = component.light.value
+    const light = component.light.value as Light<LightShadow<Camera>>
     const [helper] = useDisposable(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, component, helper)
     helper.update()

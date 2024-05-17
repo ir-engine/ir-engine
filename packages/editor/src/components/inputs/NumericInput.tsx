@@ -30,7 +30,7 @@ import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunc
 
 import { getStepSize, toPrecision } from '../../functions/utils'
 
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 import './NumericInput.css'
 
 // Import the CSS file

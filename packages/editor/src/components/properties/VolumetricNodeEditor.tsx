@@ -247,7 +247,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={volumetricComponent.paths.value}
+        values={volumetricComponent.paths.value as string[]}
         onRelease={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}

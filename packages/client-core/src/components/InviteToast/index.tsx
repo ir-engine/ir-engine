@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
 import { InviteService, InviteState } from '../../social/services/InviteService'
@@ -36,8 +36,8 @@ import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
 
 const InviteToast = () => {
-  const inviteState = useHookstate(getMutableState(InviteState))
-  const authState = useHookstate(getMutableState(AuthState))
+  const inviteState = useMutableState(InviteState)
+  const authState = useMutableState(AuthState)
   const newestInvite =
     inviteState.receivedInvites.total.value > 0 ? inviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()

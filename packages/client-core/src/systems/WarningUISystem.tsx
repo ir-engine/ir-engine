@@ -33,7 +33,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -79,7 +79,7 @@ export const WarningUIService = {
 const WarningSystemXRUI = function () {
   const { t } = useTranslation()
 
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
   const { title, body, timeRemaining } = state.value
 
   return (
@@ -163,7 +163,7 @@ export const WarningUISystemState = defineState({
 })
 
 function TransitionReactor() {
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
 
   useEffect(() => {
     if (state.open.value) {

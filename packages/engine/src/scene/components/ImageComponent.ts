@@ -199,7 +199,7 @@ export function ImageReactor() {
         case ImageProjection.Flat:
         default:
           mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-          resizeImageMesh(mesh.value)
+          resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
     [mesh.material.map, image.projection]

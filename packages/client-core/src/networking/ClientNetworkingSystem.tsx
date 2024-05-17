@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useLayoutEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -73,10 +73,8 @@ const execute = () => {
 }
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
-  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
-  const networkState = useHookstate(
-    getMutableState(NetworkState).networks[props.networkID]
-  ) as State<SocketWebRTCClientNetwork>
+  const transportState = useMutableState(MediasoupTransportObjectsState)
+  const networkState = useMutableState(NetworkState).networks[props.networkID]
 
   useLayoutEffect(() => {
     if (!networkState.value) return

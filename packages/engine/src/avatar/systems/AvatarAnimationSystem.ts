@@ -57,6 +57,7 @@ import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -335,7 +336,7 @@ const reactor = () => {
     const assets = gltfs.get(NO_PROXY)
     if (assets.length !== animations.length) return
     for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i]
+      const asset = assets[i] as GLTF | null
       if (asset && !manager.loadedAnimations[animations[i]].value) {
         // delete unneeded geometry data to save memory
         asset.scene.traverse((node) => {

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -81,7 +81,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       <Popover
         id={open ? 'add-component-popover' : undefined}
         open={open}
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as HTMLButtonElement}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
           vertical: 'center',

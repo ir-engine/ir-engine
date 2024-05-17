@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, SpotLight } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -100,7 +100,7 @@ export const SpotLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)

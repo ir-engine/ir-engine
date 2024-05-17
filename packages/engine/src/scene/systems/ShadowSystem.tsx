@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Box3,
+  DirectionalLight,
   DoubleSide,
   Material,
   Mesh,
@@ -38,7 +39,15 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  hookstate,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
@@ -122,14 +131,14 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => 
   const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
-  const directionalLight = directionalLightComponent.light.value
+  const directionalLight = directionalLightComponent.light.get(NO_PROXY) as DirectionalLight
 
-  const csm = rendererComponent.csm.value
+  const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
 
   useEffect(() => {
     if (!directionalLightComponent.value) return
     const csm = new CSM({
-      light: directionalLight,
+      light: directionalLight as DirectionalLight,
       shadowBias: directionalLightComponent.shadowBias.value,
       maxFar: directionalLightComponent.cameraFar.value,
       lightIntensity: directionalLightComponent.intensity.value,
@@ -201,7 +210,7 @@ const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
   }, [])
 
   useEffect(() => {
-    const csm = rendererComponent.csm.value
+    const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
     if (!csm) return
 
     for (const light of csm.lights) {
@@ -275,7 +284,7 @@ function CSMReactor(props: { renderSettingsEntity: Entity; rendererEntity: Entit
 
   const activeLightEntity = useHookstate(UndefinedEntity)
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   useEffect(() => {
     if (!rendererComponent) return

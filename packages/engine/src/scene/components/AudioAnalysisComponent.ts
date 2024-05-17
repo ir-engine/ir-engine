@@ -116,8 +116,9 @@ export const AudioAnalysisComponent = defineComponent({
     useEffect(() => {
       if (!posAudio || !mediaElement?.value.element) return
 
-      mediaElement.value.element.onplay = () => {
-        const audioObject = AudioNodeGroups.get(mediaElement.value.element)
+      const element = mediaElement.value.element as HTMLAudioElement
+      element.onplay = () => {
+        const audioObject = AudioNodeGroups.get(element)
 
         if (audioObject) {
           const audioContext = audioObject.source.context

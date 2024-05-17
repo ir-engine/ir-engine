@@ -23,10 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate } from '@etherealengine/hyperflux'
-import { useContext } from 'react'
+import type { Knex } from 'knex'
 
-import { XRUIStateContext } from '../XRUIStateContext'
+import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
-//@ts-ignore
-export const useXRUIState = <S extends State>() => useHookstate<S>(useContext(XRUIStateContext) as S)
+import { LINKEDIN_SCOPES } from '../authentication-setting.seed'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const authSettings = await knex.table(authenticationSettingPath).first()
+
+  if (authSettings) {
+    const oauthSettings = JSON.parse(authSettings.oauth)
+    oauthSettings.linkedin.scope = LINKEDIN_SCOPES
+
+    await knex.table(authenticationSettingPath).update({
+      oauth: JSON.stringify(oauthSettings)
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

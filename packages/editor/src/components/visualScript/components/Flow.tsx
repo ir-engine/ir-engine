@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVisualScriptRunner } from '@etherealengine/engine/src/visualscript/systems/useVisualScriptRunner'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { GraphJSON, IRegistry } from '@etherealengine/visual-script'
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow } from 'reactflow'

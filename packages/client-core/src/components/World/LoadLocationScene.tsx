@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
@@ -36,7 +36,7 @@ import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 
 export const useLoadLocation = (props: { locationName: string }) => {
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
   const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {

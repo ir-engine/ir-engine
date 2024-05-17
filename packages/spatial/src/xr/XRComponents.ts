@@ -238,7 +238,7 @@ export const XRHitTestComponent = defineComponent({
       let active = true
 
       if ('space' in options) {
-        xrState.session?.requestHitTestSource?.(options)?.then((source) => {
+        xrState.session?.requestHitTestSource?.(options as XRHitTestOptionsInit)?.then((source) => {
           if (active) {
             hitTest.source.set(source)
             hitTest.results.set([])
@@ -247,14 +247,16 @@ export const XRHitTestComponent = defineComponent({
           }
         })
       } else {
-        xrState.session?.requestHitTestSourceForTransientInput?.(options)?.then((source) => {
-          if (active) {
-            hitTest.source.set(source)
-            hitTest.results.set([])
-          } else {
-            source.cancel()
-          }
-        })
+        xrState.session
+          ?.requestHitTestSourceForTransientInput?.(options as XRTransientInputHitTestOptionsInit)
+          ?.then((source) => {
+            if (active) {
+              hitTest.source.set(source)
+              hitTest.results.set([])
+            } else {
+              source.cancel()
+            }
+          })
       }
 
       return () => {

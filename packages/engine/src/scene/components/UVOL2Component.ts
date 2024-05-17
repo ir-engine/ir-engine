@@ -74,6 +74,7 @@ import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
+  DRACO_Manifest,
   FORMAT_TO_EXTENSION,
   GeometryFormat,
   KTX2TextureTarget,
@@ -244,7 +245,7 @@ export const confirmBufferedRange = (
 }
 
 function sortAndMergeBufferMetadata(rangesState: State<BufferMetadata[]>, gapTolerance: number) {
-  const ranges = rangesState.get(NO_PROXY_STEALTH)
+  const ranges = rangesState.get(NO_PROXY_STEALTH) as BufferMetadata[]
 
   if (ranges.length === 0) return []
 
@@ -584,7 +585,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       }
       const allUniforms = UniformsUtils.merge([ShaderLib.physical.uniforms, UniformsLib.lights, uniforms])
-      const defines = getDefines(manifest)
+      const defines = getDefines(manifest as PlayerManifest)
       if (manifest.materialProperties) {
         const keys = Object.keys(manifest.materialProperties)
         for (let i = 0; i < keys.length; i++) {
@@ -624,7 +625,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
     }
 
     const [sortedManifest, sortedGeometryTargets, sortedTextureTargets, useVideoTexture] = calculatePriority(
-      component.data.get({ noproxy: true })
+      component.data.get({ noproxy: true }) as DRACO_Manifest
     )
     component.data.set(sortedManifest)
     component.geometryInfo.targets.set(sortedGeometryTargets)
@@ -679,15 +680,21 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       shadow.receive.set(true)
     }
 
+    const mediaValue = media as HTMLMediaElement
+
     if (sortedManifest.audio) {
       component.hasAudio.set(true)
-      media.src = resolvePath(sortedManifest.audio.path, component.manifestPath.value, sortedManifest.audio.formats[0])
-      media.playbackRate = sortedManifest.audio.playbackRate
+      mediaValue.src = resolvePath(
+        sortedManifest.audio.path,
+        component.manifestPath.value,
+        sortedManifest.audio.formats[0]
+      )
+      mediaValue.playbackRate = sortedManifest.audio.playbackRate
     }
 
     if (useVideoTexture) {
       const target = sortedTextureTargets.baseColor[0]
-      media.src = resolvePath(
+      mediaValue.src = resolvePath(
         component.data.texture.baseColor.value.path,
         component.manifestPath.value,
         'video',
@@ -696,7 +703,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         'baseColor'
       )
       // media.src = 'https://localhost:8642/projects/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
-      media.preload = 'auto'
+      mediaValue.preload = 'auto'
       media.addEventListener('loadeddata', () => {
         component.firstTextureFrameLoaded.set(true)
       })
@@ -772,7 +779,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         }
       }
       mesh.geometry.dispose()
-      media.src = ''
+      mediaValue.src = ''
     }
   }, [])
 
@@ -780,7 +787,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
   useEffect(() => {
     if (component.useVideoTexture.value || volumetric.hasAudio.value) {
-      media.playbackRate = volumetric.currentTrackInfo.playbackRate.value
+      ;(media as HTMLMediaElement).playbackRate = volumetric.currentTrackInfo.playbackRate.value
     }
   }, [volumetric.currentTrackInfo.playbackRate])
 
@@ -864,10 +871,19 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       const start = segmentOffset / targetData.frameRate
       const end = start + targetData.settings.segmentSize
 
-      if (confirmBufferedRange(component.geometryInfo.buffered.value, start, end, true, MAX_TOLERABLE_GAP)) continue
+      if (
+        confirmBufferedRange(
+          component.geometryInfo.buffered.value as BufferMetadata[],
+          start,
+          end,
+          true,
+          MAX_TOLERABLE_GAP
+        )
+      )
+        continue
 
       const metadata = { start, end, fetchTime: -1 } as BufferMetadata
-      component.geometryInfo.buffered.get(NO_PROXY_STEALTH).push(metadata)
+      ;(component.geometryInfo.buffered.get(NO_PROXY_STEALTH) as BufferMetadata[]).push(metadata)
 
       loadGLB(segmentURL)
         .then(({ mesh: segmentMesh, fetchTime }) => {
@@ -913,7 +929,12 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
           }
 
           if (
-            confirmBufferedRange(component.geometryInfo.buffered.value, startTime, startTime + minBufferToPlay, false)
+            confirmBufferedRange(
+              component.geometryInfo.buffered.value as BufferMetadata[],
+              startTime,
+              startTime + minBufferToPlay,
+              false
+            )
           ) {
             component.initialGeometryBuffersLoaded.set(true)
           }
@@ -1033,10 +1054,10 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
       const bufferMetadata = component.textureInfo[textureType].buffered
 
-      if (confirmBufferedRange(bufferMetadata.value, start, end, true, MAX_TOLERABLE_GAP)) continue
+      if (confirmBufferedRange(bufferMetadata.value as BufferMetadata[], start, end, true, MAX_TOLERABLE_GAP)) continue
 
       const metadata = { start, end, fetchTime: -1 } as BufferMetadata
-      bufferMetadata.get(NO_PROXY_STEALTH).push(metadata)
+      ;(bufferMetadata.get(NO_PROXY_STEALTH) as BufferMetadata[]).push(metadata)
 
       loadTexture(textureURL, repeat, offset)
         .then((data) => {
@@ -1051,7 +1072,14 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
             component.firstTextureFrameLoaded.set(true)
           }
 
-          if (confirmBufferedRange(bufferMetadata.value, fetchStartTime, fetchStartTime + minBufferToPlay, false)) {
+          if (
+            confirmBufferedRange(
+              bufferMetadata.value as BufferMetadata[],
+              fetchStartTime,
+              fetchStartTime + minBufferToPlay,
+              false
+            )
+          ) {
             component.initialTextureBuffersLoaded.set(true)
           }
         })
@@ -1117,7 +1145,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       mesh.material = material
       mesh.material.needsUpdate = true
       if (component.hasAudio.value || component.useVideoTexture.value) {
-        handleAutoplay(audioContext, media, volumetric)
+        handleAutoplay(audioContext, media as HTMLMediaElement, volumetric)
       } else {
         volumetric.paused.set(false)
       }
@@ -1148,7 +1176,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
       mesh.material.needsUpdate = true
     }
     if (component.hasAudio.value || component.useVideoTexture.value) {
-      handleAutoplay(audioContext, media, volumetric)
+      handleAutoplay(audioContext, media as HTMLMediaElement, volumetric)
     }
     component.canPlay.set(true)
   }, [volumetric.paused])

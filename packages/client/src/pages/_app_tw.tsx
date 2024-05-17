@@ -34,7 +34,7 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
@@ -51,8 +51,8 @@ import '../themes/components.css'
 import '../themes/utilities.css'
 
 const AppPage = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
+  const authState = useMutableState(AuthState)
+  const isLoggedIn = useMutableState(AuthState).isLoggedIn
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const { t } = useTranslation()
@@ -88,8 +88,8 @@ const AppPage = () => {
 
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
-  const notificationstate = useHookstate(getMutableState(NotificationState))
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const notificationstate = useMutableState(NotificationState)
+  const clientSettingState = useMutableState(AdminClientSettingsState)
 
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)

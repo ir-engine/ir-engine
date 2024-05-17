@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RenderInfoState } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
 
 import Stats from './stats'
 import styles from './styles.module.scss'
 
 export const StatsPanel = (props: { show: boolean }) => {
-  const renderInfoState = useHookstate(getMutableState(RenderInfoState))
+  const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.visible.value && renderInfoState.info.value
 
   const toggleStats = () => {

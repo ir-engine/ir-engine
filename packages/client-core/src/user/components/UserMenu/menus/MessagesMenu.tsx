@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { ChannelID, messagePath } from '@etherealengine/common/src/schema.type.module'
@@ -62,7 +62,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
     }
   })
 
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
   const inChannelCall = channelState.targetChannelId.value === props.channelID
 
   const startMediaCall = () => {

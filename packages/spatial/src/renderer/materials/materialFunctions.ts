@@ -35,7 +35,7 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { isArray } from 'lodash'
-import { Color, Mesh, Shader, Texture, Uniform } from 'three'
+import { Color, Material, Mesh, Shader, Texture, Uniform } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
@@ -120,8 +120,8 @@ export const applyMaterialPlugins = (materialEntity: Entity) => {
   for (const pluginEntity of materialComponent.pluginEntities) {
     const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (pluginComponent.plugin) {
-      if (hasOBCPlugin(materialComponent.material, pluginComponent.plugin)) return
-      addOBCPlugin(materialComponent.material, pluginComponent.plugin)
+      if (hasOBCPlugin(materialComponent.material as Material, pluginComponent.plugin)) return
+      addOBCPlugin(materialComponent.material as Material, pluginComponent.plugin)
     }
   }
 }
@@ -143,7 +143,8 @@ export const applyPluginShaderParameters = (
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State]).material!
+  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State])
+    .material! as Material
 }
 
 export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {

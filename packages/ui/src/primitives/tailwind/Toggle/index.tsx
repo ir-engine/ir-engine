@@ -39,6 +39,7 @@ export interface ToggleProps {
 }
 
 const sizeMap = {
+  sm: 'w-8 h-5 after:w-4 after:h-4 after:top-[2px] after:start-[2px]',
   md: 'w-11 h-6 after:w-5 after:h-5 after:top-[2px] after:start-[2px]',
   lg: 'w-16 h-9 after:w-7 after:h-7 after:top-[4px] after:start-[5px]'
 }

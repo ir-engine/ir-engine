@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { EntityUUID } from '@etherealengine/ecs'
-import { PeerID } from '@etherealengine/hyperflux'
+import { PeerID, useMutableState } from '@etherealengine/hyperflux'
 
 import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -84,7 +84,7 @@ export const EntityNetworkState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(EntityNetworkState))
+    const state = useMutableState(EntityNetworkState)
     return (
       <>
         {state.keys.map((uuid: EntityUUID) => (

@@ -29,12 +29,10 @@ import { useParams } from 'react-router-dom'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import './LocationModule'
 
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
-import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
   online?: boolean
@@ -42,7 +40,7 @@ type Props = {
 
 const LocationPage = ({ online }: Props) => {
   const params = useParams()
-  const ready = useHookstate(getMutableState(LoadingUISystemState).ready)
+  // const ready = useMutableState(LoadingUISystemState).ready
 
   useNetwork({ online })
 

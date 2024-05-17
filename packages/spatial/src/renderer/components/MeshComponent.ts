@@ -55,7 +55,7 @@ export const MeshComponent = defineComponent({
     const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
     const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
     const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.value,
+      meshComponent.material.value as Material,
       entity,
       !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
     )
@@ -76,7 +76,7 @@ export const MeshComponent = defineComponent({
       if (Array.isArray(mesh.material)) {
         for (const material of mesh.material) material.needsUpdate = true
       } else {
-        mesh.material.needsUpdate = true
+        ;(mesh.material as Material).needsUpdate = true
       }
     }, [meshComponent.material])
 
@@ -108,7 +108,7 @@ export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial ext
   const meshComponent = useComponent(entity, MeshComponent)
 
   useEffect(() => {
-    const mesh = meshComponent.value
+    const mesh = meshComponent.value as Mesh
     addObjectToGroup(entity, mesh)
     return () => {
       removeObjectFromGroup(entity, mesh)

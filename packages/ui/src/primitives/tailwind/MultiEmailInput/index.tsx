@@ -93,7 +93,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
     const emails = paste.match(/[\w\d\.-]+@[\w\d\.-]+\.[\w\d\.-]+/g)
 
     if (emails) {
-      const toBeAdded = emails.filter((email) => !isInList(email, emailList.value))
+      const toBeAdded = emails.filter((email) => !isInList(email, emailList.value as string[]))
       emailList.merge(toBeAdded)
     }
   }
@@ -102,7 +102,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
     state.errorLabel.set('')
     let error = ''
 
-    if (isInList(email, emailList.value)) {
+    if (isInList(email, emailList.value as string[])) {
       error = t('common:multiEmailInput.alreadyAdded', { email })
     }
 
