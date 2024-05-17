@@ -57,6 +57,7 @@ export const ItemTypes = {
   Node: 'Node',
   Material: 'Material',
   Lookdev: 'Lookdev',
+  Prefab: 'Prefab',
   Component: 'Component'
 }
 
