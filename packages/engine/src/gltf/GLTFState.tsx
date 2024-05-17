@@ -36,6 +36,7 @@ import {
   createEntity,
   getComponent,
   getMutableComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   useComponent,
@@ -50,7 +51,8 @@ import {
   getMutableState,
   getState,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -71,7 +73,7 @@ export const GLTFAssetState = defineState({
 
   useScene: (sceneID: string | undefined) => {
     const scene = useGet(assetPath, sceneID).data
-    const scenes = useHookstate(getMutableState(GLTFAssetState))
+    const scenes = useMutableState(GLTFAssetState)
     const assetURL = scene?.assetURL
     return assetURL ? scenes[assetURL].value : null
   },
@@ -142,7 +144,7 @@ export const GLTFSnapshotState = defineState({
         return
       }
       state.index.set(state.index.value + 1)
-      state.snapshots.set([...state.snapshots.get(NO_PROXY).slice(0, state.index.value + 1), data])
+      state.snapshots.merge([data])
       getMutableState(GLTFDocumentState)[action.source].set(data)
     }),
 
@@ -174,7 +176,7 @@ export const GLTFSnapshotState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(GLTFSnapshotState))
+    const state = useMutableState(GLTFSnapshotState)
     return (
       <>
         {state.keys.map((source: string) => (
@@ -247,8 +249,8 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
 }
 
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  const nodes = documentState.nodes! as State<GLTF.INode[]>
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const nodes = documentState.nodes! // as State<GLTF.INode[]>
 
   const node = nodes[props.nodeIndex]!
 
@@ -354,20 +356,24 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 }
 
 const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex: number; documentID: string }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  const nodes = documentState.nodes! as State<GLTF.INode[]>
+  const documentState = useMutableState(GLTFDocumentState)[props.documentID]
+  const nodes = documentState.nodes! // as State<GLTF.INode[]>
   const node = nodes[props.nodeIndex]!
 
   const extension = node.extensions![props.extension]
+  useEffect(() => {
+    return () => {
+      const Component = ComponentJSONIDMap.get(props.extension)
+      if (!Component) return console.warn('no component found for extension', props.extension)
+
+      removeComponent(props.entity, Component)
+    }
+  }, [])
 
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
-    /** @todo fix gizmo then re-enable this */
-    // return () => {
-    //   removeComponent(props.entity, Component)
-    // }
   }, [extension])
 
   return null

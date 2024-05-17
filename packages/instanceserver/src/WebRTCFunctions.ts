@@ -37,7 +37,7 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 
-import { PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/network'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
@@ -156,7 +156,10 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
       else return Promise.resolve()
     })
   )
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCServerNetwork,
+    Identifiable
+  >
   networkState.transport.outgoingDataProducers[dataChannel].set(outgoingDataProducer)
 
   outgoingDataProducer.observer.on('close', () => {

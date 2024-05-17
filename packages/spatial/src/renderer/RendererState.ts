@@ -49,20 +49,18 @@ export const RendererState = defineState({
     infiniteGridHelperEntity: null as Entity | null,
     physicsDebugEntity: null as Entity | null
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(RendererState, [
-      'qualityLevel',
-      'automatic',
-      // 'usePBR',
-      'usePostProcessing',
-      'useShadows',
-      'physicsDebug',
-      'bvhDebug',
-      'avatarDebug',
-      'renderMode',
-      'nodeHelperVisibility',
-      'gridVisibility',
-      'gridHeight'
-    ])
-  }
+  extension: syncStateWithLocalStorage([
+    'qualityLevel',
+    'automatic',
+    // 'usePBR',
+    'usePostProcessing',
+    'useShadows',
+    'physicsDebug',
+    'bvhDebug',
+    'avatarDebug',
+    'renderMode',
+    'nodeHelperVisibility',
+    'gridVisibility',
+    'gridHeight'
+  ])
 })

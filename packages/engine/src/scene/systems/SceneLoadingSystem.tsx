@@ -200,7 +200,7 @@ const EntityChildLoadReactor = (props: {
     }
 
     setComponent(entity, SourceComponent, props.sceneID)
-    loadComponents(entity, entityJSONState.components.get(NO_PROXY))
+    loadComponents(entity, entityJSONState.components.get(NO_PROXY) as ComponentJsonType[])
 
     return () => {
       removeEntity(entity)

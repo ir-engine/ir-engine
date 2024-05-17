@@ -213,7 +213,7 @@ const SceneAssetsPanel = () => {
         return (
           <>
             {searchedStaticResources.map((resource) => (
-              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY)} />
+              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
             ))}
           </>
         )
@@ -223,7 +223,7 @@ const SceneAssetsPanel = () => {
       return (
         <>
           {categorizedStaticResources.value[selectedCategory.value!]?.map((resource) => (
-            <ResourceFile resource={resource} />
+            <ResourceFile resource={resource as StaticResourceType} />
           ))}
         </>
       )

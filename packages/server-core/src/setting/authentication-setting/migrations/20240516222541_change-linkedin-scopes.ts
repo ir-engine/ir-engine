@@ -1,3 +1,4 @@
+/*
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
@@ -20,3 +21,33 @@ Original Code is the Ethereal Engine team.
 
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
+*/
+
+import type { Knex } from 'knex'
+
+import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
+
+import { LINKEDIN_SCOPES } from '../authentication-setting.seed'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const authSettings = await knex.table(authenticationSettingPath).first()
+
+  if (authSettings) {
+    const oauthSettings = JSON.parse(authSettings.oauth)
+    oauthSettings.linkedin.scope = LINKEDIN_SCOPES
+
+    await knex.table(authenticationSettingPath).update({
+      oauth: JSON.stringify(oauthSettings)
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

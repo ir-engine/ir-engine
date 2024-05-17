@@ -117,7 +117,7 @@ function useLoader<T extends ResourceAssetType>(
     }
   }, [url])
 
-  return [value.get(NO_PROXY), error.get(NO_PROXY), progress.get(NO_PROXY), unload]
+  return [value.get(NO_PROXY) as T | null, error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
 function useBatchLoader<T extends ResourceAssetType>(

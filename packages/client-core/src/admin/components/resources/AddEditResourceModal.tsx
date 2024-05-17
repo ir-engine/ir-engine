@@ -31,11 +31,11 @@ import {
   ExtensionToAssetType,
   MimeTypeToAssetType
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../../../common/services/NotificationService'

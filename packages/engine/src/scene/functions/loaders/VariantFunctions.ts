@@ -71,7 +71,7 @@ export function updateModelVariant(
     if (deviceVariant && modelRelativePath !== deviceRelativePath) {
       variantComponent.currentLevel.set(levelIndex)
     }
-  } else if (distanceBased(variantComponent.value)) {
+  } else if (distanceBased(variantComponent.value as ComponentType<typeof VariantComponent>)) {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i].value

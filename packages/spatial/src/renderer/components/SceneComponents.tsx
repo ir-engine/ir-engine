@@ -105,7 +105,7 @@ const SceneComponentReactor = (props: { entity: Entity }) => {
   return (
     <>
       {treeEntities.map((e) => (
-        <SceneComponentTreeReactor entity={e} key={e} Component={Component.get(NO_PROXY)} />
+        <SceneComponentTreeReactor entity={e} key={e} Component={Component.get(NO_PROXY) as any} />
       ))}
     </>
   )

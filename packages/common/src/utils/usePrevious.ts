@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StateMethods } from '@hookstate/core'
+import { StateMethods } from '@etherealengine/hyperflux'
 import { useEffect, useRef } from 'react'
 
-export const usePrevious = <T>(state: StateMethods<T, object>) => {
+export const usePrevious = <T>(value: StateMethods<T, object>) => {
   const ref = useRef(null as T | null)
   useEffect(() => {
-    ref.current = state.value
-  }, [state])
+    ref.current = value.value as T
+  }, [value])
   return ref.current
 }

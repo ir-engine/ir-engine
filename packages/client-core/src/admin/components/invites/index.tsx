@@ -78,7 +78,7 @@ export default function Invites() {
                   size="small"
                   fullWidth
                   onClick={() => {
-                    PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value} />)
+                    PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
                   }}
                 >
                   {t('admin:components.invite.removeInvites')}

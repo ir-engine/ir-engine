@@ -129,7 +129,7 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
         existingPermissionsCount.length === 0 ||
         ((await checkScope(selfUser, 'projects', 'write')) && selfUser.id === users.data[0].id)
           ? 'owner'
-          : 'user'
+          : 'editor'
     }
   } catch (err) {
     logger.error(err)
@@ -192,7 +192,7 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
   }
 
   const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
-  context.data = { type: data.type === 'owner' ? 'owner' : 'user' }
+  context.data = { type: data.type === 'owner' ? 'owner' : 'editor' }
 }
 
 /**

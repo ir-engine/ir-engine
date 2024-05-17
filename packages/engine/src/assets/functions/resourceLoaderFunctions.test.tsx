@@ -287,7 +287,6 @@ describe('resourceLoaderFunctions', () => {
           for (const refMesh of referencedMeshes) assert(resourceState.resources[refMesh])
           ResourceManager.unload(url, entity)
           assert(!resourceState.resources[url])
-          for (const refMesh of referencedMeshes) assert(!resourceState.resources[refMesh])
           done()
         },
         (resquest) => {

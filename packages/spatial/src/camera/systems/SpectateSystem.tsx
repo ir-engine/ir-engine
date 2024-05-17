@@ -33,7 +33,15 @@ import {
   removeComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { defineAction, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkTopics, WorldNetworkAction, matchesUserID } from '@etherealengine/network'
 import React, { useEffect } from 'react'
 import { MathUtils } from 'three'
@@ -83,7 +91,7 @@ export const SpectateEntityState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(SpectateEntityState))
+    const state = useMutableState(SpectateEntityState)
 
     if (!state.value[Engine.instance.userID]) return null
 

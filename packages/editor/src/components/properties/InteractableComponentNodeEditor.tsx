@@ -164,7 +164,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={callback.target.value ?? 'Self'}
                   onChange={commitProperty(InteractableComponent, `callbacks.${index}.target` as any)}
-                  options={targets.value}
+                  options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
               </InputGroup>
@@ -182,7 +182,14 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={callback.callbackID.value!}
                     onChange={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}

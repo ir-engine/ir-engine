@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import {
   defineComponent,
@@ -141,7 +141,7 @@ export const DirectionalLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const [light] = useDisposable(DirectionalLight, entity)

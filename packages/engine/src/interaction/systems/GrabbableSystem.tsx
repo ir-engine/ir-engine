@@ -33,7 +33,8 @@ import {
   getMutableState,
   getState,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 
 import {
@@ -89,7 +90,7 @@ export const GrabbableState = defineState({
   },
 
   reactor: () => {
-    const grabbableState = useHookstate(getMutableState(GrabbableState))
+    const grabbableState = useMutableState(GrabbableState)
     return (
       <>
         {grabbableState.keys.map((entityUUID: EntityUUID) => (

@@ -83,7 +83,22 @@ export default function ProjectTable() {
   }
 
   const RowActions = ({ project }: { project: ProjectType }) => {
-    const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
+    const handleProjectUpdate = async () => {
+      const projectUpdateStatus = getMutableState(ProjectUpdateState)[project.name].value
+      await ProjectService.uploadProject({
+        sourceURL: projectUpdateStatus.sourceURL,
+        destinationURL: projectUpdateStatus.destinationURL,
+        name: projectUpdateStatus.projectName,
+        reset: true,
+        commitSHA: projectUpdateStatus.selectedSHA,
+        sourceBranch: projectUpdateStatus.selectedBranch,
+        updateType: projectUpdateStatus.updateType,
+        updateSchedule: projectUpdateStatus.updateSchedule
+      }).catch((err) => {
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      })
+      PopoverState.hidePopupover()
+    }
 
     return (
       <div className="flex items-center justify-evenly p-1">
@@ -92,29 +107,11 @@ export default function ProjectTable() {
           size="small"
           className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
-          onClick={() => {
+          onClick={() =>
             PopoverState.showPopupover(
-              <AddEditProjectModal
-                update={true}
-                inputProject={project}
-                onSubmit={async () => {
-                  await ProjectService.uploadProject({
-                    sourceURL: projectUpdateStatus.sourceURL,
-                    destinationURL: projectUpdateStatus.destinationURL,
-                    name: projectUpdateStatus.projectName,
-                    reset: true,
-                    commitSHA: projectUpdateStatus.selectedSHA,
-                    sourceBranch: projectUpdateStatus.selectedBranch,
-                    updateType: projectUpdateStatus.updateType,
-                    updateSchedule: projectUpdateStatus.updateSchedule
-                  }).catch((err) => {
-                    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                  })
-                  PopoverState.hidePopupover()
-                }}
-              />
+              <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
             )
-          }}
+          }
         >
           {t('admin:components.project.actions.update')}
         </Button>

@@ -38,7 +38,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
@@ -159,12 +159,12 @@ const onKeyZ = (control: boolean, shift: boolean) => {
 }
 
 const onEqual = () => {
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 
 const onMinus = () => {
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value - 1)
 }
 
@@ -298,8 +298,8 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const editorHelperState = useMutableState(EditorHelperState)
+  const rendererState = useMutableState(RendererState)
 
   useEffect(() => {
     // todo figure out how to do these with our input system

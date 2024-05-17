@@ -55,7 +55,5 @@ export const EditorState = defineState({
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  onCreate: () => {
-    syncStateWithLocalStorage(EditorState, ['expandedNodes'])
-  }
+  extension: syncStateWithLocalStorage(['expandedNodes'])
 })
