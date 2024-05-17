@@ -149,7 +149,7 @@ function VariantReactor(): ReactElement {
   }, [variantComponent.budgetLevel])
 
   useEffect(() => {
-    if (distanceBased(variantComponent.value) && meshComponent) {
+    if (distanceBased(variantComponent.value as ComponentType<typeof VariantComponent>) && meshComponent) {
       meshComponent.removeFromParent()
     }
   }, [meshComponent])
@@ -169,7 +169,7 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
 
   useEffect(() => {
     //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
-    if (distanceBased(variantComponent.value)) {
+    if (distanceBased(variantComponent.value as ComponentType<typeof VariantComponent>)) {
       setComponent(entity, DistanceFromCameraComponent)
       variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
       variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)

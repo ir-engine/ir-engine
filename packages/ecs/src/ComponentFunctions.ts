@@ -39,6 +39,7 @@ import { getNestedObject } from '@etherealengine/common/src/utils/getNestedPrope
 import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
+  InferStateValueType,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
@@ -169,7 +170,7 @@ export interface Component<
 /** @todo Describe this type */
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
-export type ComponentType<C extends Component> = NonNullable<C['stateMap'][Entity]>['value']
+export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */

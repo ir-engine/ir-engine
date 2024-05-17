@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -149,8 +149,8 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const xrState = useHookstate(getMutableState(XRState))
-  const xrLightProbeState = useHookstate(getMutableState(XRLightProbeState))
+  const xrState = useMutableState(XRState)
+  const xrLightProbeState = useMutableState(XRLightProbeState)
 
   useEffect(() => {
     const xrLightProbeState = getState(XRLightProbeState)
@@ -196,7 +196,7 @@ const reactor = () => {
       cameraFar: 2000,
       castShadow: true
     })
-    addObjectToGroup(directionalLightEntity, xrLightProbeState.lightProbe.value)
+    addObjectToGroup(directionalLightEntity, getState(XRLightProbeState).lightProbe)
     setVisibleComponent(directionalLightEntity, true)
 
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
@@ -207,7 +207,7 @@ const reactor = () => {
   }, [xrLightProbeState.isEstimatingLight])
 
   useEffect(() => {
-    const session = xrState.session.value
+    const session = getState(XRState).session
     const probe = xrLightProbeState.probe.value
     if (!probe || !session) return
 

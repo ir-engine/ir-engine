@@ -40,7 +40,7 @@ import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
@@ -88,25 +88,25 @@ type Props = {
 
 const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getMutableState(RendererState))
-  const audioState = useHookstate(getMutableState(AudioState))
-  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
-  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const rendererState = useMutableState(RendererState)
+  const audioState = useMutableState(AudioState)
+  const avatarInputState = useMutableState(AvatarInputSettingsState)
+  const selfUser = useMutableState(AuthState).user
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
-  const inputState = useHookstate(getMutableState(InputState))
+  const inputState = useMutableState(InputState)
   const preferredHand = inputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
-  const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
+  const xrSupportedModes = useMutableState(XRState).supportedSessionModes
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
   const selectedTab = useHookstate('general')
-  const engineState = useHookstate(getMutableState(EngineState))
+  const engineState = useMutableState(EngineState)
 
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.userSetting.value
 

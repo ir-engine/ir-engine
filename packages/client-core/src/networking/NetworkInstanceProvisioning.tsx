@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
 import Groups from '@mui/icons-material/Groups'
@@ -52,7 +52,7 @@ import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 
 export const WorldInstanceProvisioning = () => {
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
 
   const worldNetwork = NetworkState.worldNetwork
@@ -176,7 +176,7 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
 
   const worldNetworkId = NetworkState.worldNetwork?.id
   const worldNetwork = useWorldNetwork()

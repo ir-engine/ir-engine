@@ -44,7 +44,7 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -122,7 +122,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
     getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
 
-    const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+    const editorHelperState = useMutableState(EditorHelperState)
     useExecute(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)

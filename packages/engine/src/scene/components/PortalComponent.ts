@@ -208,8 +208,9 @@ export const PortalComponent = defineComponent({
     useEffect(() => {
       if (!texture || !portalComponent.mesh.value) return
 
-      portalComponent.mesh.value.material.map = texture
-      portalComponent.mesh.value.material.needsUpdate = true
+      const material = portalComponent.mesh.value.material as MeshBasicMaterial
+      material.map = texture
+      material.needsUpdate = true
     }, [texture, portalComponent.mesh])
 
     useEffect(() => {

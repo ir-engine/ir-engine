@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import UserIcon from './assets/user.svg'
 
@@ -35,7 +35,7 @@ import { DrawerCreateChannel } from './DrawerCreateChannel'
 import { getChannelName } from './Message'
 
 export const ChannelsList = () => {
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useMutableState(ChatState)
 
   const channelsList = useFind(channelPath)
   console.log(channelsList)

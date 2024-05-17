@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color } from 'three'
+import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
@@ -44,7 +44,7 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { XRUIState } from '../XRUIState'
-import { PointerComponent } from '../components/PointerComponent'
+import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 
 const hitColor = new Color(0x00e6e6)
@@ -77,8 +77,8 @@ const redirectDOMEvent = (evt) => {
 
 const updateControllerRayInteraction = (entity: Entity, xruiEntities: Entity[]) => {
   const pointerComponentState = getMutableComponent(entity, PointerComponent)
-  const pointer = pointerComponentState.pointer.value
-  const cursor = pointerComponentState.cursor.value
+  const pointer = pointerComponentState.pointer.value as PointerObject
+  const cursor = pointerComponentState.cursor.value as Mesh<BufferGeometry, MeshBasicMaterial>
 
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 

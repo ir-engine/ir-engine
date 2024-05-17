@@ -16,7 +16,8 @@
     "url": "https://github.com/etherealengine/etherealengine/issues"
   },
   "dependencies": {
-    "@hookstate/core": "4.0.0-rc21",
+    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
+    "@hookstate/identifiable": "^4.0.0",
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {

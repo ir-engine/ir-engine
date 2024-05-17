@@ -27,7 +27,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType, helmSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
@@ -47,8 +47,8 @@ const getDefaultErrors = () => ({
 export default function UpdateEngineModal() {
   const { t } = useTranslation()
   const helmSetting = useFind(helmSettingPath).data.at(0)
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
+  const projectState = useMutableState(ProjectState)
+  const projectUpdateStatus = useMutableState(ProjectUpdateState)
   const engineCommit = projectState.builderInfo.engineCommit.value
 
   const updateProjects = useHookstate(false)
@@ -56,7 +56,7 @@ export default function UpdateEngineModal() {
   const modalProcessing = useHookstate(false)
   const projectsToUpdate = useHookstate(new Set<string>())
   const errors = useHookstate(getDefaultErrors())
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const user = authState.user
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export default function UpdateEngineModal() {
                       label={project.name}
                       value={projectsToUpdate.value.has(project.name)}
                       disabled={modalProcessing.value}
-                      onChange={(value) => addOrRemoveProjectsToUpdate(project, value)}
+                      onChange={(value) => addOrRemoveProjectsToUpdate(project as ProjectType, value)}
                     />
                   </div>
                 ))}

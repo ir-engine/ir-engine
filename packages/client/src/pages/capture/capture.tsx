@@ -33,7 +33,7 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, useMutableState } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -56,7 +56,7 @@ const NotifyRecordingErrorSystem = defineSystem({
 })
 
 export const CaptureLocation = () => {
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
   useRemoveEngineCanvas()
 
   const params = useParams()

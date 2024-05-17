@@ -66,7 +66,7 @@ export function useDisposable<T extends DisposableObject, T2 extends new (...par
     }
   }, [disposableLike])
 
-  return [objState.get(NO_PROXY), unload]
+  return [objState.get(NO_PROXY) as InstanceType<T2>, unload]
 }
 
 /**

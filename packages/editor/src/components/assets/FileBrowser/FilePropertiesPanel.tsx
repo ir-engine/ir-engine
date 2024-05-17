@@ -66,7 +66,7 @@ export const FilePropertiesPanel = (props: {
       const key = fileProperties.value!.key
       await Engine.instance.api.service(staticResourcePath).patch(resourceProperties.id.value, {
         key,
-        tags: resourceProperties.tags.value,
+        tags: resourceProperties.tags.value as string[],
         licensing: resourceProperties.licensing.value,
         attribution: resourceProperties.attribution.value
       })

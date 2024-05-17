@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
@@ -38,7 +38,7 @@ import * as styles from '../styles.module.scss'
 export const HelperToggleTool = () => {
   const { t } = useTranslation()
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   const toggleDebug = () => {
     rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
