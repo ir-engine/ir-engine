@@ -36,9 +36,7 @@ import styles from './selectInput.module.scss'
 
 interface SelectInputProp<T> {
   value: T | string
-  options:
-    | Array<{ label: string; value: T; info?: string }>
-    | ImmutableArray<{ label: string; value: T; info?: string }>
+  options: ImmutableArray<{ label: string; value: T; info?: string }>
   onChange?: (value: T | string) => void
   onRelease?: (value: T | string) => void
   placeholder?: string
