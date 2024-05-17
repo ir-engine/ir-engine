@@ -110,6 +110,17 @@ export async function addMediaNode(
             materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
       })
+    } else if (contentType.startsWith('model/lookdev')) {
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const componentJson = gltf.scene.children[0].userData.componentJson
+        EditorControlFunctions.overwriteLookdevObject(
+          [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+          componentJson,
+          parent!,
+          before
+        )
+      })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
