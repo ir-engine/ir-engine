@@ -417,4 +417,63 @@ describe('GLTFState', () => {
     assert.equal(onInitCount, 1)
     assert.equal(onRemoveCount, 0)
   })
+
+  it.only('should be able to parent a node to a child', () => {
+    const parentUUID = MathUtils.generateUUID() as EntityUUID
+    const childUUID = MathUtils.generateUUID() as EntityUUID
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0, 1] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'parent',
+          extensions: {
+            [UUIDComponent.jsonID]: parentUUID
+          }
+        },
+        {
+          name: 'child',
+          extensions: {
+            [UUIDComponent.jsonID]: childUUID
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    // reparent
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+    const newSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    newSnapshot.data.scenes![0].nodes = [0]
+    newSnapshot.data.nodes![0].children = [1]
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
+    applyIncomingActions()
+
+    console.log(newSnapshot)
+
+    const parent = UUIDComponent.getEntityByUUID(parentUUID)
+    const child = UUIDComponent.getEntityByUUID(childUUID)
+
+    console.log({ parent, child })
+
+    const parentEntityTree = getComponent(parent, EntityTreeComponent)
+    const childEntityTree = getComponent(child, EntityTreeComponent)
+
+    console.log({ parentEntityTree, childEntityTree })
+
+    assert.equal(parentEntityTree.parentEntity, gltfEntity)
+    assert.equal(childEntityTree.parentEntity, parent)
+  })
 })
