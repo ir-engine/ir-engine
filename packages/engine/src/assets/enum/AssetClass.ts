@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /** List of Asset Classes. */
 export enum AssetClass {
   Material = 'Material',
+  Lookdev = 'Lookdev',
   Asset = 'Asset',
   Model = 'Model',
   Image = 'Image',

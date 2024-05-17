@@ -114,7 +114,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       name: name.value as UserName,
       avatarId: avatarId.value as AvatarID,
       isGuest: user?.isGuest,
-      scopes: scopes.value
+      scopes: scopes.value as { type: ScopeType }[]
     }
     submitLoading.set(true)
     try {

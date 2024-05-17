@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 
 import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
 import { Grid } from '@mui/material'
@@ -70,7 +70,7 @@ export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
 
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectionState = useMutableState(SelectionState)
 
   const onClickNode = (e) => {
     data.onClick(e, node)

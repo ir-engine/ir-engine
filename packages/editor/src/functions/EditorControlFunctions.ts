@@ -40,11 +40,15 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSnapshotAction, SceneSnapshotState, SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
@@ -244,7 +248,56 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     })
   }
 }
+const overwriteLookdevObject = (
+  beforeComponentJson: ComponentJsonType[] = [],
+  componentJson: ComponentJsonType[] = [],
+  parentEntity = getState(EditorState).rootEntity,
+  beforeEntity?: Entity
+) => {
+  const scenes = getSourcesForEntities([parentEntity])
+  const entityUUID =
+    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const name = 'Lookdev Object'
+    if (getState(GLTFSourceState)[sceneID]) {
+      const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+      const extensions = {} as Record<string, any>
+      for (const comp of componentJson) {
+        extensions[comp.name] = {
+          ...componentJsonDefaults(ComponentJSONIDMap.get(comp.name)!),
+          ...comp.props
+        }
+      }
+      //check lookdev entity
+      const lookDevComponent: Component[] = [
+        SkyboxComponent,
+        HemisphereLightComponent,
+        DirectionalLightComponent,
+        PostProcessingComponent,
+        PrimitiveGeometryComponent //this component is for test will remove later
+      ]
+      let overwrited = false
+      for (const comp of lookDevComponent) {
+        if (extensions[comp.jsonID as string]) {
+          const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID as string] !== undefined) as number
+          if (typeof index === 'number' && index > -1) {
+            if (gltf.data.nodes !== undefined) {
+              gltf.data.nodes[index].extensions![comp.jsonID as string] = extensions[comp.jsonID as string]
+              overwrited = true
+            }
+          }
+        }
+      }
+      if (!overwrited) {
+        //if no lookdev object found then create new object
+        createObjectFromSceneElement(beforeComponentJson, parentEntity, beforeEntity)
+      } else {
+        dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+      }
+    }
+  }
+}
 const createObjectFromSceneElement = (
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
@@ -1000,5 +1053,6 @@ export const EditorControlFunctions = {
   addToSelection,
   replaceSelection,
   toggleSelection,
-  commitTransformSave
+  commitTransformSave,
+  overwriteLookdevObject
 }

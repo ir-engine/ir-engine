@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { ClientSettingType } from '@etherealengine/common/src/schema.type.module'
+import { NO_PROXY, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -46,7 +47,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   })
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
   const id = clientSetting?.id
 
@@ -129,7 +130,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       createdAt: none,
       updatedAt: none
     })
-    ClientSettingService.patchClientSetting(settings.get(NO_PROXY), id)
+    ClientSettingService.patchClientSetting(settings.value as ClientSettingType, id)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })

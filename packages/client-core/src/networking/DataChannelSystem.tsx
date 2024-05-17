@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import logger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
   DataChannelType,
@@ -37,7 +45,6 @@ import {
   NetworkState,
   NetworkTopics
 } from '@etherealengine/network'
-import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
@@ -166,7 +173,7 @@ export const DataChannel = (props: { networkID: InstanceID; dataChannelType: Dat
 
 const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
-  const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
+  const dataChannelRegistry = useMutableState(DataChannelRegistryState)
   return (
     <>
       {dataChannelRegistry.keys.map((dataChannelType) => (

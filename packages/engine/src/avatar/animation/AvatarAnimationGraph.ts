@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
@@ -99,7 +99,7 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
           currentAction.value.loop != LoopRepeat) ||
         animationGraph.fadingOut.value
       ) {
-        currentAction.value.timeScale = 0
+        currentAction.value.setEffectiveTimeScale(0)
         locomotionBlend.set(Math.max(locomotionBlend.value - deltaSeconds * currentActionBlendSpeed, 0))
         if (locomotionBlend.value <= 0) {
           currentAction.value.setEffectiveWeight(0)
@@ -146,10 +146,11 @@ export const playAvatarAnimationFromMixamo = (
     getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
   )
   if (currentAction.value) {
-    currentAction.value.timeScale = 1
-    currentAction.value.time = 0
-    currentAction.value.loop = loop ? LoopRepeat : LoopOnce
-    currentAction.value.play()
+    const action = currentAction.value as AnimationAction
+    action.timeScale = 1
+    action.time = 0
+    action.loop = loop ? LoopRepeat : LoopOnce
+    action.play()
   }
 }
 

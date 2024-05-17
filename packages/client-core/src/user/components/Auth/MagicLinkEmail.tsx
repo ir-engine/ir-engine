@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import config from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -59,7 +59,7 @@ const defaultState = {
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
-  const auth = useHookstate(getMutableState(AuthState))
+  const auth = useMutableState(AuthState)
   const state = useHookstate(defaultState)
   const { t } = useTranslation()
   const authSetting = useFind(authenticationSettingPath).data.at(0)

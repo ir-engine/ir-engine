@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
@@ -38,7 +38,7 @@ import * as styles from '../styles.module.scss'
 const GridTool = () => {
   const { t } = useTranslation()
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   const onToggleGridVisible = () => {
     rendererState.gridVisibility.set(!rendererState.gridVisibility.value)

@@ -137,9 +137,7 @@ export const AuthState = defineState({
     authUser: AuthUserSeed,
     user: UserSeed
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(AuthState, ['authUser'])
-  }
+  extension: syncStateWithLocalStorage(['authUser'])
 })
 
 export interface EmailLoginForm {

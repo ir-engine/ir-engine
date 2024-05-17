@@ -34,7 +34,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 
 import '@etherealengine/client-core/src/world/LocationModule'
 
@@ -48,9 +48,9 @@ const ROOT_REDIRECT = config.client.rootRedirect
 
 export const HomePage = (): any => {
   const { t } = useTranslation()
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
-  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
+  const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
 

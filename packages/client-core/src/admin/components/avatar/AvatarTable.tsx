@@ -30,12 +30,12 @@ import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/sch
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ConfirmDialog } from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import { useHookstate } from '@hookstate/core'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 import DataTable from '../../common/Table'
 import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'

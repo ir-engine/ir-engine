@@ -39,7 +39,7 @@ import { useTexture } from '@etherealengine/engine/src/assets/functions/resource
 import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -112,7 +112,7 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {} as ThumbnailJob,
   reactor: () => {
-    const state = useHookstate(getMutableState(FileThumbnailJobState))
+    const state = useMutableState(FileThumbnailJobState)
     return (
       <>
         {state.keys.map((key) => (

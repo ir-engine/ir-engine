@@ -42,7 +42,7 @@ import {
   BoundingBoxHelperComponent,
   ObjectGridSnapComponent
 } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -225,8 +225,8 @@ export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { after: TransformSystem },
   reactor: () => {
-    const snapState = useHookstate(getMutableState(ObjectGridSnapState))
-    const selectionState = useHookstate(getMutableState(SelectionState))
+    const snapState = useMutableState(ObjectGridSnapState)
+    const selectionState = useMutableState(SelectionState)
     const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {

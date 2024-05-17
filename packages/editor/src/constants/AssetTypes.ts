@@ -56,6 +56,7 @@ export const ItemTypes = {
   ECS: ['scene.json'],
   Node: 'Node',
   Material: 'Material',
+  Lookdev: 'Lookdev',
   Component: 'Component'
 }
 

@@ -72,7 +72,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
-      const camera = previewCamera.camera.value
+      const camera = previewCamera.camera.value as PerspectiveCamera
       addObjectToGroup(entity, camera)
       return () => {
         removeObjectFromGroup(entity, camera)
@@ -97,7 +97,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       if (debugEnabled.value) {
         setComponent(entity, CameraHelperComponent, {
           name: 'scene-preview-helper',
-          camera: previewCamera.camera.value
+          camera: previewCamera.camera.value as PerspectiveCamera
         })
       }
       return () => {
