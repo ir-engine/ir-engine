@@ -127,7 +127,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={trigger.target.value ?? 'Self'}
                   onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                  options={targets.value}
+                  options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
               </InputGroup>
@@ -144,7 +144,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onEnter.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}
@@ -163,7 +170,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onExit.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}

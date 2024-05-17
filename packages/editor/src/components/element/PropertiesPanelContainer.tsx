@@ -81,7 +81,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       <Popover
         id={open ? 'add-component-popover' : undefined}
         open={open}
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as HTMLButtonElement}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
           vertical: 'center',

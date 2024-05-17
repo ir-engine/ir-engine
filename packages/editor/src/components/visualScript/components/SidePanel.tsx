@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { NodetoEnginetype } from '@etherealengine/engine'
-import { VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
+import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
 import { Button, PropertiesPanelButton } from '../../inputs/Button'
 import ParameterInput from '../../inputs/ParameterInput'
 import SelectInput from '../../inputs/SelectInput'
@@ -140,7 +140,7 @@ export const SidePanel = ({
         <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.template.description')}>
           <PaginatedList
             options={{ countPerPage: 5 }}
-            list={visualScriptState.templates.get(NO_PROXY)}
+            list={visualScriptState.templates.get(NO_PROXY) as GraphTemplate[]}
             element={(template: any, index) => {
               return (
                 <div style={{ display: 'flex', width: '100%' }}>
