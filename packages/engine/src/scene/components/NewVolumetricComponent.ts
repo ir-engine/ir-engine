@@ -40,11 +40,7 @@ import {
 } from '@etherealengine/ecs'
 import { NO_PROXY, State, getMutableState, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import {
-  GroupComponent,
-  addObjectToGroup,
-  removeObjectFromGroup
-} from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect, useRef } from 'react'
 import {
   BufferGeometry,
@@ -63,8 +59,8 @@ import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import {
-  BufferInfo,
   DRACOTarget,
+  FrameTargetInfo,
   GeometryFormatToType,
   GeometryType,
   KeyframeAttribute,
@@ -97,11 +93,30 @@ import {
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { PlaylistComponent } from './PlaylistComponent'
 
+interface VolumetricMutables {
+  material: ShaderMaterial | null
+  mesh: Mesh<BufferGeometry, ShaderMaterial> | null
+  group: Group
+  manifest: OldManifestSchema | ManifestSchema | Record<string, never>
+  geometryBufferData: BufferDataContainer
+  geometryBuffer: Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>
+  texture: Partial<
+    Record<
+      TextureType,
+      {
+        bufferData: BufferDataContainer
+        buffer: Map<string, CompressedTexture[]>
+      }
+    >
+  >
+}
+
+export const volumeticMutables: Record<Entity, VolumetricMutables> = {}
+
 const initialState = {
   useVideoTextureForBaseColor: false, // legacy for UVOL1
   useLoadingEffect: true,
   volume: 1,
-  manifest: {} as OldManifestSchema | ManifestSchema | Record<string, never>,
   checkForEnoughBuffers: true,
   notEnoughBuffers: true,
   time: {
@@ -113,21 +128,16 @@ const initialState = {
     duration: 0
   },
   geometry: {
-    bufferData: new BufferDataContainer(),
     targets: [],
     initialBufferLoaded: false,
     firstFrameLoaded: false,
     currentTarget: 0,
     userTarget: -1
-  } as BufferInfo,
+  } as FrameTargetInfo,
   geometryType: undefined as unknown as GeometryType,
-  geometryBuffer: undefined as unknown as Map<
-    string,
-    (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]
-  >,
   textureBuffer: undefined as unknown as Map<string, Map<string, CompressedTexture[]>>,
   setIntervalId: -1,
-  texture: {} as Partial<Record<TextureType, BufferInfo>>,
+  texture: {} as Partial<Record<TextureType, FrameTargetInfo>>,
   textureInfo: {
     textureTypes: [] as TextureType[],
     initialBufferLoaded: {} as Partial<Record<TextureType, boolean>>,
@@ -162,13 +172,13 @@ export const NewVolumetricComponent = defineComponent({
 
   canPlayWithoutPause: (entity: Entity) => {
     const component = getMutableComponent(entity, NewVolumetricComponent)
-    const manifest = component.manifest.get(NO_PROXY)
+    const manifest = volumeticMutables[entity].manifest
     if (Object.keys(manifest).length === 0) {
       return false
     }
 
     const currentTimeInMS = component.time.currentTime.value
-    const geometryBufferDataContainer = component.geometry.bufferData.get(NO_PROXY)
+    const geometryBufferDataContainer = volumeticMutables[entity].geometryBufferData
 
     let durationInMS = -1
     const geometryType = component.geometryType.value
@@ -200,10 +210,11 @@ export const NewVolumetricComponent = defineComponent({
     const textureTypes = component.textureInfo.textureTypes.value
     for (const textureType of textureTypes) {
       const textureInfo = component.texture[textureType].get(NO_PROXY)
-      if (!textureInfo) {
+      const textureBufferInfo = volumeticMutables[entity].texture[textureType]
+      if (!textureInfo || !textureBufferInfo) {
         return false
       }
-      const textureBufferDataContainer = textureInfo.bufferData
+      const textureBufferDataContainer = textureBufferInfo.bufferData
       const target = textureInfo.targets[textureInfo.currentTarget]
       const format = (manifest as ManifestSchema).texture[textureType]!.targets[target].format
 
@@ -232,7 +243,7 @@ export const NewVolumetricComponent = defineComponent({
     }
 
     const geometryType = component.geometryType.value
-    const bufferData = component.geometry.bufferData.get(NO_PROXY)
+    const bufferData = volumeticMutables[entity].geometryBufferData
 
     if (geometryType !== GeometryType.Corto) {
       const { totalFetchTime, totalPlayTime } = bufferData.getMetrics()
@@ -261,8 +272,9 @@ export const NewVolumetricComponent = defineComponent({
   adjustTextureTarget: (entity: Entity, textureType: TextureType, externalMetric?: number) => {
     const component = getMutableComponent(entity, NewVolumetricComponent)
     const textureInfo = component.texture[textureType].get(NO_PROXY)
+    const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
-    if (textureInfo) {
+    if (textureInfo && textureBufferInfo) {
       if (textureInfo.userTarget !== -1) {
         if (textureInfo.currentTarget !== textureInfo.userTarget) {
           component.texture[textureType].merge({
@@ -272,7 +284,7 @@ export const NewVolumetricComponent = defineComponent({
         return
       }
 
-      const bufferData = textureInfo.bufferData
+      const bufferData = textureBufferInfo.bufferData
       const { totalFetchTime, totalPlayTime } = bufferData.getMetrics()
       if (externalMetric === undefined && totalPlayTime < 4 * TIME_UNIT_MULTIPLIER) {
         return
@@ -300,73 +312,50 @@ export const NewVolumetricComponent = defineComponent({
 
   cleanupTrack: (entity: Entity) => {
     const component = getMutableComponent(entity, NewVolumetricComponent)
-    const groupComponent = getOptionalComponent(entity, GroupComponent)
 
     console.log('Cleaning up track')
     clearInterval(component.setIntervalId.value)
     console.log('Cleared buffer loop interval: ', component.setIntervalId.value)
 
-    let mesh = null as Mesh<BufferGeometry, ShaderMaterial> | null
-
-    try {
-      if (groupComponent) {
-        console.log('GROUPPP: ', groupComponent)
-        // groupComponent.forEach((obj) => {
-        //   removeObjectFromGroup(entity, obj)
-        // })
-        const group = groupComponent[0] as Group
-        if (group) {
-          const _mesh = group.children[0] as Mesh<BufferGeometry, ShaderMaterial>
-          if (_mesh) {
-            mesh = _mesh
-            group.remove(mesh)
-            removeObjectFromGroup(entity, group)
-            console.log('Mesh removed from group')
-            const groupComponent = getOptionalMutableComponent(entity, GroupComponent)
-            if (groupComponent) {
-              groupComponent.set([])
-            }
-          } else {
-            console.warn('No mesh found in group')
-          }
-        } else {
-          console.warn('No group found in group component')
-        }
-      } else {
-        console.warn('No group component found')
-      }
-    } catch (e) {
-      console.warn('Error in disposing the group: ', e)
+    const mesh = volumeticMutables[entity].mesh
+    if (mesh && volumeticMutables[entity].group) {
+      volumeticMutables[entity].group.remove(mesh)
     }
-    const material = mesh?.material as ShaderMaterial | null
+    if (volumeticMutables[entity].group) {
+      removeObjectFromGroup(entity, volumeticMutables[entity].group)
+    }
+
+    const material = volumeticMutables[entity].material
 
     const MAX_DURATION = 5 * 60 * 1000 // 5 minutes
-    const geometryBuffer = component.geometryBuffer.get(NO_PROXY)
-    const textureBuffer = component.textureBuffer.get(NO_PROXY)
+    const geometryBuffer = volumeticMutables[entity].geometryBuffer
 
-    if (textureBuffer) {
-      for (const [textureType, collection] of textureBuffer) {
+    const textureTypes = Object.keys(volumeticMutables[entity].texture) as TextureType[]
+    textureTypes.forEach((textureType) => {
+      const textureBufferInfo = volumeticMutables[entity].texture[textureType]
+      if (textureBufferInfo) {
+        const textureBuffer = textureBufferInfo.buffer
+
         deleteUsedTextureBuffers({
           currentTimeInMS: MAX_DURATION,
           textureBuffer: textureBuffer,
           textureType: textureType as TextureType,
           clearAll: true
         })
-      }
-      textureBuffer.clear()
-    }
 
-    if (geometryBuffer) {
-      const geometryType = material?.vertexShader.includes('keyframeANormal') ? GeometryType.Unify : GeometryType.Corto
-      deleteUsedGeometryBuffers({
-        currentTimeInMS: MAX_DURATION,
-        geometryBuffer: geometryBuffer,
-        geometryType: geometryType,
-        mesh: mesh!,
-        clearAll: true
-      })
-      geometryBuffer.clear()
-    }
+        textureBuffer.clear()
+      }
+    })
+
+    const geometryType = material?.vertexShader.includes('keyframeANormal') ? GeometryType.Unify : GeometryType.Corto
+    deleteUsedGeometryBuffers({
+      currentTimeInMS: MAX_DURATION,
+      geometryBuffer: geometryBuffer,
+      geometryType: geometryType,
+      mesh: mesh!,
+      clearAll: true
+    })
+    geometryBuffer.clear()
 
     if (material) {
       material.dispose()
@@ -379,18 +368,19 @@ export const NewVolumetricComponent = defineComponent({
     console.log('Setting track to initial state: ', initialState)
 
     component.set(structuredClone(initialState))
-    component.geometry.bufferData.set(new BufferDataContainer())
+
+    volumeticMutables[entity].geometryBufferData = new BufferDataContainer()
 
     const mediaElement = getOptionalMutableComponent(entity, MediaElementComponent)
     if (mediaElement) {
       const element = mediaElement.element.get(NO_PROXY)
+      // @ts-ignore
       element.src = ''
     }
 
     if (hasComponent(entity, NewVolumetricComponent)) {
       clearErrors(entity, NewVolumetricComponent)
     }
-    console.log('Track cleaned up: ', component.get(NO_PROXY))
   },
 
   onRemove: (entity) => {
@@ -404,13 +394,6 @@ function NewVolumetricComponentReactor() {
   const entity = useEntityContext()
   const playlistComponent = useOptionalComponent(entity, PlaylistComponent)
   const component = useComponent(entity, NewVolumetricComponent)
-  const material = useRef<ShaderMaterial | null>(null)
-  const mesh = useRef<Mesh<BufferGeometry, ShaderMaterial> | null>(null)
-  const group = useRef(new Group())
-  const geometryBuffer = useRef(
-    new Map<string, (Mesh<BufferGeometry, Material> | BufferGeometry | KeyframeAttribute)[]>()
-  )
-  const textureBuffer = useRef(new Map<string, Map<string, CompressedTexture[]>>())
   const bufferLoopIntervalId = useRef(-1)
 
   const audioContext = getState(AudioState).audioContext
@@ -425,7 +408,7 @@ function NewVolumetricComponentReactor() {
       return
     }
     if (component.useVideoTextureForBaseColor.value) {
-      addObjectToGroup(entity, group.current)
+      addObjectToGroup(entity, volumeticMutables[entity].group)
       const media = getComponent(entity, MediaElementComponent).element
       handleMediaAutoplay({
         audioContext,
@@ -449,7 +432,7 @@ function NewVolumetricComponentReactor() {
     }
 
     console.log('All initial buffers loaded')
-    addObjectToGroup(entity, group.current)
+    addObjectToGroup(entity, volumeticMutables[entity].group)
   }, [component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
 
   const bufferLoop = () => {
@@ -460,7 +443,7 @@ function NewVolumetricComponentReactor() {
 
     const currentTimeInMS = component.time.currentTime.value
     const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
-    const manifest = component.manifest.get(NO_PROXY)
+    const manifest = volumeticMutables[entity].manifest
     const geometryType = component.geometryType.value
     const manifestPath = playlistComponent?.tracks.value.find(
       (track) => track.uuid === playlistComponent.currentTrackUUID.value
@@ -469,17 +452,15 @@ function NewVolumetricComponentReactor() {
       return
     }
 
-    const geometryBufferData = component.geometry.bufferData.get(NO_PROXY)
-
     fetchGeometry({
       currentTimeInMS,
-      bufferData: geometryBufferData,
+      bufferData: volumeticMutables[entity].geometryBufferData,
       target: geometryTarget,
       manifest,
       geometryType,
       manifestPath,
-      geometryBuffer: geometryBuffer.current,
-      mesh: mesh.current!,
+      geometryBuffer: volumeticMutables[entity].geometryBuffer,
+      mesh: volumeticMutables[entity].mesh!,
       startTimeInMS: component.time.start.value,
       initialBufferLoaded: component.geometry.initialBufferLoaded,
       repeat: repeat,
@@ -488,8 +469,12 @@ function NewVolumetricComponentReactor() {
     if (!component.useVideoTextureForBaseColor.value) {
       component.textureInfo.textureTypes.value.forEach((textureType) => {
         const textureTypeData = component.texture[textureType].get(NO_PROXY)
-        if (textureTypeData) {
-          const bufferData = textureTypeData.bufferData
+        const textureBufferInfo = volumeticMutables[entity].texture[textureType]
+
+        if (textureTypeData && textureBufferInfo) {
+          const bufferData = textureBufferInfo.bufferData
+          const textureBuffer = textureBufferInfo.buffer
+
           const target = textureTypeData.targets[textureTypeData.currentTarget]
           const format = (manifest as ManifestSchema).texture[textureType]!.targets[target].format
           if (!(textureType in component.textureInfo.initialBufferLoaded.value)) {
@@ -506,7 +491,7 @@ function NewVolumetricComponentReactor() {
             manifest,
             textureType,
             manifestPath,
-            textureBuffer: textureBuffer.current,
+            textureBuffer: textureBuffer,
             textureFormat: format,
             startTimeInMS: component.time.start.value,
             initialBufferLoaded: initialBufferLoadedState
@@ -526,8 +511,15 @@ function NewVolumetricComponentReactor() {
       })
     }
 
-    component.geometryBuffer.set(geometryBuffer.current)
-    component.textureBuffer.set(textureBuffer.current)
+    volumeticMutables[entity] = {
+      material: null,
+      mesh: null,
+      group: new Group(),
+      manifest: {},
+      geometryBufferData: new BufferDataContainer(),
+      geometryBuffer: new Map(),
+      texture: {}
+    }
 
     const mediaElement = getComponent(entity, MediaElementComponent)
     const element = mediaElement.element
@@ -571,7 +563,6 @@ function NewVolumetricComponentReactor() {
         )
         component.texture.set({
           baseColor: {
-            bufferData: undefined as unknown as BufferDataContainer, // VideoTexture does not require BufferDataContainer
             targets: [],
             initialBufferLoaded: false,
             firstFrameLoaded: false,
@@ -660,14 +651,17 @@ function NewVolumetricComponentReactor() {
 
             component.texture.merge({
               [textureType]: {
-                bufferData: new BufferDataContainer(),
                 targets: supportedTargets,
                 initialBufferLoaded: false,
                 firstFrameLoaded: false,
                 currentTarget: 0,
                 userTarget: -1
-              } as BufferInfo
+              } as FrameTargetInfo
             })
+            volumeticMutables[entity].texture[textureType] = {
+              bufferData: new BufferDataContainer(),
+              buffer: new Map()
+            }
           } else {
             addError(
               entity,
@@ -722,7 +716,7 @@ function NewVolumetricComponentReactor() {
         if (!manifest) {
           return
         }
-        component.manifest.set(data)
+        volumeticMutables[entity].manifest = manifest
 
         const preTrackBufferingCallback = component.preTrackBufferingCallback.value
         if (preTrackBufferingCallback) {
@@ -742,7 +736,7 @@ function NewVolumetricComponentReactor() {
             ? (manifest as ManifestSchema).materialProperties
             : undefined
 
-        material.current = createMaterial(
+        volumeticMutables[entity].material = createMaterial(
           component.geometryType.value,
           component.useVideoTextureForBaseColor.value,
           hasNormals,
@@ -750,15 +744,14 @@ function NewVolumetricComponentReactor() {
           // @ts-ignore
           overrideMaterialProperties
         )
-        mesh.current = new Mesh(new SphereGeometry(0.001, 32, 32) as BufferGeometry, material.current)
-        if (group.current.children.length > 0) {
-          group.current.remove(group.current.children[0])
-        }
-        group.current.add(mesh.current)
+        volumeticMutables[entity].mesh = new Mesh(
+          new SphereGeometry(0.001, 32, 32) as BufferGeometry,
+          volumeticMutables[entity].material!
+        )
 
-        console.log('Material created successfully: ', material.current)
-        mesh.current.material = material.current
-        mesh.current.material.needsUpdate = true
+        volumeticMutables[entity].group.add(volumeticMutables[entity].mesh!)
+        volumeticMutables[entity].mesh!.material = volumeticMutables[entity].material!
+        volumeticMutables[entity].mesh!.material.needsUpdate = true
 
         const intervalId = setInterval(bufferLoop, 500)
         component.setIntervalId.set(intervalId as unknown as number)
@@ -798,7 +791,7 @@ function NewVolumetricComponentReactor() {
                 videoTexture.colorSpace = SRGBColorSpace
                 videoTexture.flipY = true
 
-                mesh.current!.material.uniforms['map'].value = videoTexture
+                volumeticMutables[entity].mesh!.material.uniforms['map'].value = videoTexture
                 videoTexture.needsUpdate = true
                 component.textureInfo.firstFrameLoaded['baseColor'].set(true)
                 console.log('Video source set: ', element.src, element, videoTexture)
@@ -832,11 +825,12 @@ function NewVolumetricComponentReactor() {
               }
 
               const frameNo = Math.round(metadata.mediaTime * (manifest as OldManifestSchema).frameRate)
-              const collection = geometryBuffer.current.get('corto')
+              const collection = volumeticMutables[entity].geometryBuffer.get('corto')
               if (collection && collection[frameNo]) {
                 updateGeometry(currentTimeInMS)
-                if (mesh.current!.material.uniforms['map'].value) {
-                  mesh.current!.material.uniforms['map'].value.needsUpdate = true
+                volumeticMutables[entity].material!.uniforms['map'].value
+                if (volumeticMutables[entity].material!.uniforms['map'].value) {
+                  volumeticMutables[entity].material!.uniforms['map'].value.needsUpdate = true
                 }
               }
 
@@ -892,32 +886,34 @@ function NewVolumetricComponentReactor() {
   }, [playlistComponent?.paused])
 
   const updateGeometry = (currentTimeInMS: number) => {
+    const geometryBuffer = volumeticMutables[entity].geometryBuffer
+    const mesh = volumeticMutables[entity].mesh!
+
     const geometryType = component.geometryType.value
     const targetData =
       component.geometryType.value !== GeometryType.Corto
-        ? (component.manifest as State<ManifestSchema>).geometry.targets.get(NO_PROXY)
+        ? (volumeticMutables[entity].manifest as ManifestSchema).geometry.targets
         : undefined
     const frameRate =
       component.geometryType.value === GeometryType.Corto
-        ? (component.manifest as State<OldManifestSchema>).frameRate.get(NO_PROXY)
+        ? (volumeticMutables[entity].manifest as OldManifestSchema).frameRate
         : undefined
-    const bufferData = component.geometry.bufferData.get(NO_PROXY)
 
     NewVolumetricComponent.adjustGeometryTarget(entity)
     const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
 
     deleteUsedGeometryBuffers({
-      geometryBuffer: geometryBuffer.current,
+      geometryBuffer,
       currentTimeInMS: currentTimeInMS - 500,
       geometryType,
       targetData,
       frameRate,
-      mesh: mesh.current!,
-      bufferData
+      mesh,
+      bufferData: volumeticMutables[entity].geometryBufferData
     })
 
     const result = getGeometry({
-      geometryBuffer: geometryBuffer.current,
+      geometryBuffer,
       currentTimeInMS,
       preferredTarget: geometryTarget,
       geometryType,
@@ -937,9 +933,9 @@ function NewVolumetricComponentReactor() {
     } else {
       if (geometryType === GeometryType.Corto || geometryType === GeometryType.Draco) {
         const geometry = result.geometry as BufferGeometry
-        if (mesh.current!.geometry !== geometry) {
-          mesh.current!.geometry = geometry
-          mesh.current!.geometry.attributes['position'].needsUpdate = true
+        if (mesh.geometry !== geometry) {
+          mesh.geometry = geometry
+          mesh.geometry.attributes['position'].needsUpdate = true
         }
       }
     }
@@ -953,7 +949,7 @@ function NewVolumetricComponentReactor() {
           }
         | false
       const keyframeBResult = getGeometry({
-        geometryBuffer: geometryBuffer.current,
+        geometryBuffer: geometryBuffer,
         currentTimeInMS,
         preferredTarget: geometryTarget,
         geometryType,
@@ -969,38 +965,38 @@ function NewVolumetricComponentReactor() {
         | false
 
       if (keyframeAResult) {
-        if (mesh.current!.geometry.attributes['keyframeAPosition'] !== keyframeAResult.geometry.position) {
-          mesh.current!.geometry.attributes['keyframeAPosition'] = keyframeAResult.geometry.position
-          mesh.current!.geometry.attributes['keyframeAPosition'].needsUpdate = true
+        if (mesh.geometry.attributes['keyframeAPosition'] !== keyframeAResult.geometry.position) {
+          mesh.geometry.attributes['keyframeAPosition'] = keyframeAResult.geometry.position
+          mesh.geometry.attributes['keyframeAPosition'].needsUpdate = true
         }
         if (
           keyframeAResult.geometry.normal &&
-          mesh.current!.geometry.attributes['keyframeANormal'] !== keyframeAResult.geometry.normal
+          mesh.geometry.attributes['keyframeANormal'] !== keyframeAResult.geometry.normal
         ) {
-          mesh.current!.geometry.attributes['keyframeANormal'] = keyframeAResult.geometry.normal
-          mesh.current!.geometry.attributes['keyframeANormal'].needsUpdate = true
+          mesh.geometry.attributes['keyframeANormal'] = keyframeAResult.geometry.normal
+          mesh.geometry.attributes['keyframeANormal'].needsUpdate = true
         }
       }
       if (keyframeBResult) {
-        if (mesh.current!.geometry.attributes['keyframeBPosition'] !== keyframeBResult.geometry.position) {
-          mesh.current!.geometry.attributes['keyframeBPosition'] = keyframeBResult.geometry.position
-          mesh.current!.geometry.attributes['keyframeBPosition'].needsUpdate = true
+        if (mesh.geometry.attributes['keyframeBPosition'] !== keyframeBResult.geometry.position) {
+          mesh.geometry.attributes['keyframeBPosition'] = keyframeBResult.geometry.position
+          mesh.geometry.attributes['keyframeBPosition'].needsUpdate = true
         }
         if (
           keyframeBResult.geometry.normal &&
-          mesh.current!.geometry.attributes['keyframeBNormal'] !== keyframeBResult.geometry.normal
+          mesh.geometry.attributes['keyframeBNormal'] !== keyframeBResult.geometry.normal
         ) {
-          mesh.current!.geometry.attributes['keyframeBNormal'] = keyframeBResult.geometry.normal
-          mesh.current!.geometry.attributes['keyframeBNormal'].needsUpdate = true
+          mesh.geometry.attributes['keyframeBNormal'] = keyframeBResult.geometry.normal
+          mesh.geometry.attributes['keyframeBNormal'].needsUpdate = true
         }
       }
 
       if (!keyframeAResult && !keyframeBResult) {
         return
       } else if (!keyframeAResult && keyframeBResult) {
-        mesh.current!.material.uniforms.mixRatio.value = 1
+        mesh.material.uniforms.mixRatio.value = 1
       } else if (keyframeAResult && !keyframeBResult) {
-        mesh.current!.material.uniforms.mixRatio.value = 0
+        mesh.material.uniforms.mixRatio.value = 0
       } else if (keyframeAResult && keyframeBResult) {
         const keyframeATimeInMS = (keyframeAResult.index * 1000) / targetData![keyframeAResult.target].frameRate
         const keyframeBTimeInMS = (keyframeBResult.index * 1000) / targetData![keyframeBResult.target].frameRate
@@ -1010,34 +1006,35 @@ function NewVolumetricComponentReactor() {
 
         const mixRatio = distanceFromA + distanceFromB > 0 ? distanceFromA / (distanceFromA + distanceFromB) : 0.5
 
-        mesh.current!.material.uniforms.mixRatio.value = mixRatio
+        mesh.material.uniforms.mixRatio.value = mixRatio
       }
     }
   }
 
   const updateTexture = (currentTimeInMS: number) => {
     const textureTypes = component.textureInfo.textureTypes.value
-    const manifest = component.manifest.get(NO_PROXY) as ManifestSchema
+    const manifest = volumeticMutables[entity].manifest as ManifestSchema
+    const material = volumeticMutables[entity].material!
 
     textureTypes.forEach((textureType) => {
       const textureInfo = component.texture[textureType].get(NO_PROXY)
       const targetData = manifest.texture[textureType]!.targets
+      const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
-      if (textureInfo) {
+      if (textureInfo && textureBufferInfo) {
         NewVolumetricComponent.adjustTextureTarget(entity, textureType)
         deleteUsedTextureBuffers({
-          textureBuffer: textureBuffer.current,
+          textureBuffer: textureBufferInfo.buffer,
           currentTimeInMS: currentTimeInMS - 500,
-          bufferData: textureInfo.bufferData,
+          bufferData: textureBufferInfo.bufferData,
           textureType,
           targetData
         })
 
         const targets = textureInfo.targets
         const preferredTarget = textureInfo.targets[textureInfo.currentTarget]
-
         const result = getTexture({
-          textureBuffer: textureBuffer.current,
+          textureBuffer: textureBufferInfo.buffer,
           currentTimeInMS,
           preferredTarget,
           targets,
@@ -1048,30 +1045,30 @@ function NewVolumetricComponentReactor() {
 
         if (!result) {
           console.warn(`Texture frame not found at time: ${currentTimeInMS / 1000}`)
-          console.log(textureBuffer.current, textureInfo)
+          console.log(textureBufferInfo.buffer, textureInfo)
           return
         }
         const textureKey = textureTypeToUniformKey[textureType]
         const tranformKey = `${textureKey}Transform`
 
-        if (mesh.current!.material.uniforms[textureKey].value !== result.texture) {
+        if (material.uniforms[textureKey].value !== result.texture) {
           result.texture.repeat.set(repeat.current.x, repeat.current.y)
           result.texture.offset.set(offset.current.x, offset.current.y)
           result.texture.updateMatrix()
           result.texture.matrixAutoUpdate = false
-          if (textureKey in mesh.current!.material.uniforms) {
-            mesh.current!.material.uniforms[textureKey].value = result.texture
+          if (textureKey in material.uniforms) {
+            material.uniforms[textureKey].value = result.texture
           } else {
-            mesh.current!.material.uniforms[textureKey] = {
+            material.uniforms[textureKey] = {
               value: result.texture
             }
           }
-          mesh.current!.material.uniforms[textureKey].value.needsUpdate = true
+          material.uniforms[textureKey].value.needsUpdate = true
 
-          if (tranformKey in mesh.current!.material.uniforms) {
-            mesh.current!.material.uniforms[tranformKey].value.copy(result.texture.matrix)
+          if (tranformKey in material.uniforms) {
+            material.uniforms[tranformKey].value.copy(result.texture.matrix)
           } else {
-            mesh.current!.material.uniforms[tranformKey] = {
+            material.uniforms[tranformKey] = {
               value: result.texture.matrix
             }
           }
@@ -1082,7 +1079,7 @@ function NewVolumetricComponentReactor() {
 
   const updateBufferedUntil = (currentTimeInMS: number) => {
     let bufferedUntil = Number.MAX_VALUE
-    const geometryBufferData = component.geometry.bufferData.get(NO_PROXY)
+    const geometryBufferData = volumeticMutables[entity].geometryBufferData
     bufferedUntil = Math.min(
       bufferedUntil,
       geometryBufferData.getBufferedUntil((currentTimeInMS * TIME_UNIT_MULTIPLIER) / 1000)
@@ -1092,8 +1089,9 @@ function NewVolumetricComponentReactor() {
       const textureTypes = component.textureInfo.textureTypes.value
       for (const textureType of textureTypes) {
         const textureInfo = component.texture[textureType].get(NO_PROXY)
-        if (textureInfo) {
-          const textureBufferData = textureInfo.bufferData
+        const textureBufferInfo = volumeticMutables[entity].texture[textureType]
+        if (textureInfo && textureBufferInfo) {
+          const textureBufferData = textureBufferInfo.bufferData
           bufferedUntil = Math.min(
             bufferedUntil,
             textureBufferData.getBufferedUntil((currentTimeInMS * TIME_UNIT_MULTIPLIER) / 1000)

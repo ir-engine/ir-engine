@@ -329,6 +329,21 @@ export default class BufferData {
 
   public getNextMissing(currentTime: number) {
     let current = currentTime
+    if (this.bufferedRange.length === 0 && this.pendingRange.length === 0) {
+      return current
+    } else if (this.bufferedRange.length === 0) {
+      const pendingLb = this.lowerBound(this.pendingRange, current, 'startTime')
+      if (pendingLb === -1) {
+        return current
+      }
+      return this.pendingRange[pendingLb].endTime
+    } else if (this.pendingRange.length === 0) {
+      const bufferedLb = this.lowerBound(this.bufferedRange, current, 'startTime')
+      if (bufferedLb === -1) {
+        return current
+      }
+      return this.bufferedRange[bufferedLb].endTime
+    }
 
     // eslint-disable-next-line no-constant-condition
     while (true) {

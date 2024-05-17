@@ -162,6 +162,16 @@ export const fetchGeometry = ({
 
   if (endFrame < startFrame) return
 
+  // console.log('fetchGeometry: ', {
+  //   currentTime: currentTimeInMS / 1000,
+  //   startFrame,
+  //   nextMissing: nextMissing / TIME_UNIT_MULTIPLIER,
+  //   geometryType,
+  //   frameCount,
+  //   endFrame,
+  //   bufferData
+  // })
+
   if (!geometryBuffer.has(target)) {
     geometryBuffer.set(target, [])
   }
@@ -282,6 +292,7 @@ export const fetchGeometry = ({
 
       loadGLTF(resourceURL)
         .then((currentFrameData) => {
+          console.log('Uniform Solve Frame: ', currentFrameData)
           const positionMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
             .position as InterleavedBufferAttribute[]
           const normalMorphAttributes = currentFrameData.mesh.geometry.morphAttributes
@@ -462,7 +473,7 @@ export const deleteUsedGeometryBuffers = ({
 
 interface fetchTextureProps extends fetchProps {
   textureType: TextureType
-  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  textureBuffer: Map<string, CompressedTexture[]>
   textureFormat: TextureFormat
   initialBufferLoaded: State<boolean>
   startTimeInMS: number
@@ -512,14 +523,10 @@ export const fetchTextures = ({
 
   if (endFrame < startFrame) return
 
-  if (!textureBuffer.has(textureType)) {
-    textureBuffer.set(textureType, new Map<string, CompressedTexture[]>())
+  if (!textureBuffer.has(target)) {
+    textureBuffer.set(target, [])
   }
-  const textureTypeCollection = textureBuffer.get(textureType)!
-  if (!textureTypeCollection.has(target)) {
-    textureTypeCollection.set(target, [])
-  }
-  const collection = textureTypeCollection.get(target)!
+  const collection = textureBuffer.get(target)!
 
   for (let currentFrame = startFrame; currentFrame <= endFrame; currentFrame++) {
     const _currentFrame = currentFrame
@@ -571,7 +578,7 @@ export const fetchTextures = ({
 interface deleteUsedTextureBuffersProps {
   currentTimeInMS: number
   bufferData?: BufferDataContainer
-  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  textureBuffer: Map<string, CompressedTexture[]>
   targetData?: Record<string, TextureTarget>
   textureType: TextureType
   clearAll?: boolean
@@ -585,11 +592,7 @@ export const deleteUsedTextureBuffers = ({
   targetData,
   clearAll = false
 }: deleteUsedTextureBuffersProps) => {
-  const textureTypeCollection = textureBuffer.get(textureType)
-  if (!textureTypeCollection) {
-    return
-  }
-  for (const [target, collection] of textureTypeCollection) {
+  for (const [target, collection] of textureBuffer) {
     if (!collection || !targetData || !targetData[target]) {
       continue
     }

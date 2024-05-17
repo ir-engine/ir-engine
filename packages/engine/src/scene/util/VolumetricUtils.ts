@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine, getComponent } from '@etherealengine/ecs'
-import { State, getState } from '@etherealengine/hyperflux'
+import { ImmutableArray, State, getState } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
@@ -263,7 +263,7 @@ export const createMaterial = (
   geometryType: GeometryType,
   useVideoTexture: boolean,
   hasNormals: boolean,
-  textureTypes: TextureType[],
+  textureTypes: ImmutableArray<TextureType>,
   overrideMaterialProperties?: MeshStandardMaterialParameters
 ) => {
   const DEFINES: Record<TextureType, object> = {
@@ -291,7 +291,7 @@ export const createMaterial = (
     }
   }
 
-  const getShaderDefines = (textureTypes: TextureType[], useVideoTexture: boolean) => {
+  const getShaderDefines = (textureTypes: ImmutableArray<TextureType>, useVideoTexture: boolean) => {
     const defines = {}
     textureTypes.forEach((type) => {
       if (DEFINES[type]) {
@@ -613,10 +613,10 @@ export const getGeometry = ({
 }
 
 interface GetTextureProps {
-  textureBuffer: Map<string, Map<string, CompressedTexture[]>>
+  textureBuffer: Map<string, CompressedTexture[]>
   currentTimeInMS: number
   preferredTarget: string
-  targets: string[]
+  targets: ImmutableArray<string>
   targetData: Record<string, KTX2TextureTarget | ASTCTextureTarget>
   textureType: TextureType
 }
@@ -626,17 +626,11 @@ export const getTexture = ({
   currentTimeInMS,
   preferredTarget,
   targets,
-  targetData,
-  textureType
+  targetData
 }: GetTextureProps) => {
-  if (!textureBuffer.has(textureType)) {
-    return false
-  }
-  const textureTypeCollection = textureBuffer.get(textureType)!
-
-  if (textureTypeCollection.has(preferredTarget)) {
+  if (textureBuffer.has(preferredTarget)) {
     const preferredTargetIndex = Math.round((currentTimeInMS * targetData[preferredTarget].frameRate) / 1000)
-    const collection = textureTypeCollection.get(preferredTarget)!
+    const collection = textureBuffer.get(preferredTarget)!
     const texture = collection[preferredTargetIndex]
     if (texture) {
       return {
@@ -648,9 +642,9 @@ export const getTexture = ({
   }
 
   for (const target of targets) {
-    if (textureTypeCollection.has(target)) {
+    if (textureBuffer.has(target)) {
       const index = Math.round((currentTimeInMS * targetData[target].frameRate) / 1000)
-      const collection = textureTypeCollection.get(target)!
+      const collection = textureBuffer.get(target)!
       const texture = collection[index]
       if (texture) {
         return {

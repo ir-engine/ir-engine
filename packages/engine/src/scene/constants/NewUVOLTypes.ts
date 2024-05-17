@@ -27,7 +27,6 @@ import { ComponentType } from '@etherealengine/ecs'
 import { State } from '@etherealengine/hyperflux'
 import { InterleavedBufferAttribute, NormalMapTypes } from 'three'
 import { NewVolumetricComponent } from '../components/NewVolumetricComponent'
-import BufferDataContainer from '../util/BufferDataContainer'
 
 export interface FrameData {
   frameNumber: number
@@ -433,8 +432,7 @@ export const FORMAT_TO_EXTENSION: Record<AudioFileFormat | GeometryFormat | Text
 }
 
 export type Pretrackbufferingcallback = (component: State<ComponentType<typeof NewVolumetricComponent>>) => void
-export interface BufferInfo {
-  bufferData: BufferDataContainer
+export interface FrameTargetInfo {
   initialBufferLoaded: boolean
   firstFrameLoaded: boolean
   targets: string[]
