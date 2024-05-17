@@ -248,8 +248,12 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     })
   }
 }
-const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
-  const parentEntity = getState(EditorState).rootEntity
+const overwriteLookdevObject = (
+  beforeComponentJson: ComponentJsonType[] = [],
+  componentJson: ComponentJsonType[] = [],
+  parentEntity = getState(EditorState).rootEntity,
+  beforeEntity?: Entity
+) => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
@@ -258,8 +262,6 @@ const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
     const name = 'Lookdev Object'
     if (getState(GLTFSourceState)[sceneID]) {
       const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-      const nodeIndex = gltf.data.nodes!.length
-      const sceneIndex = 0
       const extensions = {} as Record<string, any>
       for (const comp of componentJson) {
         extensions[comp.name] = {
@@ -267,13 +269,6 @@ const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
           ...comp.props
         }
       }
-      if (!extensions[UUIDComponent.jsonID]) {
-        extensions[UUIDComponent.jsonID] = entityUUID
-      }
-      if (!extensions[VisibleComponent.jsonID]) {
-        extensions[VisibleComponent.jsonID] = true
-      }
-
       //check lookdev entity
       const lookDevComponent: Component[] = [
         SkyboxComponent,
@@ -282,20 +277,24 @@ const overwriteLookdevObject = (componentJson: ComponentJsonType[] = []) => {
         PostProcessingComponent,
         PrimitiveGeometryComponent //this component is for test will remove later
       ]
+      let overwrited = false
       for (const comp of lookDevComponent) {
         if (extensions[comp.jsonID as string]) {
           const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID as string] !== undefined) as number
           if (typeof index === 'number' && index > -1) {
             if (gltf.data.nodes !== undefined) {
               gltf.data.nodes[index].extensions![comp.jsonID as string] = extensions[comp.jsonID as string]
+              overwrited = true
             }
           }
         }
       }
-      const t = gltf.data.nodes!.length
-      gltf.data.scenes![sceneIndex].nodes.splice(gltf.data.nodes!.length - 1, 1)
-      gltf.data.nodes!.splice(gltf.data.nodes!.length - 1, 1)
-      dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+      if (!overwrited) {
+        //if no lookdev object found then create new object
+        createObjectFromSceneElement(beforeComponentJson, parentEntity, beforeEntity)
+      } else {
+        dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+      }
     }
   }
 }
