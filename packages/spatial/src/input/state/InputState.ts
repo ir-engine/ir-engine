@@ -36,7 +36,5 @@ export const InputState = defineState({
     scroll: new Vector2(),
     capturingEntity: UndefinedEntity
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(InputState, ['preferredHand'])
-  }
+  extension: syncStateWithLocalStorage(['preferredHand'])
 })

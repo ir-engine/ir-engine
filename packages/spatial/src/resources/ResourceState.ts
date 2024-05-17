@@ -633,7 +633,7 @@ const removeResource = (id: string) => {
   ResourceState.debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
   Cache.remove(id)
 
-  const asset = resource.asset.get(NO_PROXY)
+  const asset = resource.asset.get(NO_PROXY) as ResourceAssetType
   if (asset) {
     resourceCallbacks[resource.type.value].onUnload(asset, resource, resourceState)
   }

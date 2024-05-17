@@ -101,7 +101,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       .filter(Boolean)
       .map((prop) => ({ [prop]: state[prop].value }))
 
-    const oauth = { ...authSetting.oauth, ...keySecret.value }
+    const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
     for (const key of Object.keys(oauth)) {
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))

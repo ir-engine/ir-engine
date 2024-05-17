@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 import BusinessIcon from '@mui/icons-material/Business'
@@ -62,8 +62,8 @@ const rotationSnapOptions = [
 const TransformSnapTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const objectSnapState = useHookstate(getMutableState(ObjectGridSnapState))
+  const editorHelperState = useMutableState(EditorHelperState)
+  const objectSnapState = useMutableState(ObjectGridSnapState)
   const onChangeTranslationSnap = (snapValue: number) => {
     getMutableState(EditorHelperState).translationSnap.set(snapValue)
     if (editorHelperState.gridSnap.value !== SnapMode.Grid) {

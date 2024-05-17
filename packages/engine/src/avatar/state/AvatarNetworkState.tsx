@@ -28,7 +28,14 @@ import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { EntityUUID, UUIDComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineState, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Paginated } from '@feathersjs/feathers'
@@ -89,7 +96,7 @@ export const AvatarState = defineState({
   },
 
   reactor: () => {
-    const avatarState = useHookstate(getMutableState(AvatarState))
+    const avatarState = useMutableState(AvatarState)
     return (
       <>
         {avatarState.keys.map((entityUUID: EntityUUID) => (

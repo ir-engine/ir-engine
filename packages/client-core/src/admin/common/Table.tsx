@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactNode, useEffect } from 'react'
 import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { FeathersOrder, useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
@@ -38,7 +38,6 @@ import Table, {
   TableRow
 } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
 import { useTranslation } from 'react-i18next'
 
 export interface ITableHeadCell {

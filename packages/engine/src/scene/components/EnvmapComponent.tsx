@@ -200,7 +200,7 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!component.envmap.value) return
-      updateEnvMap(mesh, component.envmap.value)
+      updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
     useEffect(() => {
@@ -233,7 +233,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
     if (!texture) return
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value as Object3D[])
   }, [envMaptexture, uuid])
 
   useEffect(() => {

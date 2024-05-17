@@ -86,7 +86,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions.value}
+          options={animationOptions.value as { label: string; value: number }[]}
           value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />

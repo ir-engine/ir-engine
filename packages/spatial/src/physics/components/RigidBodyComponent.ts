@@ -124,7 +124,7 @@ export const RigidBodyComponent = defineComponent({
     }, [component.allowRolling])
 
     useLayoutEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value)
+      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations])
 
     return null

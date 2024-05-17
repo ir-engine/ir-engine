@@ -28,6 +28,7 @@ import { defineComponent, useComponent } from '@etherealengine/ecs/src/Component
 import { matches } from '@etherealengine/hyperflux'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { useEffect } from 'react'
+import { Object3D } from 'three'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
@@ -60,8 +61,9 @@ export const ShadowComponent = defineComponent({
 
     useEffect(() => {
       for (const obj of groupComponent.value) {
-        obj.castShadow = shadowComponent.cast.value
-        obj.receiveShadow = shadowComponent.receive.value
+        const object = obj as Object3D
+        object.castShadow = shadowComponent.cast.value
+        object.receiveShadow = shadowComponent.receive.value
       }
     }, [groupComponent, shadowComponent.cast, shadowComponent.receive])
 

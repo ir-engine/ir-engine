@@ -182,7 +182,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
 
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   setComponent(entity, NameComponent, name)
-  materialComponent.material.value.name = name
+  ;(materialComponent.material.value as Material).name = name
   materialByHash[newHash] = getComponent(entity, UUIDComponent)
   materialByName[name] = getComponent(entity, UUIDComponent)
 }

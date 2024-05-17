@@ -44,7 +44,14 @@ import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  getState,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -128,11 +135,11 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
   const sceneLoaded = loadingProgress === 100
-  const locationState = useHookstate(getMutableState(LocationState))
-  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const locationState = useMutableState(LocationState)
+  const state = useMutableState(LoadingUISystemState)
 
   useEffect(() => {
-    getState(LoadingUISystemState).ui.state.progress.set(loadingProgress)
+    state.ui.get(NO_PROXY).state.progress.set(loadingProgress)
   }, [loadingProgress])
 
   /** Scene is loading */
@@ -191,7 +198,7 @@ const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsChildReactor = (props: { entity: Entity }) => {
-  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const state = useMutableState(LoadingUISystemState)
   const meshEntity = state.meshEntity.value
 
   const sceneComponent = useComponent(props.entity, SceneSettingsComponent)
@@ -315,14 +322,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const themeState = useHookstate(getMutableState(AppThemeState))
+  const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
   const sceneEntity = GLTFAssetState.useScene(locationSceneID)
-  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
+  const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {
     const theme = getAppTheme()

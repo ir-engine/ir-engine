@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
@@ -36,7 +36,7 @@ import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 import styles from './index.module.scss'
 
 export const UserMenu = () => {
-  const popupMenuState = useHookstate(getMutableState(PopupMenuState))
+  const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
   const hotbarItems = popupMenu.hotbar
