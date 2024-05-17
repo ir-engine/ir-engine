@@ -23,39 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailDataValidator } from '@etherealengine/common/src/schemas/user/email.schema'
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
-import refreshApiPods from '../../hooks/refresh-api-pods'
+import type { Knex } from 'knex'
 
-export default {
-  before: {
-    all: [disallow('external')],
-    find: [],
-    get: [],
-    create: [() => schemaHooks.validateData(emailDataValidator)],
-    update: [],
-    patch: [],
-    remove: []
-  },
+import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [refreshApiPods],
-    remove: []
-  },
+import { LINKEDIN_SCOPES } from '../authentication-setting.seed'
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const authSettings = await knex.table(authenticationSettingPath).first()
+
+  if (authSettings) {
+    const oauthSettings = JSON.parse(authSettings.oauth)
+    oauthSettings.linkedin.scope = LINKEDIN_SCOPES
+
+    await knex.table(authenticationSettingPath).update({
+      oauth: JSON.stringify(oauthSettings)
+    })
   }
-} as any
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
