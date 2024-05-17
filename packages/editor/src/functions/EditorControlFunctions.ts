@@ -908,9 +908,10 @@ const removeObject = (entities: Entity[]) => {
             gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
           } else {
             const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
-            if (!currentParentNode) continue
-            const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
-            currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            if (currentParentNode) {
+              const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
+              currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            }
           }
 
           // update all node indices in parents
@@ -920,6 +921,7 @@ const removeObject = (entities: Entity[]) => {
             const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
             if (childRootIndex > -1) {
               gltf.data.scenes![0].nodes[childRootIndex]--
+              continue
             }
             const parentNode = getParentNodeByUUID(gltf.data, uuid)
             if (!parentNode) continue

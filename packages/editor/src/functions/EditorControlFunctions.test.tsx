@@ -779,9 +779,9 @@ describe('EditorControlFunctions', () => {
 
   describe('groupObjects', () => {
     it('should group objects without affecting existing hierarchy relationships', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = 'nodeUUID' as EntityUUID
+      const node2UUID = 'node2UUID' as EntityUUID
+      const childUUID = 'childUUID' as EntityUUID
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -839,15 +839,16 @@ describe('EditorControlFunctions', () => {
 
   describe('removeObject', () => {
     it('should remove an object and children from the scene', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = 'nodeUUID' as EntityUUID
+      const node2UUID = 'node2UUID' as EntityUUID
+      const node3UUID = 'node3UUID' as EntityUUID
+      const childUUID = 'childUUID' as EntityUUID
 
       const gltf: GLTF.IGLTF = {
         asset: {
           version: '2.0'
         },
-        scenes: [{ nodes: [0, 1] }],
+        scenes: [{ nodes: [0, 1, 3] }],
         scene: 0,
         nodes: [
           {
@@ -868,6 +869,12 @@ describe('EditorControlFunctions', () => {
             extensions: {
               [UUIDComponent.jsonID]: childUUID
             }
+          },
+          {
+            name: 'node3',
+            extensions: {
+              [UUIDComponent.jsonID]: node3UUID
+            }
           }
         ]
       }
@@ -886,8 +893,10 @@ describe('EditorControlFunctions', () => {
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes.length, 1)
+      assert.equal(newSnapshot.scenes![0].nodes![1], 1)
+      assert.equal(newSnapshot.scenes![0].nodes.length, 2)
       assert.equal(newSnapshot.nodes![0].name, 'node2')
+      assert.equal(newSnapshot.nodes![1].name, 'node3')
     })
   })
 })
