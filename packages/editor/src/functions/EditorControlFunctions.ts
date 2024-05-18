@@ -53,6 +53,7 @@ import { VisibleComponent } from '@etherealengine/spatial/src/renderer/component
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
+  filterParentEntities,
   findCommonAncestors,
   iterateEntityNode,
   traverseEntityNode
@@ -64,7 +65,6 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { filterParentEntities } from './filterParentEntities'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -356,7 +356,7 @@ const createObjectFromSceneElement = (
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
+          if (typeof beforeNodeIndex === 'number' && beforeNodeIndex > -1) {
             beforeIndex = gltf.data.scenes![sceneIndex].nodes.indexOf(beforeNodeIndex)
           }
         }
@@ -371,7 +371,7 @@ const createObjectFromSceneElement = (
         if (typeof beforeEntity === 'number') {
           const beforeUUID = getComponent(beforeEntity, UUIDComponent)
           const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
-          if (beforeNodeIndex && beforeNodeIndex > -1) {
+          if (typeof beforeNodeIndex == 'number' && beforeNodeIndex > -1) {
             beforeIndex = parentNode.children.indexOf(beforeNodeIndex)
           }
         }
@@ -669,6 +669,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           if (!currentParentNode) continue
           const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
           currentParentNode.children!.splice(currentParentNodeIndex, 1)
+          if (!currentParentNode.children?.length) delete currentParentNode.children
         }
 
         // Ensure the entity Transform remains unmodified when reparented
@@ -907,9 +908,10 @@ const removeObject = (entities: Entity[]) => {
             gltf.data.scenes![0].nodes.splice(gltf.data.scenes![0].nodes.indexOf(oldNodeIndex), 1)
           } else {
             const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
-            if (!currentParentNode) continue
-            const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
-            currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            if (currentParentNode) {
+              const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
+              currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            }
           }
 
           // update all node indices in parents
@@ -919,6 +921,7 @@ const removeObject = (entities: Entity[]) => {
             const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
             if (childRootIndex > -1) {
               gltf.data.scenes![0].nodes[childRootIndex]--
+              continue
             }
             const parentNode = getParentNodeByUUID(gltf.data, uuid)
             if (!parentNode) continue
