@@ -67,7 +67,6 @@ import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { SourceComponent } from '../scene/components/SourceComponent'
-import { getGLTFSnapshot } from '../scene/functions/GLTFConversion'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -153,7 +152,9 @@ export const GLTFSnapshotState = defineState({
         return
       }
       state.index.set(state.index.value + 1)
-      state.snapshots.merge([data])
+      const snapshots = getState(GLTFSnapshotState)[action.source].snapshots
+      // override whatever snapshots have been undone
+      state.snapshots.set([...snapshots.splice(0, state.index.value), data])
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
@@ -209,7 +210,7 @@ export const GLTFSnapshotState = defineState({
   },
 
   injectSnapshot: (srcNode: EntityUUID, srcSnapshotID: string, dstNode: EntityUUID, dstSnapshotID: string) => {
-    const snapshot = getGLTFSnapshot(srcSnapshotID)
+    const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(srcSnapshotID)
     const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(dstSnapshotID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
