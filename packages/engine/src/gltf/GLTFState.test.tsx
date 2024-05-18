@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID, UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -469,5 +469,182 @@ describe('GLTFState', () => {
 
     assert.equal(parentEntityTree.parentEntity, gltfEntity)
     assert.equal(childEntityTree.parentEntity, parent)
+  })
+
+  it('should be able to undo a snapshot', () => {
+    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [UUIDComponent.jsonID]: nodeUUID
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+    const newSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    newSnapshot.data.nodes![0].name = 'newName'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
+    applyIncomingActions()
+
+    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'newName')
+
+    const currentSnapshot = getState(GLTFSnapshotState)[sceneID]
+    assert.equal(currentSnapshot.index, 1)
+    assert.equal(currentSnapshot.snapshots.length, 2)
+
+    dispatchAction(GLTFSnapshotAction.undo({ source: sceneID, count: 1 }))
+    applyIncomingActions()
+
+    const undoneSnapshot = getState(GLTFSnapshotState)[sceneID]
+
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'node')
+    assert.equal(undoneSnapshot.index, 0)
+    assert.equal(undoneSnapshot.snapshots.length, 2)
+  })
+
+  it('should be able to redo a snapshot', () => {
+    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [UUIDComponent.jsonID]: nodeUUID
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+    const newSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    newSnapshot.data.nodes![0].name = 'newName'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
+    applyIncomingActions()
+
+    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'newName')
+
+    dispatchAction(GLTFSnapshotAction.undo({ source: sceneID, count: 1 }))
+    applyIncomingActions()
+
+    const undoneSnapshot = getState(GLTFSnapshotState)[sceneID]
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'node')
+
+    assert.equal(undoneSnapshot.index, 0)
+    assert.equal(undoneSnapshot.snapshots.length, 2)
+
+    dispatchAction(GLTFSnapshotAction.redo({ source: sceneID, count: 1 }))
+    applyIncomingActions()
+
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'newName')
+
+    const redoneSnapshot = getState(GLTFSnapshotState)[sceneID]
+    assert.equal(redoneSnapshot.index, 1)
+    assert.equal(redoneSnapshot.snapshots.length, 2)
+  })
+
+  it('should be able to undo multiple times and override with a new snapshot', () => {
+    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [UUIDComponent.jsonID]: nodeUUID
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+    const newSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+
+    newSnapshot.data.nodes![0].name = 'newName'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot))
+    applyIncomingActions()
+
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 1)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 2)
+
+    const newSnapshot2 = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    newSnapshot2.data.nodes![0].name = 'newName2'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot2))
+    applyIncomingActions()
+
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 2)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 3)
+
+    const newSnapshot3 = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    newSnapshot3.data.nodes![0].name = 'newName3'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(newSnapshot3))
+    applyIncomingActions()
+
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 3)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 4)
+
+    dispatchAction(GLTFSnapshotAction.undo({ source: sceneID, count: 1 }))
+    applyIncomingActions()
+
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 2)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 4)
+
+    dispatchAction(GLTFSnapshotAction.undo({ source: sceneID, count: 1 }))
+    applyIncomingActions()
+
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 1)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 4)
+
+    const divergedSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    divergedSnapshot.data.nodes![0].name = 'something else'
+    dispatchAction(GLTFSnapshotAction.createSnapshot(divergedSnapshot))
+    applyIncomingActions()
+
+    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+    assert.equal(getComponent(nodeEntity!, NameComponent), 'something else')
+    assert.equal(getState(GLTFSnapshotState)[sceneID].index, 2)
+    assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 3)
   })
 })
