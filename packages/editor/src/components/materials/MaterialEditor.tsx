@@ -159,6 +159,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const pluginEntity = pluginByName[selectedPlugin.value]
   const pluginState = useOptionalComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
   const pluginParameters = useHookstate({})
+  const pluginValues = useHookstate({})
   useEffect(() => {
     const uniformParameters = pluginState?.parameters?.value
     const pluginParameterValues = {}
@@ -183,6 +184,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
     pluginParameters.set(formatMaterialArgs(pluginParameterValues))
     console.log(pluginParameters.value)
+
+    if (!pluginState?.parameters.value || !pluginState.parameters[materialName.value].value) return
+    for (const key in pluginState.parameters[materialName.value].value) {
+      pluginValues[key].set(pluginState.parameters[materialName.value].value[key].value)
+    }
   }, [pluginState?.parameters, materialName])
 
   return (
@@ -281,8 +287,12 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <div className={styles.contentContainer}>
         <ParameterInput
           entity={props.materialUUID}
-          values={materialComponent.parameters.value ?? {}}
-          onChange={(k) => (val) => {}}
+          values={pluginValues.value}
+          onChange={(k) => (val) => {
+            getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters![materialName.value][
+              k
+            ].value = val
+          }}
           defaults={pluginParameters.value}
         />
         <Button
