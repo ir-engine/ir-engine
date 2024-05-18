@@ -40,6 +40,7 @@ import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFuncti
 import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { TransformComponent } from './TransformComponent'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -549,4 +550,50 @@ export function traverseEarlyOut(entity: Entity, cb: (entity: Entity) => boolean
   }
 
   return stopTravel
+}
+
+/**
+ * Filters the parent entities from the given entity list.
+ * In a given entity list, suppose 2 entities has parent child relation (can be any level deep) then this function will
+ * filter out the child entity.
+ * @param nodeList List of entities to find parents from
+ * @param parentNodeList Resulter parent list
+ * @param filterUnremovable Whether to filter unremovable entities
+ * @param filterUntransformable Whether to filter untransformable entities
+ * @returns List of parent entities
+ */
+export const filterParentEntities = (
+  rootEntity: Entity,
+  entityList: Entity[],
+  parentEntityList: Entity[] = [],
+  filterUnremovable = true,
+  filterUntransformable = true
+): Entity[] => {
+  parentEntityList.length = 0
+
+  // Recursively find the nodes in the tree with the lowest depth
+  const traverseParentOnly = (entity: Entity) => {
+    if (!entity) return
+
+    const node = getComponent(entity, EntityTreeComponent)
+
+    if (
+      entityList.includes(entity) &&
+      !(filterUnremovable && !node.parentEntity) &&
+      !(filterUntransformable && !hasComponent(entity, TransformComponent))
+    ) {
+      parentEntityList.push(entity)
+      return
+    }
+
+    if (node.children) {
+      for (let i = 0; i < node.children.length; i++) {
+        traverseParentOnly(node.children[i])
+      }
+    }
+  }
+
+  traverseParentOnly(rootEntity)
+
+  return parentEntityList
 }
