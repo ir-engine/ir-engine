@@ -35,56 +35,54 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 /* Dynamic Menu - Experimental */
-export const middlewareSettingMenu = JSON.stringify([
-  {
-    Dynamic0: [
-      {
-        component: 'MiddlewareToggle',
-        label: 'Dyn Toggle 0',
-        value: true,
-        action: 'mwHandleToggle'
-      },
-      {
-        component: 'MiddlewareSelect',
-        label: 'Dyn Select 0',
-        value: ['opt0', 'opt1', 'opt2'],
-        action: 'mwHandleSelect'
-      },
-      {
-        component: 'MiddlewareTextarea',
-        label: 'Textarea Label 0',
-        value: 'Default Value',
-        action: 'mwHandleTextarea'
-      },
-      {
-        component: 'MiddlewareInput',
-        label: 'Dyn Label 0',
-        value: 'Default Value',
-        action: 'mwHandleChange'
-      },
-      {
-        component: 'MiddlewareInput',
-        label: 'Dyn Label 1',
-        value: 'Default Value',
-        action: 'mwHandleChange'
-      }
-    ],
-    Dynamic1: [
-      {
-        component: 'MiddlewareInput',
-        label: 'Dyn Label 2',
-        value: 'Default Value',
-        action: 'mwHandleChange'
-      },
-      {
-        component: 'MiddlewareInput',
-        label: 'Dyn Label 3',
-        value: 'Default Value',
-        action: 'mwHandleChange'
-      }
-    ]
-  }
-])
+export const middlewareSettingMenu = JSON.stringify({
+  Dynamic0: [
+    {
+      component: 'MiddlewareToggle',
+      label: 'Dyn Toggle 0',
+      value: true,
+      action: 'mwHandleToggle'
+    },
+    {
+      component: 'MiddlewareSelect',
+      label: 'Dyn Select 0',
+      value: ['opt0', 'opt1', 'opt2'],
+      action: 'mwHandleSelect'
+    },
+    {
+      component: 'MiddlewareTextarea',
+      label: 'Textarea Label 0',
+      value: 'Default Value',
+      action: 'mwHandleTextarea'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 0',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 1',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    }
+  ],
+  Dynamic1: [
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 2',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 3',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    }
+  ]
+})
 /* Dynamic Menu - Experimental */
 
 export const middlewareSettingSeedData = {

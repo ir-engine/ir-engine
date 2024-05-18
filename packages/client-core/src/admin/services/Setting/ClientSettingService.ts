@@ -36,8 +36,6 @@ import waitForClientAuthenticated from '../../../util/wait-for-client-authentica
 
 const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })
 
-console.log('##### ClientSettingService')
-
 export const AdminClientSettingsState = defineState({
   name: 'AdminClientSettingsState',
   initial: () => ({

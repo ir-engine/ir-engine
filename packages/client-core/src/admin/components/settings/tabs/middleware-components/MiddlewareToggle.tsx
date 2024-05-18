@@ -29,7 +29,7 @@ import React from 'react'
 interface MiddlewareToggleProps {
   mwLabel: string
   mwDefaultValue: boolean
-  mwOnAction: (value: string) => void
+  mwOnAction: (inputLabel: string) => void
 }
 
 const MiddlewareToggle: React.FC<MiddlewareToggleProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {

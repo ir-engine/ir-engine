@@ -29,9 +29,7 @@ import React from 'react'
 interface MiddlewareSelectProps {
   mwLabel: string
   mwDefaultValue: string[]
-  mwOnAction: (value: string, label: string) => void
-  // mwOnAction: (value: React.ChangeEvent<HTMLInputElement>, label: string) => void
-  // mwOnAction: (value: string) => void
+  mwOnAction: (inputValue: string, inputLabel: string) => void
 }
 
 const MiddlewareSelect: React.FC<MiddlewareSelectProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {
@@ -41,19 +39,9 @@ const MiddlewareSelect: React.FC<MiddlewareSelectProps> = ({ mwLabel, mwDefaultV
       label={mwLabel}
       options={mwDefaultValue.map((value) => ({ label: value, value }))}
       currentValue={mwDefaultValue[0]}
-      onChange={(value) => mwOnAction(value, mwLabel)}
+      onChange={(inputValue) => mwOnAction(inputValue, mwLabel)}
     />
   )
 }
 
-//...
-
 export default MiddlewareSelect
-
-// <Select
-//   options={projectsMenu}
-//   currentValue={selectedProjectId.value}
-//   onChange={(value) => selectedProjectId.set(value)}
-//   label={t('admin:components.setting.project.header')}
-//   className="mb-8 mt-6 max-w-[50%]"
-// />

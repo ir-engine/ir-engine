@@ -37,8 +37,6 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { AuthState } from '../../../../user/services/AuthService'
 import { AdminClientSettingsState, ClientSettingService } from '../../../services/Setting/ClientSettingService'
 
-console.log('#### client')
-
 const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 

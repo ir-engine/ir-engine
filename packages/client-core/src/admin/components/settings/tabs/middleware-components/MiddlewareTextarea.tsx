@@ -28,7 +28,7 @@ import React from 'react'
 interface MiddlewareTextareaProps {
   mwLabel: string
   mwDefaultValue: string
-  mwOnAction: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
+  mwOnAction: (inputValue: string, inputLabel: string) => void
 }
 
 const MiddlewareTextarea: React.FC<MiddlewareTextareaProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => (
@@ -38,7 +38,7 @@ const MiddlewareTextarea: React.FC<MiddlewareTextareaProps> = ({ mwLabel, mwDefa
       className="resize-none overflow-auto rounded-lg border-2 p-2"
       style={{ height: '8em' }}
       defaultValue={mwDefaultValue || ''}
-      onChange={(e) => mwOnAction(e)}
+      onChange={(e) => mwOnAction(e.target.value, mwLabel)}
     />
   </div>
 )
