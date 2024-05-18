@@ -39,16 +39,13 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React from 'react'
@@ -215,10 +212,12 @@ function ModelReactor() {
       if (!uuid) return
       getMutableState(GLTFDocumentState)[uuid].set(none)
       getMutableState(GLTFSnapshotState)[uuid].set(none)
-      const children = getOptionalComponent(entity, EntityTreeComponent)?.children
-      if (!children) return
-      for (const child of children) {
-        removeEntityNodeRecursively(child)
+      // Do we need to check if the model has been dereferenced here?
+      for (const childUUID in loadedJsonHierarchy) {
+        const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
+        if (entity) {
+          removeEntity(entity)
+        }
       }
     }
   }, [modelComponent.scene])
@@ -235,6 +234,7 @@ function ModelReactor() {
     const parentSource = getComponent(parentEntity, SourceComponent)
     GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
   }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
+
   return null
 }
 
