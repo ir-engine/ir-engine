@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import fs from 'fs'
+import { promises as fsp } from 'fs'
 import path from 'path'
 
-import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { existsAsync, writeFileAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import logger from '../../ServerLogger'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache
@@ -53,9 +52,9 @@ export const download = async (projectName: string, storageProviderName?: string
     logger.info('[ProjectLoader]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)
-    if (fs.existsSync(localProjectDirectory)) {
+    if (await existsAsync(localProjectDirectory)) {
       logger.info('[Project temp debug]: fs exists, deleting')
-      deleteFolderRecursive(localProjectDirectory)
+      await fsp.rm(localProjectDirectory, { recursive: true })
     }
 
     await Promise.all(
@@ -66,7 +65,9 @@ export const download = async (projectName: string, storageProviderName?: string
           logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
           return
         }
-        writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
+        await writeFileAsync(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body, {
+          recursive: true
+        })
       })
     )
 

@@ -23,123 +23,137 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
+import { ObjectEncodingOptions, promises as fsp } from 'fs'
 import path from 'path'
+import logger from '../../../server-core/src/ServerLogger'
 
-export function writeFileSyncRecursive(filename, content, charset = undefined) {
-  // -- normalize path separator to '/' instead of path.sep,
-  // -- as / works in node for Windows as well, and mixed \\ and / can appear in the path
-  let filepath = filename.replace(/\\/g, '/')
-
-  // -- preparation to allow absolute paths as well
-  let root = ''
-  if (filepath[0] === '/') {
-    root = '/'
-    filepath = filepath.slice(1)
-  } else if (filepath[1] === ':') {
-    root = filepath.slice(0, 3) // c:\
-    filepath = filepath.slice(3)
+/**
+ * @function existsAsync
+ * @author Jonathan Casarrubias <jcasarrubias@theinfinitereality.com>
+ * @param path String
+ * @description Async file/directory access wrapper that will return
+ * true if the given path exists or false if doesn't exist, helpful
+ * for conditional expressions.
+ **/
+export async function existsAsync(path: string): Promise<boolean> {
+  try {
+    await fsp.access(path)
+    return true
+  } catch (e) {
+    return false
   }
-
-  // -- create folders all the way down
-  const folders = filepath.split('/').slice(0, -1) // remove last item, file
-  folders.reduce(
-    (acc, folder) => {
-      const folderPath = acc + folder + '/'
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath)
-      }
-      return folderPath
-    },
-    root // first 'acc', important
-  )
-
-  // -- write file
-  fs.writeFileSync(root + filepath, content, charset)
 }
-
-export function deleteFolderRecursive(path) {
-  let files: any[] = []
-  if (fs.existsSync(path)) {
-    files = fs.readdirSync(path)
-    files.forEach(function (file, index) {
-      const curPath = path + '/' + file
-      if (fs.lstatSync(curPath).isDirectory()) {
-        // recurse
-        deleteFolderRecursive(curPath)
+/**
+ * @author Jonathan Casarrubias <jcasarrubias@theinfinitereality.com>
+ * @function writeFileAsync
+ * @param filename String
+ * @param data String
+ * @param options Object {
+ *   charset    (Default: undefined)
+ *   recursive  (Default: Enabled)
+ *   overwrite  (Default: Enabled)
+ * }
+ **/
+export async function writeFileAsync(
+  filename,
+  data,
+  options: {
+    charset?: ObjectEncodingOptions
+    recursive?: boolean
+    overwrite?: boolean
+  } = {
+    charset: undefined,
+    recursive: true,
+    overwrite: true
+  }
+): Promise<void> {
+  // Parse for file directory
+  const { dir } = path.parse(filename)
+  // Create directory if doesn't exist
+  if (!(await existsAsync(dir))) await fsp.mkdir(dir, { recursive: options.recursive })
+  // overwrite file if exists
+  if ((await existsAsync(filename)) && options.overwrite) await fsp.rm(filename)
+  // Write file
+  await fsp.writeFile(filename, data, options.charset)
+}
+/**
+ * @author Jonathan Casarrubias <jcasarrubias@theinfinitereality.com>
+ * @function cpAsync
+ * @param source String
+ * @param destination String
+ * @param options Object {
+ *   recursive    (Default: Enabled)
+ *   overwrite    (Default: Enabled)
+ * }
+ * @description Asyncronous function to handle the copy of directories and files.
+ *
+ * Recursive: Enabling the "recursive" option will perform from 1 to 2 recursive behaviours based on the "Overwrite" given value:
+ *
+ *     1.- If "overwrite" is enabled and the destination is a directory, it will recursively delete any child directory or file
+ *         inside the destination directory.
+ *
+ *     2.- In any case, if "recursive" option is enabled, it will always recursively create any missing parent directory
+ *         needed for the destination to be successfully copied.
+ *
+ *
+ **/
+export async function cpAsync(
+  source,
+  destination,
+  options: {
+    recursive?: boolean
+    overwrite?: boolean
+  } = {
+    recursive: true,
+    overwrite: true
+  }
+): Promise<void> {
+  try {
+    // Verify if source is either a file or a directory
+    const isDirectory = (await fsp.stat(source)).isDirectory()
+    const isDestinationExisting: boolean = await existsAsync(destination)
+    const { recursive, overwrite } = options
+    // If overwrite is enabled, we are making sure in advance that the destination is cleared before trying to copy
+    // the resource
+    if (isDestinationExisting) {
+      if (overwrite) {
+        await fsp.rm(destination, { recursive })
       } else {
-        // delete file
-        fs.unlinkSync(curPath)
+        throw new Error(`[cpAsync]: Destination already exists (${destination}).
+        You might want to enable the overwrite option that gracefully handles pre existing files and directories.`)
       }
-    })
-    fs.rmdirSync(path)
+    }
+
+    if (isDirectory) {
+      await fsp.cp(source, destination, { recursive })
+    } else {
+      const { dir } = path.parse(destination)
+      if (!(await existsAsync(dir))) await fsp.mkdir(dir, { recursive })
+      await fsp.copyFile(source, destination)
+    }
+  } catch (e) {
+    logger.info(`[cpAsync]: handling promise rejections`)
+    logger.info(e)
   }
 }
 
-export function getFilesRecursive(path, includeDirs = false) {
+export async function getFilesRecursive(path, includeDirs = false) {
   const files: string[] = []
-  if (fs.existsSync(path)) {
-    const curFiles = fs.readdirSync(path)
-    curFiles.forEach(function (file, index) {
+  if (await existsAsync(path)) {
+    const curFiles = await fsp.readdir(path)
+
+    for (const file of files) {
       const curPath = path + '/' + file
-      if (fs.lstatSync(curPath).isDirectory()) {
+      if ((await fsp.lstat(curPath)).isDirectory()) {
         if (includeDirs) files.push(curPath)
-        files.push(...getFilesRecursive(curPath, includeDirs))
+        files.push(...(await getFilesRecursive(curPath, includeDirs)))
       } else {
         files.push(curPath)
       }
-    })
+    }
   }
   return files
 }
 
-export function copyFileSync(source, target) {
-  let targetFile = target
-
-  // If target is a directory, a new file with the same name will be created
-  if (fs.existsSync(target)) {
-    if (fs.lstatSync(target).isDirectory()) {
-      targetFile = path.join(target, path.basename(source))
-    }
-  }
-
-  const fileSize = fs.statSync(source)
-  if (fileSize.size > 1000000000) {
-    return new Promise((resolve, reject) => {
-      const readStream = fs.createReadStream(source)
-      const writeStream = fs.createWriteStream(targetFile)
-      readStream.pipe(writeStream)
-      writeStream.on('error', (err) => {
-        console.error('error copying file locally', err)
-        reject(err)
-      })
-      writeStream.on('finish', () => {
-        console.info('finished copying large file from ', source, 'to', targetFile)
-        resolve(true)
-      })
-    })
-  } else fs.writeFileSync(targetFile, fs.readFileSync(source))
-}
-
-export function copyFolderRecursiveSync(source, target) {
-  let files: any[] = []
-
-  // Check if folder needs to be created or integrated
-  const targetFolder = path.join(target, path.basename(source))
-  if (!fs.existsSync(targetFolder)) {
-    fs.mkdirSync(targetFolder, { recursive: true })
-  }
-
-  // Copy
-  if (fs.lstatSync(source).isDirectory()) {
-    files = fs.readdirSync(source)
-    files.forEach(function (file) {
-      const curSource = path.join(source, file)
-      if (fs.lstatSync(curSource).isDirectory()) {
-        copyFolderRecursiveSync(curSource, targetFolder)
-      } else {
-        copyFileSync(curSource, targetFolder)
-      }
-    })
-  }
-}
+// /home/joina/development/ir-projects/etherealengine/packages/projects/projects/default-project
+// /home/joina/development/ir-projects/etherealengine/packages/projects/default-project

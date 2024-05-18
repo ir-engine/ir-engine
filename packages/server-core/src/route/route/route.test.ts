@@ -26,15 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
-import fs from 'fs'
+import fs, { promises as fsp } from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { existsAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -42,8 +41,8 @@ const params = { isInternal: true } as any
 
 const cleanup = async (app: Application, projectName: string) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
-  deleteFolderRecursive(projectDir)
   try {
+    if (await existsAsync(projectDir)) await fsp.rm(projectDir, { recursive: true })
     await app.service(projectPath).remove(null, { query: { name: projectName } })
   } catch (e) {
     //

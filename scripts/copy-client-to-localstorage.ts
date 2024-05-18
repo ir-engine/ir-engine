@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import fs from 'fs'
+import fs, { promises as fsp } from 'fs'
 import path from 'path'
 
-import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { cpAsync, existsAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 
 cli.enable('status')
 
@@ -37,8 +37,9 @@ const options = cli.parse({})
 
 cli.main(async () => {
   try {
-    deleteFolderRecursive(path.join(appRootPath.path, 'packages/server/upload/client'))
-    copyFolderRecursiveSync(
+    const clientPath = path.join(appRootPath.path, 'packages/server/upload/client')
+    if (await existsAsync(clientPath)) await fsp.rm(clientPath, { recursive: true })
+    await cpAsync(
       path.join(appRootPath.path, 'packages/client/dist'),
       path.join(appRootPath.path, 'packages/server/upload')
     )

@@ -33,12 +33,13 @@ import { RestEndpointMethodTypes } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
-import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
+
+import fs, { promises as fsp } from 'fs'
 
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
@@ -64,11 +65,7 @@ import {
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import {
-  copyFolderRecursiveSync,
-  deleteFolderRecursive,
-  getFilesRecursive
-} from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { cpAsync, existsAsync, getFilesRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
@@ -1426,9 +1423,14 @@ export const createExecutorJob = async (
   })
 }
 
-export const copyDefaultProject = () => {
-  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
-  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
+export const copyDefaultProject = async () => {
+  const source = path.join(appRootPath.path, 'packages/projects/default-project')
+  const destination = path.join(projectsRootFolder, `default-project`)
+  try {
+    await cpAsync(source, destination)
+  } catch (e) {
+    logger.error('[copyDefaultProject]: Unable to copy default-project', e.msg)
+  }
 }
 
 export const getGitProjectData = (project) => {
@@ -1477,7 +1479,7 @@ export const updateProject = async (
   params?: ProjectParams
 ) => {
   if (data.sourceURL === 'default-project') {
-    copyDefaultProject()
+    await copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
     if (params?.jobId) {
       const date = await getDateTimeSql()
@@ -1508,9 +1510,9 @@ export const updateProject = async (
   const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
   // if project exists already, remove it and re-clone it
-  if (fs.existsSync(projectDirectory)) {
+  if (await existsAsync(projectDirectory)) {
     // if (isDev) throw new Error('Cannot create project - already exists')
-    deleteFolderRecursive(projectDirectory)
+    await fsp.rm(projectDirectory, { recursive: true })
   }
 
   const projectResult = (await app.service(projectPath).find({
@@ -1747,7 +1749,7 @@ export const uploadLocalProjectToProvider = async (
   const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
-  const files = getFilesRecursive(projectRootPath)
+  const files = await getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`

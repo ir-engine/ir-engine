@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
+import { promises as fsp } from 'fs'
 import path from 'path'
 
 import {
@@ -37,9 +38,8 @@ import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/s
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserID, UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { existsAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -47,8 +47,9 @@ const newProjectName1 = 'ProjectTest_test_project_name_1'
 
 const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
-  deleteFolderRecursive(project1Dir)
+
   try {
+    if (await existsAsync(project1Dir)) await fsp.rm(project1Dir, { recursive: true })
     await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
   } catch (e) {
     //

@@ -46,7 +46,7 @@ cli.main(async () => {
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
     const clientPath = path.resolve(appRootPath.path, `packages/client/dist`)
-    const files = getFilesRecursive(clientPath)
+    const files = await getFilesRecursive(clientPath)
     let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
     const filesToPush: string[] = []
     await Promise.all(
