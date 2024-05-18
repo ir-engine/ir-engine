@@ -34,7 +34,6 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   HyperFlux,
   NO_PROXY,
@@ -54,15 +53,14 @@ import { JSONTree } from 'react-json-tree'
 import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
   return Object.fromEntries(
-    Object.values(getState(SceneState).scenes)
-      .map((scene, i) => {
-        const root = scene.scene.root
-        const entity = UUIDComponent.getEntityByUUID(root)
+    Object.values(getState(GLTFAssetState))
+      .map((entity, i) => {
         if (!entity || !entityExists(entity)) return []
         return [
           `${entity} - ${getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)}`,
