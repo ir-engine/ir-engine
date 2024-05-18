@@ -46,6 +46,7 @@ import Popover, { PopoverPosition } from '@mui/material/Popover'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -90,6 +91,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
+  const gltfNodes = useMutableState(GLTFNodeState)
 
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
@@ -122,7 +124,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   useEffect(() => {
     entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
-  }, [expandedNodes, index, rootEntityTree.children])
+  }, [expandedNodes, index, rootEntityTree.children, gltfNodes])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
