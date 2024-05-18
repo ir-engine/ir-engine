@@ -60,7 +60,6 @@ const testScene = {
 } as any
 
 const sceneID = 'test'
-overrideFileLoaderLoad()
 describe('SceneLoadingSystem', () => {
   beforeEach(async () => {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
@@ -84,6 +83,8 @@ describe('SceneLoadingSystem', () => {
       }
     }
   })
+
+  overrideFileLoaderLoad()
 
   afterEach(() => {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = NODE_TLS_REJECT_UNAUTHORIZED

@@ -58,7 +58,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '../../gltf/GLTFState'
+import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
@@ -180,8 +180,7 @@ function ModelReactor() {
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
-    let uuid: string | null = null
-    uuid = getModelSceneID(entity)
+    const uuid = getModelSceneID(entity)
     const sceneJson: SceneJsonType = {
       entities: loadedJsonHierarchy,
       root: getComponent(entity, UUIDComponent),
@@ -194,7 +193,7 @@ function ModelReactor() {
         data: sceneGLTF
       })
     )
-    //}
+    getMutableState(GLTFSourceState)[uuid].set(entity)
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -212,9 +211,8 @@ function ModelReactor() {
       })
     }
     return () => {
-      if (!uuid) return
-      getMutableState(GLTFDocumentState)[uuid].set(none)
-      getMutableState(GLTFSnapshotState)[uuid].set(none)
+      getMutableState(GLTFSourceState)[uuid].set(none)
+      dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
       const children = getOptionalComponent(entity, EntityTreeComponent)?.children
       if (!children) return
       for (const child of children) {
