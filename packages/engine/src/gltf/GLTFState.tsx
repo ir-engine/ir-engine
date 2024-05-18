@@ -44,6 +44,7 @@ import {
 import {
   NO_PROXY,
   NO_PROXY_STEALTH,
+  State,
   Topic,
   defineState,
   dispatchAction,
@@ -299,18 +300,18 @@ export const EditorTopic = 'editor' as Topic
 const ChildGLTFReactor = (props: { source: string }) => {
   const source = props.source
 
-  const index = useHookstate(getMutableState(GLTFSnapshotState)[props.source].index).value
+  const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
 
   useLayoutEffect(() => {
     return () => {
-      getMutableState(GLTFDocumentState)[props.source].set(none)
-      getMutableState(GLTFNodeState)[props.source].set(none)
+      getMutableState(GLTFDocumentState)[source].set(none)
+      getMutableState(GLTFNodeState)[source].set(none)
     }
   }, [])
 
   useLayoutEffect(() => {
     // update the modified state
-    if (index > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
+    if (index > 0) getMutableState(GLTFModifiedState)[source].set(true)
 
     // update the document state
     const data = getState(GLTFSnapshotState)[source].snapshots[index]
@@ -361,7 +362,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
 
-  const node = nodes[props.nodeIndex]!
+  const node = nodes[props.nodeIndex]! as State<GLTF.INode>
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
