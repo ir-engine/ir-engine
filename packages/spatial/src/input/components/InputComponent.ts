@@ -42,14 +42,7 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponent } from '../../transform/components/EntityTree'
-import {
-  ButtonState,
-  ButtonStateMap,
-  DefaultInputAlias,
-  KeyboardButton,
-  MouseButton,
-  XRStandardGamepadButton
-} from '../state/ButtonState'
+import { ButtonState, ButtonStateMap, KeyboardButton, MouseButton, XRStandardGamepadButton } from '../state/ButtonState'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
@@ -124,7 +117,8 @@ export const InputComponent = defineComponent({
 
     for (const key of Object.keys(inputAlias)) {
       const k = key as keyof AliasType
-      buttons[k] = inputAlias[key].reduce((acc, alias) => acc || buttons[alias], undefined)
+      buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
+      // buttons[k] = inputAlias[key].reduce((acc, alias) => acc || buttons[alias], undefined)
     }
 
     return buttons
@@ -156,7 +150,8 @@ export const InputComponent = defineComponent({
 
     for (const key of Object.keys(inputAlias)) {
       const aliases = inputAlias[key]
-      axes[key as keyof AliasType] = aliases.reduce((acc, alias) => acc || axes[alias], undefined)
+      // axes[key] = aliases.reduce((acc: any, alias) => acc || axes[alias], undefined)
+      axes[key as string | number] = aliases.reduce((acc, alias) => acc || axes[alias], undefined)
     }
 
     return axes
