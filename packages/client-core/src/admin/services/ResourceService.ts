@@ -87,7 +87,7 @@ export const ResourceService = {
     const $sort = sortField.length ? { [sortField]: orderBy === 'desc' ? -1 : 1 } : {}
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
-    const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
+    const selectedMimeTypes = adminResourceState.selectedMimeTypes.value as string[]
     const searchKey = search ?? ''
     const key = ''
     const mimeTypes = selectedMimeTypes && selectedMimeTypes.length > 0 ? selectedMimeTypes : undefined

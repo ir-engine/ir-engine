@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Matrix4, SkeletonHelper, Vector3 } from 'three'
+import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -138,7 +138,7 @@ export const AvatarRigComponent = defineComponent({
       if (!visible?.value || !debugEnabled.value || pending?.value || !rigComponent.value.normalizedRig?.hips?.node)
         return
 
-      const helper = new SkeletonHelper(rigComponent.value.vrm.scene)
+      const helper = new SkeletonHelper(rigComponent.value.vrm.scene as Group)
       helper.frustumCulled = false
       helper.name = `target-rig-helper-${entity}`
 

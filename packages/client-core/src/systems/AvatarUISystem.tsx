@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Group, Vector3 } from 'three'
+import { CircleGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
@@ -179,9 +179,10 @@ const execute = () => {
     AvatarUITransitions.set(userEntity, transition)
     const root = new Group()
     root.name = `avatar-ui-root-${userEntity}`
-    ui.state.videoPreviewMesh.value.position.y += 0.3
-    ui.state.videoPreviewMesh.value.visible = false
-    root.add(ui.state.videoPreviewMesh.value)
+    const mesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
+    mesh.position.y += 0.3
+    mesh.visible = false
+    root.add(mesh)
     addObjectToGroup(ui.entity, root)
     AvatarUI.set(userEntity, ui)
   }
@@ -200,7 +201,7 @@ const execute = () => {
     const userTransform = getComponent(userEntity, TransformComponent)
     const xruiTransform = getComponent(ui.entity, TransformComponent)
 
-    const videoPreviewMesh = ui.state.videoPreviewMesh.value
+    const videoPreviewMesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
     _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
     const dist = cameraTransform.position.distanceTo(_vector3)

@@ -34,18 +34,17 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import {
   HyperFlux,
   NO_PROXY,
   defineState,
-  getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useHookstate } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,15 +53,14 @@ import { JSONTree } from 'react-json-tree'
 import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
   return Object.fromEntries(
-    Object.values(getState(SceneState).scenes)
-      .map((scene, i) => {
-        const root = scene.scene.root
-        const entity = UUIDComponent.getEntityByUUID(root)
+    Object.values(getState(GLTFAssetState))
+      .map((entity, i) => {
         if (!entity || !entityExists(entity)) return []
         return [
           `${entity} - ${getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)}`,
@@ -146,9 +144,7 @@ const EntitySearchState = defineState({
     search: '',
     query: ''
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EntitySearchState, ['search', 'query'])
-  }
+  extension: syncStateWithLocalStorage(['search', 'query'])
 })
 
 export const EntityDebug = () => {
@@ -157,8 +153,8 @@ export const EntityDebug = () => {
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
   const entityTree = useHookstate({} as any)
-  const entitySearch = useHookstate(getMutableState(EntitySearchState).search)
-  const entityQuery = useHookstate(getMutableState(EntitySearchState).query)
+  const entitySearch = useMutableState(EntitySearchState).search
+  const entityQuery = useMutableState(EntitySearchState).query
 
   erroredComponents.set(
     [...Engine.instance.store.activeReactors.values()]

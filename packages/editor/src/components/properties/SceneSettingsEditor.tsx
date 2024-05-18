@@ -36,8 +36,7 @@ import {
   convertImageDataToKTX2Blob,
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { getState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { Color } from 'three'
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { takeScreenshot } from '../../functions/takeScreenshot'
@@ -80,7 +79,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     state.uploadingThumbnail.set(true)
     const editorState = getState(EditorState)
     const projectName = editorState.projectName!
-    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value])
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value], [currentSceneDirectory])
     const [[savedThumbnailURL]] = await Promise.all(promises)
     commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
     state.merge({
@@ -119,10 +119,12 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     const envmapFilename = `${sceneName}.envmap.ktx2`
     const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
 
-    const promises = uploadProjectFiles(projectName, [
-      new File([envmap], envmapFilename),
-      new File([loadingScreen], loadingScreenFilename)
-    ])
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const promises = uploadProjectFiles(
+      projectName,
+      [new File([envmap], envmapFilename), new File([loadingScreen], loadingScreenFilename)],
+      [currentSceneDirectory, currentSceneDirectory]
+    )
 
     const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
 

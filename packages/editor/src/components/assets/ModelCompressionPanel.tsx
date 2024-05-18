@@ -204,7 +204,7 @@ export default function ModelCompressionPanel({
 
   const savePresetList = (deleting: boolean) => {
     if (!deleting) {
-      setPresetList([...presetList, lods[selectedLODIndex].value])
+      setPresetList([...presetList, lods[selectedLODIndex].value as LODVariantDescriptor])
     }
     localStorage.setItem('presets', JSON.stringify(presetList))
   }
@@ -215,7 +215,7 @@ export default function ModelCompressionPanel({
     const exportCombined = isIntegratedPrefab
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(lods.value, clientside, heuristic, exportCombined)
+    await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
 
     const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
     await FileBrowserService.fetchFiles(directoryToRefresh)

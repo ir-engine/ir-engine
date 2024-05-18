@@ -42,7 +42,7 @@ import {
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { NO_PROXY, State, getMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { NO_PROXY, State, useMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
@@ -59,7 +59,7 @@ import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {
   const modelState = useComponent(entity, ModelComponent)
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectionState = useMutableState(SelectionState)
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
   const isClientside = useHookstate<boolean>(true)
@@ -141,7 +141,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
 
       for (const variant of variants) {
         if (clientside) {
-          await clientSideTransformModel(variant)
+          await clientSideTransformModel(variant as ModelTransformParameters)
         } else {
           await Engine.instance.api.service(modelTransformPath).create(variant)
         }
@@ -206,7 +206,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
   }, [modelState.src])
 
   useEffect(() => {
-    transformParms.resources.set(getModelResources(entity, transformParms.value))
+    transformParms.resources.set(getModelResources(entity, transformParms.value as ModelTransformParameters))
   }, [modelState.scene, transformParms])
 
   return (

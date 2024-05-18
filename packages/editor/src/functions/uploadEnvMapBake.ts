@@ -111,7 +111,10 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const projectName = editorState.projectName!
   const filename = isSceneEntity ? `${sceneName}.envmap.ktx2` : `${sceneName}-${nameComponent.replace(' ', '-')}.ktx2`
 
-  const url = (await uploadProjectFiles(projectName, [new File([envmap], filename)]).promises[0])[0]
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const url = (
+    await uploadProjectFiles(projectName, [new File([envmap], filename)], [currentSceneDirectory]).promises[0]
+  )[0]
 
   setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
 }
@@ -177,7 +180,9 @@ export const uploadCubemapBakeToServer = async (name: string, data: ImageData) =
   const sceneName = editorState.sceneName!
   const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
-  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0]
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)], [currentSceneDirectory])
+    .promises[0]
   const url = urlList[0]
 
   return url

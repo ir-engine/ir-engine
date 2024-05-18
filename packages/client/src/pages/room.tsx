@@ -28,12 +28,12 @@ import React from 'react'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import Box from '@mui/material/Box'
 
 export const RoomPage = (): any => {
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
 
   return (

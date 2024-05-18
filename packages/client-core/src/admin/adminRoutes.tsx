@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
@@ -108,7 +108,7 @@ const AdminRoutes = () => {
   const location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
-  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+  const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 
   const scopes = admin?.scopes?.value
 

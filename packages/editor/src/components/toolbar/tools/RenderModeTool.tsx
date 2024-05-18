@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
 
@@ -42,7 +42,7 @@ import * as styles from '../styles.module.scss'
 const RenderModeTool = () => {
   const { t } = useTranslation()
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
   const options = [] as { label: string; value: string }[]
 
   const [isVisible, setIsVisible] = useState(false)

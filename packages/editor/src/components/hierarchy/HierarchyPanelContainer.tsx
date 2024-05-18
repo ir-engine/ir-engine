@@ -32,7 +32,6 @@ import { FixedSizeList } from 'react-window'
 
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
@@ -42,12 +41,13 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
+import Popover, { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
@@ -58,8 +58,10 @@ import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
+import { PopoverContext } from '../element/PopoverContext'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
+import PrefabList from '../prefabs/PrefabList'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
@@ -89,6 +91,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const lockPropertiesPanel = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const searchHierarchy = useHookstate('')
+  const gltfNodes = useMutableState(GLTFNodeState)
 
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
@@ -121,7 +124,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   useEffect(() => {
     entityHierarchy.set(Array.from(heirarchyTreeWalker(sceneURL, rootEntity)))
-  }, [expandedNodes, index, rootEntityTree.children])
+  }, [expandedNodes, index, rootEntityTree.children, gltfNodes])
 
   const setSelectedNode = (selection) => !lockPropertiesPanel.value && _setSelectedNode(selection)
 
@@ -403,7 +406,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(sceneURL)
+        const sceneEntity = getState(GLTFAssetState)[sceneURL]
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
@@ -440,7 +443,8 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       {MemoTreeNode}
     </FixedSizeList>
   )
-
+  const anchorElement = useHookstate<HTMLButtonElement | null>(null)
+  const open = !!anchorElement.value
   return (
     <>
       <div className={styles.panelContainer}>
@@ -460,11 +464,38 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             fontSize: '12px',
             lineHeight: '0.5'
           }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+          //onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
+          onClick={(event) => {
+            anchorElement.set(event.currentTarget)
+          }}
         >
           {t('editor:hierarchy.lbl-addEntity')}
         </PropertiesPanelButton>
       </div>
+      <PopoverContext.Provider
+        value={{
+          handlePopoverClose: () => {
+            anchorElement.set(null)
+          }
+        }}
+      >
+        <Popover
+          id={open ? 'add-component-popover' : undefined}
+          open={open}
+          anchorEl={anchorElement.value as HTMLButtonElement}
+          onClose={() => anchorElement.set(null)}
+          anchorOrigin={{
+            vertical: 'center',
+            horizontal: 'left'
+          }}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'right'
+          }}
+        >
+          <PrefabList />
+        </Popover>
+      </PopoverContext.Provider>
       <ContextMenu open={!!anchorEl} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <Hotkeys

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import config, { isDev } from '@etherealengine/common/src/config'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
 import React, { useEffect } from 'react'
@@ -39,8 +39,8 @@ import BuildStatusTable from './build-status/BuildStatusTable'
 export default function AdminProject() {
   const { t } = useTranslation()
 
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const authState = useHookstate(getMutableState(AuthState))
+  const projectState = useMutableState(ProjectState)
+  const authState = useMutableState(AuthState)
   const user = authState.user
 
   ProjectService.useAPIListeners()

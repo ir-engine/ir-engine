@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { none, useHookstate } from '@hookstate/core'
+import { none, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -34,7 +34,7 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { addOutgoingTopicIfNecessary, getMutableState } from '@etherealengine/hyperflux'
+import { addOutgoingTopicIfNecessary, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import {
   Network,
   NetworkPeerFunctions,
@@ -62,7 +62,7 @@ export const useEngineInjection = () => {
 }
 
 export const useLinkTeleport = () => {
-  const linkState = useHookstate(getMutableState(LinkState))
+  const linkState = useMutableState(LinkState)
 
   useEffect(() => {
     const location = linkState.location.value
@@ -80,9 +80,9 @@ export const useLinkTeleport = () => {
 }
 
 export const usePortalTeleport = () => {
-  const engineState = useHookstate(getMutableState(EngineState))
-  const locationState = useHookstate(getMutableState(LocationState))
-  const portalState = useHookstate(getMutableState(PortalState))
+  const engineState = useMutableState(EngineState)
+  const locationState = useMutableState(LocationState)
+  const portalState = useMutableState(PortalState)
 
   useEffect(() => {
     const activePortalEntity = portalState.activePortalEntity.value

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY_STEALTH } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { defaultPostProcessingSchema } from '../effects/PostProcessing'
+import { EffectPropsSchema, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { configureEffectComposer } from '../functions/configureEffectComposer'
 import { useScene } from './SceneComponents'
 
@@ -65,7 +65,9 @@ export const PostProcessingComponent = defineComponent({
       if (!rendererEntity) return
       configureEffectComposer(
         rendererEntity,
-        postprocessingComponent.enabled.value ? postprocessingComponent.effects.get(NO_PROXY_STEALTH) : undefined
+        postprocessingComponent.enabled.value
+          ? (postprocessingComponent.effects.get(NO_PROXY_STEALTH) as EffectPropsSchema)
+          : undefined
       )
     }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
 

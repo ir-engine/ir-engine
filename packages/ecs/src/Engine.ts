@@ -34,6 +34,7 @@ import type { FeathersApplication } from '@feathersjs/feathers'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 
 import { getAllEntities } from 'bitecs'
+import { Cache } from 'three'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
@@ -88,6 +89,8 @@ export function startEngine() {
 }
 
 export async function destroyEngine() {
+  Cache.clear()
+
   getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {

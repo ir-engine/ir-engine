@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -202,7 +202,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   const channelName = channel ? getChannelName(channel) : ''
   console.log(selectedChannelID, channel, channelName)
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
   const isScreenVideoEnabled =

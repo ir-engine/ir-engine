@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { GraphTemplate, VisualScriptState } from '@etherealengine/visual-script'
-import { useHookstate } from '@hookstate/core'
 import { uniqueId } from 'lodash'
 import { useMemo } from 'react'
 import { useSelectionHandler } from './useSelectionHandler'
@@ -46,7 +45,7 @@ export const useTemplateHandler = ({
     selectedNodes: Node[]
     selectedEdges: Edge[]
   }) => {
-  const visualScriptState = useHookstate(getMutableState(VisualScriptState))
+  const visualScriptState = useMutableState(VisualScriptState)
 
   const createGraphTemplate = (nodes: Node[], edges: Edge[]): GraphTemplate => ({
     id: uuidv4(),

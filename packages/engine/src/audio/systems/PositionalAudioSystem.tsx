@@ -217,7 +217,7 @@ function PositionalAudioPannerReactor() {
   const positionalAudio = useComponent(entity, PositionalAudioComponent)
 
   useEffect(() => {
-    const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+    const audioGroup = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)! // is it safe to assume this?
     addPannerNode(audioGroup, positionalAudio.value)
     return () => removePannerNode(audioGroup)
   }, [mediaElement, positionalAudio])

@@ -35,7 +35,14 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { dispatchAction, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  matches,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
@@ -174,7 +181,7 @@ export const MountPointComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
-    const mountedEntities = useHookstate(getMutableState(MountPointState))
+    const mountedEntities = useMutableState(MountPointState)
 
     // useEffect(() => {
     //   setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))

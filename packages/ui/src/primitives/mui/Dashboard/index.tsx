@@ -30,7 +30,7 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import AppBar from '@etherealengine/ui/src/primitives/mui/AppBar'
 import DashboardMenuItem from '@etherealengine/ui/src/primitives/mui/DashboardMenuItem'
 import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
@@ -50,7 +50,7 @@ import styles from './index.module.scss'
  */
 
 const Dashboard = ({ children }) => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const { user } = authState

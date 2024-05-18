@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@hookstate/core'
+import { State } from '@etherealengine/hyperflux'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'

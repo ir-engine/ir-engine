@@ -28,13 +28,12 @@ import { RouterState } from '@etherealengine/client-core/src/common/services/Rou
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, getComponent, useComponent } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Dialog from '@mui/material/Dialog'
@@ -183,7 +182,7 @@ const onCloseProject = () => {
 }
 
 const onSaveAs = async () => {
-  const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+  const { projectName, sceneName, rootEntity } = getState(EditorState)
   const sceneModified = EditorState.isModified()
   const abortController = new AbortController()
   try {
@@ -193,15 +192,10 @@ const onSaveAs = async () => {
       })
       DialogState.setDialog(null)
       if (result?.name && projectName) {
-        await saveSceneGLTF(sceneAssetID, projectName, result.name, abortController.signal)
+        await saveSceneGLTF(null, projectName, result.name, abortController.signal)
 
         const sourceID = getComponent(rootEntity, SourceComponent)
         getMutableState(GLTFModifiedState)[sourceID].set(none)
-
-        const newSceneData = await Engine.instance.api
-          .service(assetPath)
-          .find({ query: { assetURL: getState(EditorState).scenePath! } })
-        getMutableState(EditorState).scenePath.set(newSceneData.data[0].assetURL as any)
       }
     }
   } catch (error) {
@@ -370,9 +364,8 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useMutableState(EditorState)
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
-  const sceneURL = sceneQuery?.[0]?.assetURL
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -411,15 +404,14 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene())
 
   useEffect(() => {
-    if (!sceneURL) return
-    const scene = scenePath.value?.substring(scenePath.value.lastIndexOf('/') + 1)
-    const project = scenePath.value?.substring(scenePath.value.indexOf('/') + 1, scenePath.value.lastIndexOf('/'))
+    const scene = sceneQuery[0]
+    if (!scene) return
 
-    sceneName.set(scene ?? null)
-    projectName.set(project ?? null)
+    projectName.set(scene.projectName)
+    sceneName.set(scene.assetURL.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
-  }, [sceneURL])
+    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.assetURL])
 
   useEffect(() => {
     return () => {
