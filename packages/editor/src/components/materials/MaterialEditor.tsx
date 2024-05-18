@@ -51,7 +51,13 @@ import {
   pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { FloatArg, StringArg, TextureArg } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
+import {
+  ColorArg,
+  FloatArg,
+  StringArg,
+  TextureArg,
+  Vec3Arg
+} from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -172,6 +178,13 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         pluginParameterValues[key] = TextureArg
         return
       }
+      if (value.isColor) {
+        pluginParameterValues[key] = ColorArg
+        return
+      }
+      if (value.isVector3) {
+        pluginParameterValues[key] = Vec3Arg
+      }
       switch (typeof value) {
         case 'number':
           pluginParameterValues[key] = FloatArg
@@ -183,7 +196,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     })
 
     pluginParameters.set(formatMaterialArgs(pluginParameterValues))
-    console.log(pluginParameters.value)
 
     if (!pluginState?.parameters.value || !pluginState.parameters[materialName.value].value) return
     for (const key in pluginState.parameters[materialName.value].value) {

@@ -112,7 +112,6 @@ const MaterialInstanceReactor = () => {
   useEffect(() => {
     if (uuid.value) setGroupMaterial(entity, uuid.value as EntityUUID[])
   }, [materialComponent.uuid])
-
   return null
 }
 
