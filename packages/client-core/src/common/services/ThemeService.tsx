@@ -30,7 +30,7 @@ import { defineState, getMutableState, syncStateWithLocalStorage, useMutableStat
 const lightTheme = {
   'bg-primary': '#F5F5F5',
   'bg-secondary': '#FFFFFF',
-  'bg-highlight': '#F5F5F5',
+  'bg-highlight': '#D9D9D9',
   'bg-surface-main': '#FFFFFF',
   'bg-surface-input': '#FFFFFF',
   'bg-table-secondary': '#F9FAFB',
