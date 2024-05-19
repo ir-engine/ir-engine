@@ -191,7 +191,7 @@ export default function UpdateEngineModal() {
             </div>
             <div className="grid gap-2">
               {projectState.projects.value
-                .filter((project) => project.name !== 'default-project' && project.repositoryPath.length > 0)
+                .filter((project) => project.name !== 'default-project' && project.repositoryPath)
                 .map((project) => (
                   <div key={project.id} className="bg-theme-surfaceInput border-theme-primary border px-3.5 py-5">
                     <Checkbox
