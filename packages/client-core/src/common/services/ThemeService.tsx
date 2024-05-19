@@ -54,7 +54,7 @@ const lightTheme = {
 
 const darkTheme = {
   'bg-primary': '#111113',
-  'bg-secondary': '#1A1B1E',
+  'bg-secondary': '#000000',
   'bg-highlight': '#212226',
   'bg-surface-main': '#1A1B1E',
   'bg-surface-input': '#141619',
