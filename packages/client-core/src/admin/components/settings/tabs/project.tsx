@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { projectPath, ProjectSettingType } from '@etherealengine/common/src/schema.type.module'
+import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { GLTF } from '@gltf-transform/core'
+import assert from 'assert'
 import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'

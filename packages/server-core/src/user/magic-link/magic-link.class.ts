@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as path from 'path'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
+import * as path from 'path'
 import * as pug from 'pug'
 
 import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'

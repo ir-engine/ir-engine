@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AsyncLocalStorage } from 'async_hooks'
 import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { AsyncLocalStorage } from 'async_hooks'
 
 import { Application } from '../../declarations'
 

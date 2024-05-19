@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import path from 'path'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
+import assert from 'assert'
+import path from 'path'
 
 import {
   projectPermissionPath,

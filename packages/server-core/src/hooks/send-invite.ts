@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as path from 'path'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
+import * as path from 'path'
 import * as pug from 'pug'
 
 import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AgonesSDK from '@google-cloud/agones-sdk'
 import fs from 'fs'
 import https from 'https'
-import AgonesSDK from '@google-cloud/agones-sdk'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'

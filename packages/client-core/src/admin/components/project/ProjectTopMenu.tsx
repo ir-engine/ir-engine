@@ -31,7 +31,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 

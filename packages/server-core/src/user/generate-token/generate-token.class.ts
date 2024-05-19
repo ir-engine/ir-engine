@@ -28,8 +28,8 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { GenerateTokenData, GenerateTokenQuery } from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 
 import { Application } from '../../../declarations'

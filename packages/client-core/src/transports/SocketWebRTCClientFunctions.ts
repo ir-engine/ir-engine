@@ -56,19 +56,18 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@etherealengine/hyperflux'
+import { Identifiable, PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
+  Topic,
   addOutgoingTopicIfNecessary,
   defineActionQueue,
-  removeActionQueue,
-  Topic
+  removeActionQueue
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import {
-  addNetwork,
-  createNetwork,
   DataChannelRegistryState,
   DataChannelType,
+  MediaStreamAppData,
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState,
   MediasoupMediaConsumerActions,
@@ -78,16 +77,17 @@ import {
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
   MediasoupTransportState,
-  MediaStreamAppData,
   NetworkActionFunctions,
   NetworkActions,
   NetworkConnectionParams,
   NetworkState,
   NetworkTopics,
+  VideoConstants,
+  addNetwork,
+  createNetwork,
   removeNetwork,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
-  VideoConstants,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/network'
@@ -102,7 +102,7 @@ import {
   stopLipsyncTracking
 } from '../media/webcam/WebcamInput'
 import { AuthState } from '../user/services/AuthService'
-import { MediaStreamService as _MediaStreamService, MediaStreamState } from './MediaStreams'
+import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })

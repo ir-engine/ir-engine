@@ -33,8 +33,8 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
   TableBody,
   TableCell,
-  TableHeaderCell,
   TableHeadRow,
+  TableHeaderCell,
   TablePagination,
   TableRow
 } from '@etherealengine/ui/src/primitives/tailwind/Table'

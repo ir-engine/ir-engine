@@ -69,7 +69,7 @@ import {
 } from './DataReader'
 import { createDataWriter, writeCompressedVector3, writeEntities, writeEntity, writeVector4 } from './DataWriter'
 import { Vector3SoA } from './Utils'
-import { createViewCursor, readFloat64, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
+import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
   beforeEach(() => {

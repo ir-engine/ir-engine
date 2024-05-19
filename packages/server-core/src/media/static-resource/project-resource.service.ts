@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Application } from '@feathersjs/koa'
 import fs from 'fs'
 import path from 'path'
-import { Application } from '@feathersjs/koa'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'

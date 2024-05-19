@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import * as k8s from '@kubernetes/client-node'
+import { create, IPFSHTTPClient } from 'ipfs-http-client'
 import * as net from 'net'
 import path from 'path'
 import * as stream from 'stream'
-import * as k8s from '@kubernetes/client-node'
-import { create, IPFSHTTPClient } from 'ipfs-http-client'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'

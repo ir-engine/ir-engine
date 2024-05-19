@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import path from 'path'
-import url from 'url'
 import appRootPath from 'app-root-path'
 import { Knex } from 'knex'
+import path from 'path'
+import url from 'url'
 import { v4 as uuidv4 } from 'uuid'
 
 import {

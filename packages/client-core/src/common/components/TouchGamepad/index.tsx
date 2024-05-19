@@ -30,7 +30,7 @@ import { InteractableState } from '@etherealengine/engine/src/interaction/functi
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { isTouchAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
 import { AnyButton, XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { isMobileXRHeadset, XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
+import { XRControlsState, isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AppState } from '../../services/AppService'

@@ -30,7 +30,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Assert, makeFlowNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
+import { Assert, NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',

@@ -28,11 +28,11 @@ Ethereal Engine. All Rights Reserved.
  * - uses CLI to fetch a manifest and clone projects
  */
 
-import fs from 'fs'
-import path from 'path'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import fs from 'fs'
+import path from 'path'
 
 import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
 

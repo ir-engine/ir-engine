@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import path from 'path'
 import { BadRequest } from '@feathersjs/errors'
+import path from 'path'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { createLocations } from '@etherealengine/projects/createLocations'

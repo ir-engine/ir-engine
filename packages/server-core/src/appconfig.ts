@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import path from 'path'
-import url from 'url'
 import appRootPath from 'app-root-path'
 import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
+import path from 'path'
+import url from 'url'
 
 import { oembedPath } from '@etherealengine/common/src/schemas/media/oembed.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'

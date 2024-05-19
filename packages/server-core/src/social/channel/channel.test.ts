@@ -22,8 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import assert from 'assert'
 import { Paginated } from '@feathersjs/feathers'
+import assert from 'assert'
 
 import { instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'

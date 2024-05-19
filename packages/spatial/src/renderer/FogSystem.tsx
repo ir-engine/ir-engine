@@ -31,8 +31,8 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import {
-  addOBCPlugin,
   PluginType,
+  addOBCPlugin,
   removeOBCPlugin
 } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'

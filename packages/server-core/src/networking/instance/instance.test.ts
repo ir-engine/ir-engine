@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { Paginated } from '@feathersjs/feathers'
+import assert from 'assert'
 
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'

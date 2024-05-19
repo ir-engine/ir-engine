@@ -30,9 +30,9 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
 import {
   MatchTicketData,
+  MatchTicketType,
   matchTicketDataValidator,
-  matchTicketQueryValidator,
-  MatchTicketType
+  matchTicketQueryValidator
 } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import matchmakingRemoveTicket from '@etherealengine/server-core/src/hooks/matchmaking-remove-ticket'
 import matchmakingRestrictMultipleQueueing from '@etherealengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'

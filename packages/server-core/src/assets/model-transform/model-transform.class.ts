@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import path from 'path'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers/lib'
 import { KnexAdapterParams } from '@feathersjs/knex/lib'
 import appRootPath from 'app-root-path'
+import path from 'path'
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'

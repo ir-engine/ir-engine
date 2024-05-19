@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { act, render } from '@testing-library/react'
+import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
 import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
@@ -32,7 +32,7 @@ import { BoxGeometry, Color, LineBasicMaterial, Material, Mesh, MeshBasicMateria
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState, State } from '@etherealengine/hyperflux'
+import { State, getState } from '@etherealengine/hyperflux'
 
 import { Geometry } from '../../common/constants/Geometry'
 import { createEngine } from '../../initializeEngine'

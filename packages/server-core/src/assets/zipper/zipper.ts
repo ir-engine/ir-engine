@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import extract from 'extract-zip'
+import fs from 'fs'
+import path from 'path'
 
 import { assetLibraryMethods, assetLibraryPath } from '@etherealengine/common/src/schemas/assets/asset-library.schema'
 

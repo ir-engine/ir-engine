@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import net from 'net'
 import cors_proxy from 'cors-anywhere'
+import net from 'net'
 
 import config from './appconfig'
 import logger from './ServerLogger'

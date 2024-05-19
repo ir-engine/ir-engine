@@ -28,14 +28,14 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import {
-  checkBitflag,
   NetworkObjectSendPeriodicUpdatesTag,
+  ViewCursor,
+  checkBitflag,
   readUint8,
   readVector3,
   readVector4,
   rewindViewCursor,
   spaceUint8,
-  ViewCursor,
   writeVector3,
   writeVector4
 } from '@etherealengine/network'

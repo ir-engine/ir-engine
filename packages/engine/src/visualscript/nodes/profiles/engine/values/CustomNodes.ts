@@ -63,10 +63,10 @@ import { TweenComponent } from '@etherealengine/spatial/src/transform/components
 import { endXRSession, requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import { ContentFitType } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import {
+  NodeCategory,
   makeAsyncNodeDefinition,
   makeFlowNodeDefinition,
-  makeFunctionNodeDefinition,
-  NodeCategory
+  makeFunctionNodeDefinition
 } from '@etherealengine/visual-script'
 
 import { addMediaComponent } from '../helper/assetHelper'

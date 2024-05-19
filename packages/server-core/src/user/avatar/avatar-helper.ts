@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path'
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path'
 
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { AvatarID, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'

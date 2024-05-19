@@ -32,7 +32,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
-import { setCallback, StandardCallbacks } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'

@@ -53,7 +53,7 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { commitProperty, EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.

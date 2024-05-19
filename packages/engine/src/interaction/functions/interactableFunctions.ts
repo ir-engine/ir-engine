@@ -32,8 +32,8 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import {
-  compareDistanceToLocalClient,
-  DistanceFromLocalClientComponent
+  DistanceFromLocalClientComponent,
+  compareDistanceToLocalClient
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 
 import { InteractableComponent } from '../components/InteractableComponent'

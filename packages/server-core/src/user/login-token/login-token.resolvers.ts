@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import crypto from 'crypto'
 import { resolve, virtual } from '@feathersjs/schema'
+import crypto from 'crypto'
 import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 

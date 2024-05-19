@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import crypto from 'crypto'
 import { NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
+import crypto from 'crypto'
 
 import { serverSettingPath, ServerSettingType } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'

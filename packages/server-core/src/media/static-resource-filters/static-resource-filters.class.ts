@@ -6,7 +6,7 @@ import {
   StaticResourceFiltersQuery,
   StaticResourceFiltersType
 } from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 /*
 CPAL-1.0 License

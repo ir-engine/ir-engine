@@ -31,7 +31,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
+import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
@@ -41,11 +41,11 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
+  NodeCategory,
   makeEventNodeDefinition,
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition,
   makeInNOutFunctionDesc,
-  NodeCategory,
   toQuat,
   toVector3
 } from '@etherealengine/visual-script'

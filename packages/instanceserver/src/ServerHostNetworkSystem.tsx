@@ -29,7 +29,7 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { getMutableState, none, PeerID } from '@etherealengine/hyperflux'
+import { PeerID, getMutableState, none } from '@etherealengine/hyperflux'
 import { NetworkPeerFunctions, NetworkState, updatePeers } from '@etherealengine/network'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'

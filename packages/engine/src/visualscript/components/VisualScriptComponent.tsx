@@ -32,7 +32,7 @@ import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { defaultVisualScript, GraphJSON, IRegistry, VisualScriptState } from '@etherealengine/visual-script'
+import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
 
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'

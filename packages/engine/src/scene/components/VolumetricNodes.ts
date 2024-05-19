@@ -30,7 +30,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
-import { makeFlowNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
+import { NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
 
 /**
  * playVolumetric: Play / pause volumetric video

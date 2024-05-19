@@ -41,25 +41,25 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import {
-  assetPath,
   RecordingID,
-  recordingPath,
-  StaticResourceType
+  StaticResourceType,
+  assetPath,
+  recordingPath
 } from '@etherealengine/common/src/schema.type.module'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { getComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
-  mocapDataChannelType,
   MotionCaptureFunctions,
-  MotionCaptureResults
+  MotionCaptureResults,
+  mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
-  activePlaybacks,
   ECSRecordingActions,
   PlaybackState,
-  RecordingState
+  RecordingState,
+  activePlaybacks
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import {
   defineState,

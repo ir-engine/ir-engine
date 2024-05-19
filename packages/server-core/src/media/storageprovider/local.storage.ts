@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import { ChildProcess } from 'child_process'
 import fs from 'fs'
-import path from 'path/posix'
-import { PassThrough, Readable } from 'stream'
-import appRootPath from 'app-root-path'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
+import path from 'path/posix'
+import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'

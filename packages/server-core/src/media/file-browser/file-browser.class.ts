@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path/posix'
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
 import { Knex } from 'knex'
+import path from 'path/posix'
 
 import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import {

@@ -30,8 +30,8 @@ import {
   InstanceActiveQuery,
   InstanceActiveType
 } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
-import { instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
+import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 

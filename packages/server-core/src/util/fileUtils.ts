@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as fs from 'fs'
-import path from 'path'
 import { isEqual } from 'lodash'
 import mime from 'mime-types'
+import path from 'path'
 
 export const getContentType = (url: string): string => {
   return /\.ts$/.exec(url) ? 'application/octet-stream' : mime.lookup(url) || 'application/octet-stream'

@@ -29,10 +29,10 @@ import { Socket } from '../Sockets/Socket'
 import { Node, NodeConfiguration } from './Node'
 import {
   IFunctionNodeDefinition,
-  makeFunctionNodeDefinition,
   NodeCategory,
   SocketListDefinition,
-  SocketsList
+  SocketsList,
+  makeFunctionNodeDefinition
 } from './NodeDefinitions'
 import { IFunctionNode, INode, NodeType } from './NodeInstance'
 import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets'
