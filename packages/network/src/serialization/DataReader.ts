@@ -35,25 +35,25 @@ import { JitterBufferEntry, Network } from '../Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
-  expand,
-  flatten,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA
+  Vector4SoA,
+  expand,
+  flatten
 } from './Utils'
 import {
+  ViewCursor,
   createViewCursor,
   readFloat64,
   readProp,
-  readUint8,
   readUint16,
   readUint32,
   readUint64,
-  ViewCursor
+  readUint8
 } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag

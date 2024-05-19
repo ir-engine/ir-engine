@@ -27,14 +27,14 @@ import { Spark } from 'primus'
 
 import { ChannelID, InstanceID, LocationID, RoomCode, UserID } from '@etherealengine/common/src/schema.type.module'
 import {
+  PeerID,
+  Validator,
   defineAction,
   defineState,
   getMutableState,
   getState,
   matches,
-  none,
-  PeerID,
-  Validator
+  none
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from './DataChannelRegistry'

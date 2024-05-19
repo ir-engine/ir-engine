@@ -29,15 +29,15 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import { InstanceID, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
-import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'

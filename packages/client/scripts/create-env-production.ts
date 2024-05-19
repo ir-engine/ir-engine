@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { existsSync, rmSync, writeFileSync } from 'fs'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
+import { existsSync, rmSync, writeFileSync } from 'fs'
 
 const prefixRegex = /^VITE_/
 const lowercaseEnv = process.env.APP_ENV!.toLowerCase()

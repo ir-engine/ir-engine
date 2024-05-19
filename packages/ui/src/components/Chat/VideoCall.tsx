@@ -35,9 +35,9 @@ import {
 } from '@etherealengine/client-core/src/transports/PeerMediaChannelState'
 import {
   ConsumerExtension,
+  SocketWebRTCClientNetwork,
   pauseConsumer,
   resumeConsumer,
-  SocketWebRTCClientNetwork,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
@@ -46,7 +46,7 @@ import {
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserName, userPath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, PeerID, State, useHookstate } from '@etherealengine/hyperflux'
+import { PeerID, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 

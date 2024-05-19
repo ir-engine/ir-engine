@@ -60,9 +60,9 @@ import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAcces
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   InviteCode,
+  ProjectType,
   projectPath,
-  projectPermissionPath,
-  ProjectType
+  projectPermissionPath
 } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'

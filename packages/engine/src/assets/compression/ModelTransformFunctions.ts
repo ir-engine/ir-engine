@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createHash } from 'crypto'
 import {
   BufferUtils,
   Document,
@@ -51,6 +50,7 @@ import {
   TextureResizeOptions,
   weld
 } from '@gltf-transform/functions'
+import { createHash } from 'crypto'
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
 import { getPixels } from 'ndarray-pixels'
 import { LoaderUtils } from 'three'

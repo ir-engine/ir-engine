@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PassThrough } from 'stream'
 import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
 import matches, { Validator } from 'ts-matches'
 
 import multiLogger from '@etherealengine/common/src/logger'

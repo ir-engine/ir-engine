@@ -33,8 +33,8 @@ import {
   inviteQueryValidator
 } from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'

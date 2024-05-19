@@ -18,10 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path'
 import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path'
 
 import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 

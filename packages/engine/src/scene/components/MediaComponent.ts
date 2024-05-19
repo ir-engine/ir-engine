@@ -42,7 +42,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, getState, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'

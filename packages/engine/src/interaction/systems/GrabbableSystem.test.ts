@@ -30,14 +30,14 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import {
+  PeerID,
   applyIncomingActions,
   clearOutgoingActions,
   dispatchAction,
-  getMutableState,
-  PeerID
+  getMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'

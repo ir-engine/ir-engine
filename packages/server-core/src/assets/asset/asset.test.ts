@@ -18,10 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
 import { v4 as uuidv4 } from 'uuid'
 
 import { assetPath } from '@etherealengine/common/src/schema.type.module'

@@ -44,10 +44,10 @@ import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
-  defineState,
-  getState,
   HyperFlux,
   NO_PROXY,
+  defineState,
+  getState,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState

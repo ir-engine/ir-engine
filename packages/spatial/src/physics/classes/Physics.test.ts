@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import assert from 'assert'
 import { Vector3 } from 'three'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'

@@ -37,11 +37,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineAction, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { State, defineAction, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
-import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 

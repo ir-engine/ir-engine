@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
 import fs from 'fs'
 import path from 'path'
-import { Params } from '@feathersjs/feathers'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { routeMethods, routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'

@@ -22,14 +22,14 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import fs from 'fs'
-import path from 'path'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import appRootPath from 'app-root-path'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import fs from 'fs'
 import { Knex } from 'knex'
+import path from 'path'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'

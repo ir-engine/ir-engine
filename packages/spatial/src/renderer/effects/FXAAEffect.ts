@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BlendFunction, Effect } from 'postprocessing'
-import { Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three'
+import { Uniform, Vector2, WebGLRenderTarget, WebGLRenderer } from 'three'
 
 import fragmentShader from './glsl/antialiasing/fxaa.frag'
 

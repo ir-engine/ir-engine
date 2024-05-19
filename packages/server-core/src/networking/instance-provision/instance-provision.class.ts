@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import https from 'https'
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
+import https from 'https'
 import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'

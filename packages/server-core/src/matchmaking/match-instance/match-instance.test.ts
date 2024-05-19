@@ -36,7 +36,7 @@ import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schem
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
-import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
+import { MatchTicketType, matchTicketPath } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'

@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Component, ComponentMap } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery, Query, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem, destroySystem, SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
+import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemDefinitions, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { makeEventNodeDefinition, NodeCategory, sequence, SocketsList } from '@etherealengine/visual-script'
+import { NodeCategory, SocketsList, makeEventNodeDefinition, sequence } from '@etherealengine/visual-script'
 
 let systemCounter = 0
 

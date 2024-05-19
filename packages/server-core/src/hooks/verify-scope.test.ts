@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
+import assert from 'assert'
 
 import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'

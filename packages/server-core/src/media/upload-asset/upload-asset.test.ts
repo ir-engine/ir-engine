@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
 
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'

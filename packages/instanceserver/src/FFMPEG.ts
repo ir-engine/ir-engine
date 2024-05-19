@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Process from 'child_process'
-import Stream, { Readable } from 'stream'
 import ffmpeg from 'ffmpeg-static'
 import { Consumer } from 'mediasoup/node/lib/Consumer'
+import Stream, { Readable } from 'stream'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 

@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import fs from 'fs'
-import path from 'path'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
+import fs from 'fs'
+import path from 'path'
 
 import { getFilesRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'

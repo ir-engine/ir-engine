@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import fs from 'fs'
 import knex from 'knex'
 
 import { buildStatusPath, BuildStatusType } from '@etherealengine/common/src/schema.type.module'

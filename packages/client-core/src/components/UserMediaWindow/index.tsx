@@ -50,11 +50,11 @@ import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettin
 import { MotionCaptureSystem, timeSeriesMocapData } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
 import {
-  getMutableState,
-  getState,
   NO_PROXY,
   PeerID,
   State,
+  getMutableState,
+  getState,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'

@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import crypto from 'crypto'
 import { Paginated } from '@feathersjs/feathers'
 import { resolve, virtual } from '@feathersjs/schema'
+import crypto from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ChannelID, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
@@ -37,8 +37,8 @@ import {
   SpawnDetailsType
 } from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'

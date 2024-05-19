@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import assert from 'assert'
 import { ChildProcess } from 'child_process'
-import appRootPath from 'app-root-path'
 import { v4 as uuidv4 } from 'uuid'
 
 import { identityProviderPath, locationPath, UserID } from '@etherealengine/common/src/schema.type.module'

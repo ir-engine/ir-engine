@@ -59,7 +59,7 @@ import {
   writeEntity,
   writeVector3
 } from './DataWriter'
-import { createViewCursor, readFloat64, readUint8, readUint32, sliceViewCursor } from './ViewCursor'
+import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
   beforeEach(() => {

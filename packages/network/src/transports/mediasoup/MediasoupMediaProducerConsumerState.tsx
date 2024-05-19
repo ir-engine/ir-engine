@@ -28,6 +28,9 @@ import React, { useEffect } from 'react'
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
+  NO_PROXY_STEALTH,
+  PeerID,
+  Validator,
   defineAction,
   defineState,
   dispatchAction,
@@ -35,12 +38,9 @@ import {
   getState,
   matches,
   matchesPeerID,
-  NO_PROXY_STEALTH,
   none,
-  PeerID,
   useHookstate,
-  useMutableState,
-  Validator
+  useMutableState
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '../../DataChannelRegistry'

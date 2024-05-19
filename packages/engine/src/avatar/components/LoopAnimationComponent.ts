@@ -44,7 +44,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { CallbackComponent, setCallback, StandardCallbacks } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'

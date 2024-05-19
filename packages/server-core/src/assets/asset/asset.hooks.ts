@@ -31,7 +31,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { assetPath, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'

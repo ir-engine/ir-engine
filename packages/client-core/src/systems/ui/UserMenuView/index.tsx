@@ -31,7 +31,7 @@ import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { createXRUI, XRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { XRUI, createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'

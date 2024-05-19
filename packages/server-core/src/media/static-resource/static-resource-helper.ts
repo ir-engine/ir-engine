@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path'
-import { Readable } from 'stream'
 import * as ffprobe from '@ffprobe-installer/ffprobe'
 import appRootPath from 'app-root-path'
 import execa from 'execa'
+import fs from 'fs'
 import mp3Duration from 'mp3-duration'
+import path from 'path'
 import probe from 'probe-image-size'
+import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'

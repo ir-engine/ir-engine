@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { exec } from 'child_process'
-import fs from 'fs'
-import path from 'path'
-import { promisify } from 'util'
 import appRootPath from 'app-root-path'
+import { exec } from 'child_process'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import fs from 'fs'
 import knex from 'knex'
+import path from 'path'
+import { promisify } from 'util'
 
 import { helmSettingPath, HelmSettingType } from '@etherealengine/common/src/schema.type.module'
 import {

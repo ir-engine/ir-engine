@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { strictEqual } from 'assert'
 import { act, render } from '@testing-library/react'
+import { strictEqual } from 'assert'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
@@ -32,7 +32,7 @@ import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AsyncLocalStorage } from 'async_hooks'
 import * as authentication from '@feathersjs/authentication'
 import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
+import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'

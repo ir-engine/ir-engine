@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
 import { act, render } from '@testing-library/react'
+import assert from 'assert'
 import React from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'

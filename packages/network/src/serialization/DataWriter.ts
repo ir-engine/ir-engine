@@ -27,32 +27,32 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { getState, PeerID } from '@etherealengine/hyperflux'
+import { PeerID, getState } from '@etherealengine/hyperflux'
 
 import { Network } from '../Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
-  compress,
-  flatten,
-  getVector4IndexBasedComponentValue,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA
+  Vector4SoA,
+  compress,
+  flatten,
+  getVector4IndexBasedComponentValue
 } from './Utils'
 import {
+  ViewCursor,
   createViewCursor,
   rewindViewCursor,
   sliceViewCursor,
-  spaceUint8,
   spaceUint16,
   spaceUint32,
   spaceUint64,
-  ViewCursor,
+  spaceUint8,
   writeFloat64,
   writePropIfChanged,
   writeUint32

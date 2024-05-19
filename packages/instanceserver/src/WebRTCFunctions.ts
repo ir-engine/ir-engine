@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import os from 'os'
 import detect from 'detect-port'
 import { createWorker } from 'mediasoup'
 import {
@@ -37,6 +36,7 @@ import {
   Worker
 } from 'mediasoup/node/lib/types'
 import { decode } from 'msgpackr'
+import os from 'os'
 
 import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@etherealengine/hyperflux'
 import {

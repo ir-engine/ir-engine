@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import fs from 'fs'
-import path from 'path'
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'

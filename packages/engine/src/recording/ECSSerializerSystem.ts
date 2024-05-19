@@ -27,13 +27,13 @@ import { Entity, EntityUUID, getComponent, UUIDComponent } from '@etherealengine
 import {
   checkBitflag,
   createViewCursor,
-  readUint8,
   readUint32,
+  readUint8,
   rewindViewCursor,
   SerializationSchema,
   sliceViewCursor,
-  spaceUint8,
   spaceUint32,
+  spaceUint8,
   ViewCursor
 } from '@etherealengine/network'
 

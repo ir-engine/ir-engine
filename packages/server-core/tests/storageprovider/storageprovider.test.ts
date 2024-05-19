@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import https from 'https'
-import path from 'path/posix'
 import approot from 'app-root-path'
+import assert from 'assert'
 import fs from 'fs-extra'
+import https from 'https'
 import fetch from 'node-fetch'
+import path from 'path/posix'
 import { v4 as uuidv4 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'

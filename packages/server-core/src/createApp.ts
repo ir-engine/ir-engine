@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
 
-import { EventEmitter } from 'events'
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
+import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'

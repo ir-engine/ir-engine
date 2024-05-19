@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { spawn } from 'child_process'
 import appRootPath from 'app-root-path'
+import { spawn } from 'child_process'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import knex from 'knex'
