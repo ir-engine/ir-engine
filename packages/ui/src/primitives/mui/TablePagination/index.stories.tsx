@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Table, TableBody } from '@mui/material'
 import React from 'react'
 
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
-
-import { Table, TableBody } from '@mui/material'
 
 import Component from './index'
 

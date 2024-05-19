@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
 import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
+
+import { XRJointAvatarBoneMap } from '@etherealengine/spatial/src/xr/XRComponents'
 
 export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
   const bones = Object.values(XRJointAvatarBoneMap)

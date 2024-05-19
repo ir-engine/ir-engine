@@ -31,6 +31,7 @@ import {
   fileBrowserPatchValidator,
   fileBrowserUpdateValidator
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+
 import verifyScope from '../../hooks/verify-scope'
 
 export default {

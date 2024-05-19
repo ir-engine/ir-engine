@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import appRootPath from 'app-root-path'
 
 import {
   assetsRegex,
@@ -35,9 +35,10 @@ import {
   rootSceneJsonRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import logger from '../../ServerLogger'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import logger from '../../ServerLogger'
 
 /**
  * Downloads a specific project to the local file system from the storage provider cache

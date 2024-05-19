@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { act, render } from '@testing-library/react'
+import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { ReactorReconciler, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { SystemDefinitions } from '@etherealengine/ecs'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { applyIncomingActions, dispatchAction, getMutableState, ReactorReconciler } from '@etherealengine/hyperflux'
 import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
 import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
@@ -44,8 +44,7 @@ import {
 } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { act, render } from '@testing-library/react'
-import React from 'react'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'

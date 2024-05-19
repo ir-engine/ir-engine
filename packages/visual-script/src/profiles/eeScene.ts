@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { HyperFlux } from '@etherealengine/hyperflux'
+
 import { EventEmitter } from '../engine/Events/EventEmitter'
 import { ValueType } from '../engine/Values/ValueType'
 import {
@@ -31,8 +32,8 @@ import {
   ColorValue,
   EulerValue,
   FloatValue,
-  IScene,
   IntegerValue,
+  IScene,
   QuatValue,
   StringValue,
   Vec2Value,

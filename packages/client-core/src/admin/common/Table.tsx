@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiArrowSmallDown, HiArrowSmallUp } from 'react-icons/hi2'
 
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
@@ -32,13 +33,12 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Table, {
   TableBody,
   TableCell,
-  TableHeadRow,
   TableHeaderCell,
+  TableHeadRow,
   TablePagination,
   TableRow
 } from '@etherealengine/ui/src/primitives/tailwind/Table'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useTranslation } from 'react-i18next'
 
 export interface ITableHeadCell {
   id: string | number

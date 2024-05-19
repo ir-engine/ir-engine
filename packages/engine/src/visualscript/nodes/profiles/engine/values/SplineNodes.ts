@@ -27,16 +27,16 @@ import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
   Assert,
-  NodeCategory,
   makeAsyncNodeDefinition,
-  makeFunctionNodeDefinition
+  makeFunctionNodeDefinition,
+  NodeCategory
 } from '@etherealengine/visual-script'
 
 const splineQuery = defineQuery([SplineComponent])

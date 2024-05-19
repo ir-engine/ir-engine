@@ -28,15 +28,14 @@ Ethereal Engine. All Rights Reserved.
  * Defines the {@link NodeEditor} UI for managing {@link TextComponent}s in the Studio.
  */
 
+import TextFieldsIcon from '@mui/icons-material/TextFields'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import TextFieldsIcon from '@mui/icons-material/TextFields'
-
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
-  EditorComponentType,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties//Util'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
@@ -46,6 +45,7 @@ import {
   TroikaTextLineHeight
 } from '@etherealengine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@etherealengine/hyperflux'
+
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'

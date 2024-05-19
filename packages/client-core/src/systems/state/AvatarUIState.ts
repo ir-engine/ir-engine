@@ -32,7 +32,7 @@ import {
   matchesWithDefault,
   none
 } from '@etherealengine/hyperflux'
-import { NetworkTopics, matchesUserID } from '@etherealengine/network'
+import { matchesUserID, NetworkTopics } from '@etherealengine/network'
 
 export class AvatarUIActions {
   static setUserTyping = defineAction({

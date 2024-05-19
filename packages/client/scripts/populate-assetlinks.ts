@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import fs from 'fs'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import fs from 'fs'
 import fetch from 'node-fetch'
 
 import { writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'

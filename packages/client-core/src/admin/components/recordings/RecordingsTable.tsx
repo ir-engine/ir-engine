@@ -25,18 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiTrash } from 'react-icons/hi2'
 
-import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
-
+import { recordingPath, RecordingType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import DataTable from '../../common/Table'
-
-import { recordingColumns } from '../../common/constants/recordings'
-
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiTrash } from 'react-icons/hi2'
+
 import { PopoverState } from '../../../common/services/PopoverState'
+import { recordingColumns } from '../../common/constants/recordings'
+import DataTable from '../../common/Table'
 
 export default function RecordingsTable({ search }: { search: string }) {
   const { t } = useTranslation()

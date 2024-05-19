@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
+import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { NoiseOffsetSystem } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
+
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'

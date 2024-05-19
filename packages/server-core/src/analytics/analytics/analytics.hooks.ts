@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { Knex } from 'knex'
 
 import {
-  AnalyticsType,
   analyticsDataValidator,
   analyticsPatchValidator,
-  analyticsQueryValidator
+  analyticsQueryValidator,
+  AnalyticsType
 } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
 import { instanceAttendancePath } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
-import { Knex } from 'knex'
+
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'

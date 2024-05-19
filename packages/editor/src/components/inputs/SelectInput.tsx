@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import React from 'react'
 
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from './selectInput.module.scss'

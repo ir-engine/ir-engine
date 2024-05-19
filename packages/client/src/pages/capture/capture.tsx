@@ -29,6 +29,7 @@ import { useParams } from 'react-router-dom'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { useNetwork } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
@@ -36,10 +37,12 @@ import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRec
 import { defineActionQueue, useMutableState } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
-import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import '@etherealengine/client-core/src/world/ClientNetworkModule'
+
 import { getMutableComponent, hasComponent, useQuery } from '@etherealengine/ecs'
+
 import '@etherealengine/engine/src/EngineModule'
+
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailDataSchema } from '@etherealengine/common/src/schemas/user/email.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { emailDataSchema } from '@etherealengine/common/src/schemas/user/email.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { emailDataSchema },

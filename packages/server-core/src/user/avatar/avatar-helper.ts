@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { Paginated } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { AvatarID, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'

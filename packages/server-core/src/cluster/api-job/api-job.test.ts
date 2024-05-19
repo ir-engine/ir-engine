@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paper as MuiPaper, PaperProps } from '@mui/material'
 import React from 'react'
 
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { Paper as MuiPaper, PaperProps } from '@mui/material'
 
 const Paper = ({ children, ...props }: PaperProps & { component?: string }) => (
   <MuiPaper {...props}>{children}</MuiPaper>

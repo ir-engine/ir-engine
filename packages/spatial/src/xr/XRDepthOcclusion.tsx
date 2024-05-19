@@ -30,10 +30,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent, GroupQueryReactor } from '../renderer/components/GroupComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'

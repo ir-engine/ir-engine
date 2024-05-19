@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Box from '@mui/material/Box'
 import React from 'react'
 
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import RoomMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/RoomMenu'
 import { useMutableState } from '@etherealengine/hyperflux'
-
-import Box from '@mui/material/Box'
 
 export const RoomPage = (): any => {
   const clientSettingState = useMutableState(AdminClientSettingsState)

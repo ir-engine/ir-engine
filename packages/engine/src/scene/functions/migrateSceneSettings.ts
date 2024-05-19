@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { v4 as uuidv4 } from 'uuid'
+
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 // puts the scene settings from the the root entity into a sub entity

@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Vector2 } from 'three'
+
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -43,7 +45,7 @@ import { InputSourceComponent } from '@etherealengine/spatial/src/input/componen
 import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { Vector2 } from 'three'
+
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { AvatarComponent } from '../components/AvatarComponent'

@@ -23,25 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { ISchema } from 'bitecs'
+import { useLayoutEffect } from 'react'
+
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import ECS, {
   Component,
-  Engine,
-  Entity,
-  UndefinedEntity,
   defineComponent,
   defineQuery,
+  Engine,
+  Entity,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { PeerID, Validator, matches } from '@etherealengine/hyperflux'
-import type { ISchema } from 'bitecs'
-import { useLayoutEffect } from 'react'
+import { matches, PeerID, Validator } from '@etherealengine/hyperflux'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

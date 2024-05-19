@@ -19,7 +19,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+
 import { queryValidator } from '../validators'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html

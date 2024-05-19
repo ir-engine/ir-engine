@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import fs from 'fs'
+import path from 'path'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import fs from 'fs'
-import path from 'path'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'

@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { PeerID, getMutableState, none } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState, none, PeerID } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Network } from '../Network'
 import { NetworkState } from '../NetworkState'
 

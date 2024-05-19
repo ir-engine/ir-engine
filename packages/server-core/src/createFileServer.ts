@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import packageRoot from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
 import net from 'net'
 import { join } from 'path'
+import packageRoot from 'app-root-path'
 import serveStatic from 'serve-static'
 
 import config from './appconfig'

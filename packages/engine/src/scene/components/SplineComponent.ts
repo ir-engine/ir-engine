@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
-
 import { useEffect } from 'react'
+import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
 
 import {
   defineComponent,
@@ -37,6 +36,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({

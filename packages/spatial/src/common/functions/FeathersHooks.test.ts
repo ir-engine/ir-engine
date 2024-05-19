@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act, renderHook } from '@testing-library/react'
 import assert from 'assert'
+import { act, renderHook } from '@testing-library/react'
 import { afterEach } from 'mocha'
+import { useEffect } from 'react'
 
 import { AvatarID, UserName, userPath } from '@etherealengine/common/src/schema.type.module'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { createState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
+
 import { createEngine } from '../../initializeEngine'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'

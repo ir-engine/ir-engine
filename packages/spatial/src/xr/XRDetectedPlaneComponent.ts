@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
+import matches from 'ts-matches'
+
 import {
   defineComponent,
   getMutableComponent,
@@ -34,9 +38,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
-import matches from 'ts-matches'
+
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'

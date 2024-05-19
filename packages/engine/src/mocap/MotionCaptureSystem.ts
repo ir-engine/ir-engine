@@ -23,29 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
+import { Quaternion } from 'three'
 
-import { PeerID, getState } from '@etherealengine/hyperflux'
-
-import {
-  DataChannelType,
-  Network,
-  NetworkState,
-  addDataChannelHandler,
-  removeDataChannelHandler
-} from '@etherealengine/network'
-
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-
-import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { ECSState } from '@etherealengine/ecs'
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Quaternion } from 'three'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState, PeerID } from '@etherealengine/hyperflux'
+import {
+  addDataChannelHandler,
+  DataChannelType,
+  Network,
+  NetworkState,
+  removeDataChannelHandler
+} from '@etherealengine/network'
+
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'

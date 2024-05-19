@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { isIPhone } from '../common/functions/isMobile'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
 import { Identifiable, identifiable } from '@hookstate/identifiable'
-
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'

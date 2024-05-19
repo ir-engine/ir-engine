@@ -46,17 +46,17 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, generateEntityUUID, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineState, getMutableState, getState, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'

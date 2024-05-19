@@ -23,17 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMagnifyingGlass, HiPlus, HiTrash } from 'react-icons/hi2'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMagnifyingGlass, HiPlus, HiTrash } from 'react-icons/hi2'
+
 import AddEditChannelModal from './AddEditChannelModal'
 import ChannelTable from './ChannelTable'
 

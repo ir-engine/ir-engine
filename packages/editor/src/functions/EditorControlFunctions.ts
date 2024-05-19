@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
-import { EntityUUID, SetComponentType, UUIDComponent, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID, SetComponentType, UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
-  ComponentJSONIDMap,
-  SerializedComponentType,
   componentJsonDefaults,
+  ComponentJSONIDMap,
   getComponent,
   hasComponent,
+  SerializedComponentType,
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -56,8 +59,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { GLTF } from '@gltf-transform/core'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'

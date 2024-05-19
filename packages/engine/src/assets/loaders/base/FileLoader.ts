@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Cache, LoadingManager } from 'three'
+
 import { Loader } from './Loader'
 
 const loading = {}

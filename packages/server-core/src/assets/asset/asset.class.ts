@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { AssetData, AssetPatch, AssetQuery, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface AssetParams extends KnexAdapterParams<AssetQuery> {
   paginate?: false

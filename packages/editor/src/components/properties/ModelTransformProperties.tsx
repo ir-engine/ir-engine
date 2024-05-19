@@ -27,6 +27,7 @@ import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentType,
   getMutableComponent,
@@ -39,13 +40,12 @@ import {
   DefaultModelTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NO_PROXY, State, useMutableState } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
-import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -55,6 +55,7 @@ import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
+
 import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {

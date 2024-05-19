@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PodsType, ServerPodInfoType } from '@etherealengine/common/src/schemas/cluster/pods.schema'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
+
+import { PodsType, ServerPodInfoType } from '@etherealengine/common/src/schemas/cluster/pods.schema'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getServerInfo, getServerLogs, removePod } from './pods-helper'

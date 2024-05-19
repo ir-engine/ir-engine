@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { PerspectiveCamera } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import { useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -38,9 +36,10 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { CameraHelperComponent } from '@etherealengine/spatial/src/common/debug/CameraHelperComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 

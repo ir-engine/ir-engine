@@ -33,15 +33,17 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
+
+import { StyledEngineProvider, Theme } from '@mui/material/styles'
+import { useTranslation } from 'react-i18next'
+
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import { StyledEngineProvider, Theme } from '@mui/material/styles'
-
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { useTranslation } from 'react-i18next'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from './themeContext'
 

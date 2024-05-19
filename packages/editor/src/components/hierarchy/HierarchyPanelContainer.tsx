@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import MenuItem from '@mui/material/MenuItem'
+import Popover, { PopoverPosition } from '@mui/material/Popover'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
@@ -30,9 +32,15 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
   EntityTreeComponent,
@@ -40,30 +48,21 @@ import {
   traverseEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import MenuItem from '@mui/material/MenuItem'
-import Popover, { PopoverPosition } from '@mui/material/Popover'
-
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { Engine, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
-import Search from '../Search/Search'
 import useUpload from '../assets/useUpload'
 import { PopoverContext } from '../element/PopoverContext'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import PrefabList from '../prefabs/PrefabList'
+import Search from '../Search/Search'
 import { HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
-import { HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from './HierarchyTreeNode'
+import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeProps, RenameNodeData } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
 /**

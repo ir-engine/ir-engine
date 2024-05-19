@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
 import fs from 'fs'
-import type { Knex } from 'knex'
 import path from 'path'
+import appRootPath from 'app-root-path'
+import type { Knex } from 'knex'
 
 import appConfig from '@etherealengine/server-core/src/appconfig'
 

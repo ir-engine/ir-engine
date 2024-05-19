@@ -25,24 +25,24 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Vector3 } from 'three'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
   hasComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
-import { Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorPropType, commitProperty } from './Util'
+import { commitProperty, EditorPropType } from './Util'
 
 const MountPointTypes = [{ label: 'Seat', value: MountPoint.seat }]
 

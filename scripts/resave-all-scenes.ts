@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
-import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
+import appRootPath from 'app-root-path'
+import cli from 'cli'
 
 import { createDOM } from '@etherealengine/client-core/tests/createDOM'
 import { ComponentJSONIDMap, ComponentMap } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'

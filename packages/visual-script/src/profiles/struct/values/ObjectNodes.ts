@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { assocPath, equals, mergeDeepRight, path } from 'rambdax'
-import { NodeCategory, makeInNOutFunctionDesc } from '../../../VisualScriptModule'
+
+import { makeInNOutFunctionDesc, NodeCategory } from '../../../VisualScriptModule'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'logic/object/constant',

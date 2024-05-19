@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  AuthenticationSettingPatch,
-  AuthenticationSettingType,
   authenticationSettingDataValidator,
+  AuthenticationSettingPatch,
   authenticationSettingPatchValidator,
   authenticationSettingPath,
-  authenticationSettingQueryValidator
+  authenticationSettingQueryValidator,
+  AuthenticationSettingType
 } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
-import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import refreshApiPods from '../../hooks/refresh-api-pods'

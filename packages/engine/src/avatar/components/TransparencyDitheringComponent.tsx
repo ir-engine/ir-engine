@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, getOptionalMutableComponent } from '@etherealengine/ecs'
+import { Vector3 } from 'three'
+
+import { defineComponent, Entity, getOptionalMutableComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -33,7 +35,7 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { Vector3 } from 'three'
+
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,

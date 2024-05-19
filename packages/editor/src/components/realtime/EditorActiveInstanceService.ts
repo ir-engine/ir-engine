@@ -30,11 +30,11 @@ import {
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import logger from '@etherealengine/common/src/logger'
 import {
+  instanceActivePath,
   InstanceActiveType,
   InstanceID,
-  LocationID,
-  instanceActivePath,
-  instanceProvisionPath
+  instanceProvisionPath,
+  LocationID
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
