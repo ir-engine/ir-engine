@@ -28,7 +28,7 @@ import { Texture, Uniform } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 
-import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, none, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
@@ -162,6 +162,26 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const parameters = useHookstate(0)
 
+  const shouldLoadTexture = async (value, key: string, parametersObject: State<any>) => {
+    let prop
+    if (parametersObject[key].type.value === 'texture') {
+      if (value) {
+        const priorUnload = textureUnloadMap.get(NO_PROXY)[key]
+        if (priorUnload) {
+          priorUnload()
+        }
+        const [texture, unload] = await getTextureAsync(value)
+        textureUnloadMap.merge({ [key]: unload })
+        prop = texture
+      } else {
+        prop = null
+      }
+    } else {
+      prop = value
+    }
+    return prop
+  }
+
   const pluginEntity = pluginByName[selectedPlugin.value]
   const pluginState = useOptionalComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
   const pluginParameters = useHookstate({})
@@ -241,30 +261,15 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <ParameterInput
         entity={props.materialUUID}
         values={materialComponent.parameters.value!}
-        onChange={(k) => async (val) => {
-          let prop
-          if (prototype.prototypeArguments[k].type.value === 'texture') {
-            if (val) {
-              const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
-              if (priorUnload) {
-                priorUnload()
-              }
-              const [texture, unload] = await getTextureAsync(val)
-              textureUnloadMap.merge({ [k]: unload })
-              prop = texture
-            } else {
-              prop = null
-            }
-          } else {
-            prop = val
-          }
+        onChange={(key) => async (value) => {
+          const property = await shouldLoadTexture(value, key, prototype.prototypeArguments)
           EditorControlFunctions.modifyMaterial(
             [materialComponent.material.value!.uuid],
             materialComponent.material.value!.uuid as EntityUUID,
-            [{ [k]: prop }]
+            [{ [key]: property }]
           )
           parameters.set(parameters.value + 1)
-          if (materialComponent.parameters.value) materialComponent.parameters[k].set(prop)
+          if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
         }}
         defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
@@ -300,10 +305,11 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <ParameterInput
           entity={props.materialUUID}
           values={pluginValues.value}
-          onChange={(k) => (val) => {
+          onChange={(key) => async (value) => {
+            const property = await shouldLoadTexture(value, key, pluginParameters)
             getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters![materialName.value][
-              k
-            ].value = val
+              key
+            ].value = property
           }}
           defaults={pluginParameters.value}
         />
