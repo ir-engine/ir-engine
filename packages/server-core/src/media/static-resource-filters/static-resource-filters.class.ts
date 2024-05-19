@@ -1,4 +1,13 @@
 import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { Knex } from 'knex'
+
+import {
+  StaticResourceFiltersQuery,
+  StaticResourceFiltersType
+} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+
 /*
 CPAL-1.0 License
 The contents of this file are subject to the Common Public Attribution License
@@ -20,14 +29,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Application } from '../../../declarations'
-
-import {
-  StaticResourceFiltersQuery,
-  StaticResourceFiltersType
-} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { Knex } from 'knex'
 
 export interface StaticResourceFiltersParams extends KnexAdapterParams<StaticResourceFiltersQuery> {}
 

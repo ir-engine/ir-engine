@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON, NodeJSON, ValueJSON, VariableJSON } from '@etherealengine/visual-script'
 import { Edge, Node } from 'reactflow'
+
+import { GraphJSON, NodeJSON, ValueJSON, VariableJSON } from '@etherealengine/visual-script'
+
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null

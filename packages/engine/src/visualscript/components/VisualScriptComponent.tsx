@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { Entity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMutableState } from '@etherealengine/hyperflux'
-
-import { Entity } from '@etherealengine/ecs'
 import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
-import React, { useEffect } from 'react'
+import { defaultVisualScript, GraphJSON, IRegistry, VisualScriptState } from '@etherealengine/visual-script'
+
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 

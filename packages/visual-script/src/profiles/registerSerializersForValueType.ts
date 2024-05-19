@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ValueTypeMap, makeInNOutFunctionDesc, toCamelCase } from '../VisualScriptModule'
+import { makeInNOutFunctionDesc, toCamelCase, ValueTypeMap } from '../VisualScriptModule'
 
 export function getStringConversionsForValueType({
   values,

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../VisualScriptModule'
-import { Mat3, eulerToMat3, quatToMat3 } from './Mat3'
+import { eulerToMat3, Mat3, quatToMat3 } from './Mat3'
 import { Vec2 } from './Vec2'
 import { Vec3, vec3Cross, vec3Length, vec3MultiplyByScalar, vec3Normalize, vec3Subtract } from './Vec3'
 import { Vec4 } from './Vec4'

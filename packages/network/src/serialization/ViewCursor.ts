@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 
 export type ViewCursor = DataView & { cursor: number; shadowMap: Map<TypedArray, TypedArray> }

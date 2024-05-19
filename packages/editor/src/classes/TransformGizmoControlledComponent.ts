@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, Vector3 } from 'three'
+
+import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -31,8 +35,6 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
@@ -40,8 +42,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'

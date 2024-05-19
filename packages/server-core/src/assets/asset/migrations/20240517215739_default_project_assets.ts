@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { Knex } from 'knex'
+
 import { projectPath } from '@etherealengine/common/src/schema.type.module'
 import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import type { Knex } from 'knex'
 
 /**
  * @param { import("knex").Knex } knex

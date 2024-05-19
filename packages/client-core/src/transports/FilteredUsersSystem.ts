@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getNearbyUsers } from '@etherealengine/engine/src/avatar/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkState } from '@etherealengine/network'
-import { useEffect } from 'react'
+
 import { MediaInstanceState, useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 

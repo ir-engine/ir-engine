@@ -26,18 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import getImagePalette from 'image-palette-core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { Color } from 'three'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
-import { Color } from 'three'
+
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { takeScreenshot } from '../../functions/takeScreenshot'
 import { generateEnvmapBake } from '../../functions/uploadEnvMapBake'
@@ -48,7 +48,7 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { Frustum, Matrix4, Vector3 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
-
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import {
-  DistanceFromLocalClientComponent,
-  compareDistanceToLocalClient
+  compareDistanceToLocalClient,
+  DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+
 import { InteractableComponent } from '../components/InteractableComponent'
 
 const worldPosVec3 = new Vector3()

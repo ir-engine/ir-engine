@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
+
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import MultiEmailInput from './index'
 
 const Story = () => {

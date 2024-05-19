@@ -23,6 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { startTransition, useEffect, useMemo, useRef } from 'react'
+import {
+  BufferGeometry,
+  CompressedTexture,
+  Group,
+  InterleavedBufferAttribute,
+  LinearFilter,
+  Material,
+  Matrix3,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  ShaderLib,
+  ShaderMaterial,
+  SphereGeometry,
+  SRGBColorSpace,
+  Texture,
+  UniformsLib,
+  UniformsUtils,
+  Vector2
+} from 'three'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
 import {
@@ -40,31 +62,11 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NO_PROXY_STEALTH, State, getState, none } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY_STEALTH, none, State } from '@etherealengine/hyperflux'
 import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
-import { startTransition, useEffect, useMemo, useRef } from 'react'
-import {
-  BufferGeometry,
-  CompressedTexture,
-  Group,
-  InterleavedBufferAttribute,
-  LinearFilter,
-  Material,
-  Matrix3,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  SRGBColorSpace,
-  ShaderLib,
-  ShaderMaterial,
-  SphereGeometry,
-  Texture,
-  UniformsLib,
-  UniformsUtils,
-  Vector2
-} from 'three'
+
 import { getLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -81,14 +83,14 @@ import {
   PlayerManifest,
   TextureFormat,
   TextureType,
-  UVOL_TYPE,
-  UniformSolveTarget
+  UniformSolveTarget,
+  UVOL_TYPE
 } from '../constants/UVOLTypes'
 import getFirstMesh from '../util/meshUtils'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
+import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
 
 export const calculatePriority = (manifest: PlayerManifest) => {
   const geometryTargets = Object.keys(manifest.geometry.targets)

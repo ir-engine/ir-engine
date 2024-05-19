@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { socket } from '@feathersjs/transport-commons'
 import http from 'http'
+import { socket } from '@feathersjs/transport-commons'
 import Primus from 'primus'
 import Emitter from 'primus-emitter'
 

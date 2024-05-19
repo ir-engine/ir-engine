@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AnimationAction,
@@ -43,8 +44,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { VRM } from '@pixiv/three-vrm'
+import { CallbackComponent, setCallback, StandardCallbacks } from '@etherealengine/spatial/src/common/CallbackComponent'
+
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'

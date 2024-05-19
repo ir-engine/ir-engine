@@ -35,9 +35,8 @@ import {
   EmailSmtpType,
   EmailSubjectType
 } from '@etherealengine/common/src/schemas/setting/email-setting.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const emailDbToSchema = (rawData: EmailSettingDatabaseType): EmailSettingType => {
   let smtp = JSON.parse(rawData.smtp) as EmailSmtpType

@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import appRootPath from 'app-root-path'
 import sharp from 'sharp'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 
-import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {

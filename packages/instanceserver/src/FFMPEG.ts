@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Process from 'child_process'
-import ffmpeg from 'ffmpeg-static'
 import Stream, { Readable } from 'stream'
+import ffmpeg from 'ffmpeg-static'
+import { Consumer } from 'mediasoup/node/lib/Consumer'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
-import { Consumer } from 'mediasoup/node/lib/Consumer'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 

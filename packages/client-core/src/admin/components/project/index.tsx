@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
+
 import config, { isDev } from '@etherealengine/common/src/config'
 import { useMutableState } from '@etherealengine/hyperflux'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { twMerge } from 'tailwind-merge'
+
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import BuildStatusTable from './build-status/BuildStatusTable'
 import ProjectTable from './ProjectTable'
 import ProjectTopMenu from './ProjectTopMenu'
-import BuildStatusTable from './build-status/BuildStatusTable'
 
 export default function AdminProject() {
   const { t } = useTranslation()

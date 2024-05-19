@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteService } from '@etherealengine/client-core/src/social/services/InviteService'
 import {
+  instancePath,
   InviteCode,
   InviteData,
-  InviteType,
-  instancePath,
   invitePath,
+  InviteType,
   locationPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
@@ -44,8 +47,6 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@etherealengine/ui/src/primitives/tailwind/MultiEmailInput'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]

@@ -18,10 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
 import { findBuilderTags } from '../project/project-helper'
 
 export class ProjectBuilderTagsService implements ServiceInterface<ProjectBuilderTagsType> {

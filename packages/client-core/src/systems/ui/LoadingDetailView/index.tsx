@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, hookstate } from '@etherealengine/hyperflux'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { hookstate, State } from '@etherealengine/hyperflux'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
+
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 

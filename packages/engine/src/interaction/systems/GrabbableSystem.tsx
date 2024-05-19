@@ -25,7 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  Engine,
+  entityExists,
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  SimulationSystemGroup,
+  UUIDComponent
+} from '@etherealengine/ecs'
 import {
   defineActionQueue,
   defineState,
@@ -36,19 +49,6 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-
-import {
-  defineQuery,
-  defineSystem,
-  Engine,
-  entityExists,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  SimulationSystemGroup
-} from '@etherealengine/ecs'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
@@ -58,6 +58,7 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'

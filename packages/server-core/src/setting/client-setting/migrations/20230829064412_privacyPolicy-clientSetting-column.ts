@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import type { Knex } from 'knex'
+
+import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex

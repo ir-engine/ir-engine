@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AppBarProps, AppBar as MuiAppBar } from '@mui/material'
 import React from 'react'
 
 import Toolbar from '@etherealengine/ui/src/primitives/mui/Toolbar'
-
-import { AppBarProps, AppBar as MuiAppBar } from '@mui/material'
 
 const AppBar = (props: AppBarProps) => <MuiAppBar {...props} />
 

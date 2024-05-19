@@ -27,6 +27,7 @@ import { Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**

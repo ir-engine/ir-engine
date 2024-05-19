@@ -24,16 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-
-import { createEntity, destroyEngine } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
 import { AmbientLight, DirectionalLight } from 'three'
-import { ResourceState } from './ResourceState'
+
+import { createEntity, destroyEngine } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+
 import { useDisposable, useResource } from './resourceHooks'
+import { ResourceState } from './ResourceState'
 
 describe('ResourceHooks', () => {
   beforeEach(async () => {

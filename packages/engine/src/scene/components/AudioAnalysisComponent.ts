@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import {
   defineComponent,
   setComponent,
@@ -33,7 +35,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { useEffect } from 'react'
+
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { AudioNodeGroups, MediaComponent, MediaElementComponent } from './MediaComponent'
 

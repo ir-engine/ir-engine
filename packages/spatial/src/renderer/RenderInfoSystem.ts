@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { Engine, getOptionalComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 
 export const RenderInfoState = defineState({

@@ -28,6 +28,7 @@ import React, { Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+
 import { Redirect } from '../common/components/Redirect'
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'

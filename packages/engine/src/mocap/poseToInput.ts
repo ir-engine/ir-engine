@@ -32,6 +32,7 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState, none } from '@etherealengine/hyperflux'
+
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'

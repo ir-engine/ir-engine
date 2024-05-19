@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { koa } from '@feathersjs/koa'
-import packageRoot from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
+import { join } from 'path'
+import { koa } from '@feathersjs/koa'
+import packageRoot from 'app-root-path'
 import favicon from 'koa-favicon'
 import sendFile from 'koa-send'
 import serve from 'koa-static'
-import { join } from 'path'
 import psList from 'ps-list'
 
 import config from '@etherealengine/server-core/src/appconfig'

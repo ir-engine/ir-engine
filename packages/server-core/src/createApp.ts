@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // Do not delete json and urlencoded, they are used even if some IDEs show them as unused
 
+import { EventEmitter } from 'events'
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
 import * as k8s from '@kubernetes/client-node'
-import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
@@ -38,6 +38,7 @@ import cors from 'koa-cors'
 import helmet from 'koa-helmet'
 import healthcheck from 'koa-simple-healthcheck'
 
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { initializeNode } from '@etherealengine/engine/src/initializeNode'
@@ -45,16 +46,15 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Application } from '../declarations'
-import { logger } from './ServerLogger'
-import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
+import { logger } from './ServerLogger'
+import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'

@@ -28,27 +28,27 @@ import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { PeerID, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import {
-  TransformSerialization,
   readPosition,
   readRotation,
   readTransform,
+  TransformSerialization,
   writePosition,
   writeRotation,
   writeTransform
 } from '@etherealengine/spatial/src/transform/TransformSerialization'
-import { roundNumberToPlaces } from '../../tests/MathTestUtils'
+
 import { createMockNetwork } from '../../tests/createMockNetwork'
+import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { Network } from '../Network'
 import {
   NetworkObjectAuthorityTag,
@@ -69,7 +69,7 @@ import {
 } from './DataReader'
 import { createDataWriter, writeCompressedVector3, writeEntities, writeEntity, writeVector4 } from './DataWriter'
 import { Vector3SoA } from './Utils'
-import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor, writeProp } from './ViewCursor'
+import { createViewCursor, readFloat64, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
   beforeEach(() => {
