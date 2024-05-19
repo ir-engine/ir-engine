@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
-import React, { ReactNode, forwardRef, useEffect } from 'react'
+import React, { forwardRef, ReactNode, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Text from '../Text'
 
 export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {

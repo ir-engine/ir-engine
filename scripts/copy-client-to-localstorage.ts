@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-import appRootPath from 'app-root-path'
-import cli from 'cli'
 import fs from 'fs'
 import path from 'path'
+import appRootPath from 'app-root-path'
+import cli from 'cli'
 
 import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 

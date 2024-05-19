@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY_STEALTH } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { EffectPropsSchema, defaultPostProcessingSchema } from '../effects/PostProcessing'
+
+import { defaultPostProcessingSchema, EffectPropsSchema } from '../effects/PostProcessing'
 import { configureEffectComposer } from '../functions/configureEffectComposer'
 import { useScene } from './SceneComponents'
 

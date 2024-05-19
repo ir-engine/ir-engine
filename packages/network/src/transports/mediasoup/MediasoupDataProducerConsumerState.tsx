@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import {
-  NO_PROXY_STEALTH,
-  Validator,
   defineAction,
   defineState,
   getMutableState,
   getState,
   matches,
   matchesPeerID,
+  NO_PROXY_STEALTH,
   none,
   useHookstate,
-  useMutableState
+  useMutableState,
+  Validator
 } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+
 import { DataChannelType } from '../../DataChannelRegistry'
 import { NetworkActions, NetworkState } from '../../NetworkState'
 import {

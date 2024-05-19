@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Raycaster, Vector2 } from 'three'
+
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
-import { Raycaster, Vector2 } from 'three'
 
 export const InputState = defineState({
   name: 'InputState',

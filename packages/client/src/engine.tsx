@@ -29,14 +29,14 @@ import { useTranslation } from 'react-i18next'
 import { API } from '@etherealengine/client-core/src/API'
 import { FullscreenContainer } from '@etherealengine/client-core/src/components/FullscreenContainer'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
+import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
-import { pipeLogs } from '@etherealengine/common/src/logger'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {

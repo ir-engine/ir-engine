@@ -32,7 +32,9 @@ import { MessageContainer } from '@etherealengine/ui/src/components/Chat/Message
 import './index.css'
 
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+
 import '@etherealengine/engine/src/EngineModule'
+
 import { getMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'

@@ -23,33 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert, { strictEqual } from 'assert'
+
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import assert, { strictEqual } from 'assert'
+
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 import {
   createViewCursor,
   readFloat32,
   readProp,
+  readUint8,
   readUint16,
   readUint32,
-  readUint8,
   sliceViewCursor,
+  spaceUint8,
   spaceUint16,
   spaceUint32,
-  spaceUint8,
   writeEntityId,
   writeFloat32,
   writeNetworkId,
   writeProp,
   writePropIfChanged,
+  writeUint8,
   writeUint16,
-  writeUint32,
-  writeUint8
+  writeUint32
 } from './ViewCursor'
 
 describe('ViewCursor read/write', () => {

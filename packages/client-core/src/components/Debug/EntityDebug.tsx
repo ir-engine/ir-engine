@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getAllEntities, getEntityComponents } from 'bitecs'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { JSONTree } from 'react-json-tree'
+
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   Component,
@@ -34,27 +39,22 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
-  HyperFlux,
-  NO_PROXY,
   defineState,
   getState,
+  HyperFlux,
+  NO_PROXY,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { getEntityComponents } from 'bitecs'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { JSONTree } from 'react-json-tree'
 
-import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { getAllEntities } from 'bitecs'
 import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {

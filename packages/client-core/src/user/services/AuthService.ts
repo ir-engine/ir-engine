@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
@@ -31,7 +32,35 @@ import { v4 as uuidv4 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
+import {
+  AuthStrategiesType,
+  AvatarID,
+  generateTokenPath,
+  identityProviderPath,
+  IdentityProviderType,
+  InstanceID,
+  locationBanPath,
+  loginPath,
+  loginTokenPath,
+  magicLinkPath,
+  userApiKeyPath,
+  UserApiKeyType,
+  UserAvatarPatch,
+  userAvatarPath,
+  UserID,
+  UserName,
+  UserPatch,
+  userPath,
+  UserPublicPatch,
+  UserSettingID,
+  UserSettingPatch,
+  userSettingPath,
+  UserSettingType,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
+import { EntityUUID } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
   defineState,
   dispatchAction,
@@ -40,35 +69,6 @@ import {
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
 
-import {
-  AvatarID,
-  IdentityProviderType,
-  InstanceID,
-  UserApiKeyType,
-  UserAvatarPatch,
-  UserID,
-  UserName,
-  UserPatch,
-  UserPublicPatch,
-  UserSettingID,
-  UserSettingPatch,
-  UserSettingType,
-  UserType,
-  generateTokenPath,
-  identityProviderPath,
-  locationBanPath,
-  loginPath,
-  loginTokenPath,
-  magicLinkPath,
-  userApiKeyPath,
-  userAvatarPath,
-  userPath,
-  userSettingPath
-} from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'

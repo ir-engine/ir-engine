@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-
-import { getState, matches } from '@etherealengine/hyperflux'
 
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import type { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { getState, matches } from '@etherealengine/hyperflux'
+
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'

@@ -27,6 +27,7 @@ import {
   instanceFriendsMethods,
   instanceFriendsPath
 } from '@etherealengine/common/src/schemas/networking/instance-friends.schema'
+
 import { Application } from '../../../declarations'
 import { InstanceFriendsService } from './instance-friends.class'
 import instanceFriendsDocs from './instance-friends.docs'

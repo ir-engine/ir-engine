@@ -37,8 +37,6 @@ import {
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-
 import {
   ComponentType,
   getComponent,
@@ -53,15 +51,17 @@ import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { NameComponent } from '../common/NameComponent'
+
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_Up } from '../common/constants/MathConstants'
+import { NameComponent } from '../common/NameComponent'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
-import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'

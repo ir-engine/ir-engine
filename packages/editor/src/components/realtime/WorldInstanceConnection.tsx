@@ -23,21 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import DirectionsRun from '@mui/icons-material/DirectionsRun'
+import DoneIcon from '@mui/icons-material/Done'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import {
-  SocketWebRTCClientNetwork,
-  leaveNetwork
+  leaveNetwork,
+  SocketWebRTCClientNetwork
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-
-import DirectionsRun from '@mui/icons-material/DirectionsRun'
-import DoneIcon from '@mui/icons-material/Done'
-
 import { useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
+
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'

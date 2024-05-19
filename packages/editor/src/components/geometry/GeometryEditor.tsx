@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import DeleteIcon from '@mui/icons-material/DeleteForeverTwoTone'
+import { Box, Grid, Stack, Typography } from '@mui/material'
 import React, { useCallback, useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'
-
-import DeleteIcon from '@mui/icons-material/DeleteForeverTwoTone'
-import { Box, Grid, Stack, Typography } from '@mui/material'
 
 import { Button } from '../inputs/Button'
 import styles from '../layout/styles.module.scss'

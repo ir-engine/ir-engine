@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Entity, getComponent, hasComponent } from '@etherealengine/ecs'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { StandardGamepadAxes, XRStandardGamepadAxes } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { Assert, Choices, NodeCategory, makeFunctionNodeDefinition } from '@etherealengine/visual-script'
+import { Assert, Choices, makeFunctionNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
 
 // very 3D specific.
 export const getAxis = makeFunctionNodeDefinition({

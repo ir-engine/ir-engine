@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { RingBuffer } from '@etherealengine/common/src/utils/RingBuffer'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { PeerID, defineState, getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { DataChannelType, addDataChannelHandler, removeDataChannelHandler } from '../DataChannelRegistry'
+import { defineState, getState, PeerID } from '@etherealengine/hyperflux'
+
+import { addDataChannelHandler, DataChannelType, removeDataChannelHandler } from '../DataChannelRegistry'
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkState } from '../NetworkState'
 import { readDataPacket } from '../serialization/DataReader'

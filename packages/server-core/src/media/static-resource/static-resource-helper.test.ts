@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
+import appRootPath from 'app-root-path'
 
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { downloadResourceAndMetadata } from './static-resource-helper'

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Component, ComponentMap, defineQuery, removeQuery } from '@etherealengine/ecs'
 import { TransformComponent } from '@etherealengine/spatial'
-import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from '@etherealengine/visual-script'
+import { makeFunctionNodeDefinition, NodeCategory, sequence, SocketsList } from '@etherealengine/visual-script'
 
 export const getQuery = makeFunctionNodeDefinition({
   typeName: 'engine/query/get',

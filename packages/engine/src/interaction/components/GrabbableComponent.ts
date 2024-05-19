@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, hasComponent, useEntityContext } from '@etherealengine/ecs'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -31,7 +33,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import { useEffect } from 'react'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 import { InteractableComponent, XRUIVisibilityOverride } from './InteractableComponent'

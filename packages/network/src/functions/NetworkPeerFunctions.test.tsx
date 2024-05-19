@@ -27,11 +27,11 @@ import assert from 'assert'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { PeerID, applyIncomingActions, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { applyIncomingActions, dispatchAction, getMutableState, PeerID } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+
 import { SpawnObjectActions } from '../../../spatial/src/transform/SpawnObjectActions'
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { Network } from '../Network'

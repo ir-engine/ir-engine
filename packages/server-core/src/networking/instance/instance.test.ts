@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
+import { Paginated } from '@feathersjs/feathers'
 
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createTestLocation } from '@etherealengine/server-core/tests/util/createTestLocation'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

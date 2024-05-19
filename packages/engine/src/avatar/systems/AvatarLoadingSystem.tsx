@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import React from 'react'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AnimationState } from '../AnimationManager'
 import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'

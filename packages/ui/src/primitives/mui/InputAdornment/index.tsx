@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { InputAdornmentProps, InputAdornment as MuiInputAdornment } from '@mui/material'
 import React from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
-import { InputAdornmentProps, InputAdornment as MuiInputAdornment } from '@mui/material'
 
 const InputAdornment = (props: InputAdornmentProps & { position?: any }) => <MuiInputAdornment {...props} />
 

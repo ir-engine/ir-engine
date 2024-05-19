@@ -28,9 +28,11 @@ import knex, { Knex } from 'knex'
 import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 import { delay } from '@etherealengine/spatial/src/common/functions/delay'
+
 import { Application } from '../declarations'
-import multiLogger from './ServerLogger'
 import { seeder } from './seeder'
+import multiLogger from './ServerLogger'
+
 const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:mysql' })

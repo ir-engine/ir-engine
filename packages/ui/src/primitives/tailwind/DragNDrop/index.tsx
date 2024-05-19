@@ -22,11 +22,12 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import React from 'react'
 import { DndProvider, DropTargetMonitor, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { twMerge } from 'tailwind-merge'
+
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 
 export interface DragNDropProps extends React.HTMLAttributes<HTMLDivElement> {
   acceptInput?: boolean

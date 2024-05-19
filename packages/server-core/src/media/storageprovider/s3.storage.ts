@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import fs from 'fs'
+import { buffer } from 'node:stream/consumers'
+import path from 'path/posix'
+import { PassThrough, Readable } from 'stream'
 import {
   CloudFrontClient,
   CreateFunctionCommand,
@@ -39,8 +43,8 @@ import {
 } from '@aws-sdk/client-cloudfront'
 import {
   AbortMultipartUploadCommand,
-  CompleteMultipartUploadCommand,
   CompletedPart,
+  CompleteMultipartUploadCommand,
   CopyObjectCommand,
   CreateMultipartUploadCommand,
   CreateMultipartUploadCommandInput,
@@ -55,17 +59,13 @@ import {
   UploadPartCommand
 } from '@aws-sdk/client-s3'
 import { fromIni } from '@aws-sdk/credential-providers'
-
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
 import { reject } from 'lodash'
+import { Client } from 'minio'
 import fetch from 'node-fetch'
-import { buffer } from 'node:stream/consumers'
-import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
-import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import {
@@ -77,9 +77,8 @@ import {
   rootImageRegex,
   rootSceneJsonRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
-import { Client } from 'minio'
-
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'

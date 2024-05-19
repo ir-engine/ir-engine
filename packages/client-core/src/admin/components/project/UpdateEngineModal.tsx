@@ -23,19 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LuInfo } from 'react-icons/lu'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-import { ProjectType, helmSettingPath } from '@etherealengine/common/src/schema.type.module'
+import { helmSettingPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { LuInfo } from 'react-icons/lu'
+
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'

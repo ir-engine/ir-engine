@@ -25,15 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiEye } from 'react-icons/hi2'
 
-import { BuildStatusType, buildStatusPath } from '@etherealengine/common/src/schema.type.module'
-
+import { buildStatusPath, BuildStatusType } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiEye } from 'react-icons/hi2'
+
 import { PopoverState } from '../../../../common/services/PopoverState'
+import { buildStatusColumns, BuildStatusRowType } from '../../../common/constants/build-status'
 import DataTable from '../../../common/Table'
-import { BuildStatusRowType, buildStatusColumns } from '../../../common/constants/build-status'
 import BuildStatusLogsModal, { BuildStatusBadge, getStartOrEndDate } from './BuildStatusLogsModal'
 
 export default function BuildStatusTable() {

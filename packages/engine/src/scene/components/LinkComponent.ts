@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Vector3 } from 'three'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -32,8 +35,7 @@ import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponen
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { useEffect } from 'react'
-import { Vector3 } from 'three'
+
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkComponent, xrState) => {

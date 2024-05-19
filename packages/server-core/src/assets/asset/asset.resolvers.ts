@@ -28,10 +28,9 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { AssetQuery, AssetType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const assetResolver = resolve<AssetType, HookContext>({
   projectName: virtual(async (asset, context) => {

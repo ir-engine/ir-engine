@@ -27,6 +27,7 @@ import { CompressedTexture, Material, Mesh, Object3D, Texture } from 'three'
 
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

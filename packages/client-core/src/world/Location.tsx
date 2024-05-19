@@ -32,8 +32,10 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 
 import './LocationModule'
 
-import { useMutableState } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
+
+import { useMutableState } from '@etherealengine/hyperflux'
+
 import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'

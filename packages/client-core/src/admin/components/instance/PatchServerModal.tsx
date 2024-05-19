@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { LocationID, locationPath } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
@@ -30,8 +33,7 @@ import { useFind, useMutation } from '@etherealengine/spatial/src/common/functio
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export default function PatchServerModal() {

@@ -26,34 +26,34 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { PeerID } from '@etherealengine/hyperflux'
+
 import { JitterBufferEntry, Network } from '../Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
+  expand,
+  flatten,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
   VEC3_PRECISION_MULT,
   Vector3SoA,
-  Vector4SoA,
-  expand,
-  flatten
+  Vector4SoA
 } from './Utils'
 import {
-  ViewCursor,
   createViewCursor,
   readFloat64,
   readProp,
+  readUint8,
   readUint16,
   readUint32,
   readUint64,
-  readUint8
+  ViewCursor
 } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag

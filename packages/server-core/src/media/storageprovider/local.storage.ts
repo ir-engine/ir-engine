@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
+import { ChildProcess } from 'child_process'
 import fs from 'fs'
-import fsStore from 'fs-blob-store'
-import glob from 'glob'
 import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
+import appRootPath from 'app-root-path'
+import fsStore from 'fs-blob-store'
+import glob from 'glob'
 
 import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
-
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { ChildProcess } from 'child_process'
+
+import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
-import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { copyRecursiveSync } from '../FileUtil'
 import {

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { RefObject, useEffect } from 'react'
+
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 export const useScrubbableVideo = (videoRef: RefObject<HTMLVideoElement>) => {
   const scrubState = useHookstate({

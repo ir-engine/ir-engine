@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { ArrowHelper, ColorRepresentation, Vector3 } from 'three'
+
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
+import { defineComponent, Entity, useComponent, useEntityContext } from '@etherealengine/ecs'
+
 import { useDisposable } from '../../resources/resourceHooks'
 import { matchesColor, matchesVector3 } from '../functions/MatchesUtils'
 import { useHelperEntity } from './DebugComponentUtils'

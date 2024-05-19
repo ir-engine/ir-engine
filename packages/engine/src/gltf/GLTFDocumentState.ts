@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { defineAction, defineState } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
+
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 export const GLTFDocumentState = defineState({
   name: 'ee.engine.gltf.GLTFDocumentState',

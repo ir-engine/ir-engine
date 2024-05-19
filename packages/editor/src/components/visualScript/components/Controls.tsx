@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FaDownload, FaPause, FaPlay, FaQuestion, FaTrash, FaUpload } from 'react-icons/fa6'
-
 import React, { useState } from 'react'
+import { FaDownload, FaPause, FaPlay, FaQuestion, FaTrash, FaUpload } from 'react-icons/fa6'
 import { ControlButton, Controls } from 'reactflow'
 
 import { GraphJSON, VariableJSON } from '@etherealengine/visual-script'
+
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { ClearModal } from './modals/ClearModal'
 import { HelpModal } from './modals/HelpModal'

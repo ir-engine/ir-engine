@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
@@ -36,8 +39,7 @@ import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ResourceService } from '../../services/ResourceService'
 

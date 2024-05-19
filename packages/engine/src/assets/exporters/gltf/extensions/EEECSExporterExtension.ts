@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Object3D } from 'three'
+
 import {
   getAllComponents,
   getComponent,
@@ -31,7 +33,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Object3D } from 'three'
+
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'

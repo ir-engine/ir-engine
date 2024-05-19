@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import https from 'https'
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
-import https from 'https'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'
@@ -47,7 +48,7 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'

@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import Multer from '@koa/multer'
 import { createHash } from 'crypto'
 import fs from 'fs'
 import path from 'path'
+import { Paginated, Params } from '@feathersjs/feathers'
+import Multer from '@koa/multer'
 
 import {
   AdminAssetUploadArgumentsType,
@@ -35,12 +35,12 @@ import {
   AvatarUploadArgsType,
   UploadFile
 } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-
 import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'

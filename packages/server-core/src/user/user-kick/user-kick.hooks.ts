@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow } from 'feathers-hooks-common'
-
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow } from 'feathers-hooks-common'
 
 import {
   userKickDataValidator,

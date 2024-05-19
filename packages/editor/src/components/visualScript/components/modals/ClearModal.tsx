@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
-import { useTranslation } from 'react-i18next'
 import { Modal } from './Modal'
 
 export type ClearModalProps = {

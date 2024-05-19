@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import appRootPath from 'app-root-path'
 
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+
 import { Application } from '../declarations'
-import multiLogger from './ServerLogger'
 import config from './appconfig'
 import { copyDefaultProject } from './projects/project/project-helper'
 import { knexSeeds } from './seeder-config'
+import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:seeder' })
 

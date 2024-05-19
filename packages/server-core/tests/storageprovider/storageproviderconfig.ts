@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import fs from 'fs'
+import path from 'path'
 import {
   CreateBucketCommand,
   DeleteObjectCommand,
@@ -31,8 +33,6 @@ import {
   ObjectCannedACL
 } from '@aws-sdk/client-s3'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
 
 import { StartTestFileServer } from '../../src/createFileServer'
 import S3Provider from '../../src/media/storageprovider/s3.storage'
