@@ -86,7 +86,7 @@ export const InputComponent = defineComponent({
     }
   },
 
-  useExecuteWithInput: (executeOnInput: () => void) => {
+  useExecuteWithInput(executeOnInput: () => void) {
     return useExecute(executeOnInput, { with: InputSystemGroup })
   },
 
@@ -141,17 +141,16 @@ export const InputComponent = defineComponent({
       const inputSource = getComponent(eid, InputSourceComponent)
       if (inputSource.source.gamepad?.axes) {
         for (let i = 0; i < 4; i++) {
-          // keep the largest value (positive or negative)
-          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
-          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
+          const newAxis = inputSource.source.gamepad.axes[i] ?? 0
+          axes[i] = getLargestMagnitudeNumber(axes[i], newAxis)
         }
       }
     }
 
     for (const key of Object.keys(inputAlias)) {
-      const aliases = inputAlias[key]
-      // axes[key] = aliases.reduce((acc: any, alias) => acc || axes[alias], undefined)
-      axes[key as string | number] = aliases.reduce((acc, alias) => acc || axes[alias], undefined)
+      axes[key] = inputAlias[key].reduce<number>((prev, alias) => {
+        return getLargestMagnitudeNumber(prev, axes[alias])
+      }, 0)
     }
 
     return axes
@@ -224,3 +223,7 @@ export const InputComponent = defineComponent({
     return null
   }
 })
+
+function getLargestMagnitudeNumber(a: number, b: number) {
+  return Math.abs(a) > Math.abs(b) ? a : b
+}
