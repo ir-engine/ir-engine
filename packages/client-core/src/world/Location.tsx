@@ -32,7 +32,11 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 
 import './LocationModule'
 
+import { useMutableState } from '@etherealengine/hyperflux'
+import { t } from 'i18next'
+import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 type Props = {
   online?: boolean
@@ -40,7 +44,7 @@ type Props = {
 
 const LocationPage = ({ online }: Props) => {
   const params = useParams()
-  // const ready = useMutableState(LoadingUISystemState).ready
+  const ready = useMutableState(LoadingUISystemState).ready
 
   useNetwork({ online })
 
@@ -56,7 +60,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      {/* {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />} */}
+      {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LocationIcons />
     </>
   )
