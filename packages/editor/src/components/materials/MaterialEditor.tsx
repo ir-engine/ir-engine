@@ -195,7 +195,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     for (const key in pluginState.parameters[materialName.value].value) {
       pluginValues[key].set(pluginState.parameters[materialName.value].value[key].value)
     }
-  }, [pluginState?.parameters, materialName])
+  }, [materialName, selectedPlugin, pluginState?.parameters[materialName.value]])
 
   return (
     <div style={{ position: 'relative' }}>
