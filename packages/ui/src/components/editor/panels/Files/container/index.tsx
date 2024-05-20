@@ -532,6 +532,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
+  const viewModes = [
+    { mode: 'list', icon: <FaList /> },
+    { mode: 'icons', icon: <FiGrid /> }
+  ]
+
   return (
     <>
       <div className="mb-1 ml-1 flex items-center gap-2">
@@ -552,18 +557,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <ViewModeSettings />
 
         <div className="w-30 bg-theme-surfaceInput flex h-7 flex-row items-center gap-1 rounded px-2 py-1">
-          <Button
-            variant="transparent"
-            startIcon={<FaList />}
-            className={`p-0 ${filesViewMode.value !== 'list' && 'opacity-50'}`}
-            onClick={(event) => filesViewMode.set('list')}
-          />
-          <Button
-            variant="transparent"
-            startIcon={<FiGrid />}
-            className={`p-0 ${filesViewMode.value !== 'icons' && 'opacity-50'}`}
-            onClick={(event) => filesViewMode.set('icons')}
-          />
+          {viewModes.map(({ mode, icon }) => (
+            <Button
+              key={mode}
+              variant="transparent"
+              startIcon={icon}
+              className={`p-0 ${filesViewMode.value !== mode ? 'opacity-50' : ''}`}
+              onClick={() => filesViewMode.set(mode as 'icons' | 'list')}
+            />
+          ))}
         </div>
 
         <BreadcrumbItems />
