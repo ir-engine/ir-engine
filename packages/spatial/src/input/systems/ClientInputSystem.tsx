@@ -308,13 +308,20 @@ const execute = () => {
       }
     }
 
+    const inputPointerComponent = getComponent(sourceEid, InputPointerComponent)
+    if (inputPointerComponent) {
+      sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
+    }
+
     sourceState.intersections.set(sortedIntersections)
 
     const hitEntity = capturedEntity || sortedIntersections[0]?.entity
 
-    const inputEntity = getAncestorWithComponent(hitEntity, InputComponent)
-    if (hasComponent(inputEntity, InputComponent)) {
-      getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
+    for (const intersection of sortedIntersections) {
+      const inputEntity = getAncestorWithComponent(intersection.entity, InputComponent)
+      if (inputEntity) {
+        getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
+      }
     }
   }
 
@@ -445,7 +452,8 @@ const usePointerInputSources = () => {
     const pointerEnter = (event: PointerEvent) => {
       setComponent(emulatedInputSourceEntity, InputPointerComponent, {
         pointerId: event.pointerId,
-        canvasEntity: canvasEntity
+        canvasEntity: canvasEntity,
+        cameraEntity: canvasEntity //TODO likely want to double check this is done with a guaranteed camera (though it should exist)
       })
     }
 

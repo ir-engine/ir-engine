@@ -47,6 +47,7 @@ import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { TransformComponent } from '@etherealengine/spatial'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -109,7 +110,7 @@ const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true,
 const lastPointerPosition = new Vector2()
 const pointerMovement = new Vector2()
 
-const pointerQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+const pointerQuery = defineQuery([InputSourceComponent, TransformComponent])
 
 const capturedByView = (): boolean => {
   return getState(InputState).capturingEntity === Engine.instance.viewerEntity
@@ -128,6 +129,7 @@ const execute = () => {
   const avatarControllerEntities = avatarControllerQuery()
 
   const viewerEntity = Engine.instance.viewerEntity
+
   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
   if (!inputPointerEntity) return
 
@@ -150,6 +152,7 @@ const execute = () => {
     ? pointerMovement.lengthSq() > 0 && buttons?.PrimaryClick?.pressed
     : buttons?.PrimaryClick?.pressed
 
+  console.log('mouse moved = ' + buttons?.PrimaryClick)
   for (const entity of avatarControllerEntities) {
     if (!inputSource) continue
 
