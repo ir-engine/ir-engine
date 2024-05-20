@@ -673,7 +673,7 @@
       "confirmPodDelete": "Do you want to delete pod",
       "viewLogs": "View Logs",
       "columns": {
-        "id": "Id",
+        "id": "ID",
         "name": "Name",
         "batch": "Batch",
         "migration_time": "Migration Time"
