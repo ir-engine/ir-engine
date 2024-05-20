@@ -30,6 +30,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
+  UndefinedEntity,
   useExecute
 } from '@etherealengine/ecs'
 import {
@@ -103,7 +104,9 @@ export const InputComponent = defineComponent({
     const closestInputEntity = getAncestorWithComponent(entityContext, InputComponent)
     const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
     const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
-    return inputEntities.filter((entity, index) => inputEntities.indexOf(entity) === index) // remove duplicates
+    return inputEntities.filter(
+      (entity, index) => inputEntities.indexOf(entity) === index && entity !== UndefinedEntity
+    ) // remove duplicates
   },
 
   getInputSourceEntities(entityContext: Entity) {
