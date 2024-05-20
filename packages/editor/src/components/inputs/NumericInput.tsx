@@ -71,7 +71,6 @@ export interface NumericInputProp {
   displayPrecision?: any
   value: number
   convertFrom?: any
-  convertTo?: any
   precision?: number
   mediumStep?: number
   onChange?: (n: number) => void
@@ -80,6 +79,7 @@ export interface NumericInputProp {
   largeStep?: number
   min?: number
   max?: number
+  convertTo?: any
 }
 
 export interface styledNumericInputProp {
@@ -105,7 +105,6 @@ const NumericInput = React.forwardRef(
       displayPrecision,
       value,
       convertFrom,
-      convertTo,
       precision,
       mediumStep,
       onChange,
@@ -114,6 +113,7 @@ const NumericInput = React.forwardRef(
       largeStep,
       min,
       max,
+      convertTo,
       ...rest
     }: NumericInputProp,
     ref

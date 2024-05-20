@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { commitProperty, EditorComponentType } from './Util'

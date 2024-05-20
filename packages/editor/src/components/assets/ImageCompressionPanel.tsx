@@ -40,7 +40,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
+import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

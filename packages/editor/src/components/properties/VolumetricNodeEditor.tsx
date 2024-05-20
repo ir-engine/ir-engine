@@ -43,6 +43,7 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
+
 import 'react-scrubber/lib/scrubber.css'
 
 import { ItemTypes } from '../../constants/AssetTypes'

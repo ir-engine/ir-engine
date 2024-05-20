@@ -86,7 +86,6 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
-
   return (
     <TableContainer component="div">
       <Table size="small" className={styles.table}>

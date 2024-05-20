@@ -84,7 +84,7 @@ export const FileIcon = ({
         <FolderIcon fontSize={'inherit'} />
       ) : thumbnailURL != null ? (
         <img
-          className="mw-[90px] h-[100%] w-[100%] object-scale-down"
+          style={{ width: '100%', height: 'auto', maxWidth: '90px', objectFit: 'scale-down' }}
           crossOrigin="anonymous"
           src={thumbnailURL}
           alt=""

@@ -48,6 +48,7 @@ import { NO_PROXY, State, useMutableState } from '@etherealengine/hyperflux/func
 
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -55,7 +56,6 @@ import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
 
-import BooleanInput from '../inputs/BooleanInput'
 import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({ entity, onChangeModel }: { entity: Entity; onChangeModel: any }) {

@@ -28,7 +28,7 @@ import React from 'react'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SDFComponent, SDFMode } from '@etherealengine/engine/src/scene/components/SDFComponent'
 
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

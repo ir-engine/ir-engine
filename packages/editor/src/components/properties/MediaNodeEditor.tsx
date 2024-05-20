@@ -35,9 +35,10 @@ import {
   setTime
 } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -45,7 +46,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {

@@ -35,12 +35,13 @@ import {
 } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /**
  * LinkNodeEditor component used to provide the editor view to customize link properties.
