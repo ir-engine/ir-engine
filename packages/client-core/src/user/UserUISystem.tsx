@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
-import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
@@ -39,6 +38,7 @@ import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
+import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">

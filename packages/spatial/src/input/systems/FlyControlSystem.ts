@@ -23,19 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import {
-  ECSState,
-  Entity,
-  InputSystemGroup,
   defineQuery,
   defineSystem,
+  ECSState,
+  Entity,
   getComponent,
   hasComponent,
+  InputSystemGroup,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'

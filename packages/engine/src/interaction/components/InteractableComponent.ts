@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MathUtils, Vector3 } from 'three'
+import matches from 'ts-matches'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   ECSState,
@@ -51,11 +54,11 @@ import { ComputedTransformComponent } from '@etherealengine/spatial/src/transfor
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
-import { MathUtils, Vector3 } from 'three'
-import matches from 'ts-matches'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
+
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
  *

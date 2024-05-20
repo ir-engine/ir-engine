@@ -29,15 +29,14 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
+import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
+import { Text as TroikaText } from 'troika-three-text'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-
 import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
-import { Text as TroikaText } from 'troika-three-text'
 
 /**
  * @description
@@ -318,17 +317,16 @@ export const TextComponent = defineComponent({
     const entity = useEntityContext()
     const text = useComponent(entity, TextComponent)
 
-    const troikaMesh = text.troikaMesh.value as TextMesh
-
     useEffect(() => {
       text.troikaMesh.set(new TroikaText())
-      addObjectToGroup(entity, troikaMesh)
+      addObjectToGroup(entity, text.troikaMesh.value as TextMesh)
       return () => {
-        troikaMesh.dispose()
+        text.troikaMesh.value!.dispose()
       }
     }, [])
 
     useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       // Update the Text content/properties
       troikaMesh.text = text.text.value
       troikaMesh.fillOpacity = text.textOpacity.value / 100

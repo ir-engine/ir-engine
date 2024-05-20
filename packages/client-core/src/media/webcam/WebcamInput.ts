@@ -1,3 +1,22 @@
+import * as Comlink from 'comlink'
+
+import { isDev } from '@etherealengine/common/src/config'
+import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
+import { MediaStreamState } from '../../transports/MediaStreams'
+import { WebcamInputComponent } from './WebcamInputComponent'
+
 /*
 CPAL-1.0 License
 
@@ -27,24 +46,6 @@ Ethereal Engine. All Rights Reserved.
 // import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 type FaceDetection = any
 type FaceExpressions = any
-import * as Comlink from 'comlink'
-
-import { isDev } from '@etherealengine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { WebcamInputComponent } from './WebcamInputComponent'
-
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { SkinnedMeshComponent } from '@etherealengine/engine/src/avatar/components/SkinnedMeshComponent'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
 const PUCKER_EXPRESSION_THRESHOLD = 0.8

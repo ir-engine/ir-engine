@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tabs as MuiTabs, TabsProps } from '@mui/material'
 import React from 'react'
 
 import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
-
-import { Tabs as MuiTabs, TabsProps } from '@mui/material'
 
 const Tabs = (props: TabsProps) => <MuiTabs {...props} />
 

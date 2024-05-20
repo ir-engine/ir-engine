@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, defineComponent, getComponent } from '@etherealengine/ecs'
+import { GLTF } from '@gltf-transform/core'
+import assert from 'assert'
+import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
+import { defineComponent, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
@@ -33,9 +37,7 @@ import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GLTF } from '@gltf-transform/core'
-import assert from 'assert'
-import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
@@ -31,9 +32,8 @@ import {
   userApiKeyPatchValidator,
   userApiKeyQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import { BadRequest } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import { UserApiKeyService } from './user-api-key.class'

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { GoDotFill } from 'react-icons/go'
+
 import Badge from './index'
 
 export default {

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import { Cache } from 'three'
+
 import { GLTFSourceState } from '../../src/gltf/GLTFState'
 
 export const loadEmptyScene = () => {

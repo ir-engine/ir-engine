@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECSState } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
+
 import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
 
 /**

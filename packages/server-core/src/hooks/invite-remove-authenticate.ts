@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-
 import { invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item

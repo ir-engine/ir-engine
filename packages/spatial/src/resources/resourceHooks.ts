@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+
 import { DisposableObject, ResourceManager } from './ResourceState'
 
 /**

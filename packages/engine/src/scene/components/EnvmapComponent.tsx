@@ -40,10 +40,8 @@ import {
   Vector3
 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -65,6 +63,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,

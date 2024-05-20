@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
 import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
 import { getAncestorWithComponent } from '../../transform/components/EntityTree'
+
+import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'

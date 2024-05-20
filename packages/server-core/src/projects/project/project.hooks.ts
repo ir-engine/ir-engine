@@ -22,56 +22,56 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import appRootPath from 'app-root-path'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
-import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import {
-  ProjectData,
-  ProjectPatch,
-  ProjectType,
-  projectDataValidator,
-  projectPatchValidator,
-  projectPath,
-  projectQueryValidator
-} from '@etherealengine/common/src/schemas/projects/project.schema'
 import fs from 'fs'
+import { Knex } from 'knex'
 import path from 'path'
-import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import {
+  ProjectData,
+  projectDataValidator,
+  ProjectPatch,
+  projectPatchValidator,
+  projectPath,
+  projectQueryValidator,
+  ProjectType
+} from '@etherealengine/common/src/schemas/projects/project.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
-  GithubRepoAccessType,
-  githubRepoAccessPath
+  githubRepoAccessPath,
+  GithubRepoAccessType
 } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import { Knex } from 'knex'
+
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
+import verifyScope from '../../hooks/verify-scope'
+import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
+import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   createExecutorJob,

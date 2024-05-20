@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not } from 'bitecs'
+import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineQuery,
@@ -39,8 +42,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Not } from 'bitecs'
-import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'

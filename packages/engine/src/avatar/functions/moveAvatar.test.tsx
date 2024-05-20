@@ -23,33 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import { strictEqual } from 'assert'
+import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
+import { Entity, EntityUUID, SystemDefinitions, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
+import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
 import { EventDispatcher } from '@etherealengine/spatial/src/common/classes/EventDispatcher'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
-
-import { SystemDefinitions } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Network, NetworkPeerFunctions, NetworkState, NetworkWorldUserStateSystem } from '@etherealengine/network'
-import { createMockNetwork } from '@etherealengine/network/tests/createMockNetwork'
-import { act, render } from '@testing-library/react'
-import React from 'react'
-import { AvatarComponent } from '../components/AvatarComponent'
 
 describe('moveAvatar function tests', () => {
   let sceneEntity: Entity

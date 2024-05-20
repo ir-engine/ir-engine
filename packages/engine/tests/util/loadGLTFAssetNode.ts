@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
 
 const toArrayBuffer = (buf) => {

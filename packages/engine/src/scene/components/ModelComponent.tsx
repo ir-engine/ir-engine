@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FC, useEffect } from 'react'
+import { VRM } from '@pixiv/three-vrm'
+import { Not } from 'bitecs'
+import React, { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-
-import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -41,28 +41,27 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { dispatchAction, getMutableState, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { VRM } from '@pixiv/three-vrm'
-import { Not } from 'bitecs'
-import React from 'react'
+
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
+import { convertSceneJSONToGLTF, SceneJsonType } from '../../gltf/convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
+import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { SourceComponent } from './SourceComponent'
 
 /**

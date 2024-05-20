@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, defineComponent } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+
+import { defineComponent, EntityUUID } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',

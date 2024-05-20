@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
+import path from 'path'
 
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import {
   ClientSettingData,
   clientSettingDataValidator,
@@ -34,15 +37,12 @@ import {
   clientSettingQueryValidator
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { BadRequest } from '@feathersjs/errors'
-import path from 'path'
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 import { ClientSettingService } from './client-setting.class'
 import {

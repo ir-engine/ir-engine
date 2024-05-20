@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isArray } from 'lodash'
+import { Color, Material, Mesh, Shader, Texture, Uniform } from 'three'
+
 import {
+  createEntity,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  createEntity,
   generateEntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalMutableComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
-import { isArray } from 'lodash'
-import { Color, Material, Mesh, Shader, Texture, Uniform } from 'three'
+
+import { addOBCPlugin, hasOBCPlugin, PluginObjectType } from '../../common/functions/OnBeforeCompilePlugin'
 import { NameComponent } from '../../common/NameComponent'
-import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
 import {
   MaterialComponent,

@@ -43,6 +43,7 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '../../EngineState'
+
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { ButtonState, ButtonStateMap, KeyboardButton, MouseButton, XRStandardGamepadButton } from '../state/ButtonState'

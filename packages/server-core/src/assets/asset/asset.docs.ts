@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
 import {
   assetDataSchema,
   assetPatchSchema,
@@ -30,7 +32,6 @@ import {
   assetSchema,
   assetUpdateSchema
 } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
   schemas: {

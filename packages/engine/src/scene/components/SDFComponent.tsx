@@ -23,16 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { SDFShader } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFShader'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { DepthPass, ShaderPass } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -46,6 +36,18 @@ import {
   Vector3,
   WebGLRenderTarget
 } from 'three'
+
+import { Entity } from '@etherealengine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
+import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { SDFShader } from '@etherealengine/spatial/src/renderer/effects/sdf/SDFShader'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export enum SDFMode {

@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
-import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import { BufferGeometry, Material, MeshBasicMaterial, NormalBufferAttributes } from 'three'
+
+import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'

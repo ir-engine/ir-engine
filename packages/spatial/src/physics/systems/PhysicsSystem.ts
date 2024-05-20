@@ -27,18 +27,17 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
-
 import { getComponent, hasComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
+
+import { iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
@@ -48,6 +47,7 @@ import {
   RigidBodyKinematicTagComponent
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 

@@ -30,6 +30,7 @@ import {
   botCommandDataValidator,
   botCommandQueryValidator
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
+
 import verifyScope from '../../hooks/verify-scope'
 import {
   botCommandDataResolver,

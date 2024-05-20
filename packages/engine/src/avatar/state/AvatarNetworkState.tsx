@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarID, AvatarType, avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
+import { Paginated } from '@feathersjs/feathers'
+import React, { useEffect, useLayoutEffect } from 'react'
+
+import { AvatarID, avatarPath, AvatarType, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { EntityUUID, UUIDComponent, getOptionalComponent, setComponent } from '@etherealengine/ecs'
+import { EntityUUID, getOptionalComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import {
@@ -38,8 +41,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { Paginated } from '@feathersjs/feathers'
-import React, { useEffect, useLayoutEffect } from 'react'
+
 import { AvatarColliderComponent } from '../components/AvatarControllerComponent'
 import { loadAvatarModelAsset, unloadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'

@@ -18,16 +18,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
   AvatarID,
+  avatarPath,
   ScopeType,
+  scopeTypePath,
   UserData,
   UserName,
-  UserType,
-  avatarPath,
-  scopeTypePath,
-  userPath
+  userPath,
+  UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -37,8 +40,7 @@ import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@etherealengine/ui/src/primitives/tailwind/MultiSelect'
 import Select, { SelectOptionsType } from '@etherealengine/ui/src/primitives/tailwind/Select'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import AccountIdentifiers from './AccountIdentifiers'
 
 const getDefaultErrors = () => ({

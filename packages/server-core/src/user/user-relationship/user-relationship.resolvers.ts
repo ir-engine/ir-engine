@@ -32,10 +32,9 @@ import {
   UserRelationshipQuery,
   UserRelationshipType
 } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({
   createdAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.createdAt)),

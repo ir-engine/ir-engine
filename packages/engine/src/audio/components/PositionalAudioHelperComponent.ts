@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
-import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
-import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
 import { useEffect } from 'react'
 import {
   BufferAttribute,
@@ -38,6 +33,13 @@ import {
   Material,
   MathUtils
 } from 'three'
+
+import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
+import { defineComponent, Entity, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
+import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
+
 import { AudioNodeGroup } from '../../scene/components/MediaComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
