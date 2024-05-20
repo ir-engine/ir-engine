@@ -47,9 +47,9 @@ import { NetworkState } from '@etherealengine/network'
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
+import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
-import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useMutableState(LocationState)

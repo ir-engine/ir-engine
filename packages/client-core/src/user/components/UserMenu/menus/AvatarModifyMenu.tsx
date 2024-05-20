@@ -53,10 +53,10 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
-import { AvatarService } from '../../../services/AvatarService'
 import { AvaturnMenuFlag, RPMMenuFlag, UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 interface Props {
   selectedAvatar?: AvatarType
