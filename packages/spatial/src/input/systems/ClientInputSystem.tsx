@@ -315,21 +315,25 @@ const execute = () => {
 
     sourceState.intersections.set(sortedIntersections)
 
-    const hitEntity = capturedEntity || sortedIntersections[0]?.entity
-
-    for (const intersection of sortedIntersections) {
-      const inputEntity = getAncestorWithComponent(intersection.entity, InputComponent)
-      if (inputEntity) {
-        getMutableComponent(inputEntity, InputComponent).inputSources.merge([
-          sourceEid,
-          ...nonSpatialInputSourceQuery()
-        ])
+    //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
+    if (capturedEntity) {
+      setInputSources(capturedEntity, [sourceEid, ...nonSpatialInputSourceQuery()])
+    } else {
+      for (const intersection of sortedIntersections) {
+        setInputSources(intersection.entity, [sourceEid, ...nonSpatialInputSourceQuery()])
       }
     }
   }
 
   for (const sourceEid of inputSourceQuery()) {
     updateGamepadInput(sourceEid)
+  }
+}
+
+const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
+  const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
+  if (inputEntity) {
+    getMutableComponent(inputEntity, InputComponent).inputSources.merge(inputSources)
   }
 }
 
