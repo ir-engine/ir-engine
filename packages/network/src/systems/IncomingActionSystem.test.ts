@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert, { strictEqual } from 'assert'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { ActionRecipients, applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
-import assert, { strictEqual } from 'assert'
+
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { NetworkTopics } from '../Network'
 

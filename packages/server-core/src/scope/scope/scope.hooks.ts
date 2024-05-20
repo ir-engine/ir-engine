@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   ScopeData,
-  ScopeTypeInterface,
   scopeDataValidator,
   scopePath,
-  scopeQueryValidator
+  scopeQueryValidator,
+  ScopeTypeInterface
 } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { BadRequest } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'

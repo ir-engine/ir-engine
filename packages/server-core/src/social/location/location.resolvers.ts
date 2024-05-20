@@ -28,18 +28,17 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import {
-  LocationAuthorizedUserType,
-  locationAuthorizedUserPath
+  locationAuthorizedUserPath,
+  LocationAuthorizedUserType
 } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
-import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { locationBanPath, LocationBanType } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
+import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {

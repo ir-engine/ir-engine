@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID, SerializedComponentType } from '@etherealengine/ecs'
 import { DirectionalLightComponent } from '@etherealengine/spatial'
+
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneJsonType } from '../types/SceneTypes'
 

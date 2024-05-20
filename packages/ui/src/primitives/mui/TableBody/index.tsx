@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { TableBody as MuiTableBody } from '@mui/material'
 import React, { ReactNode } from 'react'
 
 import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
-
-import { TableBody as MuiTableBody } from '@mui/material'
 
 export interface Props {
   children: ReactNode

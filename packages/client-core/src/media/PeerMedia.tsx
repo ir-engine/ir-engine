@@ -25,33 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
-  PeerID,
   dispatchAction,
   getMutableState,
   getState,
+  PeerID,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import {
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState,
   NetworkState,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
 } from '@etherealengine/network'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import {
-  MediasoupMediaConsumerActions,
-  MediasoupMediaProducerConsumerState,
-  MediasoupMediaProducersConsumersObjectsState
-} from '@etherealengine/network'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
-  PeerMediaChannelState,
   createPeerMediaChannels,
+  PeerMediaChannelState,
   removePeerMediaChannels
 } from '../transports/PeerMediaChannelState'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React from 'react'
 
 import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
@@ -33,8 +34,6 @@ import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText
 import FormLabel from '@etherealengine/ui/src/primitives/mui/FormLabel'
 import Radio from '@etherealengine/ui/src/primitives/mui/Radio'
 import RadioGroup from '@etherealengine/ui/src/primitives/mui/RadioGroup'
-
-import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'

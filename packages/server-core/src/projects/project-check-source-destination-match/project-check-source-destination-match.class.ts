@@ -18,8 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
+
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
+
 import { Application } from '../../../declarations'
 import { checkProjectDestinationMatch } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'

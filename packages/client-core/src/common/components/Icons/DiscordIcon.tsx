@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon'
+import React from 'react'
 
 export const DiscordIcon = (props: SvgIconProps) => {
   return (

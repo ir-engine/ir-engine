@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { Paginated } from '@feathersjs/feathers'
 
-import { InviteType, inviteMethods, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { inviteMethods, invitePath, InviteType } from '@etherealengine/common/src/schemas/social/invite.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InviteService } from './invite.class'
 import inviteDocs from './invite.docs'

@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
 import ClickAwayListener from '@mui/material/ClickAwayListener'
+import React, { useEffect, useState } from 'react'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { emoteAnimations, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 

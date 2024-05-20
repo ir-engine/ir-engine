@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import React, { useEffect } from 'react'
+
 import { parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
 import {
-  Entity,
   defineComponent,
+  Entity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -35,15 +38,14 @@ import {
   useQuery
 } from '@etherealengine/ecs'
 import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
-import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { SceneJsonType } from '../scene/types/SceneTypes'
+import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',

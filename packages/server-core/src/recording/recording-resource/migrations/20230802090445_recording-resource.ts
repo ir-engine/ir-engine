@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { recordingResourcePath } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import type { Knex } from 'knex'
+
+import { recordingResourcePath } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 
 /**
  * @param { import("knex").Knex } knex

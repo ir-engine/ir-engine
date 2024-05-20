@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Dialog from '@mui/material/Dialog'
+import { t } from 'i18next'
+import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -36,19 +40,21 @@ import { SourceComponent } from '@etherealengine/engine/src/scene/components/Sou
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Dialog from '@mui/material/Dialog'
-import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import 'rc-dock/dist/rc-dock.css'
+
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+
 import './EditorContainer.css'
+
 import AssetDropZone from './assets/AssetDropZone'
 import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'

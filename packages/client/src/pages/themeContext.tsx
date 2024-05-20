@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
@@ -37,7 +36,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string

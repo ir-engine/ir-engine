@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
+
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
+import {
+  staticResourceFiltersPath,
+  StaticResourceFiltersType,
+  staticResourcePath,
+  StaticResourceType,
+  uploadAssetPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import {
-  StaticResourceFiltersType,
-  StaticResourceType,
-  staticResourceFiltersPath,
-  staticResourcePath,
-  uploadAssetPath
-} from '@etherealengine/common/src/schema.type.module'
-import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 

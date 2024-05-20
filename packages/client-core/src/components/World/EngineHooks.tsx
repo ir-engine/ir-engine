@@ -23,29 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { none, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, UUIDComponent, UndefinedEntity, getComponent } from '@etherealengine/ecs'
+import { Engine, getComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import { LinkState } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { PortalComponent, PortalState } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { addOutgoingTopicIfNecessary, getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import {
+  addOutgoingTopicIfNecessary,
+  getMutableState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import {
+  addNetwork,
+  createNetwork,
   Network,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  addNetwork,
-  createNetwork,
   removeNetwork
 } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 

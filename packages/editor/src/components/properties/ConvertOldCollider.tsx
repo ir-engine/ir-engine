@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+
 import { Entity, getComponent, getOptionalComponent, hasComponent, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -35,7 +37,7 @@ import {
   getAncestorWithComponent,
   iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import React from 'react'
+
 import { Button } from '../inputs/Button'
 
 const convert = (entity: Entity, hierarchy: boolean) => {

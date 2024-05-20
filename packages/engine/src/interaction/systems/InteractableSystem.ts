@@ -37,6 +37,7 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import {

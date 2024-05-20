@@ -23,24 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
-import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-
-import { PeerID } from '@etherealengine/hyperflux'
 import { HiPlay, HiPlusCircle } from 'react-icons/hi2'
 
-import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import { recordingPath, RecordingType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  PeerID,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { WidgetAppService } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
+
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState } from '../../transports/PeerMediaChannelState'
 
 // TODO replace these templates with our generalised ones for XRUI

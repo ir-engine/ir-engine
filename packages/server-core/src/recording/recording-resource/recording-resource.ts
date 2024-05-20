@@ -27,6 +27,7 @@ import {
   recordingResourceMethods,
   recordingResourcePath
 } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
+
 import { Application } from '../../../declarations'
 import { RecordingResourceService } from './recording-resource.class'
 import recordingResourceDocs from './recording-resource.docs'

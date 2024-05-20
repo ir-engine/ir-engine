@@ -34,6 +34,7 @@ import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
@@ -41,21 +42,20 @@ import {
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { UserMenus } from '../../../UserUISystem'
 import { userHasAccess } from '../../../userHasAccess'
-import { PopupMenuServices } from '../PopupMenuService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {

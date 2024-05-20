@@ -23,24 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  createEntity,
-  defineComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   BufferAttribute,
@@ -52,6 +34,26 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+
+import {
+  createEntity,
+  defineComponent,
+  Entity,
+  removeEntity,
+  setComponent,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { TransformComponent } from '@etherealengine/spatial'
+import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { useDisposable, useResource } from '@etherealengine/spatial/src/resources/resourceHooks'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { SplineComponent } from '../SplineComponent'
 
 const ARC_SEGMENTS = 200

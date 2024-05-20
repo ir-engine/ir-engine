@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState } from '@etherealengine/hyperflux'
-
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AvatarControllerType, AvatarInputSettingsState } from '../state/AvatarInputSettingsState'

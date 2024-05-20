@@ -18,13 +18,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { Application } from '../../../declarations'
-
 import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+
+import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+
+import { Application } from '../../../declarations'
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 

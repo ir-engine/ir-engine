@@ -29,6 +29,9 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { AvatarID, UserID } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import {
   PeerID,
   applyIncomingActions,
@@ -36,10 +39,6 @@ import {
   dispatchAction,
   getMutableState
 } from '@etherealengine/hyperflux'
-
-import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { NetworkObjectComponent, NetworkPeerFunctions, NetworkState } from '@etherealengine/network'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
@@ -48,6 +47,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'

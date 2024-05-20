@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { MeshPhysicalMaterial, SphereGeometry, Vector3 } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 

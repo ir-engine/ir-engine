@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AdjustIcon from '@mui/icons-material/Adjust'
+import { t } from 'i18next'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { TransformPivot } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { useMutableState } from '@etherealengine/hyperflux'
 
-import AdjustIcon from '@mui/icons-material/Adjust'
-
-import { t } from 'i18next'
-import { useTranslation } from 'react-i18next'
 import { setTransformPivot, toggleTransformPivot } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'

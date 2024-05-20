@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 import React from 'react'
+
+import { defineState } from '@etherealengine/hyperflux'
 
 export type AdminRouteStateType = {
   name: string

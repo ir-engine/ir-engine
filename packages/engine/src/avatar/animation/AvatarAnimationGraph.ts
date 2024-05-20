@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { clamp } from 'lodash'
 import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
-
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 import { lerp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
+
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'

@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
 import {
   fileBrowserContentSchema,
   fileBrowserPatchSchema,
   fileBrowserUpdateSchema
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
   schemas: { fileBrowserUpdateSchema, fileBrowserPatchSchema, fileBrowserContentSchema },

@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
 import { PhysicsState } from '../physics/state/PhysicsState'

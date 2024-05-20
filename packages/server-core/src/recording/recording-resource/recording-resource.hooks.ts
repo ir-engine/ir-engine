@@ -30,8 +30,8 @@ import {
   recordingResourcePatchValidator,
   recordingResourceQueryValidator
 } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
-import verifyScope from '../../hooks/verify-scope'
 
+import verifyScope from '../../hooks/verify-scope'
 import {
   recordingResourceDataResolver,
   recordingResourceExternalResolver,

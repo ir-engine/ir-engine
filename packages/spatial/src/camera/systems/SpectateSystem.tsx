@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { MathUtils } from 'three'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
   EntityUUID,
-  UUIDComponent,
   getComponent,
   getOptionalComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import {
   defineAction,
@@ -42,9 +45,8 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent, NetworkTopics, WorldNetworkAction, matchesUserID } from '@etherealengine/network'
-import React, { useEffect } from 'react'
-import { MathUtils } from 'three'
+import { matchesUserID, NetworkObjectComponent, NetworkTopics, WorldNetworkAction } from '@etherealengine/network'
+
 import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
