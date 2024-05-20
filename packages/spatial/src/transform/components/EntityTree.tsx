@@ -381,7 +381,7 @@ export function useTreeQuery(entity: Entity) {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.keys.map(Number) as Entity[]
 }

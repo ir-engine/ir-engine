@@ -99,7 +99,7 @@ export function useQuery(components: QueryComponents) {
       removeQuery(query)
       getState(SystemState).reactiveQueryStates.delete(queryState)
     }
-  }, [])
+  }, [components])
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
@@ -114,7 +114,7 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [result])
+  }, [components, result])
 
   return result.value
 }
