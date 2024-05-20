@@ -32,10 +32,10 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState, matches } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkComponent, xrState) => {
@@ -48,7 +48,7 @@ const linkLogic = (linkComponent, xrState) => {
 }
 const linkCallback = (linkEntity: Entity) => {
   const linkComponent = getComponent(linkEntity, LinkComponent)
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtons(linkEntity)
   if (buttons.PrimaryClick?.touched) {
     if (buttons.PrimaryClick.up) {
       linkLogic(linkComponent, undefined)
