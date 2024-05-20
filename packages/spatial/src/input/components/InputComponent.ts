@@ -135,7 +135,7 @@ export const InputComponent = defineComponent({
   ) {
     const buttons = Object.assign(
       {} as ButtonStateMap,
-      ...c.map((eid) => {
+      ...inputSourceEntities.map((eid) => {
         return getComponent(eid, InputSourceComponent).buttons
       })
     ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
