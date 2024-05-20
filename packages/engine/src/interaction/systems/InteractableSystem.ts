@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { hasComponent, InputSystemGroup, removeComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { hasComponent, removeComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -166,8 +166,8 @@ const interactWithClosestInteractable = () => {
   }
 }
 
-export const InteractableInputSystem = defineSystem({
-  uuid: 'ee.engine.InteractableInputSystem',
-  insert: { after: InputSystemGroup },
-  execute: executeInput
-})
+// export const InteractableInputSystem = defineSystem({
+//   uuid: 'ee.engine.InteractableInputSystem',
+//   insert: { after: InputSystemGroup },
+//   execute: executeInput
+// })

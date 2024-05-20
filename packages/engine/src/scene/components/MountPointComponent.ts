@@ -44,10 +44,9 @@ import {
   useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
+import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
@@ -169,29 +168,20 @@ export const MountPointComponent = defineComponent({
   mountPointInteractMessages,
 
   reactor: function () {
-    InputComponent.useInputs((entity) => {
-      const input = getOptionalComponent(entity, InputComponent)
-      if (!input || !input.inputSources) return
-      const buttons = InputSourceComponent.getMergedButtons(input.inputSources)
-      if (buttons.Interact?.down) {
-        mountEntity(AvatarComponent.getSelfAvatarEntity(), entity)
-      }
-    })
-
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
     const mountedEntities = useMutableState(MountPointState)
 
-    // useEffect(() => {
-    //   setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-    //   setComponent(entity, BoundingBoxComponent, {
-    //     box: new Box3().setFromCenterAndSize(
-    //       getComponent(entity, TransformComponent).position,
-    //       new Vector3(0.1, 0.1, 0.1)
-    //     )
-    //   })
-    // }, [])
+    useEffect(() => {
+      setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
+      // setComponent(entity, BoundingBoxComponent, {
+      //   box: new Box3().setFromCenterAndSize(
+      //     getComponent(entity, TransformComponent).position,
+      //     new Vector3(0.1, 0.1, 0.1)
+      //   )
+      // })
+    }, [])
 
     useEffect(() => {
       // manually hide interactable's XRUI when mounted through visibleComponent - (as interactable uses opacity to toggle visibility)

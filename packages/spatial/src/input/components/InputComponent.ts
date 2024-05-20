@@ -40,7 +40,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '../../EngineState'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponent } from '../../transform/components/EntityTree'
@@ -178,11 +178,14 @@ export const InputComponent = defineComponent({
     return axes
   },
 
-  /** InputComponent is focused by the ClientInputSystem heuristics */
   useHasFocus() {
     const entity = useEntityContext()
-    const inputComponent = useComponent(entity, InputComponent)
-    return inputComponent.hasFocus.value
+    const hasFocus = useHookstate(false)
+    InputComponent.useExecuteWithInput(() => {
+      const inputSources = InputComponent.getInputSourceEntities(entity)
+      hasFocus.set(inputSources.length > 0)
+    })
+    return hasFocus
   },
 
   reactor: () => {
