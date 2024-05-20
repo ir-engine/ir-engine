@@ -66,13 +66,17 @@ export const UserMenus = {
   Emote: 'user.Emote'
 }
 
-const EmoteMenuFlag = 'ir.client.menu.emote' as FeatureFlag
+export const EmoteMenuFlag = 'ir.client.menu.emote' as FeatureFlag
+export const AvaturnMenuFlag = 'ir.client.menu.avaturn' as FeatureFlag
+export const RPMMenuFlag = 'ir.client.menu.readyPlayerMe' as FeatureFlag
 
 const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
   const emotesEnabled = FeatureFlagsState.useEnabled(EmoteMenuFlag)
+  const avaturnEnabled = FeatureFlagsState.useEnabled(AvaturnMenuFlag)
+  const rpmEnabled = FeatureFlagsState.useEnabled(RPMMenuFlag)
 
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
@@ -84,8 +88,6 @@ const reactor = () => {
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
-      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe),
-      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn),
       [UserMenus.Share]: ShareMenu
     })
 
@@ -100,8 +102,6 @@ const reactor = () => {
         [UserMenus.Settings]: none,
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
-        [UserMenus.ReadyPlayer]: none,
-        [UserMenus.Avaturn]: none,
         [UserMenus.Share]: none
       })
 
@@ -135,6 +135,36 @@ const reactor = () => {
       })
     }
   }, [emotesEnabled])
+
+  useEffect(() => {
+    if (!avaturnEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe)
+    })
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.ReadyPlayer]: none
+      })
+    }
+  }, [avaturnEnabled])
+
+  useEffect(() => {
+    if (!rpmEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn)
+    })
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.Avaturn]: none
+      })
+    }
+  }, [rpmEnabled])
 
   return null
 }
