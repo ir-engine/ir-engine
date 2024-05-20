@@ -27,7 +27,6 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { assetsRegex, projectPublicRegex } from '@etherealengine/common/src/constants/ProjectKeyConstants'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -47,7 +46,10 @@ export const download = async (projectName: string, storageProviderName?: string
     logger.info(`[ProjectLoader]: Installing project "${projectName}"...`)
     let files = await getFileKeysRecursive(`projects/${projectName}/`)
 
-    files = files.filter((file) => !assetsRegex.test(file) && !projectPublicRegex.test(file))
+    files = files.filter(
+      (file) =>
+        !file.startsWith(`/projects/${projectName}/assets/`) && !file.startsWith(`/projects/${projectName}/public/`)
+    )
     logger.info('[ProjectLoader]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)
