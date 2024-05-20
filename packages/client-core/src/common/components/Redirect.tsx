@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
+
 import { RouterState } from '../services/RouterService'
 
 export const Redirect = (props: { to: string }) => {

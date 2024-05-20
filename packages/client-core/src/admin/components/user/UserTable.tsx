@@ -18,24 +18,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType, userPath } from '@etherealengine/common/src/schema.type.module'
-import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
-import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+import { Id, NullableId } from '@feathersjs/feathers'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPencil, HiTrash } from 'react-icons/hi2'
 
+import { userPath, UserType } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
+import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { Id, NullableId } from '@feathersjs/feathers'
+import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
+import { userColumns, UserRowType } from '../../common/constants/user'
 import DataTable from '../../common/Table'
-import { UserRowType, userColumns } from '../../common/constants/user'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 

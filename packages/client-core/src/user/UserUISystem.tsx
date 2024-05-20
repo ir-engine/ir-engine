@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { lazy, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FeatureFlag } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
-import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'

@@ -23,17 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, Color, Matrix4, Quaternion, Vector3 } from 'three'
+
 import {
-  Entity,
-  Not,
-  UndefinedEntity,
   defineQuery,
   defineSystem,
+  Entity,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
+  Not,
   setComponent,
+  UndefinedEntity,
   useQuery
 } from '@etherealengine/ecs'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
@@ -42,14 +45,13 @@ import {
   BoundingBoxHelperComponent,
   ObjectGridSnapComponent
 } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { useEffect } from 'react'
-import { Box3, Color, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -225,8 +227,8 @@ export const ObjectGridSnapSystem = defineSystem({
   uuid: 'ee.engine.scene.ObjectGridSnapSystem',
   insert: { after: TransformSystem },
   reactor: () => {
-    const snapState = useHookstate(getMutableState(ObjectGridSnapState))
-    const selectionState = useHookstate(getMutableState(SelectionState))
+    const snapState = useMutableState(ObjectGridSnapState)
+    const selectionState = useMutableState(SelectionState)
     const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {

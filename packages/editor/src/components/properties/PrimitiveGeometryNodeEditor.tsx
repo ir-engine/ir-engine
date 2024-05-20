@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import InterestsIcon from '@mui/icons-material/Interests'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -30,17 +31,15 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { GeometryTypeEnum } from '@etherealengine/engine/src/scene/constants/GeometryTypeEnum'
-
-import InterestsIcon from '@mui/icons-material/Interests'
-
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+
 import InputGroup from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 /**
  * Types of skyboxes

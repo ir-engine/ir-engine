@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import {
+  defineSystem,
   Entity,
   PresentationSystemGroup,
   QueryReactor,
-  defineSystem,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { haveCommonAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import React, { useEffect } from 'react'
+
 import { EnvmapComponent, updateEnvMap } from '../components/EnvmapComponent'
 import { EnvMapSourceType } from '../constants/EnvMapEnum'
 

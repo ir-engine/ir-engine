@@ -25,15 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
-
 import {
   FileBrowserContentType,
   fileBrowserPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { FileThumbnailJobState, extensionCanHaveThumbnail } from './FileThumbnailJobState'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
+
+import { extensionCanHaveThumbnail, FileThumbnailJobState } from './FileThumbnailJobState'
 import { NotificationService } from './NotificationService'
 
 export const FILES_PAGE_LIMIT = 100

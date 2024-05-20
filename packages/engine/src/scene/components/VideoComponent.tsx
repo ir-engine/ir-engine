@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import {
   DoubleSide,
   LinearFilter,
+  Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   Side,
@@ -34,8 +35,6 @@ import {
   Vector2,
   VideoTexture
 } from 'three'
-
-import { defineState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -48,16 +47,18 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { defineState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+
 import { clearErrors } from '../functions/ErrorFunctions'
-import { PLANE_GEO, SPHERE_GEO, resizeImageMesh } from './ImageComponent'
+import { PLANE_GEO, resizeImageMesh, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -172,7 +173,7 @@ function VideoReactor() {
 
   // update mesh
   useEffect(() => {
-    const videoMesh = mesh.value
+    const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial>
     resizeImageMesh(videoMesh)
     const scale = ObjectFitFunctions.computeContentFitScale(
       videoMesh.scale.x,
@@ -196,7 +197,7 @@ function VideoReactor() {
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent.texture
     if (video.texture.value) {
-      video.texture.value.image = mediaElement.element.value as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {

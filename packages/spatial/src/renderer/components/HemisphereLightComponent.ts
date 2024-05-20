@@ -34,7 +34,8 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../resources/resourceHooks'
 import { RendererState } from '../RendererState'
@@ -74,7 +75,7 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const [light] = useDisposable(HemisphereLight, entity)
     const lightHelper = useOptionalComponent(entity, LightHelperComponent)

@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { useEffect } from 'react'
+import { BufferGeometry, Material, MeshBasicMaterial, NormalBufferAttributes } from 'three'
+
+import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { matchesGeometry, matchesMaterial } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { useEffect } from 'react'
-import { BufferGeometry, Material, MeshBasicMaterial } from 'three'
+
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
@@ -58,7 +60,11 @@ export const DebugMeshComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, DebugMeshComponent)
     const helperEntity = useHelperEntity(entity, component)
-    const mesh = useMeshComponent(helperEntity, component.geometry.value, component.material.value)
+    const mesh = useMeshComponent(
+      helperEntity,
+      component.geometry.value as BufferGeometry<NormalBufferAttributes>,
+      component.material.value as Material
+    )
 
     useEffect(() => {
       setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeHelper)

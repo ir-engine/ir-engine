@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { SmsData } from '@etherealengine/common/src/schemas/user/sms.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import { sendSmsWithAWS } from './awssns'
 

@@ -24,38 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useHookstate } from '@hookstate/core'
+import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import ReactSlider from 'react-slider'
 import { twMerge } from 'tailwind-merge'
 
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
-
-import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import {
-  ECSRecordingActions,
-  PlaybackState,
-  RecordingState,
-  activePlaybacks
-} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-
-import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
-import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   RecordingID,
   StaticResourceType,
   assetPath,
   recordingPath
 } from '@etherealengine/common/src/schema.type.module'
+import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { getComponent } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
@@ -63,11 +56,19 @@ import {
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState,
+  activePlaybacks
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import {
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -76,8 +77,7 @@ import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
-import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
-import ReactSlider from 'react-slider'
+
 import Button from '../../primitives/tailwind/Button'
 
 /**
@@ -151,7 +151,7 @@ export const CaptureState = defineState({
 })
 
 const CaptureMode = () => {
-  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const captureState = useMutableState(CaptureClientSettingsState)
   const captureSettings = captureState?.nested('settings')?.value
   const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
   const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
@@ -491,7 +491,7 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
 
 const PlaybackMode = () => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
 
   const recording = useGet(recordingPath, recordingID.value!)
   const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
@@ -576,9 +576,7 @@ const CapturePageState = defineState({
   initial: {
     mode: 'capture' as 'playback' | 'capture'
   },
-  onCreate: () => {
-    syncStateWithLocalStorage(CapturePageState, ['mode'])
-  }
+  extension: syncStateWithLocalStorage(['mode'])
 })
 
 const CaptureDashboard = () => {

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { generateTokenMethods, generateTokenPath } from '@etherealengine/common/src/schemas/user/generate-token.schema'
+
 import { Application } from '../../../declarations'
 import { GenerateTokenService } from './generate-token.class'
 import generateTokenDocs from './generate-token.docs'

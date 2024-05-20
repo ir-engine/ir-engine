@@ -27,56 +27,58 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import '@feathersjs/transport-commons'
 
-import commonConfig from '@etherealengine/common/src/config'
 import { decode } from 'jsonwebtoken'
 
+import commonConfig from '@etherealengine/common/src/config'
 import {
+  assetPath,
   ChannelID,
+  channelPath,
   ChannelType,
+  channelUserPath,
   ChannelUserType,
+  identityProviderPath,
   IdentityProviderType,
+  instanceAttendancePath,
   InstanceData,
   InstanceID,
+  instancePath,
   InstanceType,
   LocationID,
-  UserID,
-  UserKickType,
-  UserType,
-  assetPath,
-  channelPath,
-  channelUserPath,
-  identityProviderPath,
-  instanceAttendancePath,
-  instancePath,
   locationPath,
+  UserID,
   userKickPath,
-  userPath
+  UserKickType,
+  userPath,
+  UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, getComponent, getMutableComponent } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { HyperFlux, State, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, HyperFlux, Identifiable, State } from '@etherealengine/hyperflux'
 import {
+  addNetwork,
   NetworkConnectionParams,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  addNetwork,
   updatePeers
 } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+
 import './InstanceServerModule'
+
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -319,7 +321,10 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     logger.info('Scene loaded!')
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCServerNetwork,
+    Identifiable
+  >
   networkState.ready.set(true)
 
   getMutableState(InstanceServerState).ready.set(true)

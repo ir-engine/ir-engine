@@ -27,6 +27,7 @@ import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
 import { PeerID } from '@etherealengine/hyperflux'
+
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorReconciler, ReactorRoot } from './ReactorFunctions'
 
@@ -122,15 +123,6 @@ export function createHyperStore(options: {
     },
     receptors: {},
     activeReactors: new Set()
-    // toJSON: () => {
-    //   const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
-    //     return merge(obj, { [name]: state.attach(Downgraded).value })
-    //   }, {})
-    //   return {
-    //     ...store,
-    //     state
-    //   }
-    // },
   }
   HyperFlux.store = store
   return store

@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { NetworkObjectComponent } from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 type NearbyUser = { id: UserID; distance: number }

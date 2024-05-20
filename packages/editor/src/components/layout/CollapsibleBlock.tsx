@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, Divider, Stack } from '@mui/material'
+import React, { useState } from 'react'
 
 import ExpandMore from './ExpandMore'
 import styles from './styles.module.scss'

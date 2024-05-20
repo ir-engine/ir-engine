@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   UserRelationshipData,
@@ -34,10 +34,9 @@ import {
   userRelationshipPath,
   userRelationshipQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-
 import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-import { BadRequest } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'

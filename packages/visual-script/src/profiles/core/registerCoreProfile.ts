@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable max-len */
 
-import { IRegistry, NodeDefinition, ValueTypeMap, getNodeDescriptions, memo } from '../../VisualScriptModule'
+import { getNodeDescriptions, IRegistry, memo, NodeDefinition, ValueTypeMap } from '../../VisualScriptModule'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType'
 import { ExpectTrue as AssertExpectTrue } from './debug/AssertExpectTrue'
 import { Log as DebugLog } from './debug/DebugLog'
@@ -55,6 +55,7 @@ import * as IntegerNodes from './values/IntegerNodes'
 import { IntegerValue } from './values/IntegerValue'
 import * as StringNodes from './values/StringNodes'
 import { StringValue } from './values/StringValue'
+
 export const getCoreValuesMap = memo<ValueTypeMap>(() => {
   const valueTypes = [BooleanValue, StringValue, IntegerValue, FloatValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))

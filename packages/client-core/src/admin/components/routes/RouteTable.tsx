@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { routePath } from '@etherealengine/common/src/schema.type.module'
-
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
+import { routePath } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+
+import { routeColumns, RouteRowType } from '../../common/constants/route'
 import DataTable from '../../common/Table'
-import { RouteRowType, routeColumns } from '../../common/constants/route'
 
 export default function RoutesTable() {
   const installedRouteData = useFind('routes-installed').data

@@ -23,17 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { GoDownload } from 'react-icons/go'
+import { HiOutlineRefresh } from 'react-icons/hi'
+
 import { podsPath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { GoDownload } from 'react-icons/go'
-import { HiOutlineRefresh } from 'react-icons/hi'
+
 import { PopoverState } from '../../../common/services/PopoverState'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'

@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useVisualScriptRunner } from '@etherealengine/engine/src/visualscript/systems/useVisualScriptRunner'
-import { GraphJSON, IRegistry } from '@etherealengine/visual-script'
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow } from 'reactflow'
+
+import { useVisualScriptRunner } from '@etherealengine/engine/src/visualscript/systems/useVisualScriptRunner'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { GraphJSON, IRegistry } from '@etherealengine/visual-script'
+
 import { PropertiesPanelButton } from '../../inputs/Button'
 import { useFlowHandlers } from '../hooks/useFlowHandlers'
 import { useNodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
@@ -37,9 +39,9 @@ import { useTemplateHandler } from '../hooks/useTemplateHandler'
 import { useVariableHandler } from '../hooks/useVariableHandler'
 import { useVisualScriptFlow } from '../hooks/useVisualScriptFlow'
 import CustomControls from './Controls'
+import { Examples } from './modals/LoadModal'
 import { NodePicker } from './NodePicker'
 import SidePanel from './SidePanel'
-import { Examples } from './modals/LoadModal'
 
 type FlowProps = {
   initialVisualScript: GraphJSON

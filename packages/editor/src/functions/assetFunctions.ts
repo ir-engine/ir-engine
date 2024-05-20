@@ -38,6 +38,7 @@ import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTran
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
+
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'

@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import SsidChartIcon from '@mui/icons-material/SsidChart'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { RenderInfoState } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
-
-import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
@@ -40,7 +39,7 @@ import styles from '../styles.module.scss'
  * @constructor
  */
 const StatsTool = () => {
-  const renderInfoState = useHookstate(getMutableState(RenderInfoState))
+  const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.info.value
   const isVisible = renderInfoState.visible.value
 

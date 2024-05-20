@@ -25,16 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { Camera, Intersection, Mesh, Object3D, Raycaster, Vector2 } from 'three'
 
+import { defineQuery } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 
-import { defineQuery } from '@etherealengine/ecs'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3D> & {

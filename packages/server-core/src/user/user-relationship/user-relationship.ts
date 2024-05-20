@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  UserRelationshipType,
   userRelationshipMethods,
-  userRelationshipPath
+  userRelationshipPath,
+  UserRelationshipType
 } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-
 import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserRelationshipService } from './user-relationship.class'

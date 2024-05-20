@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { projectsMethods, projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectsService } from './projects.class'
 import projectsDocs from './projects.docs'

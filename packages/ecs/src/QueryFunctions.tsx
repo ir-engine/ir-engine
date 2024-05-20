@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
-import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { getState, HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
+
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'

@@ -23,22 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, PresentationSystemGroup, defineSystem } from '@etherealengine/ecs'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import React, { useEffect } from 'react'
 import {
   BufferGeometry,
@@ -51,7 +35,25 @@ import {
   Raycaster,
   SkinnedMesh
 } from 'three'
-import { MeshBVHHelper, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
+
+import { defineSystem, Entity, PresentationSystemGroup } from '@etherealengine/ecs'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 

@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import {
   InviteCodeLookupQuery,
   InviteCodeLookupType
 } from '@etherealengine/common/src/schemas/social/invite-code-lookup.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
+import { Application } from '../../../declarations'
 
 export interface InviteCodeLookupParams extends KnexAdapterParams<InviteCodeLookupQuery> {}
 

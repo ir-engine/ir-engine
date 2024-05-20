@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+
 import Button from '../Button'
 import PopupMenu from '../PopupMenu'
 import Modal from './index'

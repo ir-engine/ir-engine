@@ -23,23 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ClearIcon from '@mui/icons-material/Clear'
+import TimelineIcon from '@mui/icons-material/Timeline'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Quaternion, Vector3 } from 'three'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-
-import ClearIcon from '@mui/icons-material/Clear'
-import TimelineIcon from '@mui/icons-material/Timeline'
-
 import { NO_PROXY } from '@etherealengine/hyperflux'
-import { Quaternion, Vector3 } from 'three'
+
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.

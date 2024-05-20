@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, Vector3 } from 'three'
+
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -35,15 +38,21 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { dispatchAction, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  matches,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -165,7 +174,7 @@ export const MountPointComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const mountPoint = useComponent(entity, MountPointComponent)
-    const mountedEntities = useHookstate(getMutableState(MountPointState))
+    const mountedEntities = useMutableState(MountPointState)
 
     useEffect(() => {
       setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
