@@ -38,7 +38,6 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
@@ -74,14 +73,15 @@ const execute = () => {
 
   // TODO: handle multi-touch pinch/zoom
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  const axes = InputSourceComponent.getMergedAxes()
-
   /**
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
     const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
+
+    const buttons = InputComponent.getMergedButtons(cameraEid)
+    const axes = InputComponent.getMergedAxes(cameraEid)
+
     if (!inputPointerEntity) continue
     const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
 
