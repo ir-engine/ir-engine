@@ -35,7 +35,6 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
   useEntityContext,
   UUIDComponent
 } from '@etherealengine/ecs'
@@ -270,7 +269,7 @@ export const InteractableComponent = defineComponent({
   reactor: () => {
     if (!isClient) return null
     const entity = useEntityContext()
-    const interactable = useComponent(entity, InteractableComponent)
+    // const interactable = useComponent(entity, InteractableComponent)
     // const isEditing = useMutableState(EngineState).isEditing
     // const hasFocus = useMutableState(EngineState).hasFocus
 

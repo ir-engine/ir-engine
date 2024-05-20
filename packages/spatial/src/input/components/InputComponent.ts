@@ -100,7 +100,10 @@ export const InputComponent = defineComponent({
 
   getInputEntities(entityContext: Entity): Entity[] {
     const inputSinkEntity = getAncestorWithComponent(entityContext, InputSinkComponent)
-    return getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
+    const closestInputEntity = getAncestorWithComponent(entityContext, InputComponent)
+    const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
+    const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
+    return inputEntities.filter((entity, index) => inputEntities.indexOf(entity) === index) // remove duplicates
   },
 
   getInputSourceEntities(entityContext: Entity) {
@@ -115,21 +118,7 @@ export const InputComponent = defineComponent({
     inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
-
-    const buttons = Object.assign(
-      {} as ButtonStateMap,
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
-
-    for (const key of Object.keys(inputAlias)) {
-      const k = key as keyof AliasType
-      buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
-      // buttons[k] = inputAlias[key].reduce((acc, alias) => acc || buttons[alias], undefined)
-    }
-
-    return buttons
+    return InputComponent.getMergedButtonsForInputSources(inputSourceEntities, inputAlias)
   },
 
   getMergedAxes<AliasType extends InputAlias = typeof DefaultInputAlias>(
@@ -137,7 +126,32 @@ export const InputComponent = defineComponent({
     inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
+    return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
+  },
 
+  getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultInputAlias>(
+    inputSourceEntities: Entity[],
+    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+  ) {
+    const buttons = Object.assign(
+      {} as ButtonStateMap,
+      ...c.map((eid) => {
+        return getComponent(eid, InputSourceComponent).buttons
+      })
+    ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
+
+    for (const key of Object.keys(inputAlias)) {
+      const k = key as keyof AliasType
+      buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
+    }
+
+    return buttons
+  },
+
+  getMergedAxesForInputSources<AliasType extends InputAlias = typeof DefaultInputAlias>(
+    inputSourceEntities: Entity[],
+    inputAlias: AliasType = DefaultInputAlias as unknown as AliasType
+  ) {
     const axes = {
       0: 0,
       1: 0,
