@@ -23,10 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ApiJob from './api-job/api-job'
-import BuildStatus from './build-status/build-status'
-import LogsApi from './logs-api/logs-api'
-import MigrationsInfo from './migrations-info/migrations-info'
-import Pods from './pods/pods'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [LogsApi, BuildStatus, Pods, MigrationsInfo, ApiJob]
+import {
+  migrationsInfoQuerySchema,
+  migrationsInfoSchema
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    migrationsInfoQuerySchema,
+    migrationsInfoSchema
+  },
+  docs: {
+    description: 'Migrations info service description',
+    securities: ['all']
+  }
+})

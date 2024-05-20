@@ -32,6 +32,7 @@ export type * from './schemas/bot/bot.schema'
 export type * from './schemas/cluster/api-job.schema'
 export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
+export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
@@ -291,6 +292,8 @@ export const podsPath = 'pods'
 export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
+
+export const migrationsInfoPath = 'knex_migrations'
 
 export const uploadAssetPath = 'upload-asset'
 
