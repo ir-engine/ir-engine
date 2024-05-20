@@ -51,7 +51,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { Downgraded, NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
@@ -131,7 +131,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
-  const filesValue = fileState.files.attach(Downgraded).value
+  const filesValue = fileState.files.value
   const { skip, total, retrieving } = fileState.value
 
   let page = skip / FILES_PAGE_LIMIT
@@ -422,7 +422,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <div className={isListView ? '' : 'flex flex-wrap justify-start gap-3 pb-8'}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
+              {unique(validFiles.get(NO_PROXY) as typeof files, (file) => file.key).map((file, i) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
