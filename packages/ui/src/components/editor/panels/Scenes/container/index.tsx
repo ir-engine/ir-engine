@@ -86,7 +86,7 @@ export default function ScenesPanel() {
           {t('editor:newScene')}
         </Button>
       </div>
-      <div className="bg-theme-primary mx-5">
+      <div className="bg-theme-primary mx-5 overflow-scroll">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
