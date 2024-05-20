@@ -28,7 +28,6 @@ import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
@@ -40,9 +39,6 @@ import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/Resour
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { ImportSettingsPanel } from '@etherealengine/ui/src/components/editor/settings/import'
-import { SaveNewSceneDialog } from '@etherealengine/ui/src/components/editor/toolbar/mainMenu/saveAsScene'
-import { SaveSceneDialog } from '@etherealengine/ui/src/components/editor/toolbar/mainMenu/saveScene'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
 import 'rc-dock/dist/rc-dock.css'
@@ -60,6 +56,7 @@ import { SelectionState } from '../services/SelectionServices'
 import './EditorContainer.css'
 
 import AssetDropZone from './assets/AssetDropZone'
+import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
@@ -67,6 +64,8 @@ import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
+import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
+import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
@@ -94,7 +93,7 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
   )
 }
 
-export const LoadedScene = (props: { rootEntity: Entity }) => {
+const LoadedScene = (props: { rootEntity: Entity }) => {
   const { rootEntity } = props
   const progress = useComponent(rootEntity, GLTFComponent).progress.value
   const resourcePendingQuery = useQuery([ResourcePendingComponent])
@@ -152,7 +151,7 @@ export const LoadedScene = (props: { rootEntity: Entity }) => {
  * Scene Event Handlers
  */
 
-export const onEditorError = (error) => {
+const onEditorError = (error) => {
   logger.error(error)
   if (error['aborted']) {
     DialogState.setDialog(null)
@@ -168,7 +167,7 @@ export const onEditorError = (error) => {
   )
 }
 
-export const onCloseProject = () => {
+const onCloseProject = () => {
   const editorState = getMutableState(EditorState)
   getMutableState(GLTFModifiedState).set({})
   editorState.projectName.set(null)
@@ -188,18 +187,16 @@ export const onCloseProject = () => {
   }
 }
 
-export const onSaveAs = async () => {
+const onSaveAs = async () => {
   const { projectName, sceneName, rootEntity } = getState(EditorState)
   const sceneModified = EditorState.isModified()
   const abortController = new AbortController()
   try {
     if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
-        PopoverState.showPopupover(
-          <SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />
-        )
+        DialogState.setDialog(<SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />)
       })
-      PopoverState.hidePopupover()
+      DialogState.setDialog(null)
       if (result?.name && projectName) {
         await saveSceneGLTF(null, projectName, result.name, abortController.signal)
 
@@ -209,17 +206,17 @@ export const onSaveAs = async () => {
     }
   } catch (error) {
     logger.error(error)
-    PopoverState.showPopupover(
+    DialogState.setDialog(
       <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
     )
   }
 }
 
-export const onImportSettings = () => {
-  PopoverState.showPopupover(<ImportSettingsPanel />)
+const onImportSettings = () => {
+  DialogState.setDialog(<ImportSettingsPanel />)
 }
 
-export const onImportAsset = async () => {
+const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
   if (projectName) {
@@ -231,7 +228,7 @@ export const onImportAsset = async () => {
   }
 }
 
-export const onSaveScene = async () => {
+const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
 
   if (!projectName) return
@@ -245,7 +242,7 @@ export const onSaveScene = async () => {
   }
 
   const result = (await new Promise((resolve) => {
-    PopoverState.showPopupover(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
   })) as any
 
   if (!result) {
@@ -255,13 +252,13 @@ export const onSaveScene = async () => {
 
   const abortController = new AbortController()
 
-  PopoverState.showPopupover(
+  DialogState.setDialog(
     <ProgressDialog
       message={t('editor:saving')}
       cancelable={true}
       onCancel={() => {
         abortController.abort()
-        PopoverState.hidePopupover()
+        DialogState.setDialog(null)
       }}
     />
   )
@@ -275,17 +272,17 @@ export const onSaveScene = async () => {
     const sourceID = getComponent(rootEntity, SourceComponent)
     getMutableState(GLTFModifiedState)[sourceID].set(none)
 
-    PopoverState.hidePopupover()
+    DialogState.setDialog(null)
   } catch (error) {
     logger.error(error)
 
-    PopoverState.showPopupover(
+    DialogState.setDialog(
       <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
     )
   }
 }
 
-export const generateToolbarMenu = () => {
+const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),

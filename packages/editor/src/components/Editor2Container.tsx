@@ -49,8 +49,9 @@ import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
+import { t } from 'i18next'
 import Toolbar from '../components/toolbar/Toolbar2'
-import { onEditorError } from './EditorContainer'
 import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -62,6 +63,18 @@ export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }
     <div id={id} className="dock-container" style={dockContainerStyles as React.CSSProperties}>
       {children}
     </div>
+  )
+}
+
+const onEditorError = (error) => {
+  console.error(error)
+  if (error['aborted']) {
+    PopoverState.hidePopupover()
+    return
+  }
+
+  PopoverState.showPopupover(
+    <ErrorDialog title={error.title || t('editor:error')} description={error.message || t('editor:errorMsg')} />
   )
 }
 
