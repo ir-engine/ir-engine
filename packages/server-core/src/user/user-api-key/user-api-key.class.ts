@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+
 import {
   UserApiKeyData,
   UserApiKeyPatch,
   UserApiKeyQuery,
   UserApiKeyType
 } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface UserApiKeyParams extends KnexAdapterParams<UserApiKeyQuery> {}
 

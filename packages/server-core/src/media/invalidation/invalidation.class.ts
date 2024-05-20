@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+
 import {
   InvalidationData,
   InvalidationQuery,
   InvalidationType
 } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface InvalidationParams extends KnexAdapterParams<InvalidationQuery> {}
 

@@ -27,6 +27,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NetworkObjectAuthorityTag } from '@etherealengine/network'
+
 import { applyGamepadInput } from '.././functions/moveAvatar'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 

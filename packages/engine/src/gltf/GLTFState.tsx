@@ -23,56 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import React, { useEffect, useLayoutEffect } from 'react'
+import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import config from '@etherealengine/common/src/config'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
+  createEntity,
   Engine,
   Entity,
   EntityUUID,
-  QueryReactor,
-  UUIDComponent,
-  UndefinedEntity,
-  createEntity,
   getComponent,
   getMutableComponent,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent,
+  UndefinedEntity,
   useComponent,
-  useEntityContext
+  UUIDComponent
 } from '@etherealengine/ecs'
 import {
-  NO_PROXY,
-  NO_PROXY_STEALTH,
-  State,
-  Topic,
   defineState,
+  dispatchAction,
   getMutableState,
   getState,
+  NO_PROXY,
+  NO_PROXY_STEALTH,
   none,
+  State,
+  Topic,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GLTF } from '@gltf-transform/core'
-import React, { useEffect, useLayoutEffect } from 'react'
-import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
-import { ModelComponent } from '../scene/components/ModelComponent'
+
 import { SourceComponent } from '../scene/components/SourceComponent'
-import { getGLTFSnapshot } from '../scene/functions/GLTFConversion'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
-import { getModelSceneID } from '../scene/functions/loaders/ModelFunctions'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
 
 export const GLTFAssetState = defineState({
   name: 'ee.engine.gltf.GLTFAssetState',
@@ -135,18 +134,6 @@ export const GLTFSourceState = defineState({
   }
 })
 
-function applySnapshot(source: string, data: GLTF.IGLTF) {
-  const state = getMutableState(GLTFSnapshotState)[source]
-  if (!state.value) {
-    state.set({ index: 0, snapshots: [data] })
-    getMutableState(GLTFDocumentState)[source].set(data)
-    return
-  }
-  state.index.set(state.index.value + 1)
-  state.snapshots.merge([data])
-  getMutableState(GLTFDocumentState)[source].set(data)
-}
-
 export const GLTFSnapshotState = defineState({
   name: 'ee.engine.gltf.GLTFSnapshotState',
   initial: {} as Record<
@@ -159,33 +146,45 @@ export const GLTFSnapshotState = defineState({
 
   receptors: {
     onSnapshot: GLTFSnapshotAction.createSnapshot.receive((action) => {
-      applySnapshot(action.source, action.data)
+      // update the snapshot state
+      const { data } = action
+      const state = getMutableState(GLTFSnapshotState)[action.source]
+      if (!state.value) {
+        state.set({ index: 0, snapshots: [data] })
+        return
+      }
+      state.index.set(state.index.value + 1)
+      const snapshots = getState(GLTFSnapshotState)[action.source].snapshots
+      // override whatever snapshots have been undone
+      state.snapshots.set([...snapshots.splice(0, state.index.value), data])
     }),
 
     onUndo: GLTFSnapshotAction.undo.receive((action) => {
+      // update the snapshot state
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value <= 0) return
       state.index.set(Math.max(state.index.value - action.count, 0))
-      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
     }),
 
     onRedo: GLTFSnapshotAction.redo.receive((action) => {
+      // update the snapshot state
       const state = getMutableState(GLTFSnapshotState)[action.source]
       if (state.index.value >= state.snapshots.value.length - 1) return
       state.index.set(Math.min(state.index.value + action.count, state.snapshots.value.length - 1))
-      const snapshotData = getState(GLTFSnapshotState)[action.source].snapshots[state.index.value]
-      getMutableState(GLTFDocumentState)[action.source].set(snapshotData)
     }),
 
     onClearHistory: GLTFSnapshotAction.clearHistory.receive((action) => {
+      // update the snapshot state
       const state = getState(GLTFSnapshotState)[action.source]
       const data = state.snapshots[0]
       getMutableState(GLTFSnapshotState)[action.source].set({
         index: 0,
         snapshots: [data]
       })
-      getMutableState(GLTFDocumentState)[action.source].set(data)
+    }),
+
+    onUnload: GLTFSnapshotAction.unload.receive((action) => {
+      getMutableState(GLTFSnapshotState)[action.source].set(none)
     })
   },
 
@@ -194,10 +193,8 @@ export const GLTFSnapshotState = defineState({
     return (
       <>
         {state.keys.map((source: string) => (
-          <GLTFSnapshotReactor source={source} key={source} />
+          <ChildGLTFReactor key={source} source={source} />
         ))}
-        <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ChildGLTFReactor} />
-        <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelGLTFReactor} />
       </>
     )
   },
@@ -215,7 +212,7 @@ export const GLTFSnapshotState = defineState({
   },
 
   injectSnapshot: (srcNode: EntityUUID, srcSnapshotID: string, dstNode: EntityUUID, dstSnapshotID: string) => {
-    const snapshot = getGLTFSnapshot(srcSnapshotID)
+    const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(srcSnapshotID)
     const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(dstSnapshotID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
@@ -264,7 +261,7 @@ export const GLTFSnapshotState = defineState({
     }
     parentSnapshot.data.nodes = newNodes
 
-    const rootIndices = snapshot.data.scenes?.[0].nodes!
+    const rootIndices = snapshot.data.scenes![0].nodes!
     const roots = rootIndices.map((index) => snapshot.data.nodes?.[index])
     parentSnapshot.data.nodes = [...parentSnapshot.data.nodes!, ...snapshot.data.nodes!]
     const childIndices = roots.map((root) => parentSnapshot.data.nodes!.findIndex((node) => node === root)!)
@@ -296,65 +293,55 @@ export const GLTFSnapshotState = defineState({
       }
       node.children = newChildren
     }
-    applySnapshot(dstSnapshotID, parentSnapshot.data)
-    getMutableState(GLTFSnapshotState)[srcSnapshotID].set(none)
-    getMutableState(GLTFDocumentState)[srcSnapshotID].set(none)
+    dispatchAction(GLTFSnapshotAction.createSnapshot({ source: dstSnapshotID, data: parentSnapshot.data }))
+    dispatchAction(GLTFSnapshotAction.unload({ source: srcSnapshotID }))
   }
 })
 
 export const EditorTopic = 'editor' as Topic
 
-const GLTFSnapshotReactor = (props: { source: string }) => {
-  const index = useHookstate(getMutableState(GLTFSnapshotState)[props.source].index).value
+const ChildGLTFReactor = (props: { source: string }) => {
+  const source = props.source
+
+  const index = useHookstate(getMutableState(GLTFSnapshotState)[source].index).value
 
   useLayoutEffect(() => {
-    if (index > 0) getMutableState(GLTFModifiedState)[props.source].set(true)
+    return () => {
+      getMutableState(GLTFDocumentState)[source].set(none)
+      getMutableState(GLTFNodeState)[source].set(none)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    // update the modified state
+    if (index > 0) getMutableState(GLTFModifiedState)[source].set(true)
+
+    // update the document state
+    const data = getState(GLTFSnapshotState)[source].snapshots[index]
+    getMutableState(GLTFDocumentState)[source].set(data)
+
+    // update the nodes dictionary
+    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+    getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
-  return null
-}
-
-const ModelGLTFReactor = () => {
-  const entity = useEntityContext()
-
-  const source = getModelSceneID(entity)
-  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState)[source])
-
+  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
   const parentUUID = useComponent(entity, UUIDComponent).value
-  if (!gltfDocumentState.value) return null
-
-  return <DocumentReactor documentID={source} parentUUID={parentUUID} />
-}
-
-const ChildGLTFReactor = () => {
-  const entity = useEntityContext()
-
-  const source = useComponent(entity, SourceComponent).value
-  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState)[source])
-
-  const parentUUID = useComponent(entity, UUIDComponent).value
-
-  if (!gltfDocumentState.value) return null
 
   return <DocumentReactor documentID={source} parentUUID={parentUUID} />
 }
 
 export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
-  const documentState = useMutableState(GLTFDocumentState)[props.documentID] as State<GLTF.IGLTF>
-  if (!documentState.scenes.value) return null
-
-  const nodes = documentState.scenes![documentState.scene.value!].nodes as State<number[]>
-
-  const document = documentState.get(NO_PROXY)
-
+  const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
+  if (!nodeState.value) return null
   return (
     <>
-      {nodes.get(NO_PROXY).map((nodeIndex, childIndex) => (
-        <NodeReactor
-          key={(document.nodes![nodeIndex].extensions![UUIDComponent.jsonID] as EntityUUID) ?? nodeIndex}
+      {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
+        <ParentNodeReactor
+          key={uuid}
           childIndex={childIndex}
           nodeIndex={nodeIndex}
-          parentUUID={props.parentUUID}
+          parentUUID={parentUUID ?? props.parentUUID}
           documentID={props.documentID}
         />
       ))}
@@ -362,24 +349,30 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   )
 }
 
+const ParentNodeReactor = (props: {
+  nodeIndex: number
+  childIndex: number
+  parentUUID: EntityUUID
+  documentID: string
+}) => {
+  const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
+  if (!parentEntity) return null
+
+  return <NodeReactor {...props} />
+}
+
 const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
 
-  const node = nodes[props.nodeIndex]!
-
-  const selfEntity = useHookstate(UndefinedEntity)
-  const entity = selfEntity.value
+  const node = nodes[props.nodeIndex]! as State<GLTF.INode>
 
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
-  useEffect(() => {
-    if (!parentEntity) return
-
-    const uuid = (node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID) ?? UUIDComponent.generateUUID()
+  const entity = useHookstate(() => {
+    const uuid = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
-    selfEntity.set(entity)
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, SourceComponent, props.documentID)
 
@@ -414,20 +407,14 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       setComponent(entity, Object3DComponent, obj3d)
     }
 
+    return entity
+  }).value
+
+  useEffect(() => {
     return () => {
-      //check if entity is in some other document
-      const uuid = getComponent(entity, UUIDComponent)
-      const documents = getState(GLTFDocumentState)
-      for (const documentID in documents) {
-        const document = documents[documentID]
-        if (!document?.nodes) continue
-        for (const node of document.nodes) {
-          if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
-        }
-      }
       removeEntity(entity)
     }
-  }, [parentEntity])
+  }, [])
 
   useEffect(() => {
     if (!entity) return
@@ -457,22 +444,11 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   if (!entity) return null
 
-  const uuid = getComponent(entity, UUIDComponent)
-
   return (
     <>
       {/* {node.mesh.value && (
         <MeshReactor nodeIndex={props.nodeIndex} documentID={props.documentID} entity={entity} />
       )} */}
-      {node.children.value?.map((nodeIndex, childIndex) => (
-        <NodeReactor
-          key={nodeIndex}
-          nodeIndex={nodeIndex}
-          childIndex={childIndex}
-          parentUUID={uuid}
-          documentID={props.documentID}
-        />
-      ))}
       {node.extensions.value &&
         Object.keys(node.extensions.get(NO_PROXY)!).map((extension) => (
           <ExtensionReactor
@@ -494,11 +470,11 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
 
   const extension = node.extensions![props.extension]
   useEffect(() => {
-    // return () => {
-    //   const Component = ComponentJSONIDMap.get(props.extension)
-    //   if (!Component) return console.warn('no component found for extension', props.extension)
-    //   removeComponent(props.entity, Component)
-    // }
+    const Component = ComponentJSONIDMap.get(props.extension)
+    if (!Component) return
+    return () => {
+      removeComponent(props.entity, Component)
+    }
   }, [])
 
   useEffect(() => {

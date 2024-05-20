@@ -23,14 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { discard, iff, isProvider } from 'feathers-hooks-common'
 
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
 import {
   MessageData,
   messageDataValidator,
   messagePatchValidator,
   messageQueryValidator
 } from '@etherealengine/common/src/schemas/social/message.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+
+import { HookContext } from '../../../declarations'
 import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
 import {
@@ -40,14 +48,6 @@ import {
   messageQueryResolver,
   messageResolver
 } from '../../social/message/message.resolvers'
-
-import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { discard, iff, isProvider } from 'feathers-hooks-common'
-import { HookContext } from '../../../declarations'
 import { MessageService } from './message.class'
 
 /**

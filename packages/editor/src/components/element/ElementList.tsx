@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { startCase } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ComponentShelfCategoriesState } from '@etherealengine/ui/src/components/editor/panels/Properties/elementList'

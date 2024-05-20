@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@etherealengine/ecs'
 import { Vector3_One } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+
 import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
 
 const sqrEpsilon = 1e-8

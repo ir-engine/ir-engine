@@ -27,8 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import {
   recordingResourcePath,
   RecordingResourceType
@@ -42,6 +40,7 @@ import {
 } from '@etherealengine/common/src/schemas/recording/recording.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
   let schema = JSON.parse(rawData.schema) as RecordingSchemaType

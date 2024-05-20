@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import { Grid } from '@mui/material'
 import React, { useEffect } from 'react'
 
 import { State, useHookstate } from '@etherealengine/hyperflux'
 
-import { Grid } from '@mui/material'
-
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { Button } from '../inputs/Button'
 import Well from './Well'
 

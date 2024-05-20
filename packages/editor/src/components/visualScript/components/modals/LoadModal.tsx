@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
 import { GraphJSON } from '@etherealengine/visual-script'
-import { useTranslation } from 'react-i18next'
+
 import { Modal } from './Modal'
 
 export type Examples = {

@@ -31,6 +31,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import React from 'react'
+
 import styles from '../styles.module.scss'
 
 const FileIconType = {

@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useCallback, useEffect } from 'react'
 import { Euler, Quaternion, MathUtils as _Math } from 'three'
 
-import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from '../inputs/Vector3Input'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import NumericInput from './NumericInput'
+import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 
 const { RAD2DEG, DEG2RAD } = _Math
 /**

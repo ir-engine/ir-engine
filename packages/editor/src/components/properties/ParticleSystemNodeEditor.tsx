@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -54,9 +55,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 
-import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
-
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'

@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import { ChannelID, InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
@@ -40,7 +42,6 @@ import {
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
 
 import { DataChannelType } from '../../DataChannelRegistry'
 import { MediaStreamAppData, MediaTagType, NetworkActions, NetworkState } from '../../NetworkState'

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, Type } from '@feathersjs/typebox'
+
 import { dataValidator } from '../validators'
 
 export const smsPath = 'sms'

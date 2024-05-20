@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { useMutableState } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@etherealengine/spatial/src/renderer/constants/RenderModes'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
-import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-
-import { useTranslation } from 'react-i18next'
 import BooleanInput from '../../inputs/BooleanInput'
 import InputGroup from '../../inputs/InputGroup'
 import SelectInput from '../../inputs/SelectInput'

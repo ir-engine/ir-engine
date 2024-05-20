@@ -27,17 +27,17 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { BotQuery, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
-import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-
 import {
   BotCommandData,
-  BotCommandType,
-  botCommandPath
+  botCommandPath,
+  BotCommandType
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
-import { InstanceID, InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { BotQuery, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
 
 export const botResolver = resolve<BotType, HookContext>({})

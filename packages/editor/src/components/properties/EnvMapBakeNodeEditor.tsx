@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 import React from 'react'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 
-import SportsGolfIcon from '@mui/icons-material/SportsGolf'
-
-import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
+import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

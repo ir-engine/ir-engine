@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import { GroupQueryReactor } from '../renderer/components/GroupComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'

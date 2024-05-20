@@ -23,29 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BlendFunction, VignetteTechnique } from 'postprocessing'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
-
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
+import { BlendFunction, VignetteTechnique } from 'postprocessing'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Color } from 'three'
 
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import { Effects } from '@etherealengine/spatial/src/renderer/effects/PostProcessing'
+
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 enum PropertyTypes {
   BlendFunction,

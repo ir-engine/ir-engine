@@ -24,12 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import {
-  MediaInstanceState,
-  useMediaNetwork
-} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
@@ -54,7 +52,7 @@ import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/spatial/src
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
-import { useTranslation } from 'react-i18next'
+
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
@@ -72,12 +70,9 @@ export const MediaIconsBox = () => {
   const { topShelfStyle } = useShelfStyles()
 
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
-  const channelConnectionState = useMutableState(MediaInstanceState)
   const networkState = useMutableState(NetworkState)
   const mediaNetworkState = useMediaNetwork()
-  const mediaNetworkID = NetworkState.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
-  const currentChannelInstanceConnection = mediaNetworkID && channelConnectionState.instances[mediaNetworkID].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
     : false

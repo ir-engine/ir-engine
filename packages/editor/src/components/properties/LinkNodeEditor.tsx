@@ -23,22 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import LinkIcon from '@mui/icons-material/Link'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
-import LinkIcon from '@mui/icons-material/Link'
-
 import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   InteractableComponent,
   XRUIActivationType
 } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'

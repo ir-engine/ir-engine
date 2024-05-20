@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { archiverQuerySchema } from '@etherealengine/common/src/schemas/media/archiver.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { archiverQuerySchema } from '@etherealengine/common/src/schemas/media/archiver.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { archiverQuerySchema },

@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+
 import { getComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { VRM, VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+
 import { AvatarComponent } from '../components/AvatarComponent'
 import { BoneComponent } from '../components/BoneComponent'
 

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import React from 'react'
 import { IoAddOutline, IoSend } from 'react-icons/io5'
+
 import Button from './index'
 
 const argTypes = {

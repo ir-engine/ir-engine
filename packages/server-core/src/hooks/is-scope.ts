@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
+import { scopePath, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 
 export default (currentType: string, scopeToVerify: string) => {

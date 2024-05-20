@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileLoader } from '@etherealengine/engine/src/assets/loaders/base/FileLoader'
 import { NodeIO } from '@gltf-transform/core'
 import {
   EXTMeshGPUInstancing,
@@ -43,6 +42,8 @@ import {
 import fetch from 'cross-fetch'
 import draco3d from 'draco3dgltf'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
+
+import { FileLoader } from '@etherealengine/engine/src/assets/loaders/base/FileLoader'
 
 import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { MOZLightmapExtension } from './extensions/MOZ_LightmapTransformer'

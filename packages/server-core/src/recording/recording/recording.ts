@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { recordingMethods, recordingPath } from '@etherealengine/common/src/schemas/recording/recording.schema'
+
 import { Application } from '../../../declarations'
 import { RecordingService } from './recording.class'
 import recordingDocs from './recording.docs'

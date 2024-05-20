@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
 import { Identifiable, identifiable } from '@hookstate/identifiable'
-
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -142,12 +141,11 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
           if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
         }
       },
-      onSet: (state, desc) => {
-        const key = '' + desc.path[0]
-        if (keys.includes(key)) {
-          const storageKey = `${stateNamespaceKey}.${state.identifier}.${key}`
-          if (!state[key] || !state[key].get(NO_PROXY)) localStorage.removeItem(storageKey)
-          else localStorage.setItem(storageKey, JSON.stringify(state[key].get(NO_PROXY)))
+      onSet: (state, desc, rootState) => {
+        for (const key of keys) {
+          const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
+          if (!rootState[key] || !rootState[key].get(NO_PROXY)) localStorage.removeItem(storageKey)
+          else localStorage.setItem(storageKey, JSON.stringify(rootState[key].get(NO_PROXY)))
         }
       }
     }

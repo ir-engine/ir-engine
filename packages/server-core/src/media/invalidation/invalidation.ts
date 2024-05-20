@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { invalidationMethods, invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
+
 import { Application } from '../../../declarations'
 import { InvalidationService } from './invalidation.class'
 import invalidationDocs from './invalidation.docs'

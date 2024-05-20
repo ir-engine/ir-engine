@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { TableContainer as MuiTableContainer, TableContainerProps } from '@mui/material'
+import React from 'react'
 
 const TableContainer = ({ children, ...props }: TableContainerProps) => (
   <MuiTableContainer {...props}>{children}</MuiTableContainer>

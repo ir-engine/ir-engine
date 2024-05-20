@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/switchCameraMode'
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
-import { useEffect } from 'react'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { PortalComponent, PortalState } from '../components/PortalComponent'

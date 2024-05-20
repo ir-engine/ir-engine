@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 import { GLTF } from '@gltf-transform/core'
 import { useEffect, useLayoutEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
+
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'

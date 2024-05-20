@@ -22,11 +22,12 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { uniqueId } from 'lodash'
+import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { VariableJSON } from '@etherealengine/visual-script'
-import { uniqueId } from 'lodash'
-import { useMemo } from 'react'
+
 import { useVisualScriptFlow } from './useVisualScriptFlow'
 
 type visualScriptFlow = ReturnType<typeof useVisualScriptFlow>

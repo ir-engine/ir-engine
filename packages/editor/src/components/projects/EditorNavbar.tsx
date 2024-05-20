@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+
 import { EditorNavbarProfile } from './EditorNavbarProfile'
 import styles from './styles.module.scss'
 
