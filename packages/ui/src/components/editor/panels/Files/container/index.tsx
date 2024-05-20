@@ -555,13 +555,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <Button
             variant="transparent"
             startIcon={<FaList />}
-            className="p-0"
+            className={`p-0 ${filesViewMode.value !== 'list' && 'opacity-50'}`}
             onClick={(event) => filesViewMode.set('list')}
           />
           <Button
             variant="transparent"
             startIcon={<FiGrid />}
-            className="p-0"
+            className={`p-0 ${filesViewMode.value !== 'icons' && 'opacity-50'}`}
             onClick={(event) => filesViewMode.set('icons')}
           />
         </div>
