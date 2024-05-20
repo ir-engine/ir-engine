@@ -63,6 +63,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'

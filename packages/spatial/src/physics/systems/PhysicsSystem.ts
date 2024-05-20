@@ -36,7 +36,7 @@ import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
-import { iterateEntityNode } from '../../transform/components/EntityTree'
+import { getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
