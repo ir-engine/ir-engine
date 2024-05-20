@@ -320,7 +320,10 @@ const execute = () => {
     for (const intersection of sortedIntersections) {
       const inputEntity = getAncestorWithComponent(intersection.entity, InputComponent)
       if (inputEntity) {
-        getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
+        getMutableComponent(inputEntity, InputComponent).inputSources.merge([
+          sourceEid,
+          ...nonSpatialInputSourceQuery()
+        ])
       }
     }
   }
