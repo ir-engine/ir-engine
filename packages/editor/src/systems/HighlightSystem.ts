@@ -23,26 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { removeComponent, setComponent } from '@etherealengine/ecs'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { Entity, removeComponent, setComponent } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { useEffect } from 'react'
 import { SelectionState } from '../services/SelectionServices'
 
-export const highlightQuery = defineQuery([HighlightComponent])
+//export const highlightQuery = defineQuery([HighlightComponent])
+export let lastSelection: Entity
 
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
 
-  for (const entity of highlightQuery()) removeComponent(entity, HighlightComponent)
+  //for (const entity of highlightQuery()) removeComponent(entity, HighlightComponent)
 
   useEffect(() => {
     if (!selectedEntities) return
-    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
     setComponent(lastSelection, HighlightComponent)
+
+    return () => {
+      removeComponent(lastSelection, HighlightComponent)
+    }
   }, [selectedEntities])
 
   return null

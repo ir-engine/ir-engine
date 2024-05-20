@@ -47,7 +47,7 @@ import { useTranslation } from 'react-i18next'
 import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
 import { EditorState } from '../../../services/EditorServices'
 import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
-import { highlightQuery } from '../../../systems/HighlightSystem'
+import { lastSelection } from '../../../systems/HighlightSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -91,7 +91,7 @@ const PlayModeTool = () => {
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
       //just remove all gizmo in the scene
-      highlightQuery().forEach((entity) => removeComponent(entity, HighlightComponent))
+      removeComponent(lastSelection, HighlightComponent)
       //just remove all higlights in the scene
     }
   }
