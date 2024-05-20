@@ -81,6 +81,7 @@ export const ReactiveQuerySystem = defineSystem({
 
 /**
  * Use a query in a reactive context (a React component)
+ * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
   const result = useHookstate([] as Entity[])
@@ -99,7 +100,7 @@ export function useQuery(components: QueryComponents) {
       removeQuery(query)
       getState(SystemState).reactiveQueryStates.delete(queryState)
     }
-  }, [components])
+  }, [])
 
   // create an effect that forces an update when any components in the query change
   useEffect(() => {
@@ -114,7 +115,7 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [components, result])
+  }, [result])
 
   return result.value
 }
