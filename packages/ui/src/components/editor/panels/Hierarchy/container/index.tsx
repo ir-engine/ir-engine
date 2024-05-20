@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
@@ -39,8 +38,6 @@ import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
-
-import { PopoverPosition } from '@mui/material/Popover'
 
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { Engine, EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
@@ -58,7 +55,7 @@ import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
@@ -78,7 +75,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const { t } = useTranslation()
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -200,7 +197,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const handleClose = () => {
     setContextSelectedItem(undefined)
     setAnchorEl(null)
-    setAnchorPosition(undefined)
+    setAnchorPosition({ left: 0, top: 0 })
   }
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
@@ -401,7 +398,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const sceneEntity = SceneState.getRootEntity(sceneURL)
+        const sceneEntity = getState(GLTFAssetState)[sceneURL]
         return !(item.multiple
           ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
           : isAncestor(item.value, sceneEntity))
