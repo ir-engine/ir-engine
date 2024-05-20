@@ -282,7 +282,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           {t('editor:properties.mesh.material.addPlugin')}
         </Button>
       </div>
-      {materialComponent.pluginEntities.value?.length && (
+      {!!materialComponent.pluginEntities.value?.length && (
         <div className={styles.contentContainer}>
           <ParameterInput
             entity={props.materialUUID}
