@@ -25,17 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 // could move this to the core package instaead of keeping it in the engine package
 
-import { InputSystemGroup, SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs'
+import { useEffect } from 'react'
+
+import { defineSystem, destroySystem, InputSystemGroup, SystemUUID } from '@etherealengine/ecs'
 import {
   IGraph,
-  NodeCategory,
-  SocketsList,
-  Variable,
   makeEventNodeDefinition,
   makeFlowNodeDefinition,
-  makeFunctionNodeDefinition
+  makeFunctionNodeDefinition,
+  NodeCategory,
+  SocketsList,
+  Variable
 } from '@etherealengine/visual-script'
-import { useEffect } from 'react'
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
   typeName: 'engine/variable/get',

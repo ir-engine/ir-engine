@@ -28,11 +28,10 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { SpawnPointQuery, SpawnPointType } from '@etherealengine/common/src/schema.type.module'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { EntityUUID } from '@etherealengine/ecs'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const spawnPointResolver = resolve<SpawnPointType, HookContext>({
   createdAt: virtual(async (spawnPoint) => fromDateTimeSql(spawnPoint.createdAt)),

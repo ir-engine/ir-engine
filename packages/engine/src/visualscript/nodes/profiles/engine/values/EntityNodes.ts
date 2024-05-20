@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { cloneDeep, isEqual, uniqueId } from 'lodash'
+
 import { UUIDComponent } from '@etherealengine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -47,7 +49,7 @@ import {
   toQuat,
   toVector3
 } from '@etherealengine/visual-script'
-import { cloneDeep, isEqual, uniqueId } from 'lodash'
+
 import { addEntityToScene } from '../helper/entityHelper'
 
 type State = {

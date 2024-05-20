@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useLayoutEffect } from 'react'
+
 import {
   ComponentType,
   defineComponent,
@@ -38,7 +40,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import React, { useLayoutEffect } from 'react'
+
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
 

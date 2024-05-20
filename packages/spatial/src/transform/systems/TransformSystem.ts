@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import {
   AnimationSystemGroup,
-  Engine,
-  Entity,
   defineQuery,
   defineSystem,
+  Engine,
+  Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
@@ -37,17 +40,16 @@ import {
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
-import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
-import { TransformComponent, composeMatrix } from '../components/TransformComponent'
+import { composeMatrix, TransformComponent } from '../components/TransformComponent'
+import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const groupQuery = defineQuery([GroupComponent, VisibleComponent])

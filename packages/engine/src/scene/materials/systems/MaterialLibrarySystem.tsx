@@ -27,9 +27,9 @@ import React, { ReactElement, useEffect } from 'react'
 
 import {
   EntityUUID,
+  getOptionalComponent,
   PresentationSystemGroup,
   QueryReactor,
-  getOptionalComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
@@ -49,6 +49,7 @@ import {
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { removeMaterial } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { defineQuery } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarControllerComponent } from '../avatar/components/AvatarControllerComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'

@@ -20,7 +20,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { dataValidator, queryValidator } from '../validators'
 
 export const assetPath = 'asset'
@@ -40,6 +41,8 @@ export const assetSchema = Type.Object(
   { $id: 'Asset', additionalProperties: false }
 )
 export interface AssetType extends Static<typeof assetSchema> {}
+
+export interface AssetDatabaseType extends Omit<AssetType, 'projectName'> {}
 
 // Schema for creating new entries
 export const assetDataSchema = Type.Object(

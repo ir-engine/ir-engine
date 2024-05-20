@@ -43,26 +43,26 @@ import {
   TextureLoader
 } from 'three'
 
-import { FileLoader } from '../loaders/base/FileLoader'
-
-import { getState } from '@etherealengine/hyperflux'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
+
 // import { instanceGLTF } from '../functions/transformGLTF'
 
 /**

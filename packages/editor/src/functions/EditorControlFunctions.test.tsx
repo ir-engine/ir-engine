@@ -23,9 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import assert from 'assert'
+import { Cache, Color, MathUtils } from 'three'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
@@ -37,9 +41,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { GLTF } from '@gltf-transform/core'
-import assert from 'assert'
-import { Cache, Color, MathUtils } from 'three'
+
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 

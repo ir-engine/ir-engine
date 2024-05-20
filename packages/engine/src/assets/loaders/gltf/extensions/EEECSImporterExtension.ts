@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
 import { GLTF } from '@gltf-transform/core'
+
+import { ComponentJSONIDMap } from '@etherealengine/ecs/src/ComponentFunctions'
+
 import { ComponentJsonType } from '../../../../scene/types/SceneTypes'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'

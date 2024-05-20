@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import matches, { Validator } from 'ts-matches'
+
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
 import { matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction } from '@etherealengine/hyperflux'
 import { NetworkTopics } from '@etherealengine/network'
 import { SpawnObjectActions } from '@etherealengine/spatial/src/transform/SpawnObjectActions'
-import matches, { Validator } from 'ts-matches'
+
 import { matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {

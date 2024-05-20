@@ -40,24 +40,24 @@ import {
   Vector3
 } from 'three'
 
-import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { CameraActions } from '@etherealengine/spatial/src/camera/CameraState'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { easeOutCubic, normalizeRange } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { easeOutCubic, normalizeRange } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'

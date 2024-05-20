@@ -19,6 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
+
 import { ITableHeadCell } from '../Table'
 
 type IdType = 'name' | 'status' | 'type' | 'currentUsers' | 'restarts' | 'age' | 'instanceId' | 'action'

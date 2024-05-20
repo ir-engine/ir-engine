@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
-import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

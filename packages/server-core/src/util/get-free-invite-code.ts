@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { InviteCode, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import crypto from 'crypto'
+
+import { InviteCode, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application } from '../../declarations'
 
 const getFreeInviteCode = async (app: Application): Promise<string> => {

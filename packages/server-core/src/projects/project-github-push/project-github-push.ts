@@ -27,6 +27,7 @@ import {
   projectGithubPushMethods,
   projectGithubPushPath
 } from '@etherealengine/common/src/schemas/projects/project-github-push.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectGithubPushService } from './project-github-push.class'
 import projectGithubPushDocs from './project-github-push.docs'

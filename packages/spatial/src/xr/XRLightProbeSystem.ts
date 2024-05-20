@@ -26,18 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+
 import { Vector3_Zero } from '../common/constants/MathConstants'
-import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../renderer/components/DirectionalLightComponent'
 import { addObjectToGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
+import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 import { XRSystem } from './XRSystem'

@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'

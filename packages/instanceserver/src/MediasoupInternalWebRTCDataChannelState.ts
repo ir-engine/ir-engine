@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID, defineState } from '@etherealengine/hyperflux'
-import { DataChannelType } from '@etherealengine/network'
 import { DataConsumer } from 'mediasoup/node/lib/DataConsumer'
+
+import { defineState, PeerID } from '@etherealengine/hyperflux'
+import { DataChannelType } from '@etherealengine/network'
 
 export const MediasoupInternalWebRTCDataChannelState = defineState({
   name: 'ee.instanceserver.mediasoup.MediasoupInternalWebRTCDataChannelState',

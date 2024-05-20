@@ -30,9 +30,12 @@ import { MediaInstanceState } from '@etherealengine/client-core/src/common/servi
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/network'
+import {
+  MediasoupMediaProducerConsumerState,
+  NetworkState,
+  screenshareVideoDataChannelType
+} from '@etherealengine/network'
 
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'

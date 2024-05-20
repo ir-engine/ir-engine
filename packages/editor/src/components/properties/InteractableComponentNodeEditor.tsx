@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PanToolIcon from '@mui/icons-material/PanTool'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -44,9 +48,6 @@ import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import PanToolIcon from '@mui/icons-material/PanTool'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 
 type OptionsType = Array<{
   callbacks: Array<{

@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
-import { ChannelType, channelMethods, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
-
-import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { channelMethods, channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application, HookContext } from '../../../declarations'
 import { ChannelService } from './channel.class'
 import channelDocs from './channel.docs'

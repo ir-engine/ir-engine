@@ -23,49 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { GLTF } from '@gltf-transform/core'
+import React, { useEffect, useLayoutEffect } from 'react'
+import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import config from '@etherealengine/common/src/config'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
+  createEntity,
   Engine,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  UndefinedEntity,
-  createEntity,
   getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
   removeEntity,
   setComponent,
-  useComponent
+  UndefinedEntity,
+  useComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import {
-  NO_PROXY,
-  NO_PROXY_STEALTH,
-  State,
-  Topic,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
+  NO_PROXY,
+  NO_PROXY_STEALTH,
   none,
+  State,
+  Topic,
   useHookstate,
   useMutableState
 } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@etherealengine/spatial/src/renderer/components/Object3DComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GLTF } from '@gltf-transform/core'
-import React, { useEffect, useLayoutEffect } from 'react'
-import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'

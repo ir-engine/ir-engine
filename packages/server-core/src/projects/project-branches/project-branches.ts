@@ -27,6 +27,7 @@ import {
   projectBranchesMethods,
   projectBranchesPath
 } from '@etherealengine/common/src/schemas/projects/project-branches.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectBranchesService } from './project-branches.class'
 import projectBranchesDocs from './project-branches.docs'

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
-import manifestJson from './manifest.json'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { createLocations } from '@etherealengine/projects/createLocations'
@@ -33,6 +32,8 @@ import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterfa
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
+
+import manifestJson from './manifest.json'
 
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 

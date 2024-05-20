@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 import React from 'react'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { PopupMenuServices, PopupMenuState } from './PopupMenuService'
 

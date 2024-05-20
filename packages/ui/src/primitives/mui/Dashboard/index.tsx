@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useTheme } from '@mui/material/styles'
 import clsx from 'clsx'
 import React from 'react'
 
@@ -37,8 +38,6 @@ import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { useTheme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 

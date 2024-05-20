@@ -28,6 +28,7 @@ import { ImCross } from 'react-icons/im'
 import { TiTick } from 'react-icons/ti'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
+
 import UserIcon from './assets/user.svg'
 
 export const InvitationReceived = () => {

@@ -24,16 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
+import { encode } from 'msgpackr'
 
-import { PeerID, getState } from '@etherealengine/hyperflux'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { getState, PeerID } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { MediaStreamAppData, NetworkState, createNetwork } from '@etherealengine/network'
+import {
+  createNetwork,
+  DataChannelRegistryState,
+  DataChannelType,
+  MediaStreamAppData,
+  NetworkActionFunctions,
+  NetworkState
+} from '@etherealengine/network'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
-import { DataChannelRegistryState, DataChannelType, NetworkActionFunctions } from '@etherealengine/network'
-import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { startWebRTC } from './WebRTCFunctions'
 
