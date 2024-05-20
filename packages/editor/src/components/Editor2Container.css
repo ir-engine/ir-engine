@@ -1,5 +1,14 @@
 /** references https://github.com/ticlo/rc-dock/blob/master/dist/rc-dock.css */
 
+.dock-top .dock-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  background: transparent;
+}
+
+.dock-panel {
+  border: none;
+}
+
 .dock.dock-top {
   background: var(--bg-primary);
 }
@@ -15,6 +24,7 @@
 }
 
 .dock-tab {
+  background: transparent;
   margin: 0;
   border-bottom: none !important;
 }
@@ -24,7 +34,7 @@
 }
 
 .dock-ink-bar {
-  display: none;
+  display: none;  
 }
 
 .dock-tab-close-btn{
