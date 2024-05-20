@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
 import { Object3D } from 'three'
+
+import { ResourceManager } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

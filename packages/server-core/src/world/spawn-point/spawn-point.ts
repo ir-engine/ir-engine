@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { spawnPointMethods, spawnPointPath } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
+
 import { Application } from '../../../declarations'
 import { SpawnPointService } from './spawn-point.class'
 import spawnPointDocs from './spawn-point.docs'

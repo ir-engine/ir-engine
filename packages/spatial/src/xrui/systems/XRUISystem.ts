@@ -26,26 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D } from '@etherealengine/xrui'
 
-import { getComponent, getMutableComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { XRState } from '../../xr/XRState'
-
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
-import { XRUIState } from '../XRUIState'
+import { XRState } from '../../xr/XRState'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
+import { XRUIState } from '../XRUIState'
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)

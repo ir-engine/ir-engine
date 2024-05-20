@@ -23,6 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect, useMemo, useRef } from 'react'
+import {
+  BufferGeometry,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  ShaderMaterial,
+  Sphere,
+  SRGBColorSpace,
+  Texture,
+  Vector3
+} from 'three'
+
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@etherealengine/ecs'
 import {
@@ -40,30 +54,18 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { useEffect, useMemo, useRef } from 'react'
-import {
-  BufferGeometry,
-  LinearFilter,
-  Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry,
-  SRGBColorSpace,
-  ShaderMaterial,
-  Sphere,
-  Texture,
-  Vector3
-} from 'three'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
+import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {

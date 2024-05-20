@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import {
   BufferGeometry,
@@ -35,8 +33,12 @@ import {
   Material,
   NormalBufferAttributes
 } from 'three'
-import { NameComponent } from '../../common/NameComponent'
+
+import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+
 import { matchesColor, matchesGeometry, matchesMaterial } from '../../common/functions/MatchesUtils'
+import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'

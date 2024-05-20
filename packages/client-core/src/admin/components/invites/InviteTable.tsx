@@ -28,13 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { InviteType, UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
+import { invitePath, InviteType, UserName } from '@etherealengine/common/src/schema.type.module'
 import { State } from '@etherealengine/hyperflux'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
+
+import { inviteColumns, InviteRowType } from '../../common/constants/invite'
 import DataTable from '../../common/Table'
-import { InviteRowType, inviteColumns } from '../../common/constants/invite'
 import AddEditInviteModal from './AddEditInviteModal'
 import RemoveInviteModal from './RemoveInviteModal'
 

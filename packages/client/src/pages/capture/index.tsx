@@ -27,9 +27,9 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
-import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import Capture from './capture'
 
 const LocationRoutes = () => {

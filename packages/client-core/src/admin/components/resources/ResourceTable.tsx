@@ -24,17 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { useTranslation } from 'react-i18next'
-import { HiEye, HiTrash } from 'react-icons/hi2'
+
 import { PopoverState } from '../../../common/services/PopoverState'
-import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
+import DataTable from '../../common/Table'
 import { RESOURCE_PAGE_LIMIT, ResourceService } from '../../services/ResourceService'
 import AddEditResourceModal from './AddEditResourceModal'
 

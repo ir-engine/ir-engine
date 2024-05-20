@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
-
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   ProjectPermissionData,
@@ -33,8 +32,6 @@ import {
   ProjectPermissionQuery,
   ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface ProjectPermissionParams extends KnexAdapterParams<ProjectPermissionQuery> {}
 

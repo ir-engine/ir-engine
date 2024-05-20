@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
+
 import { ModelComponent } from '../components/ModelComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 

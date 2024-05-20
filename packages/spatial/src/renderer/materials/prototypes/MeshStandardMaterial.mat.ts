@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { MeshStandardMaterial as Standard } from 'three'
 
 import { MaterialPrototypeDefinition } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
 import {
   AoMapArgs,
   BasicArgs,

@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Uniform, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { getComponent, getOptionalComponent, PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
+
 import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents, pluginByName } from '../../MaterialComponent'
 import { applyPluginShaderParameters } from '../../materialFunctions'

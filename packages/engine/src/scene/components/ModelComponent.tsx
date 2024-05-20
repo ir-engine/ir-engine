@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FC, useEffect } from 'react'
-import { AnimationMixer, Group, Scene } from 'three'
-
-import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { QueryReactor, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -40,22 +35,27 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
-import { removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
-import React from 'react'
+import React, { FC, useEffect } from 'react'
+import { AnimationMixer, Group, Scene } from 'three'
 import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '../../gltf/GLTFState'
+import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
@@ -177,8 +177,7 @@ function ModelReactor() {
     if (!asset.scene.animations.length && !(asset instanceof VRM)) asset.scene.animations = asset.animations
 
     const loadedJsonHierarchy = parseGLTFModel(entity, asset.scene as Scene)
-    let uuid: string | null = null
-    uuid = getModelSceneID(entity)
+    const uuid = getModelSceneID(entity)
     const sceneJson: SceneJsonType = {
       entities: loadedJsonHierarchy,
       root: getComponent(entity, UUIDComponent),
@@ -191,7 +190,7 @@ function ModelReactor() {
         data: sceneGLTF
       })
     )
-    //}
+    getMutableState(GLTFSourceState)[uuid].set(entity)
 
     const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)
 
@@ -210,13 +209,13 @@ function ModelReactor() {
     }
     return () => {
       if (!uuid) return
-      getMutableState(GLTFDocumentState)[uuid].set(none)
-      getMutableState(GLTFSnapshotState)[uuid].set(none)
+      getMutableState(GLTFSourceState)[uuid].set(none)
+      dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
       // Do we need to check if the model has been dereferenced here?
       for (const childUUID in loadedJsonHierarchy) {
         const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
         if (entity) {
-          removeEntity(entity)
+          removeEntityNodeRecursively(entity)
         }
       }
     }

@@ -26,10 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import {
   defineState,
   getMutableState,
@@ -39,11 +38,12 @@ import {
 } from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
-import { SystemDebug } from './SystemDebug'
 import styles from './styles.module.scss'
+import { SystemDebug } from './SystemDebug'
 
 export const DebugState = defineState({
   name: 'DebugState',

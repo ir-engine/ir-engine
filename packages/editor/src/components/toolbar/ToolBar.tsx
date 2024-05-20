@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import MenuIcon from '@mui/icons-material/Menu'
 import WindowIcon from '@mui/icons-material/Window'
+import React from 'react'
 
 import DropDownMenu from '../dropDownMenu'
 import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'

@@ -18,10 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
 import { checkUnfetchedSourceCommit } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 

@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, matchesEntityUUID } from '@etherealengine/ecs'
 import { defineAction, matchesPeerID, matchesWithDefault } from '@etherealengine/hyperflux'
+
 import { NetworkTopics } from '../Network'
-import { NetworkObjectComponent, matchesNetworkId } from '../NetworkObjectComponent'
+import { matchesNetworkId, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { matchesUserID } from './matchesUserID'
 
 export class WorldNetworkAction {

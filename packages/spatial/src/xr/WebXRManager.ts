@@ -34,15 +34,15 @@ import {
   UnsignedIntType,
   Vector4,
   WebGLMultiviewRenderTarget,
+  WebGLRenderer,
   WebGLRenderTarget,
-  WebGLRenderTargetOptions,
-  WebGLRenderer
+  WebGLRenderTargetOptions
 } from 'three'
-
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from './XRState'
 

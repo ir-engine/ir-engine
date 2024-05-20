@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, Vector3 } from 'three'
+
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -49,8 +52,7 @@ import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/A
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'

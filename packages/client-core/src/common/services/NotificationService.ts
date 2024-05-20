@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider, VariantType } from 'notistack'
 
 import multiLogger from '@etherealengine/common/src/logger'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { defineState, getState } from '@etherealengine/hyperflux'
 
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { defaultAction } from '../components/NotificationActions'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })

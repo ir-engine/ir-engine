@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { NO_PROXY, defineState, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 import {
   Box,
   Button,
@@ -39,7 +36,12 @@ import {
 } from '@mui/material'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
+
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+
+import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

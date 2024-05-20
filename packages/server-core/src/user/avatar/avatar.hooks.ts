@@ -23,32 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
-  AvatarID,
-  AvatarQuery,
-  AvatarType,
   avatarDataValidator,
+  AvatarID,
   avatarPatchValidator,
   avatarPath,
-  avatarQueryValidator
+  AvatarQuery,
+  avatarQueryValidator,
+  AvatarType
 } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import logger from '../../ServerLogger'
-
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
 import { checkRefreshMode } from '../../hooks/is-refresh-mode'
 import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
+import logger from '../../ServerLogger'
 import { AvatarService } from './avatar.class'
 import {
   avatarDataResolver,

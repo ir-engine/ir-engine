@@ -24,11 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { recordingResourcePath } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'

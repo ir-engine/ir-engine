@@ -24,11 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ExtractedImageTransformParameters,
-  extractParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-import {
   BufferUtils,
   Document,
   Format,
@@ -57,22 +52,27 @@ import {
 } from '@gltf-transform/functions'
 import { createHash } from 'crypto'
 import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer'
+import { getPixels } from 'ndarray-pixels'
 import { LoaderUtils } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
+import config from '@etherealengine/common/src/config'
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { baseName, pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import {
+  ExtractedImageTransformParameters,
+  extractParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+
+import { UploadRequestState } from '../state/UploadRequestState'
 import { EEMaterial, EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceID, EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from './ModelTransformLoader'
 
-import config from '@etherealengine/common/src/config'
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
-import { v4 as uuidv4 } from 'uuid'
-import { UploadRequestState } from '../state/UploadRequestState'
-
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
-import { getPixels } from 'ndarray-pixels'
 /**
  *
  * @param doc

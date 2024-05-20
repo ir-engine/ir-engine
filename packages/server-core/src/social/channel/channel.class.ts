@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   ChannelData,
@@ -31,7 +32,6 @@ import {
   ChannelQuery,
   ChannelType
 } from '@etherealengine/common/src/schemas/social/channel.schema'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface ChannelParams extends KnexAdapterParams<ChannelQuery> {}
 

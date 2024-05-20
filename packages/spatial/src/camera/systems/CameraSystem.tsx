@@ -26,19 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { PerspectiveCamera } from 'three'
 
-import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
-
 import {
   AnimationSystemGroup,
-  Engine,
-  EntityUUID,
-  UUIDComponent,
   defineQuery,
   defineSystem,
+  Engine,
+  EntityUUID,
   getComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
+import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
+
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'

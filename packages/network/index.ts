@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import '@etherealengine/ecs'
 
 import * as VideoConstants from './src/constants/VideoConstants'
+
 export * from './src/DataChannelRegistry'
 export * from './src/EntityNetworkState'
 export * from './src/Network'

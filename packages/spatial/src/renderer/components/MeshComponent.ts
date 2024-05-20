@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import { BufferGeometry, Material, Mesh } from 'three'
 
 import { Entity, useEntityContext } from '@etherealengine/ecs'
@@ -34,7 +35,7 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { State } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
+
 import { useResource } from '../../resources/resourceHooks'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 

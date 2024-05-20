@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Application } from '@etherealengine/server-core/declarations'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 import {
   configureK8s,
@@ -34,6 +32,8 @@ import {
   configureRedis,
   createFeathersKoaApp
 } from '@etherealengine/server-core/src/createApp'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import collectAnalytics from './collect-analytics'
 import collectEvents from './collect-events'

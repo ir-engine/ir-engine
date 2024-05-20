@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiArrowPath } from 'react-icons/hi2'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { AvatarService } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
@@ -35,9 +39,7 @@ import DragNDrop from '@etherealengine/ui/src/primitives/tailwind/DragNDrop'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radios from '@etherealengine/ui/src/primitives/tailwind/Radio'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiArrowPath } from 'react-icons/hi2'
+
 import { getCanvasBlob } from '../../../common/utils'
 
 const getDefaultErrors = () => ({

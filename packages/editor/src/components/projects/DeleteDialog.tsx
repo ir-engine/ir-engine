@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import Fade from '@mui/material/Fade'
 import React, { MouseEventHandler } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { isDev } from '@etherealengine/common/src/config'
 
-import { Dialog, DialogContent, DialogTitle } from '@mui/material'
-import Fade from '@mui/material/Fade'
-
-import { useTranslation } from 'react-i18next'
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 

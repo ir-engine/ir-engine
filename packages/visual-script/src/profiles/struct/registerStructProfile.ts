@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { getNodeDescriptions, IRegistry, memo, NodeDefinition, ValueType, ValueTypeMap } from '../../VisualScriptModule'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType'
-
 import { ListNodes, ObjectNodes, ObjectValue } from './StructProfileModule'
 import { ListValue } from './values/ListValue'
 

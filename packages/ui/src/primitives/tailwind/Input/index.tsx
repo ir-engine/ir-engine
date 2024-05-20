@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { InputHTMLAttributes, forwardRef } from 'react'
+import React, { forwardRef, InputHTMLAttributes } from 'react'
 import { HiXCircle } from 'react-icons/hi'
 import { twMerge } from 'tailwind-merge'
+
 import Label from '../Label'
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
