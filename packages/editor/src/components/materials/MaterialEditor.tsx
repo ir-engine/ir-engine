@@ -179,6 +179,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   //for the current values of the parameters
   const pluginValues = useHookstate({})
   useEffect(() => {
+    if (pluginState?.pluginEntities.value?.length === 0) return
     const uniformParameters = pluginState?.parameters?.value
     const pluginParameterValues = {}
     Object.entries(
@@ -292,6 +293,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               materialComponent.pluginEntities.set(
                 materialComponent.pluginEntities.value.filter((val) => val !== pluginEntity)
               )
+            if (pluginState && pluginState.parameters && pluginState.parameters[materialName.value])
+              pluginState.parameters[materialName.value].set(none)
           }}
         >
           Remove Plugin
