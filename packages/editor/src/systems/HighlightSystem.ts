@@ -30,19 +30,14 @@ import { HighlightComponent } from '@etherealengine/spatial/src/renderer/compone
 import { useEffect } from 'react'
 import { SelectionState } from '../services/SelectionServices'
 
-//export const highlightQuery = defineQuery([HighlightComponent])
-
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
-
-  //for (const entity of highlightQuery()) removeComponent(entity, HighlightComponent)
 
   useEffect(() => {
     if (!selectedEntities) return
     const lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
     setComponent(lastSelection, HighlightComponent)
-
     return () => {
       removeComponent(lastSelection, HighlightComponent)
     }

@@ -91,10 +91,8 @@ const PlayModeTool = () => {
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
       //just remove all gizmo in the scene
 
-      //remove selected items
+      //just clear selection to remove all higlights in the scene
       SelectionState.updateSelection([])
-
-      //just remove all higlights in the scene
     }
   }
 
