@@ -308,7 +308,7 @@ const execute = () => {
       }
     }
 
-    const inputPointerComponent = getComponent(sourceEid, InputPointerComponent)
+    const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
     if (inputPointerComponent) {
       sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
     }

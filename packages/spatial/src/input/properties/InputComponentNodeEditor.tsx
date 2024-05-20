@@ -72,7 +72,9 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     //convenience to add a sink if none exist
-    if (inputComponent.inputSinks.value.length === 0) addSink()
+    if (inputComponent.inputSinks.value.length === 0) {
+      addSink()
+    }
   }, [authoringLayerEntities.length])
 
   const addSink = () => {

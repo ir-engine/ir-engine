@@ -42,7 +42,7 @@ import {
   UUIDComponent
 } from '@etherealengine/ecs'
 import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -55,6 +55,12 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
@@ -273,7 +279,7 @@ export const InteractableComponent = defineComponent({
     if (!isClient) return null
     const entity = useEntityContext()
     // const interactable = useComponent(entity, InteractableComponent)
-    // const isEditing = useMutableState(EngineState).isEditing
+    const isEditing = useMutableState(EngineState).isEditing
     // const hasFocus = useMutableState(EngineState).hasFocus
 
     InputComponent.useExecuteWithInput(() => {
@@ -281,20 +287,18 @@ export const InteractableComponent = defineComponent({
       if (buttons.Interact?.down) callInteractCallbacks(entity)
     })
 
-    // useEffect(() => {
-    //   setComponent(entity, DistanceFromCameraComponent)
-    //   setComponent(entity, DistanceFromLocalClientComponent)
+    useEffect(() => {
+      setComponent(entity, DistanceFromCameraComponent)
+      setComponent(entity, DistanceFromLocalClientComponent)
 
-    //   if (!isEditing.value) {
-    //     addInteractableUI(entity)
-    //   } else {
-    //     removeInteractableUI(entity)
-    //   }
+      if (!isEditing.value) {
+        addInteractableUI(entity)
+      } else {
+        removeInteractableUI(entity)
+      }
 
-    //   return () => {
-    //     removeInteractableUI(entity)
-    //   }
-    // }, [isEditing.value])
+      return () => {}
+    }, [isEditing.value])
 
     // useEffect(() => {
     //   if (isEditing.value || !input) return
