@@ -87,7 +87,7 @@ type StringLiteral<T> = string extends T ? SomeStringLiteral : string
  */
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -213,17 +213,17 @@ export type ComponentErrorsType<C extends Component> =
  */
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
-  ComponentExtras = unknown,
+  ComponentExtras = Record<string, any>,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   Error extends StringLiteral<Error> = ''
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
-    SoAComponentType<Schema> &
-    Component<ComponentType, Schema, JSON, SetJSON, Error>
+  const Component = (
+    def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
+  ) as SoAComponentType<Schema> & Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
@@ -238,7 +238,6 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.stateMap = {}
-  if (Component.name === 'InputComponent') console.log('InputComponent', Component)
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -249,7 +248,7 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType }
+  return Component as typeof Component & { _TYPE: ComponentType } & ComponentExtras
 
   // const ExternalComponentReactor = (props: SetJSON) => {
   //   const entity = useEntityContext()

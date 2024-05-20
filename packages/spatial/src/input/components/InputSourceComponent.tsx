@@ -30,7 +30,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Raycaster } from 'three'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
-import { ButtonAlias, ButtonState, ButtonStateMap, DefaultInputAlias } from '../state/ButtonState'
+import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 export const InputSourceComponent = defineComponent({
@@ -88,42 +88,6 @@ export const InputSourceComponent = defineComponent({
     if (source.hand) {
       setComponent(entity, XRHandComponent)
     }
-  },
-
-  getMergedButtons<AliasType extends ButtonAlias = typeof DefaultInputAlias>(
-    inputSourceEntities = inputSourceQuery(),
-    buttonAlias: AliasType = DefaultInputAlias as unknown as AliasType
-  ) {
-    const buttons = Object.assign(
-      {} as ButtonStateMap,
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap & Partial<Record<keyof AliasType, ButtonState>>
-
-    for (const key of Object.keys(buttonAlias)) {
-      const aliases = buttonAlias[key]
-      Object.assign(buttons, {
-        [key]: aliases.reduce((acc, alias) => acc || buttons[alias], undefined)
-      })
-    }
-
-    return buttons
-  },
-
-  getMergedAxes(inputSourceEntities = inputSourceQuery()) {
-    const axes = [0, 0, 0, 0] as [number, number, number, number]
-    for (const eid of inputSourceEntities) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      if (inputSource.source.gamepad?.axes) {
-        for (let i = 0; i < 4; i++) {
-          // keep the largest value (positive or negative)
-          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
-          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
-        }
-      }
-    }
-    return axes
   },
 
   nonCapturedInputSources(entities = inputSourceQuery()) {

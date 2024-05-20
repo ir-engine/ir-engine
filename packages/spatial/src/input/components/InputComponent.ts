@@ -40,6 +40,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '../../EngineState'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { ButtonState, ButtonStateMap, KeyboardButton, MouseButton, XRStandardGamepadButton } from '../state/ButtonState'
@@ -86,8 +88,14 @@ export const InputComponent = defineComponent({
     }
   },
 
-  useExecuteWithInput(executeOnInput: () => void) {
-    return useExecute(executeOnInput, { with: InputSystemGroup })
+  useExecuteWithInput(executeOnInput: () => void, executeWhenEditing = false) {
+    return useExecute(
+      () => {
+        if (executeWhenEditing || getState(EngineState).isEditing) return
+        executeOnInput()
+      },
+      { with: InputSystemGroup }
+    )
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
@@ -158,10 +166,9 @@ export const InputComponent = defineComponent({
 
   /** InputComponent is focused by the ClientInputSystem heuristics */
   useHasFocus() {
-    const entity = InputComponent.useInput()
+    const entity = useEntityContext()
     const inputComponent = useComponent(entity, InputComponent)
-
-    return inputComponent.hasFocus
+    return inputComponent.hasFocus.value
   },
 
   reactor: () => {
