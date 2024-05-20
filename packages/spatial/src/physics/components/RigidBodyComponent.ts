@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
+import { useLayoutEffect } from 'react'
 
 import { useEntityContext } from '@etherealengine/ecs'
 import {
@@ -32,7 +33,7 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useLayoutEffect } from 'react'
+
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
@@ -124,7 +125,7 @@ export const RigidBodyComponent = defineComponent({
     }, [component.allowRolling])
 
     useLayoutEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value)
+      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations])
 
     return null

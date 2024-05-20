@@ -35,11 +35,11 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
@@ -213,7 +213,7 @@ const SceneAssetsPanel = () => {
         return (
           <>
             {searchedStaticResources.map((resource) => (
-              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY)} />
+              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
             ))}
           </>
         )
@@ -223,7 +223,7 @@ const SceneAssetsPanel = () => {
       return (
         <>
           {categorizedStaticResources.value[selectedCategory.value!]?.map((resource) => (
-            <ResourceFile resource={resource} />
+            <ResourceFile resource={resource as StaticResourceType} />
           ))}
         </>
       )

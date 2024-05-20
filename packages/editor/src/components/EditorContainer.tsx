@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Dialog from '@mui/material/Dialog'
+import { t } from 'i18next'
+import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
@@ -33,24 +38,28 @@ import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { ImportSettingsPanel } from '@etherealengine/ui/src/components/editor/settings/import'
+import { SaveNewSceneDialog } from '@etherealengine/ui/src/components/editor/toolbar/mainMenu/saveAsScene'
+import { SaveSceneDialog } from '@etherealengine/ui/src/components/editor/toolbar/mainMenu/saveScene'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Dialog from '@mui/material/Dialog'
-import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+
 import 'rc-dock/dist/rc-dock.css'
+
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+
 import { inputFileWithAddToScene } from '../functions/assetFunctions'
 import { onNewScene, saveSceneGLTF, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+
 import './EditorContainer.css'
+
 import AssetDropZone from './assets/AssetDropZone'
-import ImportSettingsPanel from './assets/ImportSettingsPanel'
 import { ProjectBrowserPanelTab } from './assets/ProjectBrowserPanel'
 import { SceneAssetsPanelTab } from './assets/SceneAssetsPanel'
 import { ScenePanelTab } from './assets/ScenesPanel'
@@ -58,8 +67,6 @@ import { ControlText } from './controlText/ControlText'
 import { DialogState } from './dialogs/DialogState'
 import ErrorDialog from './dialogs/ErrorDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
-import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
-import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
@@ -181,16 +188,18 @@ export const onCloseProject = () => {
   }
 }
 
-const onSaveAs = async () => {
+export const onSaveAs = async () => {
   const { projectName, sceneName, rootEntity } = getState(EditorState)
   const sceneModified = EditorState.isModified()
   const abortController = new AbortController()
   try {
     if (sceneName || sceneModified) {
       const result: { name: string } | void = await new Promise((resolve) => {
-        DialogState.setDialog(<SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />)
+        PopoverState.showPopupover(
+          <SaveNewSceneDialog initialName={'New Scene'} onConfirm={resolve} onCancel={resolve} />
+        )
       })
-      DialogState.setDialog(null)
+      PopoverState.hidePopupover()
       if (result?.name && projectName) {
         await saveSceneGLTF(null, projectName, result.name, abortController.signal)
 
@@ -200,14 +209,14 @@ const onSaveAs = async () => {
     }
   } catch (error) {
     logger.error(error)
-    DialogState.setDialog(
+    PopoverState.showPopupover(
       <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
     )
   }
 }
 
 export const onImportSettings = () => {
-  DialogState.setDialog(<ImportSettingsPanel />)
+  PopoverState.showPopupover(<ImportSettingsPanel />)
 }
 
 export const onImportAsset = async () => {
@@ -236,7 +245,7 @@ export const onSaveScene = async () => {
   }
 
   const result = (await new Promise((resolve) => {
-    DialogState.setDialog(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
+    PopoverState.showPopupover(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
   })) as any
 
   if (!result) {
@@ -246,13 +255,13 @@ export const onSaveScene = async () => {
 
   const abortController = new AbortController()
 
-  DialogState.setDialog(
+  PopoverState.showPopupover(
     <ProgressDialog
       message={t('editor:saving')}
       cancelable={true}
       onCancel={() => {
         abortController.abort()
-        DialogState.setDialog(null)
+        PopoverState.hidePopupover()
       }}
     />
   )
@@ -266,11 +275,11 @@ export const onSaveScene = async () => {
     const sourceID = getComponent(rootEntity, SourceComponent)
     getMutableState(GLTFModifiedState)[sourceID].set(none)
 
-    DialogState.setDialog(null)
+    PopoverState.hidePopupover()
   } catch (error) {
     logger.error(error)
 
-    DialogState.setDialog(
+    PopoverState.showPopupover(
       <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
     )
   }
@@ -364,7 +373,7 @@ const tabs = [
  * EditorContainer class used for creating container for Editor
  */
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useMutableState(EditorState)
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)

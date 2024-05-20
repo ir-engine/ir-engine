@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -30,7 +32,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'

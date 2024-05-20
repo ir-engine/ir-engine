@@ -29,6 +29,7 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+
 import Input from '../Input'
 
 export type OptionValueType = string | number
@@ -153,7 +154,7 @@ const Select = <T extends OptionValueType>({
               onClick={() => {
                 if (option.disabled) return
                 showOptions.set(false)
-                onChange(option.value)
+                onChange(option.value as T)
               }}
             >
               {option.icon} {option.label}

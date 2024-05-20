@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
@@ -31,16 +32,8 @@ import { v4 as uuidv4 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AuthStrategiesType } from '@etherealengine/common/src/schema.type.module'
 import {
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage
-} from '@etherealengine/hyperflux'
-
-import {
+  AuthStrategiesType,
   AvatarID,
   IdentityProviderType,
   InstanceID,
@@ -68,7 +61,14 @@ import {
 import { EntityUUID } from '@etherealengine/ecs'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
-import { AuthenticationResult } from '@feathersjs/authentication'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
+
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -137,9 +137,7 @@ export const AuthState = defineState({
     authUser: AuthUserSeed,
     user: UserSeed
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(AuthState, ['authUser'])
-  }
+  extension: syncStateWithLocalStorage(['authUser'])
 })
 
 export interface EmailLoginForm {

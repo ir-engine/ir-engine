@@ -23,32 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import { PopoverPosition } from '@mui/material/Popover'
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
+import { Vector3 } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
-import { FileIcon } from './FileIcon'
-
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, StateMethods, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import { Vector3 } from 'three'
+
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
-import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
+import { availableTableColumns, FilesViewModeSettings } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
+import { FileIcon } from './FileIcon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
   const newFileName = useHookstate(fileName)
@@ -221,7 +220,7 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean>
+  isFilesLoading: StateMethods<boolean, any>
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void

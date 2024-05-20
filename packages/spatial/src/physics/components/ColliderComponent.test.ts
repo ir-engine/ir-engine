@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+
 import { createEntity, destroyEngine, removeComponent, setComponent } from '@etherealengine/ecs'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
-import assert from 'assert'
-import { TransformComponent } from '../../SpatialModule'
+
 import { createEngine } from '../../initializeEngine'
+import { TransformComponent } from '../../SpatialModule'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
 import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'

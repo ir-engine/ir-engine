@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   InviteData,
@@ -32,7 +32,6 @@ import {
   InviteQuery,
   InviteType
 } from '@etherealengine/common/src/schemas/social/invite.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface InviteParams extends KnexAdapterParams<InviteQuery> {
   preventUserRelationshipRemoval?: boolean

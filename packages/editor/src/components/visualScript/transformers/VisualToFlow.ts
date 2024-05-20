@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON, NodeConfigurationJSON } from '@etherealengine/visual-script'
 import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
+
+import { GraphJSON, NodeConfigurationJSON } from '@etherealengine/visual-script'
 
 export const visualToFlow = (visualScript: GraphJSON): [Node[], Edge[]] => {
   const nodes: Node[] = []

@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
+
 import {
   Engine,
   Entity,
-  UndefinedEntity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  setComponent
+  setComponent,
+  UndefinedEntity
 } from '@etherealengine/ecs'
 import {
   TransformAxis,
   TransformMode,
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
@@ -46,7 +48,7 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
+
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
@@ -896,7 +898,7 @@ function pointerUp(gizmoEntity) {
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
     if (!getState(ObjectGridSnapState).enabled) {
-      EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY))
+      EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
     } else {
       getMutableState(ObjectGridSnapState).apply.set(true)
     }

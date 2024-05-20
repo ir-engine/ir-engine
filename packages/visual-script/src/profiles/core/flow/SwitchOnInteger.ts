@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/Blueprints/UserGuide/flow/
 
-import { SocketsList, makeFlowNodeDefinition, sequence } from '../../../VisualScriptModule'
+import { makeFlowNodeDefinition, sequence, SocketsList } from '../../../VisualScriptModule'
 
 export const SwitchOnInteger = makeFlowNodeDefinition({
   typeName: 'flow/decision/switch/integer',

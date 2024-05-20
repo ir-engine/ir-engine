@@ -33,15 +33,15 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 export const WarningUIState = defineState({
@@ -79,7 +79,7 @@ export const WarningUIService = {
 const WarningSystemXRUI = function () {
   const { t } = useTranslation()
 
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
   const { title, body, timeRemaining } = state.value
 
   return (
@@ -163,7 +163,7 @@ export const WarningUISystemState = defineState({
 })
 
 function TransitionReactor() {
-  const state = useHookstate(getMutableState(WarningUIState))
+  const state = useMutableState(WarningUIState)
 
   useEffect(() => {
     if (state.open.value) {

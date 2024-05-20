@@ -25,12 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useLayoutEffect } from 'react'
 
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { PeerID } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  getMutableState,
+  getState,
+  PeerID,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import {
   MediasoupMediaConsumerActions,
   MediasoupTransportActions,
@@ -40,12 +45,13 @@ import {
   NetworkPeerFunctions,
   NetworkState
 } from '@etherealengine/network'
+
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
-  SocketWebRTCClientNetwork,
-  WebRTCTransportExtension,
   onTransportCreated,
-  receiveConsumerHandler
+  receiveConsumerHandler,
+  SocketWebRTCClientNetwork,
+  WebRTCTransportExtension
 } from '../transports/SocketWebRTCClientFunctions'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
@@ -73,10 +79,8 @@ const execute = () => {
 }
 
 const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
-  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
-  const networkState = useHookstate(
-    getMutableState(NetworkState).networks[props.networkID]
-  ) as State<SocketWebRTCClientNetwork>
+  const transportState = useMutableState(MediasoupTransportObjectsState)
+  const networkState = useMutableState(NetworkState).networks[props.networkID]
 
   useLayoutEffect(() => {
     if (!networkState.value) return

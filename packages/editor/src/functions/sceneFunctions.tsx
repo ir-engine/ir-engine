@@ -29,7 +29,7 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { EntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -37,6 +37,7 @@ import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/g
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -67,6 +68,8 @@ export const renameScene = async (id: string, newURL: string, params?: AssetPara
   }
 }
 
+const fileServer = config.client.fileServer
+
 export const saveSceneGLTF = async (
   sceneAssetID: string | null,
   projectName: string,
@@ -87,7 +90,7 @@ export const saveSceneGLTF = async (
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
-  const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
+  const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
     const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
@@ -139,8 +142,6 @@ export const onNewScene = async () => {
     logger.error(error)
   }
 }
-
-const fileServer = config.client.fileServer
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)

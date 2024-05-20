@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useState } from '@hookstate/core'
 import { useContext } from 'react'
+
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import { XRUIStateContext } from '../XRUIStateContext'
 
 //@ts-ignore
-export const useXRUIState = <S extends State>() => useState<S>(useContext(XRUIStateContext) as S)
+export const useXRUIState = <S extends State>() => useHookstate<S>(useContext(XRUIStateContext) as S)

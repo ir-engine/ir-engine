@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
 import {
   MatchTicketData,
   MatchTicketType,
@@ -37,8 +39,6 @@ import matchmakingRestrictMultipleQueueing from '@etherealengine/server-core/src
 import matchmakingSaveTicket from '@etherealengine/server-core/src/hooks/matchmaking-save-ticket'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
-import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
-import { BadRequest, NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import disallowNonId from '../../hooks/disallow-non-id'

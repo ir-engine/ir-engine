@@ -36,7 +36,7 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
 const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) => {
   return (
     <Input
-      containerClassname="w-[200px] h-7 bg-[#1A1A1A] rounded"
+      containerClassname="w-50 h-7 bg-[#1A1A1A] rounded"
       className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
       value={value}
       onChange={(e) => {

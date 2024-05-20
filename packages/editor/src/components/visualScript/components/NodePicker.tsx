@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
-import { XYPosition, useReactFlow } from 'reactflow'
+import { useTranslation } from 'react-i18next'
+import { useReactFlow, XYPosition } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/visual-script'
-import { useTranslation } from 'react-i18next'
+
 import { useOnPressKey } from '../hooks/useOnPressKey'
 
 const nodePickerContainer: any = {

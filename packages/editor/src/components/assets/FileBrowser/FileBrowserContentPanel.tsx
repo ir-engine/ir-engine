@@ -23,12 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Downgraded } from '@hookstate/core'
+import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AutorenewIcon from '@mui/icons-material/Autorenew'
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
+import DownloadIcon from '@mui/icons-material/Download'
+import SettingsIcon from '@mui/icons-material/Settings'
+import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
 import {
   FileBrowserService,
   FileBrowserState,
@@ -37,35 +44,24 @@ import {
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
+import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
-
-import AddIcon from '@mui/icons-material/Add'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import AutorenewIcon from '@mui/icons-material/Autorenew'
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
-import DownloadIcon from '@mui/icons-material/Download'
-import SettingsIcon from '@mui/icons-material/Settings'
-
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { Breadcrumbs, Link, Popover, TablePagination } from '@mui/material'
-
-import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import { archiverPath, fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
@@ -143,8 +139,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
 
-  const fileState = useHookstate(getMutableState(FileBrowserState))
-  const filesValue = fileState.files.attach(Downgraded).value
+  const fileState = useMutableState(FileBrowserState)
+  const filesValue = fileState.files.get(NO_PROXY)
   const { skip, total, retrieving } = fileState.value
 
   let page = skip / FILES_PAGE_LIMIT
@@ -411,7 +407,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <div className={styles.contentContainer}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
+              {unique(validFiles.get(NO_PROXY) as typeof files, (file) => file.key).map((file, i) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
@@ -452,7 +448,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const ViewModeSettings = () => {
-    const viewModeSettings = useHookstate(getMutableState(FilesViewModeSettings))
+    const viewModeSettings = useMutableState(FilesViewModeSettings)
     return (
       <>
         <ToolButton

@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AuthenticationSettingType, authenticationSettingPath } from '@etherealengine/common/src/schema.type.module'
+import React, { forwardRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
+import { authenticationSettingPath, AuthenticationSettingType } from '@etherealengine/common/src/schema.type.module'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import PasswordInput from '@etherealengine/ui/src/components/tailwind/PasswordInput'
@@ -33,9 +37,7 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { forwardRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import { initialAuthState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 
@@ -101,7 +103,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       .filter(Boolean)
       .map((prop) => ({ [prop]: state[prop].value }))
 
-    const oauth = { ...authSetting.oauth, ...keySecret.value }
+    const oauth = { ...authSetting.oauth, ...(keySecret.value as any) }
 
     for (const key of Object.keys(oauth)) {
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))

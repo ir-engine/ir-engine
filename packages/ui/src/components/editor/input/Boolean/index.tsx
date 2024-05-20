@@ -42,6 +42,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
 
   return (
     <Checkbox
+      label=" "
       containerClassName="w-[200px]"
       className={twMerge(
         'rounded-sm border border-none bg-black px-1 py-1 dark:bg-[#1A1A1A]',

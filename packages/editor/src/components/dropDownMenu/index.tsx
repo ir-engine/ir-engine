@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
+import React from 'react'
 
 import { ContextMenu } from '../layout/ContextMenu'
 import ToolButton from '../toolbar/ToolButton'
@@ -82,6 +81,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
   return (
     <>
       <ToolButton icon={icon} onClick={onOpen} isSelected={open} id="menu" />
+
       <ContextMenu
         open={open}
         anchorEl={anchorEl}

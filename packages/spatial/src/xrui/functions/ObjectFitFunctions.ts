@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
-import type { WebContainer3D } from '@etherealengine/xrui'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import type { WebContainer3D } from '@etherealengine/xrui'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 

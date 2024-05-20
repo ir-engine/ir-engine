@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { Vector2 } from 'three'
-
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
+import React from 'react'
+import { Vector2 } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 

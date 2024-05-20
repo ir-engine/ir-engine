@@ -27,8 +27,6 @@ import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
-import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
 import {
@@ -44,11 +42,13 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -105,7 +105,7 @@ export const MediaElementComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const element = component.element.get({ noproxy: true })
+    const element = component.element.get({ noproxy: true }) as HTMLMediaElement
     component.hls.value?.destroy()
     component.hls.set(none)
     const audioNodeGroup = AudioNodeGroups.get(element)
@@ -392,7 +392,7 @@ export function MediaReactor() {
         })
         const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
-        const element = mediaElementState.element.value
+        const element = mediaElementState.element.value as HTMLMediaElement
 
         element.crossOrigin = 'anonymous'
         element.preload = 'auto'
@@ -443,12 +443,12 @@ export function MediaReactor() {
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
-      mediaElementState.element.value.crossOrigin = 'anonymous'
+      ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
       if (isHLS(path)) {
         setupHLS(entity, path).then((hls) => {
           mediaElementState.hls.set(hls)
         })
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
+        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
       } else {
         mediaElementState.element.src.set(path)
       }
@@ -476,7 +476,7 @@ export function MediaReactor() {
   useEffect(
     function updateMixbus() {
       if (!mediaElement?.value) return
-      const element = mediaElement.element.get({ noproxy: true })
+      const element = mediaElement.element.get({ noproxy: true }) as HTMLMediaElement
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)

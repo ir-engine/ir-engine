@@ -23,22 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import ProjectFields from '@etherealengine/client-core/src/admin/common/Project/ProjectFields'
-
-import { useHookstate } from '@hookstate/core'
-
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import ProjectFields from '@etherealengine/client-core/src/admin/common/Project/ProjectFields'
 import { ProjectUpdateState } from '@etherealengine/client-core/src/admin/services/ProjectUpdateService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 

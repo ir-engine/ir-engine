@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import nock from 'nock'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import { Paginated } from '@feathersjs/feathers'
-import { v4 as uuidv4 } from 'uuid'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { useGit } from '../../util/gitHelperFunctions'

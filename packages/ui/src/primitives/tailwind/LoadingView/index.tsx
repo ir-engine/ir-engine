@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
 const LoadingView = ({
   title,

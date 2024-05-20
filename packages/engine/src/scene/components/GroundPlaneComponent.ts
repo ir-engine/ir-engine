@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { Color, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import {
   defineComponent,
@@ -80,7 +80,7 @@ export const GroundPlaneComponent = defineComponent({
     const mesh = useMeshComponent(entity, () => new PlaneGeometry(10000, 10000), getMaterial)
 
     useLayoutEffect(() => {
-      const meshVal = mesh.value
+      const meshVal = mesh.value as Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>
       meshVal.geometry.rotateX(-Math.PI / 2)
       meshVal.name = 'GroundPlaneMesh'
       meshVal.material.polygonOffset = true

@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
-
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /**
  * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.

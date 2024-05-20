@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs'
 import { Object3D } from 'three'
+
+import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs'
+
 import { NameComponent } from '../../common/NameComponent'
 
 export const Object3DComponent = defineComponent({

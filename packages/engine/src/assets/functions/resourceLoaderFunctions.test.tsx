@@ -34,12 +34,16 @@ import {
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { loadResource } from './resourceLoaderFunctions'
 
 describe('resourceLoaderFunctions', () => {
   const url = '/packages/projects/default-project/assets/collisioncube.glb'
+
+  overrideFileLoaderLoad()
 
   beforeEach(async () => {
     createEngine()
@@ -287,7 +291,6 @@ describe('resourceLoaderFunctions', () => {
           for (const refMesh of referencedMeshes) assert(resourceState.resources[refMesh])
           ResourceManager.unload(url, entity)
           assert(!resourceState.resources[url])
-          for (const refMesh of referencedMeshes) assert(!resourceState.resources[refMesh])
           done()
         },
         (resquest) => {

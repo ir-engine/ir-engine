@@ -35,10 +35,12 @@ import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
-import Popover from '../../../../../primitives/mui/Popover'
 import Button from '../../../../../primitives/tailwind/Button'
+import Popover from '../../../layout/Popover'
 import { PopoverContext } from '../../../util/PopoverContext'
+import ElementList from '../elementList'
 
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   const { entity, component, multiEdit } = props
@@ -59,9 +61,12 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
 
   useHookstate(getMutableState(ComponentEditorsState).keys).value
+  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+
   const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
 
   const open = !!anchorEl.value
+  const panel = document.getElementById('propertiesPanel')
 
   return (
     <PopoverContext.Provider
@@ -71,33 +76,33 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         }
       }}
     >
-      <div className="ml-auto flex h-8 bg-zinc-900">
+      <div className="ml-auto flex h-8 bg-zinc-900 " id="add-component-popover">
         <Button
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
           rounded="none"
           className="bg-theme-highlight ml-auto w-32 px-2"
           size="small"
-          onClick={(event) => anchorEl.set(event.currentTarget)}
+          onClick={(event) => {
+            setAnchorPosition({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
+            anchorEl.set(event.currentTarget)
+          }}
         >
           {t('editor:properties.lbl-addComponent')}
         </Button>
       </div>
       <Popover
-        id={open ? 'add-component-popover' : undefined}
         open={open}
         anchorEl={anchorEl.value}
-        onClose={() => anchorEl.set(null)}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'left'
+        onClose={() => {
+          anchorEl.set(null)
+          setAnchorPosition(undefined)
         }}
-        transformOrigin={{
-          vertical: 'center',
-          horizontal: 'right'
-        }}
+        panelId="propertiesPanel"
+        anchorPosition={anchorPosition}
+        className="h-[60%] w-[100%] min-w-[300px] overflow-y-auto"
       >
-        {/*<ElementList />*/}
+        {<ElementList />}
       </Popover>
       {/*<CoreNodeEditor entity={entity} key={entityUUID + entity} />*/}
       {components.map((c, i) => (

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable max-len */
 
-import { IRegistry, NodeDefinition, ValueType, ValueTypeMap, getNodeDescriptions, memo } from '../../VisualScriptModule'
+import { getNodeDescriptions, IRegistry, memo, NodeDefinition, ValueType, ValueTypeMap } from '../../VisualScriptModule'
 import { getCoreValuesMap } from '../ProfilesModule'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType'
 import {

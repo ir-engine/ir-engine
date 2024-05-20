@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { fileBrowserMethods, fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+
 import { Application } from '../../../declarations'
 import { FileBrowserService } from './file-browser.class'
 import fileBrowserDocs from './file-browser.docs'

@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { Not } from 'bitecs'
+import React, { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-
-import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import {
   getComponent,
   getMutableComponent,
@@ -41,25 +40,25 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Not } from 'bitecs'
-import React from 'react'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
+import { NameComponent } from '../../common/NameComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
@@ -69,7 +68,7 @@ import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
+import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
@@ -368,7 +367,7 @@ const useGamepadInputSources = () => {
 
 const usePointerInputSources = () => {
   const canvasEntity = useEntityContext()
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
@@ -441,8 +440,8 @@ const usePointerInputSources = () => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
       pointerComponent.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
+        (event.clientX / canvas.clientWidth) * 2 - 1,
+        (event.clientY / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -451,8 +450,8 @@ const usePointerInputSources = () => {
       if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
+        (touch.clientX / canvas.clientWidth) * 2 - 1,
+        (touch.clientY / canvas.clientHeight) * -2 + 1
       )
     }
 

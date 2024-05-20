@@ -28,9 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { RouteID, RouteQuery, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const routeResolver = resolve<RouteType, HookContext>({
   createdAt: virtual(async (route) => fromDateTimeSql(route.createdAt)),

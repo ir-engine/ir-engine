@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { v4 } from 'uuid'
+
 import { AssetData, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { v4 } from 'uuid'
+
 import { Application } from '../../../declarations'
 
 export const seedSceneAssets = async (app: Application, projectName: string, assetPaths: string[]) => {

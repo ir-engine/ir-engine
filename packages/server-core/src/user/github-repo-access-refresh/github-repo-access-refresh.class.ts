@@ -24,17 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
 } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
-
 import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'

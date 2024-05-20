@@ -36,7 +36,7 @@
     "@feathersjs/client": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",
     "@feathersjs/rest-client": "5.0.5",
-    "@hookstate/core": "4.0.0-rc21",
+    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@hookstate/localstored": "4.0.0-rc21",
     "@iconify/react": "4.1.0",
     "@mui/icons-material": "5.11.11",

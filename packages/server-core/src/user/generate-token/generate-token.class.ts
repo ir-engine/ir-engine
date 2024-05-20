@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { GenerateTokenData, GenerateTokenQuery } from '@etherealengine/common/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
+import { Application } from '../../../declarations'
 
 export interface GenerateTokenParams extends KnexAdapterParams<GenerateTokenQuery> {
   authentication?: any

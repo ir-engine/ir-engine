@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
-
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { ComponentType, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { MediaSettingsState } from '@etherealengine/engine/src/audio/MediaSettingsState'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState,
@@ -46,13 +46,13 @@ import {
   webcamAudioDataChannelType
 } from '@etherealengine/network'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { AudioState } from '../AudioState'
-import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
+import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
@@ -217,7 +217,7 @@ function PositionalAudioPannerReactor() {
   const positionalAudio = useComponent(entity, PositionalAudioComponent)
 
   useEffect(() => {
-    const audioGroup = AudioNodeGroups.get(mediaElement.element.value)! // is it safe to assume this?
+    const audioGroup = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)! // is it safe to assume this?
     addPannerNode(audioGroup, positionalAudio.value)
     return () => removePannerNode(audioGroup)
   }, [mediaElement, positionalAudio])

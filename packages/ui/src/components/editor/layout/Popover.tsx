@@ -24,9 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
 type ContextMenuProps = {
+  className?: string
   open: boolean
   anchorEl: null | HTMLElement
   panelId: string
@@ -40,18 +42,19 @@ export const PopOver = ({
   anchorEl,
   panelId,
   anchorPosition,
+  className,
   onClose
 }: React.PropsWithChildren<ContextMenuProps>) => {
-  const positionX = anchorPosition?.left - anchorEl?.getBoundingClientRect().left!
-  const positionY = anchorPosition?.top - anchorEl?.parentElement?.parentElement?.getBoundingClientRect().top!
-
+  const panel = document.getElementById(panelId)
+  const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
+  const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
   console.log('DEBUG', positionX, positionY)
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
       <div className={`${open ? 'block' : 'hidden'}`}>
         {open && anchorEl && (
           <div
-            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
+            className={twMerge('absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg', className)}
             style={{ top: `${positionY}px`, left: `${positionX}px` }}
           >
             {children}
