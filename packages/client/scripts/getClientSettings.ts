@@ -47,7 +47,7 @@ export const getClientSetting = async () => {
     .then(([dbClient]) => {
       const dbClientConfig = clientDbToSchema(dbClient) || {
         logo: './logo.svg',
-        title: 'Ethereal Engine',
+        title: 'IR Engine',
         url: 'https://local.etherealengine.org',
         releaseName: 'local',
         siteDescription: 'Connected Worlds for Everyone',

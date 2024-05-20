@@ -41,17 +41,20 @@ export const clientSettingSeedData = {
   shortTitle: process.env.APP_TITLE || '',
   startPath: '/',
   releaseName: process.env.RELEASE_NAME || 'local',
-  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
+  siteDescription: process.env.SITE_DESC || 'IR Engine',
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
-  appleTouchIcon: 'apple-touch-icon.png',
-  favicon32px: '/favicon-32x32.png',
-  favicon16px: '/favicon-16x16.png',
-  icon192px: '/android-chrome-192x192.png',
-  icon512px: '/android-chrome-512x512.png',
+  appleTouchIcon: 'apple-touch-icon.png?v=2',
+  favicon32px: '/favicon-32x32.png?v=2',
+  favicon16px: '/favicon-16x16.png?v=2',
+  icon192px: '/android-chrome-192x192.png?v=2',
+  icon512px: '/android-chrome-512x512.png?v=2',
+  siteManifest: '/site.webmanifest?v=2',
+  safariPinnedTab: '/safari-pinned-tab.svg?v=2',
+  favicon: '/favicon.ico?v=2',
   appBackground: 'static/main-background.png',
   appTitle: 'static/ethereal_watermark_small.png',
   appSubtitle: 'EtherealEngine.org',

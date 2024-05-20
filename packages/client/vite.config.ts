@@ -297,12 +297,15 @@ export default defineConfig(async () => {
         // short_name: clientSetting?.shortName || 'EE',
         // theme_color: clientSetting?.themeColor || '#ffffff',
         // background_color: clientSetting?.backgroundColor || '#000000',
-        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
-        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
-        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
-        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
-        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png?v=2',
+        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png?v=2',
+        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png?v=2',
+        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png?v=2',
+        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png?v=2',
+        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest?v=2',
+        siteManifest: clientSetting.siteManifest || '/site.webmanifest?v=2',
+        safariPinnedTab: clientSetting.safariPinnedTab || '/safari-pinned-tab.svg?v=2',
+        favicon: clientSetting.favicon || '/favicon.ico?v=2',
         swScriptLink:
           clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
             ? process.env.APP_ENV === 'development'
