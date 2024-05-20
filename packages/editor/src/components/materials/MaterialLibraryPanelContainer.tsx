@@ -72,7 +72,7 @@ export default function MaterialLibraryPanel() {
       ]
     })
     nodes.set(result)
-  }, [materialQuery, selected])
+  }, [materialQuery.length, selected])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
