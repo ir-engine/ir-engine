@@ -38,6 +38,7 @@ import { switchCameraMode } from '@etherealengine/spatial/src/camera/functions/s
 import { CameraMode } from '@etherealengine/spatial/src/camera/types/CameraMode'
 import { throttle } from '@etherealengine/spatial/src/common/functions/FunctionHelpers'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
@@ -124,11 +125,12 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const viewerEntity = Engine.instance.viewerEntity
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
   if (!inputPointerEntity) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  const axes = InputSourceComponent.getMergedAxes()
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
+  const axes = InputComponent.getMergedAxes(viewerEntity)
   const inputSource = getOptionalComponent(inputPointerEntity, InputSourceComponent)
   const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
 

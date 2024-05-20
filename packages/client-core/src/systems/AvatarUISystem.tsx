@@ -46,7 +46,6 @@ import {
 } from '@etherealengine/network'
 import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
@@ -60,6 +59,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
@@ -161,7 +161,10 @@ const onSecondaryClick = () => {
 const execute = () => {
   const ecsState = getState(ECSState)
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const viewerEntity = Engine.instance.viewerEntity
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
+
+  // const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.PrimaryClick?.down) onPrimaryClick()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
 
