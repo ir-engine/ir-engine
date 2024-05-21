@@ -23,10 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ApiJob from './api-job/api-job'
-import BuildStatus from './build-status/build-status'
-import LogsApi from './logs-api/logs-api'
-import MigrationsInfo from './migrations-info/migrations-info'
-import Pods from './pods/pods'
+import {
+  migrationsInfoMethods,
+  migrationsInfoPath
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
 
-export default [LogsApi, BuildStatus, Pods, MigrationsInfo, ApiJob]
+import { Application } from '../../../declarations'
+import { MigrationsInfoService } from './migrations-info.class'
+import migrationsInfoDocs from './migrations-info.docs'
+import hooks from './migrations-info.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [migrationsInfoPath]: MigrationsInfoService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: migrationsInfoPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(migrationsInfoPath, new MigrationsInfoService(options), {
+    // A list of all methods this service exposes externally
+    methods: migrationsInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: migrationsInfoDocs
+  })
+
+  const service = app.service(migrationsInfoPath)
+  service.hooks(hooks)
+}
