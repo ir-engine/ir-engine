@@ -43,7 +43,6 @@ import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFun
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
   materialByHash,
-  materialByName,
   MaterialComponent,
   MaterialComponents,
   pluginByName,
@@ -113,10 +112,10 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
   }
 }
 
-export const createMaterialEntity = (material: Material, path: string, user?: Entity) => {
+export const createMaterialEntity = (material: Material, path?: string, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  setComponent(materialEntity, SourceComponent, path)
+  if (path) setComponent(materialEntity, SourceComponent, path)
   const prototypeEntity = prototypeByName[material.type]
   setComponent(materialEntity, MaterialComponent[MaterialComponents.State], {
     material,
@@ -153,7 +152,6 @@ export const removeMaterial = (entity: Entity) => {
   const name = getComponent(entity, NameComponent)
   const hash = hashMaterial(getComponent(entity, SourceComponent), name)
   delete materialByHash[hash]
-  delete materialByName[name]
   removeEntity(entity)
 }
 
@@ -163,8 +161,9 @@ export const getPrototypeConstructorFromName = (name: string) => {
   return getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeConstructor!
 }
 
-/**Sets a unique name and source hash for a given material entity */
+/**Sets a name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
+  const canHash = name !== '' && hasComponent(entity, SourceComponent)
   if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.material.value) return
@@ -174,25 +173,14 @@ export const setMaterialName = (entity: Entity, name: string) => {
     const preexistingMaterial = materialByHash[oldHash]
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
       delete materialByHash[oldHash]
-      delete materialByName[oldName]
     }
   }
 
-  if (materialByName[name]) {
-    name = uniqueSuffix(name)
-  }
-
-  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   setComponent(entity, NameComponent, name)
   ;(materialComponent.material.value as Material).name = name
+  if (!canHash) return
+  const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   materialByHash[newHash] = getComponent(entity, UUIDComponent)
-  materialByName[name] = getComponent(entity, UUIDComponent)
-}
-
-const uniqueSuffix = (name: string) => {
-  let i = 1
-  while (materialByName[`${name}${i}`]) i++
-  return `${name}${i}`
 }
 
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {

@@ -28,11 +28,7 @@ import matches from 'ts-matches'
 
 import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import {
-  materialByName,
-  MaterialComponent,
-  MaterialComponents
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
@@ -83,7 +79,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const materialEntityUUID = materialByName[material.name]
+    const materialEntityUUID = material.uuid as EntityUUID
     const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
     const argData = injectMaterialDefaults(materialEntityUUID)
     if (!argData) return
