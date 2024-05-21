@@ -128,7 +128,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
   const fileProperties = useHookstate<FileType | null>(null)
-  const isLoading = useHookstate(true)
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -165,7 +164,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const fileService = useMutation(fileBrowserPath)
 
-  // const isLoading = fileQuery.status === 'pending'
+  const isLoading = fileQuery.status === 'pending'
 
   const files = fileQuery.data.map((file: FileBrowserContentType) => {
     const isFolder = file.type === 'folder'
@@ -179,6 +178,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       isFolder
     }
   })
+
+  useEffect(() => {
+    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+  }, [fileQuery.data])
 
   useEffect(() => {
     refreshDirectory()
@@ -216,7 +219,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
-    if (isLoading.value) return
+    if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
 
@@ -225,7 +228,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
-      isLoading.set(true)
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -269,8 +271,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     newPath: string,
     isCopy = false
   ): Promise<void> => {
-    if (isLoading.value) return
-    isLoading.set(true)
+    if (isLoading) return
     fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
   }
 
@@ -287,8 +288,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const deleteContent = async (): Promise<void> => {
-    if (isLoading.value) return
-    isLoading.set(true)
+    if (isLoading) return
     openConfirm.set(false)
     fileService.remove(contentToDeletePath.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
@@ -641,9 +641,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           onChange={searchText.set}
         />
       </div>
-      {isLoading.value && (
-        <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
-      )}
+      {isLoading && <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />

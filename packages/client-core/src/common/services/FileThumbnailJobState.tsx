@@ -131,7 +131,7 @@ export const FileThumbnailJobState = defineState({
       </>
     )
   },
-  processFileThumbnails: (files: FileBrowserContentType[]) => {
+  processFiles: (files: FileBrowserContentType[]) => {
     return Promise.all(
       files
         .filter((file) => !seenThumbnails.has(file.key) && extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))

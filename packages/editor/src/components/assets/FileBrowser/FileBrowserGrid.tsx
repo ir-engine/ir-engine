@@ -34,7 +34,7 @@ import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, StateMethods, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
@@ -218,7 +218,7 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean, any>
+  isFilesLoading: boolean
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
@@ -314,8 +314,7 @@ export function FileBrowserItem({
   const pasteContent = async () => {
     handleClose()
 
-    if (isFilesLoading.value) return
-    isFilesLoading.set(true)
+    if (isFilesLoading) return
     fileService.update(null, {
       oldName: currentContent.current.item.fullName,
       newName: currentContent.current.item.fullName,
