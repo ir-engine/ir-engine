@@ -308,7 +308,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={`ml-3.5 h-7 items-center justify-between bg-inherit py-1 pr-2`}
+        className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}

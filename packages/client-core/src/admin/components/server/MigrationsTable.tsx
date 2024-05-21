@@ -24,13 +24,40 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
-const Hidden = ({ as: Component = 'div' as keyof JSX.IntrinsicElements, ...rest }) => {
+import { migrationsInfoPath, MigrationsInfoType } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { migrationsInfoColumns, MigrationsInfoRowType } from '../../common/constants/migrations-info'
+import DataTable from '../../common/Table'
+
+export default function MigrationsInfoTable() {
+  const { t } = useTranslation()
+
+  const adminMigrationsInfoQuery = useFind(migrationsInfoPath, {
+    query: {
+      $limit: 100,
+      $sort: {
+        id: -1
+      }
+    }
+  })
+
+  const createRows = (rows: readonly MigrationsInfoType[]): MigrationsInfoRowType[] =>
+    rows.map((row) => ({
+      id: row.id.toString(),
+      name: row.name,
+      batch: row.batch.toString(),
+      migration_time: toDisplayDateTime(row.migration_time)
+    }))
+
   return (
-    <Component className="hidden" {...rest}>
-      {rest.children}
-    </Component>
+    <DataTable
+      query={adminMigrationsInfoQuery}
+      columns={migrationsInfoColumns}
+      rows={createRows(adminMigrationsInfoQuery.data)}
+    />
   )
 }
-
-export default Hidden
