@@ -32,7 +32,7 @@ import LocationDrawer, {
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { locationPath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 import { EditorState } from '../../../services/EditorServices'
@@ -47,7 +47,6 @@ export const PublishLocation = () => {
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
   const user = useHookstate(getMutableState(AuthState).user)
-  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
 
   const existingLocation = useFind(locationPath, {
     query: {
@@ -79,11 +78,7 @@ export const PublishLocation = () => {
         className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer + ' ' + styles.publishButton}
       >
         <InfoTooltip title={t('editor:toolbar.publishLocation.lbl')} info={t('editor:toolbar.publishLocation.info')}>
-          <Button
-            onClick={handleOpenLocationDrawer}
-            className={styles.toolButton}
-            disabled={!sceneID.value || !hasWriteAccess}
-          >
+          <Button onClick={handleOpenLocationDrawer} className={styles.toolButton} disabled={!sceneID.value}>
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
         </InfoTooltip>

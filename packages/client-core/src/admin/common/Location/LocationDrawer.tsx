@@ -37,7 +37,7 @@ import {
   LocationType
 } from '@etherealengine/common/src/schema.type.module'
 import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -46,7 +46,6 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
 import DrawerView from '../DrawerView'
 import { validateForm } from '../validation/formValidation'
@@ -90,11 +89,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
 
   const scenes = useFind(assetPath)
   // const locationTypes = useFind(locationTypePath).data
-  const user = useHookstate(getMutableState(AuthState).user)
 
   const locationMutation = useMutation(locationPath)
 
-  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
   const selectedSceneData = useGet(assetPath, selectedScene!)
@@ -313,7 +310,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
             </Button>
           )}
           {mode === LocationDrawerMode.ViewEdit && !editMode.value && (
-            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => editMode.set(true)}>
+            <Button className={styles.gradientButton} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

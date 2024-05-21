@@ -40,11 +40,11 @@ import {
   LocationType
 } from '@etherealengine/common/src/schemas/social/location.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
 import {
@@ -210,7 +210,7 @@ export default {
     find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
+      iff(isProvider('external'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
       persistData,
@@ -218,7 +218,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
+      iff(isProvider('external'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
       disallowNonId,
@@ -226,7 +226,7 @@ export default {
       discard('locationSetting')
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
+      iff(isProvider('external'), projectPermissionAuthenticate(false)),
       checkIsLobby,
       removeLocationSetting,
       removeLocationAdmin
