@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
@@ -37,14 +36,6 @@ import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/util
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
-  let metadata = JSON.parse(rawData.metadata) as any
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof metadata === 'string') {
-    metadata = JSON.parse(metadata)
-  }
-
   let tags = JSON.parse(rawData.tags) as string[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
@@ -63,7 +54,6 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
 
   return {
     ...rawData,
-    metadata,
     tags,
     stats
   }
@@ -89,9 +79,6 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
     id: async () => {
       return uuidv4()
     },
-    sid: async () => {
-      return nanoid(8)
-    },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
   },
@@ -100,7 +87,6 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
         stats: JSON.stringify(rawData.stats)
       }
@@ -117,7 +103,6 @@ export const staticResourcePatchResolver = resolve<StaticResourceType, HookConte
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
         stats: JSON.stringify(rawData.stats)
       }

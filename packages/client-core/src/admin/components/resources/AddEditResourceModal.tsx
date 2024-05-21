@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
 import { AssetsPreviewPanel } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   AssetTypeToMimeType,
@@ -41,7 +41,7 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Radio from '@etherealengine/ui/src/primitives/tailwind/Radio'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { ResourceService } from '../../services/ResourceService'
+import { uploadToFeathersService } from '../../../util/upload'
 
 const getNameAndType = async (url: string) => {
   const urlParts = url.split('/')
@@ -139,18 +139,20 @@ export default function CreateResourceModal({ selectedResource }: { selectedReso
 
     try {
       if (state.source.value === 'file' && state.resourceFile.value) {
-        ResourceService.createOrUpdateResource(
-          { path: state.name.value, project: state.project.value },
-          state.resourceFile.value
-        )
+        await uploadToFeathersService(uploadAssetPath, [state.resourceFile.value], {
+          type: 'admin-file-upload',
+          args: { path: state.name.value, project: state.project.value }
+        })
       } else if (state.source.value === 'url' && state.resourceURL.value) {
         const response = await fetch(state.resourceURL.value)
         const blob = await response.blob()
         const resourceFile = new File([blob], state.resourceURL.value.split('/').pop()!, {
           type: state.mimeType.value
         })
-
-        ResourceService.createOrUpdateResource({ path: state.name.value, project: state.project.value }, resourceFile)
+        await uploadToFeathersService(uploadAssetPath, [resourceFile], {
+          type: 'admin-file-upload',
+          args: { path: state.name.value, project: state.project.value }
+        })
       }
       PopoverState.hidePopupover()
     } catch (e) {

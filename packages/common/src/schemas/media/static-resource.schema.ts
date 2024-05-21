@@ -41,9 +41,7 @@ export const staticResourceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    sid: Type.String(),
     key: Type.String(),
-    metadata: Type.Any(),
     mimeType: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
@@ -84,9 +82,7 @@ export interface StaticResourcePatch extends Static<typeof staticResourcePatchSc
 // Schema for allowed query properties
 export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'id',
-  'sid',
   'key',
-  // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'mimeType',
   'userId',
   'hash',
