@@ -540,7 +540,7 @@ describe('ComponentFunctions Hooks', async () => {
         assert.equal(
           result[id],
           ExpectedValue[id],
-          `Did not return the correct component at id=${id}\n result = ${result}\n  expected = ${ExpectedValue}`
+          `Did not return the correct component at id=${id}\n  result = ${result}\n  expected = ${ExpectedValue}`
         )
       }
       unmount()
