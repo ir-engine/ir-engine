@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { FeatureFlag, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
-import { PresentationSystemGroup, defineSystem } from '@etherealengine/ecs'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { useEffect } from 'react'
@@ -39,25 +38,18 @@ export const FeatureFlagsState = defineState({
   useEnabled(flagName: FeatureFlag) {
     const state = useHookstate(getMutableState(FeatureFlagsState)[flagName]).value
     return typeof state === 'boolean' ? state : true
+  },
+  reactor: () => {
+    const featureFlagQuery = useFind(featureFlagSettingPath)
+
+    useEffect(() => {
+      if (!featureFlagQuery.data.length) return
+      const data = featureFlagQuery.data
+      getMutableState(FeatureFlagsState).set(
+        Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
+      )
+    }, [featureFlagQuery.data])
+
+    return null
   }
-})
-
-const reactor = () => {
-  const featureFlagQuery = useFind(featureFlagSettingPath)
-
-  useEffect(() => {
-    if (!featureFlagQuery.data.length) return
-    const data = featureFlagQuery.data
-    getMutableState(FeatureFlagsState).set(
-      Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
-    )
-  }, [featureFlagQuery.data])
-
-  return null
-}
-
-export const FeatureFlagSystem = defineSystem({
-  uuid: 'FeatureFlagSystem',
-  insert: { after: PresentationSystemGroup },
-  reactor
 })
