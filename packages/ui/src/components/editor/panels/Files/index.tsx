@@ -47,7 +47,7 @@ export const FilesPanelTitle = () => {
 export default FilesPanelTitle
 
 export const FilesPanelTab: TabData = {
-  id: 'viewPanel',
+  id: 'filesPanel',
   closable: true,
   title: <FilesPanelTitle />,
   content: <FilesPanelContainer />

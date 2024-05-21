@@ -182,11 +182,11 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex flex-col items-center text-center"
+      className="flex flex-col items-center text-center "
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
       style={{
-        width: iconSize + 10,
+        width: iconSize + 20,
         margin: 0.1 * iconSize
       }}
     >
@@ -203,7 +203,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
         <></>
       ) : (
         /*<RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />*/
-        props.item.fullName
+        <div className="w-full text-wrap break-all text-white">{props.item.fullName}</div>
       )}
     </div>
   )
@@ -217,7 +217,7 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean>
+  isFilesLoading: StateMethods<boolean, any>
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void

@@ -27,6 +27,7 @@ import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
@@ -90,7 +91,7 @@ const defaultLayout: LayoutData = {
             tabs: [ViewportPanelTab]
           },
           {
-            tabs: [ScenePanelTab, FilesPanelTab]
+            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
           }
         ]
       },
@@ -110,7 +111,7 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const tabs = [HierarchyPanelTab, PropertiesPanelTab, ViewportPanelTab, ScenePanelTab, FilesPanelTab]
+const tabs = [HierarchyPanelTab, PropertiesPanelTab, ViewportPanelTab, ScenePanelTab, FilesPanelTab, AssetsPanelTab]
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
