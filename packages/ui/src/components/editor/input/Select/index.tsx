@@ -27,8 +27,7 @@ import React from 'react'
 import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
 import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
-// make new component instead
-
+/**Tailwind `Select` styled for studio */
 const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
   return (
     <Select
