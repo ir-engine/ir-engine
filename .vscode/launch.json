@@ -13,6 +13,7 @@
         }
     ],
     "configurations": [
+    
         {
             "command": "cd packages/ui && npm run test:watch",
             "name": "ui-jest",
@@ -93,6 +94,12 @@
         {
             "command": "cd packages/spatial && npm run test",
             "name": "npm run test - spatial",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "cd packages/ecs && npm run test",
+            "name": "npm run test - ecs",
             "request": "launch",
             "type": "node-terminal",
         },
