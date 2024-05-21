@@ -23,10 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ApiJob from './api-job/api-job'
-import BuildStatus from './build-status/build-status'
-import LogsApi from './logs-api/logs-api'
-import MigrationsInfo from './migrations-info/migrations-info'
-import Pods from './pods/pods'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export default [LogsApi, BuildStatus, Pods, MigrationsInfo, ApiJob]
+import {
+  MigrationsInfoQuery,
+  MigrationsInfoType
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const migrationsInfoResolver = resolve<MigrationsInfoType, HookContext>({})
+
+export const migrationsInfoExternalResolver = resolve<MigrationsInfoType, HookContext>({})
+
+export const migrationsInfoQueryResolver = resolve<MigrationsInfoQuery, HookContext>({})
