@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { NO_PROXY, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, StateMethods, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { HighlightState } from '@etherealengine/spatial/src/renderer/HighlightState'
@@ -71,8 +71,8 @@ import {
 } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
-import { Scene } from 'three'
-import { Effects, defaultPostProcessingSchema } from '../PostProcessing'
+import { ArrayCamera, Scene, Texture } from 'three'
+import { EffectPropsSchema, Effects, defaultPostProcessingSchema } from '../PostProcessing'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
 
 export const PostProcessingComponent = defineComponent({
@@ -169,376 +169,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   }, [scene])
 
   useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.BloomEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new BloomEffect(effectOptions)
-      effects[Effects.BloomEffect].set(eff)
-
-      return () => {
-        effects[Effects.BloomEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects.BloomEffect])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.BrightnessContrastEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new BrightnessContrastEffect(effectOptions)
-      effects[Effects.BrightnessContrastEffect].set(eff)
-
-      return () => {
-        effects[Effects.BrightnessContrastEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.BrightnessContrastEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ChromaticAberrationEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ChromaticAberrationEffect(effectOptions)
-      effects[Effects.ChromaticAberrationEffect].set(eff)
-
-      return () => {
-        effects[Effects.ChromaticAberrationEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ChromaticAberrationEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ColorAverageEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ColorAverageEffect(effectOptions.blendFunction)
-      effects[Effects.ColorAverageEffect].set(eff)
-
-      return () => {
-        effects[Effects.ColorAverageEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ColorAverageEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ColorDepthEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ColorDepthEffect(effectOptions)
-      effects[Effects.ColorDepthEffect].set(eff)
-
-      return () => {
-        effects[Effects.ColorDepthEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ColorDepthEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.DepthOfFieldEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new DepthOfFieldEffect(camera.value, effectOptions)
-      effects[Effects.DepthOfFieldEffect].set(eff)
-
-      return () => {
-        effects[Effects.DepthOfFieldEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.DepthOfFieldEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.DotScreenEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new DotScreenEffect(effectOptions)
-      effects[Effects.DotScreenEffect].set(eff)
-
-      return () => {
-        effects[Effects.DotScreenEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.DotScreenEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.FXAAEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new FXAAEffect(effectOptions)
-      effects[Effects.FXAAEffect].set(eff)
-
-      return () => {
-        effects[Effects.FXAAEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.FXAAEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.GlitchEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new GlitchEffect(effectOptions)
-      effects[Effects.GlitchEffect].set(eff)
-
-      return () => {
-        effects[Effects.GlitchEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.GlitchEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.GridEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new GridEffect(effectOptions)
-      effects[Effects.GridEffect].set(eff)
-
-      return () => {
-        effects[Effects.GridEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.GridEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.HueSaturationEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new HueSaturationEffect(effectOptions)
-      effects[Effects.HueSaturationEffect].set(eff)
-
-      return () => {
-        effects[Effects.HueSaturationEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.HueSaturationEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.LUT1DEffect] as any
-    if (effectOptions && effectOptions.isActive && lut1DEffectTexture) {
-      const eff = new LUT1DEffect(lut1DEffectTexture, effectOptions)
-      effects[Effects.LUT1DEffect].set(eff)
-
-      return () => {
-        effects[Effects.LUT1DEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.LUT1DEffect], lut1DEffectTexture, lut1DEffectTextureError])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.LUT3DEffect] as any
-    if (effectOptions && effectOptions.isActive && lut3DEffectTexture) {
-      const eff = new LUT3DEffect(lut3DEffectTexture, effectOptions)
-      effects[Effects.LUT3DEffect].set(eff)
-
-      return () => {
-        effects[Effects.LUT3DEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.LUT3DEffect], lut3DEffectTexture, lut3DEffectTextureError])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.LensDistortionEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new LensDistortionEffect(effectOptions)
-      effects[Effects.LensDistortionEffect].set(eff)
-
-      return () => {
-        effects[Effects.LensDistortionEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.LensDistortionEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.LinearTosRGBEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new LinearTosRGBEffect(effectOptions)
-      //composer[Effects.LinearTosRGBEffect].set(eff)
-      effects[Effects.LinearTosRGBEffect].set(eff)
-
-      return () => {
-        //composer[Effects.LinearTosRGBEffect].set(none)
-        effects[Effects.LinearTosRGBEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.LinearTosRGBEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.MotionBlurEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new MotionBlurEffect(velocityDepthNormalPass, effectOptions)
-      useVelocityDepthNormalPass.set(true)
-      effects[Effects.MotionBlurEffect].set(eff)
-
-      return () => {
-        effects[Effects.MotionBlurEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.MotionBlurEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.NoiseEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new NoiseEffect(effectOptions)
-      effects[Effects.NoiseEffect].set(eff)
-
-      return () => {
-        effects[Effects.NoiseEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.NoiseEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.PixelationEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new PixelationEffect(effectOptions.granularity)
-      effects[Effects.PixelationEffect].set(eff)
-
-      return () => {
-        effects[Effects.PixelationEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.PixelationEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.SMAAEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new SMAAEffect(effectOptions)
-      effects[Effects.SMAAEffect].set(eff)
-
-      return () => {
-        effects[Effects.SMAAEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.SMAAEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.SSAOEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new SSAOEffect(camera.value, normalPass.value.texture, {
-        ...effectOptions,
-        normalDepthBuffer: depthDownsamplingPass.value.texture
-      })
-      useDepthDownsamplingPass.set(true)
-      effects[Effects.SSAOEffect].set(eff)
-
-      return () => {
-        effects[Effects.SSAOEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.SSAOEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new SSGIEffect(effectOptions)
-      effects[Effects.SSGIEffect].set(eff)
-
-      return () => {
-        effects[Effects.SSGIEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.SSGIEffect]])
-
-  // SSR is just a mode of SSGI, and can't both be run at the same time
-  useEffect(() => {
-    let usingSSGI = false
-
-    const ssgiEffectOptions = postprocessingComponent.value.effects[Effects.SSGIEffect] as any
-    if (ssgiEffectOptions && ssgiEffectOptions.isActive) {
-      usingSSGI = true
-    }
-
-    const effectOptions = postprocessingComponent.value.effects[Effects.SSREffect] as any
-    if (effectOptions && effectOptions.isActive && !usingSSGI) {
-      const eff = new SSREffect(composer, scene, camera.value, { ...effectOptions, velocityDepthNormalPass })
-      useVelocityDepthNormalPass.set(true)
-      effects[Effects.SSREffect].set(eff)
-
-      return () => {
-        effects[Effects.SSREffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.SSREffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ScanlineEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ScanlineEffect(effectOptions)
-      effects[Effects.ScanlineEffect].set(eff)
-
-      return () => {
-        effects[Effects.ScanlineEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ScanlineEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ShockWaveEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ShockWaveEffect(camera.value, effectOptions.position, effectOptions)
-      effects[Effects.ShockWaveEffect].set(eff)
-
-      return () => {
-        effects[Effects.ShockWaveEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ShockWaveEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.TRAAEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      // todo support more than 1 texture
-      const textureCount = 1
-      const eff = new TRAAEffect(scene, camera.value, velocityDepthNormalPass, textureCount, effectOptions)
-      useVelocityDepthNormalPass.set(true)
-      effects[Effects.TRAAEffect].set(eff)
-
-      return () => {
-        effects[Effects.TRAAEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.TRAAEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.TextureEffect] as any
-    if (effectOptions && effectOptions.isActive && textureEffectTexture) {
-      effectOptions.texture = textureEffectTexture
-      const eff = new TextureEffect(effectOptions)
-      //composer[Effects.TextureEffect].set(eff)
-      effects[Effects.TextureEffect].set(eff)
-
-      return () => {
-        //composer[Effects.TextureEffect].set(none)
-        effects[Effects.TextureEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.TextureEffect], textureEffectTexture, textureEffectTextureError])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.TiltShiftEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new TiltShiftEffect(effectOptions)
-      effects[Effects.TiltShiftEffect].set(eff)
-
-      return () => {
-        effects[Effects.TiltShiftEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.TiltShiftEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.ToneMappingEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new ToneMappingEffect(effectOptions)
-      effects[Effects.ToneMappingEffect].set(eff)
-
-      return () => {
-        effects[Effects.ToneMappingEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.ToneMappingEffect]])
-
-  useEffect(() => {
-    const effectOptions = postprocessingComponent.value.effects[Effects.VignetteEffect] as any
-    if (effectOptions && effectOptions.isActive) {
-      const eff = new VignetteEffect(effectOptions)
-      effects[Effects.VignetteEffect].set(eff)
-
-      return () => {
-        effects[Effects.VignetteEffect].set(none)
-      }
-    }
-  }, [postprocessingComponent.effects[Effects.VignetteEffect]])
-
-  useEffect(() => {
     const renderSettings = getState(RendererState)
 
     const effectsVal = effects.get(NO_PROXY)
@@ -566,6 +196,8 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     const effectArray = Object.values(effectsVal)
     composer.value.EffectPass = new EffectPass(camera.value, ...effectArray)
     composer.value.addPass(composer.value.EffectPass)
+
+    console.log('react to effects')
   }, [effects])
 
   useEffect(() => {
@@ -574,5 +206,434 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     if (getState(EngineState).isEditor) changeRenderMode()
   }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
 
+  return (
+    <>
+      {Object.entries(postprocessingComponent.effects.value).map(([effect, schema], index) => {
+        return (
+          <EffectReactor
+            key={index}
+            entity={entity}
+            effect={effect}
+            schema={schema}
+            effects={effects}
+            camera={camera}
+            uiEffects={postprocessingComponent.effects}
+            scene={scene}
+            lut1DEffectTexture={lut1DEffectTexture}
+            lut3DEffectTexture={lut3DEffectTexture}
+            velocityDepthNormalPass={velocityDepthNormalPass}
+            useVelocityDepthNormalPass={useVelocityDepthNormalPass}
+            normalPass={normalPass}
+            depthDownsamplingPass={depthDownsamplingPass}
+            composer={composer}
+          ></EffectReactor>
+        )
+      })}
+    </>
+  )
+}
+
+const EffectReactor = (props: {
+  entity: Entity
+  effect: string
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+  uiEffects: State<EffectPropsSchema, {}>
+  scene: State<Scene, {}>
+  lut1DEffectTexture: Texture | null
+  lut3DEffectTexture: Texture | null
+  velocityDepthNormalPass: any
+  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+  normalPass: State<CustomNormalPass, {}>
+  depthDownsamplingPass: State<DepthDownsamplingPass, {}>
+  composer: State<EffectComposer, {}>
+}) => {
+  const {
+    entity,
+    effect,
+    schema,
+    effects,
+    camera,
+    uiEffects,
+    scene,
+    lut1DEffectTexture,
+    lut3DEffectTexture,
+    velocityDepthNormalPass,
+    useVelocityDepthNormalPass,
+    normalPass,
+    depthDownsamplingPass,
+    composer
+  } = props
+  const lookUp = {
+    BloomEffect: BloomEffectProcess,
+    BrightnessContrastEffect: BrightnessContrastEffectProcess,
+    ChromaticAberrationEffect: ChromaticAberrationEffectProcess,
+    ColorAverageEffect: ColorAverageEffectProcess,
+    ColorDepthEffect: ColorDepthEffectProcess,
+    DepthOfFieldEffect: DepthOfFieldEffectProcess,
+    DotScreenEffect: DotScreenEffectProcess,
+    FXAAEffect: FXAAEffectProcess,
+    GlitchEffect: GlitchEffectProcess,
+    GridEffect: GridEffectProcess,
+    HueSaturationEffect: HueSaturationEffectProcess,
+    LUT1DEffect: LUT1DEffectProcess,
+    LUT3DEffect: LUT3DEffectProcess,
+    LensDistortionEffect: LensDistortionEffectProcess,
+    LinearTosRGBEffect: LinearTosRGBEffectProcess,
+    MotionBlurEffect: MotionBlurEffectProcess,
+    NoiseEffect: NoiseEffectProcess,
+    PixelationEffect: PixelationEffectProcess,
+    SMAAEffect: SMAAEffectProcess,
+    SSAOEffect: SSAOEffectProcess,
+    SSGIEffect: SSGIEffectProcess,
+    SSREffect: SSREffectProcess,
+    ScanlineEffect: ScanlineEffectProcess,
+    ShockWaveEffect: ShockWaveEffectProcess,
+    TRAAEffect: TRAAEffectProcess,
+    TextureEffect: TextureEffectProcess,
+    TiltShiftEffect: TiltShiftEffectProcess,
+    ToneMappingEffect: ToneMappingEffectProcess,
+    VignetteEffect: VignetteEffectProcess
+  }
+
+  useEffect(() => {
+    if (schema.isActive) {
+      console.log('add effect = ' + effect)
+
+      const props = {
+        schema: schema,
+        effects: effects,
+        camera: camera,
+        scene: scene,
+        lut1DEffectTexture: lut1DEffectTexture,
+        lut3DEffectTexture: lut3DEffectTexture,
+        velocityDepthNormalPass: velocityDepthNormalPass,
+        useVelocityDepthNormalPass: useVelocityDepthNormalPass,
+        normalPass: normalPass,
+        depthDownsamplingPass: depthDownsamplingPass,
+        composer: composer
+      }
+
+      lookUp[effect](props)
+    }
+
+    return () => {
+      console.log('remove effect = ' + effect)
+      effects[effect].set(none)
+    }
+  }, [uiEffects])
+
   return null
+}
+
+const BloomEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('BloomEffectProcess')
+
+  console.log(schema)
+  const eff = new BloomEffect(schema.value)
+  effects[Effects.BloomEffect].set(eff)
+}
+
+const BrightnessContrastEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('BrightnessContrastEffect')
+
+  const eff = new BrightnessContrastEffect(schema.value)
+  effects[Effects.BrightnessContrastEffect].set(eff)
+}
+
+const ChromaticAberrationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('ChromaticAberrationEffect')
+
+  const eff = new ChromaticAberrationEffect(schema.value)
+  effects[Effects.ChromaticAberrationEffect].set(eff)
+}
+
+const ColorAverageEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('ColorAverageEffect')
+
+  const eff = new ColorAverageEffect(schema.value.blendFunction)
+  effects[Effects.ColorAverageEffect].set(eff)
+}
+
+const ColorDepthEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('ColorDepthEffect')
+
+  const eff = new ColorDepthEffect(schema.value)
+  effects[Effects.ColorDepthEffect].set(eff)
+}
+
+const DepthOfFieldEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+}) => {
+  const { schema, effects, camera } = props
+  console.log('DepthOfFieldEffect')
+
+  const eff = new DepthOfFieldEffect(camera.value, schema.value)
+  effects[Effects.DepthOfFieldEffect].set(eff)
+}
+
+const DotScreenEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('DotScreenEffect')
+
+  const eff = new DotScreenEffect(schema.value)
+  effects[Effects.DotScreenEffect].set(eff)
+}
+
+const FXAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('FXAAEffect')
+
+  const eff = new FXAAEffect(schema.value)
+  effects[Effects.FXAAEffect].set(eff)
+}
+
+const GlitchEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('GlitchEffect')
+
+  const eff = new GlitchEffect(schema.value)
+  effects[Effects.GlitchEffect].set(eff)
+}
+
+const GridEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('GridEffect')
+
+  const eff = new GridEffect(schema.value)
+  effects[Effects.GridEffect].set(eff)
+}
+
+const HueSaturationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('HueSaturationEffect')
+
+  const eff = new HueSaturationEffect(schema.value)
+  effects[Effects.HueSaturationEffect].set(eff)
+}
+
+const LUT1DEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  lut1DEffectTexture: Texture
+}) => {
+  const { schema, effects, lut1DEffectTexture } = props
+  console.log('LUT1DEffect')
+
+  if (lut1DEffectTexture) {
+    const eff = new LUT1DEffect(lut1DEffectTexture, schema.value)
+    effects[Effects.LUT1DEffect].set(eff)
+  }
+}
+
+const LUT3DEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  lut3DEffectTexture: Texture
+}) => {
+  const { schema, effects, lut3DEffectTexture } = props
+  console.log('LUT3DEffect')
+  if (lut3DEffectTexture) {
+    const eff = new LUT3DEffect(lut3DEffectTexture, schema.value)
+    effects[Effects.LUT3DEffect].set(eff)
+  }
+}
+
+const LensDistortionEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+  console.log('LensDistortionEffect')
+
+  const eff = new LensDistortionEffect(schema.value)
+  effects[Effects.LensDistortionEffect].set(eff)
+}
+
+const LinearTosRGBEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('LinearTosRGBEffect')
+
+  const eff = new LinearTosRGBEffect(schema.value)
+  effects[Effects.LinearTosRGBEffect].set(eff)
+}
+
+const MotionBlurEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  velocityDepthNormalPass: any
+}) => {
+  const { schema, effects, velocityDepthNormalPass } = props
+
+  console.log('MotionBlurEffect')
+
+  const eff = new MotionBlurEffect(velocityDepthNormalPass, schema.value)
+  effects[Effects.MotionBlurEffect].set(eff)
+}
+
+const NoiseEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+  scene: State<Scene, {}>
+}) => {
+  const { schema, effects, camera } = props
+
+  console.log('NoiseEffect')
+
+  const eff = new NoiseEffect(schema.value)
+  effects[Effects.NoiseEffect].set(eff)
+}
+
+const PixelationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('PixelationEffect')
+
+  const eff = new PixelationEffect(schema.value.granularity)
+  effects[Effects.PixelationEffect].set(eff)
+}
+
+const SMAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('SMAAEffect')
+
+  const eff = new SMAAEffect(schema.value)
+  effects[Effects.SMAAEffect].set(eff)
+}
+
+const SSAOEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+  normalPass: State<CustomNormalPass, {}>
+  depthDownsamplingPass: State<DepthDownsamplingPass, {}>
+}) => {
+  const { schema, effects, camera, normalPass, depthDownsamplingPass } = props
+
+  console.log('SSAOEffect')
+
+  const eff = new SSAOEffect(camera.value, normalPass.value.texture, {
+    ...schema.value,
+    normalDepthBuffer: depthDownsamplingPass.value.texture
+  })
+  effects[Effects.SSAOEffect].set(eff)
+}
+
+const SSGIEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('SSGIEffect')
+
+  const eff = new SSGIEffect(schema.value)
+  effects[Effects.SSGIEffect].set(eff)
+}
+
+// SSR is just a mode of SSGI, and can't both be run at the same time
+const SSREffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+  scene: State<Scene, {}>
+  velocityDepthNormalPass: any
+  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+  composer: State<EffectComposer, {}>
+}) => {
+  const { schema, effects, camera, scene, velocityDepthNormalPass, useVelocityDepthNormalPass, composer } = props
+
+  console.log('SSREffect')
+  let usingSSGI = false
+  const ssgiEffect = effects.value[Effects.SSGIEffect] as any
+  if (ssgiEffect) {
+    usingSSGI = true
+  }
+  if (!usingSSGI) {
+    const eff = new SSREffect(composer.value, scene.value, camera.value, { ...schema.value, velocityDepthNormalPass })
+    useVelocityDepthNormalPass.set(true)
+    effects[Effects.SSREffect].set(eff)
+  }
+}
+
+const ScanlineEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('ScanlineEffect')
+
+  const eff = new ScanlineEffect(schema.value)
+  effects[Effects.ScanlineEffect].set(eff)
+}
+
+const ShockWaveEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+}) => {
+  const { schema, effects, camera } = props
+
+  console.log('ShockWaveEffect')
+
+  const eff = new ShockWaveEffect(camera.value, schema.value.position, schema.value)
+  effects[Effects.ShockWaveEffect].set(eff)
+}
+
+const TRAAEffectProcess = (props: {
+  schema: any
+  effects: State<Record<string, Effect>, {}>
+  camera: State<ArrayCamera>
+  scene: State<Scene, {}>
+  velocityDepthNormalPass: any
+  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+}) => {
+  const { schema, effects, camera, scene, velocityDepthNormalPass, useVelocityDepthNormalPass } = props
+
+  console.log('TRAAEffect')
+
+  // todo support more than 1 texture
+  const textureCount = 1
+  const eff = new TRAAEffect(scene.value, camera.value, velocityDepthNormalPass, textureCount, schema.value)
+  useVelocityDepthNormalPass.set(true)
+  effects[Effects.TRAAEffect].set(eff)
+}
+
+const TextureEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('TextureEffect')
+
+  const eff = new TextureEffect(schema.value)
+  effects[Effects.TextureEffect].set(eff)
+}
+
+const TiltShiftEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('TiltShiftEffect')
+
+  const eff = new TiltShiftEffect(schema.value)
+  effects[Effects.TiltShiftEffect].set(eff)
+}
+
+const ToneMappingEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('ToneMappingEffect')
+
+  const eff = new ToneMappingEffect(schema.value)
+  effects[Effects.ToneMappingEffect].set(eff)
+}
+
+const VignetteEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+  const { schema, effects } = props
+
+  console.log('VignetteEffect')
+
+  const eff = new VignetteEffect(schema.value)
+  effects[Effects.VignetteEffect].set(eff)
 }
