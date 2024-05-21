@@ -23,21 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-const argTypes = {}
+import {
+  featureFlagSettingDataSchema,
+  featureFlagSettingPatchSchema,
+  featureFlagSettingQuerySchema,
+  featureFlagSettingSchema
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
 
-export default {
-  title: 'Editor/Input/Parameter',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'ParameterInput',
-    jest: 'Parameter.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
+export default createSwaggerServiceOptions({
+  schemas: {
+    featureFlagSettingDataSchema,
+    featureFlagSettingPatchSchema,
+    featureFlagSettingQuerySchema,
+    featureFlagSettingSchema
   },
-  argTypes
-}
-export const Default = { args: Component.defaultProps }
+  docs: {
+    description: 'Featre flag setting service description',
+    securities: ['all']
+  }
+})
