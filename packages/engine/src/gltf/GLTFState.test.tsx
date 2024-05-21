@@ -29,7 +29,13 @@ import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'th
 
 import { defineComponent, defineQuery, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState,
+  startReactor
+} from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -38,6 +44,7 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { EditorControlFunctions } from '../../../editor/src/functions/EditorControlFunctions'
 import { GroundPlaneComponent } from '../scene/components/GroundPlaneComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
@@ -651,7 +658,7 @@ describe('GLTFState', () => {
     assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 3)
   })
 
-  it('should be able to remove an entity', () => {
+  it('should be able to remove an entity', async () => {
     const gltf: GLTF.IGLTF = {
       asset: {
         version: '2.0'
@@ -1013,6 +1020,26 @@ describe('GLTFState', () => {
     const groundPlaneQuery = defineQuery([GroundPlaneComponent])
     const groundPlaneEntity = groundPlaneQuery()[0]
 
-    const gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const GLTFSnapshotStateReactor = GLTFSnapshotState.reactor
+
+    const reactor = startReactor(GLTFSnapshotStateReactor)
+
+    let gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    let groundPlaneNode = gltfClone.data.nodes!.filter((node) =>
+      node.name && node.name == 'ground plane' ? node : undefined
+    )[0]
+    assert(groundPlaneNode)
+
+    EditorControlFunctions.removeObject([groundPlaneEntity])
+
+    applyIncomingActions()
+    reactor.run()
+    assert(reactor.errors.length == 0)
+
+    gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    groundPlaneNode = gltfClone.data.nodes!.filter((node) =>
+      node.name && node.name == 'ground plane' ? node : undefined
+    )[0]
+    assert(!groundPlaneNode)
   })
 })
