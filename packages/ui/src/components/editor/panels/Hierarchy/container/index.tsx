@@ -438,21 +438,24 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
 
   return (
     <>
-      <div className="mb-1 ml-1 flex items-center gap-2">
+      <div className="bg-theme-surface-main flex items-center gap-2">
         <Input
           placeholder={t('common:components.search')}
           value={searchHierarchy.value}
           onChange={(event) => {
             searchHierarchy.set(event.target.value)
           }}
-          className="bg-theme-primary rounded"
+          className="bg-theme-primary m-1 rounded text-white"
           startComponent={<HiMagnifyingGlass />}
         />
+        {/* <div className="ml-[20px]">
+
+        </div> */}
         <Button
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
           rounded="none"
-          className="bg-theme-highlight ml-auto w-32 px-2"
+          className="bg-theme-highlight ml-auto w-32 px-2 py-3"
           size="small"
           textContainerClassName="mx-0"
           onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
