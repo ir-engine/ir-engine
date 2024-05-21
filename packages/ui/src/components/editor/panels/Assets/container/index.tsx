@@ -29,15 +29,16 @@ import React, { createContext, useCallback, useContext, useEffect, useRef } from
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
 import Input from '../../../../../primitives/tailwind/Input'
 import { FileIcon } from '../../Files/icon'
 
@@ -45,27 +46,6 @@ type FolderType = { folderType: 'folder'; assetClass: string }
 type ResourceType = { folderType: 'staticResource' } & StaticResourceType
 
 type CategorizedStaticResourceType = FolderType | ResourceType
-
-const StaticResourceItem = (props: {
-  data: {
-    resources: CategorizedStaticResourceType[]
-    onClick: (resource: CategorizedStaticResourceType) => void
-    selectedCategory: string | null
-  }
-  index: number
-}) => {
-  const { resources, onClick, selectedCategory } = props.data
-  const index = props.index
-  const resource = resources[index]
-
-  if (resource.folderType === 'folder' && resource.assetClass !== 'unknown') {
-    return (
-      <div key={resource.folderType} className="bg-theme-surface-main p-2 text-white" onClick={() => onClick(resource)}>
-        {resource.assetClass}
-      </div>
-    )
-  }
-}
 
 const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
 
@@ -110,46 +90,142 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   )
 }
 
+type Category = {
+  name: string
+  object: object
+  collapsed: boolean
+  isLeaf: boolean
+  depth: number
+}
+
+function iterativelyListTags(obj: object): string[] {
+  const tags: string[] = []
+  for (const key in obj) {
+    tags.push(key)
+    if (typeof obj[key] === 'object') {
+      tags.push(...iterativelyListTags(obj[key]))
+    }
+  }
+  return tags
+}
+
 const AssetPanel = () => {
   const { t } = useTranslation()
-  const staticResources = useHookstate<CategorizedStaticResourceType[]>([])
-  const categorizedStaticResources = useHookstate({} as Record<string, StaticResourceType[]>)
-  const selectedCategory = useHookstate<string | null>(null)
+  const collapsedCategories = useHookstate<{ [key: string]: boolean }>({})
+  const categories = useHookstate<Category[]>([])
+  const selectedCategory = useHookstate<Category | null>(null)
   const loading = useHookstate(false)
   const searchText = useHookstate('')
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
 
+  const AssetCategory = useCallback(
+    (props: {
+      data: {
+        categories: Category[]
+        onClick: (resource: Category) => void
+        selectedCategory: Category | null
+      }
+      index: number
+    }) => {
+      const { categories, onClick, selectedCategory } = props.data
+      const index = props.index
+      const resource = categories[index]
+
+      return (
+        <div className={`bg-theme-surface-main flex items-center ml-${resource.depth}`}>
+          {resource.isLeaf ? (
+            <></>
+          ) : (
+            <div onClick={() => collapsedCategories[resource.name].set(!resource.collapsed)}>
+              {resource.collapsed ? (
+                <MdKeyboardArrowRight className="font-small text-white" />
+              ) : (
+                <MdKeyboardArrowDown className="font-small text-white" />
+              )}
+            </div>
+          )}
+          <div
+            key={resource.name}
+            className={twMerge(`p-2`, selectedCategory === resource ? 'bg-theme-primary text-grey' : 'text-white')}
+            onClick={() => onClick(resource)}
+          >
+            {resource.name}
+          </div>
+        </div>
+      )
+    },
+    []
+  )
+
+  const CategoriesList = () => {
+    return (
+      <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+        {categories.map((category, index) => (
+          <AssetCategory
+            data={{
+              categories: categories.value as Category[],
+              selectedCategory: selectedCategory.value,
+              onClick: (resource: Category) => {
+                selectedCategory.set(JSON.parse(JSON.stringify(resource)))
+              }
+            }}
+            index={index}
+          />
+        ))}
+      </div>
+    )
+  }
+
   useEffect(() => {
-    const staticResourcesFindApi = () =>
+    const result: Category[] = []
+    const generateCategories = (node: object, depth = 0) => {
+      for (const key in node) {
+        const isLeaf = Object.keys(node[key]).length === 0
+        const category = {
+          name: key,
+          object: node[key],
+          collapsed: collapsedCategories[key].value ?? true,
+          depth,
+          isLeaf
+        }
+        result.push(category)
+        if (typeof node[key] === 'object' && !category.collapsed) {
+          generateCategories(node[key], depth + 1)
+        }
+      }
+    }
+    generateCategories(getState(AssetsPanelCategories))
+    categories.set(result)
+  }, [collapsedCategories])
+
+  useEffect(() => {
+    const staticResourcesFindApi = () => {
+      const query = {
+        key: { $like: `%${searchText.value}%` || undefined },
+        $sort: { mimeType: 1 },
+        $limit: 10000
+      }
+
+      if (selectedCategory.value) {
+        const tags = [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
+        query['tags'] = {
+          $or: tags.flatMap((tag) => [
+            { tags: { $like: `%${tag.toLowerCase()}%` } },
+            { tags: { $like: `%${tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase()}%` } }
+          ])
+        }
+      }
       Engine.instance.api
         .service(staticResourcePath)
-        .find({ query: { key: { $like: `%${searchText.value}%` || undefined }, $sort: { mimeType: 1 }, $limit: 100 } })
+        .find({ query })
         .then((resources) => {
-          if (searchText.value) {
-            searchedStaticResources.set(resources.data)
-            return
-          }
-
-          const categorizedResources: Record<string, StaticResourceType[]> = {}
-          const categorizedResourcesList: CategorizedStaticResourceType[] = []
-
-          resources.data.forEach((resource) => {
-            const assetClass = AssetLoader.getAssetClass(resource.key)
-            if (!(assetClass in categorizedResources)) {
-              categorizedResourcesList.push({ folderType: 'folder', assetClass })
-              categorizedResources[assetClass] = []
-            }
-            categorizedResources[assetClass].push(resource)
-            categorizedResourcesList.push({ folderType: 'staticResource', ...resource })
-          })
-
-          categorizedStaticResources.set(categorizedResources)
-          staticResources.set(categorizedResourcesList)
+          searchedStaticResources.set(resources.data)
         })
         .then(() => {
           loading.set(false)
         })
+    }
 
     loading.set(true)
 
@@ -160,60 +236,31 @@ const AssetPanel = () => {
     searchTimeoutCancelRef.current = debouncedSearchQuery.cancel
 
     return () => searchTimeoutCancelRef.current?.()
-  }, [searchText])
-
-  const ResourceList = useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={1}
-        itemCount={staticResources.length}
-        itemData={{
-          resources: staticResources.get(NO_PROXY),
-          selectedCategory: selectedCategory.value,
-          onClick: (resource: FolderType) => {
-            selectedCategory.set(resource.assetClass)
-            searchText.set('')
-          }
-        }}
-        itemKey={(index) => index}
-      >
-        {StaticResourceItem}
-      </FixedSizeList>
-    ),
-    [selectedCategory]
-  )
+  }, [searchText, selectedCategory])
 
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex items-center justify-center">
           <CircularProgress />
         </div>
       )
     }
-    if (searchText.value) {
-      if (staticResources.value)
+    if (searchedStaticResources.value)
+      if (selectedCategory.value)
         return (
           <>
-            {searchedStaticResources.map((resource) => (
-              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
-            ))}
+            {searchedStaticResources
+              .filter((resource) => {
+                const tags = [selectedCategory.value!.name, ...iterativelyListTags(selectedCategory.value!.object)]
+                return tags.some((tag) => resource.tags.value?.map((x) => x.toLowerCase()).includes(tag.toLowerCase()))
+              })
+              .map((resource) => (
+                <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
+              ))}
           </>
         )
-      return <div>{t('editor:layout.scene-assets.no-search-results')}</div>
-    }
-    if (selectedCategory.value) {
-      return (
-        <>
-          {categorizedStaticResources.value[selectedCategory.value!]?.map((resource) => (
-            <ResourceFile resource={resource as StaticResourceType} />
-          ))}
-        </>
-      )
-    }
-    return <div className="flex justify-center align-middle">{t('editor:layout.scene-assets.no-category')}</div>
+    return <div>{t('editor:layout.scene-assets.no-search-results')}</div>
   }
 
   return (
@@ -230,7 +277,7 @@ const AssetPanel = () => {
             className="bg-theme-primary w-[100%] rounded"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
-          <AutoSizer onResize={ResourceList}>{ResourceList}</AutoSizer>
+          <CategoriesList />
         </div>
         <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-scroll">
           <ResourceItems />
