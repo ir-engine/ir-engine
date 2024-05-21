@@ -25,10 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
+import {
+  featureFlagSettingDataSchema,
+  featureFlagSettingPatchSchema,
+  featureFlagSettingQuerySchema,
+  featureFlagSettingSchema
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
+
 export default createSwaggerServiceOptions({
-  schemas: {},
+  schemas: {
+    featureFlagSettingDataSchema,
+    featureFlagSettingPatchSchema,
+    featureFlagSettingQuerySchema,
+    featureFlagSettingSchema
+  },
   docs: {
-    description: 'Static resource filters service description',
+    description: 'Featre flag setting service description',
     securities: ['all']
   }
 })

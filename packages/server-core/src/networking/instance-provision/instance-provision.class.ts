@@ -55,7 +55,7 @@ import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
-const releaseRegex = /^([a-zA-Z0-9]+)-/
+const releaseRegex = /^([a-zA-Z0-9_-]+)-instanceserver/
 
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 

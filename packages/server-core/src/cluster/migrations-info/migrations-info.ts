@@ -23,21 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
-
 import {
-  StaticResourceFiltersQuery,
-  StaticResourceFiltersType
-} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+  migrationsInfoMethods,
+  migrationsInfoPath
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
 
-export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({})
+import { Application } from '../../../declarations'
+import { MigrationsInfoService } from './migrations-info.class'
+import migrationsInfoDocs from './migrations-info.docs'
+import hooks from './migrations-info.hooks'
 
-export const staticResourceFiltersExternalResolver = resolve<StaticResourceFiltersType, HookContext>({})
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [migrationsInfoPath]: MigrationsInfoService
+  }
+}
 
-export const staticResourceFiltersDataResolver = resolve<StaticResourceFiltersType, HookContext>({})
+export default (app: Application): void => {
+  const options = {
+    name: migrationsInfoPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
 
-export const staticResourceFiltersPatchResolver = resolve<StaticResourceFiltersType, HookContext>({})
+  app.use(migrationsInfoPath, new MigrationsInfoService(options), {
+    // A list of all methods this service exposes externally
+    methods: migrationsInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: migrationsInfoDocs
+  })
 
-export const staticResourceFiltersQueryResolver = resolve<StaticResourceFiltersQuery, HookContext>({})
+  const service = app.service(migrationsInfoPath)
+  service.hooks(hooks)
+}
