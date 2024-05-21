@@ -342,7 +342,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 <div className="relative h-[15px] w-full">
                   <input
                     type="text"
-                    className="absolute top-[-3px] m-0 w-full rounded-[3px] px-1 py-0.5"
+                    className="absolute top-[-3px] m-0 h-[25px] w-full rounded-lg px-1 py-0.5"
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}

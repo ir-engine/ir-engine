@@ -446,7 +446,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             searchHierarchy.set(event.target.value)
           }}
           className="bg-theme-primary m-1 rounded text-white"
-          startComponent={<HiMagnifyingGlass />}
+          startComponent={<HiMagnifyingGlass className="text-white" />}
         />
         {/* <div className="ml-[20px]">
 
@@ -460,7 +460,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           textContainerClassName="mx-0"
           onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
         >
-          {t('editor:hierarchy.lbl-addEntity')}
+          <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
         </Button>
       </div>
       <div id="heirarchy-panel" className="h-full overflow-hidden">
