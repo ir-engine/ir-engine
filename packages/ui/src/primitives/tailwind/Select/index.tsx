@@ -35,14 +35,14 @@ import Input from '../Input'
 
 export type OptionValueType = string | number
 
-export type SelectOptionsType = { label: string; value: any; disabled?: boolean }[]
+export type SelectOptionsType = { label: string; value: any; disabled?: boolean }
 
 export interface SelectProps<T extends OptionValueType> {
   label?: string
   className?: string
   error?: string
   description?: string
-  options: SelectOptionsType
+  options: SelectOptionsType[]
   currentValue: T
   onChange: (value: T) => void
   placeholder?: string
@@ -53,7 +53,6 @@ export interface SelectProps<T extends OptionValueType> {
   inputVariant?: 'outlined' | 'underlined' | 'onboarding'
   inputClassName?: string
   errorBorder?: boolean
-  onBlur: (value: string) => void
 }
 
 const Select = <T extends OptionValueType>({
@@ -71,40 +70,59 @@ const Select = <T extends OptionValueType>({
   labelClassName,
   inputVariant,
   inputClassName,
-  errorBorder,
-  onBlur
+  errorBorder
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
   const showOptions = useHookstate(false)
   const filteredOptions = useHookstate(options)
+  const selectLabel = useHookstate('')
 
-  const toggleDropdown = () => {
-    showOptions.set((v) => !v)
-  }
+  useClickOutside(ref, () => showOptions.set(false))
+
+  useEffect(() => {
+    const labelName = options.find((option) => option.value === currentValue)?.label
+    selectLabel.set(labelName || '')
+  }, [currentValue, options])
+
   useEffect(() => {
     filteredOptions.set(options)
   }, [options])
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    selectLabel.set(e.target.value)
-    const newOptions: SelectProps<T>['options'] = []
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].label.toLowerCase().startsWith(e.target.value.toLowerCase())) {
-        newOptions.push(options[i])
-      }
-    }
-    filteredOptions.set(newOptions)
+  const toggleDropdown = () => {
+    showOptions.set((v) => !v)
   }
 
-  const selectLabel = useHookstate('')
-  useEffect(() => {
-    const labelName = options.find((option) => option.value === currentValue)?.label
-    if (labelName) selectLabel.set(labelName)
-  }, [currentValue, options])
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newOptions = options.filter((item) => item.label.toLowerCase().startsWith(e.target.value.toLowerCase()))
+    if (newOptions.length > 0) {
+      filteredOptions.set(newOptions)
+      selectLabel.set(e.target.value)
+    }
 
-  useClickOutside(ref, () => showOptions.set(false))
+    const optionFound = options.find((item) => item.label === e.target.value)
+    if (optionFound) {
+      onChange(newOptions[0].value as T)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Tab') return
+
+    const optionFound = options.find((item) => item.label === e.currentTarget.value)
+    console.log('handleBlur', e.currentTarget.value, optionFound, e)
+
+    showOptions.set(false)
+    onChange(e.currentTarget.value as T)
+  }
+
+  const handleOptionItem = (option: SelectOptionsType) => {
+    if (option.disabled) return
+
+    showOptions.set(false)
+    onChange(option.value as T)
+  }
 
   return (
     <div className={twMerge('relative', className)} ref={ref}>
@@ -121,7 +139,7 @@ const Select = <T extends OptionValueType>({
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
-        onBlur={() => onBlur(selectLabel.value)}
+        onKeyDown={handleKeyDown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
@@ -145,11 +163,7 @@ const Select = <T extends OptionValueType>({
                 option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
                 menuItemClassName
               )}
-              onClick={() => {
-                if (option.disabled) return
-                showOptions.set(false)
-                onChange(option.value as T)
-              }}
+              onClick={() => handleOptionItem(option)}
             >
               {option.label}
             </li>
