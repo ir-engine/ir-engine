@@ -208,67 +208,71 @@ const execute = () => {
   const capturedEntity = getMutableState(InputState).capturingEntity
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
-  for (const sourceEid of spatialInputSourceQuery()) {
+  for (const sourceEid of inputSourceQuery()) {
+    const isSpatialInput = hasComponent(sourceEid, TransformComponent)
+
     const intersectionData = [] as {
       entity: Entity
       distance: number
     }[]
 
-    const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
-    inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+    if (isSpatialInput) {
+      const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
+      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
-    TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-    inputRay.set(inputRaycast.origin, inputRaycast.direction)
+      TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
+      inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
-    // only heuristic is scene objects when in the editor
-    if (getState(EngineState).isEditing) {
-      const pickerObj = gizmoPickerObjects() // gizmo heuristic
-      const inputObj = inputObjects()
-      raycaster.set(inputRaycast.origin, inputRaycast.direction)
-      const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
-        .map((eid) => getComponent(eid, GroupComponent))
-        .flat()
-      pickerObj.length > 0
-        ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-        : raycaster.layers.disable(ObjectLayers.TransformGizmo)
-      const hits = raycaster.intersectObjects<Object3D>(objects, true)
-      for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-        if (parentObject?.entity) {
-          intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
-        }
-      }
-    } else {
-      // 1st heuristic is XRUI
-      for (const entity of inputXRUIs()) {
-        const xrui = getComponent(entity, XRUIComponent)
-        const layerHit = xrui.hitTest(inputRay)
-        if (
-          !layerHit ||
-          !layerHit.intersection.object.visible ||
-          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-        )
-          continue
-        intersectionData.push({ entity, distance: layerHit.intersection.distance })
-      }
-
-      const physicsWorld = getState(PhysicsState).physicsWorld
-
-      // 2nd heuristic is physics colliders
-      if (physicsWorld) {
-        const hits = Physics.castRay(physicsWorld, inputRaycast)
+      // only heuristic is scene objects when in the editor
+      if (getState(EngineState).isEditing) {
+        const pickerObj = gizmoPickerObjects() // gizmo heuristic
+        const inputObj = inputObjects()
+        raycaster.set(inputRaycast.origin, inputRaycast.direction)
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
+          .map((eid) => getComponent(eid, GroupComponent))
+          .flat()
+        pickerObj.length > 0
+          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+        const hits = raycaster.intersectObjects<Object3D>(objects, true)
         for (const hit of hits) {
-          if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
-          intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
+          if (parentObject?.entity) {
+            intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
+          }
         }
-      }
+      } else {
+        // 1st heuristic is XRUI
+        for (const entity of inputXRUIs()) {
+          const xrui = getComponent(entity, XRUIComponent)
+          const layerHit = xrui.hitTest(inputRay)
+          if (
+            !layerHit ||
+            !layerHit.intersection.object.visible ||
+            (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+          )
+            continue
+          intersectionData.push({ entity, distance: layerHit.intersection.distance })
+        }
 
-      // 3rd heuristic is bboxes
-      for (const entity of inputBoundingBoxes()) {
-        const boundingBox = getComponent(entity, BoundingBoxComponent)
-        const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
-        if (hit) {
-          intersectionData.push({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+        const physicsWorld = getState(PhysicsState).physicsWorld
+
+        // 2nd heuristic is physics colliders
+        if (physicsWorld) {
+          const hits = Physics.castRay(physicsWorld, inputRaycast)
+          for (const hit of hits) {
+            if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
+            intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          }
+        }
+
+        // 3rd heuristic is bboxes
+        for (const entity of inputBoundingBoxes()) {
+          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
+          if (hit) {
+            intersectionData.push({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+          }
         }
       }
     }
@@ -278,35 +282,42 @@ const execute = () => {
 
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
     //Proximity check ONLY if we have no raycast results, as it is always lower priority
-    if (capturedEntity.value === UndefinedEntity && sortedIntersections.length === 0) {
+    if (
+      capturedEntity.value === UndefinedEntity &&
+      sortedIntersections.length === 0 &&
+      !hasComponent(sourceEid, InputPointerComponent)
+    ) {
       let closestEntity = UndefinedEntity
       let closestDistanceSquared = Infinity
 
       //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
       const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-      const inputSourceEntity = getState(XRControlsState).isCameraAttachedToAvatar ? sourceEid : selfAvatarEntity
+      const inputSourceEntity =
+        getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
-      //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
-      for (const inputEntity of spatialInputObjects()) {
-        if (inputSourceEntity === UndefinedEntity) continue
-        const inputComponent = getComponent(inputEntity, InputComponent)
-
-        TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
+      if (inputSourceEntity !== UndefinedEntity) {
         TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
 
-        const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+        //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
+        for (const inputEntity of spatialInputObjects()) {
+          const inputComponent = getComponent(inputEntity, InputComponent)
 
-        //closer than our current closest AND within inputSource's activation distance
-        if (
-          distSquared < closestDistanceSquared &&
-          inputComponent.activationDistance * inputComponent.activationDistance > distSquared
-        ) {
-          closestDistanceSquared = distSquared
-          closestEntity = inputEntity
+          TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
+
+          const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+
+          //closer than our current closest AND within inputSource's activation distance
+          if (
+            distSquared < closestDistanceSquared &&
+            inputComponent.activationDistance * inputComponent.activationDistance > distSquared
+          ) {
+            closestDistanceSquared = distSquared
+            closestEntity = inputEntity
+          }
         }
-      }
-      if (closestEntity !== UndefinedEntity) {
-        sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
+        if (closestEntity !== UndefinedEntity) {
+          sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
+        }
       }
     }
 
@@ -317,12 +328,14 @@ const execute = () => {
 
     sourceState.intersections.set(sortedIntersections)
 
+    const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
+
     //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
     if (capturedEntity.value !== UndefinedEntity) {
-      setInputSources(capturedEntity.value, [sourceEid, ...nonSpatialInputSourceQuery()])
+      setInputSources(capturedEntity.value, finalInputSources)
     } else {
       for (const intersection of sortedIntersections) {
-        setInputSources(intersection.entity, [sourceEid, ...nonSpatialInputSourceQuery()])
+        setInputSources(intersection.entity, finalInputSources)
       }
     }
   }
