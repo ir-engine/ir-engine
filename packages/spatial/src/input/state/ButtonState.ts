@@ -217,7 +217,7 @@ export enum XRStandardGamepadAxes {
 
 export type AnyButton = MouseButton | KeyboardButton | StandardGamepadButton | XRStandardGamepadButton
 
-export type ButtonStateMap = Partial<Record<AnyButton, ButtonState>>
+export type ButtonStateMap = Partial<Record<AnyButton, ButtonState | undefined>>
 
 export const DefaultBooleanButtonState = Object.freeze({ down: true, pressed: true, touched: true, value: 1 })
 
