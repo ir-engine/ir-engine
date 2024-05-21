@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
+
 import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'

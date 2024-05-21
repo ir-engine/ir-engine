@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 export const InputComponent = defineComponent({

@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { InviteType, UserName, invitePath } from '@etherealengine/common/src/schema.type.module'
+import { invitePath, InviteType, UserName } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 export default function RemoveInviteModal({ invites }: { invites: InviteType[] }) {
   const { t } = useTranslation()

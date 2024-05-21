@@ -23,38 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
-
-import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
-
+import { BadRequest } from '@feathersjs/errors'
+import { transaction } from '@feathersjs/knex'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { Knex } from 'knex'
+import slugify from 'slugify'
 
+import { locationAdminPath, LocationAdminType } from '@etherealengine/common/src/schemas/social/location-admin.schema'
+import {
+  locationAuthorizedUserPath,
+  LocationAuthorizedUserType
+} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
+import {
+  locationSettingPath,
+  LocationSettingType
+} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import {
   LocationData,
   LocationDatabaseType,
+  locationDataValidator,
   LocationID,
   LocationPatch,
-  LocationType,
-  locationDataValidator,
   locationPatchValidator,
   locationPath,
-  locationQueryValidator
+  locationQueryValidator,
+  LocationType
 } from '@etherealengine/common/src/schemas/social/location.schema'
-
-import { LocationAdminType, locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
-import {
-  LocationAuthorizedUserType,
-  locationAuthorizedUserPath
-} from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
-import {
-  LocationSettingType,
-  locationSettingPath
-} from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { BadRequest } from '@feathersjs/errors'
-import { transaction } from '@feathersjs/knex'
-import { Knex } from 'knex'
-import slugify from 'slugify'
+import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
+
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'

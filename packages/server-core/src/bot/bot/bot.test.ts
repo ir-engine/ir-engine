@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
+import { botPath, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
+import { instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { LocationID, LocationType, RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { BotType, botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
-import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { LocationID, LocationType, RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
-import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
 import { createFeathersKoaApp } from '../../createApp'

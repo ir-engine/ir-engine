@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   MessageData,
@@ -31,7 +32,6 @@ import {
   MessageQuery,
   MessageType
 } from '@etherealengine/common/src/schemas/social/message.schema'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface MessageParams extends KnexAdapterParams<MessageQuery> {}
 

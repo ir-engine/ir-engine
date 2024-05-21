@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isDev } from '@etherealengine/common/src/config'
-import { ReactorRoot, State, defineState } from '@etherealengine/hyperflux'
+import { defineState, ReactorRoot, State } from '@etherealengine/hyperflux'
+
 import { Entity } from './Entity'
 import { Query, QueryComponents } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'

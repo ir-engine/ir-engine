@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import VideocamIcon from '@mui/icons-material/Videocam'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Scrubber } from 'react-scrubber'
 
 import {
   getOptionalMutableComponent,
@@ -32,19 +34,18 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
-
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { UVOL1Component } from '@etherealengine/engine/src/scene/components/UVOL1Component'
 import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL2Component'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
+import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import { Scrubber } from 'react-scrubber'
+
 import 'react-scrubber/lib/scrubber.css'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -53,7 +54,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -247,7 +248,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={volumetricComponent.paths.value}
+        values={volumetricComponent.paths.value as string[]}
         onRelease={commitProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}

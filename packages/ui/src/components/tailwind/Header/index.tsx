@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
 import { HiUserCircle } from 'react-icons/hi2'
 
-import React from 'react'
-
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { State, useMutableState } from '@etherealengine/hyperflux'
+
 import Button from '../../../primitives/tailwind/Button'
 
 // import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitcher'
 
 const Header = (props: { mode: State<'playback' | 'capture'> }) => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const { user } = authState
   const avatarDetails = user?.avatar?.value
   return (

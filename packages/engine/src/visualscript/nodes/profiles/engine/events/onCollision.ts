@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Query, defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineQuery, Query, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { PhysicsSystem } from '@etherealengine/spatial/src/physics/PhysicsModule'
 import { CollisionComponent } from '@etherealengine/spatial/src/physics/components/CollisionComponent'
-import { NodeCategory, makeEventNodeDefinition } from '@etherealengine/visual-script'
+import { PhysicsSystem } from '@etherealengine/spatial/src/physics/PhysicsModule'
+import { makeEventNodeDefinition, NodeCategory } from '@etherealengine/visual-script'
 
 let systemCounter = 0
 

@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CircularProgress from '@mui/material/CircularProgress'
 import i18n from 'i18next'
 import React from 'react'
-
-import CircularProgress from '@mui/material/CircularProgress'
 
 import Dialog from './Dialog'
 

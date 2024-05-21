@@ -42,8 +42,8 @@ import {
 import fetch from 'cross-fetch'
 import draco3d from 'draco3dgltf'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
-import { FileLoader } from '../loaders/base/FileLoader'
 
+import { FileLoader } from '../loaders/base/FileLoader'
 import { EEMaterialExtension } from './extensions/EE_MaterialTransformer'
 import { EEResourceIDExtension } from './extensions/EE_ResourceIDTransformer'
 import { VRMExtension } from './extensions/EE_VRMTransformer'

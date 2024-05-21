@@ -31,14 +31,12 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
-
+import { instancePath, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { requestXRSession } from '@etherealengine/spatial/src/xr/XRSessionFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { instancePath, RoomCode } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 

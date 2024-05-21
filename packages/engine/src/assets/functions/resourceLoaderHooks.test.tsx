@@ -23,21 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render, renderHook } from '@testing-library/react'
 import assert from 'assert'
+import React, { useEffect } from 'react'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { ResourceState } from '@etherealengine/spatial/src/resources/ResourceState'
-import { act, render, renderHook } from '@testing-library/react'
-import React, { useEffect } from 'react'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { useGLTF, useTexture } from './resourceLoaderHooks'
 
 describe('ResourceLoaderHooks', () => {
   const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
   const gltfURL2 = '/packages/projects/default-project/assets/portal_frame.glb'
   const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
+
+  overrideFileLoaderLoad()
 
   beforeEach(async () => {
     createEngine()

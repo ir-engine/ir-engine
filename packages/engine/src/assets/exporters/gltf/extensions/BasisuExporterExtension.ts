@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { CompressedTexture, NoColorSpace, Texture } from 'three'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { LSHIndex } from '../../../functions/lshIndex'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import BufferHandlerExtension from './BufferHandlerExtension'

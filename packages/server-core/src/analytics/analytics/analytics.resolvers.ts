@@ -28,9 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { AnalyticsQuery, AnalyticsType } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const analyticsResolver = resolve<AnalyticsType, HookContext>({
   createdAt: virtual(async (analytics) => fromDateTimeSql(analytics.createdAt)),

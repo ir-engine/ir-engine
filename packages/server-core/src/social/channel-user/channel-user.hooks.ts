@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  ChannelUserType,
   channelUserDataValidator,
   channelUserPatchValidator,
   channelUserPath,
-  channelUserQueryValidator
+  channelUserQueryValidator,
+  ChannelUserType
 } from '@etherealengine/common/src/schemas/social/channel-user.schema'
-
 import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
-import verifyScope from '../../hooks/verify-scope'
-
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
+
 import { HookContext } from '../../../declarations'
 import disallowId from '../../hooks/disallow-id'
+import verifyScope from '../../hooks/verify-scope'
 import { ChannelUserService } from './channel-user.class'
 import {
   channelUserDataResolver,

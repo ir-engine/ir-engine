@@ -23,20 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { EntityUUID } from '@etherealengine/ecs'
-import { PeerID } from '@etherealengine/hyperflux'
-
-import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Engine, UUIDComponent, getOptionalComponent, removeEntity, setComponent } from '@etherealengine/ecs'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useLayoutEffect } from 'react'
+
+import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { UserID } from '@etherealengine/common/src/schema.type.module'
+import {
+  Engine,
+  EntityUUID,
+  getOptionalComponent,
+  removeEntity,
+  setComponent,
+  UUIDComponent
+} from '@etherealengine/ecs'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  PeerID,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
+import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
 import { NetworkState, SceneUser } from './NetworkState'
 import { NetworkWorldUserState } from './NetworkUserState'
-import { WorldNetworkAction } from './functions/WorldNetworkAction'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -84,7 +98,7 @@ export const EntityNetworkState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(EntityNetworkState))
+    const state = useMutableState(EntityNetworkState)
     return (
       <>
         {state.keys.map((uuid: EntityUUID) => (

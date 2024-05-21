@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
 import React from 'react'
 import { Vector3 } from 'three'
 
-import LinkIcon from '@mui/icons-material/Link'
-import LinkOffIcon from '@mui/icons-material/LinkOff'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
-
 // style inheritance
 import Scrubber from './Scrubber'
+
 import './Vector3Input.css'
 
 export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {

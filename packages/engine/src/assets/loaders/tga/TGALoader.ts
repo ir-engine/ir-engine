@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Texture } from 'three'
+
 import { FileLoader } from '../base/FileLoader'
 import { Loader } from '../base/Loader'
 

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React from 'react'
 
 import Text from '@etherealengine/client-core/src/common/components/Text'
@@ -30,8 +31,6 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import { default as MUIButton } from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-
-import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { oembedMethods, oembedPath } from '@etherealengine/common/src/schemas/media/oembed.schema'
+
 import { Application } from '../../../declarations'
 import { OembedService } from './oembed.class'
 import oembedDocs from './oembed.docs'

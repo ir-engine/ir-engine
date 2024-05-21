@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material, Object3D, Object3DEventMap, Texture } from 'three'
+
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { Material, Object3D, Object3DEventMap, Texture } from 'three'
+
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'

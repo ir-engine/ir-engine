@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
+
 import { Application } from '../../../declarations'
 import hooks from './instanceserver-load.hooks'
 

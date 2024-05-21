@@ -23,6 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tween } from '@tweenjs/tween.js'
+import {
+  AdditiveAnimationBlendMode,
+  AnimationActionLoopStyles,
+  AnimationBlendMode,
+  LoopOnce,
+  LoopPingPong,
+  LoopRepeat,
+  Material,
+  MathUtils,
+  Mesh,
+  NormalAnimationBlendMode,
+  Object3D
+} from 'three'
+
 import {
   getComponent,
   getMutableComponent,
@@ -53,20 +68,7 @@ import {
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition
 } from '@etherealengine/visual-script'
-import { Tween } from '@tweenjs/tween.js'
-import {
-  AdditiveAnimationBlendMode,
-  AnimationActionLoopStyles,
-  AnimationBlendMode,
-  LoopOnce,
-  LoopPingPong,
-  LoopRepeat,
-  Material,
-  MathUtils,
-  Mesh,
-  NormalAnimationBlendMode,
-  Object3D
-} from 'three'
+
 import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({

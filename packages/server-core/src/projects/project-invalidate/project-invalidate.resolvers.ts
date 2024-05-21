@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
 import { ProjectInvalidatePatch } from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { resolve } from '@feathersjs/schema'
 
 export const projectInvalidatePatchResolver = resolve<ProjectInvalidatePatch, HookContext>({})

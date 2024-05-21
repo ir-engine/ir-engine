@@ -24,29 +24,30 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
-  InstanceAttendanceType,
-  instanceAttendancePath
+  instanceAttendancePath,
+  InstanceAttendanceType
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { LocationAdminType, locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
-import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { scopePath, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { locationAdminPath, LocationAdminType } from '@etherealengine/common/src/schemas/social/location-admin.schema'
+import { locationBanPath, LocationBanType } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserAvatarType, userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
-import { UserSettingType, userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userAvatarPath, UserAvatarType } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
+import { userSettingPath, UserSettingType } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import { InviteCode, UserID, UserName, UserQuery, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -99,6 +100,7 @@ export const userResolver = resolve<UserType, HookContext>({
 
     return []
   }),
+  lastLogin: virtual(async (user) => (user.lastLogin ? fromDateTimeSql(user.lastLogin) : null)),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
   updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
 })

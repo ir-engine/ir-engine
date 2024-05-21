@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { NO_PROXY, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
 import {
   Box,
   Button,
@@ -40,7 +36,12 @@ import {
 } from '@mui/material'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { LODList, LODVariantDescriptor, defaultLODs } from '../../constants/GLTFPresets'
+
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+
+import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -58,16 +59,14 @@ export const ImportSettingsState = defineState({
     importFolder: '/assets/',
     LODFolder: 'LODs/'
   }),
-  onCreate: () => {
-    syncStateWithLocalStorage(ImportSettingsState, [
-      'LODsEnabled',
-      'selectedLODS',
-      'imageCompression',
-      'imageSettings',
-      'importFolder',
-      'LODFolder'
-    ])
-  }
+  extension: syncStateWithLocalStorage([
+    'LODsEnabled',
+    'selectedLODS',
+    'imageCompression',
+    'imageSettings',
+    'importFolder',
+    'LODFolder'
+  ])
 })
 
 const UASTCFlagOptions = [
@@ -195,16 +194,18 @@ const ImageCompressionBox = ({ compressProperties }) => {
 }
 
 export default function ImportSettingsPanel() {
-  const importSettingsState = useHookstate(getMutableState(ImportSettingsState))
-  const compressProperties = useHookstate(getMutableState(ImportSettingsState).imageSettings.get(NO_PROXY))
+  const importSettingsState = useMutableState(ImportSettingsState)
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings.get(NO_PROXY)
 
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
   const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    importSettingsState.selectedLODS.get(NO_PROXY)
+    importSettingsState.selectedLODS.get(NO_PROXY) as LODVariantDescriptor[]
   )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS[0].get(NO_PROXY))
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(
+    importSettingsState.selectedLODS[0].get(NO_PROXY) as LODVariantDescriptor
+  )
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
@@ -225,7 +226,7 @@ export default function ImportSettingsPanel() {
     importSettingsState.LODFolder.set(LODImportFolder)
     importSettingsState.LODsEnabled.set(LODGenEnabled)
     importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
+    importSettingsState.imageSettings.set(compressProperties)
     importSettingsState.selectedLODS.set(selectedLODS)
     handleCancel()
   }

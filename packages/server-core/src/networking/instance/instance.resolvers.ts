@@ -28,10 +28,9 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {

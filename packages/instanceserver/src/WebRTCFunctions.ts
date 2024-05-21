@@ -35,16 +35,10 @@ import {
   WebRtcServer,
   Worker
 } from 'mediasoup/node/lib/types'
+import { decode } from 'msgpackr'
 import os from 'os'
 
-import { PeerID, State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { MediaStreamAppData, NetworkState } from '@etherealengine/network'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import config from '@etherealengine/server-core/src/appconfig'
-import { config as mediaConfig, sctpParameters } from '@etherealengine/server-core/src/config'
-import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
-
+import { dispatchAction, getMutableState, getState, Identifiable, none, PeerID, State } from '@etherealengine/hyperflux'
 import {
   DataChannelRegistryState,
   DataChannelType,
@@ -57,9 +51,16 @@ import {
   MediasoupMediaProducersConsumersObjectsState,
   MediasoupTransportActions,
   MediasoupTransportObjectsState,
-  MediasoupTransportState
+  MediasoupTransportState,
+  MediaStreamAppData,
+  NetworkState
 } from '@etherealengine/network'
-import { decode } from 'msgpackr'
+import config from '@etherealengine/server-core/src/appconfig'
+import { config as mediaConfig, sctpParameters } from '@etherealengine/server-core/src/config'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
+
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -156,7 +157,10 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
       else return Promise.resolve()
     })
   )
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<
+    SocketWebRTCServerNetwork,
+    Identifiable
+  >
   networkState.transport.outgoingDataProducers[dataChannel].set(outgoingDataProducer)
 
   outgoingDataProducer.observer.on('close', () => {

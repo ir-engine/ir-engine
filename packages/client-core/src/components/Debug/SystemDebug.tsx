@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
+import { Color } from 'three'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { System, SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
@@ -38,7 +39,6 @@ import {
 import { SystemState } from '@etherealengine/ecs/src/SystemState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Color } from 'three'
 import styles from './styles.module.scss'
 
 const col = new Color()

@@ -28,6 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { assetSchema } from '../assets/asset.schema'
 import { dataValidator, queryValidator } from '../validators'

@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import {
-  Validator,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  matches
+  matches,
+  Validator
 } from '@etherealengine/hyperflux'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { Widget } from './Widgets'
 
 type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>

@@ -53,7 +53,5 @@ export const EditorHelperState = defineState({
     scaleSnap: 0.1,
     placementMode: PlacementMode.CLICK
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
-  }
+  extension: syncStateWithLocalStorage(['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
 })

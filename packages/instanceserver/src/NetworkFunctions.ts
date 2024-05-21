@@ -26,22 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import _ from 'lodash'
 import { Spark } from 'primus'
 
-import { EntityUUID } from '@etherealengine/ecs'
-import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { Action, getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
-import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
-import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import { config as mediaConfig } from '@etherealengine/server-core/src/config'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
 import {
   identityProviderPath,
   instanceAuthorizedUserPath,
@@ -56,10 +40,25 @@ import {
   UserType
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { EntityUUID } from '@etherealengine/ecs'
+import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
-import { NetworkState } from '@etherealengine/network'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import { Action, getMutableState, getState, PeerID } from '@etherealengine/hyperflux'
+import { NetworkPeerFunctions, NetworkState, updatePeers } from '@etherealengine/network'
+import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
+import { config as mediaConfig } from '@etherealengine/server-core/src/config'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import { SpawnPoseState } from '@etherealengine/spatial'
+import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
+import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 

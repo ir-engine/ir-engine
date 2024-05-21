@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Resizable } from 're-resizable'
 import React, { useEffect } from 'react'
-import UserIcon from './assets/user.svg'
 
 import { ChannelID, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { Resizable } from 're-resizable'
+
+import UserIcon from './assets/user.svg'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 import { getChannelName } from './Message'
 
 export const ChannelsList = () => {
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useMutableState(ChatState)
 
   const channelsList = useFind(channelPath)
   console.log(channelsList)

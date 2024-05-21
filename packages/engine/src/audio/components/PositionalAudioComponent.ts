@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
-
 import {
   defineComponent,
   getOptionalComponent,
@@ -37,8 +35,10 @@ import {
 } from '@etherealengine/ecs'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -108,7 +108,7 @@ export const PositionalAudioComponent = defineComponent({
     useEffect(() => {
       if (debugEnabled.value) {
         if (!mediaElement || !mediaElement.element.value) return
-        const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+        const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
         if (!audioNodes) return
         const name = getOptionalComponent(entity, NameComponent)
         setComponent(entity, PositionalAudioHelperComponent, {
@@ -124,7 +124,7 @@ export const PositionalAudioComponent = defineComponent({
 
     useEffect(() => {
       if (!mediaElement?.element.value) return
-      const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
+      const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
       if (!audioNodes?.panner) return
       audioNodes.panner.refDistance = audio.refDistance.value
       audioNodes.panner.rolloffFactor = audio.rolloffFactor.value

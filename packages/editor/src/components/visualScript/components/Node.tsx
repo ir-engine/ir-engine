@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/visual-script'
-import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6'
+
 import { useChangeNode } from '../hooks/useChangeNode'
 import { useModifyNodeSocket } from '../hooks/useModifyNodeSocket'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'

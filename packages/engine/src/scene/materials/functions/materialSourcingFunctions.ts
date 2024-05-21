@@ -23,32 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material } from 'three'
+
 import {
+  createEntity,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  createEntity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
 import { State } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  MaterialComponent,
-  MaterialComponents,
   materialByHash,
   materialByName,
+  MaterialComponent,
+  MaterialComponents,
   pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { Material } from 'three'
+
 import { MaterialExtensionPluginType } from '../../../assets/exporters/gltf/extensions/EEMaterialExporterExtension'
 import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
@@ -182,7 +184,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
 
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   setComponent(entity, NameComponent, name)
-  materialComponent.material.value.name = name
+  ;(materialComponent.material.value as Material).name = name
   materialByHash[newHash] = getComponent(entity, UUIDComponent)
   materialByName[name] = getComponent(entity, UUIDComponent)
 }

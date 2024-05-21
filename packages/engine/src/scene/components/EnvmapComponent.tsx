@@ -40,10 +40,8 @@ import {
   Vector3
 } from 'three'
 
-import { EntityUUID } from '@etherealengine/ecs'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -65,6 +63,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -200,7 +199,7 @@ export const EnvmapComponent = defineComponent({
 
     useEffect(() => {
       if (!component.envmap.value) return
-      updateEnvMap(mesh, component.envmap.value)
+      updateEnvMap(mesh, component.envmap.value as Texture)
     }, [mesh, component.envmap])
 
     useEffect(() => {
@@ -233,7 +232,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
     if (!texture) return
     texture.mapping = EquirectangularReflectionMapping
     getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+    if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value as Object3D[])
   }, [envMaptexture, uuid])
 
   useEffect(() => {

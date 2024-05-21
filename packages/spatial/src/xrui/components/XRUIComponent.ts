@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import type { WebContainer3D } from '@etherealengine/xrui'
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { XRUIState } from '../XRUIState'
 
 export const XRUIComponent = defineComponent({

@@ -23,32 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import { PopoverPosition } from '@mui/material/Popover'
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
-import { FileIcon } from './FileIcon'
-
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Vector3 } from 'three'
+
+import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
+
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
-import { FilesViewModeSettings, availableTableColumns } from './FileBrowserState'
+import { availableTableColumns, FilesViewModeSettings } from './FileBrowserState'
 import { FileDataType } from './FileDataType'
+import { FileIcon } from './FileIcon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
   const newFileName = useHookstate(fileName)
@@ -220,13 +218,12 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean>
+  isFilesLoading: boolean
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
-  refreshDirectory: () => Promise<void>
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
 }
@@ -245,7 +242,6 @@ export function FileBrowserItem({
   moveContent,
   isFilesLoading,
   addFolder,
-  refreshDirectory,
   isListView,
   staticResourceModifiedDates
 }: FileBrowserItemType) {
@@ -254,6 +250,8 @@ export function FileBrowserItem({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
+
+  const fileService = useMutation(fileBrowserPath)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -316,18 +314,14 @@ export function FileBrowserItem({
   const pasteContent = async () => {
     handleClose()
 
-    if (isFilesLoading.value) return
-    isFilesLoading.set(true)
-
-    await FileBrowserService.moveContent(
-      currentContent.current.item.fullName,
-      currentContent.current.item.fullName,
-      currentContent.current.item.path,
-      item.isFolder ? item.path + item.fullName : item.path,
-      currentContent.current.isCopy
-    )
-
-    await refreshDirectory()
+    if (isFilesLoading) return
+    fileService.update(null, {
+      oldName: currentContent.current.item.fullName,
+      newName: currentContent.current.item.fullName,
+      oldPath: currentContent.current.item.path,
+      newPath: item.isFolder ? item.path + item.fullName : item.path,
+      isCopy: currentContent.current.isCopy
+    })
   }
 
   const viewAssetProperties = () => {

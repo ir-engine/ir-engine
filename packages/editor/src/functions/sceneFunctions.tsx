@@ -29,7 +29,7 @@ import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { EntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -37,6 +37,7 @@ import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/g
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 

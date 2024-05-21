@@ -23,30 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+
 import {
-  staticResourceFiltersMethods,
-  staticResourceFiltersPath
-} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
-import { Application } from '../../../declarations'
-import { StaticResourceFiltersService } from './static-resource-filters.class'
-import staticResourceFiltersDocs from './static-resource-filters.docs'
-import hooks from './static-resource-filters.hooks'
+  MigrationsInfoQuery,
+  MigrationsInfoType
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [staticResourceFiltersPath]: StaticResourceFiltersService
-  }
-}
+export interface MigrationsInfoParams extends KnexAdapterParams<MigrationsInfoQuery> {}
 
-export default (app: Application): void => {
-  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(app), {
-    // A list of all methods this service exposes externally
-    methods: staticResourceFiltersMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: staticResourceFiltersDocs
-  })
-
-  const service = app.service(staticResourceFiltersPath)
-  service.hooks(hooks)
-}
+export class MigrationsInfoService<
+  T = MigrationsInfoType,
+  ServiceParams extends Params = MigrationsInfoParams
+> extends KnexService<MigrationsInfoType, void, MigrationsInfoParams, void> {}

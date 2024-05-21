@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue } from '@etherealengine/hyperflux'
-
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineActionQueue } from '@etherealengine/hyperflux'
+
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { PersistentAnchorActions, PersistentAnchorComponent } from './XRAnchorComponents'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'

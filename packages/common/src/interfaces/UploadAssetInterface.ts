@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarID } from '@etherealengine/common/src/schema.type.module'
+
 import { UserID } from '../schemas/user/user.schema'
 
 export type AvatarUploadArgsType = {

@@ -30,6 +30,7 @@ Ethereal Engine. All Rights Reserved.
  *
  */
 import { InstancedMesh, Object3D } from 'three'
+
 import { GLTFParser } from '../GLTFParser'
 
 export class GPUInstancingExtension {
