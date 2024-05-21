@@ -259,7 +259,6 @@ export const InteractableComponent = defineComponent({
     }
 
     if (component.uiActivationType.value === XRUIActivationType.hover || component.clickInteract.value) {
-      setComponent(entity, InputComponent)
       setComponent(entity, BoundingBoxComponent)
     }
   },

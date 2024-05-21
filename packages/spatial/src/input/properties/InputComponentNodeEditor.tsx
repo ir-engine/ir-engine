@@ -37,6 +37,7 @@ import {
   EditorComponentType,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -79,7 +80,14 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
 
   const addSink = () => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
-    commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
+
+    if (!EditorControlFunctions.hasComponentInAuthoringLayer(props.entity, InputComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true, {
+        inputSinks: JSON.parse(JSON.stringify(sinks))
+      })
+    } else {
+      commitProperties(InputComponent, { inputSinks: JSON.parse(JSON.stringify(sinks)) }, [props.entity])
+    }
   }
 
   const removeSink = (index: number) => {
