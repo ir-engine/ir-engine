@@ -36,7 +36,7 @@ import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
-import { findAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
+import { getAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -103,7 +103,7 @@ export const handlePhysicsEnterExitQueries = (physicsWorld: PhysicsWorld) => {
   }
   for (const entity of colliderQuery.enter()) {
     if (handledColliders.has(entity)) continue
-    const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+    const ancestor = getAncestorWithComponent(entity, RigidBodyComponent)
     if (ancestor) {
       const colliderDesc = Physics.createColliderDesc(entity, ancestor)
       Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)

@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 import { Vector3 } from 'three'
+import { getAncestorWithComponent } from '../../transform/components/EntityTree'
 
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
-import { findAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -85,7 +85,7 @@ export const ColliderComponent = defineComponent({
       const shape = Physics.getShape(entity)
       if (!shape || shape === component.shape.value) return
 
-      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
+      const ancestor = getAncestorWithComponent(entity, RigidBodyComponent)
       if (ancestor) {
         const physicsWorld = getState(PhysicsState).physicsWorld
         Physics.removeCollider(physicsWorld, entity)

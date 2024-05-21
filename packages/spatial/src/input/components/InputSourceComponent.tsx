@@ -92,30 +92,6 @@ export const InputSourceComponent = defineComponent({
     }
   },
 
-  getMergedButtons(inputSourceEntities = inputSourceQuery()) {
-    return Object.assign(
-      {} as ButtonStateMap,
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap
-  },
-
-  getMergedAxes(inputSourceEntities = inputSourceQuery()) {
-    const axes = [0, 0, 0, 0] as [number, number, number, number]
-    for (const eid of inputSourceEntities) {
-      const inputSource = getComponent(eid, InputSourceComponent)
-      if (inputSource.source.gamepad?.axes) {
-        for (let i = 0; i < 4; i++) {
-          // keep the largest value (positive or negative)
-          const newAxis = inputSource.source.gamepad?.axes[i] ?? 0
-          axes[i] = Math.abs(axes[i]) > Math.abs(newAxis) ? axes[i] : newAxis
-        }
-      }
-    }
-    return axes
-  },
-
   nonCapturedInputSources(entities = inputSourceQuery()) {
     return entities.filter((eid) => eid !== getState(InputState).capturingEntity)
   },
