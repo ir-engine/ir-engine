@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import { taskServerSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
-import React, { forwardRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()

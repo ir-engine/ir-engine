@@ -18,10 +18,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NullableId, ServiceInterface } from '@feathersjs/feathers'
+
 import { isDev } from '@etherealengine/common/src/config'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { ProjectInvalidatePatch } from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
-import { NullableId, ServiceInterface } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
 
 //export interface ProjectInvalidateParams extends KnexAdapterParams<ProjectInvalidateQuery> {}

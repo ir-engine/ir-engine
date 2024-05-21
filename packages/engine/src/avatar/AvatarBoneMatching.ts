@@ -30,6 +30,7 @@ import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters 
 import { Bone, Euler, Group, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
+
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
 export type MixamoBoneNames =

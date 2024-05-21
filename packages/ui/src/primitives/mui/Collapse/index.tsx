@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CollapseProps, Collapse as MuiCollapse } from '@mui/material'
 import React from 'react'
 
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
-
-import { CollapseProps, Collapse as MuiCollapse } from '@mui/material'
 
 const Collapse = (props: CollapseProps) => <MuiCollapse {...props} />
 

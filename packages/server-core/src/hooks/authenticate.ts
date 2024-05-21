@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import * as authentication from '@feathersjs/authentication'
 import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
-
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { AsyncLocalStorage } from 'async_hooks'
 import { isProvider } from 'feathers-hooks-common'
+
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+
 import config from '../appconfig'
 import { Application } from './../../declarations'
 

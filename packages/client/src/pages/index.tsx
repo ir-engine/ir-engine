@@ -31,16 +31,19 @@ import styles from '@etherealengine/client-core/src/admin/old-styles/admin.modul
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+
 import '@etherealengine/client-core/src/user/UserUISystem'
+
 import { PopupMenuState } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@etherealengine/common/src/config'
 import { getState, useMutableState } from '@etherealengine/hyperflux'
 
 import '@etherealengine/client-core/src/world/LocationModule'
 
-import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Box, Button } from '@mui/material'
+
+import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 
 import './index.scss'
 

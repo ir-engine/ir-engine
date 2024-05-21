@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hookstate, State } from '@hookstate/core'
 import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
 import { isDev } from '@etherealengine/common/src/config'
-
 import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
 
-import { State, hookstate } from '@hookstate/core'
 import { HyperFlux } from './StoreFunctions'
 
 export const ReactorReconciler = Reconciler({

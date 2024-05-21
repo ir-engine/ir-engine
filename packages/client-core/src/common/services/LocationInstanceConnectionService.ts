@@ -23,14 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Identifiable, State } from '@etherealengine/hyperflux'
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-
 import {
   InstanceID,
   instancePath,
@@ -40,6 +36,9 @@ import {
   RoomCode
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState, Identifiable, State, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 

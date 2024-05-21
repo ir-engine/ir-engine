@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useMutableState } from '@etherealengine/hyperflux'
-
 import { useQuery } from '@etherealengine/ecs'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
+
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from './styles.module.scss'

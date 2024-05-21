@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LuInfo } from 'react-icons/lu'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
@@ -33,9 +37,8 @@ import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { LuInfo } from 'react-icons/lu'
+
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -67,13 +70,7 @@ export default function UpdateEngineModal() {
   }, [user])
 
   const selectCommitTagOptions = projectState.builderTags.value.map((builderTag) => {
-    const pushedDate = new Date(builderTag.pushedAt).toLocaleString('en-us', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
-    })
+    const pushedDate = toDisplayDateTime(builderTag.pushedAt)
     return {
       value: builderTag.tag,
       label: `Commit ${builderTag.commitSHA?.slice(0, 8)} -- ${
@@ -189,7 +186,7 @@ export default function UpdateEngineModal() {
             </div>
             <div className="grid gap-2">
               {projectState.projects.value
-                .filter((project) => project.name !== 'default-project' && project.repositoryPath.length > 0)
+                .filter((project) => project.name !== 'default-project' && project.repositoryPath)
                 .map((project) => (
                   <div key={project.id} className="bg-theme-surfaceInput border-theme-primary border px-3.5 py-5">
                     <Checkbox

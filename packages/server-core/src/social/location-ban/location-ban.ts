@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  LocationBanType,
   locationBanMethods,
-  locationBanPath
+  locationBanPath,
+  LocationBanType
 } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 
 import { Application } from '../../../declarations'

@@ -27,8 +27,6 @@ import { VRM, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { AnimationAction, Group, Matrix4, SkeletonHelper, Vector3 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   getComponent,
@@ -39,17 +37,18 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { AnimationState } from '../AnimationManager'
 import { preloadedAnimations } from '../animation/Util'
+import { AnimationState } from '../AnimationManager'
 import {
   retargetAvatarAnimations,
   setAvatarSpeedFromRootMotion,

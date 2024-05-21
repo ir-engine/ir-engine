@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { TablePagination as MuiTablePagination, TablePaginationProps } from '@mui/material'
+import React from 'react'
 
 const TablePagination = (props: TablePaginationProps & { component?: string }) => <MuiTablePagination {...props} />
 

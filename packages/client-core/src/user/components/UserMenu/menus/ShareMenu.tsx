@@ -35,18 +35,18 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import multiLogger from '@etherealengine/common/src/logger'
+import { InviteCode, InviteData } from '@etherealengine/common/src/schema.type.module'
 import { useMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isShareAvailable } from '@etherealengine/spatial/src/common/functions/DetectFeatures'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { InviteCode, InviteData } from '@etherealengine/common/src/schema.type.module'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
-import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 

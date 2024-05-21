@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { useHookstate } from '@etherealengine/hyperflux'
-
 import Pause from '@mui/icons-material/Pause'
 import PlayArrow from '@mui/icons-material/PlayArrow'
+import React from 'react'
 
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {

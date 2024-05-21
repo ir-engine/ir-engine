@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import Grid from '@mui/material/Grid'
+import React from 'react'
 
 import { InfoTooltip } from '../layout/Tooltip'
 import { InputGroupContainer, InputGroupContent } from './InputGroup'

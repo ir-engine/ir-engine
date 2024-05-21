@@ -35,6 +35,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches, useMutableState } from '@etherealengine/hyperflux'
+
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../resources/resourceHooks'
 import { RendererState } from '../RendererState'

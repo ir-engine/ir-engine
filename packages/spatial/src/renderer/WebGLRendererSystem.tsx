@@ -25,21 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
-import {
-  ECSState,
-  Entity,
-  PresentationSystemGroup,
-  QueryReactor,
-  defineComponent,
-  defineQuery,
-  defineSystem,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -47,23 +32,37 @@ import {
   Color,
   CubeTexture,
   FogBase,
-  SRGBColorSpace,
   Scene,
+  SRGBColorSpace,
   Texture,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters
 } from 'three'
-import { EngineState } from '../EngineState'
+
+import {
+  defineComponent,
+  defineQuery,
+  defineSystem,
+  ECSState,
+  Entity,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  PresentationSystemGroup,
+  QueryReactor,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { EngineState } from '../EngineState'
 import { getNestedChildren } from '../transform/components/EntityTree'
-import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
+import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
-import { PerformanceManager } from './PerformanceState'
-import { RendererState } from './RendererState'
-import WebGL from './THREE.WebGL'
 import { GroupComponent } from './components/GroupComponent'
 import {
   BackgroundComponent,
@@ -76,6 +75,9 @@ import { ObjectLayers } from './constants/ObjectLayers'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
+import { PerformanceManager } from './PerformanceState'
+import { RendererState } from './RendererState'
+import WebGL from './THREE.WebGL'
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',

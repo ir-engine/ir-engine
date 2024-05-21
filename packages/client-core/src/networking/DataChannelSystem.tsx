@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
+import { decode } from 'msgpackr'
+import React, { useEffect } from 'react'
+
 import logger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -45,9 +49,7 @@ import {
   NetworkState,
   NetworkTopics
 } from '@etherealengine/network'
-import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
-import { decode } from 'msgpackr'
-import React, { useEffect } from 'react'
+
 import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 import { ClientNetworkingSystem } from './ClientNetworkingSystem'
 

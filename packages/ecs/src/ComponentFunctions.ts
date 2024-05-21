@@ -28,9 +28,9 @@ Ethereal Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
+import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -49,9 +49,9 @@ import {
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
+import { defineQuery } from './QueryFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
-import { defineQuery } from './QueryFunctions'
 
 /**
  * @description

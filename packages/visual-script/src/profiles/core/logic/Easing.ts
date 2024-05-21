@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EasingFunctions, EasingModes, NodeCategory, makeFunctionNodeDefinition } from '../../../VisualScriptModule'
+import { EasingFunctions, EasingModes, makeFunctionNodeDefinition, NodeCategory } from '../../../VisualScriptModule'
 
 export const Easing = makeFunctionNodeDefinition({
   typeName: 'math/easing',

@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import knex from 'knex'
-/* eslint-disable @typescript-eslint/no-var-requires */
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import dotenv from 'dotenv-flow'
+import knex from 'knex'
+
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 
 dotenv.config({
   path: appRootPath.path,

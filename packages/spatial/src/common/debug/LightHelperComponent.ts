@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import {
   Camera,
@@ -39,6 +37,10 @@ import {
   SpotLight,
   SpotLightHelper
 } from 'three'
+
+import { defineComponent, Entity, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 

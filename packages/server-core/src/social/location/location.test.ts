@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'

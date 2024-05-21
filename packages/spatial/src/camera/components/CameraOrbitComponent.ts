@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent } from '@etherealengine/ecs'
 import { Vector3 } from 'three'
 import matches from 'ts-matches'
+
+import { defineComponent, Entity } from '@etherealengine/ecs'
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',

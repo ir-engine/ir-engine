@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CloudIcon from '@mui/icons-material/Cloud'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -30,8 +31,6 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
-
-import CloudIcon from '@mui/icons-material/Cloud'
 
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -42,7 +41,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24

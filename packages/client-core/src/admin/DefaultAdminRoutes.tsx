@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
 import React, { lazy } from 'react'
 import { HiOutlineCube } from 'react-icons/hi'
 import {
@@ -38,6 +37,9 @@ import {
   HiUserCircle
 } from 'react-icons/hi2'
 import { RiSendPlaneFill } from 'react-icons/ri'
+
+import { clientSettingPath } from '@etherealengine/common/src/schema.type.module'
+
 import { AdminRouteStateType } from './AllowedAdminRoutesState'
 
 const Avatars = lazy(() => import('./components/avatar'))

@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { AddOutlined, CancelOutlined } from '@mui/icons-material'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { XYPosition, useReactFlow } from 'reactflow'
+import { useReactFlow, XYPosition } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { NodetoEnginetype } from '@etherealengine/engine'
+import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
+
 import { Button, PropertiesPanelButton } from '../../inputs/Button'
 import ParameterInput from '../../inputs/ParameterInput'
 import SelectInput from '../../inputs/SelectInput'
@@ -41,9 +42,9 @@ import CollapsibleBlock from '../../layout/CollapsibleBlock'
 import PaginatedList from '../../layout/PaginatedList'
 import Panel from '../../layout/Panel'
 import NodeEditor from '../../properties/NodeEditor'
-import { useVisualScriptFlow, visualToFlow } from '../VisualScriptUIModule'
 import { useTemplateHandler } from '../hooks/useTemplateHandler'
 import { useVariableHandler } from '../hooks/useVariableHandler'
+import { useVisualScriptFlow, visualToFlow } from '../VisualScriptUIModule'
 import { Examples } from './modals/LoadModal'
 
 type templateHandler = ReturnType<typeof useTemplateHandler>

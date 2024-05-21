@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex/lib'
 
 import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {}
 

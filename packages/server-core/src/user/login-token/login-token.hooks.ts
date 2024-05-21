@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import moment from 'moment'
 
 import {
   loginTokenDataValidator,
   loginTokenPatchValidator,
   loginTokenQueryValidator
 } from '@etherealengine/common/src/schemas/user/login-token.schema'
-import { HookContext } from '../../../declarations'
-
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { BadRequest } from '@feathersjs/errors'
-import moment from 'moment'
+
+import { HookContext } from '../../../declarations'
 import { LoginTokenService } from './login-token.class'
 import {
   loginTokenDataResolver,

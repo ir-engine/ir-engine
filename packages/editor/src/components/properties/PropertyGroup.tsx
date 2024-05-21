@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Fragment } from 'react'
-
 import CloseIcon from '@mui/icons-material/Close'
+import React, { Fragment } from 'react'
 
 import './PropertyGroup.css'
 

@@ -27,8 +27,8 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 
 import {
-  InstanceAttendanceType,
-  instanceAttendancePath
+  instanceAttendancePath,
+  InstanceAttendanceType
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
 import {
   InviteCodeLookupQuery,

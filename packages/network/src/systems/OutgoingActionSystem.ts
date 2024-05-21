@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { dispatchAction } from '@etherealengine/hyperflux'
+
+import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
 import { Network } from '../Network'
 import { NetworkActions, PeersUpdateType } from '../NetworkState'
-import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
 
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {

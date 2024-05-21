@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
@@ -30,8 +33,7 @@ import { EditorComponentType } from '@etherealengine/editor/src/components/prope
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { grabbableInteractMessage } from '@etherealengine/engine/src/interaction/functions/grabbableFunctions'
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {

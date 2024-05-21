@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import knex from 'knex'
 
-import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
-
 import { ClientSettingDatabaseType, clientSettingPath } from '../../common/src/schemas/setting/client-setting.schema'
+import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
 
 export const getClientSetting = async () => {
   const knexClient = knex({
