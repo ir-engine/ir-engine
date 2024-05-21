@@ -131,6 +131,7 @@ describe('UUIDComponent', () => {
       setComponent(entity1, UUIDComponent, TestUUID)
       const testEntity = UUIDComponent.getEntityByUUID(TestUUID)
       assert.equal(testEntity, UUIDComponent.entitiesByUUIDState[TestUUID].value)
+      assert.equal(testEntity, entity1)
     })
 
     it('should return the correct entity when its UUIDComponent is removed and added back with a different UUID', () => {
