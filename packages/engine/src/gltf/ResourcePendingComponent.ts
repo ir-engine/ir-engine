@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  Entity,
   defineComponent,
+  Entity,
   getMutableComponent,
   getOptionalMutableComponent,
   removeComponent,

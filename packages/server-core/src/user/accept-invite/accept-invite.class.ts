@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
-
-import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { v4 as uuidv4 } from 'uuid'
 
 import { InstanceID, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { ScopeType, ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
@@ -34,14 +34,14 @@ import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/sch
 import { ChannelType, channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
+import { LocationID, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 

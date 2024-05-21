@@ -28,7 +28,8 @@ import i18n from 'i18next'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { cleanString } from '@etherealengine/common/src/utils/cleanString'
+import { EntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -36,6 +37,7 @@ import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/g
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -57,14 +59,16 @@ export const deleteScene = async (sceneID: string): Promise<any> => {
   return true
 }
 
-export const renameScene = async (id: string, name: string, params?: AssetParams) => {
+export const renameScene = async (id: string, newURL: string, params?: AssetParams) => {
   try {
-    return await Engine.instance.api.service(assetPath).patch(id, { name }, params)
+    return await Engine.instance.api.service(assetPath).patch(id, { assetURL: newURL }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
   }
 }
+
+const fileServer = config.client.fileServer
 
 export const saveSceneGLTF = async (
   sceneAssetID: string | null,
@@ -77,22 +81,22 @@ export const saveSceneGLTF = async (
   const { rootEntity } = getState(EditorState)
   const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
 
-  const sceneName = sceneFile!.replace('.scene.json', '').replace('.gltf', '')
+  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
 
   const gltfData = getState(GLTFSnapshotState)[sourceID].snapshots.at(-1)
 
   const blob = [JSON.stringify(gltfData, null, 2)]
   const file = new File(blob, `${sceneName}.gltf`)
-  const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file]).promises)
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
-  const assetURL = new URL(newPath).pathname.slice(1) // remove leading slash
-
-  const sceneNameWithoutExtension = sceneName.replace('.scene.json', '').replace('.gltf', '')
+  const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
-    const result = await Engine.instance.api
-      .service(assetPath)
-      .patch(sceneAssetID, { name: sceneNameWithoutExtension, assetURL, project: projectName })
+    const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
+
+    // no need to update state if the assetURL is the same
+    if (getState(EditorState).scenePath === result.assetURL && getState(EditorState).sceneAssetID === result.id) return
 
     getMutableState(EditorState).merge({
       sceneName,
@@ -103,9 +107,7 @@ export const saveSceneGLTF = async (
 
     return
   }
-  const result = await Engine.instance.api
-    .service(assetPath)
-    .create({ name: sceneNameWithoutExtension, assetURL, project: projectName })
+  const result = await Engine.instance.api.service(assetPath).create({ assetURL, project: projectName, isScene: true })
 
   getMutableState(EditorState).merge({
     sceneName,
@@ -120,25 +122,26 @@ export const onNewScene = async () => {
   if (!projectName) return
 
   try {
-    const sceneData = await createNewScene(projectName)
+    const sceneData = await Engine.instance.api.service(assetPath).create({
+      project: projectName,
+      isScene: true,
+      sourceURL: 'projects/default-project/public/scenes/default.gltf',
+      assetURL: `projects/${projectName}/public/scenes/New-Scene.gltf`
+    })
     if (!sceneData) return
+    const sceneName = sceneData.assetURL.split('/').pop()
+    const newProjectName = sceneData.projectName
 
-    getMutableState(EditorState).scenePath.set(sceneData.assetURL as any)
+    getMutableState(EditorState).merge({
+      sceneName,
+      scenePath: sceneData.assetURL,
+      projectName: newProjectName,
+      sceneAssetID: sceneData.id
+    })
   } catch (error) {
     logger.error(error)
   }
 }
-
-export const createNewScene = async (projectName: string, params?: AssetParams) => {
-  try {
-    return Engine.instance.api.service(assetPath).create({ project: projectName }, params)
-  } catch (error) {
-    logger.error(error, 'Error in creating project')
-    throw error
-  }
-}
-
-const fileServer = config.client.fileServer
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)

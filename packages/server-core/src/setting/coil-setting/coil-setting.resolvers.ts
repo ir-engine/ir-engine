@@ -28,10 +28,9 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { CoilSettingQuery, CoilSettingType } from '@etherealengine/common/src/schemas/setting/coil-setting.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const coilSettingResolver = resolve<CoilSettingType, HookContext>({
   createdAt: virtual(async (coilSetting) => fromDateTimeSql(coilSetting.createdAt)),

@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEdges, useNodes } from 'reactflow'
 
 import { VariableJSON } from '@etherealengine/visual-script'
-import { useTranslation } from 'react-i18next'
+
 import { NodeSpecGenerator } from '../../hooks/useNodeSpecGenerator'
 import { flowToVisual } from '../../transformers/flowToVisual'
 import { Modal } from './Modal'

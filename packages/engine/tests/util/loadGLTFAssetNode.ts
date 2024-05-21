@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
 
 const toArrayBuffer = (buf) => {
@@ -37,18 +38,24 @@ const toArrayBuffer = (buf) => {
   return arrayBuffer
 }
 
-export function overrideFileLoaderLoad() {
-  FileLoader.prototype.load = overrideLoad
+const original = FileLoader.prototype.load
 
-  function overrideLoad(url, onLoad, onProgress, onError) {
-    try {
-      const assetPathAbsolute = path.join(appRootPath.path, url)
-      const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-      onLoad(buffer)
-    } catch (e) {
-      onError(e)
+export function overrideFileLoaderLoad() {
+  beforeEach(() => {
+    function overrideLoad(url, onLoad, onProgress, onError) {
+      try {
+        const assetPathAbsolute = path.join(appRootPath.path, url)
+        const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
+        onLoad(buffer)
+      } catch (e) {
+        onError(e)
+      }
     }
-  }
+    FileLoader.prototype.load = overrideLoad
+  })
+  afterEach(() => {
+    FileLoader.prototype.load = original
+  })
 }
 
 // export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {

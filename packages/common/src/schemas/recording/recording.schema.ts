@@ -19,9 +19,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 import { UserID } from '../user/user.schema'

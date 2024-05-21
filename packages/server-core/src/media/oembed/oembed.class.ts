@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
 import { OembedType } from '@etherealengine/common/src/schemas/media/oembed.schema'
-import { RouteType, routePath } from '@etherealengine/common/src/schemas/route/route.schema'
-import { ClientSettingType, clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import { ServerSettingType, serverSettingPath } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
-import { BadRequest } from '@feathersjs/errors'
+import { routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
+import { clientSettingPath, ClientSettingType } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
+import { serverSettingPath, ServerSettingType } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
+
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 

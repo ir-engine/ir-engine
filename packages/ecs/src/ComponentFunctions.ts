@@ -28,9 +28,9 @@ Ethereal Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
+import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -39,6 +39,7 @@ import { getNestedObject } from '@etherealengine/common/src/utils/getNestedPrope
 import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
+  InferStateValueType,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
@@ -48,9 +49,9 @@ import {
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
+import { defineQuery } from './QueryFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
-import { defineQuery } from './QueryFunctions'
 
 /**
  * @description
@@ -169,7 +170,7 @@ export interface Component<
 /** @todo Describe this type */
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
-export type ComponentType<C extends Component> = NonNullable<C['stateMap'][Entity]>['value']
+export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */

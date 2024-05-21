@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { builderInfoMethods, builderInfoPath } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
+
 import { Application } from '../../../declarations'
 import { BuilderInfoService } from './builder-info.class'
 import builderInfoDocs from './builder-info.docs'

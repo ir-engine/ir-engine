@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
-
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { useMutableState } from '@etherealengine/hyperflux'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
   const { t } = useTranslation()
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   const toggleDebug = () => {
     rendererState.physicsDebug.set(!rendererState.physicsDebug.value)

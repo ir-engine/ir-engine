@@ -26,20 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
 import { Engine } from '@etherealengine/ecs'
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+
 import { NameComponent } from '../common/NameComponent'
 import { PhysicsState } from '../physics/state/PhysicsState'
-import { RendererState } from '../renderer/RendererState'
-import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
+import { RendererState } from '../renderer/RendererState'
+import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 
@@ -58,7 +58,7 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
     /** @todo move physics debug to physics module */

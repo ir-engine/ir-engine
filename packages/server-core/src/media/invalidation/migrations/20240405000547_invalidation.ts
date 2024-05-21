@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import type { Knex } from 'knex'
+
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 
 export async function up(knex: Knex): Promise<void> {
   // Added transaction here in order to ensure both below queries run on same pool.

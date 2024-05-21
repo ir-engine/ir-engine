@@ -23,39 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { MathUtils, Scene, Vector3 } from 'three'
+
 import { fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
+  createEntity,
   Engine,
   EntityUUID,
-  UUIDComponent,
-  UndefinedEntity,
-  createEntity,
   getComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  UndefinedEntity,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { SceneState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import React, { useEffect } from 'react'
-import { MathUtils, Scene, Vector3 } from 'three'
+
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -112,7 +114,7 @@ export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {} as ThumbnailJob,
   reactor: () => {
-    const state = useHookstate(getMutableState(FileThumbnailJobState))
+    const state = useMutableState(FileThumbnailJobState)
     return (
       <>
         {state.keys.map((key) => (
@@ -152,7 +154,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     entity: UndefinedEntity
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
-  const sceneState = useHookstate(getMutableState(SceneState).scenes) // for model rendering
+  const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
   const [tex] = useTexture(state.fileType.value === 'texture' ? props.src : '') // for texture loading
 
   // Load and render image

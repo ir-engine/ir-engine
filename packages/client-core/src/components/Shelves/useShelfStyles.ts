@@ -23,15 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 import { AppState } from '../../common/services/AppService'
 import shelfStyles from './index.module.scss'
 
 export const useShelfStyles = () => {
-  const appState = useHookstate(getMutableState(AppState))
+  const appState = useMutableState(AppState)
   return {
     topShelfStyle: appState.showTopShelf.value ? shelfStyles.animateTop : shelfStyles.fadeOutTop,
     bottomShelfStyle: appState.showBottomShelf.value ? shelfStyles.animateBottom : shelfStyles.fadeOutBottom

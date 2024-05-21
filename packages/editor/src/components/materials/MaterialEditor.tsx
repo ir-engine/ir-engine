@@ -23,28 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
-import { Texture } from 'three'
-
-import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
-
-import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
-import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import { Box, Divider, Stack } from '@mui/material'
+import React, { useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Texture } from 'three'
 
-import { EntityUUID, UUIDComponent, getComponent, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, getMutableComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
+import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
   MaterialComponent,
   MaterialComponents,
   pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { useTranslation } from 'react-i18next'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
@@ -146,6 +145,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   prototypeName.set(material.type)
 
   const parameters = useHookstate(0)
+
   return (
     <div style={{ position: 'relative' }}>
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -186,7 +186,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         values={materialComponent.parameters.value!}
         onChange={(k) => async (val) => {
           let prop
-          if (prototype.prototypeArguments![k].type === 'texture' && typeof val === 'string') {
+          if (prototype.prototypeArguments[k].type.value === 'texture') {
             if (val) {
               const priorUnload = textureUnloadMap.get(NO_PROXY)[k]
               if (priorUnload) {
@@ -232,7 +232,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         <Button
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]!]
+              pluginEntities: [pluginByName[selectedPlugin.value]]
             })
           }}
         >

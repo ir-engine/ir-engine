@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@etherealengine/ecs'
-import { profile } from '@etherealengine/ecs/src/Timer'
-import { State, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
 import { Camera, Scene } from 'three'
+
+import { ECSState } from '@etherealengine/ecs'
+import { profile } from '@etherealengine/ecs/src/Timer'
+import { defineState, getMutableState, getState, State, useMutableState } from '@etherealengine/hyperflux'
+import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 
@@ -146,7 +148,6 @@ export const PerformanceState = defineState({
       const { averageRenderTime, maxRenderTime, minRenderTime, averageSystemTime, maxSystemTime, minSystemTime } =
         performanceState.value
 
-      console.log()
       const renderMean = averageRenderTime.mean
       if (renderMean > maxRenderTime) {
         decrementGPUPerformance()

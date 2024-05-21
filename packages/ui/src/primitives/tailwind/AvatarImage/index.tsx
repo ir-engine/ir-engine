@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import { useHookstate } from '@etherealengine/hyperflux'
 
 const sizes = {
   extraSmall: 'w-6 h-6',

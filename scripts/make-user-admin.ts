@@ -24,18 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
+import cli from 'cli'
+import dotenv from 'dotenv-flow'
 import knex from 'knex'
 import { v4 as uuidv4 } from 'uuid'
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 import {
   ScopeID,
-  ScopeTypeInterface,
-  UserType,
   scopePath,
-  userPath
+  ScopeTypeInterface,
+  userPath,
+  UserType
 } from '@etherealengine/common/src/schema.type.module'
-import cli from 'cli'
-import dotenv from 'dotenv-flow'
 
 const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 

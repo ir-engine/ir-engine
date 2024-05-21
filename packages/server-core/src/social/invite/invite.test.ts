@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
-import { InviteType, invitePath } from '@etherealengine/common/src/schemas/social/invite.schema'
-import { LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
-import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
+
+import { inviteTypes } from '@etherealengine/common/src/schemas/social/invite-type.schema'
+import { invitePath, InviteType } from '@etherealengine/common/src/schemas/social/invite.schema'
+import { LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
 import { createFeathersKoaApp } from '../../createApp'

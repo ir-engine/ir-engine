@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State, useHookstate } from '@hookstate/core'
 import { useEffect, useState } from 'react'
+
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 export const useHookstateFromFactory = <T>(cb: (...any) => T): State<T> => {
   const state = useHookstate({} as T)

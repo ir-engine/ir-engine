@@ -33,15 +33,17 @@ import { NotificationState } from '@etherealengine/client-core/src/common/servic
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme } from '@mui/material/styles'
+import { useTranslation } from 'react-i18next'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { useTranslation } from 'react-i18next'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useMutableState } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from './themeContext'
 
@@ -55,11 +57,11 @@ declare module '@mui/styles/defaultTheme' {
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useHookstate(getMutableState(AuthState))
-  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
+  const authState = useMutableState(AuthState)
+  const isLoggedIn = useMutableState(AuthState).isLoggedIn
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
-  const notificationstate = useHookstate(getMutableState(NotificationState))
+  const notificationstate = useMutableState(NotificationState)
   const { t } = useTranslation()
 
   useEffect(() => {

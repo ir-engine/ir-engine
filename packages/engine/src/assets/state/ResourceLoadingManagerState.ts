@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { ResourceManager, ResourceState, ResourceStatus } from '@etherealengine/spatial/src/resources/ResourceState'
 import { useEffect } from 'react'
 import { DefaultLoadingManager, LoadingManager } from 'three'
+
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { ResourceManager, ResourceState, ResourceStatus } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 
 export const ResourceLoadingManagerState = defineState({

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   LocationData,
@@ -32,8 +32,6 @@ import {
   LocationQuery,
   LocationType
 } from '@etherealengine/common/src/schemas/social/location.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
 

@@ -22,18 +22,19 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
-import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
 
-import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { instancePath, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
+import { Application } from '../../../declarations'
+import { createFeathersKoaApp } from '../../createApp'
 
 describe('channel-user service', () => {
   let app: Application

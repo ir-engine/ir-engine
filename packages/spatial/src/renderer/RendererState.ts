@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { isIPhone } from '../common/functions/isMobile'
 import { RenderModes, RenderModesType } from './constants/RenderModes'
 
@@ -49,20 +49,18 @@ export const RendererState = defineState({
     infiniteGridHelperEntity: null as Entity | null,
     physicsDebugEntity: null as Entity | null
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(RendererState, [
-      'qualityLevel',
-      'automatic',
-      // 'usePBR',
-      'usePostProcessing',
-      'useShadows',
-      'physicsDebug',
-      'bvhDebug',
-      'avatarDebug',
-      'renderMode',
-      'nodeHelperVisibility',
-      'gridVisibility',
-      'gridHeight'
-    ])
-  }
+  extension: syncStateWithLocalStorage([
+    'qualityLevel',
+    'automatic',
+    // 'usePBR',
+    'usePostProcessing',
+    'useShadows',
+    'physicsDebug',
+    'bvhDebug',
+    'avatarDebug',
+    'renderMode',
+    'nodeHelperVisibility',
+    'gridVisibility',
+    'gridHeight'
+  ])
 })

@@ -32,7 +32,7 @@ import { ShadowComponent } from '@etherealengine/engine/src/scene/components/Sha
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.

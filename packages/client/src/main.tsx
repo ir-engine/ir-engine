@@ -29,8 +29,8 @@ import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
 // tslint:disable:ordered-imports
@@ -57,17 +57,6 @@ const App = () => {
       <BrowserRouter history={history}>
         <Routes>
           {/* @todo - these are for backwards compatibility with non tailwind pages - they will be removed eventually */}
-          <Route
-            key="adminold"
-            path="/adminold/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'adminold'} />
-                </Engine>
-              </Suspense>
-            }
-          />
           <Route
             key="location"
             path="/location/*"

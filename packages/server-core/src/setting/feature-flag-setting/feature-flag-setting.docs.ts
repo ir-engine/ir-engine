@@ -22,3 +22,25 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  featureFlagSettingDataSchema,
+  featureFlagSettingPatchSchema,
+  featureFlagSettingQuerySchema,
+  featureFlagSettingSchema
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    featureFlagSettingDataSchema,
+    featureFlagSettingPatchSchema,
+    featureFlagSettingQuerySchema,
+    featureFlagSettingSchema
+  },
+  docs: {
+    description: 'Featre flag setting service description',
+    securities: ['all']
+  }
+})

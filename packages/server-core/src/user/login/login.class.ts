@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { LoginTokenType, loginTokenPath } from '@etherealengine/common/src/schemas/user/login-token.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { loginTokenPath, LoginTokenType } from '@etherealengine/common/src/schemas/user/login-token.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
@@ -55,7 +56,6 @@ export class LoginService implements ServiceInterface {
    */
   async get(id: Id, params?: LoginParams) {
     try {
-      const identityProviderService = this.app.service(identityProviderPath)
       if (!id) {
         logger.info('Invalid login token id, cannot be null or undefined')
         return {
@@ -93,18 +93,12 @@ export class LoginService implements ServiceInterface {
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
 
-      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-        { accessToken: token },
-        {}
-      )
-
-      const identityProviderGuest = (await identityProviderService.find()).data.find(
-        (identityProvider) => identityProvider.userId === authResult[identityProviderPath].userId
-      )
-
-      if (identityProviderGuest?.type === 'guest') {
-        await identityProviderService.remove(identityProviderGuest?.id)
-      }
+      await this.app.service(identityProviderPath).remove(null, {
+        query: {
+          userId: identityProvider.userId,
+          type: 'guest'
+        }
+      })
 
       await this.app.service(loginTokenPath).remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {

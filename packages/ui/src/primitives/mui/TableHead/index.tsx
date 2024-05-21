@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-
 import { TableHead as MuiTableHead } from '@mui/material'
+import React, { ReactNode } from 'react'
 
 export interface Props {
   children: ReactNode

@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useLayoutEffect } from 'react'
+
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import React, { useLayoutEffect } from 'react'
+
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
@@ -52,7 +54,7 @@ export const AvatarIKTargetState = defineState({
   },
 
   reactor: () => {
-    const avatarIKTargetState = useHookstate(getMutableState(AvatarIKTargetState))
+    const avatarIKTargetState = useMutableState(AvatarIKTargetState)
     return (
       <>
         {avatarIKTargetState.keys.map((entityUUID: EntityUUID) => (

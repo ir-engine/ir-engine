@@ -43,20 +43,19 @@ import {
   TextureLoader
 } from 'three'
 
-import { FileLoader } from '../loaders/base/FileLoader'
-
-import { getState } from '@etherealengine/hyperflux'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -231,6 +230,13 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     if (/\.(material.gltf)$/.test(assetFileName)) {
       console.log('Material asset')
       return AssetClass.Material
+    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
+      console.log('Lookdev asset')
+      return AssetClass.Lookdev
+    }
+    if (/\.(prefab.gltf)$/.test(assetFileName)) {
+      console.log('prefab asset')
+      return AssetClass.Prefab
     }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
@@ -338,6 +344,10 @@ const assetLoadCallback =
     if (assetClass === AssetClass.Material) {
       const material = asset as Material
       material.userData.type = assetType
+    }
+    if (assetClass === AssetClass.Prefab) {
+      //load prefab gltf without parent model
+      const gltf = asset as GLTF
     }
     if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
       const texture = asset as Texture

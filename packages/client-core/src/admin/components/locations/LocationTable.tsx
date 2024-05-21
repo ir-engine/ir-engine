@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { LocationType, locationPath } from '@etherealengine/common/src/schema.type.module'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { locationPath, LocationType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
+
 import { userHasAccess } from '../../../user/userHasAccess'
+import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
-import { LocationRowType, locationColumns } from '../../common/constants/location'
 import AddEditLocationModal from './AddEditLocationModal'
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
@@ -77,7 +77,11 @@ export default function LocationTable({ search }: { search: string }) {
   const createRows = (rows: readonly LocationType[]): LocationRowType[] =>
     rows.map((row) => ({
       name: <a href={`/location/${transformLink(row.name)}`}>{row.name}</a>,
-      sceneId: <a href={`/studio/${row.sceneId.split('/')[0]}`}>{row.sceneId}</a>,
+      sceneId: (
+        <a href={`/studio?projectName=${row.sceneAsset.projectName}&scenePath=${row.sceneAsset.assetURL}`}>
+          {row.sceneId}
+        </a>
+      ),
       maxUsersPerInstance: row.maxUsersPerInstance.toString(),
       scene: row.slugifiedName,
       locationType: row.locationSetting.locationType,

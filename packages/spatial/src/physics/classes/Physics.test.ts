@@ -31,6 +31,7 @@ import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -38,12 +39,12 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
+  getTagComponentForRigidBody,
   RigidBodyComponent,
-  RigidBodyFixedTagComponent,
-  getTagComponentForRigidBody
+  RigidBodyFixedTagComponent
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
@@ -317,14 +318,13 @@ describe('Physics', () => {
     setComponent(entity1, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: AllCollisionMask
     })
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
+      collisionMask: AllCollisionMask
     })
-    setComponent(entity1, TriggerComponent)
     setComponent(entity2, TriggerComponent)
 
     handlePhysicsEnterExitQueries(physicsWorld)

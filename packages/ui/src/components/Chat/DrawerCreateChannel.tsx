@@ -31,10 +31,10 @@ import { FriendService, FriendState } from '@etherealengine/client-core/src/soci
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export const DrawerCreateChannel = () => {
-  const friendState = useHookstate(getMutableState(FriendState))
+  const friendState = useMutableState(FriendState)
 
   useEffect(() => {
     FriendService.getUserRelationship(Engine.instance.userID)
@@ -52,7 +52,7 @@ export const DrawerCreateChannel = () => {
     })
 
   const createChannel = () => {
-    ChannelService.createChannel(selectedFriends.get(NO_PROXY))
+    ChannelService.createChannel(selectedFriends.get(NO_PROXY) as UserID[])
   }
 
   const RenderUser = (props: { friend: (typeof friends)[number] }) => {

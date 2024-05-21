@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Box3,
+  DirectionalLight,
   DoubleSide,
   Material,
   Mesh,
@@ -38,8 +39,6 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -53,19 +52,26 @@ import {
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  hookstate,
+  NO_PROXY,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
@@ -77,6 +83,8 @@ import {
   getShadowsEnabled,
   useShadowsEnabled
 } from '@etherealengine/spatial/src/renderer/functions/RenderSettingsFunction'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import {
   EntityTreeComponent,
@@ -86,6 +94,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -122,14 +131,14 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => 
   const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
   const shadowMapResolution = useHookstate(getMutableState(RendererState).shadowMapResolution)
 
-  const directionalLight = directionalLightComponent.light.value
+  const directionalLight = directionalLightComponent.light.get(NO_PROXY) as DirectionalLight
 
-  const csm = rendererComponent.csm.value
+  const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
 
   useEffect(() => {
     if (!directionalLightComponent.value) return
     const csm = new CSM({
-      light: directionalLight,
+      light: directionalLight as DirectionalLight,
       shadowBias: directionalLightComponent.shadowBias.value,
       maxFar: directionalLightComponent.cameraFar.value,
       lightIntensity: directionalLightComponent.intensity.value,
@@ -201,7 +210,7 @@ const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
   }, [])
 
   useEffect(() => {
-    const csm = rendererComponent.csm.value
+    const csm = rendererComponent.csm.get(NO_PROXY) as CSM | null
     if (!csm) return
 
     for (const light of csm.lights) {
@@ -275,7 +284,7 @@ function CSMReactor(props: { renderSettingsEntity: Entity; rendererEntity: Entit
 
   const activeLightEntity = useHookstate(UndefinedEntity)
 
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
 
   useEffect(() => {
     if (!rendererComponent) return

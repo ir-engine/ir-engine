@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,14 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-process.env.APP_ENV = 'test'
-process.env.NODE_ENV = 'test'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-require("ts-node").register({
-  project: './tsconfig.json',
-  files: true,
-  swc: true
-})
+import {
+  FeatureFlagSettingData,
+  FeatureFlagSettingPatch,
+  FeatureFlagSettingQuery,
+  FeatureFlagSettingType
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
 
-require("fix-esm").register()
+export interface FeatureFlagSettingParams extends KnexAdapterParams<FeatureFlagSettingQuery> {}
+
+export class FeatureFlagSettingService<
+  T = FeatureFlagSettingType,
+  ServiceParams extends Params = FeatureFlagSettingParams
+> extends KnexService<
+  FeatureFlagSettingType,
+  FeatureFlagSettingData,
+  FeatureFlagSettingParams,
+  FeatureFlagSettingPatch
+> {}
