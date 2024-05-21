@@ -38,10 +38,11 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFDocumentState, GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { entityJSONToGLTFNode } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { createSceneEntity } from '@etherealengine/engine/src/scene/functions/createSceneEntity'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { toEntityJson } from '@etherealengine/engine/src/scene/functions/serializeWorld'
@@ -189,15 +190,15 @@ const clickListener = () => {
   const sceneID = getComponent(parentEntity, SourceComponent)
   setComponent(placementEntity, SourceComponent, sceneID)
   setComponent(placementEntity, EntityTreeComponent, { parentEntity })
-  const snapshot = SceneSnapshotState.cloneCurrentSnapshot(sceneID)
+  const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   const uuid = getComponent(placementEntity, UUIDComponent)
-  snapshot.data.entities[uuid] = toEntityJson(placementEntity)
-
-  dispatchAction(SceneSnapshotAction.createSnapshot(snapshot))
+  const entityGLTFNode = entityJSONToGLTFNode(toEntityJson(placementEntity), uuid)
+  snapshot.data.nodes!.push(entityGLTFNode)
+  dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 
   clickState.placedEntity.set(placementEntity)
   clickState.placementEntity.set(createPlacementEntity(parentEntity))
-  for (const [mesh, material] of clickState.materialCache.value) {
+  for (const [mesh, material] of clickState.materialCache.value as [Mesh, Material][]) {
     mesh.material = material
   }
   clickState.materialCache.set([])
