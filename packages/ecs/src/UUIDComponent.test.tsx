@@ -37,7 +37,7 @@ import {
   setComponent
 } from './ComponentFunctions'
 import { destroyEngine, startEngine } from './Engine'
-import { EntityUUID, UndefinedEntity } from './Entity'
+import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -193,7 +193,7 @@ describe('UUIDComponent Hooks', async () => {
   describe('useEntityByUUID', async () => {
     const TestUUID = 'TestUUID' as EntityUUID
     const TestUUID2 = UUIDComponent.generateUUID()
-    const InitialValue = 'InitialValue' as EntityUUID
+    const InitialValue = 1234567890 as Entity
     let result = InitialValue
     let entity1 = UndefinedEntity
     let entity2 = UndefinedEntity
