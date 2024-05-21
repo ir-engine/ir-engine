@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'

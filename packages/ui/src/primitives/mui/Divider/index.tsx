@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { DividerProps, Divider as MuiDivider } from '@mui/material'
+import React from 'react'
 
 const Divider = (props: DividerProps & { component?: string }) => <MuiDivider {...props} />
 

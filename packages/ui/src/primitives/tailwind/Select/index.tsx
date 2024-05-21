@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Input from '../Input'
 
 export type OptionValueType = string | number

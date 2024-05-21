@@ -31,6 +31,7 @@ import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -38,9 +39,9 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
+  getTagComponentForRigidBody,
   RigidBodyComponent,
-  RigidBodyFixedTagComponent,
-  getTagComponentForRigidBody
+  RigidBodyFixedTagComponent
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'

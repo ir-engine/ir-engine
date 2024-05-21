@@ -19,8 +19,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-
 import { iff, isProvider } from 'feathers-hooks-common'
+
 import verifyScope from '../../hooks/verify-scope'
 import { projectCommitsExternalResolver, projectCommitsResolver } from './project-commits.resolvers'
 

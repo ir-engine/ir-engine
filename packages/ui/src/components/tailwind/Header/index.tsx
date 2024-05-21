@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HiUserCircle } from 'react-icons/hi2'
-
 import React from 'react'
+import { HiUserCircle } from 'react-icons/hi2'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { State, useMutableState } from '@etherealengine/hyperflux'
+
 import Button from '../../../primitives/tailwind/Button'
 
 // import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitcher'

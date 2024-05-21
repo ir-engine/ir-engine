@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { ReactorReconciler, createHyperStore, disposeStore, hookstate, startReactor, useHookstate } from '..'
+
+import { createHyperStore, disposeStore, hookstate, ReactorReconciler, startReactor, useHookstate } from '..'
 
 describe('ReactorFunctions', () => {
   beforeEach(() => {

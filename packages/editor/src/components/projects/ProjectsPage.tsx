@@ -23,15 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import ProjectDrawer from '@etherealengine/client-core/src/admin/common/Project/ProjectDrawer'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-
 import ArrowRightRounded from '@mui/icons-material/ArrowRightRounded'
 import Check from '@mui/icons-material/Check'
 import Clear from '@mui/icons-material/Clear'
@@ -58,22 +49,29 @@ import {
   Button as MuiButton,
   Paper
 } from '@mui/material'
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
+import ProjectDrawer from '@etherealengine/client-core/src/admin/common/Project/ProjectDrawer'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
+import multiLogger from '@etherealengine/common/src/logger'
 import {
   InviteCode,
   ProjectType,
   projectPath,
   projectPermissionPath
 } from '@etherealengine/common/src/schema.type.module'
-import { useNavigate } from 'react-router-dom'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
 import { EditorState } from '../../services/EditorServices'
 import { Button } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
-
-import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import styles from './styles.module.scss'
 
 const logger = multiLogger.child({ component: 'editor:ProjectsPage' })

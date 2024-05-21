@@ -22,10 +22,10 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import React, { useEffect } from 'react'
 
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { defineActionQueue, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
@@ -39,6 +39,7 @@ import {
   NetworkState,
   NetworkTopics
 } from '@etherealengine/network'
+
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,

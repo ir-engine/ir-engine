@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import LanguageIcon from '@mui/icons-material/Language'
+import React from 'react'
 
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'

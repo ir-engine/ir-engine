@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Knex } from 'knex'
 
 import { scopeTypePath, ScopeTypeType } from '@etherealengine/common/src/schemas/scope/scope-type.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export const scopeTypeSeed = [
   {

@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
-
 import { t } from 'i18next'
+import React from 'react'
+
 import { InfoTooltip } from '../layout/Tooltip'
 import NumericInput, { NumericInputProp } from './NumericInput'
 

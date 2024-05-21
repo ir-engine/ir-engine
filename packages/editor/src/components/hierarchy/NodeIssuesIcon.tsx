@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-
 import { ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+
 import Tooltip from '../layout/Tooltip'
 import styles from './styles.module.scss'
 

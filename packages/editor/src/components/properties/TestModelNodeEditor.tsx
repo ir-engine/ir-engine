@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import MenuBookIcon from '@mui/icons-material/MenuBook'
+import React from 'react'
 
 export const TestModelNodeEditor = (props) => {
   return <div>Test Model</div>

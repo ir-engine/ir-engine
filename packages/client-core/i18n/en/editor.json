@@ -1034,6 +1034,8 @@
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
+      "prefab": "Prefab",
+      "prefab-search" : "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
@@ -1119,7 +1121,8 @@
     "scene-assets": {
       "no-category": "No category selected",
       "search-placeholder": "Search for an asset ...",
-      "preview": "Preview"
+      "preview" : "Preview",
+      "info-drag-drop": "Drag and Drop these items into the scene"
     }
   },
   "hierarchy": {

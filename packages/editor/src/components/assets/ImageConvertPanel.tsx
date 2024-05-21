@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { State } from '@etherealengine/hyperflux'
-
-import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'

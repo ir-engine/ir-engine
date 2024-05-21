@@ -28,6 +28,7 @@ import { DropTargetMonitor, useDrop } from 'react-dnd'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ControlledStringInput } from './StringInput'
 

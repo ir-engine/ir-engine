@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { SvgIcon as MuiSvgIcon, SvgIconProps } from '@mui/material'
+import React from 'react'
 
 const SvgIcon = (props: SvgIconProps) => <MuiSvgIcon {...props} />
 

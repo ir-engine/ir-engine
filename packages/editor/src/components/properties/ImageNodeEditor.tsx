@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -30,14 +31,12 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
-
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

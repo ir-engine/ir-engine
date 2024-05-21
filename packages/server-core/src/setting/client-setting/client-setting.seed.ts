@@ -32,9 +32,8 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export const clientSettingSeedData = {
   logo: process.env.APP_LOGO || '',

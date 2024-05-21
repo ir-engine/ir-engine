@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
-
 import {
   defineComponent,
   getOptionalComponent,
@@ -37,8 +35,10 @@ import {
 } from '@etherealengine/ecs'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { extend, ExtensionFactory, hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
 import { Identifiable, identifiable } from '@hookstate/identifiable'
-
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -135,22 +134,21 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
   return () => {
     if (!isClient) return {}
 
+    let rootState: State<S, E>
+
     return {
       onInit: (state) => {
+        rootState = state
         for (const key of keys) {
           const storedValue = localStorage.getItem(`${stateNamespaceKey}.${state.identifier}.${key}`)
           if (storedValue !== null && storedValue !== 'undefined') state[key].set(JSON.parse(storedValue))
         }
       },
-      onSet: (state, desc, rootState) => {
+      onSet: (state, desc) => {
         for (const key of keys) {
-          if (rootState[key].value === undefined)
-            localStorage.removeItem(`${stateNamespaceKey}.${rootState.identifier}.${key}`)
-          else
-            localStorage.setItem(
-              `${stateNamespaceKey}.${rootState.identifier}.${key}`,
-              JSON.stringify(rootState[key].get({ noproxy: true }))
-            )
+          const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
+          if (!rootState[key] || !rootState[key].get(NO_PROXY)) localStorage.removeItem(storageKey)
+          else localStorage.setItem(storageKey, JSON.stringify(rootState[key].get(NO_PROXY)))
         }
       }
     }

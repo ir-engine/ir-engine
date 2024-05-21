@@ -27,8 +27,8 @@ import { Assert } from '../Diagnostics/Assert'
 import { GraphNodes } from '../Graphs/Graph'
 import { Link } from '../Nodes/Link'
 import { INode, isAsyncNode, isFlowNode } from '../Nodes/NodeInstance'
-import { VisualScriptEngine } from './VisualScriptEngine'
 import { resolveSocketValue } from './resolveSocketValue'
+import { VisualScriptEngine } from './VisualScriptEngine'
 
 export class Fiber {
   private readonly fiberCompletedListenerStack: (() => void)[] = []

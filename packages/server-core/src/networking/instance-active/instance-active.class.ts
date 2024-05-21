@@ -23,14 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+
 import {
   InstanceActiveQuery,
   InstanceActiveType
 } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import { InstanceType, instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 
 export interface InstanceActiveParams extends KnexAdapterParams<InstanceActiveQuery> {}

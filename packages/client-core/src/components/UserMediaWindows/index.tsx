@@ -28,8 +28,8 @@ import React from 'react'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { PeerID, useMutableState } from '@etherealengine/hyperflux'
-
 import { NetworkState } from '@etherealengine/network'
+
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'

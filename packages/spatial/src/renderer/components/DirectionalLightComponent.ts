@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 'three'
 
-import { useMutableState } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   removeComponent,
@@ -36,11 +34,12 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../resources/resourceHooks'
-import { RendererState } from '../RendererState'
 import { useUpdateLight } from '../functions/useUpdateLight'
+import { RendererState } from '../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
 

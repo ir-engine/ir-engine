@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FormControlLabelProps, FormControlLabel as MuiFormControlLabel } from '@mui/material'
 import React from 'react'
 
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
-
-import { FormControlLabelProps, FormControlLabel as MuiFormControlLabel } from '@mui/material'
 
 const FormControlLabel = (props: FormControlLabelProps) => <MuiFormControlLabel {...props} />
 

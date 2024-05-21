@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { defineQuery } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { getState } from '@etherealengine/hyperflux'
 import { Q_Y_180 } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -43,6 +42,7 @@ import {
   XRRightHandComponent
 } from '@etherealengine/spatial/src/xr/XRComponents'
 import { ReferenceSpace, XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'

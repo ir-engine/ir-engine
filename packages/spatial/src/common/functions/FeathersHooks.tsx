@@ -36,14 +36,12 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { Params, Query } from '@feathersjs/feathers'
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { NO_PROXY, State, defineState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import React from 'react'
+import { defineState, getState, NO_PROXY, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 

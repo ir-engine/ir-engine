@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState, Engine, defineQuery, useEntityContext } from '@etherealengine/ecs'
+import { useEffect } from 'react'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
+
+import { defineQuery, ECSState, Engine, useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -33,15 +36,14 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'

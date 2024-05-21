@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import AttractionsIcon from '@mui/icons-material/Attractions'
+import BusinessIcon from '@mui/icons-material/Business'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 
-import AttractionsIcon from '@mui/icons-material/Attractions'
-import BusinessIcon from '@mui/icons-material/Business'
-
-import { useTranslation } from 'react-i18next'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { ObjectGridSnapState } from '../../../systems/ObjectGridSnapSystem'

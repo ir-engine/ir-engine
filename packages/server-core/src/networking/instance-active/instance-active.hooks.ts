@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { instanceActiveQueryValidator } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceActiveExternalResolver,
