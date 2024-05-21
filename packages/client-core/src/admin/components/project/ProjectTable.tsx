@@ -49,6 +49,7 @@ import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import DataTable from '../../common/Table'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -233,15 +234,7 @@ export default function ProjectTable() {
             <CopyText text={row.commitSHA || ''} className="ml-1" />
           </span>
         ),
-        commitDate: row.commitDate
-          ? new Date(row.commitDate).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })
-          : '-',
+        commitDate: toDisplayDateTime(row.commitDate),
         actions: <RowActions project={row} />
       }
     })
