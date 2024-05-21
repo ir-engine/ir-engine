@@ -160,6 +160,8 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  InputState.setCapturingEntity(UndefinedEntity, true)
+
   for (const eid of inputs())
     if (getComponent(eid, InputComponent).inputSources.length)
       getMutableComponent(eid, InputComponent).inputSources.set([])
@@ -316,7 +318,7 @@ const execute = () => {
     sourceState.intersections.set(sortedIntersections)
 
     //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
-    if (capturedEntity.value) {
+    if (capturedEntity.value !== UndefinedEntity) {
       setInputSources(capturedEntity.value, [sourceEid, ...nonSpatialInputSourceQuery()])
     } else {
       for (const intersection of sortedIntersections) {
@@ -328,8 +330,6 @@ const execute = () => {
   for (const sourceEid of inputSourceQuery()) {
     updateGamepadInput(sourceEid)
   }
-
-  capturedEntity.set(UndefinedEntity)
 }
 
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {

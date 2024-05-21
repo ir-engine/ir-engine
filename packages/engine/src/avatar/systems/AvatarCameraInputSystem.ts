@@ -151,7 +151,6 @@ const execute = () => {
     ? pointerMovement.lengthSq() > 0 && buttons?.PrimaryClick?.pressed
     : buttons?.PrimaryClick?.pressed
 
-  console.log('mouse moved = ' + buttons?.PrimaryClick)
   for (const entity of avatarControllerEntities) {
     if (!inputSource) continue
 
@@ -182,7 +181,7 @@ const execute = () => {
     }
 
     if (buttons?.PrimaryClick?.pressed) {
-      getMutableState(InputState).capturingEntity.set(cameraEntity)
+      InputState.setCapturingEntity(cameraEntity)
     }
     const zoom = axes[MouseScroll.VerticalScroll]
     throttleHandleCameraZoom(cameraEntity, zoom)

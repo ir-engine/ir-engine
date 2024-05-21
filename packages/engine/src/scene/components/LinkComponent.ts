@@ -49,13 +49,11 @@ const linkLogic = (linkComponent, xrState) => {
 const linkCallback = (linkEntity: Entity) => {
   const linkComponent = getComponent(linkEntity, LinkComponent)
   const buttons = InputComponent.getMergedButtons(linkEntity)
-  if (buttons.PrimaryClick?.touched) {
-    //if (buttons.PrimaryClick.up) {
-    linkLogic(linkComponent, undefined)
-    //}
-  } else if (buttons[XRStandardGamepadButton.Trigger]?.down) {
+  if (buttons[XRStandardGamepadButton.Trigger]?.down) {
     const xrState = getState(XRState)
     linkLogic(linkComponent, xrState)
+  } else {
+    linkLogic(linkComponent, undefined)
   }
 }
 

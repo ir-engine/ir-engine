@@ -45,8 +45,9 @@ import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { EngineState } from '../../EngineState'
 
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponent } from '../../transform/components/EntityTree'
+import { getAncestorWithComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonState, ButtonStateMap, KeyboardButton, MouseButton, XRStandardGamepadButton } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
@@ -91,9 +92,16 @@ export const InputComponent = defineComponent({
   },
 
   useExecuteWithInput(executeOnInput: () => void, executeWhenEditing = false) {
+    const entity = useEntityContext()
     return useExecute(
       () => {
-        if (!executeWhenEditing || getState(EngineState).isEditing) return
+        const capturingEntity = getState(InputState).capturingEntity
+        if (
+          !executeWhenEditing ||
+          getState(EngineState).isEditing ||
+          (capturingEntity && !isAncestor(capturingEntity, entity, true))
+        )
+          return
         executeOnInput()
       },
       { with: InputSystemGroup }

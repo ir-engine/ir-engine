@@ -527,9 +527,9 @@ export function findCommonAncestors(objects: Entity[], target: Entity[] = []): E
   return target
 }
 
-export function isAncestor(parent: Entity, potentialChild: Entity) {
-  if (!potentialChild) return false
-  if (parent === potentialChild) return false
+export function isAncestor(parent: Entity, potentialChild: Entity, includeSelf = false) {
+  if (!potentialChild || !parent) return false
+  if (!includeSelf && parent === potentialChild) return false
   return traverseEarlyOut(parent, (child) => child === potentialChild)
 }
 
