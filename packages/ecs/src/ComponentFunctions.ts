@@ -447,7 +447,8 @@ export const getAllComponents = (entity: Entity): Component[] => {
 }
 
 export const useAllComponents = (entity: Entity) => {
-  const result = useHookstate([] as Component[])
+  const init = () => [...getAllComponents(entity)] as Component[]
+  const result = useHookstate(init)
 
   useExecute(
     () => {
