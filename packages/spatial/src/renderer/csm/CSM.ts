@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Box3,
+  ColorRepresentation,
   DirectionalLight,
   Material,
   MathUtils,
@@ -85,6 +86,7 @@ type CSMParams = {
   lightDirection?: Vector3
   lightDirectionUp?: Vector3
   lightIntensity?: number
+  lightColor?: ColorRepresentation
   lightNear?: number
   lightFar?: number
   lightMargin?: number
@@ -98,8 +100,10 @@ export class CSM {
   mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowBias: number
   shadowNormalBias: number
+  shadowMapSize: number
   lightDirection: Vector3
   lightDirectionUp: Vector3
+  lightColor: ColorRepresentation
   lightIntensity: number
   lightMargin: number
   customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
@@ -119,10 +123,12 @@ export class CSM {
     this.cascades = data.cascades ?? 5
     this.maxFar = data.maxFar ?? 100
     this.mode = data.mode ?? CSMModes.PRACTICAL
+    this.shadowMapSize = data.shadowMapSize ?? 1024
     this.shadowBias = data.shadowBias ?? 0
     this.shadowNormalBias = 0
     this.lightDirection = data.lightDirection ?? new Vector3(1, -1, 1).normalize()
     this.lightDirectionUp = data.lightDirectionUp ?? Object3D.DEFAULT_UP
+    this.lightColor = data.lightColor ?? 0xffffff
     this.lightIntensity = data.lightIntensity ?? 1
     this.lightMargin = data.lightMargin ?? 200
     this.customSplitsCallback = data.customSplitsCallback
@@ -194,9 +200,12 @@ export class CSM {
     // if no lights are provided, create default ones
 
     for (let i = 0; i < this.cascades; i++) {
-      const light = new DirectionalLight(0xffffff, this.lightIntensity)
+      const light = new DirectionalLight(this.lightColor, this.lightIntensity)
 
       light.castShadow = true
+
+      light.shadow.mapSize.width = this.shadowMapSize
+      light.shadow.mapSize.height = this.shadowMapSize
 
       light.shadow.camera.near = 0
       light.shadow.camera.far = 1
@@ -490,6 +499,7 @@ export class CSM {
     this.lightEntities.forEach((entity) => {
       removeEntity(entity)
     })
+    this.lightEntities = []
     this.lights = []
   }
 

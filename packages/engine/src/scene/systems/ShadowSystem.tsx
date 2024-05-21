@@ -47,7 +47,8 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -123,9 +124,9 @@ const raycaster = new Raycaster()
 raycaster.firstHitOnly = true
 const raycasterPosition = new Vector3()
 
-const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
-  const { entity, rendererEntity } = props
-  const renderSettings = useComponent(entity, RenderSettingsComponent)
+const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; renderSettingsEntity: Entity }) => {
+  const { entity, rendererEntity, renderSettingsEntity } = props
+  const renderSettings = useComponent(renderSettingsEntity, RenderSettingsComponent)
   const rendererComponent = useComponent(rendererEntity, RendererComponent)
 
   const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
@@ -139,9 +140,11 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => 
     if (!directionalLightComponent.value) return
     const csm = new CSM({
       light: directionalLight as DirectionalLight,
+      shadowMapSize: shadowMapResolution.value,
       shadowBias: directionalLightComponent.shadowBias.value,
       maxFar: directionalLightComponent.cameraFar.value,
       lightIntensity: directionalLightComponent.intensity.value,
+      lightColor: directionalLightComponent.color.value,
       cascades: renderSettings.cascades.value
     })
     rendererComponent.csm.set(csm)
@@ -174,12 +177,12 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => 
   }, [
     csm,
     shadowMapResolution,
-    directionalLightComponent?.shadowBias,
-    directionalLightComponent?.intensity,
-    directionalLightComponent?.color,
-    directionalLightComponent?.castShadow,
-    directionalLightComponent?.shadowRadius,
-    directionalLightComponent?.cameraFar
+    directionalLightComponent.shadowBias,
+    directionalLightComponent.intensity,
+    directionalLightComponent.color,
+    directionalLightComponent.castShadow,
+    directionalLightComponent.shadowRadius,
+    directionalLightComponent.cameraFar
   ])
 
   useEffect(() => {
@@ -237,30 +240,33 @@ const ChildCSMReactor = (props: { rendererEntity: Entity }) => {
 }
 
 const EntityChildCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
+  console.log(props)
   const { entity, rendererEntity } = props
 
-  const shadowComponent = useComponent(entity, ShadowComponent)
-  const groupComponent = useComponent(entity, GroupComponent)
+  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+  const groupComponent = useOptionalComponent(entity, GroupComponent)
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
-    if (!csm || !shadowComponent.receive.value) return
+    if (!csm || !shadowComponent?.receive.value) return
 
-    const objs = [...groupComponent.value] as Mesh<any, Material>[]
-    for (const obj of objs) {
-      if (obj.material) {
-        csm.setupMaterial(obj)
-      }
-    }
-
-    return () => {
+    if (groupComponent) {
+      const objs = [...groupComponent.value] as Mesh<any, Material>[]
       for (const obj of objs) {
         if (obj.material) {
-          csm.teardownMaterial(obj.material)
+          csm.setupMaterial(obj)
+        }
+      }
+
+      return () => {
+        for (const obj of objs) {
+          if (obj.material) {
+            csm.teardownMaterial(obj.material)
+          }
         }
       }
     }
-  }, [shadowComponent.receive, csm])
+  }, [shadowComponent?.receive, csm])
 
   return null
 }
@@ -317,7 +323,11 @@ function CSMReactor(props: { renderSettingsEntity: Entity; rendererEntity: Entit
   if (!activeLightEntity.value) return <PlainCSMReactor rendererEntity={rendererEntity} key={rendererEntity} />
 
   return (
-    <EntityCSMReactor entity={activeLightEntity.value} rendererEntity={rendererEntity} key={activeLightEntity.value} />
+    <EntityCSMReactor
+      entity={activeLightEntity.value}
+      rendererEntity={rendererEntity}
+      renderSettingsEntity={renderSettingsEntity}
+    />
   )
 }
 
@@ -451,11 +461,11 @@ const execute = () => {
       if (csmHelper) csmHelper.update(csm)
 
       /** hack fix to ensure CSM material is applied to all materials (which are not set reactively) */
-      for (const entity of groupQuery()) {
-        for (const obj of getComponent(entity, GroupComponent) as any as Mesh[]) {
-          if (obj.material && obj.receiveShadow) csm.setupMaterial(obj)
-        }
-      }
+      // for (const entity of groupQuery()) {
+      //   for (const obj of getComponent(entity, GroupComponent) as any as Mesh[]) {
+      //     if (obj.material && obj.receiveShadow) csm.setupMaterial(obj)
+      //   }
+      // }
     }
   }
 }
