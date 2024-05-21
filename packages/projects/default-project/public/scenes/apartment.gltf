@@ -898,7 +898,7 @@
           "redirect": false,
           "effectType": "Hyperspace",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/apartment-Portal.ktx2",
           "spawnPosition": {
             "x": -12,
             "y": 1,
@@ -1206,7 +1206,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/apartment-New-EnvMap%20Bake.ktx2",
           "boxProjection": true
         },
         "EE_visible": true

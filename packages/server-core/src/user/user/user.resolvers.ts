@@ -100,6 +100,7 @@ export const userResolver = resolve<UserType, HookContext>({
 
     return []
   }),
+  lastLogin: virtual(async (user) => (user.lastLogin ? fromDateTimeSql(user.lastLogin) : null)),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
   updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
 })
