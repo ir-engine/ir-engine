@@ -42,7 +42,7 @@ export interface SelectProps<T extends OptionValueType> {
   className?: string
   error?: string
   description?: string
-  options: { label: string; value: T; disabled?: boolean }[]
+  options: SelectOptionsType
   currentValue: T
   onChange: (value: T) => void
   placeholder?: string
@@ -53,6 +53,7 @@ export interface SelectProps<T extends OptionValueType> {
   inputVariant?: 'outlined' | 'underlined' | 'onboarding'
   inputClassName?: string
   errorBorder?: boolean
+  onBlur: (value: string) => void
 }
 
 const Select = <T extends OptionValueType>({
@@ -70,7 +71,8 @@ const Select = <T extends OptionValueType>({
   labelClassName,
   inputVariant,
   inputClassName,
-  errorBorder
+  errorBorder,
+  onBlur
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -119,6 +121,7 @@ const Select = <T extends OptionValueType>({
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
+        onBlur={() => onBlur(selectLabel.value)}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
