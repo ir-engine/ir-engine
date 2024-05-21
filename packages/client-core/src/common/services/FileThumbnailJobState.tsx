@@ -168,7 +168,7 @@ export const FileThumbnailJobState = defineState({
 
     while (directories.length > 0) {
       const directory = `${directories.pop()}/`
-      console.log('Querying directory', directory)
+
       const files = (await Engine.instance.api.service(fileBrowserPath).find({
         query: {
           $skip: 0,
@@ -186,8 +186,6 @@ export const FileThumbnailJobState = defineState({
         )
       )
     }
-
-    console.log('The following files need thumbnails:\n' + needThumbnails.map(({ key }) => key).join('\n'))
 
     Promise.all(
       needThumbnails.map(async (file) => {
@@ -215,8 +213,6 @@ export const FileThumbnailJobState = defineState({
         // TODO: cache pending thumbnail promises by static resource key
       })
     )
-
-    console.log('Done')
   }
 })
 
