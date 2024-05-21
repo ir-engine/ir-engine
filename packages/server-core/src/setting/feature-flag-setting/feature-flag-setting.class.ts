@@ -23,31 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-/**Tailwind `Select` styled for studio */
-const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
-  return (
-    <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none text-xs p-1"
-      {...rest}
-    />
-  )
-}
+import {
+  FeatureFlagSettingData,
+  FeatureFlagSettingPatch,
+  FeatureFlagSettingQuery,
+  FeatureFlagSettingType
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
 
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
-}
+export interface FeatureFlagSettingParams extends KnexAdapterParams<FeatureFlagSettingQuery> {}
 
-export default SelectInput
+export class FeatureFlagSettingService<
+  T = FeatureFlagSettingType,
+  ServiceParams extends Params = FeatureFlagSettingParams
+> extends KnexService<
+  FeatureFlagSettingType,
+  FeatureFlagSettingData,
+  FeatureFlagSettingParams,
+  FeatureFlagSettingPatch
+> {}

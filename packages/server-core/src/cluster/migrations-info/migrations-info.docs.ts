@@ -23,31 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-/**Tailwind `Select` styled for studio */
-const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
-  return (
-    <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
-      inputClassName="rounded-none text-xs p-1"
-      {...rest}
-    />
-  )
-}
+import {
+  migrationsInfoQuerySchema,
+  migrationsInfoSchema
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
 
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
-}
-
-export default SelectInput
+export default createSwaggerServiceOptions({
+  schemas: {
+    migrationsInfoQuerySchema,
+    migrationsInfoSchema
+  },
+  docs: {
+    description: 'Migrations info service description',
+    securities: ['all']
+  }
+})

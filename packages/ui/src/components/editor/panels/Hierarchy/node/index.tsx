@@ -308,7 +308,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={`ml-3.5 h-7 items-center justify-between bg-inherit py-1 pr-2`}
+        className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}
@@ -317,7 +317,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
+        <div className={twMerge('flex items-center pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (
@@ -335,7 +335,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             </button>
           )}
 
-          <div className={'flex flex-1 bg-inherit py-0.5 pl-0 pr-1'}>
+          <div className={'flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1 align-middle text-white'}>
             {IconComponent ? <IconComponent className={'h-5 w-5 text-white'} /> : null}
             <div className={'flex flex-1'}>
               {renaming ? (

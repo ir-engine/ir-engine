@@ -34,6 +34,7 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { PopoverState } from '../../../../common/services/PopoverState'
 
 const BuildStatusBadgeVariant = {
@@ -48,15 +49,7 @@ export function BuildStatusBadge({ status }: { status: string }) {
 }
 
 export function getStartOrEndDate(dateString: string, endDate = false) {
-  return endDate && !dateString
-    ? t('admin:components.buildStatus.running')
-    : new Date(dateString).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+  return endDate && !dateString ? t('admin:components.buildStatus.running') : toDisplayDateTime(dateString)
 }
 
 export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: BuildStatusType }) {

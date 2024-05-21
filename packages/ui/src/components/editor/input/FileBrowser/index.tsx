@@ -37,12 +37,6 @@ export type FileBrowserInputProps = StringInputProps & { acceptFileTypes: string
 
 /**
  * Function component used for rendering FileBrowserInput.
- *
- * @param {function} onChange
- * @param {string} acceptFileTypes
- * @param {object} acceptDropItems
- * @param {any} rest
- * @returns
  */
 export function FileBrowserInput({
   onRelease,
@@ -115,14 +109,7 @@ export function FileBrowserInput({
 
   return (
     <>
-      <ControlledStringInput
-        ref={dropRef}
-        value={value}
-        onRelease={onRelease}
-        error={isOver && !canDrop}
-        canDrop={isOver && canDrop}
-        {...rest}
-      />
+      <ControlledStringInput ref={dropRef} value={value} onRelease={onRelease} {...rest} />
       {/*assetIsExternal && (
         <IconButton
           disableRipple

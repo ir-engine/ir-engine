@@ -23,17 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@etherealengine/hyperflux'
 import React from 'react'
 import { Vector2 } from 'three'
-
-// style inheritance
 
 import { Vector2_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import NumericInput from '../Numeric'
 import { Vector3Scrubber } from '../Vector3'
-
-let uniqueId = 0
 
 interface Vector2InputProp {
   uniformScaling?: boolean
@@ -57,12 +53,7 @@ export const Vector2Input = ({
   onRelease,
   ...rest
 }: Vector2InputProp) => {
-  const id = uniqueId++
   const uniformEnabled = useHookstate(uniformScaling)
-
-  const onToggleUniform = () => {
-    uniformEnabled.set((v) => !v)
-  }
 
   const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled.value) {
@@ -94,7 +85,6 @@ export const Vector2Input = ({
 
   const vx = value.x
   const vy = value.y
-  const checkboxId = 'uniform-button-' + id
 
   return (
     <div className="flex flex-auto flex-row justify-start gap-1.5">
