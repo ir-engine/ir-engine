@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector2 } from 'three'
 
-import { Engine, UndefinedEntity } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -103,7 +103,6 @@ const onKeyC = () => {
 const lastLookDelta = new Vector2()
 let lastMouseMoved = false
 const INPUT_CAPTURE_DELAY = 0.1
-let accumulator = 0
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
@@ -181,20 +180,13 @@ const execute = () => {
         0.1
       )
     }
+
     if (buttons?.PrimaryClick?.pressed) {
-      if (accumulator > INPUT_CAPTURE_DELAY) {
-        getMutableState(InputState).capturingEntity.set(cameraEntity)
-        accumulator = 0
-      }
-    } else {
-      getMutableState(InputState).capturingEntity.set(UndefinedEntity)
-      accumulator = 0
+      getMutableState(InputState).capturingEntity.set(cameraEntity)
     }
     const zoom = axes[MouseScroll.VerticalScroll]
     throttleHandleCameraZoom(cameraEntity, zoom)
   }
-
-  accumulator += deltaSeconds
 
   lastLookDelta.set(inputPointer.position.x, inputPointer.position.y)
 
@@ -203,6 +195,6 @@ const execute = () => {
 
 export const AvatarCameraInputSystem = defineSystem({
   uuid: 'ee.engine.AvatarCameraInputSystem',
-  insert: { with: InputSystemGroup },
+  insert: { after: InputSystemGroup },
   execute
 })

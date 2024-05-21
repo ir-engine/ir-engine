@@ -44,7 +44,7 @@ import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunction
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { getState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   EntityTreeComponent,
@@ -203,7 +203,7 @@ const execute = () => {
     }
   }
 
-  const capturedEntity = getState(InputState).capturingEntity
+  const capturedEntity = getMutableState(InputState).capturingEntity
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of spatialInputSourceQuery()) {
@@ -276,7 +276,7 @@ const execute = () => {
 
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
     //Proximity check ONLY if we have no raycast results, as it is always lower priority
-    if (capturedEntity === UndefinedEntity && sortedIntersections.length === 0) {
+    if (capturedEntity.value === UndefinedEntity && sortedIntersections.length === 0) {
       let closestEntity = UndefinedEntity
       let closestDistanceSquared = Infinity
 
@@ -316,8 +316,8 @@ const execute = () => {
     sourceState.intersections.set(sortedIntersections)
 
     //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
-    if (capturedEntity) {
-      setInputSources(capturedEntity, [sourceEid, ...nonSpatialInputSourceQuery()])
+    if (capturedEntity.value) {
+      setInputSources(capturedEntity.value, [sourceEid, ...nonSpatialInputSourceQuery()])
     } else {
       for (const intersection of sortedIntersections) {
         setInputSources(intersection.entity, [sourceEid, ...nonSpatialInputSourceQuery()])
@@ -328,6 +328,8 @@ const execute = () => {
   for (const sourceEid of inputSourceQuery()) {
     updateGamepadInput(sourceEid)
   }
+
+  capturedEntity.set(UndefinedEntity)
 }
 
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
@@ -618,7 +620,7 @@ const reactor = () => {
 
 export const ClientInputSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputSystem',
-  insert: { with: InputSystemGroup },
+  insert: { before: InputSystemGroup },
   execute,
   reactor
 })

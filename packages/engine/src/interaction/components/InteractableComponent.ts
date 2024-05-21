@@ -42,7 +42,7 @@ import {
   UUIDComponent
 } from '@etherealengine/ecs'
 import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
@@ -56,6 +56,7 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
@@ -283,8 +284,14 @@ export const InteractableComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(() => {
       const buttons = InputComponent.getMergedButtons(entity)
-      if (buttons.Interact?.down) callInteractCallbacks(entity)
-    })
+
+      if (buttons.Interact?.pressed) {
+        getMutableState(InputState).capturingEntity.set(entity)
+      }
+      if (buttons.Interact?.down) {
+        callInteractCallbacks(entity)
+      }
+    }, true)
 
     useEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)

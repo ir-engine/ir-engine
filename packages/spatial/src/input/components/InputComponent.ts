@@ -93,7 +93,7 @@ export const InputComponent = defineComponent({
   useExecuteWithInput(executeOnInput: () => void, executeWhenEditing = false) {
     return useExecute(
       () => {
-        if (executeWhenEditing || getState(EngineState).isEditing) return
+        if (!executeWhenEditing || getState(EngineState).isEditing) return
         executeOnInput()
       },
       { with: InputSystemGroup }
@@ -188,7 +188,7 @@ export const InputComponent = defineComponent({
     InputComponent.useExecuteWithInput(() => {
       const inputSources = InputComponent.getInputSourceEntities(entity)
       hasFocus.set(inputSources.length > 0)
-    })
+    }, true)
     return hasFocus
   },
 
