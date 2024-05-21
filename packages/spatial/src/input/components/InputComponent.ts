@@ -58,7 +58,7 @@ export const DefaultInputAlias = {
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
-  jsonID: 'EE_input_component',
+  jsonID: 'EE_input',
 
   onInit: () => {
     return {
