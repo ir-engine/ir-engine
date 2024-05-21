@@ -23,139 +23,144 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const AssetsPanelCategories = {
-  'Default Prefab': {},
-  Template: {
-    Backdrop: {},
-    Stage: {}
-  },
-  Model: {
-    NPC: {},
-    Avatar: {},
-    Animal: {},
-    Architectural: {
-      Floor: {},
-      Ceiling: {},
-      Wall: {}
+import { defineState } from '@etherealengine/hyperflux'
+
+export const AssetsPanelCategories = defineState({
+  name: 'AssetsPanelCategories',
+  initial: {
+    'Default Prefab': {},
+    Template: {
+      Backdrop: {},
+      Stage: {}
     },
-    'Basic Shape': {
-      Artistic: {},
-      Primitive: {
-        'Platonic Solid': {},
-        Fractal: {}
+    Model: {
+      NPC: {},
+      Avatar: {},
+      Animal: {},
+      Architectural: {
+        Floor: {},
+        Ceiling: {},
+        Wall: {}
+      },
+      'Basic Shape': {
+        Artistic: {},
+        Primitive: {
+          'Platonic Solid': {},
+          Fractal: {}
+        }
+      },
+      Kit: {
+        Gothic: {},
+        Cottage: {},
+        Scifi: {},
+        Modern: {},
+        Nature: {},
+        Ecommerce: {}
+      },
+      Prop: {
+        Furniture: {
+          Chairs: {},
+          Showcase: {},
+          Displays: {}
+        }
+      },
+      Terrain: {}
+    },
+    Material: {
+      Standard: {
+        Plastic: {},
+        Glass: {},
+        'Rough glass': {},
+        Metal: {},
+        Glow: {},
+        Rubber: {},
+        Water: {},
+        Bubble: {},
+        Diamond: {},
+        Clay: {},
+        'Car Paint': {},
+        Wood: {},
+        Stone: {},
+        Dirt: {},
+        Grass: {},
+        Cloth: {},
+        Bark: {},
+        Snow: {}
+      },
+      Advanced: {
+        Static: {},
+        Animated: {}
       }
     },
-    Kit: {
+    Image: {
+      Background: {},
+      Texture: {
+        Diffuse: {},
+        'Normal Maps': {},
+        Occlusion: {},
+        Metalness: {},
+        Roughness: {}
+      },
+      Tiling: {
+        Diffuse: {},
+        'Normal Map': {},
+        Occlusion: {},
+        Metalness: {},
+        Roughness: {}
+      },
+      Sprite: {}
+    },
+    Light: {},
+    Video: {},
+    Audio: {
+      Music: {},
+      'Sound FX': {}
+    },
+    Particle: {
+      Smoke: {},
+      Fire: {},
+      Lightning: {},
+      Portal: {},
+      Sparkle: {}
+    },
+    Skyboxes: {
+      'Time of Day': {
+        Morning: {},
+        Noon: {},
+        Evening: {},
+        Night: {}
+      },
+      Abstract: {},
+      'Low Contrast': {},
+      'High Contrast': {}
+    },
+    'Post Processing': {
+      Fog: {},
+      Cinematic: {}
+    },
+    Agent: {},
+    Genre: {
+      Office: {},
       Gothic: {},
-      Cottage: {},
       Scifi: {},
+      Cottage: {},
       Modern: {},
-      Nature: {},
-      Ecommerce: {}
-    },
-    Prop: {
-      Furniture: {
-        Chairs: {},
-        Showcase: {},
-        Displays: {}
-      }
-    },
-    Terrain: {}
-  },
-  Material: {
-    Standard: {
-      Plastic: {},
-      Glass: {},
-      'Rough glass': {},
-      Metal: {},
-      Glow: {},
-      Rubber: {},
-      Water: {},
-      Bubble: {},
-      Diamond: {},
-      Clay: {},
-      'Car Paint': {},
-      Wood: {},
-      Stone: {},
-      Dirt: {},
-      Grass: {},
-      Cloth: {},
-      Bark: {},
-      Snow: {}
-    },
-    Advanced: {
-      Static: {},
-      Animated: {}
+      Luxury: {},
+      Noir: {},
+      Nature: {
+        Jungle: {},
+        Arctic: {},
+        Boreal: {},
+        Desert: {}
+      },
+      Holiday: {
+        Passover: {},
+        'St Patrick’s Day': {},
+        'Yam Kippur': {},
+        'Veteran’s Day': {}
+      },
+      Abstract: {},
+      Fantasy: {}
     }
-  },
-  Image: {
-    Background: {},
-    Texture: {
-      Diffuse: {},
-      'Normal Maps': {},
-      Occlusion: {},
-      Metalness: {},
-      Roughness: {}
-    },
-    Tiling: {
-      Diffuse: {},
-      'Normal Map': {},
-      Occlusion: {},
-      Metalness: {},
-      Roughness: {}
-    },
-    Sprite: {}
-  },
-  Light: {},
-  Video: {},
-  Audio: {
-    Music: {},
-    'Sound FX': {}
-  },
-  Particle: {
-    Smoke: {},
-    Fire: {},
-    Lightning: {},
-    Portal: {},
-    Sparkle: {}
-  },
-  Skyboxes: {
-    'Time of Day': {
-      Morning: {},
-      Noon: {},
-      Evening: {},
-      Night: {}
-    },
-    Abstract: {},
-    'Low Contrast': {},
-    'High Contrast': {}
-  },
-  'Post Processing': {
-    Fog: {},
-    Cinematic: {}
-  },
-  Agent: {},
-  Genre: {
-    Office: {},
-    Gothic: {},
-    Scifi: {},
-    Cottage: {},
-    Modern: {},
-    Luxury: {},
-    Noir: {},
-    Nature: {
-      Jungle: {},
-      Arctic: {},
-      Boreal: {},
-      Desert: {}
-    },
-    Holiday: {
-      Passover: {},
-      'St Patrick’s Day': {},
-      'Yam Kippur': {},
-      'Veteran’s Day': {}
-    },
-    Abstract: {},
-    Fantasy: {}
-  }
-}
+  } as object
+})

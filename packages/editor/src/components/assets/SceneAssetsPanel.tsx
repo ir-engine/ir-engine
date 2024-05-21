@@ -36,7 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
@@ -181,13 +181,12 @@ const SceneAssetsPanel = () => {
         }
       }
     }
-    generateCategories(AssetsPanelCategories)
+    generateCategories(getState(AssetsPanelCategories))
     categories.set(result)
   }, [collapsedCategories])
 
   useEffect(() => {
     const staticResourcesFindApi = () => {
-      // const tags = [selectedCategory.value.name, ...iterativelyListTags(selectedCategory.value.object)]
       const query = {
         key: { $like: `%${searchText.value}%` || undefined },
         $sort: { mimeType: 1 },
