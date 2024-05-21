@@ -72,9 +72,22 @@ export const ContextMenu = ({
   const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
   const [positionY, setPositionY] = useState(calculatePositionY())
 
+  const [isScrollable, setIsScrollable] = useState(false)
+  const parentRect = panel?.getBoundingClientRect()
+
+  useEffect(() => {
+    if (open && menuRef.current) {
+      const menuHeight = menuRef.current.offsetHeight
+      const parentHeight = parentRect?.height || 0
+
+      // Make the menu scrollable if it is too tall for the parent component
+      setIsScrollable(parentHeight < menuHeight)
+    }
+  }, [open])
+
   useEffect(() => {
     setPositionY(calculatePositionY())
-  }, [open, anchorPosition.top])
+  }, [open])
 
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
@@ -83,7 +96,12 @@ export const ContextMenu = ({
           <div
             ref={menuRef}
             className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
+            style={{
+              top: `${positionY}px`,
+              left: `${positionX}px`,
+              maxHeight: `${panel?.getBoundingClientRect().height}px`,
+              overflowY: isScrollable ? 'auto' : 'visible'
+            }}
           >
             <div className={twMerge('flex flex-col truncate py-1', className)}>{children}</div>
           </div>
