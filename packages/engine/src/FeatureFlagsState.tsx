@@ -43,7 +43,6 @@ export const FeatureFlagsState = defineState({
     const featureFlagQuery = useFind(featureFlagSettingPath)
 
     useEffect(() => {
-      if (!featureFlagQuery.data.length) return
       const data = featureFlagQuery.data
       getMutableState(FeatureFlagsState).set(
         Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
