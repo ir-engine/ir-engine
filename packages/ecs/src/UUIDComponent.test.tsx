@@ -242,7 +242,7 @@ describe('UUIDComponent Hooks', async () => {
       assert.notEqual(result, InitialValue, "The result data didn't get assigned.")
       assert.equal(result, ExpectedValue, `Did not return the correct data. result = ${result}`)
       assert.equal(testEntity, UUIDComponent.entitiesByUUIDState[TestUUID].value)
-      assert.equal(testEntity, entity1)
+      assert.equal(testEntity, ExpectedValue)
       unmount()
     })
   }) // useComponent
