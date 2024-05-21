@@ -299,7 +299,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     <li
       style={props.style}
       className={twMerge(
-        `bg-${props.index % 2 ? 'neutral-800' : 'zinc-800'}`,
+        `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
         selected ? 'border border-gray-100' : 'border-none'
       )}
     >
@@ -317,7 +317,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
+        <div className={twMerge('flex items-center pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (
@@ -342,7 +342,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 <div className="relative h-[15px] w-full">
                   <input
                     type="text"
-                    className="absolute top-[-3px] m-0 h-[25px] w-full rounded-lg px-1 py-0.5"
+                    className="absolute top-[-3px] m-0 w-full rounded-lg px-1 py-0.5"
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
@@ -351,7 +351,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               ) : (
                 <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap">{nodeName}</span>
+                  <span className="text-nowrap text-sm leading-4">{nodeName}</span>
                 </div>
               )}
             </div>
