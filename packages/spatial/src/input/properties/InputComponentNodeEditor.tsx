@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
@@ -39,7 +38,6 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { useState } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
@@ -51,11 +49,8 @@ type OptionsType = Array<{
   value: string
 }>
 
-const inputSinkQuery = defineQuery([SourceComponent]) //TODO confirm this is a good indicator of being in authoring layer
-
 export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useState<OptionsType>([{ label: 'Self', value: getComponent(props.entity, UUIDComponent) }])
 
   const inputComponent = useComponent(props.entity, InputComponent)
   const authoringLayerEntities = useQuery([SourceComponent])
@@ -119,7 +114,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
           ? inputComponent.inputSinks.value.map((sink, index) => {
               return (
                 <div key={index}>
-                  <InputGroup name="Target" label={t('editor:properties.input.lbl-target')}>
+                  <InputGroup name="Target" label={t('editor:properties.input.lbl-sinkTarget')}>
                     <SelectInput
                       key={props.entity}
                       value={sink ?? 'Self'}
