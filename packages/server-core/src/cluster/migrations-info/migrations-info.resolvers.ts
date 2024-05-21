@@ -23,12 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Static resource filters service description',
-    securities: ['all']
-  }
-})
+import {
+  MigrationsInfoQuery,
+  MigrationsInfoType
+} from '@etherealengine/common/src/schemas/cluster/migrations-info.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const migrationsInfoResolver = resolve<MigrationsInfoType, HookContext>({})
+
+export const migrationsInfoExternalResolver = resolve<MigrationsInfoType, HookContext>({})
+
+export const migrationsInfoQueryResolver = resolve<MigrationsInfoQuery, HookContext>({})

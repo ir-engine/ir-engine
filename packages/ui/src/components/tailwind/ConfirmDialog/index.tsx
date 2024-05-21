@@ -33,7 +33,7 @@ import Text from '../../../primitives/tailwind/Text'
 
 interface ConfirmDialogProps {
   text: string
-  onSubmit: () => Promise<void>
+  onSubmit: () => Promise<void> | void
   modalProps?: Partial<ModalProps>
 }
 

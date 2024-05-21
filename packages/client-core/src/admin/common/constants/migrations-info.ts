@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { t } from 'i18next'
 
-import {
-  StaticResourceFiltersQuery,
-  StaticResourceFiltersType
-} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+import { ITableHeadCell } from '../Table'
 
-export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({})
+type IdType = 'id' | 'name' | 'batch' | 'migration_time'
 
-export const staticResourceFiltersExternalResolver = resolve<StaticResourceFiltersType, HookContext>({})
+export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
 
-export const staticResourceFiltersDataResolver = resolve<StaticResourceFiltersType, HookContext>({})
+interface IMigrationsInfoColumn extends ITableHeadCell {
+  id: IdType
+}
 
-export const staticResourceFiltersPatchResolver = resolve<StaticResourceFiltersType, HookContext>({})
-
-export const staticResourceFiltersQueryResolver = resolve<StaticResourceFiltersQuery, HookContext>({})
+export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.id') },
+  { id: 'name', label: t('admin:components.server.columns.name') },
+  { id: 'batch', label: t('admin:components.server.columns.batch') },
+  { id: 'migration_time', label: t('admin:components.server.columns.migration_time'), sortable: true }
+]
