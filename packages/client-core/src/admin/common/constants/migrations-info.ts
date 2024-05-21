@@ -23,30 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+import { t } from 'i18next'
 
-export default [
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm
+import { ITableHeadCell } from '../Table'
+
+type IdType = 'id' | 'name' | 'batch' | 'migration_time'
+
+export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IMigrationsInfoColumn extends ITableHeadCell {
+  id: IdType
+}
+
+export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.id') },
+  { id: 'name', label: t('admin:components.server.columns.name') },
+  { id: 'batch', label: t('admin:components.server.columns.batch') },
+  { id: 'migration_time', label: t('admin:components.server.columns.migration_time'), sortable: true }
 ]
