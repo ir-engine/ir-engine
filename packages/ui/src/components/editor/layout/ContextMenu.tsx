@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
@@ -46,16 +46,60 @@ export const ContextMenu = ({
   className
 }: React.PropsWithChildren<ContextMenuProps>) => {
   const panel = document.getElementById(panelId)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
+  // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
+  const calculatePositionY = () => {
+    let positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
+
+    if (open && menuRef.current) {
+      const menuHeight = menuRef.current.offsetHeight
+
+      // The amount of space that the menu can fill based on the current anchor position
+      const spaceToBottomFromAnchor = window.innerHeight - anchorPosition.top
+      // We want to reposition the context menu whenever it will overflow the bottom of the screen
+      const shouldRepositionMenu = menuHeight > spaceToBottomFromAnchor
+
+      if (shouldRepositionMenu) {
+        // Align the menu bottom with the bottom of the viewport
+        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 50
+      }
+    }
+
+    return positionY
+  }
+
   const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
-  const positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
+  const [positionY, setPositionY] = useState(calculatePositionY())
+
+  const [isScrollable, setIsScrollable] = useState(false)
+  const parentRect = panel?.getBoundingClientRect()
+
+  useEffect(() => {
+    if (open && menuRef.current) {
+      const menuHeight = menuRef.current.offsetHeight
+      const parentHeight = parentRect?.height || 0
+
+      // Make the menu scrollable if it is too tall for the parent component
+      setIsScrollable(parentHeight < menuHeight)
+
+      setPositionY(calculatePositionY())
+    }
+  }, [open])
 
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
       <div className={`${open ? 'block' : 'hidden'}`}>
         {open && anchorEl && (
           <div
+            ref={menuRef}
             className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
-            style={{ top: `${positionY}px`, left: `${positionX}px` }}
+            style={{
+              top: `${positionY}px`,
+              left: `${positionX}px`,
+              maxHeight: `${panel?.getBoundingClientRect().height}px`,
+              overflowY: isScrollable ? 'auto' : 'visible'
+            }}
           >
             <div className={twMerge('flex flex-col truncate py-1', className)}>{children}</div>
           </div>

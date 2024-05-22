@@ -23,31 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  staticResourceFiltersMethods,
-  staticResourceFiltersPath
-} from '@etherealengine/common/src/schemas/media/static-resource-filters.schema'
+import { defineComponent } from '@etherealengine/ecs'
 
-import { Application } from '../../../declarations'
-import { StaticResourceFiltersService } from './static-resource-filters.class'
-import staticResourceFiltersDocs from './static-resource-filters.docs'
-import hooks from './static-resource-filters.hooks'
+/** InputSinkComponent - receives input from input entities.  */
+export const InputSinkComponent = defineComponent({
+  name: 'InputSinkComponent',
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [staticResourceFiltersPath]: StaticResourceFiltersService
+  onInit: () => {
+    return {
+      /**
+       * The set of entities that are actively channeling input into this Entity Tree
+       */
+      inputEntities: []
+    }
   }
-}
-
-export default (app: Application): void => {
-  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(app), {
-    // A list of all methods this service exposes externally
-    methods: staticResourceFiltersMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: staticResourceFiltersDocs
-  })
-
-  const service = app.service(staticResourceFiltersPath)
-  service.hooks(hooks)
-}
+})

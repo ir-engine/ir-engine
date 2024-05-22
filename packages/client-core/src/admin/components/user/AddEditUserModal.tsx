@@ -58,7 +58,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       action: 'admin'
     }
   })
-  const avatarOptions: SelectOptionsType =
+  const avatarOptions: SelectOptionsType[] =
     avatarsQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectAvatar'), value: '', disabled: true },
@@ -71,7 +71,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       paginate: false
     }
   })
-  const scopeTypeOptions: SelectOptionsType =
+  const scopeTypeOptions: SelectOptionsType[] =
     scopeTypesQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectScopes'), value: '', disabled: true },

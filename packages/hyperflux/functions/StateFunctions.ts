@@ -151,6 +151,6 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
           else localStorage.setItem(storageKey, JSON.stringify(rootState[key].get(NO_PROXY)))
         }
       }
-    }
+    } as any
   }
 }
