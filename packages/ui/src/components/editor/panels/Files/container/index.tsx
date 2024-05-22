@@ -363,21 +363,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )*/
 
     return (
-      <nav className="flex" aria-label="Breadcrumb">
-        <ol className="bg-theme-primary flex items-center space-x-2 rounded-md px-4 py-2 shadow">
+      <nav className="flex w-full" aria-label="Breadcrumb">
+        <ol className="bg-theme-primary flex w-full items-center justify-center space-x-2 rounded-md px-4 py-1 shadow">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
             <li key={file} className="flex items-center">
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="text-sm text-gray-500">{'>'}</span>
+                <span className="text-nowrap pr-1 text-sm dark:text-[#A3A3A3]">{'> '}</span>
               )}
               {index === arr.length - 1 ? (
-                <span className="text-sm text-gray-700">{file}</span>
+                <span className="text-nowrap text-sm dark:text-[#A3A3A3]">{file}</span>
               ) : (
                 <button
-                  className="text-sm text-gray-500 hover:text-gray-700 focus:underline focus:outline-none"
+                  className="text-sm hover:text-gray-700 focus:underline focus:outline-none dark:text-[#A3A3A3]"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
-                  {file}
+                  <span className="text-nowrap">{file}</span>
                 </button>
               )}
             </li>
@@ -569,6 +569,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ))}
         </div>
 
+        <div className="w-[100px]"></div>
+
         <BreadcrumbItems />
 
         <Input
@@ -577,9 +579,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           onChange={(e) => {
             searchText.set(e.target.value)
           }}
-          className="bg-theme-primary rounded"
-          startComponent={<HiMagnifyingGlass />}
+          className="bg-theme-primary h-[25px] rounded py-0"
+          startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-white" />}
         />
+
+        <div className="w-[62px]"></div>
 
         <div id="newFolder" className="bg-theme-surfaceInput flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
@@ -615,7 +619,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 })
             }}
           >
-            {t('editor:layout.filebrowser.uploadAsset')}
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAsset')}</span>
           </Button>
         )}
       </div>
