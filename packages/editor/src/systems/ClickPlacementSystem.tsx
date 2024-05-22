@@ -57,8 +57,8 @@ import {
 } from '@etherealengine/hyperflux'
 import { TransformComponent, TransformSystem } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { MouseScroll } from '@etherealengine/spatial/src/input/state/ButtonState'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -240,8 +240,8 @@ export const ClickPlacementSystem = defineSystem({
     const mouseEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
     if (!mouseEntity) return
 
-    const buttons = InputSourceComponent.getMergedButtons()
-    const axes = InputSourceComponent.getMergedAxes()
+    const buttons = InputComponent.getMergedButtons(Engine.instance.viewerEntity)
+    const axes = InputComponent.getMergedAxes(Engine.instance.viewerEntity)
 
     const zoom = axes[MouseScroll.VerticalScroll]
 
