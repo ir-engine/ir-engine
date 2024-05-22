@@ -35,6 +35,7 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   Not,
+  removeComponent,
   setComponent,
   UndefinedEntity,
   useQuery
@@ -235,7 +236,8 @@ export const ObjectGridSnapSystem = defineSystem({
   reactor: () => {
     const snapState = useMutableState(ObjectGridSnapState)
     const selectionState = useMutableState(SelectionState)
-    const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
+    const models = useQuery([ModelComponent, Not(AvatarRigComponent), Not(ObjectGridSnapComponent)])
+    const toRemove = useQuery([ObjectGridSnapComponent, Not(ModelComponent)])
 
     useEffect(() => {
       if (!snapState.enabled.value) {
@@ -261,7 +263,11 @@ export const ObjectGridSnapSystem = defineSystem({
 
     useEffect(() => {
       for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
-    }, [])
+    }, [models])
+
+    useEffect(() => {
+      for (const entity of toRemove) removeComponent(entity, ObjectGridSnapComponent)
+    })
 
     return null
   },
