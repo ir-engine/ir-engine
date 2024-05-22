@@ -77,6 +77,7 @@ import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/compone
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
@@ -117,6 +118,7 @@ export const ComponentShelfCategoriesState = defineState({
         LinkComponent,
         MountPointComponent,
         InteractableComponent,
+        InputComponent,
         GrabbableComponent
       ],
       Lighting: [
