@@ -139,7 +139,7 @@ const patchLocationSetting = async (context: HookContext<LocationService>) => {
   const data: LocationPatch = context['actualData']
 
   if (data.locationSetting)
-    await context.app.service(locationSettingPath).patch(context.id!, {
+    await context.app.service(locationSettingPath).patch(data.locationSetting.id!, {
       videoEnabled: data.locationSetting.videoEnabled,
       audioEnabled: data.locationSetting.audioEnabled,
       faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
