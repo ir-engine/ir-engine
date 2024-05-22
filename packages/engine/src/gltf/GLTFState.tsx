@@ -37,6 +37,7 @@ import {
   EntityUUID,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -484,7 +485,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     if (!Component) return
     return () => {
       //check if entity is in some other document and has the component
-      const uuid = getComponent(props.entity, UUIDComponent)
+      const uuid = getOptionalComponent(props.entity, UUIDComponent)
       const documents = getState(GLTFDocumentState)
       for (const documentID in documents) {
         const document = documents[documentID]

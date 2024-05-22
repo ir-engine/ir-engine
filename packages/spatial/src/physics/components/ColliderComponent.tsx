@@ -30,6 +30,7 @@ import { defineComponent, useComponent, useEntityContext } from '@etherealengine
 import { getState } from '@etherealengine/hyperflux'
 
 import { useAncestorWithComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -80,6 +81,7 @@ export const ColliderComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, ColliderComponent)
+    useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
 
     useEffect(() => {
