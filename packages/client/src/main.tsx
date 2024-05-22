@@ -43,6 +43,14 @@ const Engine = lazy(() => import('./engine'))
 const AppPage = lazy(() => import('./pages/_app'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
 
+const projectsToImport = ['default-project']
+
+for (const project of projectsToImport) {
+  import(project).then((module) => {
+    console.log(`${project} loaded`, module)
+  })
+}
+
 const App = () => {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search)
