@@ -25,21 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { hasComponent, InputSystemGroup, removeComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { hasComponent, removeComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '@etherealengine/spatial/src/input/state/ButtonState'
-import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { DistanceFromCameraComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
@@ -83,54 +77,54 @@ export const InteractableSystem = defineSystem({
   execute
 })
 
-const executeInput = () => {
-  if (getState(EngineState).isEditing) return
+// const executeInput = () => {
+//   if (getState(EngineState).isEditing) return
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
-  if (!inputPointerEntity) return
+//   const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+//   if (!inputPointerEntity) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
+//   const buttons = InputSourceComponent.getMergedButtons()
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
-  for (const entity of nonCapturedInputSource) {
-    const inputSource = getComponent(entity, InputSourceComponent)
-    if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down) {
-      interactWithClosestInteractable()
-    }
-  }
+//   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSources()
+//   for (const entity of nonCapturedInputSource) {
+//     const inputSource = getComponent(entity, InputSourceComponent)
+//     if (buttons.KeyE?.down || inputSource.buttons[XRStandardGamepadButton.Trigger]?.down) {
+//       interactWithClosestInteractable()
+//     }
+//   }
 
-  for (const entity of hoverInputInteractablesQuery()) {
-    const capturingEntity = getState(InputState).capturingEntity
-    const inputComponent = getComponent(entity, InputComponent)
-    const inputSourceEntity = inputComponent?.inputSources[0]
+//   for (const entity of hoverInputInteractablesQuery()) {
+//     const capturingEntity = getState(InputState).capturingEntity
+//     const inputComponent = getComponent(entity, InputComponent)
+//     const inputSourceEntity = inputComponent?.inputSources[0]
 
-    if (inputSourceEntity) {
-      const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-      if (capturingEntity !== UndefinedEntity) {
-        // return
+//     if (inputSourceEntity) {
+//       const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+//       if (capturingEntity !== UndefinedEntity) {
+//         // return
 
-        const clickButtons = inputSource?.buttons
-        clicking = !!clickButtons //clicking on our boundingbox this frame
+//         const clickButtons = inputSource?.buttons
+//         clicking = !!clickButtons //clicking on our boundingbox this frame
 
-        //TODO firing play on video each click, but for some reason only plays first time
-        //TODO refactor this, changing the execute timing is the only thing that makes this logic work, otherwise timings are different
-        //between PrimaryClick.up and capturingEntity being undefined or not
-        if (clicking && clickButtons) {
-          if (
-            clickButtons.PrimaryClick?.touched /*&& clickButtons.PrimaryClick.up*/ ||
-            clickButtons[XRStandardGamepadButton.Trigger]?.down
-          ) {
-            clickInteract(entity)
-          }
-        }
-      }
-    }
+//         //TODO firing play on video each click, but for some reason only plays first time
+//         //TODO refactor this, changing the execute timing is the only thing that makes this logic work, otherwise timings are different
+//         //between PrimaryClick.up and capturingEntity being undefined or not
+//         if (clicking && clickButtons) {
+//           if (
+//             clickButtons.PrimaryClick?.touched /*&& clickButtons.PrimaryClick.up*/ ||
+//             clickButtons[XRStandardGamepadButton.Trigger]?.down
+//           ) {
+//             clickInteract(entity)
+//           }
+//         }
+//       }
+//     }
 
-    if (clicking && !inputSourceEntity && capturingEntity === UndefinedEntity) {
-      clicking = false
-    }
-  }
-}
+//     if (clicking && !inputSourceEntity && capturingEntity === UndefinedEntity) {
+//       clicking = false
+//     }
+//   }
+// }
 //TODO only activate the one interactable closest to the camera center and within range or hovered
 //TODO look into the design language (opacity, font size, etc) to differentiate between UI on and targeted for activation
 
@@ -167,8 +161,8 @@ const interactWithClosestInteractable = () => {
   }
 }
 
-export const InteractableInputSystem = defineSystem({
-  uuid: 'ee.engine.InteractableInputSystem',
-  insert: { after: InputSystemGroup },
-  execute: executeInput
-})
+// export const InteractableInputSystem = defineSystem({
+//   uuid: 'ee.engine.InteractableInputSystem',
+//   insert: { after: InputSystemGroup },
+//   execute: executeInput
+// })
