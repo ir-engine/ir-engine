@@ -237,11 +237,12 @@ export const ClickPlacementSystem = defineSystem({
     let intersectEntity: Entity = UndefinedEntity
     let targetIntersection: { point: Vector3; normal: Vector3 } | null = null
 
-    const mouseEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+    const viewerEntity = Engine.instance.viewerEntity
+    const mouseEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
     if (!mouseEntity) return
 
-    const buttons = InputComponent.getMergedButtons(Engine.instance.viewerEntity)
-    const axes = InputComponent.getMergedAxes(Engine.instance.viewerEntity)
+    const buttons = InputComponent.getMergedButtons(viewerEntity)
+    const axes = InputComponent.getMergedAxes(viewerEntity)
 
     const zoom = axes[MouseScroll.VerticalScroll]
 
