@@ -300,6 +300,7 @@ const EffectReactor = (props: {
   useEffect(() => {
     if (schema.isActive) {
       console.log('add effect = ' + effect)
+      console.log(schema)
 
       const props = {
         schema: schema,
@@ -332,7 +333,7 @@ const BloomEffectProcess = (props: { schema: any; effects: State<Record<string, 
   console.log('BloomEffectProcess')
 
   console.log(schema)
-  const eff = new BloomEffect(schema.value)
+  const eff = new BloomEffect(schema)
   effects[Effects.BloomEffect].set(eff)
 }
 
@@ -340,7 +341,7 @@ const BrightnessContrastEffectProcess = (props: { schema: any; effects: State<Re
   const { schema, effects } = props
   console.log('BrightnessContrastEffect')
 
-  const eff = new BrightnessContrastEffect(schema.value)
+  const eff = new BrightnessContrastEffect(schema)
   effects[Effects.BrightnessContrastEffect].set(eff)
 }
 
@@ -348,15 +349,15 @@ const ChromaticAberrationEffectProcess = (props: { schema: any; effects: State<R
   const { schema, effects } = props
   console.log('ChromaticAberrationEffect')
 
-  const eff = new ChromaticAberrationEffect(schema.value)
+  const eff = new ChromaticAberrationEffect(schema)
   effects[Effects.ChromaticAberrationEffect].set(eff)
 }
 
 const ColorAverageEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
   const { schema, effects } = props
   console.log('ColorAverageEffect')
-
-  const eff = new ColorAverageEffect(schema.value.blendFunction)
+  console.log(schema)
+  const eff = new ColorAverageEffect(schema.blendFunction)
   effects[Effects.ColorAverageEffect].set(eff)
 }
 
@@ -364,7 +365,7 @@ const ColorDepthEffectProcess = (props: { schema: any; effects: State<Record<str
   const { schema, effects } = props
   console.log('ColorDepthEffect')
 
-  const eff = new ColorDepthEffect(schema.value)
+  const eff = new ColorDepthEffect(schema)
   effects[Effects.ColorDepthEffect].set(eff)
 }
 
@@ -376,7 +377,7 @@ const DepthOfFieldEffectProcess = (props: {
   const { schema, effects, camera } = props
   console.log('DepthOfFieldEffect')
 
-  const eff = new DepthOfFieldEffect(camera.value, schema.value)
+  const eff = new DepthOfFieldEffect(camera.value, schema)
   effects[Effects.DepthOfFieldEffect].set(eff)
 }
 
@@ -384,7 +385,7 @@ const DotScreenEffectProcess = (props: { schema: any; effects: State<Record<stri
   const { schema, effects } = props
   console.log('DotScreenEffect')
 
-  const eff = new DotScreenEffect(schema.value)
+  const eff = new DotScreenEffect(schema)
   effects[Effects.DotScreenEffect].set(eff)
 }
 
@@ -392,7 +393,7 @@ const FXAAEffectProcess = (props: { schema: any; effects: State<Record<string, E
   const { schema, effects } = props
   console.log('FXAAEffect')
 
-  const eff = new FXAAEffect(schema.value)
+  const eff = new FXAAEffect(schema)
   effects[Effects.FXAAEffect].set(eff)
 }
 
@@ -400,7 +401,7 @@ const GlitchEffectProcess = (props: { schema: any; effects: State<Record<string,
   const { schema, effects } = props
   console.log('GlitchEffect')
 
-  const eff = new GlitchEffect(schema.value)
+  const eff = new GlitchEffect(schema)
   effects[Effects.GlitchEffect].set(eff)
 }
 
@@ -408,7 +409,7 @@ const GridEffectProcess = (props: { schema: any; effects: State<Record<string, E
   const { schema, effects } = props
   console.log('GridEffect')
 
-  const eff = new GridEffect(schema.value)
+  const eff = new GridEffect(schema)
   effects[Effects.GridEffect].set(eff)
 }
 
@@ -416,7 +417,7 @@ const HueSaturationEffectProcess = (props: { schema: any; effects: State<Record<
   const { schema, effects } = props
   console.log('HueSaturationEffect')
 
-  const eff = new HueSaturationEffect(schema.value)
+  const eff = new HueSaturationEffect(schema)
   effects[Effects.HueSaturationEffect].set(eff)
 }
 
@@ -429,7 +430,7 @@ const LUT1DEffectProcess = (props: {
   console.log('LUT1DEffect')
 
   if (lut1DEffectTexture) {
-    const eff = new LUT1DEffect(lut1DEffectTexture, schema.value)
+    const eff = new LUT1DEffect(lut1DEffectTexture, schema)
     effects[Effects.LUT1DEffect].set(eff)
   }
 }
@@ -442,7 +443,7 @@ const LUT3DEffectProcess = (props: {
   const { schema, effects, lut3DEffectTexture } = props
   console.log('LUT3DEffect')
   if (lut3DEffectTexture) {
-    const eff = new LUT3DEffect(lut3DEffectTexture, schema.value)
+    const eff = new LUT3DEffect(lut3DEffectTexture, schema)
     effects[Effects.LUT3DEffect].set(eff)
   }
 }
@@ -451,7 +452,7 @@ const LensDistortionEffectProcess = (props: { schema: any; effects: State<Record
   const { schema, effects } = props
   console.log('LensDistortionEffect')
 
-  const eff = new LensDistortionEffect(schema.value)
+  const eff = new LensDistortionEffect(schema)
   effects[Effects.LensDistortionEffect].set(eff)
 }
 
@@ -460,7 +461,7 @@ const LinearTosRGBEffectProcess = (props: { schema: any; effects: State<Record<s
 
   console.log('LinearTosRGBEffect')
 
-  const eff = new LinearTosRGBEffect(schema.value)
+  const eff = new LinearTosRGBEffect(schema)
   effects[Effects.LinearTosRGBEffect].set(eff)
 }
 
@@ -473,7 +474,7 @@ const MotionBlurEffectProcess = (props: {
 
   console.log('MotionBlurEffect')
 
-  const eff = new MotionBlurEffect(velocityDepthNormalPass, schema.value)
+  const eff = new MotionBlurEffect(velocityDepthNormalPass, schema)
   effects[Effects.MotionBlurEffect].set(eff)
 }
 
@@ -487,7 +488,7 @@ const NoiseEffectProcess = (props: {
 
   console.log('NoiseEffect')
 
-  const eff = new NoiseEffect(schema.value)
+  const eff = new NoiseEffect(schema)
   effects[Effects.NoiseEffect].set(eff)
 }
 
@@ -496,7 +497,7 @@ const PixelationEffectProcess = (props: { schema: any; effects: State<Record<str
 
   console.log('PixelationEffect')
 
-  const eff = new PixelationEffect(schema.value.granularity)
+  const eff = new PixelationEffect(schema.granularity)
   effects[Effects.PixelationEffect].set(eff)
 }
 
@@ -505,7 +506,7 @@ const SMAAEffectProcess = (props: { schema: any; effects: State<Record<string, E
 
   console.log('SMAAEffect')
 
-  const eff = new SMAAEffect(schema.value)
+  const eff = new SMAAEffect(schema)
   effects[Effects.SMAAEffect].set(eff)
 }
 
@@ -521,7 +522,7 @@ const SSAOEffectProcess = (props: {
   console.log('SSAOEffect')
 
   const eff = new SSAOEffect(camera.value, normalPass.value.texture, {
-    ...schema.value,
+    ...schema,
     normalDepthBuffer: depthDownsamplingPass.value.texture
   })
   effects[Effects.SSAOEffect].set(eff)
@@ -532,7 +533,7 @@ const SSGIEffectProcess = (props: { schema: any; effects: State<Record<string, E
 
   console.log('SSGIEffect')
 
-  const eff = new SSGIEffect(schema.value)
+  const eff = new SSGIEffect(schema)
   effects[Effects.SSGIEffect].set(eff)
 }
 
@@ -555,7 +556,7 @@ const SSREffectProcess = (props: {
     usingSSGI = true
   }
   if (!usingSSGI) {
-    const eff = new SSREffect(composer.value, scene.value, camera.value, { ...schema.value, velocityDepthNormalPass })
+    const eff = new SSREffect(composer.value, scene.value, camera.value, { ...schema, velocityDepthNormalPass })
     useVelocityDepthNormalPass.set(true)
     effects[Effects.SSREffect].set(eff)
   }
@@ -566,7 +567,7 @@ const ScanlineEffectProcess = (props: { schema: any; effects: State<Record<strin
 
   console.log('ScanlineEffect')
 
-  const eff = new ScanlineEffect(schema.value)
+  const eff = new ScanlineEffect(schema)
   effects[Effects.ScanlineEffect].set(eff)
 }
 
@@ -579,7 +580,7 @@ const ShockWaveEffectProcess = (props: {
 
   console.log('ShockWaveEffect')
 
-  const eff = new ShockWaveEffect(camera.value, schema.value.position, schema.value)
+  const eff = new ShockWaveEffect(camera.value, schema.position, schema)
   effects[Effects.ShockWaveEffect].set(eff)
 }
 
@@ -597,7 +598,7 @@ const TRAAEffectProcess = (props: {
 
   // todo support more than 1 texture
   const textureCount = 1
-  const eff = new TRAAEffect(scene.value, camera.value, velocityDepthNormalPass, textureCount, schema.value)
+  const eff = new TRAAEffect(scene.value, camera.value, velocityDepthNormalPass, textureCount, schema)
   useVelocityDepthNormalPass.set(true)
   effects[Effects.TRAAEffect].set(eff)
 }
@@ -607,7 +608,7 @@ const TextureEffectProcess = (props: { schema: any; effects: State<Record<string
 
   console.log('TextureEffect')
 
-  const eff = new TextureEffect(schema.value)
+  const eff = new TextureEffect(schema)
   effects[Effects.TextureEffect].set(eff)
 }
 
@@ -616,7 +617,7 @@ const TiltShiftEffectProcess = (props: { schema: any; effects: State<Record<stri
 
   console.log('TiltShiftEffect')
 
-  const eff = new TiltShiftEffect(schema.value)
+  const eff = new TiltShiftEffect(schema)
   effects[Effects.TiltShiftEffect].set(eff)
 }
 
@@ -625,7 +626,7 @@ const ToneMappingEffectProcess = (props: { schema: any; effects: State<Record<st
 
   console.log('ToneMappingEffect')
 
-  const eff = new ToneMappingEffect(schema.value)
+  const eff = new ToneMappingEffect(schema)
   effects[Effects.ToneMappingEffect].set(eff)
 }
 
@@ -634,6 +635,6 @@ const VignetteEffectProcess = (props: { schema: any; effects: State<Record<strin
 
   console.log('VignetteEffect')
 
-  const eff = new VignetteEffect(schema.value)
+  const eff = new VignetteEffect(schema)
   effects[Effects.VignetteEffect].set(eff)
 }
