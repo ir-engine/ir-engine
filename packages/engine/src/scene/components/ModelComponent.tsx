@@ -208,10 +208,9 @@ function ModelReactor() {
       })
     }
     return () => {
-      if (!uuid) return
       getMutableState(GLTFSourceState)[uuid].set(none)
 
-      // If model hasn't been dereferenced unload
+      // If model hasn't been dereferenced unload and remove children
       if (getState(GLTFSnapshotState)[uuid]) {
         dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
         for (const childUUID in loadedJsonHierarchy) {

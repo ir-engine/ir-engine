@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
@@ -410,7 +410,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     return entity
   }).value
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     return () => {
       //check if entity is in some other document
       const uuid = getComponent(entity, UUIDComponent)
@@ -477,9 +477,9 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
   const node = nodes[props.nodeIndex]!
-
   const extension = node.extensions![props.extension]
-  useLayoutEffect(() => {
+
+  useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return
     return () => {
