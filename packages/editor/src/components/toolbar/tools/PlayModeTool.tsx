@@ -38,7 +38,6 @@ import { WorldNetworkAction } from '@etherealengine/network'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
-import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -46,8 +45,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
 import { EditorState } from '../../../services/EditorServices'
+import { SelectionState } from '../../../services/SelectionServices'
 import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
-import { highlightQuery } from '../../../systems/HighlightSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
@@ -91,8 +90,9 @@ const PlayModeTool = () => {
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
       //just remove all gizmo in the scene
-      highlightQuery().forEach((entity) => removeComponent(entity, HighlightComponent))
-      //just remove all higlights in the scene
+
+      //just clear selection to remove all higlights in the scene
+      SelectionState.updateSelection([])
     }
   }
 

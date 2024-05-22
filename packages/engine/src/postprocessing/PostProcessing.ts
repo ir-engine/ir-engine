@@ -45,7 +45,7 @@ import {
 } from 'postprocessing'
 import { Color, ColorSpace, SRGBColorSpace, Texture, TextureEncoding, Vector2, Vector3 } from 'three'
 
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { LinearTosRGBEffect } from '../../../spatial/src/renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
   SMAAEffect: 'SMAAEffect' as const,
@@ -650,15 +650,15 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     blendFunction: BlendFunction.SCREEN,
     premultiply: false
   },
-  [Effects.PixelationEffect]: {
-    isActive: false,
-    granularity: 30
-  },
   [Effects.ScanlineEffect]: {
     isActive: false,
     blendFunction: BlendFunction.OVERLAY,
     density: 1.25,
     scrollSpeed: 0.0
+  },
+  [Effects.PixelationEffect]: {
+    isActive: false,
+    granularity: 30
   },
   [Effects.ShockWaveEffect]: {
     isActive: false,
