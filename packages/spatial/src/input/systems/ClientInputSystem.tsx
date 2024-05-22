@@ -323,7 +323,7 @@ const execute = () => {
 
     const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
     if (inputPointerComponent) {
-      sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
+      sortedIntersections.push({ entity: inputPointerComponent.canvasEntity, distance: 0 })
     }
 
     sourceState.intersections.set(sortedIntersections)
@@ -474,8 +474,7 @@ const usePointerInputSources = () => {
     const pointerEnter = (event: PointerEvent) => {
       setComponent(emulatedInputSourceEntity, InputPointerComponent, {
         pointerId: event.pointerId,
-        canvasEntity: canvasEntity,
-        cameraEntity: canvasEntity //TODO likely want to double check this is done with a guaranteed camera (though it should exist)
+        canvasEntity: canvasEntity
       })
     }
 
