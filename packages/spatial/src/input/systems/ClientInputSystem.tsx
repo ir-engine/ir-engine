@@ -38,12 +38,11 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
@@ -51,6 +50,7 @@ import {
   getAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
@@ -132,13 +132,7 @@ const worldPosInputComponent = new Vector3()
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
-const spatialInputObjects = defineQuery([
-  InputComponent,
-  VisibleComponent,
-  TransformComponent,
-  Not(CameraComponent),
-  Not(AvatarComponent)
-]) //TODO may be overkill if visible means it always has transform
+const spatialInputObjects = defineQuery([InputComponent, VisibleComponent, TransformComponent, Not(CameraComponent)]) //TODO may be overkill if visible means it always has transform
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
@@ -149,7 +143,7 @@ const inputRaycast = {
   origin: new Vector3(),
   direction: new Vector3(),
   maxDistance: 1000,
-  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default), //TODO - potentially change this to Input layer if we have a consistent way to ensure input layers are set up
+  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
   excludeRigidBody: undefined //
 } as RaycastArgs
 
@@ -291,7 +285,7 @@ const execute = () => {
       let closestDistanceSquared = Infinity
 
       //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
-      const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+      const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
       const inputSourceEntity =
         getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
@@ -300,6 +294,7 @@ const execute = () => {
 
         //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
         for (const inputEntity of spatialInputObjects()) {
+          if (inputEntity === selfAvatarEntity) continue
           const inputComponent = getComponent(inputEntity, InputComponent)
 
           TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
@@ -323,7 +318,7 @@ const execute = () => {
 
     const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
     if (inputPointerComponent) {
-      sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
+      sortedIntersections.push({ entity: inputPointerComponent.canvasEntity, distance: 0 })
     }
 
     sourceState.intersections.set(sortedIntersections)
@@ -348,7 +343,17 @@ const execute = () => {
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
-    getMutableComponent(inputEntity, InputComponent).inputSources.merge(inputSources)
+    const inputComponent = getMutableComponent(inputEntity, InputComponent)
+    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
+      inputComponent.inputSources.merge(inputSources)
+    } else {
+      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
+
+        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+        sinkInputComponent.inputSources.merge(inputSources)
+      }
+    }
   }
 }
 
@@ -474,8 +479,7 @@ const usePointerInputSources = () => {
     const pointerEnter = (event: PointerEvent) => {
       setComponent(emulatedInputSourceEntity, InputPointerComponent, {
         pointerId: event.pointerId,
-        canvasEntity: canvasEntity,
-        cameraEntity: canvasEntity //TODO likely want to double check this is done with a guaranteed camera (though it should exist)
+        canvasEntity: canvasEntity
       })
     }
 
