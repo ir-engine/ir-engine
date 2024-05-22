@@ -47,6 +47,7 @@ import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { HookContext } from '../../../declarations'
+import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
@@ -245,6 +246,7 @@ export default {
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
+      disallowNonId,
       makeOldLocationLobby,
       persistData,
       discard('locationSetting')
