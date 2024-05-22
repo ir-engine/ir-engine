@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { transaction } from '@feathersjs/knex'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
@@ -241,9 +240,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [transaction.rollback(), duplicateNameError],
+    create: [duplicateNameError],
     update: [],
-    patch: [transaction.rollback(), duplicateNameError],
+    patch: [duplicateNameError],
     remove: []
   }
 } as any
