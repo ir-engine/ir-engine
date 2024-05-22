@@ -89,7 +89,9 @@ const makeLobbies = async (context: HookContext<LocationService>) => {
   const result: LocationType[] = Array.isArray(context.result) ? context.result : ([context.result] as LocationType[])
 
   for (const item of result)
-    await context.service._patch(null, { isLobby: false }, { query: { isLobby: true, id: { $ne: item.id } } })
+    if (item.isLobby) {
+      await context.service._patch(null, { isLobby: false }, { query: { isLobby: true, id: { $ne: item.id } } })
+    }
 }
 
 const createLocationSetting = async (context: HookContext<LocationService>) => {
