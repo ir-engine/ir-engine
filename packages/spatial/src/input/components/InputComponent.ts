@@ -31,10 +31,12 @@ import {
   getOptionalComponent,
   InputSystemGroup,
   UndefinedEntity,
-  useExecute
+  useExecute,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import {
   defineComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
@@ -76,8 +78,14 @@ export const InputComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
+    if (!json && component.inputSinks.value.length === 0) {
+      if (hasComponent(entity, UUIDComponent)) {
+        component.inputSinks.set([getComponent(entity, UUIDComponent)])
+      } else {
+        console.warn('no UUIDComponent at entity, cannot add self as InputSink at entity ' + entity)
+      }
+    }
     if (!json) return
-
     if (typeof json.inputSinks === 'object') component.inputSinks.set(json.inputSinks)
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
     if (json.activationDistance) component.activationDistance.set(json.activationDistance)

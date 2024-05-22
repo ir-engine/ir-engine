@@ -143,7 +143,7 @@ const inputRaycast = {
   origin: new Vector3(),
   direction: new Vector3(),
   maxDistance: 1000,
-  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default), //TODO - potentially change this to Input layer if we have a consistent way to ensure input layers are set up
+  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
   excludeRigidBody: undefined //
 } as RaycastArgs
 
@@ -343,7 +343,17 @@ const execute = () => {
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
-    getMutableComponent(inputEntity, InputComponent).inputSources.merge(inputSources)
+    const inputComponent = getMutableComponent(inputEntity, InputComponent)
+    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
+      inputComponent.inputSources.merge(inputSources)
+    } else {
+      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
+
+        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+        sinkInputComponent.inputSources.merge(inputSources)
+      }
+    }
   }
 }
 
