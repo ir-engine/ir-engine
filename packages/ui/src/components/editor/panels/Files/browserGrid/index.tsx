@@ -137,7 +137,7 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2">
+      <span className="flex max-h-7 flex-row items-center gap-2 text-white">
         {file.isFolder ? <IoIosArrowForward className="text-grey" /> : <VscBlank className="text-grey" />}
         <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
