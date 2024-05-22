@@ -107,15 +107,15 @@ const Select = <T extends OptionValueType>({
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Tab') return
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key !== 'Tab') return
 
-    const optionFound = options.find((item) => item.label === e.currentTarget.value)
-    console.log('handleBlur', e.currentTarget.value, optionFound, e)
+  //   const optionFound = options.find((item) => item.label === e.currentTarget.value)
+  //   console.log('handleBlur', e.currentTarget.value, optionFound, e)
 
-    showOptions.set(false)
-    onChange(e.currentTarget.value as T)
-  }
+  //   showOptions.set(false)
+  //   onChange(e.currentTarget.value as T)
+  // }
 
   const handleOptionItem = (option: SelectOptionsType) => {
     if (option.disabled) return
@@ -139,7 +139,7 @@ const Select = <T extends OptionValueType>({
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
-        onKeyDown={handleKeyDown}
+        // onKeyDown={handleKeyDown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
