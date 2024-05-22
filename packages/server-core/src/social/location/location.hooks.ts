@@ -27,14 +27,12 @@ import { BadRequest } from '@feathersjs/errors'
 import { transaction } from '@feathersjs/knex'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
-import { Knex } from 'knex'
 
 import { locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import {
   LocationData,
-  LocationDatabaseType,
   locationDataValidator,
   LocationID,
   LocationPatch,
@@ -89,8 +87,8 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
 
 /* (BEFORE) CREATE HOOKS */
 
-const makeLobbyHelper = async (trx: Knex.Transaction) => {
-  await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+const makeLobbyHelper = async (context: HookContext<LocationService>) => {
+  await context.service._patch(null, { isLobby: false }, { query: { isLobby: true } })
 }
 
 const makeLobbies = async (context: HookContext<LocationService>) => {
@@ -101,7 +99,7 @@ const makeLobbies = async (context: HookContext<LocationService>) => {
 
   for (const item of data) {
     if (item.isLobby) {
-      await makeLobbyHelper(context.params.transaction!.trx!)
+      await makeLobbyHelper(context)
     }
   }
 }
@@ -155,7 +153,7 @@ const makeOldLocationLobby = async (context: HookContext<LocationService>) => {
   context.oldLocation = await context.app.service(locationPath).get(context.id!)
 
   if (!context.oldLocation.isLobby && data.isLobby) {
-    await makeLobbyHelper(context.params.transaction!.trx!)
+    await makeLobbyHelper(context)
   }
 }
 
