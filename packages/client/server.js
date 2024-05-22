@@ -39,8 +39,7 @@ dotenv.config({ path: process.cwd() + '/../../.env.local' })
 
 
 const app = new koa();
-const HOST = process.env.VITE_APP_HOST || '0.0.0.0';
-const PORT = parseInt(process.env.HOST_PORT) || 3000;
+const PORT = parseInt(process.env.VITE_APP_PORT) || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false;
 const key = process.env.KEY || 'certs/key.pem'
 const cert = process.env.CERT || 'certs/cert.pem'
@@ -69,4 +68,4 @@ app.listen = function () {
   }
   return server.listen.apply(server, arguments);
 };
-app.listen(PORT, HOST, () => console.log(`Server listening on port: ${PORT}`));
+app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));
