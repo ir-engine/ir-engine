@@ -25,29 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { useQuery, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import NumericInput from '@etherealengine/editor/src/components/inputs/NumericInput'
-import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
-import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
-import {
-  commitProperties,
-  commitProperty,
-  EditorComponentType,
-  updateProperty
-} from '@etherealengine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { InputComponent } from '../components/InputComponent'
-
-type OptionsType = Array<{
-  label: string
-  value: string
-}>
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { PropertiesPanelButton } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import NumericInput from '../inputs/NumericInput'
+import SelectInput from '../inputs/SelectInput'
+import NodeEditor from './NodeEditor'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
