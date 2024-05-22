@@ -258,7 +258,7 @@ const execute = () => {
 
   const inputSources = inputQuery()
 
-  const buttons = InputSourceComponent.getMergedButtons(inputSources)
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
 
   if (buttons.KeyB?.down) onKeyB()
 
