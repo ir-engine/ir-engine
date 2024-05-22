@@ -53,6 +53,7 @@ export interface SelectProps<T extends OptionValueType> {
   inputVariant?: 'outlined' | 'underlined' | 'onboarding'
   inputClassName?: string
   errorBorder?: boolean
+  dropDownOnly?: boolean
 }
 
 const Select = <T extends OptionValueType>({
@@ -70,11 +71,11 @@ const Select = <T extends OptionValueType>({
   labelClassName,
   inputVariant,
   inputClassName,
-  errorBorder
+  errorBorder,
+  dropDownOnly
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-
   const showOptions = useHookstate(false)
   const filteredOptions = useHookstate(options)
   const selectLabel = useHookstate('')
@@ -94,6 +95,11 @@ const Select = <T extends OptionValueType>({
     showOptions.set((v) => !v)
   }
 
+  // Prevent the input field from receiving focus with Mouse click when it is dropDownOnly
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+  }
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newOptions = options.filter((item) => item.label.toLowerCase().startsWith(e.target.value.toLowerCase()))
     if (newOptions.length > 0) {
@@ -106,16 +112,6 @@ const Select = <T extends OptionValueType>({
       onChange(newOptions[0].value as T)
     }
   }
-
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key !== 'Tab') return
-
-  //   const optionFound = options.find((item) => item.label === e.currentTarget.value)
-  //   console.log('handleBlur', e.currentTarget.value, optionFound, e)
-
-  //   showOptions.set(false)
-  //   onChange(e.currentTarget.value as T)
-  // }
 
   const handleOptionItem = (option: SelectOptionsType) => {
     if (option.disabled) return
@@ -137,9 +133,10 @@ const Select = <T extends OptionValueType>({
         className={`cursor-pointer ${inputClassName}`}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
-        onChange={handleSearch}
+        onChange={!dropDownOnly ? handleSearch : undefined}
         onClick={toggleDropdown}
-        // onKeyDown={handleKeyDown}
+        onMouseDown={dropDownOnly ? handleMouseDown : undefined}
+        dropDownOnly={dropDownOnly}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
