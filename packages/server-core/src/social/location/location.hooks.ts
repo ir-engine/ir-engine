@@ -84,7 +84,7 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
   }
 }
 
-/* (BEFORE) CREATE HOOKS */
+/* (AFTER) CREATE HOOKS */
 
 const makeLobbies = async (context: HookContext<LocationService>) => {
   const result: LocationType[] = Array.isArray(context.result) ? context.result : ([context.result] as LocationType[])
@@ -92,8 +92,6 @@ const makeLobbies = async (context: HookContext<LocationService>) => {
   for (const item of result)
     await context.service._patch(null, { isLobby: false }, { query: { isLobby: true, id: { $ne: item.id } } })
 }
-
-/* (AFTER) CREATE HOOKS */
 
 const createLocationSetting = async (context: HookContext<LocationService>) => {
   if (!context.data || context.method !== 'create') {
