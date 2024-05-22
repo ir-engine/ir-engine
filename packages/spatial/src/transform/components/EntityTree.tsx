@@ -382,7 +382,7 @@ export function useTreeQuery(entity: Entity) {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.keys.map(Number) as Entity[]
 }
@@ -427,7 +427,7 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity, component])
 
   return result.value
 }
@@ -469,7 +469,7 @@ export function useChildWithComponent(entity: Entity, component: ComponentType<a
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity, component])
 
   return result.value
 }

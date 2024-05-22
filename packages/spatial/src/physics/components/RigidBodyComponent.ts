@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 import { useEntityContext } from '@etherealengine/ecs'
 import {
@@ -34,8 +34,10 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
+import { getState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
+import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
@@ -106,6 +108,14 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
+
+    useEffect(() => {
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.createRigidBody(entity, physicsWorld)
+      return () => {
+        Physics.removeRigidbody(entity, physicsWorld)
+      }
+    }, [])
 
     useLayoutEffect(() => {
       const type = component.type.value
