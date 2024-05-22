@@ -31,7 +31,8 @@ import {
   PresentationSystemGroup,
   QueryReactor,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@etherealengine/ecs'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
@@ -50,7 +51,10 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { removeMaterial } from '../functions/materialSourcingFunctions'
+import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { isArray } from 'lodash'
+import { Material } from 'three'
+import { createMaterialInstance, removeMaterial } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {
   useEffect(() => {
@@ -62,18 +66,30 @@ const reactor = (): ReactElement => {
 
   return (
     <>
-      {
-        <QueryReactor
-          Components={[MaterialComponent[MaterialComponents.Instance]]}
-          ChildEntityReactor={MaterialInstanceReactor}
-        />
-      }
+      <QueryReactor
+        Components={[MaterialComponent[MaterialComponents.Instance]]}
+        ChildEntityReactor={MaterialInstanceReactor}
+      />
       <QueryReactor
         Components={[MaterialComponent[MaterialComponents.State]]}
         ChildEntityReactor={MaterialEntityReactor}
       />
+      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshReactor} />
     </>
   )
+}
+
+const MeshReactor = () => {
+  const entity = useEntityContext()
+  const materialComponent = useOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])
+  const meshComponent = useComponent(entity, MeshComponent)
+  useEffect(() => {
+    if (materialComponent) return
+    const material = meshComponent.material.value as Material
+    if (!isArray(material)) createMaterialInstance('', entity, material)
+    else for (const mat of material) createMaterialInstance('', entity, mat)
+  }, [])
+  return null
 }
 
 const MaterialEntityReactor = () => {
