@@ -25,8 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import matches from 'ts-matches'
 
-import { defineComponent, EntityUUID } from '@etherealengine/ecs'
+import { defineComponent, EntityUUID, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { Physics } from '../classes/Physics'
+import { ColliderComponent } from './ColliderComponent'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -81,5 +84,22 @@ export const TriggerComponent = defineComponent({
     return {
       triggers: component.triggers.get(NO_PROXY)
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const colliderComponent = useComponent(entity, ColliderComponent)
+
+    useEffect(() => {
+      if (!colliderComponent?.value) return
+
+      Physics.setTrigger(entity, true)
+
+      return () => {
+        Physics.setTrigger(entity, false)
+      }
+    }, [colliderComponent])
+
+    return null
   }
 })
