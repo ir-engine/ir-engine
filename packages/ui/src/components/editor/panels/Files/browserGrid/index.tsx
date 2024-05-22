@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   FilesViewModeSettings,
   availableTableColumns
@@ -33,8 +32,8 @@ import { FileDataType } from '@etherealengine/editor/src/components/assets/FileB
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { StateMethods, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
@@ -182,11 +181,11 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex flex-col items-center text-center"
+      className="flex flex-col items-center text-center "
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.item.isFolder ? undefined : props.onClick}
       style={{
-        width: iconSize + 10,
+        width: iconSize + 20,
         margin: 0.1 * iconSize
       }}
     >
@@ -203,7 +202,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
         <></>
       ) : (
         /*<RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />*/
-        props.item.fullName
+        <div className="w-full text-wrap break-all text-white">{props.item.fullName}</div>
       )}
     </div>
   )
@@ -217,13 +216,12 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean>
+  isFilesLoading: boolean
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
-  refreshDirectory: () => Promise<void>
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
 }
@@ -242,15 +240,16 @@ export function FileBrowserItem({
   moveContent,
   isFilesLoading,
   addFolder,
-  refreshDirectory,
   isListView,
   staticResourceModifiedDates
 }: FileBrowserItemType) {
   const { t } = useTranslation()
-  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
+  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
+
+  const fileService = useMutation(fileBrowserPath)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -306,18 +305,14 @@ export function FileBrowserItem({
   const pasteContent = async () => {
     handleClose()
 
-    if (isFilesLoading.value) return
-    isFilesLoading.set(true)
-
-    await FileBrowserService.moveContent(
-      currentContent.current.item.fullName,
-      currentContent.current.item.fullName,
-      currentContent.current.item.path,
-      item.isFolder ? item.path + item.fullName : item.path,
-      currentContent.current.isCopy
-    )
-
-    await refreshDirectory()
+    if (isFilesLoading) return
+    fileService.update(null, {
+      oldName: currentContent.current.item.fullName,
+      newName: currentContent.current.item.fullName,
+      oldPath: currentContent.current.item.path,
+      newPath: item.isFolder ? item.path + item.fullName : item.path,
+      isCopy: currentContent.current.isCopy
+    })
   }
 
   const viewAssetProperties = () => {

@@ -23,11 +23,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import Inventory2Icon from '@mui/icons-material/Inventory2'
 import { CircularProgress } from '@mui/material'
-import { t } from 'i18next'
 import { debounce } from 'lodash'
-import DockLayout, { DockMode, TabData } from 'rc-dock'
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -35,18 +32,22 @@ import { useTranslation } from 'react-i18next'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
+import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
+import Input from '../../../../../primitives/tailwind/Input'
+import { FileIcon } from '../../Files/icon'
 
-import { DockContainer } from '../EditorContainer'
-import StringInput from '../inputs/StringInput'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
-import { FileIcon } from './FileBrowser/FileIcon'
+type FolderType = { folderType: 'folder'; assetClass: string }
+type ResourceType = { folderType: 'staticResource' } & StaticResourceType
 
-import { AssetsPanelCategories } from './AssetsPanelCategories'
+type CategorizedStaticResourceType = FolderType | ResourceType
 
-import styles from './styles.module.scss'
+const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
@@ -79,19 +80,12 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
           size: 'unknown size'
         })
       }
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        marginTop: '10px',
-        cursor: 'pointer'
-      }}
+      className="mt-[10px] flex cursor-pointer flex-col items-center  justify-center align-middle"
     >
-      <span style={{ marginBottom: '5px', height: '70px', width: '70px', fontSize: 70 }}>
+      <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
-      <span>{name}</span>
+      <span className="text-white">{name}</span>
     </div>
   )
 }
@@ -115,7 +109,7 @@ function iterativelyListTags(obj: object): string[] {
   return tags
 }
 
-const SceneAssetsPanel = () => {
+const AssetPanel = () => {
   const { t } = useTranslation()
   const collapsedCategories = useHookstate<{ [key: string]: boolean }>({})
   const categories = useHookstate<Category[]>([])
@@ -139,20 +133,21 @@ const SceneAssetsPanel = () => {
       const resource = categories[index]
 
       return (
-        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: `${resource.depth * 32}px` }}>
+        <div className={`bg-theme-surface-main flex items-center ml-${resource.depth}`}>
           {resource.isLeaf ? (
             <></>
           ) : (
-            <div
-              style={{ width: '8px', height: '8px', backgroundColor: 'black', borderRadius: '50%' }}
-              onClick={() => collapsedCategories[resource.name].set(!resource.collapsed)}
-            >
-              {resource.collapsed ? '>' : 'v'}
+            <div onClick={() => collapsedCategories[resource.name].set(!resource.collapsed)}>
+              {resource.collapsed ? (
+                <MdKeyboardArrowRight className="font-small text-white" />
+              ) : (
+                <MdKeyboardArrowDown className="font-small text-white" />
+              )}
             </div>
           )}
           <div
             key={resource.name}
-            className={`${styles.resourceItemContainer} ${selectedCategory === resource ? styles.selected : ''}`}
+            className={twMerge(`p-2`, selectedCategory === resource ? 'bg-theme-primary text-grey' : 'text-white')}
             onClick={() => onClick(resource)}
           >
             {resource.name}
@@ -162,6 +157,25 @@ const SceneAssetsPanel = () => {
     },
     []
   )
+
+  const CategoriesList = () => {
+    return (
+      <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+        {categories.map((category, index) => (
+          <AssetCategory
+            data={{
+              categories: categories.value as Category[],
+              selectedCategory: selectedCategory.value,
+              onClick: (resource: Category) => {
+                selectedCategory.set(JSON.parse(JSON.stringify(resource)))
+              }
+            }}
+            index={index}
+          />
+        ))}
+      </div>
+    )
+  }
 
   useEffect(() => {
     const result: Category[] = []
@@ -224,29 +238,10 @@ const SceneAssetsPanel = () => {
     return () => searchTimeoutCancelRef.current?.()
   }, [searchText, selectedCategory])
 
-  const CategoriesList = () => {
-    return (
-      <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
-        {categories.map((category, index) => (
-          <AssetCategory
-            data={{
-              categories: categories.value as Category[],
-              selectedCategory: selectedCategory.value,
-              onClick: (resource: Category) => {
-                selectedCategory.set(JSON.parse(JSON.stringify(resource)))
-              }
-            }}
-            index={index}
-          />
-        ))}
-      </div>
-    )
-  }
-
   const ResourceItems = () => {
     if (loading.value) {
       return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex items-center justify-center">
           <CircularProgress />
         </div>
       )
@@ -269,102 +264,27 @@ const SceneAssetsPanel = () => {
   }
 
   return (
-    <div style={{ margin: '1rem auto', height: '100%', width: '100%' }}>
-      <div className={styles.searchContainer}>
-        <StringInput
-          placeholder={t('editor:layout.scene-assets.search-placeholder')}
-          value={searchText.value}
-          onChange={searchText.set}
-        />
-      </div>
-      <div style={{ display: 'flex', height: '100%', width: '100%', margin: '1rem auto' }}>
-        <div style={{ height: '100%', width: '33%' }}>
+    <>
+      <div className="bg-theme-surface-main mb-1 ml-1 flex h-7" />
+      <div className="flex h-[100%] flex-row p-2">
+        <div className="flex h-[100%] w-[25%] flex-col gap-2">
+          <Input
+            placeholder={t('editor:layout.filebrowser.search-placeholder')}
+            value={searchText.value}
+            onChange={(e) => {
+              searchText.set(e.target.value)
+            }}
+            className="bg-theme-primary w-[100%] rounded"
+            startComponent={<HiMagnifyingGlass className="text-white" />}
+          />
           <CategoriesList />
         </div>
-        <div
-          style={{
-            width: '50%',
-            display: 'grid',
-            gap: '40px 10px',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
-            gridAutoRows: '60px',
-            overflow: 'auto'
-          }}
-        >
+        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-scroll">
           <ResourceItems />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
-const AssetsPreviewContext = createContext({ onAssetSelectionChanged: (props: AssetSelectionChangePropsType) => {} })
-
-export const SceneAssetsPanelContent = () => {
-  const { t } = useTranslation()
-  const assetsPreviewPanelRef = useRef()
-  return (
-    <AssetsPreviewContext.Provider
-      value={{
-        onAssetSelectionChanged: (props: AssetSelectionChangePropsType) =>
-          (assetsPreviewPanelRef.current as any)?.onSelectionChanged(props)
-      }}
-    >
-      <DockContainer id="sceneAssetsPanelContent" dividerAlpha={0.3}>
-        <DockLayout
-          onLayoutChange={() => (assetsPreviewPanelRef.current as any)?.onLayoutChanged?.()}
-          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
-          defaultLayout={{
-            dockbox: {
-              mode: 'vertical' as DockMode,
-              children: [
-                {
-                  size: 7,
-                  mode: 'horizontal' as DockMode,
-                  children: [
-                    {
-                      tabs: [
-                        {
-                          id: 'sceneAssetsPanel',
-                          title: t('editor:tabs.project-assets') as string,
-                          content: <SceneAssetsPanel />,
-                          cached: true
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  size: 3,
-                  tabs: [
-                    {
-                      id: 'previewPanel',
-                      title: t('editor:layout.scene-assets.preview'),
-                      cached: true,
-                      content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} />
-                    }
-                  ]
-                }
-              ]
-            }
-          }}
-        />
-      </DockContainer>
-    </AssetsPreviewContext.Provider>
-  )
-}
-
-export const SceneAssetsPanelTab: TabData = {
-  id: 'sceneAssetsPanelTab',
-  closable: true,
-  cached: true,
-  title: (
-    <PanelDragContainer>
-      <PanelIcon as={Inventory2Icon} size={12} />
-      <PanelTitle>{t('editor:tabs.scene-assets')}</PanelTitle>
-    </PanelDragContainer>
-  ),
-  content: <SceneAssetsPanelContent />
-}
-
-export default SceneAssetsPanel
+export default AssetPanel

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+import AssetsPanel from './container'
 
 export const AssetsPanelTitle = () => {
   const { t } = useTranslation()
@@ -46,8 +46,8 @@ export const AssetsPanelTitle = () => {
 export default AssetsPanelTitle
 
 export const AssetsPanelTab: TabData = {
-  id: 'viewPanel',
+  id: 'assetsPanel',
   closable: true,
   title: <AssetsPanelTitle />,
-  content: <></>
+  content: <AssetsPanel />
 }
