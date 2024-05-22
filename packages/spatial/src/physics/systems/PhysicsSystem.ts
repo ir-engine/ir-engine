@@ -27,27 +27,24 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
-
-import { getComponent, hasComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { findAncestorWithComponent, iterateEntityNode } from '../../transform/components/EntityTree'
+
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PhysicsSerialization } from '../PhysicsSerialization'
-import { Physics, PhysicsWorld } from '../classes/Physics'
-import { ColliderComponent } from '../components/ColliderComponent'
+import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
   RigidBodyFixedTagComponent,
   RigidBodyKinematicTagComponent
 } from '../components/RigidBodyComponent'
-import { TriggerComponent } from '../components/TriggerComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
@@ -73,9 +70,6 @@ export function smoothKinematicBody(entity: Entity, dt: number, substep: number)
 }
 
 const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
-const rigidbodyQuery = defineQuery([RigidBodyComponent])
-const colliderQuery = defineQuery([ColliderComponent])
-const triggerQuery = defineQuery([ColliderComponent, TriggerComponent])
 const collisionQuery = defineQuery([CollisionComponent])
 
 const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
@@ -83,48 +77,9 @@ const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagCom
 let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
 let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
-export const handlePhysicsEnterExitQueries = (physicsWorld: PhysicsWorld) => {
-  const handledColliders = new Set<Entity>()
-  for (const entity of rigidbodyQuery.enter()) {
-    Physics.createRigidBody(entity, physicsWorld)
-    // ensure all colliders are attached to rigidbodies
-    iterateEntityNode(
-      entity,
-      (child) => {
-        const colliderDesc = Physics.createColliderDesc(child, entity)
-        Physics.attachCollider(physicsWorld, colliderDesc, entity, child)
-        handledColliders.add(child)
-      },
-      (entity) => hasComponent(entity, ColliderComponent)
-    )
-  }
-  for (const entity of rigidbodyQuery.exit()) {
-    Physics.removeRigidbody(entity, physicsWorld)
-  }
-  for (const entity of colliderQuery.enter()) {
-    if (handledColliders.has(entity)) continue
-    const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
-    if (ancestor) {
-      const colliderDesc = Physics.createColliderDesc(entity, ancestor)
-      Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
-    } // else case covered in above rigidbody queries
-  }
-  for (const entity of colliderQuery.exit()) {
-    Physics.removeCollider(physicsWorld, entity)
-  }
-  for (const entity of triggerQuery.enter()) {
-    Physics.setTrigger(entity, true)
-  }
-  for (const entity of triggerQuery.exit()) {
-    Physics.setTrigger(entity, false)
-  }
-}
-
 const execute = () => {
   const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
   if (!physicsWorld) return
-
-  handlePhysicsEnterExitQueries(physicsWorld)
 
   const allRigidBodies = nonFixedRigidbodyQuery()
 

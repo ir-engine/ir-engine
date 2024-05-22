@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState } from '@etherealengine/hyperflux'
-
 import { useQuery } from '@etherealengine/ecs'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
+
 import { EditorHelperState } from '../../services/EditorHelperState'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from './styles.module.scss'
@@ -41,12 +40,12 @@ import styles from './styles.module.scss'
  * @constructor
  */
 export function ControlText() {
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const editorHelperState = useMutableState(EditorHelperState)
   const { t } = useTranslation()
 
   const flyEnabled = useQuery([FlyControlComponent])
 
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectionState = useMutableState(SelectionState)
   const objectSelected = selectionState.selectedEntities.length > 0
 
   let controlsText

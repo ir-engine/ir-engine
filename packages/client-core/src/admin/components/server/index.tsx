@@ -18,16 +18,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+
+import { HiOutlineRefresh } from 'react-icons/hi'
+
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiOutlineRefresh } from 'react-icons/hi'
+
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
+import MigrationsTable from './MigrationsTable'
 import ServerTable from './ServerTable'
 
 export default function Servers() {
@@ -48,12 +54,9 @@ export default function Servers() {
     }
   }, [autoRefresh])
 
-  return (
-    <>
+  const ServersTopBar = () => {
+    return (
       <div className="flex justify-between">
-        <Text fontSize="xl" className="mb-6">
-          {t('admin:components.server.servers')}
-        </Text>
         <div className="flex items-center gap-2">
           <Text theme="secondary" fontSize="sm">
             {t('admin:components.server.autoRefresh')}
@@ -74,6 +77,11 @@ export default function Servers() {
           </div>
         </div>
       </div>
+    )
+  }
+
+  const ServerTypeTiles = () => {
+    return (
       <div className="mb-4 flex flex-wrap gap-2">
         {serverInfoQuery.data.map((info) => (
           <div
@@ -91,7 +99,32 @@ export default function Servers() {
           </div>
         ))}
       </div>
-      <ServerTable serverType={serverType.value} serverInfoQuery={serverInfoQuery} />
+    )
+  }
+
+  return (
+    <>
+      <Tabs
+        tabsData={[
+          {
+            title: t('admin:components.server.servers'),
+            tabLabel: t('admin:components.server.servers'),
+            rightComponent: <ServersTopBar />,
+            bottomComponent: (
+              <>
+                <ServerTypeTiles />
+                <ServerTable serverType={serverType.value} serverInfoQuery={serverInfoQuery} />
+              </>
+            )
+          },
+          {
+            title: t('admin:components.server.migrations'),
+            tabLabel: t('admin:components.server.migrations'),
+            bottomComponent: <MigrationsTable />
+          }
+        ]}
+        tabcontainerClassName="bg-theme-primary"
+      />
     </>
   )
 }

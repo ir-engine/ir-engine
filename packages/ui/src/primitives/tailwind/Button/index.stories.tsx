@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
 import { IoAddOutline, IoSend } from 'react-icons/io5'
+
 import Button from './index'
 
 const argTypes: ArgTypes = {

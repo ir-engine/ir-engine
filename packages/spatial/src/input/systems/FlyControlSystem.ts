@@ -23,23 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import {
-  ECSState,
-  Entity,
-  InputSystemGroup,
   defineQuery,
   defineSystem,
+  ECSState,
+  Entity,
   getComponent,
   hasComponent,
+  InputSystemGroup,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -76,11 +78,11 @@ const onSecondaryReleased = (viewerEntity: Entity) => {
 
 const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
 const cameraQuery = defineQuery([CameraComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const inputSourceEntities = inputSourceQuery()
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
@@ -97,7 +99,7 @@ const execute = () => {
     const transform = getComponent(entity, TransformComponent)
     const input = getComponent(entity, InputComponent)
 
-    movement.copy(V_000)
+    movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
       const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
       const pointer = getComponent(inputSourceEntity, InputPointerComponent)
@@ -132,7 +134,7 @@ const execute = () => {
 
     // rotate about the world y axis
     candidateWorldQuat.multiplyQuaternions(
-      quat.setFromAxisAngle(V_010, -movement.x * flyControlComponent.lookSensitivity),
+      quat.setFromAxisAngle(Vector3_Up, -movement.x * flyControlComponent.lookSensitivity),
       transform.rotation
     )
 

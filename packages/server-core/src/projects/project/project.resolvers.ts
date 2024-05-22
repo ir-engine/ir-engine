@@ -28,8 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectDatabaseType,
@@ -107,7 +107,7 @@ export const projectResolver = resolve<ProjectType, HookContext>(
 
 export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 
-export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
+export const projectDataResolver = resolve<ProjectType, HookContext>(
   {
     id: async () => {
       return uuidv4()

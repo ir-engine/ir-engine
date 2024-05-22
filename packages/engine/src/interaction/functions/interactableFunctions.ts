@@ -25,18 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { Frustum, Matrix4, Vector3 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
-
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import {
   DistanceFromLocalClientComponent,
   compareDistanceToLocalClient
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+
 import { InteractableComponent } from '../components/InteractableComponent'
-import { InteractableState } from '../systems/InteractableSystem'
 
 const worldPosVec3 = new Vector3()
 const mat4 = new Matrix4()
@@ -56,6 +56,18 @@ const inRangeAndFrustumToInteract = (entity: Entity): boolean => {
   }
   return inRangeAndFrustum
 }
+
+export const InteractableState = defineState({
+  name: 'InteractableState',
+  initial: () => {
+    return {
+      /**
+       * all interactables within threshold range, in view of the camera, sorted by distance
+       */
+      available: [] as Entity[]
+    }
+  }
+})
 
 export const inFrustum = (entity: Entity): boolean => {
   TransformComponent.getWorldPosition(entity, worldPosVec3)
@@ -79,3 +91,5 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
     [...interactables].filter((entity) => inRangeAndFrustumToInteract(entity)).sort(compareDistanceToLocalClient)
   )
 }
+
+export const InteractableTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()

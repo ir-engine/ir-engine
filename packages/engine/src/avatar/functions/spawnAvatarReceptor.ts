@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
+
 import {
+  createEntity,
   Engine,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  createEntity,
   getComponent,
   getOptionalComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '@etherealengine/network'
@@ -51,7 +53,8 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
+
+import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -61,8 +64,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'
-
-import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { eyeOffset } from '../systems/AvatarTransparencySystem'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
@@ -84,8 +85,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
-    envMapIntensity: 0.5
-    // envMapSourceEntityUUID: getComponent(SceneState.getRootEntity(), UUIDComponent) /** @todo this requires avatars spawning into specific scenes */
+    envMapIntensity: 0.5,
+    envMapSourceEntityUUID: getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
   })
 
   setComponent(entity, AvatarComponent)

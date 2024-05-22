@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import {
   ChannelID,
+  channelPath,
   ChannelType,
+  channelUserPath,
   ChannelUserType,
   InstanceID,
-  UserID,
-  channelPath,
-  channelUserPath
+  UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
+
 import { NotificationService } from '../../common/services/NotificationService'
-import { SocketWebRTCClientNetwork, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { leaveNetwork, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
 export const ChannelState = defineState({
   name: 'ChannelState',

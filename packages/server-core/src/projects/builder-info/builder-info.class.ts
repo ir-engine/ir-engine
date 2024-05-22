@@ -18,14 +18,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { BuilderInfoType } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { ServiceInterface } from '@feathersjs/feathers'
-import { ServerState } from '../../ServerState'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { dockerHubRegex, getEnginePackageJson, privateECRTagRegex, publicECRTagRegex } from '../project/project-helper'
+import { ServerState } from '../../ServerState'
+import { dockerHubRegex, engineVersion, privateECRTagRegex, publicECRTagRegex } from '../project/project-helper'
 
 export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
   app: Application
@@ -36,7 +37,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
 
   async get() {
     const returned: BuilderInfoType = {
-      engineVersion: getEnginePackageJson().version || '',
+      engineVersion: engineVersion || '',
       engineCommit: ''
     }
     const k8AppsClient = getState(ServerState).k8AppsClient
@@ -84,7 +85,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
               : publicECRRegexExec
               ? publicECRRegexExec[1]
               : privateECRRegexExec
-              ? privateECRRegexExec[0]
+              ? privateECRRegexExec[2]
               : ''
         }
       }

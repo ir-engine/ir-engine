@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { AnimationSystemGroup } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { V_111 } from '../common/constants/MathConstants'
+import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
@@ -145,7 +145,7 @@ function updateCameraFromXRViewerPose() {
     cameraTransform.position.copy(pose.transform.position as any)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrixWorld
-      .compose(cameraTransform.position, cameraTransform.rotation, V_111)
+      .compose(cameraTransform.position, cameraTransform.rotation, Vector3_One)
       .premultiply(originTransform.matrixWorld)
       .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
     camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
@@ -195,7 +195,7 @@ function updateCameraFromXRViewerPose() {
       viewCamera.position.copy(view.transform.position as any)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
-        .compose(viewCamera.position, viewCamera.quaternion, V_111)
+        .compose(viewCamera.position, viewCamera.quaternion, Vector3_One)
         .premultiply(originTransform.matrixWorld)
         .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()

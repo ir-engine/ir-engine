@@ -27,27 +27,25 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
+import { userPath } from '@etherealengine/common/src/schema.type.module'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
-import { userPath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/network'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
 
 export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
-  const ui = createXRUI(
-    AvatarDetailView,
-    createState({
-      id,
-      videoPreviewMesh
-    })
-  )
+  const state = hookstate({
+    id,
+    videoPreviewMesh
+  })
+  const ui = createXRUI(AvatarDetailView, state)
   setComponent(ui.entity, NameComponent, 'avatar-detail-ui-' + id)
   return ui
 }

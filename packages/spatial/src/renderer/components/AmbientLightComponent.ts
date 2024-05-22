@@ -29,6 +29,8 @@ import { AmbientLight, Color } from 'three'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
+
+import { useDisposable } from '../../resources/resourceHooks'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const AmbientLightComponent = defineComponent({
@@ -36,9 +38,7 @@ export const AmbientLightComponent = defineComponent({
   jsonID: 'EE_ambient_light',
 
   onInit: (entity) => {
-    const light = new AmbientLight()
     return {
-      light,
       // todo, maybe we want to reference light.color instead of creating a new Color?
       color: new Color(),
       intensity: 1
@@ -61,22 +61,23 @@ export const AmbientLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const light = useComponent(entity, AmbientLightComponent)
+    const ambientLightComponent = useComponent(entity, AmbientLightComponent)
+    const [light] = useDisposable(AmbientLight, entity)
+
     useEffect(() => {
-      const lightObj = light.light.value
-      addObjectToGroup(entity, lightObj)
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, lightObj)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
     useEffect(() => {
-      light.light.value.color.set(light.color.value)
-    }, [light.color])
+      light.color.set(ambientLightComponent.color.value)
+    }, [ambientLightComponent.color])
 
     useEffect(() => {
-      light.light.value.intensity = light.intensity.value
-    }, [light.intensity])
+      light.intensity = ambientLightComponent.intensity.value
+    }, [ambientLightComponent.intensity])
 
     return null
   }

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent, defineQuery, getComponent } from '@etherealengine/ecs'
 import { Vector2 } from 'three'
+
+import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity } from '@etherealengine/ecs'
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
@@ -35,13 +36,15 @@ export const InputPointerComponent = defineComponent({
       position: new Vector2(),
       lastPosition: new Vector2(),
       movement: new Vector2(),
-      canvasEntity: UndefinedEntity
+      canvasEntity: UndefinedEntity,
+      cameraEntity: UndefinedEntity
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
+  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity; cameraEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.canvasEntity.set(args.canvasEntity)
+    component.cameraEntity.set(args.cameraEntity)
   },
 
   getPointerForCanvas(canvasEntity: Entity) {

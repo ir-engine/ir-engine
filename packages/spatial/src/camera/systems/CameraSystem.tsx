@@ -26,20 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { PerspectiveCamera } from 'three'
 
-import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   AnimationSystemGroup,
-  Engine,
-  EntityUUID,
-  UUIDComponent,
   defineQuery,
   defineSystem,
+  Engine,
+  EntityUUID,
   getComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
+import { defineState, getMutableState, none, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkObjectOwnedTag, WorldNetworkAction } from '@etherealengine/network'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraActions } from '../CameraState'
@@ -60,7 +60,7 @@ export const CameraEntityState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(CameraEntityState))
+    const state = useMutableState(CameraEntityState)
     return (
       <>
         {state.keys.map((entityUUID: EntityUUID) => (
@@ -85,7 +85,7 @@ const CameraEntity = (props: { entityUUID: EntityUUID }) => {
 const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
 
 function CameraReactor() {
-  const cameraSettings = useHookstate(getMutableState(CameraSettingsState))
+  const cameraSettings = useMutableState(CameraSettingsState)
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
@@ -107,9 +107,12 @@ const execute = () => {
   for (const networkCameraEntity of ownedNetworkCamera.enter()) {
     const networkTransform = getComponent(networkCameraEntity, TransformComponent)
     const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    setComputedTransformComponent(networkCameraEntity, Engine.instance.cameraEntity, () => {
-      networkTransform.position.copy(cameraTransform.position)
-      networkTransform.rotation.copy(cameraTransform.rotation)
+    setComponent(networkCameraEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        networkTransform.position.copy(cameraTransform.position)
+        networkTransform.rotation.copy(cameraTransform.rotation)
+      }
     })
   }
 }

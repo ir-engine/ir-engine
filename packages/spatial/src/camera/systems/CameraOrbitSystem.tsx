@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not } from 'bitecs'
+import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
   defineQuery,
   defineSystem,
+  Engine,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
-import { V_010 } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Not } from 'bitecs'
-import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+
+import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
@@ -71,20 +75,23 @@ const execute = () => {
 
   // TODO: handle multi-touch pinch/zoom
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  const axes = InputSourceComponent.getMergedAxes()
-
   /**
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
     const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
+
+    const buttons = InputComponent.getMergedButtons(cameraEid)
+    const axes = InputComponent.getMergedAxes(cameraEid)
+
     if (!inputPointerEntity) continue
     const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
 
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
 
-    if (cameraOrbit.disabled.value) continue // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    // TODO: replace w/ EnabledComponent or DisabledComponent in query
+    if (cameraOrbit.disabled.value || (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing))
+      continue
 
     if (buttons.PrimaryClick?.pressed) {
       cameraOrbit.isOrbiting.set(true)
@@ -181,7 +188,7 @@ const execute = () => {
       delta.setFromSpherical(spherical)
 
       transform.position.copy(editorCameraCenter).add(delta)
-      transform.matrix.lookAt(transform.position, editorCameraCenter, V_010)
+      transform.matrix.lookAt(transform.position, editorCameraCenter, Vector3_Up)
       transform.rotation.setFromRotationMatrix(transform.matrix)
 
       getMutableComponent(cameraEid, CameraOrbitComponent).isOrbiting.set(false)

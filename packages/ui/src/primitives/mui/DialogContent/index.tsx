@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { DialogContentProps, DialogContent as MuiDialogContent } from '@mui/material'
 import React from 'react'
 
 import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
-
-import { DialogContentProps, DialogContent as MuiDialogContent } from '@mui/material'
 
 const DialogContent = ({ children, ...props }: DialogContentProps & any) => (
   <MuiDialogContent {...props}>{children}</MuiDialogContent>

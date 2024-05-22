@@ -39,31 +39,36 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceHooks'
+import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
+  defineState,
+  getMutableState,
+  getState,
+  NO_PROXY,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent, useChildWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
+
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
@@ -93,10 +98,13 @@ export const LoadingUISystemState = defineState({
 
     setComponent(meshEntity, NameComponent, 'Loading XRUI Mesh')
 
-    setComputedTransformComponent(meshEntity, Engine.instance.cameraEntity, () => {
-      getComponent(meshEntity, TransformComponent).position.copy(
-        getComponent(Engine.instance.cameraEntity, TransformComponent).position
-      )
+    setComponent(meshEntity, ComputedTransformComponent, {
+      referenceEntities: [Engine.instance.viewerEntity],
+      computeFunction: () => {
+        getComponent(meshEntity, TransformComponent).position.copy(
+          getComponent(Engine.instance.viewerEntity, TransformComponent).position
+        )
+      }
     })
 
     setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
@@ -128,11 +136,11 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const gltfComponent = useComponent(props.sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
   const sceneLoaded = loadingProgress === 100
-  const locationState = useHookstate(getMutableState(LocationState))
-  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const locationState = useMutableState(LocationState)
+  const state = useMutableState(LoadingUISystemState)
 
   useEffect(() => {
-    getState(LoadingUISystemState).ui.state.progress.set(loadingProgress)
+    state.ui.get(NO_PROXY).state.progress.set(loadingProgress)
   }, [loadingProgress])
 
   /** Scene is loading */
@@ -191,7 +199,7 @@ const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsChildReactor = (props: { entity: Entity }) => {
-  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const state = useMutableState(LoadingUISystemState)
   const meshEntity = state.meshEntity.value
 
   const sceneComponent = useComponent(props.entity, SceneSettingsComponent)
@@ -266,20 +274,23 @@ const execute = () => {
 
   if (transition.state === 'IN' && transition.alpha === 1) {
     if (!hasComponent(ui.entity, ComputedTransformComponent))
-      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-        const distance = camera.near * 1.1 // 10% in front of camera
-        const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
-        if (!uiContainer) return
-        const uiSize = uiContainer.domSize
-        const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
-        const aspectRatio = screenSize.x / screenSize.y
-        const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-        const scale =
-          ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
-          0.25 *
-          scaleMultiplier
-        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      setComponent(ui.entity, ComputedTransformComponent, {
+        referenceEntities: [Engine.instance.cameraEntity],
+        computeFunction: () => {
+          const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+          const distance = camera.near * 1.1 // 10% in front of camera
+          const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+          if (!uiContainer) return
+          const uiSize = uiContainer.domSize
+          const screenSize = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.getSize(SCREEN_SIZE)
+          const aspectRatio = screenSize.x / screenSize.y
+          const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+          const scale =
+            ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+            0.25 *
+            scaleMultiplier
+          ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+        }
       })
   }
 
@@ -312,14 +323,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const themeState = useHookstate(getMutableState(AppThemeState))
+  const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
   const sceneEntity = GLTFAssetState.useScene(locationSceneID)
-  const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
+  const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {
     const theme = getAppTheme()

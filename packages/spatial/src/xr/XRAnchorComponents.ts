@@ -27,10 +27,7 @@ import { useEffect } from 'react'
 import { BufferGeometry, Mesh, MeshLambertMaterial, MeshStandardMaterial, Object3D, ShadowMaterial } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@etherealengine/ecs'
-import { defineAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
-
-import { UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -40,9 +37,11 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, defineAction, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
-import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../renderer/components/GroupComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
@@ -173,7 +172,7 @@ function PersistentAnchorReactor() {
 
   const anchor = useComponent(entity, PersistentAnchorComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
 
   const group = groupComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>)[] | undefined
 

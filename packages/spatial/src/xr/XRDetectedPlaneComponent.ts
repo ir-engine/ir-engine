@@ -23,6 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
+import matches from 'ts-matches'
+
 import {
   defineComponent,
   getMutableComponent,
@@ -34,9 +38,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
-import matches from 'ts-matches'
+
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -87,7 +89,7 @@ export const XRDetectedPlaneComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
-      const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(component.plane.value)
+      const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(component.plane.value as XRPlane)
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
@@ -117,12 +119,10 @@ export const XRDetectedPlaneComponent = defineComponent({
     }, [component.plane])
 
     useEffect(() => {
-      const shadowMesh = component.shadowMesh.value
-      const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      if (shadowMesh.geometry) shadowMesh.geometry = geometry
-      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
+      if (component.shadowMesh.value) component.shadowMesh.geometry.set(geometry)
+      if (component.occlusionMesh.value) component.occlusionMesh.geometry.set(geometry)
 
       return () => {
         geometry.dispose()
@@ -130,8 +130,8 @@ export const XRDetectedPlaneComponent = defineComponent({
     }, [component.geometry])
 
     useEffect(() => {
-      const placementHelper = component.placementHelper.value
-      placementHelper.visible = scenePlacementMode.value === 'placing'
+      const placementHelper = component.placementHelper
+      placementHelper.visible.set(scenePlacementMode.value === 'placing')
     }, [scenePlacementMode])
 
     return null

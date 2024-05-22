@@ -31,9 +31,8 @@ import {
   TaskServerSettingQuery,
   TaskServerSettingType
 } from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const taskServerSettingResolver = resolve<TaskServerSettingType, HookContext>({
   createdAt: virtual(async (taskServerSetting) => fromDateTimeSql(taskServerSetting.createdAt)),

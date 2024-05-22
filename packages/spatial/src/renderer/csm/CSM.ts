@@ -42,10 +42,11 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { NameComponent } from '../../common/NameComponent'
-import { V_000 } from '../../common/constants/MathConstants'
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
+import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -343,7 +344,7 @@ export class CSM {
       const texelHeight = (shadowCam.top - shadowCam.bottom) / shadowMapSize
 
       // This matrix only represents sun orientation, origin is zero
-      _lightOrientationMatrix.lookAt(V_000, this.lightDirection, this.lightDirectionUp)
+      _lightOrientationMatrix.lookAt(Vector3_Zero, this.lightDirection, this.lightDirectionUp)
       _lightOrientationMatrixInverse.copy(_lightOrientationMatrix).invert()
 
       _cameraToLightMatrix.multiplyMatrices(_lightOrientationMatrixInverse, camera.matrixWorld)

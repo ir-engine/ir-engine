@@ -38,10 +38,9 @@ import { ColliderComponent } from '@etherealengine/spatial/src/physics/component
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -50,8 +49,7 @@ export const GroundPlaneComponent = defineComponent({
   onInit(entity) {
     return {
       color: new Color(),
-      visible: true,
-      mesh: null! as Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>
+      visible: true
     }
   },
 
@@ -61,7 +59,6 @@ export const GroundPlaneComponent = defineComponent({
     if (matches.object.test(json.color) || matches.string.test(json.color) || matches.number.test(json.color))
       component.color.value.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
-    if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
   },
 
   toJSON(entity, component) {
@@ -76,22 +73,21 @@ export const GroundPlaneComponent = defineComponent({
 
     const component = useComponent(entity, GroundPlaneComponent)
 
+    const getMaterial = (): MeshLambertMaterial | ShadowMaterial => {
+      return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
+    }
+
+    const mesh = useMeshComponent(entity, () => new PlaneGeometry(10000, 10000), getMaterial)
+
     useLayoutEffect(() => {
-      const mesh = new Mesh(
-        new PlaneGeometry(10000, 10000),
-        component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
-      )
-      component.mesh.set(mesh)
-      mesh.geometry.rotateX(-Math.PI / 2)
-      mesh.name = 'GroundPlaneMesh'
-      mesh.material.polygonOffset = true
-      mesh.material.polygonOffsetFactor = -0.01
-      mesh.material.polygonOffsetUnits = 1
+      const meshVal = mesh.value as Mesh<PlaneGeometry, MeshLambertMaterial | ShadowMaterial>
+      meshVal.geometry.rotateX(-Math.PI / 2)
+      meshVal.name = 'GroundPlaneMesh'
+      meshVal.material.polygonOffset = true
+      meshVal.material.polygonOffsetFactor = -0.01
+      meshVal.material.polygonOffsetUnits = 1
 
-      addObjectToGroup(entity, mesh)
-      enableObjectLayer(mesh, ObjectLayers.Camera, true)
-      setComponent(entity, MeshComponent, mesh)
-
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Scene)
       setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
       setComponent(entity, ColliderComponent, {
         shape: Shapes.Plane,
@@ -101,19 +97,19 @@ export const GroundPlaneComponent = defineComponent({
       return () => {
         removeComponent(entity, RigidBodyComponent)
         removeComponent(entity, ColliderComponent)
-        removeObjectFromGroup(entity, mesh)
       }
     }, [])
 
     useLayoutEffect(() => {
-      if (component.mesh.value) component.mesh.value.material.color.set(component.color.value)
+      const color = component.color.value
+      if (mesh.material.color.value == color) return
+      mesh.material.color.set(component.color.value)
     }, [component.color])
 
     useLayoutEffect(() => {
-      if (component.mesh.value)
-        component.mesh.value.material = component.visible.value
-          ? new MeshLambertMaterial({ color: component.color.value })
-          : new ShadowMaterial({ opacity: 0.5 })
+      const mat = getMaterial()
+      mat.color.set(component.color.value)
+      mesh.material.set(mat)
     }, [component.visible])
 
     return null

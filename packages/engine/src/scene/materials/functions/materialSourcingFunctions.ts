@@ -23,31 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material } from 'three'
+
 import {
+  createEntity,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  createEntity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeEntity,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
 import { State } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { stringHash } from '@etherealengine/spatial/src/common/functions/MathFunctions'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
-  MaterialComponent,
-  MaterialComponents,
   materialByHash,
   materialByName,
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { Material } from 'three'
+
+import { MaterialExtensionPluginType } from '../../../assets/exporters/gltf/extensions/EEMaterialExporterExtension'
 import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
@@ -109,7 +113,7 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
   }
 }
 
-export const createMaterialEntity = (material: Material, path: string) => {
+export const createMaterialEntity = (material: Material, path: string, user?: Entity) => {
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   setComponent(materialEntity, SourceComponent, path)
@@ -123,10 +127,25 @@ export const createMaterialEntity = (material: Material, path: string) => {
           getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype]).prototypeArguments
         )
       ).map((k) => [k, material[k]])
-    )
+    ),
+    instances: user != undefined ? [user] : [],
+    pluginEntities: material.userData.plugins
+      ? material.userData.plugins.map((plugin: MaterialExtensionPluginType) => pluginByName[plugin.id])
+      : []
   })
+  if (material.userData?.plugins) {
+    for (const pluginEntity of getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+      .pluginEntities!) {
+      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
+        getComponent(materialEntity, NameComponent)
+      ].set(
+        material.userData.plugins.find(
+          (plugin: MaterialExtensionPluginType) => plugin.id === getComponent(pluginEntity, NameComponent)
+        ).parameters
+      )
+    }
+  }
   setMaterialName(materialEntity, material.name)
-
   return materialEntity
 }
 
@@ -146,6 +165,7 @@ export const getPrototypeConstructorFromName = (name: string) => {
 
 /**Sets a unique name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
+  if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
@@ -164,33 +184,23 @@ export const setMaterialName = (entity: Entity, name: string) => {
 
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
   setComponent(entity, NameComponent, name)
-  materialComponent.material.value.name = name
+  ;(materialComponent.material.value as Material).name = name
   materialByHash[newHash] = getComponent(entity, UUIDComponent)
   materialByName[name] = getComponent(entity, UUIDComponent)
 }
 
 const uniqueSuffix = (name: string) => {
-  let i = 0
+  let i = 1
   while (materialByName[`${name}${i}`]) i++
   return `${name}${i}`
 }
 
-// export function registerMaterialPlugin(component: MaterialPluginType) {
-//   const materialLibrary = getMutableState(MaterialLibraryState)
-//   const src = component.src
-//   addMaterialSource(src)
-//   const srcItems = getSourceItems(src)!
-//   !srcItems.includes(component.plugin.id) &&
-//     materialLibrary.sources[hashMaterialSource(component.src)].entries.set([...srcItems, component.plugin.id])
-//   materialLibrary.plugins[component.plugin.id].set(component)
-// }
-
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
-  const material = getComponent(
+  const material = getOptionalComponent(
     UUIDComponent.getEntityByUUID(materialUUID),
     MaterialComponent[MaterialComponents.State]
   )
-  if (!material.prototypeEntity) return
+  if (!material?.prototypeEntity) return
   const prototype = getComponent(
     material.prototypeEntity,
     MaterialComponent[MaterialComponents.Prototype]

@@ -23,23 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
+  instanceAttendancePath,
   InstanceID,
   UserID,
-  instanceAttendancePath,
   userKickPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import { useHookstate } from '@hookstate/core'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { NotificationService } from '../../../common/services/NotificationService'
 
 const useKickUser = () => {
@@ -63,7 +65,8 @@ const useKickUser = () => {
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
-      instanceId
+      instanceId,
+      ended: false
     }
   })
 

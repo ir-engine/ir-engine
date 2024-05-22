@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { BuildStatusType } from '@etherealengine/common/src/schema.type.module'
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Label from '@etherealengine/ui/src/primitives/tailwind/Label'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import { t } from 'i18next'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { PopoverState } from '../../../../common/services/PopoverState'
 
 const BuildStatusBadgeVariant = {
@@ -46,15 +49,7 @@ export function BuildStatusBadge({ status }: { status: string }) {
 }
 
 export function getStartOrEndDate(dateString: string, endDate = false) {
-  return endDate && !dateString
-    ? t('admin:components.buildStatus.running')
-    : new Date(dateString).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+  return endDate && !dateString ? t('admin:components.buildStatus.running') : toDisplayDateTime(dateString)
 }
 
 export default function BuildStatusLogsModal({ buildStatus }: { buildStatus: BuildStatusType }) {

@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect, useRef } from 'react'
+import { Mesh, SphereGeometry } from 'three'
+
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { UUIDComponent, generateEntityUUID, getMutableComponent, setComponent } from '@etherealengine/ecs'
+import { generateEntityUUID, getMutableComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useRef } from 'react'
-import { Mesh, SphereGeometry } from 'three'
 
 export const MaterialPreviewCanvas = () => {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>

@@ -23,32 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectCheckSourceDestinationMatchPath } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
-import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import assert from 'assert'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+
+import { projectCheckSourceDestinationMatchPath } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { getRepoManifestJson1, getRepoManifestJson2 } from '../../util/mockOctokitResponses'
 
 describe('project-check-source-destination-match.test', () => {
   let app: Application
   let testUserApiKey: UserApiKeyType
 
   const getTestSourceDestinationUrlQuery1 = () => ({
-    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village',
-    destinationURL: 'https://github.com/EtherealEngine/ee-ethereal-village'
+    sourceURL: 'https://github.com/MyOrg/my-first-project',
+    destinationURL: 'https://github.com/MyOrg/my-first-project'
   })
 
   const getTestSourceDestinationUrlQuery2 = () => ({
-    sourceURL: 'https://github.com/EtherealEngine/ee-ethereal-village',
-    destinationURL: 'https://github.com/EtherealEngine/ee-bot'
+    sourceURL: 'https://github.com/MyOrg/my-first-project',
+    destinationURL: 'https://github.com/MyOrg/my-second-project'
   })
 
   const getParams = () => ({
@@ -61,9 +64,7 @@ describe('project-check-source-destination-match.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
 
-  before(async () => {
     const name = ('test-project-check-source-destination-match-user-name-' + uuidv4()) as UserName
 
     const avatar = await app.service(avatarPath).create({
@@ -94,9 +95,9 @@ describe('project-check-source-destination-match.test', () => {
   it('should match source and destination contents with same repos', async () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoPackageJson1())
+      .reply(200, getRepoManifestJson1())
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoPackageJson1())
+      .reply(200, getRepoManifestJson1())
 
     const result = await app
       .service(projectCheckSourceDestinationMatchPath)
@@ -110,9 +111,9 @@ describe('project-check-source-destination-match.test', () => {
   it('should not match source and destination contents with different repos', async () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoPackageJson1())
+      .reply(200, getRepoManifestJson1())
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoPackageJson2())
+      .reply(200, getRepoManifestJson2())
 
     const result = await app
       .service(projectCheckSourceDestinationMatchPath)
@@ -124,39 +125,12 @@ describe('project-check-source-destination-match.test', () => {
     assert.ok(!result.sourceProjectMatchesDestination)
   })
 
-  describe('installed project check', () => {
-    let createdProject: ProjectType
-
-    before(async () => {
-      createdProject = await app.service(projectPath).create({
-        name: 'ee-ethereal-village'
-      })
-    })
-
-    after(async () => {
-      await app.service(projectPath).remove(createdProject.id)
-    })
-
-    it('should check if project is already installed', async () => {
-      nock('https://api.github.com')
-        .get(/\/repos.*\/contents\/.*/)
-        .reply(200, getRepoPackageJson1())
-        .get(/\/repos.*\/contents\/.*/)
-        .reply(200, getRepoPackageJson1())
-
-      const result = await app
-        .service(projectCheckSourceDestinationMatchPath)
-        .find({ query: getTestSourceDestinationUrlQuery1(), ...getParams() }, undefined as any)
-
-      assert.ok(result)
-      assert.ok(result.error)
-    })
-  })
-
-  it('should match if destination package.json is empty', async () => {
+  it('should match if destination manifest.json is empty', async () => {
     nock('https://api.github.com')
       .get(/\/repos.*\/contents\/.*/)
-      .reply(200, getRepoPackageJson1())
+      .reply(200, getRepoManifestJson1())
+      .get(/\/repos.*\/contents\/.*/)
+      .reply(404)
       .get(/\/repos.*\/contents\/.*/)
       .reply(404)
 
@@ -167,45 +141,33 @@ describe('project-check-source-destination-match.test', () => {
     assert.ok(result)
     assert.equal(result.sourceProjectMatchesDestination, true)
   })
-})
 
-const getRepoPackageJson1 = () => ({
-  name: 'package.json',
-  path: 'package.json',
-  sha: '307456741f75499a57fac1145ce2c75112ddbf57',
-  size: 321,
-  url: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/contents/package.json?ref=dev',
-  html_url: 'https://github.com/EtherealEngine/ee-ethereal-village/blob/dev/package.json',
-  git_url:
-    'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/git/blobs/307456741f75499a57fac1145ce2c75112ddbf57',
-  download_url: 'https://raw.githubusercontent.com/EtherealEngine/ee-ethereal-village/dev/package.json',
-  type: 'file',
-  content:
-    'ewogICJuYW1lIjogImVlLWV0aGVyZWFsLXZpbGxhZ2UiLAogICJ2ZXJzaW9u\nIjogIjAuMC4wIiwKICAiZGVzY3JpcHRpb24iOiAiJ0EgbWVkaWV2YWwgd29y\nbGQgc2hvd2Nhc2luZyBhZHZhbmNlZCBvcGVuIHdvcmxkIG11bHRpcGxheWVy\nIGZlYXR1cmVzIiwKICAibWFpbiI6ICIiLAogICJldGhlcmVhbEVuZ2luZSI6\nIHsKICAgICJ2ZXJzaW9uIjogIjEuMi4wIgogIH0sCiAgInNjcmlwdHMiOiB7\nfSwKICAicGVlckRlcGVuZGVuY2llcyI6IHt9LAogICJkZXBlbmRlbmNpZXMi\nOiB7fSwKICAiZGV2RGVwZW5kZW5jaWVzIjoge30sCiAgImxpY2Vuc2UiOiAi\nSVNDIgp9\n',
-  encoding: 'base64',
-  _links: {
-    self: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/contents/package.json?ref=dev',
-    git: 'https://api.github.com/repos/EtherealEngine/ee-ethereal-village/git/blobs/307456741f75499a57fac1145ce2c75112ddbf57',
-    html: 'https://github.com/EtherealEngine/ee-ethereal-village/blob/dev/package.json'
-  }
-})
+  describe('installed project check', () => {
+    let createdProject: ProjectType
 
-const getRepoPackageJson2 = () => ({
-  name: 'package.json',
-  path: 'package.json',
-  sha: '76f00e5fd3035ed32f21eecf87a6503547752767',
-  size: 1163,
-  url: 'https://api.github.com/repos/EtherealEngine/ee-bot/contents/package.json?ref=master',
-  html_url: 'https://github.com/EtherealEngine/ee-bot/blob/master/package.json',
-  git_url: 'https://api.github.com/repos/EtherealEngine/ee-bot/git/blobs/76f00e5fd3035ed32f21eecf87a6503547752767',
-  download_url: 'https://raw.githubusercontent.com/EtherealEngine/ee-bot/master/package.json',
-  type: 'file',
-  content:
-    'ewogICJuYW1lIjogImVlLWJvdCIsCiAgInZlcnNpb24iOiAiMC41LjgiLAog\nICJkZXNjcmlwdGlvbiI6ICJBIHRlc3QgYm90IHVzaW5nIHB1cHBldGVlciIs\nCiAgInJlcG9zaXRvcnkiOiB7CiAgICAidHlwZSI6ICJnaXQiLAogICAgInVy\nbCI6ICJnaXQ6Ly9naXRodWIuY29tL2V0aGVyZWFsZW5naW5lL2V0aGVyZWFs\nZW5naW5lLmdpdCIKICB9LAogICJldGhlcmVhbEVuZ2luZSI6IHsKICAgICJ2\nZXJzaW9uIjogIjEuMS4wIgogIH0sCiAgImVuZ2luZXMiOiB7CiAgICAibm9k\nZSI6ICI+PSAxNi4zLjAiCiAgfSwKICAicHVibGlzaENvbmZpZyI6IHsKICAg\nICJhY2Nlc3MiOiAicHVibGljIgogIH0sCiAgIm5wbUNsaWVudCI6ICJucG0i\nLAogICJtYWluIjogInNyYy9pbmRleC50cyIsCiAgInNjcmlwdHMiOiB7CiAg\nICAiZGV2IjogInRzLW5vZGUgLS1zd2MgLi9zcmMvaW5kZXgudHMiLAogICAg\nImRldi1rb2EiOiAidHMtbm9kZSAtLXN3YyAuL3NyYy9pbmRleF9rb2EudHMi\nLAogICAgImJ1aWxkIjogInRzYyIsCiAgICAiY2hlY2stZXJyb3JzIjogInRz\nYyAtLW5vZW1pdCIsCiAgICAidmFsaWRhdGUiOiAibnBtIHJ1biB0ZXN0IiwK\nICAgICJmb3JtYXQiOiAicHJldHRpZXIgLS13cml0ZSBcIioqLyoue3RzLHRz\neH1cIiIsCiAgICAicHJlY29tbWl0IjogIm5vLW1hc3Rlci1jb21taXRzIC1i\nIG1hc3RlciIKICB9LAogICJkZXBlbmRlbmNpZXMiOiB7CiAgICAiZ2wtbWF0\ncml4IjogIl4zLjQuMyIsCiAgICAia29hIjogIl4yLjE0LjIiLAogICAgImtv\nYS1ib2R5cGFyc2VyIjogIl40LjQuMCIsCiAgICAia29hLXJvdXRlciI6ICJe\nMTIuMC4wIiwKICAgICJwdXBwZXRlZXIiOiAiXjE5LjYuMyIsCiAgICAidHMt\nbm9kZSI6ICIxMC45LjEiLAogICAgIndlYnhyLWVtdWxhdG9yIjogImV0aGVy\nZWFsZW5naW5lL1dlYlhSLWVtdWxhdG9yLWV4dGVuc2lvbiIKICB9LAogICJs\naWNlbnNlIjogIklTQyIsCiAgImRldkRlcGVuZGVuY2llcyI6IHsKICAgICJA\nc3djL2NvcmUiOiAiMS4zLjQxIiwKICAgICJAdHlwZXMvZXhwZWN0LXB1cHBl\ndGVlciI6ICJeNS4wLjMiLAogICAgIkB0eXBlcy9rb2EtYm9keXBhcnNlciI6\nICJeNC4zLjEwIiwKICAgICJAdHlwZXMva29hLXJvdXRlciI6ICJeNy40LjQi\nLAogICAgIkB0eXBlcy9tb2NoYSI6ICJeMTAuMC4xIgogIH0KfQo=\n',
-  encoding: 'base64',
-  _links: {
-    self: 'https://api.github.com/repos/EtherealEngine/ee-bot/contents/package.json?ref=master',
-    git: 'https://api.github.com/repos/EtherealEngine/ee-bot/git/blobs/76f00e5fd3035ed32f21eecf87a6503547752767',
-    html: 'https://github.com/EtherealEngine/ee-bot/blob/master/package.json'
-  }
+    before(async () => {
+      createdProject = await app.service(projectPath).create({
+        name: 'my-first-project'
+      })
+    })
+
+    after(async () => {
+      await app.service(projectPath).remove(createdProject.id)
+    })
+
+    it('should check if project is already installed', async () => {
+      nock('https://api.github.com')
+        .get(/\/repos.*\/contents\/.*/)
+        .reply(200, getRepoManifestJson1())
+        .get(/\/repos.*\/contents\/.*/)
+        .reply(200, getRepoManifestJson1())
+
+      const result = await app
+        .service(projectCheckSourceDestinationMatchPath)
+        .find({ query: getTestSourceDestinationUrlQuery1(), ...getParams() }, undefined as any)
+
+      assert.ok(result)
+      assert.ok(result.error)
+    })
+  })
 })

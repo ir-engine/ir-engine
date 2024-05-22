@@ -28,12 +28,12 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { AvatarID, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
@@ -96,7 +96,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
         const file = fs.readFileSync(filePath)
         const mimeType = getContentType(filePath)
-        if (!isDev)
+        if (config.server.edgeCachingEnabled)
           await app.service(invalidationPath).create({
             path: filePath
           })

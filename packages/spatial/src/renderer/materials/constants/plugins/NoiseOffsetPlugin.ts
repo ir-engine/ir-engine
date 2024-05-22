@@ -23,50 +23,53 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { IUniform, Uniform } from 'three'
+import { Uniform, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent, PresentationSystemGroup, useComponent } from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent, PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
-import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
-import { MaterialComponent, MaterialComponents } from '../../MaterialComponent'
-import { getPluginByName } from '../../materialFunctions'
 
-let time: IUniform | null = null
+import { PluginObjectType } from '../../../../common/functions/OnBeforeCompilePlugin'
+import { MaterialComponent, MaterialComponents, pluginByName } from '../../MaterialComponent'
+import { applyPluginShaderParameters } from '../../materialFunctions'
+
+export type NoiseOffsetParameters = {
+  textureSize: Uniform
+  frequency: Uniform
+  noiseTexture: Uniform
+  time: Uniform
+  offsetAxis: Uniform
+}
 
 export const NoiseOffsetPlugin: PluginObjectType = {
   id: 'noiseOffset',
   priority: 0.4,
-  parameters: {
-    noiseTexture: null,
-    textureSize: 128,
-    frequency: 0.001
-  },
   compile: (shader, renderer) => {
-    const plugin = getComponent(getPluginByName(NoiseOffsetPlugin.id), MaterialComponent[MaterialComponents.Plugin])
-    if (!plugin) return
-    const parameters = plugin.parameters!
-    shader.uniforms['textureSize'] = new Uniform(parameters.textureSize)
-    shader.uniforms['noiseTexture'] = new Uniform(parameters.noiseTexture)
-    shader.uniforms['frequency'] = new Uniform(parameters.frequency)
-    const elapsedSeconds = getState(ECSState).elapsedSeconds
-    time = new Uniform(elapsedSeconds)
-    shader.uniforms['time'] = time
+    const pluginEntity = pluginByName[NoiseOffsetPlugin.id]
+    const plugin = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+    if (!plugin || !plugin.parameters) return
+    applyPluginShaderParameters(pluginEntity, shader, {
+      textureSize: 64,
+      frequency: 0.00025,
+      amplitude: 0.005,
+      noiseTexture: generateNoiseTexture(64),
+      offsetAxis: new Vector3(0, 1, 0),
+      time: 0
+    })
+
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
       `
         uniform sampler2D noiseTexture;
         uniform float textureSize; // The width of a slice
         uniform float frequency;
+        uniform float amplitude;
         uniform float time;
 
         vec3 sampleNoise(vec3 pos) {
-            float zSlice = floor(pos.z * textureSize);
+            float zSlice = (pos.z * textureSize);
             vec2 slicePos = vec2(zSlice / textureSize, fract(zSlice / textureSize));
             vec2 noisePos = slicePos + pos.xy / textureSize;
             return vec3(texture2D(noiseTexture, noisePos).r);
@@ -74,18 +77,17 @@ export const NoiseOffsetPlugin: PluginObjectType = {
 
         vec3 turbulence(vec3 position) {
           vec3 sum = vec3(0.0);
-          float frequency = 0.01;
-          float amplitude = 0.5;
+          float frequencyMutliplied = frequency;
+          float amplitudeMultiplied = amplitude;
 
           for (int i = 0; i < 4; i++) {
-              vec3 p = position * frequency;
-              p.z += time * 0.002;
-              p = fract(p);
+              vec3 p = position * frequencyMutliplied;
+              p.z += time * 0.0015;
+
+              sum += sampleNoise(p).rgb * amplitudeMultiplied;
           
-              sum += sampleNoise(p).rgb * amplitude;
-          
-              frequency *= 2.0;
-              amplitude *= 0.5;
+              frequencyMutliplied *= 2.0;
+              amplitudeMultiplied *= 7.0;
           }
         
           return sum;
@@ -95,18 +97,20 @@ export const NoiseOffsetPlugin: PluginObjectType = {
       `
     )
     shader.vertexShader = shader.vertexShader.replace(
+      'void main() {',
+      `uniform vec3 offsetAxis;
+    void main() {`
+    )
+    shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
       `
         #include <begin_vertex>
-        float yMagnitude = smoothstep(0.2, 0.7, position.y);
         vec4 noiseWorldPosition = vec4(transformed, 1.0);
         noiseWorldPosition = modelMatrix * noiseWorldPosition;
         #ifdef USE_INSTANCING
           noiseWorldPosition = instanceMatrix * noiseWorldPosition;
         #endif
-        vec3 offset = turbulence(noiseWorldPosition.xyz) * 1.0;
-        offset.y *= 0.2;
-        //offset *= yMagnitude;
+        vec3 offset = turbulence(noiseWorldPosition.xyz) * offsetAxis;
         transformed += offset;
       `
     )
@@ -114,31 +118,17 @@ export const NoiseOffsetPlugin: PluginObjectType = {
 }
 
 const execute = () => {
-  if (!time) return
-  const elapsedSeconds = getState(ECSState).elapsedSeconds
-  time.value = elapsedSeconds
-}
-
-const reactor = () => {
-  if (!isClient) return null
-
-  const noiseOffset = useComponent(getPluginByName(NoiseOffsetPlugin.id), MaterialComponent[MaterialComponents.Plugin])
-
-  useEffect(() => {
-    if (!noiseOffset?.value || noiseOffset.parameters['noiseTexture']) return
-
-    time = noiseOffset.parameters.value!['time']
-    // Create new Perlin noise instance
-    const noiseTexture = generateNoiseTexture(noiseOffset.parameters['textureSize'].value)
-    noiseOffset.parameters['noiseTexture'].set(noiseTexture)
-  }, [noiseOffset])
-
-  return null
+  const plugin = getOptionalComponent(pluginByName[NoiseOffsetPlugin.id], MaterialComponent[MaterialComponents.Plugin])
+  if (!plugin || !plugin.parameters) return
+  for (const key in plugin.parameters) {
+    const parameters = plugin.parameters[key] as NoiseOffsetParameters
+    const elapsedSeconds = getState(ECSState).elapsedSeconds
+    parameters.time.value = elapsedSeconds
+  }
 }
 
 export const NoiseOffsetSystem = defineSystem({
   uuid: 'ee.spatial.material.NoiseOffsetSystem',
   insert: { before: PresentationSystemGroup },
-  execute,
-  reactor
+  execute
 })

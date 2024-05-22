@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationBlendMode,
+  AnimationClip,
   LoopRepeat,
   NormalAnimationBlendMode
 } from 'three'
@@ -43,8 +45,8 @@ import {
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent, StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { VRM } from '@pixiv/three-vrm'
-import { useGLTF } from '../../assets/functions/resourceHooks'
+
+import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
@@ -116,11 +118,12 @@ export const LoopAnimationComponent = defineComponent({
     const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
     const modelComponent = useOptionalComponent(entity, ModelComponent)
     const animComponent = useOptionalComponent(entity, AnimationComponent)
+    const animationAction = loopAnimationComponent._action.value as AnimationAction
 
     const lastAnimationPack = useHookstate('')
     useEffect(() => {
       if (!animComponent?.animations?.value) return
-      const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value]
+      const clip = animComponent.animations.value[loopAnimationComponent.activeClipIndex.value] as AnimationClip
       const asset = modelComponent?.asset.get(NO_PROXY) ?? null
       if (!modelComponent || !asset?.scene || !clip) {
         loopAnimationComponent._action.set(null)
@@ -142,31 +145,28 @@ export const LoopAnimationComponent = defineComponent({
     }, [loopAnimationComponent.activeClipIndex, modelComponent?.asset, animComponent?.animations])
 
     useEffect(() => {
-      if (loopAnimationComponent._action.value?.isRunning()) {
-        loopAnimationComponent._action.value.paused = loopAnimationComponent.paused.value
-      } else if (!loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
-        loopAnimationComponent._action.value?.getMixer().stopAllAction()
-        loopAnimationComponent._action.value?.reset()
-        loopAnimationComponent._action.value?.play()
+      if (animationAction?.isRunning()) {
+        animationAction.paused = loopAnimationComponent.paused.value
+      } else if (!animationAction?.isRunning() && !loopAnimationComponent.paused.value) {
+        animationAction?.getMixer().stopAllAction()
+        animationAction?.reset()
+        animationAction?.play()
       }
     }, [loopAnimationComponent._action, loopAnimationComponent.paused])
 
     useEffect(() => {
-      if (!loopAnimationComponent._action.value) return
-      loopAnimationComponent._action.value.enabled = loopAnimationComponent.enabled.value
+      if (!animationAction) return
+      animationAction.enabled = loopAnimationComponent.enabled.value
     }, [loopAnimationComponent._action, loopAnimationComponent.enabled])
 
     useEffect(() => {
-      if (!loopAnimationComponent._action.value) return
-      loopAnimationComponent._action.value.time = loopAnimationComponent.time.value
-      loopAnimationComponent._action.value.setLoop(
-        loopAnimationComponent.loop.value,
-        loopAnimationComponent.repetitions.value
-      )
-      loopAnimationComponent._action.value.clampWhenFinished = loopAnimationComponent.clampWhenFinished.value
-      loopAnimationComponent._action.value.zeroSlopeAtStart = loopAnimationComponent.zeroSlopeAtStart.value
-      loopAnimationComponent._action.value.zeroSlopeAtEnd = loopAnimationComponent.zeroSlopeAtEnd.value
-      loopAnimationComponent._action.value.blendMode = loopAnimationComponent.blendMode.value
+      if (!animationAction) return
+      animationAction.time = loopAnimationComponent.time.value
+      animationAction.setLoop(loopAnimationComponent.loop.value, loopAnimationComponent.repetitions.value)
+      animationAction.clampWhenFinished = loopAnimationComponent.clampWhenFinished.value
+      animationAction.zeroSlopeAtStart = loopAnimationComponent.zeroSlopeAtStart.value
+      animationAction.zeroSlopeAtEnd = loopAnimationComponent.zeroSlopeAtEnd.value
+      animationAction.blendMode = loopAnimationComponent.blendMode.value
     }, [
       loopAnimationComponent._action,
       loopAnimationComponent.blendMode,
@@ -177,9 +177,9 @@ export const LoopAnimationComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (!loopAnimationComponent._action.value) return
-      loopAnimationComponent._action.value.setEffectiveWeight(loopAnimationComponent.weight.value)
-      loopAnimationComponent._action.value.setEffectiveTimeScale(loopAnimationComponent.timeScale.value)
+      if (!animationAction) return
+      animationAction.setEffectiveWeight(loopAnimationComponent.weight.value)
+      animationAction.setEffectiveTimeScale(loopAnimationComponent.timeScale.value)
     }, [loopAnimationComponent._action, loopAnimationComponent.weight, loopAnimationComponent.timeScale])
 
     /**
@@ -225,7 +225,7 @@ export const LoopAnimationComponent = defineComponent({
       for (let i = 0; i < animations.length; i++) retargetAnimationClip(animations[i], gltf.scene)
       lastAnimationPack.set(loopAnimationComponent.animationPack.get(NO_PROXY))
       animComponent.animations.set(animations)
-    }, [gltf, animComponent])
+    }, [gltf, animComponent, modelComponent?.asset])
 
     return null
   }

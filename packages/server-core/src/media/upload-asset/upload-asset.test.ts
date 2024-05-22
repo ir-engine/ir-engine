@@ -29,9 +29,9 @@ import fs from 'fs'
 import path from 'path'
 
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
@@ -54,12 +54,14 @@ describe('upload-asset', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    const url = getCachedURL('/projects/default-project/default.gltf', storageProvider.cacheDomain)
+    const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
     const url2 = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
     mockFetch({
       [url]: {
         contentType: 'application/json',
-        response: fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/default.gltf'))
+        response: fs.readFileSync(
+          path.join(appRootPath.path, '/packages/projects/default-project/public/scenes/default.gltf')
+        )
       },
       [url2]: {
         contentType: 'audio/mpeg',
@@ -118,7 +120,7 @@ describe('upload-asset', () => {
 
     it('should add asset as a new static resource from path', async () => {
       // todo - serve this file from a local server
-      const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/default.gltf')
+      const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/public/scenes/default.gltf')
       const name = 'default.gltf'
       const hash = createStaticResourceHash(assetPath)
 
@@ -148,7 +150,7 @@ describe('upload-asset', () => {
 
     it('should add asset as a new static resource from url', async () => {
       const storageProvider = getStorageProvider()
-      const url = getCachedURL('/projects/default-project/default.gltf', storageProvider.cacheDomain)
+      const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
       const name = 'default.gltf'
       const hash = createStaticResourceHash(url)
 

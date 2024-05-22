@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { BufferAttribute, BufferGeometry, Mesh } from 'three'
+import matches from 'ts-matches'
+
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { BufferAttribute, BufferGeometry, Mesh } from 'three'
-import matches from 'ts-matches'
+
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -98,8 +100,8 @@ export const XRDetectedMeshComponent = defineComponent({
       const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
-      if (shadowMesh.geometry) shadowMesh.geometry = geometry
-      if (occlusionMesh.geometry) occlusionMesh.geometry = geometry
+      if (shadowMesh.geometry) (shadowMesh.geometry as any) = geometry
+      if (occlusionMesh.geometry) (occlusionMesh.geometry as any) = geometry
 
       return () => {
         geometry.dispose()
@@ -107,7 +109,7 @@ export const XRDetectedMeshComponent = defineComponent({
     }, [component.geometry])
 
     useEffect(() => {
-      const placementHelper = component.placementHelper.value
+      const placementHelper = component.placementHelper.value as Mesh
       placementHelper.visible = scenePlacementMode.value === 'placing'
     }, [scenePlacementMode])
 

@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ContainerProps, Container as MuiContainer } from '@mui/material'
 import React from 'react'
 
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { ContainerProps, Container as MuiContainer } from '@mui/material'
 
 const Container = (props: ContainerProps & { component?: string }) => <MuiContainer {...props} />
 

@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Button } from '@mui/material'
 import React from 'react'
 import { Link } from 'react-router-dom'
-
-import { Button } from '@mui/material'
 
 import { useStyle, useStyles } from './style'
 

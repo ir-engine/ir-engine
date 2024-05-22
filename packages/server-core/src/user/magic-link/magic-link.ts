@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { magicLinkMethods, magicLinkPath } from '@etherealengine/common/src/schemas/user/magic-link.schema'
+
 import { Application } from '../../../declarations'
 import { MagicLinkService } from './magic-link.class'
 import magicLinkDocs from './magic-link.docs'

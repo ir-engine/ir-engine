@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 import { Mesh, Object3D } from 'three'
+
+import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
 
 export default function getFirstMesh(obj3d: Object3D): Mesh | null {
   const meshes = iterateObject3D(

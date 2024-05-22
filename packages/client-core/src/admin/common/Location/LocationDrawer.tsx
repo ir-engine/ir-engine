@@ -30,23 +30,23 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import {
+  assetPath,
   LocationData,
   LocationID,
-  LocationType,
-  assetPath,
-  locationPath
+  locationPath,
+  LocationType
 } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { EntityUUID } from '@etherealengine/ecs'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { saveSceneGLTF, setCurrentEditorScene } from '../../../../../editor/src/functions/sceneFunctions'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'

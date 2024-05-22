@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useEffect } from 'react'
 import { DepthDataTexture } from './DepthDataTexture'
 
 export class XRAction {

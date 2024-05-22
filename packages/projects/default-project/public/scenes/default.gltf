@@ -1,0 +1,407 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Settings",
+      "extensions": {
+        "EE_uuid": "0d5a20e1-abe2-455e-9963-d5e1e19fca19",
+        "EE_envmapbake": {
+          "bakePosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakePositionOffset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "bakeScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+          },
+          "bakeType": "Baked",
+          "resolution": 2048,
+          "refreshMode": "OnAwake",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/default.envmap.ktx2",
+          "boxProjection": true
+        },
+        "EE_fog": {
+          "type": "linear",
+          "color": "#FFFFFF",
+          "density": 0.005,
+          "near": 1,
+          "far": 1000,
+          "timeScale": 1,
+          "height": 0.05
+        },
+        "EE_camera_settings": {
+          "fov": 50,
+          "cameraNearClip": 0.1,
+          "cameraFarClip": 1000,
+          "projectionType": 1,
+          "minCameraDistance": 1,
+          "maxCameraDistance": 50,
+          "startCameraDistance": 3,
+          "cameraMode": 5,
+          "cameraModeDefault": 2,
+          "minPhi": -70,
+          "maxPhi": 85
+        },
+        "EE_postprocessing": {
+          "effects": {
+            "SSAOEffect": {
+              "isActive": false,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 16,
+              "rings": 7,
+              "distanceThreshold": 0.125,
+              "distanceFalloff": 0.02,
+              "minRadiusScale": 1,
+              "bias": 0.25,
+              "radius": 0.01,
+              "intensity": 2,
+              "fade": 0.05
+            },
+            "SSREffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "DepthOfFieldEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "focusDistance": 0.02,
+              "focalLength": 0.5,
+              "bokehScale": 1
+            },
+            "BloomEffect": {
+              "isActive": true,
+              "blendFunction": 28,
+              "kernelSize": 2,
+              "luminanceThreshold": 1,
+              "luminanceSmoothing": 0.1,
+              "intensity": 0.2
+            },
+            "ToneMappingEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "adaptive": true,
+              "resolution": 512,
+              "middleGrey": 0.6,
+              "maxLuminance": 32,
+              "averageLuminance": 1,
+              "adaptationRate": 2
+            },
+            "BrightnessContrastEffect": {
+              "isActive": false,
+              "brightness": 0.05,
+              "contrast": 0.1
+            },
+            "HueSaturationEffect": {
+              "isActive": false,
+              "hue": 0,
+              "saturation": -0.15
+            },
+            "ColorDepthEffect": {
+              "isActive": false,
+              "bits": 16
+            },
+            "LinearTosRGBEffect": {
+              "isActive": false
+            },
+            "SSGIEffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "autoThickness": false,
+              "maxRoughness": 1,
+              "blend": 0.9,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 1,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "directLightMultiplier": 1,
+              "steps": 20,
+              "refineSteps": 5,
+              "spp": 1,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "TRAAEffect": {
+              "isActive": false,
+              "blend": 0.8,
+              "constantBlend": true,
+              "dilation": true,
+              "blockySampling": false,
+              "logTransform": false,
+              "depthDistance": 10,
+              "worldDistance": 5,
+              "neighborhoodClamping": true
+            },
+            "MotionBlurEffect": {
+              "isActive": false,
+              "intensity": 1,
+              "jitter": 1,
+              "samples": 16
+            }
+          },
+          "enabled": false
+        },
+        "EE_media_settings": {
+          "immersiveMedia": false,
+          "refDistance": 20,
+          "rolloffFactor": 1,
+          "maxDistance": 10000,
+          "distanceModel": "linear",
+          "coneInnerAngle": 360,
+          "coneOuterAngle": 0,
+          "coneOuterGain": 0
+        },
+        "EE_render_settings": {
+          "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+          "csm": true,
+          "cascades": 5,
+          "toneMapping": 1,
+          "toneMappingExposure": 0.8,
+          "shadowMapType": 2
+        },
+        "EE_scene_settings": {
+          "thumbnailURL": "__$project$__/default-project/public/scenes/default.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/default.loadingscreen.ktx2",
+          "primaryColor": "#38620D",
+          "backgroundColor": "rgb(214, 214, 211)",
+          "alternativeColor": "#376312",
+          "sceneKillHeight": -10
+        },
+        "EE_visible": true
+      }
+    },
+    {
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2.5,
+        5,
+        1
+      ],
+      "name": "scene preview camera",
+      "extensions": {
+        "EE_uuid": "bb362197-f14d-4da7-9c3c-1ed834386423",
+        "EE_scene_preview_camera": {}
+      }
+    },
+    {
+      "name": "EE_skybox",
+      "extensions": {
+        "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 0,
+          "equirectangularPath": "",
+          "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
+          "backgroundType": 1,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.16666666666666666
+          }
+        }
+      }
+    },
+    {
+      "name": "ground plane",
+      "extensions": {
+        "EE_uuid": "38793f94-0b92-4ea1-af7b-5ec0e117628d",
+        "EE_visible": true,
+        "EE_ground_plane": {
+          "color": 5799734,
+          "visible": true
+        },
+        "EE_shadow": {
+          "cast": false,
+          "receive": true
+        },
+        "EE_rigidbody": {
+          "type": "fixed",
+          "ccd": false,
+          "allowRolling": true,
+          "enabledRotations": [
+            true,
+            true,
+            true
+          ],
+          "canSleep": true,
+          "gravityScale": 1
+        },
+        "EE_collider": {
+          "shape": "plane",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 4,
+          "collisionMask": 3
+        }
+      }
+    },
+    {
+      "matrix": [
+        -1,
+        1.0106430996148606e-15,
+        -1.224646852585167e-16,
+        0,
+        1.0106430996148606e-15,
+        1,
+        1.2246467991473547e-16,
+        0,
+        1.2246468525851686e-16,
+        1.2246467991473532e-16,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "name": "spawn point",
+      "extensions": {
+        "EE_uuid": "3e8a430e-9dcf-440e-990c-44ecb8051762",
+        "EE_visible": true,
+        "EE_spawn_point": {
+          "permissionedUsers": []
+        }
+      }
+    },
+    {
+      "name": "hemisphere light",
+      "extensions": {
+        "EE_uuid": "f77dc4c6-c9a6-433d-8102-4a9a8e1c0ce9",
+        "EE_visible": true,
+        "EE_hemisphere_light": {
+          "skyColor": 16777215,
+          "groundColor": 16777215,
+          "intensity": 1
+        }
+      }
+    },
+    {
+      "matrix": [
+        0.8201518642540717,
+        0.2860729507918133,
+        -0.49549287218469207,
+        0,
+        -2.135677384940138e-9,
+        0.8660253995220991,
+        0.5000000073825887,
+        0,
+        0.5721458901019658,
+        -0.41007593712366674,
+        0.7102723465203864,
+        0,
+        0,
+        10,
+        0,
+        1
+      ],
+      "name": "directional light",
+      "extensions": {
+        "EE_uuid": "cb045cfd-8daf-4a2b-b764-35625be54a11",
+        "EE_directional_light": {
+          "color": 16777215,
+          "intensity": 1,
+          "cameraFar": 200,
+          "castShadow": true,
+          "shadowBias": -0.00001,
+          "shadowRadius": 1,
+          "helper": null
+        },
+        "EE_visible": true
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_envmapbake",
+    "EE_fog",
+    "EE_camera_settings",
+    "EE_postprocessing",
+    "EE_media_settings",
+    "EE_render_settings",
+    "EE_scene_settings",
+    "EE_visible",
+    "EE_ecs",
+    "EE_scene_preview_camera",
+    "EE_skybox",
+    "EE_resourceId",
+    "EE_ground_plane",
+    "EE_shadow",
+    "EE_rigidbody",
+    "EE_collider",
+    "EE_spawn_point",
+    "EE_hemisphere_light",
+    "EE_directional_light"
+  ]
+}

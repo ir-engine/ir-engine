@@ -27,6 +27,7 @@ import {
   projectBuilderTagsMethods,
   projectBuilderTagsPath
 } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectBuilderTagsService } from './project-builder-tags.class'
 import projectBuilderTagsDocs from './project-builder-tags.docs'

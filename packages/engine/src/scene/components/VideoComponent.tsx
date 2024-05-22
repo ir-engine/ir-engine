@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   DoubleSide,
   LinearFilter,
@@ -36,29 +36,29 @@ import {
   VideoTexture
 } from 'three'
 
-import { defineState } from '@etherealengine/hyperflux'
-
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { defineState, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { MeshComponent, useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 import { ContentFitType, ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
+
 import { clearErrors } from '../functions/ErrorFunctions'
-import { PLANE_GEO, SPHERE_GEO, resizeImageMesh } from './ImageComponent'
+import { PLANE_GEO, resizeImageMesh, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
@@ -88,11 +88,6 @@ export const VideoComponent = defineComponent({
   jsonID: 'EE_video',
 
   onInit: (entity) => {
-    const videoMesh: Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial> = new Mesh(
-      PLANE_GEO.clone(),
-      new MeshBasicMaterial()
-    )
-    videoMesh.name = `video-group-${entity}`
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
@@ -100,8 +95,7 @@ export const VideoComponent = defineComponent({
       projection: 'Flat' as 'Flat' | 'Equirectangular360',
       mediaUUID: '' as EntityUUID,
       // internal
-      videoMesh,
-      videoEntity: UndefinedEntity,
+      videoMeshEntity: UndefinedEntity,
       texture: null as VideoTexturePriorityQueue | null
     }
   },
@@ -148,33 +142,38 @@ function VideoReactor() {
   const visible = useOptionalComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
+  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+
+  const videoMeshEntity = useHookstate(createEntity)
+  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
+    videoMeshEntity.value,
+    PLANE_GEO,
+    () => new MeshBasicMaterial()
+  )
 
   useEffect(() => {
-    const videoEntity = createEntity()
-    addObjectToGroup(videoEntity, video.videoMesh.value)
+    const videoEntity = videoMeshEntity.value
+    video.videoMeshEntity.set(videoEntity)
+    mesh.name.set(`video-group-${entity}`)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(videoEntity, NameComponent, video.videoMesh.value.name)
-    video.videoEntity.set(videoEntity)
-    setComponent(videoEntity, MeshComponent, video.videoMesh.value)
+    setComponent(videoEntity, NameComponent, mesh.name.value)
     return () => {
       removeEntity(videoEntity)
-      video.videoEntity.set(UndefinedEntity)
     }
   }, [])
 
   useEffect(() => {
-    if (!video.videoEntity.value) return
-    setVisibleComponent(video.videoEntity.value, !!visible)
-  }, [visible, video.videoEntity])
+    setVisibleComponent(videoMeshEntity.value, !!visible)
+  }, [visible])
 
   // update side
   useEffect(() => {
-    video.videoMesh.material.side.set(video.side.value)
+    mesh.material.side.set(video.side.value)
   }, [video.side])
 
   // update mesh
   useEffect(() => {
-    const videoMesh = video.videoMesh.value
+    const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial>
     resizeImageMesh(videoMesh)
     const scale = ObjectFitFunctions.computeContentFitScale(
       videoMesh.scale.x,
@@ -187,34 +186,22 @@ function VideoReactor() {
   }, [video.size, video.fit, video.texture])
 
   useEffect(() => {
-    video.videoMesh.value.geometry = video.projection.value === 'Flat' ? PLANE_GEO.clone() : SPHERE_GEO.clone()
-    video.videoMesh.value.geometry.attributes.position.needsUpdate = true
-    video.videoMesh.value.material.map = video.texture.value
-    video.videoMesh.value.material.needsUpdate = true
+    mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
+    mesh.geometry.attributes.position.needsUpdate.set(true)
+    mesh.material.map.set(video.texture.value)
   }, [video.texture, video.projection])
 
-  return <VideoMediaSourceReactor mediaEntity={mediaEntity} key={mediaEntity} />
-}
-
-const VideoMediaSourceReactor = (props: { mediaEntity }) => {
-  const entity = useEntityContext()
-  const video = useComponent(entity, VideoComponent)
-
-  const { mediaEntity } = props
-
-  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
-
-  // update video texture
   useEffect(() => {
     if (!mediaEntity || !mediaElement) return
     const sourceVideoComponent = getComponent(mediaEntity, VideoComponent)
+    const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent.texture
     if (video.texture.value) {
-      video.texture.value.image = mediaElement.element.value as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
       clearErrors(entity, VideoComponent)
     } else {
-      if (sourceTexture) {
-        video.videoMesh.value.material = sourceVideoComponent.videoMesh.material
+      if (sourceTexture && sourceMeshComponent) {
+        mesh.material.set(sourceMeshComponent.material as MeshBasicMaterial)
         clearErrors(entity, VideoComponent)
       } else {
         video.texture.set(new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement))

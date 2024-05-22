@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
+import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -36,22 +39,17 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
-
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
-
-import { UUIDComponent } from '@etherealengine/ecs'
 import { ResourcePendingComponent } from '@etherealengine/engine/src/gltf/ResourcePendingComponent'
 import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import { useHookstate } from '@hookstate/core'
+
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import TransformPropertyGroup from '../properties/TransformPropertyGroup'

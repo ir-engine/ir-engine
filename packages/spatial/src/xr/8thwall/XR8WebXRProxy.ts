@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { V_111 } from '../../common/constants/MathConstants'
+import { Vector3_One } from '../../common/constants/MathConstants'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
 
@@ -65,7 +65,7 @@ export class XRViewerPose extends XRPose {
 export class XRHitTestResultProxy {
   _mat4: Matrix4
   constructor(position: Vector3, rotation: Quaternion) {
-    this._mat4 = new Matrix4().compose(position, rotation, V_111)
+    this._mat4 = new Matrix4().compose(position, rotation, Vector3_One)
   }
 
   getPose(baseSpace: XRSpace) {
@@ -144,7 +144,7 @@ export class XRRigidTransform {
   constructor(position?: Vector3, orientation?: Quaternion) {
     if (position) this.position.copy(position)
     if (orientation) this.orientation.copy(orientation)
-    this._matrix.compose(this.position, this.orientation, V_111)
+    this._matrix.compose(this.position, this.orientation, Vector3_One)
   }
 
   get matrix() {

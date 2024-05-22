@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
@@ -34,7 +35,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { Tween } from '@tweenjs/tween.js'
+
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 

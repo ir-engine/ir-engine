@@ -29,17 +29,19 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import lodash from 'lodash'
 import path from 'path'
-import { UserConfig, defineConfig } from 'vite'
+import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
-const { isArray, mergeWith } = lodash
 
 import manifest from './manifest.default.json'
+import packageJson from './package.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
 import { getCoilSetting } from './scripts/getCoilSettings'
+
+const { isArray, mergeWith } = lodash
 
 const parseModuleName = (moduleName: string) => {
   // // chunk medisoup-client
@@ -243,7 +245,7 @@ export default defineConfig(async () => {
     }
   }
 
-  const define = {}
+  const define = { __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version) }
   for (const [key, value] of Object.entries(process.env)) {
     define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }

@@ -23,18 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { Not } from 'bitecs'
+import { useEffect } from 'react'
 
 import { PresentationSystemGroup } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { usePerformanceOffset } from '@etherealengine/spatial/src/renderer/functions/performanceHooks'
+import { PerformanceState } from '@etherealengine/spatial/src/renderer/PerformanceState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Not } from 'bitecs'
-import { useEffect } from 'react'
+
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
@@ -83,7 +84,7 @@ function execute() {
 }
 
 function reactor() {
-  const performanceOffset = usePerformanceOffset()
+  const performanceOffset = useMutableState(PerformanceState).gpuPerformanceOffset
 
   useEffect(() => {
     if (getState(EngineState).isEditing) return

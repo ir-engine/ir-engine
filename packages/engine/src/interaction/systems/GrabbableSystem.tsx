@@ -25,7 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import {
+  defineQuery,
+  defineSystem,
+  Engine,
+  entityExists,
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  SimulationSystemGroup,
+  UUIDComponent
+} from '@etherealengine/ecs'
 import {
   defineActionQueue,
   defineState,
@@ -33,30 +46,20 @@ import {
   getMutableState,
   getState,
   none,
-  useHookstate
+  useHookstate,
+  useMutableState
 } from '@etherealengine/hyperflux'
-
-import {
-  defineQuery,
-  defineSystem,
-  Engine,
-  entityExists,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  SimulationSystemGroup
-} from '@etherealengine/ecs'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
 import { ClientInputSystem } from '@etherealengine/spatial'
-import { V_000 } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { GrabbableComponent, GrabbedComponent, GrabberComponent, onDrop } from '../components/GrabbableComponent'
 import { GrabbableNetworkAction } from '../functions/grabbableFunctions'
@@ -89,7 +92,7 @@ export const GrabbableState = defineState({
   },
 
   reactor: () => {
-    const grabbableState = useHookstate(getMutableState(GrabbableState))
+    const grabbableState = useMutableState(GrabbableState)
     return (
       <>
         {grabbableState.keys.map((entityUUID: EntityUUID) => (
@@ -174,7 +177,7 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const ownedGrabbableQuery = defineQuery([GrabbableComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
-  if (getState(EngineState).isEditor) return
+  if (getState(EngineState).isEditing) return
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
@@ -190,7 +193,7 @@ const execute = () => {
     if (rigidbodyComponent) {
       rigidbodyComponent.targetKinematicPosition.copy(target.position)
       rigidbodyComponent.targetKinematicRotation.copy(target.rotation)
-      Physics.setRigidbodyPose(entity, target.position, target.rotation, V_000, V_000)
+      Physics.setRigidbodyPose(entity, target.position, target.rotation, Vector3_Zero, Vector3_Zero)
     }
 
     const grabbableTransform = getComponent(entity, TransformComponent)
@@ -200,7 +203,8 @@ const execute = () => {
 }
 
 const executeInput = () => {
-  const buttons = InputSourceComponent.getMergedButtons()
+  const inputSources = InputSourceComponent.nonCapturedInputSources()
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
   if (buttons.KeyU?.down) onDrop()
 }
 

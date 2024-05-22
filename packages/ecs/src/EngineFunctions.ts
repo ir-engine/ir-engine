@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 
 import logger from '@etherealengine/common/src/logger'
-import { HyperFlux, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, HyperFlux } from '@etherealengine/hyperflux'
 
 import { ECSState } from './ECSState'
-import { SystemUUID, executeSystem } from './SystemFunctions'
+import { executeSystem, SystemUUID } from './SystemFunctions'
 import { AnimationSystemGroup, InputSystemGroup, PresentationSystemGroup, SimulationSystemGroup } from './SystemGroups'
 import { nowMilliseconds } from './Timer'
 
@@ -65,6 +65,7 @@ export const executeSystems = (elapsedTime: number) => {
   if (duration > 150) {
     logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
+  ecsState.lastSystemExecutionDuration.set(duration)
 }
 
 /**

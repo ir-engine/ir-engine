@@ -28,13 +28,13 @@ Ethereal Engine. All Rights Reserved.
  * - uses CLI to fetch a manifest and clone projects
  */
 
-import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
-
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import fs from 'fs'
+import fs, { promises as fsp } from 'fs'
 import path from 'path'
+
+import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
 
 dotenv.config({
   path: appRootPath.path,
@@ -45,10 +45,12 @@ cli.enable('status')
 
 const options = cli.parse({
   manifestURL: [false, 'Manifest URL', 'string'],
-  branch: [false, 'Branch', 'string']
+  branch: ['b', 'Branch', 'string', 'main'],
+  replace: ['r', 'Replace existing project?', 'string', 'no']
 }) as {
   manifestURL?: string
   branch?: string
+  replace?: string
 }
 
 /**
@@ -60,13 +62,18 @@ const fetchManifest = async () => {
   try {
     if (!options.manifestURL) throw new Error('No manifest URL specified')
     const [org, repo, blob, branch, manifest] = options.manifestURL
-      .replace('https://', '')
-      .replace('github.com/', '')
+      // maintaining support for http repo urls, although discouraged due deprecated usr/pwd github feature
+      // as well as avoiding blockers and extra steps by having to figure out that a github token has to be created
+      .replace('https://github.com/', '')
+      // recommended repo url form, uses ssh keys and speed up staging process for new developers
+      .replace('git@github.com:', '')
       .split('/')
     const clonePath = path.resolve(appRootPath.path, '.temp', repo)
-    await execPromise(`git clone https://github.com/${org}/${repo} ${clonePath}`, {
+    // enforce ssh connection rather than deprecated http usr/pwd
+    await execPromise(`git clone git@github.com:${org}/${repo} ${clonePath}`, {
       cwd: appRootPath.path
     })
+    console.log('manifest installed')
     const manifestPath = path.resolve(clonePath, manifest)
     const manifestData = fs.readFileSync(manifestPath, 'utf8')
     const manifestJSON = JSON.parse(manifestData)
@@ -86,8 +93,9 @@ interface PackageManifest_V_1_0_0 {
 }
 
 const installManifest = async () => {
-  const branch = options.branch ?? 'main'
+  const { branch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
   const manifest = (await fetchManifest()) as PackageManifest_V_1_0_0
+  const replacing = options.replace?.toLowerCase() === 'yes' || options.replace?.toLowerCase() === 'y'
   if (!manifest) throw new Error('No manifest found')
   if (!manifest.version) throw new Error('No version found in manifest')
   if (manifest.version !== '1.0.0') throw new Error('Unsupported manifest version')
@@ -100,19 +108,55 @@ const installManifest = async () => {
       /** Check if folder already exists */
       const folder = url.split('/').pop()
       if (!folder) throw new Error('Invalid URL')
+      const packageDir = path.resolve(appRootPath.path, 'packages/projects/projects', folder)
+      /* 
+       Performing Sync IO Operations withing Async Processes is an anti-pattern that will block
+       the Thread and the Event Loop therefore defeats the purpose of having a Promise.all which is expected to execute
+       async processes in parallel, using sync io operations in async processes drastically hurts performance...
 
-      const folderExists = fs.existsSync(path.resolve(appRootPath.path, 'packages/projects/projects', folder))
-      if (folderExists) {
-        console.log(`Package ${folder} already exists, skipping`)
-      } else {
-        console.log(`Cloning ${url}`)
-        await execPromise(`git clone ${url}`, {
-          cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
-        })
+       Deprecated: const folderExists = fs.existsSync(packageDir)
+
+       reference: https://nodejs.org/en/learn/asynchronous-work/overview-of-blocking-vs-non-blocking
+      */
+
+      try {
+        // Using async IO operations to avoid blocking the thread and event loop
+        const stat = await fsp.stat(packageDir)
+
+        if (!replacing) return console.log(`Package ${folder} already exists, skipping`)
+
+        console.log(`Package ${folder} already exists, cleaning up project directory`)
+
+        try {
+          // Using async IO operations to avoid blocking the thread and event loop
+          await fsp.rm(packageDir, { recursive: true })
+        } catch (e) {
+          console.error(`Unexpected error while deleting directory ${packageDir} Error: ${e}`)
+        }
+      } catch (e) {
+        // if this catch is triggered means that the folder doesn't exist, therefore
+        // it's safe to execute the logic below, no error handling required.
       }
+
+      // Enforcing ssh connection instead of deprecated http usr/pwd + token connection
+      // while maintaining support for manifests having http as configuration
+      const curatedURL = url.replace('https://github.com/', 'git@github.com:')
+      console.log(`Cloning ${curatedURL}`)
+      // Improving performance by cloning the code from the expected branch in a single step
+      await execPromise(`git clone -b ${branch} --single-branch ${curatedURL}`, {
+        cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
+      })
+
+      /*
+      Deprecating unnecessary extra steps, by cloning only from the expected 
+      branch in a single step, each project installation will be cleaner and faster,
+      therefore no extra checkout, fetch, prune or rebase processes are required freeing
+      the event loop to resolve other operations already running in parallel faster.
+
       await execPromise(`git checkout ${branch} && git fetch -p && git rebase`, {
         cwd: path.resolve(appRootPath.path, `packages/projects/projects/${folder}`)
       })
+      */
     })
   )
   await execPromise(`ls`, {

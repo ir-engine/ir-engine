@@ -23,25 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { MathUtils } from 'three'
+
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   Engine,
   EntityUUID,
-  UUIDComponent,
   getComponent,
   getOptionalComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
-import { defineAction, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkObjectComponent, NetworkTopics, WorldNetworkAction, matchesUserID } from '@etherealengine/network'
-import React, { useEffect } from 'react'
-import { MathUtils } from 'three'
-import { TransformComponent } from '../../SpatialModule'
 import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  none,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
+import { matchesUserID, NetworkObjectComponent, NetworkTopics, WorldNetworkAction } from '@etherealengine/network'
+
+import { TransformComponent } from '../../SpatialModule'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
@@ -86,7 +93,7 @@ export const SpectateEntityState = defineState({
   },
 
   reactor: () => {
-    const state = useHookstate(getMutableState(SpectateEntityState))
+    const state = useMutableState(SpectateEntityState)
 
     if (!state.value[Engine.instance.userID]) return null
 
@@ -106,11 +113,14 @@ const SpectatorReactor = () => {
         state.spectating.value,
         CameraComponent
       )
-      setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
-        if (!networkTransform) return
-        cameraTransform.position.copy(networkTransform.position)
-        cameraTransform.rotation.copy(networkTransform.rotation)
+      setComponent(cameraEntity, ComputedTransformComponent, {
+        referenceEntities: [networkCameraEntity],
+        computeFunction: () => {
+          const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+          if (!networkTransform) return
+          cameraTransform.position.copy(networkTransform.position)
+          cameraTransform.rotation.copy(networkTransform.rotation)
+        }
       })
       return () => {
         removeComponent(cameraEntity, ComputedTransformComponent)
@@ -142,11 +152,14 @@ const SpectatingUserReactor = (props: { userID: UserID }) => {
 
     const cameraEntity = Engine.instance.viewerEntity
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
-    setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
-      const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
-      if (!networkTransform) return
-      cameraTransform.position.copy(networkTransform.position)
-      cameraTransform.rotation.copy(networkTransform.rotation)
+    setComponent(cameraEntity, ComputedTransformComponent, {
+      referenceEntities: [networkCameraEntity],
+      computeFunction: () => {
+        const networkTransform = getOptionalComponent(networkCameraEntity, TransformComponent)
+        if (!networkTransform) return
+        cameraTransform.position.copy(networkTransform.position)
+        cameraTransform.rotation.copy(networkTransform.rotation)
+      }
     })
     return () => {
       removeComponent(cameraEntity, ComputedTransformComponent)

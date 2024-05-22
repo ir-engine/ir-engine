@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
+
 import { ITableHeadCell } from '../Table'
 
 type IdType = 'name' | 'projectVersion' | 'enabled' | 'commitSHA' | 'commitDate' | 'actions'

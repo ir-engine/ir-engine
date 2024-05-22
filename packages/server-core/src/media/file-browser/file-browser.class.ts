@@ -24,29 +24,29 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
+import { Knex } from 'knex'
 import path from 'path/posix'
 
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-
-import { isDev } from '@etherealengine/common/src/config'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { Knex } from 'knex'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -59,8 +59,6 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {
   nestingDirectory?: string
 }
-
-const PROJECT_FILE_REGEX = /^projects/
 
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
   if (!nestingDirectory) {
@@ -186,13 +184,12 @@ export class FileBrowserService
       isDirectory: true
     })
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create({
         path: keyPath
       })
 
-    if (isDev && PROJECT_FILE_REGEX.test(directory))
-      fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
+    if (config.fsProjectSyncEnabled) fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
   }
@@ -211,7 +208,7 @@ export class FileBrowserService
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create([
         {
           path: _oldPath + data.oldName
@@ -246,7 +243,13 @@ export class FileBrowserService
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
-    if (isDev && PROJECT_FILE_REGEX.test(_oldPath)) {
+    if (config.fsProjectSyncEnabled) {
+      // ensure the directory exists
+      if (!fs.existsSync(path.dirname(newNamePath))) {
+        const dirname = path.dirname(newNamePath)
+        fs.mkdirSync(dirname, { recursive: true })
+      }
+      // move or copy the file
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
     }
@@ -282,7 +285,7 @@ export class FileBrowserService
       }
     )
 
-    if (isDev && PROJECT_FILE_REGEX.test(key)) {
+    if (config.fsProjectSyncEnabled) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
@@ -314,7 +317,7 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await this.app.service(invalidationPath).create({
           path: key
         })
@@ -330,7 +333,7 @@ export class FileBrowserService
         { isInternal: true }
       )
 
-      if (!isDev)
+      if (config.server.edgeCachingEnabled)
         await this.app.service(invalidationPath).create({
           path: key
         })
@@ -352,7 +355,7 @@ export class FileBrowserService
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
-    if (!isDev)
+    if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create({
         path: key
       })
@@ -370,7 +373,7 @@ export class FileBrowserService
       )
     }
 
-    if (isDev && PROJECT_FILE_REGEX.test(key)) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+    if (config.fsProjectSyncEnabled) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
 
     return result
   }

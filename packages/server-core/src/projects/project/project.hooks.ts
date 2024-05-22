@@ -22,63 +22,63 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import appRootPath from 'app-root-path'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import fs from 'fs'
+import { Knex } from 'knex'
+import path from 'path'
 
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { projectPermissionPath } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
-  ProjectPatch,
-  ProjectType,
   projectDataValidator,
+  ProjectPatch,
   projectPatchValidator,
   projectPath,
-  projectQueryValidator
+  projectQueryValidator,
+  ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
-import fs from 'fs'
-import path from 'path'
-import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
-
-import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import { routePath } from '@etherealengine/common/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import {
-  GithubRepoAccessType,
-  githubRepoAccessPath
+  githubRepoAccessPath,
+  GithubRepoAccessType
 } from '@etherealengine/common/src/schemas/user/github-repo-access.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
-import templateProjectJson from '@etherealengine/projects/template-project/package.json'
+import templateManifestJson from '@etherealengine/projects/template-project/manifest.json'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
-import { Knex } from 'knex'
+
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
-import { cleanString } from '../../util/cleanString'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
+import verifyScope from '../../hooks/verify-scope'
+import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
+import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
   createExecutorJob,
   deleteProjectFilesInStorageProvider,
-  getEnginePackageJson,
+  engineVersion,
   getProjectConfig,
-  getProjectPackageJson,
+  getProjectManifest,
   getProjectUpdateJobBody,
   onProjectEvent,
   removeProjectUpdateJob,
@@ -229,10 +229,10 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
     try {
-      const packageJson = getProjectPackageJson(item.name)
-      item.thumbnail = packageJson.etherealEngine?.thumbnail || '/static/etherealengine_thumbnail.jpg'
+      const packageJson = getProjectManifest(item.name)
+      item.thumbnail = packageJson.thumbnail || '/static/etherealengine_thumbnail.jpg'
       item.version = packageJson.version
-      item.engineVersion = packageJson.etherealEngine?.version
+      item.engineVersion = packageJson.engineVersion
       item.description = packageJson.description
       item.hasWriteAccess = context.projectPushIds.indexOf(item.id) > -1
     } catch (err) {
@@ -280,39 +280,38 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
     (!config.db.forceRefresh && context.projectName === 'default-project') ||
-    context.projectName === 'template-project' ||
-    context.projectName === 'template-code-project'
+    context.projectName === 'template-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)
 }
 
 /**
- * Uploads the local project to the storage provider
+ * Uploads the local project to the storage provider\
+ * - asset projects only require the manifest.json, code projects are created with the template-project repository,
+ *     or with `npm run create-project -- --name="ee-my-project" --repo="https://github.com/MyOrg/ee-my-project`
  * @param context
  * @returns
  */
 const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   const projectLocalDirectory = path.resolve(projectsRootFolder, context.projectName)
-  if (!fs.existsSync(projectLocalDirectory)) {
-    copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
-    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
+  // If the folder already exists, we don't need to do anything
+  if (fs.existsSync(projectLocalDirectory)) return
 
-    fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
+  fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
-    const git = useGit(path.resolve(projectLocalDirectory, '.git'))
-    try {
-      await git.init(true)
-    } catch (e) {
-      logger.warn(e)
-    }
-
-    const packageData = Object.assign({}, templateProjectJson) as any
-    packageData.name = context.projectName
-    packageData.etherealEngine.version = getEnginePackageJson().version
-    fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
-
-    await uploadLocalProjectToProvider(context.app, context.projectName, false)
+  const git = useGit(path.resolve(projectLocalDirectory, '.git'))
+  try {
+    await git.init(true)
+  } catch (e) {
+    logger.warn(e)
   }
+
+  const manifestData = JSON.parse(JSON.stringify(templateManifestJson)) as ManifestJson
+  manifestData.name = context.projectName
+  manifestData.engineVersion = engineVersion
+  fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
+
+  await uploadLocalProjectToProvider(context.app, context.projectName, false)
 }
 
 /**

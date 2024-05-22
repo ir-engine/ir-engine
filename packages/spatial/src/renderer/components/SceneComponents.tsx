@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  EntityUUID,
-  QueryReactor,
-  UUIDComponent,
-  UndefinedEntity,
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { NO_PROXY, createState, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { Color, CubeTexture, FogBase, Texture } from 'three'
+
+import {
+  defineComponent,
+  Entity,
+  EntityUUID,
+  getComponent,
+  QueryReactor,
+  removeComponent,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext,
+  UUIDComponent
+} from '@etherealengine/ecs'
+import { createState, NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+
 import { useAncestorWithComponent, useTreeQuery } from '../../transform/components/EntityTree'
 
 /**
@@ -105,7 +107,7 @@ const SceneComponentReactor = (props: { entity: Entity }) => {
   return (
     <>
       {treeEntities.map((e) => (
-        <SceneComponentTreeReactor entity={e} key={e} Component={Component.get(NO_PROXY)} />
+        <SceneComponentTreeReactor entity={e} key={e} Component={Component.get(NO_PROXY) as any} />
       ))}
     </>
   )
@@ -172,7 +174,7 @@ export function useScene(entity: Entity) {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.value
 }

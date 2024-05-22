@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import AttractionsIcon from '@mui/icons-material/Attractions'
 import BusinessIcon from '@mui/icons-material/Business'
-
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+
 import { toggleSnapMode } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { ObjectGridSnapState } from '../../../systems/ObjectGridSnapSystem'
@@ -62,8 +61,8 @@ const rotationSnapOptions = [
 const TransformSnapTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const objectSnapState = useHookstate(getMutableState(ObjectGridSnapState))
+  const editorHelperState = useMutableState(EditorHelperState)
+  const objectSnapState = useMutableState(ObjectGridSnapState)
   const onChangeTranslationSnap = (snapValue: number) => {
     getMutableState(EditorHelperState).translationSnap.set(snapValue)
     if (editorHelperState.gridSnap.value !== SnapMode.Grid) {

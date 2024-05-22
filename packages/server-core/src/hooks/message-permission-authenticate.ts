@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { MessageID, MessageType, messagePath } from '@etherealengine/common/src/schemas/social/message.schema'
+import { MessageID, messagePath, MessageType } from '@etherealengine/common/src/schemas/social/message.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application } from './../../declarations'
 
 /**

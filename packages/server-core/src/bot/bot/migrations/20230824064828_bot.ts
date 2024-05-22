@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 import type { Knex } from 'knex'
+
+import { botPath } from '@etherealengine/common/src/schemas/bot/bot.schema'
 
 /**
  * @param { import("knex").Knex } knex

@@ -29,17 +29,20 @@ import React from 'react'
 import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { NetworkState, screenshareVideoDataChannelType } from '@etherealengine/network'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import {
+  MediasoupMediaProducerConsumerState,
+  NetworkState,
+  screenshareVideoDataChannelType
+} from '@etherealengine/network'
 
-import { MediasoupMediaProducerConsumerState } from '@etherealengine/network'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
 
 const ConferenceMode = (): JSX.Element => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
+  const authState = useMutableState(AuthState)
+  const channelConnectionState = useMutableState(MediaInstanceState)
   const network = NetworkState.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.id].ornull
   const displayedUsers =
@@ -53,7 +56,7 @@ const ConferenceMode = (): JSX.Element => {
   const screenShareConsumers =
     Object.values(consumers).filter((consumer) => consumer.mediaTag.value === screenshareVideoDataChannelType) || []
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isScreenVideoEnabled =
     mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
   const isScreenAudioEnabled =

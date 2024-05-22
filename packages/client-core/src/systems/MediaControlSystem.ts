@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import { WebLayer3D } from '@etherealengine/xrui'
+import { Vector3 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, getMutableComponent, InputSystemGroup, UndefinedEntity } from '@etherealengine/ecs'
@@ -34,6 +33,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { getState } from '@etherealengine/hyperflux'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -43,7 +43,8 @@ import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
-import { Vector3 } from 'three'
+import { WebLayer3D } from '@etherealengine/xrui'
+
 import { createMediaControlsView } from './ui/MediaControlsUI'
 
 const controlsUiPosVec3 = new Vector3()
@@ -67,6 +68,7 @@ export const createMediaControlsUI = (entity: Entity) => {
 
 const onUpdate = (entity: Entity) => {
   const mediaComponent = getMutableComponent(entity, MediaComponent)
+  if (!mediaComponent.controls.value) return
   const xrui = getComponent(mediaComponent.xruiEntity.value, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('#button')

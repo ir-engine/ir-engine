@@ -26,9 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, HemisphereLight } from 'three'
 
-import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
+import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
+import { useDisposable } from '../../resources/resourceHooks'
+import { RendererState } from '../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
@@ -36,9 +46,7 @@ export const HemisphereLightComponent = defineComponent({
   jsonID: 'EE_hemisphere_light',
 
   onInit: (entity) => {
-    const light = new HemisphereLight()
     return {
-      light,
       skyColor: new Color(),
       groundColor: new Color(),
       intensity: 1
@@ -66,25 +74,39 @@ export const HemisphereLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const light = useComponent(entity, HemisphereLightComponent)
+    const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const renderState = useMutableState(RendererState)
+    const debugEnabled = renderState.nodeHelperVisibility
+    const [light] = useDisposable(HemisphereLight, entity)
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
+
     useEffect(() => {
-      const lightObj = light.light.value
-      addObjectToGroup(entity, lightObj)
+      addObjectToGroup(entity, light)
       return () => {
-        removeObjectFromGroup(entity, lightObj)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
     useEffect(() => {
-      light.light.value.groundColor.set(light.groundColor.value)
-    }, [light.groundColor])
+      light.groundColor.set(hemisphereLightComponent.groundColor.value)
+    }, [hemisphereLightComponent.groundColor])
 
     useEffect(() => {
-      light.light.value.color.set(light.skyColor.value)
-    }, [light.skyColor])
+      light.color.set(hemisphereLightComponent.skyColor.value)
+      if (lightHelper) lightHelper.color.set(hemisphereLightComponent.skyColor.value)
+    }, [hemisphereLightComponent.skyColor])
 
     useEffect(() => {
-      light.light.value.intensity = light.intensity.value
-    }, [light.intensity])
+      light.intensity = hemisphereLightComponent.intensity.value
+    }, [hemisphereLightComponent.intensity])
+
+    useEffect(() => {
+      if (debugEnabled.value) {
+        setComponent(entity, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
+      }
+    }, [debugEnabled])
 
     return null
   }

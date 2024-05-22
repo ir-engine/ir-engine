@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { omit } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
 import { GraphJSON, VariableJSON } from '@etherealengine/visual-script'
-import { omit } from 'lodash'
-import { visualToFlow } from '../transformers/VisualToFlow'
+
 import { flowToVisual } from '../transformers/flowToVisual'
+import { visualToFlow } from '../transformers/VisualToFlow'
 import { autoLayout } from '../util/autoLayout'
 import { hasPositionMetaData } from '../util/hasPositionMetaData'
 import { useCustomNodeTypes } from './useCustomNodeTypes'

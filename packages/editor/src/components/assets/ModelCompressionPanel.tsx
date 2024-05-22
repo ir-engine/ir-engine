@@ -23,21 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Box, List, ListItem, ListItemButton, ListItemText, Modal } from '@mui/material'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
+import { Group, LoaderUtils } from 'three'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import styles from './styles.module.scss'
-
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
+import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
@@ -46,14 +40,10 @@ import {
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { transformModel as clientSideTransformModel } from '@etherealengine/engine/src/assets/compression/ModelTransformFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-import exportGLTF from '../../functions/exportGLTF'
-
-import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { Heuristic, VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
+import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -63,12 +53,19 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Box, List, ListItem, ListItemButton, ListItemText, Modal } from '@mui/material'
-import { Group, LoaderUtils } from 'three'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
+import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 import { FileType } from './FileBrowser/FileBrowserContentPanel'
+import styles from './styles.module.scss'
 
 const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
   const entity = createEntity()
@@ -204,7 +201,7 @@ export default function ModelCompressionPanel({
 
   const savePresetList = (deleting: boolean) => {
     if (!deleting) {
-      setPresetList([...presetList, lods[selectedLODIndex].value])
+      setPresetList([...presetList, lods[selectedLODIndex].value as LODVariantDescriptor])
     }
     localStorage.setItem('presets', JSON.stringify(presetList))
   }
@@ -215,10 +212,7 @@ export default function ModelCompressionPanel({
     const exportCombined = isIntegratedPrefab
 
     const heuristic = Heuristic.BUDGET
-    await createLODVariants(lods.value, clientside, heuristic, exportCombined)
-
-    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
-    await FileBrowserService.fetchFiles(directoryToRefresh)
+    await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
   }
 
   const deletePreset = (idx: number) => {

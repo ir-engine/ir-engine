@@ -23,17 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { WebContainer3D } from '@etherealengine/xrui'
 import { useEffect } from 'react'
 import {
   BufferGeometry,
@@ -46,8 +35,21 @@ import {
   SphereGeometry
 } from 'three'
 import matches from 'ts-matches'
-import { NameComponent } from '../../common/NameComponent'
+
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { WebContainer3D } from '@etherealengine/xrui'
+
 import { useAnimationTransition } from '../../common/functions/createTransitionState'
+import { NameComponent } from '../../common/NameComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
@@ -73,7 +75,7 @@ export const PointerComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    PointerComponent.pointers.delete(component.inputSource.value)
+    PointerComponent.pointers.delete(component.inputSource.value as XRInputSource)
   },
 
   reactor: () => {
@@ -83,19 +85,14 @@ export const PointerComponent = defineComponent({
     const transition = useAnimationTransition(0.5, 'OUT', (alpha) => {
       const cursor = pointerComponentState.cursor.value
       const pointer = pointerComponentState.pointer.value
-      if (cursor) {
-        cursor.material.opacity = alpha
-        cursor.material.visible = alpha > 0
-      }
-      if (pointer) {
-        pointer.material.opacity = alpha
-        pointer.material.visible = alpha > 0
-      }
+      const material = cursor ? (cursor.material as MeshBasicMaterial) : (pointer.material as LineBasicMaterial)
+      material.opacity = alpha
+      material.visible = alpha > 0
     })
 
     useEffect(() => {
       const inputSource = pointerComponentState.inputSource.value
-      const pointer = createPointer(inputSource)
+      const pointer = createPointer(inputSource as XRInputSource)
       const cursor = createUICursor()
       const pointerEntity = createEntity()
       addObjectToGroup(pointerEntity, pointer)

@@ -28,11 +28,11 @@ import { useTranslation } from 'react-i18next'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { XRUI, createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
-import { NetworkState } from '@etherealengine/network'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
@@ -59,9 +59,9 @@ export const AvatarUIContextMenuService = {
 }
 
 function AvatarContextMenu() {
-  const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
-  const friendState = useHookstate(getMutableState(FriendState))
-  const authState = useHookstate(getMutableState(AuthState))
+  const detailState = useMutableState(AvatarUIContextMenuState)
+  const friendState = useMutableState(FriendState)
+  const authState = useMutableState(AuthState)
   const selfId = authState.user.id?.value ?? ''
 
   const peers = NetworkState.worldNetwork?.peers

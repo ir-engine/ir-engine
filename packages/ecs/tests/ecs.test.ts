@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { getAllEntities } from 'bitecs'
 
 import { HyperFlux } from '@etherealengine/hyperflux'
-import { getAllEntities } from 'bitecs'
+
 import { ECS } from '..'
 import {
   defineComponent,

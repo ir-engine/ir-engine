@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Vector3 } from 'three'
+
 import {
+  defineSystem,
   ECSState,
   Engine,
-  PresentationSystemGroup,
-  defineSystem,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
-  hasComponent
+  hasComponent,
+  PresentationSystemGroup
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
-import { Vector3 } from 'three'
+
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'

@@ -26,20 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
-
 import { defineComponent, hasComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useGLTF } from '../../assets/functions/resourceHooks'
+
+import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 

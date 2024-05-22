@@ -25,20 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+
+import { Application } from '../../declarations'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {

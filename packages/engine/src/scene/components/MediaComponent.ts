@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
-
-import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { DoubleSide, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, UndefinedEntity } from '@etherealengine/ecs'
@@ -43,19 +41,16 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { useTexture } from '../../assets/functions/resourceHooks'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { PlayMode } from '../constants/PlayMode'
@@ -110,7 +105,7 @@ export const MediaElementComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const element = component.element.get({ noproxy: true })
+    const element = component.element.get({ noproxy: true }) as HTMLMediaElement
     component.hls.value?.destroy()
     component.hls.set(none)
     const audioNodeGroup = AudioNodeGroups.get(element)
@@ -150,8 +145,7 @@ export const MediaComponent = defineComponent({
       ended: true,
       waiting: false,
       track: 0,
-      trackDurations: [] as number[],
-      helperEntity: null as Entity | null
+      trackDurations: [] as number[]
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -398,7 +392,7 @@ export function MediaReactor() {
         })
         const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
-        const element = mediaElementState.element.value
+        const element = mediaElementState.element.value as HTMLMediaElement
 
         element.crossOrigin = 'anonymous'
         element.preload = 'auto'
@@ -449,12 +443,12 @@ export function MediaReactor() {
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
-      mediaElementState.element.value.crossOrigin = 'anonymous'
+      ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
       if (isHLS(path)) {
         setupHLS(entity, path).then((hls) => {
           mediaElementState.hls.set(hls)
         })
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
+        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
       } else {
         mediaElementState.element.src.set(path)
       }
@@ -482,7 +476,7 @@ export function MediaReactor() {
   useEffect(
     function updateMixbus() {
       if (!mediaElement?.value) return
-      const element = mediaElement.element.get({ noproxy: true })
+      const element = mediaElement.element.get({ noproxy: true }) as HTMLMediaElement
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
@@ -497,25 +491,18 @@ export function MediaReactor() {
   const [audioHelperTexture] = useTexture(debugEnabled.value ? AUDIO_TEXTURE_PATH : '', entity)
 
   useEffect(() => {
-    if (!debugEnabled.value) return
-
-    const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-    helper.name = `audio-helper-${entity}`
-    if (audioHelperTexture) {
-      helper.material.map = audioHelperTexture
+    if (debugEnabled.value && audioHelperTexture) {
+      const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+      material.map = audioHelperTexture
+      setComponent(entity, DebugMeshComponent, {
+        name: 'audio-helper',
+        geometry: new PlaneGeometry(),
+        material: material
+      })
     }
 
-    const helperEntity = createEntity()
-    addObjectToGroup(helperEntity, helper)
-    setComponent(helperEntity, NameComponent, helper.name)
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-    setVisibleComponent(helperEntity, true)
-    setObjectLayers(helper, ObjectLayers.NodeHelper)
-    media.helperEntity.set(helperEntity)
-
     return () => {
-      removeEntity(helperEntity)
-      media.helperEntity.set(none)
+      removeComponent(entity, DebugMeshComponent)
     }
   }, [debugEnabled, audioHelperTexture])
 

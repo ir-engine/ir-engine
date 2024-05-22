@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-
-import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
@@ -33,17 +32,15 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { useEffect } from 'react'
-import { NameComponent } from '../../common/NameComponent'
+import { defineActionQueue, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { createTransitionState } from '../../common/functions/createTransitionState'
+import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraActions } from '../CameraState'
 import { CameraSystem } from './CameraSystem'
@@ -66,10 +63,13 @@ const execute = () => {
   for (const action of fadeToBlackQueue()) {
     transition.setState(action.in ? 'IN' : 'OUT')
     if (action.in) {
-      setComputedTransformComponent(entity, Engine.instance.cameraEntity, () => {
-        getComponent(entity, TransformComponent).position.copy(
-          getComponent(Engine.instance.cameraEntity, TransformComponent).position
-        )
+      setComponent(entity, ComputedTransformComponent, {
+        referenceEntities: [Engine.instance.cameraEntity],
+        computeFunction: () => {
+          getComponent(entity, TransformComponent).position.copy(
+            getComponent(Engine.instance.cameraEntity, TransformComponent).position
+          )
+        }
       })
     } else removeComponent(entity, ComputedTransformComponent)
 

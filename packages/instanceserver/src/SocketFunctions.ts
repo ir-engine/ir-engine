@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  identityProviderPath,
+  instancePath,
+  UserID,
+  userPath,
+  UserType
+} from '@etherealengine/common/src/schema.type.module'
+import { AuthError, AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import {
-  UserID,
-  UserType,
-  identityProviderPath,
-  instancePath,
-  userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { AuthError, AuthTask } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'

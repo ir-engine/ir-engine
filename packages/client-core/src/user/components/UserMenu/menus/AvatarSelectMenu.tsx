@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -32,32 +33,31 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { SpawnEffectComponent } from '@etherealengine/engine/src/avatar/components/SpawnEffectComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
+import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AvatarID, avatarPath } from '@etherealengine/common/src/schema.type.module'
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { LocalAvatarState } from '@etherealengine/engine/src/avatar/state/AvatarState'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { debounce } from 'lodash'
 import { LoadingCircle } from '../../../../components/LoadingCircle'
-import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
-import { PopupMenuServices } from '../PopupMenuService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const AVATAR_PAGE_LIMIT = 100
 
 const AvatarMenu = () => {
   const { t } = useTranslation()
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
   const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
   const avatarLoading = useHookstate(false)

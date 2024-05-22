@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -38,6 +36,7 @@ import { ModelFormat } from '@etherealengine/engine/src/assets/classes/ModelTran
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Heuristic } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { getState } from '@etherealengine/hyperflux'
+
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { createLODVariants } from '../components/assets/ModelCompressionPanel'
 import { LODVariantDescriptor } from '../constants/GLTFPresets'
@@ -70,9 +69,16 @@ export const inputFileWithAddToScene = async ({
         if (el.files && el.files.length > 0) {
           const files = Array.from(el.files)
           if (projectName) {
-            uploadedURLs = (await Promise.all(uploadProjectFiles(projectName, files, true).promises)).map(
-              (url) => url[0]
-            )
+            const importSettings = getState(ImportSettingsState)
+            uploadedURLs = (
+              await Promise.all(
+                uploadProjectFiles(
+                  projectName,
+                  files,
+                  files.map(() => `projects/${projectName}${importSettings.importFolder}`)
+                ).promises
+              )
+            ).map((url) => url[0])
             for (const url of uploadedURLs) {
               if (url.endsWith('.gltf') || url.endsWith('.glb') || url.endsWith('.wrm')) {
                 const importSettings = getState(ImportSettingsState)
@@ -123,15 +129,12 @@ export const inputFileWithAddToScene = async ({
     el.remove()
   })
 
-export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
+export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
-  const importSettings = getState(ImportSettingsState)
 
-  for (const file of files) {
-    const path = `projects/${projectName}${isAsset ? importSettings.importFolder : ''}`
-    // if (importSettings.LODsEnabled) {
-    //   path = `projects/${projectName}${isAsset ? importSettings.LODFolder : ''}`
-    // }
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const path = paths[i]
     promises.push(
       uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
     )
@@ -150,9 +153,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await API.instance.client.service(fileBrowserPath).get(resourcePath)
+  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await FileBrowserService.deleteContent(resourcePath)
+    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
   }
 }
 

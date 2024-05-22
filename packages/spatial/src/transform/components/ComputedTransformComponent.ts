@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { matches } from 'ts-matches'
+
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
@@ -32,25 +35,18 @@ export const ComputedTransformComponent = defineComponent({
 
   onInit(entity) {
     return {
-      referenceEntity: UndefinedEntity,
-      computeFunction: (entity: Entity, referenceEntity: Entity) => {}
+      referenceEntities: [] as Entity[],
+      computeFunction: () => {}
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
 
-    if (typeof json.referenceEntity === 'number') component.referenceEntity.set(json.referenceEntity)
+    matches.arrayOf(matches.number).test(json.referenceEntities) &&
+      component.referenceEntities.set(json.referenceEntities)
     if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
 
     TransformComponent.transformsNeedSorting = true
   }
 })
-
-export function setComputedTransformComponent(
-  entity: Entity,
-  referenceEntity: Entity,
-  computeFunction: (entity: Entity, referenceEntity: Entity) => void
-) {
-  setComponent(entity, ComputedTransformComponent, { referenceEntity, computeFunction })
-}
