@@ -679,6 +679,12 @@ const removeObject = (entities: Entity[]) => {
       )
       for (const entityUUID of uuidsToDelete) {
         const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+
+        if (oldNodeIndex === -1) {
+          console.error(`Node with UUID ${entityUUID} not found.`)
+          continue
+        }
+
         // immediately remove the node from the document
         gltf.data.nodes!.splice(oldNodeIndex, 1)
         const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
@@ -690,7 +696,11 @@ const removeObject = (entities: Entity[]) => {
           const currentParentNode = getParentNodeByUUID(gltf.data, entityUUID)!
           if (currentParentNode) {
             const currentParentNodeIndex = currentParentNode.children!.indexOf(oldNodeIndex)
-            currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            if (currentParentNodeIndex > -1) {
+              currentParentNode.children!.splice(currentParentNodeIndex, 1)
+            } else {
+              console.error(`Child node index not found for ${oldNodeIndex} in parent ${entityUUID}.`)
+            }
           }
         }
 
@@ -704,10 +714,15 @@ const removeObject = (entities: Entity[]) => {
             continue
           }
           const parentNode = getParentNodeByUUID(gltf.data, uuid)
-          if (!parentNode) continue
-          const childIndex = parentNode.children!.indexOf(i + 1)
-          if (childIndex > -1) {
-            parentNode.children![childIndex]--
+          if (parentNode) {
+            const childIndex = parentNode.children!.indexOf(i + 1)
+            if (childIndex > -1) {
+              parentNode.children![childIndex]--
+            } else {
+              console.error(`Child node index not found for ${i + 1} in parent ${uuid}.`)
+            }
+          } else {
+            console.error(`Parent node not found for ${uuid}.`)
           }
         }
       }
