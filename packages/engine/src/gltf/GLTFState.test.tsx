@@ -29,13 +29,7 @@ import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'th
 
 import { defineComponent, EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import {
-  applyIncomingActions,
-  dispatchAction,
-  getMutableState,
-  getState,
-  startReactor
-} from '@etherealengine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -702,8 +696,6 @@ describe('GLTFState', () => {
     applyIncomingActions()
 
     const sceneID = getComponent(gltfEntity, SourceComponent)
-    const GLTFSnapshotStateReactor = GLTFSnapshotState.reactor
-    const reactor = startReactor(GLTFSnapshotStateReactor)
 
     let gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const nodeLength = gltfClone.data.nodes?.length
@@ -717,7 +709,6 @@ describe('GLTFState', () => {
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltfClone))
 
     applyIncomingActions()
-    reactor.run()
 
     gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     testNode = gltfClone.data.nodes!.find((node) => node.name == nodeName)
