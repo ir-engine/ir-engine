@@ -412,6 +412,16 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   useEffect(() => {
     return () => {
+      //check if entity is in some other document
+      const uuid = getComponent(entity, UUIDComponent)
+      const documents = getState(GLTFDocumentState)
+      for (const documentID in documents) {
+        const document = documents[documentID]
+        if (!document?.nodes) continue
+        for (const node of document.nodes) {
+          if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
+        }
+      }
       removeEntity(entity)
     }
   }, [])
@@ -473,6 +483,18 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return
     return () => {
+      //check if entity is in some other document and has the component
+      const uuid = getComponent(props.entity, UUIDComponent)
+      const documents = getState(GLTFDocumentState)
+      for (const documentID in documents) {
+        const document = documents[documentID]
+        if (!document?.nodes) continue
+        for (const node of document.nodes) {
+          if (node.extensions?.[UUIDComponent.jsonID] === uuid) {
+            if (node.extensions?.[props.extension]) return
+          }
+        }
+      }
       removeComponent(props.entity, Component)
     }
   }, [])

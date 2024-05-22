@@ -23,13 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { t } from 'i18next'
 
-export default [Invalidation, ProjectResource, StaticResource, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+import { ITableHeadCell } from '../Table'
+
+type IdType = 'id' | 'name' | 'batch' | 'migration_time'
+
+export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IMigrationsInfoColumn extends ITableHeadCell {
+  id: IdType
+}
+
+export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.id') },
+  { id: 'name', label: t('admin:components.server.columns.name') },
+  { id: 'batch', label: t('admin:components.server.columns.batch') },
+  { id: 'migration_time', label: t('admin:components.server.columns.migration_time'), sortable: true }
+]

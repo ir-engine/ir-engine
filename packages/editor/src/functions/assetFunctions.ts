@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -155,9 +153,9 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const exists = await API.instance.client.service(fileBrowserPath).get(resourcePath)
+  const exists = await Engine.instance.api.service(fileBrowserPath).get(resourcePath)
   if (exists) {
-    await FileBrowserService.deleteContent(resourcePath)
+    await Engine.instance.api.service(fileBrowserPath).remove(resourcePath)
   }
 }
 

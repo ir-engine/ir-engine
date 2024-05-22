@@ -23,13 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import Invalidation from './invalidation/invalidation'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import ProjectResource from './static-resource/project-resource.service'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-export default [Invalidation, ProjectResource, StaticResource, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+import {
+  FeatureFlagSettingData,
+  FeatureFlagSettingPatch,
+  FeatureFlagSettingQuery,
+  FeatureFlagSettingType
+} from '@etherealengine/common/src/schemas/setting/feature-flag-setting.schema'
+
+export interface FeatureFlagSettingParams extends KnexAdapterParams<FeatureFlagSettingQuery> {}
+
+export class FeatureFlagSettingService<
+  T = FeatureFlagSettingType,
+  ServiceParams extends Params = FeatureFlagSettingParams
+> extends KnexService<
+  FeatureFlagSettingType,
+  FeatureFlagSettingData,
+  FeatureFlagSettingParams,
+  FeatureFlagSettingPatch
+> {}
