@@ -36,7 +36,7 @@ import {
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -210,12 +210,15 @@ function ModelReactor() {
     return () => {
       if (!uuid) return
       getMutableState(GLTFSourceState)[uuid].set(none)
-      dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
-      // Do we need to check if the model has been dereferenced here?
-      for (const childUUID in loadedJsonHierarchy) {
-        const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
-        if (entity) {
-          removeEntityNodeRecursively(entity)
+
+      // If model hasn't been dereferenced unload
+      if (getState(GLTFSnapshotState)[uuid]) {
+        dispatchAction(GLTFSnapshotAction.unload({ source: uuid }))
+        for (const childUUID in loadedJsonHierarchy) {
+          const entity = UUIDComponent.getEntityByUUID(childUUID as EntityUUID)
+          if (entity) {
+            removeEntityNodeRecursively(entity)
+          }
         }
       }
     }
