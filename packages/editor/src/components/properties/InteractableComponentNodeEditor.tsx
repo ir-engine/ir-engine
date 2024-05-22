@@ -47,7 +47,9 @@ import { InteractableComponent } from '@etherealengine/engine/src/interaction/co
 import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 
 type OptionsType = Array<{
   callbacks: Array<{
@@ -70,6 +72,10 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const options = [] as OptionsType
+
+    if (!hasComponent(props.entity, InputComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true)
+    }
 
     const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
     if (entityCallbacks) {

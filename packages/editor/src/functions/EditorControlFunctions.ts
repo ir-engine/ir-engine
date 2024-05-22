@@ -87,6 +87,22 @@ const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
 
+const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Entity, component: C) => {
+  const sceneComponentID = component.jsonID
+  if (!sceneComponentID) return
+
+  const scenes = getSourcesForEntities([entity])
+
+  for (const [sceneID, entities] of Object.entries(scenes)) {
+    const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const entityUUID = getComponent(entity, UUIDComponent)
+    const node = getGLTFNodeByUUID(gltf.data, entityUUID)
+    if (!node) continue
+
+    return node.extensions?.[sceneComponentID] !== undefined
+  }
+  return false
+}
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,
@@ -768,6 +784,7 @@ const commitTransformSave = (entities: Entity[]) => {
 
 export const EditorControlFunctions = {
   addOrRemoveComponent,
+  hasComponentInAuthoringLayer,
   modifyProperty,
   modifyName,
   modifyMaterial,
