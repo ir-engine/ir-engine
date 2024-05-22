@@ -42,7 +42,6 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import {
@@ -195,6 +194,7 @@ export const GLTFSnapshotState = defineState({
         {state.keys.map((source: string) => (
           <ChildGLTFReactor key={source} source={source} />
         ))}
+        <DocumentReactor />
       </>
     )
   },
@@ -320,29 +320,41 @@ const ChildGLTFReactor = (props: { source: string }) => {
     const data = getState(GLTFSnapshotState)[source].snapshots[index]
     getMutableState(GLTFDocumentState)[source].set(data)
 
+    const entity = getState(GLTFSourceState)[source]
+    const parentUUID = getComponent(entity, UUIDComponent)
+
     // update the nodes dictionary
-    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(data)
+    const nodesDictionary = GLTFNodeState.convertGltfToNodeDictionary(parentUUID, data)
     getMutableState(GLTFNodeState)[source].set(nodesDictionary)
   }, [index])
 
-  const entity = useHookstate(getMutableState(GLTFSourceState)[source]).value
-  const parentUUID = useComponent(entity, UUIDComponent).value
-
-  return <DocumentReactor documentID={source} parentUUID={parentUUID} />
+  return null
 }
 
-export const DocumentReactor = (props: { documentID: string; parentUUID: EntityUUID }) => {
-  const nodeState = useHookstate(getMutableState(GLTFNodeState)[props.documentID])
-  if (!nodeState.value) return null
+export const DocumentReactor = () => {
+  const nodeState = useHookstate(getMutableState(GLTFNodeState))
+  const scenes = Object.entries(nodeState.get(NO_PROXY))
+  const nodes = scenes
+    .map(([source, nodes]) => {
+      const entries = Object.entries(nodes)
+      return entries.map(([uuid, { nodeIndex, childIndex, parentUUID }]) => ({
+        uuid,
+        source,
+        nodeIndex,
+        childIndex,
+        parentUUID
+      }))
+    })
+    .flat()
   return (
     <>
-      {Object.entries(nodeState.get(NO_PROXY)).map(([uuid, { nodeIndex, childIndex, parentUUID }]) => (
+      {nodes.map((node) => (
         <ParentNodeReactor
-          key={uuid}
-          childIndex={childIndex}
-          nodeIndex={nodeIndex}
-          parentUUID={parentUUID ?? props.parentUUID}
-          documentID={props.documentID}
+          key={node.uuid}
+          childIndex={node.childIndex}
+          nodeIndex={node.nodeIndex}
+          parentUUID={node.parentUUID}
+          documentID={node.source}
         />
       ))}
     </>
