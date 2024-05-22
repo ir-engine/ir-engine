@@ -90,7 +90,7 @@ const makeLobbies = async (context: HookContext<LocationService>) => {
   let result: LocationType[]
 
   if (context.method === 'create') {
-    result = context.result!['data'] ? context.result!['data'] : context.result
+    result = Array.isArray(context.result!) ? context.result! : ([context.result] as LocationType[])
   } else {
     result = [context.result as LocationType]
   }
