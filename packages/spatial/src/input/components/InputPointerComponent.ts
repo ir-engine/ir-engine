@@ -40,7 +40,7 @@ export const InputPointerComponent = defineComponent({
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity; cameraEntity: Entity }) {
+  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.canvasEntity.set(args.canvasEntity)
   },
