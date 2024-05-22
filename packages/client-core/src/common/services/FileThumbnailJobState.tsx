@@ -26,7 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils, Scene, Vector3 } from 'three'
 
-import { fileBrowserUploadPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  FileBrowserContentType,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
 import {
   createEntity,
   Engine,
@@ -58,6 +63,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { Paginated } from '@feathersjs/feathers'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -110,6 +116,8 @@ const uploadThumbnail = async (key: string, projectName: string, staticResourceI
   await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailType })
 }
 
+const seenThumbnails = new Set<string>()
+
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {} as ThumbnailJob,
@@ -121,6 +129,89 @@ export const FileThumbnailJobState = defineState({
           <ThumbnailJobReactor key={key} src={key} />
         ))}
       </>
+    )
+  },
+  processFiles: (files: FileBrowserContentType[]) => {
+    return Promise.all(
+      files
+        .filter((file) => !seenThumbnails.has(file.key) && extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
+        .map(async (file) => {
+          const { key, url } = file
+
+          seenThumbnails.add(key)
+
+          const resources = await Engine.instance.api.service(staticResourcePath).find({
+            query: { key }
+          })
+
+          if (resources.data.length === 0) {
+            return
+          }
+          const resource = resources.data[0]
+          if (resource.thumbnailURL != null) {
+            return
+          }
+          getMutableState(FileThumbnailJobState)[url].set({
+            key: url,
+            project: resource.project,
+            id: resource.id
+          })
+
+          // TODO: cache pending thumbnail promises by static resource key
+        })
+    )
+  },
+
+  processAllFiles: async (topDirectory: string) => {
+    let directories = [topDirectory]
+    let needThumbnails: FileBrowserContentType[] = []
+
+    while (directories.length > 0) {
+      const directory = `${directories.pop()}/`
+
+      const files = (await Engine.instance.api.service(fileBrowserPath).find({
+        query: {
+          $skip: 0,
+          $limit: 10000, // TODO: pagination requests
+          directory
+        }
+      })) as Paginated<FileBrowserContentType>
+      directories = files.data
+        .filter((file) => file.type === 'folder')
+        .map((file) => directory + file.name)
+        .concat(directories)
+      needThumbnails = needThumbnails.concat(
+        files.data.filter(
+          (file) => !seenThumbnails.has(file.key) && extensionCanHaveThumbnail(file.key.split('.').pop() ?? '')
+        )
+      )
+    }
+
+    Promise.all(
+      needThumbnails.map(async (file) => {
+        const { key, url } = file
+
+        seenThumbnails.add(key)
+
+        const resources = await Engine.instance.api.service(staticResourcePath).find({
+          query: { key }
+        })
+
+        if (resources.data.length === 0) {
+          return
+        }
+        const resource = resources.data[0]
+        if (resource.thumbnailURL != null) {
+          return
+        }
+        getMutableState(FileThumbnailJobState)[url].set({
+          key: url,
+          project: resource.project,
+          id: resource.id
+        })
+
+        // TODO: cache pending thumbnail promises by static resource key
+      })
     )
   }
 })
