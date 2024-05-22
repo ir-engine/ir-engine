@@ -138,10 +138,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   }
 }
 
-export const testst = {
-  setComponent: function () {}
-}
-
 const modifyName = (entities: Entity[], name: string) => {
   const scenes = getSourcesForEntities(entities)
 
@@ -246,7 +242,6 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
-    material.needsUpdate = true
   }
 }
 
@@ -621,6 +616,19 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           if (!currentParentNode) continue
           const currentParentNodeIndex = currentParentNode.children!.indexOf(nodeIndex)
           currentParentNode.children!.splice(currentParentNodeIndex, 1)
+        }
+
+        // Ensure the entity Transform remains unmodified when reparented
+        const node = getGLTFNodeByUUID(gltf.data, entityUUID) // Get the GLTF Node for the entity
+        if (node) {
+          // Get the transforms for both entitites
+          const parentTransform = getComponent(parent, TransformComponent)
+          const entityTransform = getComponent(entity, TransformComponent)
+          // Calculate the new matrix relative to the new parent entity, and apply the matrix to its GLTF node.matrix
+          node.matrix = tempMatrix4
+            .copy(entityTransform.matrixWorld)
+            .premultiply(parentTransform.matrixWorld.clone().invert())
+            .toArray()
         }
 
         const newParentUUID = getComponent(parent, UUIDComponent)

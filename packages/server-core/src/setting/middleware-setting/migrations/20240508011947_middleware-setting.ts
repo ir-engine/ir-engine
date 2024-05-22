@@ -36,13 +36,6 @@ export async function up(knex: Knex): Promise<void> {
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
   if (oldNamedTableExists) {
     await knex.schema.renameTable(oldTableName, middlewareSettingPath)
-
-    const appleTouchIconColumnExists = await knex.schema.hasColumn(middlewareSettingPath, 'appleTouchIcon')
-    if (!appleTouchIconColumnExists) {
-      await knex.schema.alterTable(middlewareSettingPath, async (table) => {
-        table.string('appleTouchIcon', 255).nullable()
-      })
-    }
   }
 
   const tableExists = await knex.schema.hasTable(middlewareSettingPath)
@@ -51,6 +44,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable(middlewareSettingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.text('middlewareSettingMenu').nullable()
       table.string('conf0', 255).nullable()
       table.string('conf1', 255).nullable()
       table.string('conf2', 255).nullable()

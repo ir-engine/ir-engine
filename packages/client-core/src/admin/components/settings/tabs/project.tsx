@@ -46,24 +46,11 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   })
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
-
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
-
   const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
-
   const patchProjectSetting = useMutation(projectPath).patch
-
-  console.log('#### SettingsTab Load ####')
-  // console.log('projectState', projectState)
-  console.log('projects', projects)
-  console.log('settings', settings)
-  console.log('selectedProjectId', selectedProjectId)
   const tSettings = JSON.parse(JSON.stringify(settings.value))
-  console.log('tSettings', tSettings)
-  // console.log('project', project)
-  // console.log('projectPath', projectPath)
-  console.log('####')
 
   useEffect(() => {
     ProjectService.fetchProjects()
@@ -145,17 +132,14 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       <Select
         options={projectsMenu}
         currentValue={selectedProjectId.value}
-        onChange={(value) => {
-          console.log('selectedProject', value)
-          selectedProjectId.set(value)
-        }}
+        onChange={(value) => selectedProjectId.set(value)}
         label={t('admin:components.setting.project.header')}
         className="mb-8 mt-6 max-w-[50%]"
       />
 
       {settings?.length > 0 ? (
         <>
-          {settings.value.map((setting, index) => (
+          {settings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
               <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
               <Input

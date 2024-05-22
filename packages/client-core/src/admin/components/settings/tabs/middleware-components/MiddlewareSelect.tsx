@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,28 +19,29 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import React from 'react'
 
-interface MiddlewareToggleProps {
+interface MiddlewareSelectProps {
   mwLabel: string
-  mwDefaultValue: boolean
-  mwOnAction: (inputLabel: string) => void
+  mwDefaultValue: string[]
+  mwOnAction: (inputValue: string, inputLabel: string) => void
 }
 
-const MiddlewareToggle: React.FC<MiddlewareToggleProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {
+const MiddlewareSelect: React.FC<MiddlewareSelectProps> = ({ mwLabel, mwDefaultValue, mwOnAction }) => {
   return (
-    <Toggle
-      containerClassName="justify-start col-span-full"
+    <Select
+      className="mb-8 mt-6 max-w-[50%]"
       label={mwLabel}
-      value={mwDefaultValue}
-      onChange={() => mwOnAction(mwLabel)}
+      options={mwDefaultValue.map((value) => ({ label: value, value }))}
+      currentValue={mwDefaultValue[0]}
+      onChange={(inputValue) => mwOnAction(inputValue, mwLabel)}
     />
   )
 }
 
-export default MiddlewareToggle
+export default MiddlewareSelect
