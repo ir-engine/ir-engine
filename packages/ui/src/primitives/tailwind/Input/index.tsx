@@ -43,7 +43,6 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   variant?: 'outlined' | 'underlined' | 'onboarding'
   labelClassname?: string
   errorBorder?: boolean
-  dropDownOnly?: boolean
 }
 
 const variants = {

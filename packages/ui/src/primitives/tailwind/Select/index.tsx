@@ -53,7 +53,7 @@ export interface SelectProps<T extends OptionValueType> {
   inputVariant?: 'outlined' | 'underlined' | 'onboarding'
   inputClassName?: string
   errorBorder?: boolean
-  dropDownOnly?: boolean
+  searchDisabled?: boolean
 }
 
 const Select = <T extends OptionValueType>({
@@ -72,7 +72,7 @@ const Select = <T extends OptionValueType>({
   inputVariant,
   inputClassName,
   errorBorder,
-  dropDownOnly
+  searchDisabled
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -95,12 +95,17 @@ const Select = <T extends OptionValueType>({
     showOptions.set((v) => !v)
   }
 
-  // Prevent the input field from receiving focus with Mouse click when it is dropDownOnly
+  // Prevent the input field from receiving focus with Mouse click when it is searchDisabled
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
+    if (searchDisabled) {
+      e.preventDefault()
+    }
   }
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (searchDisabled) {
+      return
+    }
     const newOptions = options.filter((item) => item.label.toLowerCase().startsWith(e.target.value.toLowerCase()))
     if (newOptions.length > 0) {
       filteredOptions.set(newOptions)
@@ -133,10 +138,9 @@ const Select = <T extends OptionValueType>({
         className={`cursor-pointer ${inputClassName}`}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
-        onChange={!dropDownOnly ? handleSearch : undefined}
+        onChange={handleSearch}
         onClick={toggleDropdown}
-        onMouseDown={dropDownOnly ? handleMouseDown : undefined}
-        dropDownOnly={dropDownOnly}
+        onMouseDown={handleMouseDown}
       />
       <MdOutlineKeyboardArrowDown
         size="1.5em"
