@@ -448,9 +448,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           className="bg-theme-primary m-1 rounded text-white"
           startComponent={<HiMagnifyingGlass className="text-white" />}
         />
-        {/* <div className="ml-[20px]">
-
-        </div> */}
         <Button
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"

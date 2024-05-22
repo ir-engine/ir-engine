@@ -355,8 +355,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                 </div>
               )}
             </div>
-            {/* <NodeIssuesIcon errors={errors.value} /> */}
-            {/* <CircularProgress className={styles.assetLoadingIndicator} /> */}
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
