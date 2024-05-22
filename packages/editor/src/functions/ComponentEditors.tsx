@@ -66,6 +66,7 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@etherealengine/spatial'
+import InputComponentNodeEditor from '@etherealengine/spatial/src/input/properties/InputComponentNodeEditor'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/components/FogSettingsComponent'
@@ -92,6 +93,7 @@ import TriggerComponentEditor from '../components/properties/TriggerComponentEdi
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 
 // everythign above still needs to be built
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
@@ -175,6 +177,7 @@ export const ComponentEditorsState = defineState({
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
+      [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor

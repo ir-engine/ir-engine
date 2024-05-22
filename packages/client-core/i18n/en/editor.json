@@ -245,6 +245,14 @@
       "description": "Anchors this entity to a real life reference",
       "lbl-name": "Anchor Name"
     },
+    "input": {
+      "name": "Input Component",
+      "description": "Input component that listens for input events and passes them to InputSink components",
+      "lbl-activationDistance": "Proximity focus distance",
+      "lbl-sinkTarget": "Sink Target",
+      "lbl-addSinkTarget": "Add Sink Target",
+      "lbl-removeSinkTarget": "Remove Sink Target"
+    },
     "interactable": {
       "name": "Interactable",
       "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
