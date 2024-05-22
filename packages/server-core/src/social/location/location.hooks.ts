@@ -32,7 +32,6 @@ import { locationAdminPath } from '@etherealengine/common/src/schemas/social/loc
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import {
-  LocationData,
   locationDataValidator,
   LocationID,
   LocationPatch,
@@ -87,21 +86,17 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
 
 /* (BEFORE) CREATE HOOKS */
 
-const makeLobbyHelper = async (context: HookContext<LocationService>) => {
-  await context.service._patch(null, { isLobby: false }, { query: { isLobby: true } })
-}
-
 const makeLobbies = async (context: HookContext<LocationService>) => {
-  if (!context.data || context.method !== 'create') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
-  }
-  const data: LocationData[] = Array.isArray(context.data) ? context.data : [context.data]
+  let result: LocationType[]
 
-  for (const item of data) {
-    if (item.isLobby) {
-      await makeLobbyHelper(context)
-    }
+  if (context.method === 'create') {
+    result = context.result!['data'] ? context.result!['data'] : context.result
+  } else {
+    result = [context.result as LocationType]
   }
+
+  for (const item of result)
+    await context.service._patch(null, { isLobby: false }, { query: { isLobby: true, id: { $ne: item.id } } })
 }
 
 /* (AFTER) CREATE HOOKS */
@@ -142,21 +137,6 @@ const createAuthorizedLocation = async (context: HookContext<LocationService>) =
   }
 }
 
-/* (BEFORE) PATCH HOOKS */
-
-const makeOldLocationLobby = async (context: HookContext<LocationService>) => {
-  if (!context.data || context.method !== 'patch') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
-  }
-  const data: LocationPatch = context.data as LocationPatch
-
-  context.oldLocation = await context.app.service(locationPath).get(context.id!)
-
-  if (!context.oldLocation.isLobby && data.isLobby) {
-    await makeLobbyHelper(context)
-  }
-}
-
 /* (AFTER) PATCH HOOKS */
 
 const patchLocationSetting = async (context: HookContext<LocationService>) => {
@@ -166,7 +146,7 @@ const patchLocationSetting = async (context: HookContext<LocationService>) => {
   const data: LocationPatch = context['actualData']
 
   if (data.locationSetting)
-    await context.app.service(locationSettingPath).patch(context.oldLocation.locationSetting.id, {
+    await context.app.service(locationSettingPath).patch(context.id!, {
       videoEnabled: data.locationSetting.videoEnabled,
       audioEnabled: data.locationSetting.audioEnabled,
       faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
@@ -235,7 +215,6 @@ export default {
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
-      makeLobbies,
       persistData,
       discard('locationSetting', 'locationAdmin')
     ],
@@ -245,7 +224,6 @@ export default {
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
       disallowNonId,
-      makeOldLocationLobby,
       persistData,
       discard('locationSetting')
     ],
@@ -261,9 +239,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [createLocationSetting, createAuthorizedLocation],
+    create: [makeLobbies, createLocationSetting, createAuthorizedLocation],
     update: [],
-    patch: [patchLocationSetting],
+    patch: [makeLobbies, patchLocationSetting],
     remove: []
   },
 
