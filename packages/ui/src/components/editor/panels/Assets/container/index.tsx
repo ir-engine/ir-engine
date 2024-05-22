@@ -160,7 +160,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+      <div className="mb-8 h-full w-full overflow-scroll">
         {categories.map((category, index) => (
           <AssetCategory
             data={{
