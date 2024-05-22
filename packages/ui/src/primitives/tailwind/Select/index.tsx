@@ -84,7 +84,7 @@ const Select = <T extends OptionValueType>({
 
   useEffect(() => {
     const labelName = options.find((option) => option.value === currentValue)?.label
-    selectLabel.set(labelName || '')
+    if (labelName) selectLabel.set(labelName || '')
   }, [currentValue, options])
 
   useEffect(() => {
