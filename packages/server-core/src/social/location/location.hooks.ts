@@ -137,15 +137,20 @@ const patchLocationSetting = async (context: HookContext<LocationService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
   const data: LocationPatch = context['actualData']
+  const result: LocationType = context.result as LocationType
 
   if (data.locationSetting)
-    await context.app.service(locationSettingPath).patch(data.locationSetting.id!, {
-      videoEnabled: data.locationSetting.videoEnabled,
-      audioEnabled: data.locationSetting.audioEnabled,
-      faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
-      screenSharingEnabled: data.locationSetting.screenSharingEnabled,
-      locationType: data.locationSetting.locationType || 'public'
-    })
+    await context.app.service(locationSettingPath).patch(
+      null,
+      {
+        videoEnabled: data.locationSetting.videoEnabled,
+        audioEnabled: data.locationSetting.audioEnabled,
+        faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
+        screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+        locationType: data.locationSetting.locationType || 'public'
+      },
+      { query: { locationId: result.id } }
+    )
 }
 
 /* (BEFORE) REMOVE HOOKS */
