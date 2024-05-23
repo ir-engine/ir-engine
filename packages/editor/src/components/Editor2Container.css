@@ -14,7 +14,6 @@
 }
 
 .dock-nav-list {
-  background: var(--bg-surface-main);
   justify-content: center;
   align-items: center;
 }
@@ -24,9 +23,19 @@
 }
 
 .dock-tab {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   background: transparent;
   margin: 0;
   border-bottom: none !important;
+}
+
+.dock-tab.dock-tab-active {
+  background: var(--bg-surface-main);
+}
+
+.dock-tab:not(.dock-tab-active):hover {
+  background: var(--bg-surface-input);
 }
 
 .dock-tab > div {
