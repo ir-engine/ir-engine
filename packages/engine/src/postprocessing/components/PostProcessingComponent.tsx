@@ -117,11 +117,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const postprocessingComponent = useComponent(entity, PostProcessingComponent)
   const camera = useComponent(rendererEntity, CameraComponent)
   const renderer = useComponent(rendererEntity, RendererComponent)
-  const composer = useHookstate<EffectComposer>(() => new EffectComposer(renderer.value.renderer))
-  renderer.value.effectComposer = composer.value
-  const renderPass = new RenderPass()
-  renderer.value.effectComposer.addPass(renderPass)
-  renderer.value.renderPass = renderPass
 
   let lut1DEffectTexturePath: string | undefined
   if (
@@ -161,8 +156,16 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const velocityDepthNormalPass = useHookstate(new VelocityDepthNormalPass(scene, camera))
   const useVelocityDepthNormalPass = useHookstate(false)
   const useDepthDownsamplingPass = useHookstate(false)
-
+  const renderMode = getState(RendererState).renderMode
   const effects = useHookstate<Record<string, Effect>>({})
+
+  useEffect(() => {
+    const composer = new EffectComposer(renderer.value.renderer)
+    renderer.value.effectComposer = composer
+    const renderPass = new RenderPass()
+    renderer.value.effectComposer.addPass(renderPass)
+    renderer.value.renderPass = renderPass
+  }, [])
 
   useEffect(() => {
     velocityDepthNormalPass.set(new VelocityDepthNormalPass(scene, camera))
@@ -176,7 +179,7 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     if (renderSettings.usePostProcessing) {
       for (const key in effectsVal) {
         const val = effectsVal[key]
-        composer.value[key] = val
+        renderer.value.effectComposer[key] = val
       }
     }
 
@@ -191,11 +194,15 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     const outlineEffect = new OutlineEffect(scene.value, camera.value, getState(HighlightState))
     outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
     effectsVal[Effects.OutlineEffect] = outlineEffect
-    composer.value[Effects.OutlineEffect] = outlineEffect
+    renderer.value.effectComposer[Effects.OutlineEffect] = outlineEffect
+
+    if (renderer.value.effectComposer.EffectPass) {
+      renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass)
+    }
 
     const effectArray = Object.values(effectsVal)
-    composer.value.EffectPass = new EffectPass(camera.value, ...effectArray)
-    composer.value.addPass(composer.value.EffectPass)
+    renderer.value.effectComposer.EffectPass = new EffectPass(camera.value, ...effectArray)
+    renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass)
 
     console.log('react to effects')
   }, [effects])
@@ -204,16 +211,16 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     if (!rendererEntity) return
 
     if (getState(EngineState).isEditor) changeRenderMode()
-  }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
+  }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects, renderMode])
 
   return (
     <>
-      {Object.entries(postprocessingComponent.effects.value).map(([effect, schema], index) => {
+      {Object.entries(postprocessingComponent.effects.value).map(([effectKey, schema], index) => {
         return (
           <EffectReactor
             key={index}
             entity={entity}
-            effect={effect}
+            effectKey={effectKey}
             schema={schema}
             effects={effects}
             camera={camera}
@@ -225,7 +232,7 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
             useVelocityDepthNormalPass={useVelocityDepthNormalPass}
             normalPass={normalPass}
             depthDownsamplingPass={depthDownsamplingPass}
-            composer={composer}
+            composer={renderer.value.effectComposer}
           ></EffectReactor>
         )
       })}
@@ -235,7 +242,7 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
 
 const EffectReactor = (props: {
   entity: Entity
-  effect: string
+  effectKey: string
   schema: any
   effects: State<Record<string, Effect>, {}>
   camera: State<ArrayCamera>
@@ -247,11 +254,11 @@ const EffectReactor = (props: {
   useVelocityDepthNormalPass: StateMethods<boolean, {}>
   normalPass: State<CustomNormalPass, {}>
   depthDownsamplingPass: State<DepthDownsamplingPass, {}>
-  composer: State<EffectComposer, {}>
+  composer: EffectComposer
 }) => {
   const {
     entity,
-    effect,
+    effectKey,
     schema,
     effects,
     camera,
@@ -299,7 +306,16 @@ const EffectReactor = (props: {
 
   useEffect(() => {
     if (schema.isActive) {
-      console.log('add effect = ' + effect)
+      console.log('dont remove effect = ' + effectKey)
+    } else {
+      console.log('remove effect = ' + effectKey)
+      effects[effectKey].set(none)
+    }
+  }, [schema.isActive])
+
+  useEffect(() => {
+    if (schema.isActive) {
+      console.log('add effect = ' + effectKey)
       const props = {
         schema: schema,
         effects: effects,
@@ -314,12 +330,12 @@ const EffectReactor = (props: {
         composer: composer
       }
 
-      lookUp[effect](props)
+      lookUp[effectKey](props)
     }
 
     return () => {
-      console.log('remove effect = ' + effect)
-      effects[effect].set(none)
+      console.log('remove effect = ' + effectKey)
+      effects[effectKey].set(none)
     }
   }, [uiEffects])
 
