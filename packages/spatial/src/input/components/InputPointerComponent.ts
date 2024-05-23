@@ -36,15 +36,13 @@ export const InputPointerComponent = defineComponent({
       position: new Vector2(),
       lastPosition: new Vector2(),
       movement: new Vector2(),
-      canvasEntity: UndefinedEntity,
-      cameraEntity: UndefinedEntity
+      canvasEntity: UndefinedEntity
     }
   },
 
-  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity; cameraEntity: Entity }) {
+  onSet(entity, component, args: { pointerId: number; canvasEntity: Entity }) {
     component.pointerId.set(args.pointerId)
     component.canvasEntity.set(args.canvasEntity)
-    component.cameraEntity.set(args.cameraEntity)
   },
 
   getPointerForCanvas(canvasEntity: Entity) {

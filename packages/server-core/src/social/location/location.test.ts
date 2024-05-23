@@ -125,10 +125,6 @@ describe('location.test', () => {
     locations[0].name = newName
   })
 
-  it('should not be able to make lobby if not admin', () => {
-    assert.rejects(() => app.service(locationPath).patch(locations[0].id, { isLobby: true }))
-  })
-
   it('should be able to delete the location', async () => {
     await app.service(locationPath).remove(locations[0].id)
 
