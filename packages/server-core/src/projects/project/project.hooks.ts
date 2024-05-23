@@ -230,7 +230,7 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   for (const item of data) {
     try {
       const packageJson = getProjectManifest(item.name)
-      item.thumbnail = packageJson.thumbnail || '/static/etherealengine_thumbnail.jpg'
+      item.thumbnail = packageJson.thumbnail || '/static/irengine-logo.png'
       item.version = packageJson.version
       item.engineVersion = packageJson.engineVersion
       item.description = packageJson.description
