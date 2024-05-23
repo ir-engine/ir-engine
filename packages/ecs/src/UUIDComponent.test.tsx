@@ -214,9 +214,7 @@ describe('UUIDComponent Hooks', async () => {
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
       const data = UUIDComponent.useEntityByUUID(TestUUID)
-      console.log('render', data)
       useEffect(() => {
-        console.log('effect', data)
         result = data
       }, [data])
       return null

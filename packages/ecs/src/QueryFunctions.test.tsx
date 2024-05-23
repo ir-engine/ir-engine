@@ -88,24 +88,6 @@ describe('QueryFunctions', () => {
       assertDefinedQuery(query, [entity1, entity2])
     })
   })
-
-  /**
-   *  @todo : Why does `query()` still work after calling `removeQuery(query)`
-   *  @todo : Why does `assertQueryNotOk` not work? Is it because of the above?
-   */
-  //  describe('removeQuery', () => {
-  //   it('should remove a query when called', () => {
-  //     const query = defineQuery([component])
-  //     setComponent(entity1, component)
-  //     setComponent(entity2, component)
-  //     assertDefinedQuery(query, [entity1, entity2])
-  //
-  //     removeQuery(query)
-  //     console.log(" --->", query())
-  //     assertQueryNotOk(query, "The test query did not get removed correctly")
-  //   })
-  // })
-  //
 })
 
 describe('QueryFunctions Hooks', async () => {
@@ -132,9 +114,7 @@ describe('QueryFunctions Hooks', async () => {
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
       const data = useQuery([component])
-      console.log('render', data)
       useEffect(() => {
-        console.log('effect', data)
         result = data as Entity[]
       }, [data])
       return null
