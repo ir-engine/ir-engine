@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -51,7 +51,6 @@ import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponen
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -178,12 +177,12 @@ export const MountPointComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, mountCallbackName, () => mountEntity(AvatarComponent.getSelfAvatarEntity(), entity))
-      setComponent(entity, BoundingBoxComponent, {
-        box: new Box3().setFromCenterAndSize(
-          getComponent(entity, TransformComponent).position,
-          new Vector3(0.1, 0.1, 0.1)
-        )
-      })
+      // setComponent(entity, BoundingBoxComponent, {
+      //   box: new Box3().setFromCenterAndSize(
+      //     getComponent(entity, TransformComponent).position,
+      //     new Vector3(0.1, 0.1, 0.1)
+      //   )
+      // })
     }, [])
 
     useEffect(() => {

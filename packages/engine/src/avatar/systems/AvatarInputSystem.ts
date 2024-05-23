@@ -243,10 +243,11 @@ const execute = () => {
 
   controller.gamepadLocalInput.set(0, 0, 0)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const viewerEntity = Engine.instance.viewerEntity
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
   if (!inputPointerEntity && !xrState.session) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 
