@@ -44,9 +44,7 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { useTranslation } from 'react-i18next'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
 import Button from '../../../../../primitives/tailwind/Button'
-import Input from '../../../../../primitives/tailwind/Input'
 import InputGroup from '../../../input/Group'
 import StringInput from '../../../input/String'
 import { MaterialPreviewPanel } from '../../preview/material'
@@ -99,21 +97,7 @@ export default function MaterialLibraryPanel() {
   )
 
   return (
-    <>
-      <div className="bg-theme-surface-main flex items-center gap-2">
-        <Input
-          placeholder={t('common:components.search')}
-          value={
-            //searchHierarchy.value
-            ''
-          }
-          onChange={(event) => {
-            //searchHierarchy.set(event.target.value)
-          }}
-          className="bg-theme-primary m-1 rounded text-white"
-          startComponent={<HiMagnifyingGlass className="text-white" />}
-        />
-      </div>
+    <div className="h-full overflow-scroll">
       <div className="w-full rounded-[5px] p-3">
         <div className="rounded-lg bg-zinc-800 p-2">
           <MaterialPreviewPanel ref={materialPreviewPanelRef} />
@@ -162,73 +146,9 @@ export default function MaterialLibraryPanel() {
           </div>
         </div>
       </div>
-      <div id="material-panel" className="h-[60%] overflow-hidden">
+      <div id="material-panel" className="h-full overflow-hidden">
         <AutoSizer onResize={MaterialList}>{MaterialList}</AutoSizer>
       </div>
-    </>
+    </div>
   )
 }
-
-/*<div className={styles.panelContainer}>
-        <div className={styles.panelSection}>
-          <AutoSizer>
-            {({ width, height }) => (
-              <FixedSizeList
-                height={height}
-                width={width}
-                itemSize={32}
-                itemCount={nodes.length}
-                itemData={{
-                  nodes: nodes.value,
-                  onClick
-                }}
-                itemKey={(index, _) => index}
-                innerElementType="ul"
-              >
-                {MaterialLibraryEntry}
-              </FixedSizeList>
-            )}
-          </AutoSizer>
-        </div>
-        <div className={styles.panelSection} style={{ height: 'auto', padding: '8px' }}>
-          <div className={styles.divider} />
-          <Stack direction={'column'} spacing={2}>
-            <Button
-              onClick={() => {
-                const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '', UndefinedEntity)
-              }}
-            >
-              New
-            </Button>
-            <InputGroup name="File Path" label="File Path">
-              <StringInput value={srcPath.value} onChange={srcPath.set} />
-            </InputGroup>
-            <Button
-              onClick={async () => {
-                const projectName = getState(EditorState).projectName!
-                const materialUUID = getState(MaterialSelectionState).selectedMaterial ?? ('' as EntityUUID)
-                let libraryName = srcPath.value
-                if (!libraryName.endsWith('.material.gltf')) {
-                  libraryName += '.material.gltf'
-                }
-                const relativePath = pathJoin('assets', libraryName)
-                const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
-                  binary: false,
-                  relativePath
-                })!) as { [key: string]: any }
-                const blob = [JSON.stringify(gltf)]
-                const file = new File(blob, libraryName)
-                const importSettings = getState(ImportSettingsState)
-                const urls = await Promise.all(
-                  uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
-                    .promises
-                )
-                console.log('exported material data to ', ...urls)
-              }}
-            >
-              Save
-            </Button>
-          </Stack>
-        </div>
-      </div>*/
