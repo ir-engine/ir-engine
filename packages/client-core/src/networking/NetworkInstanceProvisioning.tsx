@@ -244,7 +244,7 @@ export const SocialMenus = {
   Messages: 'Messages'
 }
 
-export const SocialMenuFlag = 'ir.client.menu.social' as FeatureFlag
+const SocialMenuFlag = 'ir.client.menu.social' as FeatureFlag
 
 export const FriendMenus = () => {
   const { t } = useTranslation()
