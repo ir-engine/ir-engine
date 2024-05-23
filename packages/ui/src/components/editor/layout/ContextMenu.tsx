@@ -81,7 +81,7 @@ export const ContextMenu = ({
       const parentHeight = parentRect?.height || 0
 
       // Make the menu scrollable if it is too tall for the parent component
-      setIsScrollable(parentHeight <= menuHeight)
+      setIsScrollable(parentHeight <= menuHeight + 1)
 
       setPositionY(calculatePositionY())
     }
