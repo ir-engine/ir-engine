@@ -118,17 +118,17 @@ const MaterialEntityReactor = () => {
   useEffect(() => {
     if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
   }, [materialComponent.instances])
+
   return null
 }
 
 const MaterialInstanceReactor = () => {
   const entity = useEntityContext()
-  const modelComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
-  const uuid = modelComponent.uuid
+  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
+  const uuid = materialComponent.uuid
   useEffect(() => {
     if (uuid.value) setGroupMaterial(entity, uuid.value as EntityUUID[])
-  }, [modelComponent.uuid])
-
+  }, [materialComponent.uuid])
   return null
 }
 
