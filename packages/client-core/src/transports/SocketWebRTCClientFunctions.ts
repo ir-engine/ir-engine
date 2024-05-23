@@ -1111,6 +1111,7 @@ export const toggleWebcamPaused = async () => {
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value! as ProducerExtension)
       mediaStreamState.videoPaused.set(!videoPaused)
+      if (!videoPaused) mediaStreamState.camVideoProducer.value!.track?.stop()
     }
   }
 }
