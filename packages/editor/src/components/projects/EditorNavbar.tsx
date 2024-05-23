@@ -40,7 +40,7 @@ export const EditorNavbar = () => {
       <div className={styles.navContainer}>
         <div
           className={styles.logoBlock}
-          style={{ backgroundImage: 'url(/static/etherealengine.png)' }}
+          style={{ backgroundImage: 'url(/static/irengine-logo.png)' }}
           onClick={routeHome}
         ></div>
         <EditorNavbarProfile />
