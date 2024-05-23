@@ -265,7 +265,7 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 ml-1 flex h-7" />
+      <div className="bg-theme-surface-main mb-1 flex h-7" />
       <div className="flex h-[100%] flex-row p-2">
         <div className="flex h-[100%] w-[25%] flex-col gap-2">
           <Input

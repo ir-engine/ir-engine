@@ -540,7 +540,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 ml-1 flex items-center gap-2">
+      <div className="bg-theme-surface-main mb-1 flex items-center gap-2">
         {showBackButton && (
           <div id="backDir" className="bg-theme-surfaceInput flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom">
