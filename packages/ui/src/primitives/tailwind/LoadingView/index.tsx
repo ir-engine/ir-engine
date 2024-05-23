@@ -49,7 +49,7 @@ const LoadingView = ({
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
       <svg
         aria-hidden="true"
-        className="mx-auto my-auto h-full w-auto animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+        className="h-full w-auto animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

@@ -42,9 +42,9 @@ export const Default = {
   args: {
     label: 'Select Example',
     options: [
-      { label: 'A1', value: 'a1' },
-      { label: 'B2', value: 'b2' },
-      { label: 'C3', value: 'c3' }
+      { name: 'A1', value: 'a1' },
+      { name: 'B2', value: 'b2' },
+      { name: 'C3', value: 'c3' }
     ],
     currentValue: 'b2',
     onChange: () => {}
