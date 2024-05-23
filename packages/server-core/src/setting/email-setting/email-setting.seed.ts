@@ -53,12 +53,12 @@ export async function seed(knex: Knex): Promise<void> {
         from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>` || 'test',
         subject: JSON.stringify({
           // Subject of the Login Link email
-          'new-user': 'Ethereal Engine signup',
-          location: 'Ethereal Engine location link',
-          instance: 'Ethereal Engine location link',
-          login: 'Ethereal Engine login link',
-          friend: 'Ethereal Engine friend request',
-          channel: 'Ethereal Engine channel invitation'
+          'new-user': 'iR Engine signup',
+          location: 'iR Engine location link',
+          instance: 'iR Engine location link',
+          login: 'iR Engine login link',
+          friend: 'iR Engine friend request',
+          channel: 'iR Engine channel invitation'
         }),
         smsNameCharacterLimit: 20
       }
