@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ComponentJSONIDMap } from '@etherealengine/ecs'
-
-import { SceneJsonType } from '../types/SceneTypes'
+import { SceneJsonType } from '../../gltf/convertJsonToGLTF'
 
 export const migrateOldComponentJSONIDs = (json: SceneJsonType) => {
   for (const [uuid, entityJson] of Object.entries(json.entities)) {

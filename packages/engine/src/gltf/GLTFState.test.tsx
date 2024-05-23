@@ -38,6 +38,7 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
@@ -84,7 +85,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         }
       ]
@@ -132,13 +133,13 @@ describe('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         }
       ]
@@ -192,20 +193,20 @@ describe('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           children: [2],
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         },
         {
           name: 'grandchild',
           extensions: {
-            [UUIDComponent.jsonID]: grandchildUUID
+            [NodeIDComponent.jsonID]: grandchildUUID
           }
         }
       ]
@@ -275,14 +276,14 @@ describe('GLTFState', () => {
           // non identity position, rotation and scale
           matrix: nodeMatrix,
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           matrix: childMatrix,
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         }
       ]
@@ -336,7 +337,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID,
+            [NodeIDComponent.jsonID]: nodeUUID,
             [VisibleComponent.jsonID]: true,
             [HemisphereLightComponent.jsonID!]: {
               skyColor: new Color('green').getHex(),
@@ -391,7 +392,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID,
+            [NodeIDComponent.jsonID]: nodeUUID,
             [VisibleComponent.jsonID]: true,
             [refCountComponent.jsonID!]: {
               fakeVal: 100
@@ -434,13 +435,13 @@ describe('GLTFState', () => {
         {
           name: 'parent',
           extensions: {
-            [UUIDComponent.jsonID]: parentUUID
+            [NodeIDComponent.jsonID]: parentUUID
           }
         },
         {
           name: 'child',
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         }
       ]
@@ -486,7 +487,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         }
       ]
@@ -535,7 +536,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         }
       ]
@@ -589,7 +590,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         }
       ]

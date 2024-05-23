@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/ecs'
+import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
-
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 export const GLTFDocumentState = defineState({
   name: 'ee.engine.gltf.GLTFDocumentState',
@@ -53,9 +53,9 @@ export const GLTFNodeState = defineState({
 
     const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID) => {
       const node = gltf.nodes![nodeIndex]
-      const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
+      const uuid = `${rootUUID}-${node.extensions?.[NodeIDComponent.jsonID]}` as any as EntityUUID
       if (uuid) {
-        nodes[`${rootUUID}-${uuid}`] = { nodeIndex, childIndex, parentUUID }
+        nodes[uuid] = { nodeIndex, childIndex, parentUUID }
       } else {
         /** @todo generate a globally deterministic UUID here */
         console.warn('Node does not have a UUID:', node)

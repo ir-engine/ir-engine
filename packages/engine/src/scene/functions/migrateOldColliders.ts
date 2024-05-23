@@ -27,8 +27,8 @@ import { ColliderComponent } from '@etherealengine/spatial/src/physics/component
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 
+import { ComponentJsonType, EntityJsonType } from '../../gltf/convertJsonToGLTF'
 import { ModelComponent } from '../components/ModelComponent'
-import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 const oldColliderJSONID = 'collider'
 

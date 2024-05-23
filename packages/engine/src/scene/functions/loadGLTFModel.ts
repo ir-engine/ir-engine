@@ -27,7 +27,7 @@ import { isArray } from 'lodash'
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -52,12 +52,13 @@ import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/sy
 
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
+import { ComponentJsonType, EntityJsonType } from '../../gltf/convertJsonToGLTF'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
-import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
 export const parseECSData = (data: [string, any][]): ComponentJsonType[] => {
@@ -155,11 +156,10 @@ export const parseGLTFModel = (entity: Entity, scene: Scene) => {
   for (const child of children) {
     child.parent = model.scene
     iterateObject3D(child, (obj: Object3D) => {
-      const uuid =
-        (obj.userData?.gltfExtensions?.EE_uuid as EntityUUID) || (obj.uuid as EntityUUID) || (uuidv4() as EntityUUID)
-      obj.uuid = uuid
-      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[uuid])
-      entityJson[uuid] = eJson
+      const nodeID = (obj.userData?.gltfExtensions?.EE_uuid as NodeID) || (obj.uuid as NodeID) || (uuidv4() as NodeID)
+      obj.uuid = nodeID
+      const eJson = generateEntityJsonFromObject(entity, obj, entityJson[nodeID])
+      entityJson[nodeID] = eJson
     })
   }
 
@@ -228,9 +228,9 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   if (!obj.uuid) throw new Error('Object3D must have a UUID')
 
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
-  const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
+  const objEntity = createEntity() //UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
   const parentEntity = obj.parent ? obj.parent.entity : rootEntity
-  const uuid = obj.uuid as EntityUUID
+  const nodeID = obj.uuid as NodeID
   const name = obj.userData['xrengine.entity'] ?? obj.name
 
   const eJson: EntityJsonType = entityJson ?? {
@@ -238,14 +238,17 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     components: []
   }
 
-  eJson.parent = getComponent(parentEntity, UUIDComponent)
+  eJson.parent =
+    getOptionalComponent(parentEntity, NodeIDComponent) ??
+    (getOptionalComponent(parentEntity, UUIDComponent) as any as NodeID)
 
   const sceneID = getModelSceneID(rootEntity)
   setComponent(objEntity, SourceComponent, sceneID)
   setComponent(objEntity, EntityTreeComponent, {
     parentEntity
   })
-  setComponent(objEntity, UUIDComponent, uuid)
+  setComponent(objEntity, NodeIDComponent, nodeID)
+  setComponent(objEntity, UUIDComponent, NodeIDComponent.getEntityUUIDForNodeEntity(objEntity))
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {

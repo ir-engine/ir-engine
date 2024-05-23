@@ -28,10 +28,10 @@ import { Matrix4, Object3D } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { sceneRelativePathIdentifier } from '@etherealengine/common/src/utils/parseSceneJSON'
-import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID, SerializedComponentType } from '@etherealengine/ecs'
+import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { TransformComponent } from '@etherealengine/spatial'
-
-import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
+import { EntityJsonType, SceneJsonType } from '../../gltf/convertJsonToGLTF'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -110,7 +110,7 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   const node: GLTF.INode = {
     name: entityJson.name,
     extensions: {
-      [UUIDComponent.jsonID]: entityUUID
+      [NodeIDComponent.jsonID]: entityUUID
     }
   }
   if (entityJson.components) {

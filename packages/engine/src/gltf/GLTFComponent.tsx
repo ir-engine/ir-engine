@@ -41,8 +41,8 @@ import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflu
 
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
+import { SceneJsonType } from '../gltf/convertJsonToGLTF'
 import { SourceComponent } from '../scene/components/SourceComponent'
-import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'

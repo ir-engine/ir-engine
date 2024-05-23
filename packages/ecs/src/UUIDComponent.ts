@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils } from 'three'
-
 import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, setComponent } from './ComponentFunctions'
@@ -33,7 +31,6 @@ import { createEntity } from './EntityFunctions'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
-  jsonID: 'EE_uuid',
 
   onInit: () => '' as EntityUUID,
 
@@ -45,7 +42,7 @@ export const UUIDComponent = defineComponent({
     // throw error if uuid is already in use
     const currentEntity = UUIDComponent.getEntityByUUID(uuid)
     if (currentEntity !== UndefinedEntity && currentEntity !== entity) {
-      throw new Error(`UUID ${uuid} is already in use`)
+      throw new Error(`UUID ${uuid} is already in use by entity ${currentEntity}`)
     }
 
     // remove old uuid
@@ -85,10 +82,6 @@ export const UUIDComponent = defineComponent({
       setComponent(entity, UUIDComponent, uuid)
     }
     return state.value
-  },
-
-  generateUUID() {
-    return MathUtils.generateUUID() as EntityUUID
   }
 })
 

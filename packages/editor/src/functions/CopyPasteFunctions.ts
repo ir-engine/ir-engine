@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getAllComponents, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 
 type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
 

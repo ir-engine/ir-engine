@@ -59,6 +59,7 @@ import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { convertSceneJSONToGLTF, SceneJsonType } from '../../gltf/convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
+import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
@@ -182,7 +183,7 @@ function ModelReactor() {
     const uuid = getModelSceneID(entity)
     const sceneJson: SceneJsonType = {
       entities: loadedJsonHierarchy,
-      root: getComponent(entity, UUIDComponent),
+      root: getComponent(entity, NodeIDComponent),
       version: 0
     }
     const sceneGLTF = convertSceneJSONToGLTF(sceneJson)

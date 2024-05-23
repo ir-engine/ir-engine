@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
@@ -67,6 +67,7 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -108,7 +109,7 @@ export const GLTFSourceState = defineState({
    * @param parentEntity The parent entity to attach the GLTF to
    * @returns
    */
-  load: (source: string, uuid = MathUtils.generateUUID() as EntityUUID, parentEntity = UndefinedEntity) => {
+  load: (source: string, uuid = source as EntityUUID, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, source.split('/').pop()!)
@@ -234,16 +235,16 @@ export const GLTFSnapshotState = defineState({
       scale.multiply(srcTransform.scale)
       //set new transform on the node in the new snapshot
       const childNode = snapshot.data.nodes?.find(
-        (node) => node.extensions?.[UUIDComponent.jsonID] === getComponent(child, UUIDComponent)
+        (node) => node.extensions?.[NodeIDComponent.jsonID] === getComponent(child, UUIDComponent)
       )
       if (!childNode) continue
       childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
     }
     const modelIndex = parentSnapshot.data.nodes?.findIndex(
-      (node) => node.extensions?.[UUIDComponent.jsonID] === srcNode
+      (node) => node.extensions?.[NodeIDComponent.jsonID] === srcNode
     )
     parentSnapshot.data.scenes![0].nodes = parentSnapshot.data.scenes![0].nodes.filter((node) => node !== modelIndex)
-    const newNodes = parentSnapshot.data.nodes?.filter((node) => node.extensions?.[UUIDComponent.jsonID] !== srcNode)
+    const newNodes = parentSnapshot.data.nodes?.filter((node) => node.extensions?.[NodeIDComponent.jsonID] !== srcNode)
     //recalculate child indices
     if (!newNodes) return
     for (const node of newNodes) {
@@ -251,9 +252,9 @@ export const GLTFSnapshotState = defineState({
       const newChildren: number[] = []
       for (const child of node.children) {
         const childNode = parentSnapshot.data.nodes?.[child]
-        const childUUID = childNode?.extensions?.[UUIDComponent.jsonID]
+        const childUUID = childNode?.extensions?.[NodeIDComponent.jsonID]
         if (!childUUID) continue
-        const childIndex = newNodes.findIndex((node) => node.extensions?.[UUIDComponent.jsonID] === childUUID)
+        const childIndex = newNodes.findIndex((node) => node.extensions?.[NodeIDComponent.jsonID] === childUUID)
         if (childIndex === -1) continue
         newChildren.push(childIndex)
       }
@@ -265,7 +266,7 @@ export const GLTFSnapshotState = defineState({
     const roots = rootIndices.map((index) => snapshot.data.nodes?.[index])
     parentSnapshot.data.nodes = [...parentSnapshot.data.nodes!, ...snapshot.data.nodes!]
     const childIndices = roots.map((root) => parentSnapshot.data.nodes!.findIndex((node) => node === root)!)
-    const parentNode = parentSnapshot.data.nodes?.find((node) => node.extensions?.[UUIDComponent.jsonID] === dstNode)
+    const parentNode = parentSnapshot.data.nodes?.find((node) => node.extensions?.[NodeIDComponent.jsonID] === dstNode)
     //if the parent is not the root of the gltf document, add the child indices to the parent's children
     if (parentNode) {
       parentNode.children = [...(parentNode.children ?? []), ...childIndices]
@@ -283,10 +284,10 @@ export const GLTFSnapshotState = defineState({
       const newChildren: number[] = []
       for (const child of node.children) {
         const childNode = snapshot.data.nodes?.[child]
-        const childUUID = childNode?.extensions?.[UUIDComponent.jsonID]
+        const childUUID = childNode?.extensions?.[NodeIDComponent.jsonID]
         if (!childUUID) continue
         const newChildIndex = parentSnapshot.data.nodes!.findIndex(
-          (node) => node.extensions?.[UUIDComponent.jsonID] === childUUID
+          (node) => node.extensions?.[NodeIDComponent.jsonID] === childUUID
         )
         if (newChildIndex === -1) continue
         newChildren.push(newChildIndex)
@@ -382,10 +383,13 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
 
   const entity = useHookstate(() => {
-    const uuid = node.extensions.value?.[UUIDComponent.jsonID] as EntityUUID
+    const nodeID = node.extensions.value?.[NodeIDComponent.jsonID] as NodeID
+    const rootEntity = getState(GLTFSourceState)[props.documentID]
+    const rootEntityUUID = getComponent(rootEntity, UUIDComponent)
+    const uuid = `${rootEntityUUID}-${nodeID}` as EntityUUID
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
+    setComponent(entity, NodeIDComponent, nodeID)
 
-    setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, SourceComponent, props.documentID)
 
     /** Ensure all base components are added for synchronous mount */
@@ -424,16 +428,6 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
   useEffect(() => {
     return () => {
-      //check if entity is in some other document
-      const uuid = getComponent(entity, UUIDComponent)
-      const documents = getState(GLTFDocumentState)
-      for (const documentID in documents) {
-        const document = documents[documentID]
-        if (!document?.nodes) continue
-        for (const node of document.nodes) {
-          if (node.extensions?.[UUIDComponent.jsonID] === uuid) return
-        }
-      }
       removeEntity(entity)
     }
   }, [])
@@ -495,18 +489,6 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return
     return () => {
-      //check if entity is in some other document and has the component
-      const uuid = getComponent(props.entity, UUIDComponent)
-      const documents = getState(GLTFDocumentState)
-      for (const documentID in documents) {
-        const document = documents[documentID]
-        if (!document?.nodes) continue
-        for (const node of document.nodes) {
-          if (node.extensions?.[UUIDComponent.jsonID] === uuid) {
-            if (node.extensions?.[props.extension]) return
-          }
-        }
-      }
       removeComponent(props.entity, Component)
     }
   }, [])

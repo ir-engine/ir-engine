@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID, SerializedComponentType } from '@etherealengine/ecs'
 import { DirectionalLightComponent } from '@etherealengine/spatial'
 
+import { SceneJsonType } from '../../gltf/convertJsonToGLTF'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
-import { SceneJsonType } from '../types/SceneTypes'
 
 export const migrateDirectionalLightUseInCSM = (json: SceneJsonType) => {
   const renderSettingsEntity = Object.entries(json.entities).find(([, entity]) =>

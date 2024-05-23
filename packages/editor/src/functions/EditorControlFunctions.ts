@@ -38,13 +38,14 @@ import {
   updateComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
@@ -78,11 +79,11 @@ const getSourcesForEntities = (entities: Entity[]) => {
 }
 
 const getGLTFNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
-  return gltf.nodes?.find((n) => n.extensions?.[UUIDComponent.jsonID] === uuid)
+  return gltf.nodes?.find((n) => n.extensions?.[NodeIDComponent.jsonID] === uuid)
 }
 
 const getParentNodeByUUID = (gltf: GLTF.IGLTF, uuid: string) => {
-  const nodeIndex = gltf.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === uuid)
+  const nodeIndex = gltf.nodes?.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === uuid)
   if (!nodeIndex || nodeIndex < 0) return
   return gltf.nodes?.find((n) => n.children?.includes(nodeIndex))
 }
@@ -211,7 +212,7 @@ const overwriteLookdevObject = (
 ) => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
+    componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const name = 'Lookdev Object'
@@ -260,7 +261,7 @@ const createObjectFromSceneElement = (
 ) => {
   const scenes = getSourcesForEntities([parentEntity])
   const entityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
+    componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const name = 'New Object'
@@ -275,8 +276,8 @@ const createObjectFromSceneElement = (
         ...comp.props
       }
     }
-    if (!extensions[UUIDComponent.jsonID]) {
-      extensions[UUIDComponent.jsonID] = entityUUID
+    if (!extensions[NodeIDComponent.jsonID]) {
+      extensions[NodeIDComponent.jsonID] = entityUUID
     }
     if (!extensions[VisibleComponent.jsonID]) {
       extensions[VisibleComponent.jsonID] = true
@@ -309,7 +310,7 @@ const createObjectFromSceneElement = (
       let beforeIndex = gltf.data.scenes![sceneIndex].nodes.length
       if (typeof beforeEntity === 'number') {
         const beforeUUID = getComponent(beforeEntity, UUIDComponent)
-        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
+        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === beforeUUID)
         if (typeof beforeNodeIndex === 'number' && beforeNodeIndex > -1) {
           beforeIndex = gltf.data.scenes![sceneIndex].nodes.indexOf(beforeNodeIndex)
         }
@@ -324,7 +325,7 @@ const createObjectFromSceneElement = (
       let beforeIndex = 0
       if (typeof beforeEntity === 'number') {
         const beforeUUID = getComponent(beforeEntity, UUIDComponent)
-        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === beforeUUID)
+        const beforeNodeIndex = gltf.data.nodes?.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === beforeUUID)
         if (typeof beforeNodeIndex == 'number' && beforeNodeIndex > -1) {
           beforeIndex = parentNode.children.indexOf(beforeNodeIndex)
         }
@@ -351,14 +352,14 @@ const duplicateObject = (entities: Entity[]) => {
     /** Depth first */
     const duplicateNode = (entity: Entity) => {
       const entityUUID = getComponent(entity, UUIDComponent)
-      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === entityUUID)
       const node = gltf.data.nodes![nodeIndex]
 
       const newChildren = [] as number[]
       if (node.children) {
         for (const childIndex of node.children) {
           const childNode = gltf.data.nodes![childIndex]
-          const childEntityUUID = childNode.extensions![UUIDComponent.jsonID] as EntityUUID
+          const childEntityUUID = childNode.extensions![NodeIDComponent.jsonID] as EntityUUID
           const newChildIndex = duplicateNode(UUIDComponent.getEntityByUUID(childEntityUUID))
           newChildren.push(newChildIndex)
         }
@@ -367,7 +368,7 @@ const duplicateObject = (entities: Entity[]) => {
       const entityDataClone = JSON.parse(JSON.stringify(node))
       const newUUID = generateEntityUUID()
       copyMap[entityUUID] = newUUID
-      entityDataClone.extensions![UUIDComponent.jsonID] = newUUID
+      entityDataClone.extensions![NodeIDComponent.jsonID] = newUUID
       if (newChildren.length) entityDataClone.children = newChildren
 
       gltf.data.nodes!.push(entityDataClone)
@@ -379,7 +380,7 @@ const duplicateObject = (entities: Entity[]) => {
 
     for (const rootEntity of rootEntities) {
       const entityUUID = getComponent(rootEntity, UUIDComponent)
-      const originalIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const originalIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === entityUUID)
       const newIndex = duplicateNode(rootEntity)
 
       const sceneIndex = gltf.data.scenes!.findIndex((s) => s.nodes.includes(originalIndex))
@@ -537,7 +538,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
       if (entity === parent) continue
 
       const entityUUID = getComponent(entity, UUIDComponent)
-      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === entityUUID)
       const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
 
       // Remove from current parent
@@ -571,7 +572,7 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
       if (isParentRoot) {
         if (before) {
           const beforeIndex = gltf.data.nodes!.findIndex(
-            (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent)
+            (n) => n.extensions?.[NodeIDComponent.jsonID] === getComponent(before, UUIDComponent)
           )
           gltf.data.scenes![0].nodes.splice(beforeIndex, 0, nodeIndex)
         } else {
@@ -585,7 +586,9 @@ const reparentObject = (entities: Entity[], before?: Entity | null, parent = get
           const beforeIndex = newParentNode.children.findIndex(
             (n) =>
               n ===
-              gltf.data.nodes!.find((n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(before, UUIDComponent))
+              gltf.data.nodes!.find(
+                (n) => n.extensions?.[NodeIDComponent.jsonID] === getComponent(before, UUIDComponent)
+              )
           )
           newParentNode.children.splice(beforeIndex, 0, nodeIndex)
         } else {
@@ -615,21 +618,21 @@ const groupObjects = (entities: Entity[]) => {
     const groupNode = {
       name: 'New Group',
       extensions: {
-        [UUIDComponent.jsonID]: generateEntityUUID(),
+        [NodeIDComponent.jsonID]: generateEntityUUID(),
         // TODO figure out where the new position should be
         [TransformComponent.jsonID]: componentJsonDefaults(TransformComponent),
         [VisibleComponent.jsonID]: true
       }
     }
 
-    newGroupUUIDs[sceneID] = groupNode.extensions![UUIDComponent.jsonID]
+    newGroupUUIDs[sceneID] = groupNode.extensions![NodeIDComponent.jsonID]
 
     const groupIndex = gltf.data.nodes!.push(groupNode) - 1
 
     /** For each node being added to the group */
     for (const entity of entities) {
       const entityUUID = getComponent(entity, UUIDComponent)
-      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+      const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === entityUUID)
 
       /** 2. remove node from current parent */
       const isCurrentlyChildOfRoot = gltf.data.scenes![0].nodes.includes(nodeIndex)
@@ -678,7 +681,7 @@ const removeObject = (entities: Entity[]) => {
         false
       )
       for (const entityUUID of uuidsToDelete) {
-        const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+        const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[NodeIDComponent.jsonID] === entityUUID)
         // immediately remove the node from the document
         gltf.data.nodes!.splice(oldNodeIndex, 1)
         const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
@@ -697,7 +700,7 @@ const removeObject = (entities: Entity[]) => {
         // update all node indices in parents
         for (let i = oldNodeIndex; i < gltf.data.nodes!.length; i++) {
           const node = gltf.data.nodes![i]
-          const uuid = node.extensions?.[UUIDComponent.jsonID] as EntityUUID
+          const uuid = node.extensions?.[NodeIDComponent.jsonID] as EntityUUID
           const childRootIndex = gltf.data.scenes![0].nodes.indexOf(i + 1)
           if (childRootIndex > -1) {
             gltf.data.scenes![0].nodes[childRootIndex]--

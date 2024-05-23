@@ -27,8 +27,8 @@ import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentType } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
+import { SceneJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
-import { SceneJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 
 export type SystemImportType = {
   systemUUID: SystemUUID

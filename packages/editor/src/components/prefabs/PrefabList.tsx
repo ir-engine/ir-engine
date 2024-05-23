@@ -25,7 +25,7 @@ import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 

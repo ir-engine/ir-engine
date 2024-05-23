@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { getAllComponents, getOptionalComponent, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 
+import { ComponentJsonType } from '../../gltf/convertJsonToGLTF'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { ComponentJsonType } from '../types/SceneTypes'
 
 export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)

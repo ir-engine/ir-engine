@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
-import assert from 'assert'
-import { Cache, Color, MathUtils } from 'three'
-
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { getComponent, UUIDComponent } from '@etherealengine/ecs'
-import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { applyIncomingActions, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -41,6 +38,9 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { GLTF } from '@gltf-transform/core'
+import assert from 'assert'
+import { Cache, Color, MathUtils } from 'three'
 
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -80,7 +80,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -124,13 +124,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -174,7 +174,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -211,7 +211,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [HemisphereLightComponent.jsonID!]: {
                 skyColor: new Color('green').getHex(),
                 groundColor: new Color('purple').getHex(),
@@ -255,7 +255,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [SplineComponent.jsonID!]: {
                 elements: [
                   {
@@ -319,7 +319,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -372,7 +372,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -426,7 +426,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -484,13 +484,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -549,7 +549,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [HemisphereLightComponent.jsonID!]: {
                 skyColor: new Color('green').getHex(),
                 groundColor: new Color('purple').getHex(),
@@ -601,13 +601,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -646,13 +646,13 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           }
         ]
@@ -692,13 +692,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -739,19 +739,19 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -796,19 +796,19 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -831,7 +831,7 @@ describe('EditorControlFunctions', () => {
       assert.equal(newSnapshot.scenes![0].nodes![0], 3)
       assert.equal(newSnapshot.scenes![0].nodes.length, 1)
       assert.equal(newSnapshot.nodes![3].name, 'New Group')
-      assert(newSnapshot.nodes![3].extensions![UUIDComponent.jsonID])
+      assert(newSnapshot.nodes![3].extensions![NodeIDComponent.jsonID])
       assert(newSnapshot.nodes![3].extensions![TransformComponent.jsonID])
       assert(newSnapshot.nodes![3].extensions![VisibleComponent.jsonID])
       assert.equal(newSnapshot.nodes![3].children![0], 0)
@@ -857,25 +857,25 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           },
           {
             name: 'node3',
             extensions: {
-              [UUIDComponent.jsonID]: node3UUID
+              [NodeIDComponent.jsonID]: node3UUID
             }
           }
         ]
