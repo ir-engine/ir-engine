@@ -79,7 +79,7 @@ const TransformPivotTool = () => {
         className="w-28 p-1"
         onChange={setTransformPivot}
         options={transformPivotOptions}
-        value={editorHelperState.transformPivot.value}
+        currentValue={editorHelperState.transformPivot.value}
       />
     </div>
   )
