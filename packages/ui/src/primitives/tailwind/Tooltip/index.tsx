@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 
 interface TooltipProps {
   title: string
-  direction?: 'top' | 'bottom' | 'left' | 'right'
+  direction?: 'top' | 'bottom' | 'left' | 'right' | 'bottomRight'
   children: React.ReactElement
   className?: string
 }
@@ -37,7 +37,8 @@ const TooltipDirectionClass = {
   top: 'bottom-5',
   bottom: 'top-5',
   left: 'right-5',
-  right: 'left-5'
+  right: 'left-5',
+  bottomRight: 'top-5 left-1' // to keep bottom tooltip from overflowing left side of screen
 }
 
 const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {

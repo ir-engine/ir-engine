@@ -61,12 +61,10 @@ import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
-import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
@@ -363,26 +361,35 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )*/
 
     return (
-      <nav className="flex" aria-label="Breadcrumb">
-        <ol className="bg-theme-primary flex items-center space-x-2 rounded-md px-4 py-2 shadow">
+      <nav
+        className="bg-theme-primary border-theme-primary flex h-full w-full rounded-[4px] border text-sm text-[#A3A3A3]"
+        aria-label="Breadcrumb"
+      >
+        <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <li key={file} className="flex items-center">
+            <>
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="text-sm text-gray-500">{'>'}</span>
+                <span className="align-middle text-sm">{'>'}</span>
               )}
               {index === arr.length - 1 ? (
-                <span className="text-sm text-gray-700">{file}</span>
+                <span className="overflow-hidden">
+                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                    {file}
+                  </span>
+                </span>
               ) : (
-                <button
-                  className="text-sm text-gray-500 hover:text-gray-700 focus:underline focus:outline-none"
+                <a
+                  className="hover:text-theme-highlight focus:text-theme-highlight cursor-pointer overflow-hidden align-middle text-sm text-[#A3A3A3] hover:underline"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
-                  {file}
-                </button>
+                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                    {file}
+                  </span>
+                </a>
               )}
-            </li>
+            </>
           ))}
-        </ol>
+        </span>
       </nav>
     )
   }
@@ -540,14 +547,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 flex items-center gap-2">
-        {showBackButton && (
-          <div id="backDir" className="flex items-center">
-            <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom">
-              <Button variant="transparent" startIcon={<IoArrowBack />} className="p-0" onClick={onBackDirectory} />
-            </Tooltip>
-          </div>
-        )}
+      <div className="bg-theme-surface-main mb-1 flex h-8 items-center gap-2">
+        <div
+          id="backDir"
+          className={`flex items-center ${
+            showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+          }`}
+        >
+          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottomRight">
+            <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
+          </Tooltip>
+        </div>
 
         <div id="refreshDir" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.refresh')} direction="bottom">
@@ -569,17 +579,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ))}
         </div>
 
-        <BreadcrumbItems />
-
-        <Input
-          placeholder={t('editor:layout.filebrowser.search-placeholder')}
-          value={searchText.value}
-          onChange={(e) => {
-            searchText.set(e.target.value)
-          }}
-          className="bg-theme-primary rounded"
-          startComponent={<HiMagnifyingGlass />}
-        />
+        <div className="flex h-7 w-full gap-2 px-[50px]">
+          <div className="flex h-full w-[400px]">
+            <BreadcrumbItems />
+          </div>
+          {/* <Input
+            placeholder={t('editor:layout.filebrowser.search-placeholder')}
+            value={searchText.value}
+            onChange={(e) => {
+              searchText.set(e.target.value)
+            }}
+            labelClassname='text-sm text-[#A3A3A3]'
+            containerClassname="flex w-full h-7 bg-theme-primary rounded-[4px]"
+            startComponent={<HiMagnifyingGlass />}
+          /> */}
+        </div>
 
         <div id="downloadProject" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
@@ -600,13 +614,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         {showUploadAndDownloadButtons && (
           <Button
-            id="uploadAsset"
+            id="uploadAssets"
             startIcon={<HiOutlinePlusCircle />}
             variant="transparent"
             rounded="none"
-            className="bg-theme-highlight ml-auto w-32 px-2"
+            className="bg-theme-highlight h-full whitespace-nowrap px-2"
             size="small"
-            textContainerClassName="mx-0"
             onClick={async () => {
               await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
@@ -615,7 +628,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 })
             }}
           >
-            {t('editor:layout.filebrowser.uploadAsset')}
+            {t('editor:layout.filebrowser.uploadAssets')}
           </Button>
         )}
       </div>
