@@ -41,7 +41,7 @@ export const clientSettingSeedData = {
   shortTitle: process.env.APP_TITLE || '',
   startPath: '/',
   releaseName: process.env.RELEASE_NAME || 'local',
-  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
+  siteDescription: process.env.SITE_DESC || 'iR Engine',
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
@@ -52,9 +52,9 @@ export const clientSettingSeedData = {
   favicon16px: '/favicon-16x16.png',
   icon192px: '/android-chrome-192x192.png',
   icon512px: '/android-chrome-512x512.png',
-  appBackground: 'static/main-background.png',
-  appTitle: 'static/ethereal_watermark_small.png',
-  appSubtitle: 'EtherealEngine.org',
+  appBackground: 'static/irengine-logo.png',
+  appTitle: 'static/irengine-icon.png',
+  appSubtitle: 'theInfiniteReality.com',
   appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
   appSocialLinks: JSON.stringify([
     { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
@@ -63,7 +63,7 @@ export const clientSettingSeedData = {
   themeSettings: JSON.stringify(defaultThemeSettings),
   themeModes: JSON.stringify(defaultThemeModes),
   key8thWall: process.env.VITE_8TH_WALL || '',
-  privacyPolicy: 'https://www.etherealengine.com/privacy',
+  privacyPolicy: 'https://www.theinfinitereality.com/privacy',
   homepageLinkButtonEnabled: false,
   homepageLinkButtonRedirect: '',
   homepageLinkButtonText: '',
