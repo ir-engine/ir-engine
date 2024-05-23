@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { defineComponent, Entity, getOptionalMutableComponent } from '@etherealengine/ecs'
+import { defineComponent, Entity, EntityUUID, getOptionalMutableComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import {
   MaterialComponent,
   MaterialComponents,
@@ -36,6 +35,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -76,36 +76,55 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
     }
   })
 })
-export const TransparencyDitheringPlugin: PluginObjectType = {
-  id: 'TransparencyDithering',
-  priority: 10,
-  compile: (shader, renderer) => {
-    const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
-    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-    if (!plugin) return
 
-    if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
-      shader.vertexShader = shader.vertexShader.replace(
-        /#include <common>/,
-        '#include <common>\n' + ditheringVertexUniform
-      )
+export const TransparencyDitheringPlugin = defineComponent({
+  name: 'TransparencyDithering',
+  onInit: (entity) => {
+    return {
+      parameters: {} as Record<
+        EntityUUID,
+        {
+          centers: Vector3[]
+          distances: number[]
+          exponents: number[]
+          useWorldCalculation: boolean[]
+        }
+      >,
+      compile: (material) => {
+        addOBCPlugin(material, (shader) => {
+          const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
+          const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
+
+          if (!plugin) return
+
+          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+            shader.vertexShader = shader.vertexShader.replace(
+              /#include <common>/,
+              '#include <common>\n' + ditheringVertexUniform
+            )
+          }
+          shader.vertexShader = shader.vertexShader.replace(
+            /#include <worldpos_vertex>/,
+            '	#include <worldpos_vertex>\n' + ditheringVertex
+          )
+          if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
+            shader.fragmentShader = shader.fragmentShader.replace(
+              /#include <common>/,
+              '#include <common>\n' + ditheringFragUniform
+            )
+          shader.fragmentShader = shader.fragmentShader.replace(
+            /#include <alphatest_fragment>/,
+            ditheringAlphatestChunk
+          )
+          applyPluginShaderParameters(pluginEntity, shader, {
+            centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
+            exponents: Array.from({ length: maxDitherPoints }, () => 2),
+            distances: Array.from({ length: maxDitherPoints }, () => 3),
+            useWorldCalculation: Array.from({ length: maxDitherPoints }, () => 1),
+            maxDitherPoints: 1
+          })
+        })
+      }
     }
-    shader.vertexShader = shader.vertexShader.replace(
-      /#include <worldpos_vertex>/,
-      '	#include <worldpos_vertex>\n' + ditheringVertex
-    )
-    if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
-      shader.fragmentShader = shader.fragmentShader.replace(
-        /#include <common>/,
-        '#include <common>\n' + ditheringFragUniform
-      )
-    shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-    applyPluginShaderParameters(pluginEntity, shader, {
-      centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
-      exponents: Array.from({ length: maxDitherPoints }, () => 2),
-      distances: Array.from({ length: maxDitherPoints }, () => 3),
-      useWorldCalculation: Array.from({ length: maxDitherPoints }, () => 1),
-      maxDitherPoints: 1
-    })
   }
-}
+})

@@ -50,13 +50,14 @@ import {
 export type PluginObjectType = {
   id: string
   priority?: number
-  compile: typeof Material.prototype.onBeforeCompile
+  compile
 }
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
+  console.log(material.onBeforeCompile)
   material.needsUpdate = true
 }
 

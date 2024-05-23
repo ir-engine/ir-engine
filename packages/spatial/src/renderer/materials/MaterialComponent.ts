@@ -174,3 +174,9 @@ declare module 'three/src/materials/Material' {
     needsUpdate: boolean
   }
 }
+
+declare module 'three/src/renderers/shaders/ShaderLib' {
+  export interface Shader {
+    uuid?: EntityUUID
+  }
+}
