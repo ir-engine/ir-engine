@@ -456,7 +456,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     const scale = new Vector3()
     mat4.decompose(position, rotation, scale)
     setComponent(entity, TransformComponent, { position, rotation, scale })
-  }, [entity, node.matrix.value])
+  }, [entity, node.matrix])
 
   if (!entity) return null
 
