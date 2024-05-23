@@ -25,7 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { defineComponent, Entity, EntityUUID, getOptionalMutableComponent } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  Entity,
+  EntityUUID,
+  getMutableComponent,
+  getOptionalMutableComponent
+} from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import {
@@ -33,7 +39,6 @@ import {
   MaterialComponents,
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import {
@@ -116,15 +121,22 @@ export const TransparencyDitheringPlugin = defineComponent({
             /#include <alphatest_fragment>/,
             ditheringAlphatestChunk
           )
-          applyPluginShaderParameters(pluginEntity, shader, {
+          getMutableComponent(entity, TransparencyDitheringPlugin).parameters[material.uuid].set({
             centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
             exponents: Array.from({ length: maxDitherPoints }, () => 2),
             distances: Array.from({ length: maxDitherPoints }, () => 3),
-            useWorldCalculation: Array.from({ length: maxDitherPoints }, () => 1),
-            maxDitherPoints: 1
+            useWorldCalculation: Array.from({ length: maxDitherPoints }, () => false)
           })
+          // applyPluginShaderParameters(pluginEntity, shader, {
+          //   centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
+          //   exponents: Array.from({ length: maxDitherPoints }, () => 2),
+          //   distances: Array.from({ length: maxDitherPoints }, () => 3),
+          //   useWorldCalculation: Array.from({ length: maxDitherPoints }, () => 1),
+          //   maxDitherPoints: 1
+          // })
         })
-      }
+      },
+      onSet: (entity, component, json) => {}
     }
   }
 })
