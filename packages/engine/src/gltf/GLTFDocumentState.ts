@@ -48,14 +48,14 @@ export const GLTFNodeState = defineState({
     >
   >,
 
-  convertGltfToNodeDictionary: (parentUUID: EntityUUID, gltf: GLTF.IGLTF) => {
+  convertGltfToNodeDictionary: (rootUUID: EntityUUID, gltf: GLTF.IGLTF) => {
     const nodes: Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID }> = {}
 
     const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID) => {
       const node = gltf.nodes![nodeIndex]
       const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
       if (uuid) {
-        nodes[uuid] = { nodeIndex, childIndex, parentUUID }
+        nodes[`${rootUUID}-${uuid}`] = { nodeIndex, childIndex, parentUUID }
       } else {
         /** @todo generate a globally deterministic UUID here */
         console.warn('Node does not have a UUID:', node)
@@ -71,7 +71,7 @@ export const GLTFNodeState = defineState({
     const scene = gltf.scenes![0]
     for (let i = 0; i < scene.nodes!.length; i++) {
       const index = scene.nodes[i]
-      addNode(index, i, parentUUID)
+      addNode(index, i, rootUUID)
     }
     return nodes
   }
