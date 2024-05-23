@@ -203,8 +203,6 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     const effectArray = Object.values(effectsVal)
     renderer.value.effectComposer.EffectPass = new EffectPass(camera.value, ...effectArray)
     renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass)
-
-    console.log('react to effects')
   }, [effects])
 
   useEffect(() => {
@@ -305,17 +303,13 @@ const EffectReactor = (props: {
   }
 
   useEffect(() => {
-    if (schema.isActive) {
-      console.log('dont remove effect = ' + effectKey)
-    } else {
-      console.log('remove effect = ' + effectKey)
+    if (!schema.isActive) {
       effects[effectKey].set(none)
     }
   }, [schema.isActive])
 
   useEffect(() => {
     if (schema.isActive) {
-      console.log('add effect = ' + effectKey)
       const props = {
         schema: schema,
         effects: effects,
@@ -331,11 +325,6 @@ const EffectReactor = (props: {
       }
 
       lookUp[effectKey](props)
-    }
-
-    return () => {
-      console.log('remove effect = ' + effectKey)
-      effects[effectKey].set(none)
     }
   }, [uiEffects])
 
