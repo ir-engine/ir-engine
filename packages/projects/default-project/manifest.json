@@ -3,6 +3,6 @@
   "version": "0.0.0",
   "engineVersion": "1.6.0",
   "description": "The default project for iR Engine",
-  "thumbnail": "/static/etherealengine_thumbnail.jpg",
+  "thumbnail": "/static/irengine-logo.png",
   "scenes": ["public/scenes/apartment.gltf", "public/scenes/default.gltf", "public/scenes/sky-station.gltf"]
 }
