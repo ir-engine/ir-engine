@@ -42,6 +42,7 @@ import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/pro
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
+import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -207,21 +208,6 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
 }
 
 /**
- * Filter permissions for logged in user
- * @param context
- * @returns
- */
-const filterUserPermissions = async (context: HookContext<ProjectPermissionService>) => {
-  const loggedInUser = context.params!.user!
-  if (await checkScope(loggedInUser, 'projects', 'read')) return
-
-  if (!context.params.query) {
-    throw new BadRequest(`No query in ${context.params}`)
-  }
-  context.params.query.userId = loggedInUser.id
-}
-
-/**
  * resolve project id from name in query
  * @param context
  * @returns
@@ -257,7 +243,7 @@ export default {
     find: [
       enableClientPagination(),
       iff(checkUserScopes, checkPermissionStatus),
-      iff(isAction('studio'), filterUserPermissions, resolveProjectId),
+      iff(isAction('studio'), setLoggedInUserInQuery('userId'), resolveProjectId),
       discardQuery('action'),
       discardQuery('project')
     ],
