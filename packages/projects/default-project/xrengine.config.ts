@@ -27,7 +27,7 @@ import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectCon
 
 const config: ProjectConfigInterface = {
   onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
+  thumbnail: '/static/irengine-logo.jpg',
   routes: {
     '/': {
       component: () => import('@etherealengine/client/src/pages/index'),
