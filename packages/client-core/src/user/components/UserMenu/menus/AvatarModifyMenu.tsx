@@ -53,7 +53,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
-import { AvaturnMenuFlag, RPMMenuFlag, UserMenus } from '../../../UserUISystem'
+import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -84,8 +84,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const [isSaving, setIsSaving] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
-  const avaturnEnabled = FeatureFlagsState.useEnabled(AvaturnMenuFlag)
-  const rpmEnabled = FeatureFlagsState.useEnabled(RPMMenuFlag)
+  const avaturnEnabled = FeatureFlagsState.useEnabled('ir.client.menu.avaturn')
+  const rpmEnabled = FeatureFlagsState.useEnabled('ir.client.menu.readyPlayerMe')
 
   let thumbnailSrc = state.thumbnailUrl
   if (state.thumbnailFile) {

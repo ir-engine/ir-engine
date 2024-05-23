@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { MathUtils, Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -39,30 +38,30 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useComponent,
   useEntityContext,
-  useOptionalComponent
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
+import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import {
-  DistanceFromCameraComponent,
-  DistanceFromLocalClientComponent
-} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import {
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { inFrustum, InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
@@ -261,7 +260,6 @@ export const InteractableComponent = defineComponent({
     }
 
     if (component.uiActivationType.value === XRUIActivationType.hover || component.clickInteract.value) {
-      setComponent(entity, InputComponent)
       setComponent(entity, BoundingBoxComponent)
     }
   },
@@ -280,9 +278,20 @@ export const InteractableComponent = defineComponent({
   reactor: () => {
     if (!isClient) return null
     const entity = useEntityContext()
-    const interactable = useComponent(entity, InteractableComponent)
-    const input = useOptionalComponent(entity, InputComponent)
+    // const interactable = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
+    // const hasFocus = useMutableState(EngineState).hasFocus
+
+    InputComponent.useExecuteWithInput(() => {
+      const buttons = InputComponent.getMergedButtons(entity)
+
+      if (buttons.Interact?.pressed) {
+        InputState.setCapturingEntity(entity)
+      }
+      if (buttons.Interact?.down) {
+        callInteractCallbacks(entity)
+      }
+    }, true)
 
     useEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)
@@ -294,30 +303,41 @@ export const InteractableComponent = defineComponent({
         removeInteractableUI(entity)
       }
 
-      return () => {
-        removeInteractableUI(entity)
-      }
+      return () => {}
     }, [isEditing.value])
 
-    useEffect(() => {
-      if (isEditing.value || !input) return
-      const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-      if (input.inputSources.length > 0) {
-        canvas.style.cursor = 'pointer'
-      }
-      return () => {
-        canvas.style.cursor = 'auto'
-      }
-    }, [input?.inputSources.length, isEditing.value])
+    // useEffect(() => {
+    //   if (isEditing.value || !input) return
+    //   const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
+    //   if (input.inputSources.length > 0) {
+    //     canvas.style.cursor = 'pointer'
+    //   }
+    //   return () => {
+    //     canvas.style.cursor = 'auto'
+    //   }
+    // }, [input?.inputSources.length, isEditing.value])
 
-    //handle highlighting when state is set
-    useEffect(() => {
-      if (!interactable.highlighted.value) return
-      setComponent(entity, HighlightComponent)
-      return () => {
-        removeComponent(entity, HighlightComponent)
-      }
-    }, [interactable.highlighted])
+    // //handle highlighting when state is set
+    // useEffect(() => {
+    //   if (!interactable.highlighted.value) return
+    //   setComponent(entity, HighlightComponent)
+    //   return () => {
+    //     removeComponent(entity, HighlightComponent)
+    //   }
+    // }, [interactable.highlighted])
     return null
   }
 })
+
+const callInteractCallbacks = (entity: Entity) => {
+  const interactable = getComponent(entity, InteractableComponent)
+  for (const callback of interactable.callbacks) {
+    if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
+    const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+    if (targetEntity && callback.callbackID) {
+      const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
+      if (!callbacks) continue
+      callbacks.get(callback.callbackID)?.(entity, targetEntity)
+    }
+  }
+}

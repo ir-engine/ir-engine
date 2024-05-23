@@ -51,7 +51,6 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@etherealengine/spatial/src/common/functions/MathFunctions'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { Physics, RaycastArgs } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
@@ -64,6 +63,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
@@ -161,7 +161,10 @@ const onSecondaryClick = () => {
 const execute = () => {
   const ecsState = getState(ECSState)
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const viewerEntity = Engine.instance.viewerEntity
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
+
+  // const buttons = InputSourceComponent.getMergedButtons()
   if (buttons.PrimaryClick?.down) onPrimaryClick()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
 

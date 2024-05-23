@@ -50,7 +50,7 @@ export class API {
   static createAPI = () => {
     const feathersClient = feathers()
 
-    const primus = new Primus(config.client.serverUrl, {
+    const primus = new Primus(`${config.client.serverUrl}?pathName=${window.location.pathname}`, {
       withCredentials: true
     })
     feathersClient.configure(primusClient(primus, { timeout: 10000 }))
