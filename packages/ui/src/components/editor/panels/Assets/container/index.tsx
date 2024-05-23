@@ -133,7 +133,7 @@ const AssetPanel = () => {
       const resource = categories[index]
 
       return (
-        <div className={`bg-theme-surface-main flex items-center ml-${resource.depth}`}>
+        <div className={`flex items-center ml-${resource.depth}`}>
           {resource.isLeaf ? (
             <></>
           ) : (

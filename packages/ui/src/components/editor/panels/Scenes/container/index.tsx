@@ -91,7 +91,7 @@ export default function ScenesPanel() {
           <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
           <div className="relative h-[100%] flex-1 overflow-y-auto px-4 py-3 pb-8">
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene: AssetType) => (
                 <div key={scene.id} className="bg-theme-surface-main my-2 w-56 rounded">
                   <img
