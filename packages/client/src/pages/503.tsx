@@ -36,7 +36,7 @@ export const Custom503 = (): any => {
           height: 'auto',
           maxWidth: '100%'
         }}
-        src="/static/etherealengine.png"
+        src="/static/irengine.png"
       />
     </>
   )
