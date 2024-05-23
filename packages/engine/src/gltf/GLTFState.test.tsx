@@ -38,7 +38,7 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
@@ -73,7 +73,7 @@ describe('GLTFState', () => {
   })
 
   it('should load a GLTF file with a single node', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -85,7 +85,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         }
       ]
@@ -94,6 +94,8 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
 
     applyIncomingActions()
 
@@ -119,8 +121,8 @@ describe('GLTFState', () => {
   })
 
   it('should load a GLTF file with a node and child', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
+    const childID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -133,13 +135,13 @@ describe('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         },
         {
           name: 'child',
           extensions: {
-            [NodeIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childID
           }
         }
       ]
@@ -148,6 +150,9 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
+    const childUUID = (rootEntityUUID + '-' + childID) as EntityUUID
 
     applyIncomingActions()
 
@@ -178,9 +183,9 @@ describe('GLTFState', () => {
   })
 
   it('should load a GLTF file with a node and child with a child', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
-    const grandchildUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
+    const childID = MathUtils.generateUUID() as NodeID
+    const grandchildID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -193,20 +198,20 @@ describe('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         },
         {
           name: 'child',
           children: [2],
           extensions: {
-            [NodeIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childID
           }
         },
         {
           name: 'grandchild',
           extensions: {
-            [NodeIDComponent.jsonID]: grandchildUUID
+            [NodeIDComponent.jsonID]: grandchildID
           }
         }
       ]
@@ -215,6 +220,10 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
+    const childUUID = (rootEntityUUID + '-' + childID) as EntityUUID
+    const grandchildUUID = (rootEntityUUID + '-' + grandchildID) as EntityUUID
 
     applyIncomingActions()
 
@@ -252,8 +261,8 @@ describe('GLTFState', () => {
   })
 
   it('should load a GLTF file with a node and child with correct transforms', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
+    const childID = MathUtils.generateUUID() as NodeID
 
     const nodeMatrix = new Matrix4()
       .compose(new Vector3(1, 2, 3), new Quaternion().setFromEuler(new Euler(1, 2, 3)), new Vector3(2, 3, 4))
@@ -276,14 +285,14 @@ describe('GLTFState', () => {
           // non identity position, rotation and scale
           matrix: nodeMatrix,
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         },
         {
           name: 'child',
           matrix: childMatrix,
           extensions: {
-            [NodeIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childID
           }
         }
       ]
@@ -291,7 +300,10 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    GLTFSourceState.load('/test.gltf')
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
+    const childUUID = (rootEntityUUID + '-' + childID) as EntityUUID
 
     applyIncomingActions()
 
@@ -325,7 +337,7 @@ describe('GLTFState', () => {
   })
 
   it('should load a GLTF file with a node with ECS extension data', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -337,7 +349,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID,
+            [NodeIDComponent.jsonID]: nodeID,
             [VisibleComponent.jsonID]: true,
             [HemisphereLightComponent.jsonID!]: {
               skyColor: new Color('green').getHex(),
@@ -352,6 +364,8 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
 
     applyIncomingActions()
 
@@ -365,7 +379,7 @@ describe('GLTFState', () => {
   })
 
   it('should update ECS extension via snapshot without removing and reloading it via', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     let onInitCount = 0
     let onRemoveCount = 0
@@ -392,7 +406,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID,
+            [NodeIDComponent.jsonID]: nodeID,
             [VisibleComponent.jsonID]: true,
             [refCountComponent.jsonID!]: {
               fakeVal: 100
@@ -422,8 +436,8 @@ describe('GLTFState', () => {
   })
 
   it('should be able to parent a node to a child', () => {
-    const parentUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
+    const parentID = MathUtils.generateUUID() as NodeID
+    const childID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -435,13 +449,13 @@ describe('GLTFState', () => {
         {
           name: 'parent',
           extensions: {
-            [NodeIDComponent.jsonID]: parentUUID
+            [NodeIDComponent.jsonID]: parentID
           }
         },
         {
           name: 'child',
           extensions: {
-            [NodeIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childID
           }
         }
       ]
@@ -450,6 +464,9 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const parentUUID = (rootEntityUUID + '-' + parentID) as EntityUUID
+    const childUUID = (rootEntityUUID + '-' + childID) as EntityUUID
 
     applyIncomingActions()
 
@@ -475,7 +492,7 @@ describe('GLTFState', () => {
   })
 
   it('should be able to undo a snapshot', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -487,7 +504,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         }
       ]
@@ -496,6 +513,8 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
 
     applyIncomingActions()
 
@@ -524,7 +543,7 @@ describe('GLTFState', () => {
   })
 
   it('should be able to redo a snapshot', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -536,7 +555,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         }
       ]
@@ -545,6 +564,8 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
 
     applyIncomingActions()
 
@@ -578,7 +599,7 @@ describe('GLTFState', () => {
   })
 
   it('should be able to undo multiple times and override with a new snapshot', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeID = MathUtils.generateUUID() as NodeID
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -590,7 +611,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeID
           }
         }
       ]
@@ -599,6 +620,8 @@ describe('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+    const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
 
     applyIncomingActions()
 
