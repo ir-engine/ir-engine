@@ -92,7 +92,13 @@ export const projectPermissionQuerySchema = Type.Intersect(
   [
     querySyntax(projectPermissionQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String()),
+        project: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

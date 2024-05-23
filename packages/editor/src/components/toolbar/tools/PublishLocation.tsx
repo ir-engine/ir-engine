@@ -30,11 +30,11 @@ import { useTranslation } from 'react-i18next'
 import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { locationPath } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
+import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
 import { EditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -46,7 +46,6 @@ export const PublishLocation = () => {
   const scenePath = useHookstate(getMutableState(EditorState).scenePath)
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
-  const user = useHookstate(getMutableState(AuthState).user)
 
   const existingLocation = useFind(locationPath, {
     query: {
@@ -58,6 +57,8 @@ export const PublishLocation = () => {
       }
     }
   })
+
+  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!, 'studio')
 
   const handleCloseLocationDrawer = () => {
     openLocationDrawer.set(false)
@@ -78,7 +79,11 @@ export const PublishLocation = () => {
         className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer + ' ' + styles.publishButton}
       >
         <InfoTooltip title={t('editor:toolbar.publishLocation.lbl')} info={t('editor:toolbar.publishLocation.info')}>
-          <Button onClick={handleOpenLocationDrawer} className={styles.toolButton} disabled={!sceneID.value}>
+          <Button
+            onClick={handleOpenLocationDrawer}
+            className={styles.toolButton}
+            disabled={!sceneID.value || (permission?.type !== 'owner' && permission?.type !== 'editor')}
+          >
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
         </InfoTooltip>

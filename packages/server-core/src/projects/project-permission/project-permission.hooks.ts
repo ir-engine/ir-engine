@@ -26,26 +26,27 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
   ProjectPermissionData,
-  projectPermissionDataValidator,
   ProjectPermissionPatch,
+  ProjectPermissionType,
+  projectPermissionDataValidator,
   projectPermissionPatchValidator,
   projectPermissionPath,
-  projectPermissionQueryValidator,
-  ProjectPermissionType
+  projectPermissionQueryValidator
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { InviteCode, UserID, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
-import enableClientPagination from '../../hooks/enable-client-pagination'
-import verifyProjectOwner from '../../hooks/verify-project-owner'
 import logger from '../../ServerLogger'
+import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
+import verifyProjectOwner from '../../hooks/verify-project-owner'
 import { ProjectPermissionService } from './project-permission.class'
 import {
   projectPermissionDataResolver,
@@ -205,6 +206,41 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
   if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(result[0].projectId)
 }
 
+/**
+ * Filter permissions for logged in user
+ * @param context
+ * @returns
+ */
+const filterUserPermissions = async (context: HookContext<ProjectPermissionService>) => {
+  const loggedInUser = context.params!.user!
+  if (await checkScope(loggedInUser, 'projects', 'read')) return
+
+  if (!context.params.query) {
+    throw new BadRequest(`No query in ${context.params}`)
+  }
+  context.params.query.userId = loggedInUser.id
+}
+
+/**
+ * resolve project id from name in query
+ * @param context
+ * @returns
+ */
+const resolveProjectId = async (context: HookContext<ProjectPermissionService>) => {
+  if (!context.params.query?.project) {
+    return
+  }
+
+  const projectResult = (await context.app.service(projectPath).find({
+    query: { name: context.params.query?.project, $limit: 1 }
+  })) as Paginated<ProjectType>
+
+  if (projectResult.data.length === 0) {
+    throw new BadRequest(`No project named ${context.params.query.project} exists`)
+  }
+  context.params.query.projectId = projectResult.data[0].id
+}
+
 export default {
   around: {
     all: [
@@ -218,7 +254,13 @@ export default {
       () => schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],
-    find: [enableClientPagination(), iff(checkUserScopes, checkPermissionStatus)],
+    find: [
+      enableClientPagination(),
+      iff(checkUserScopes, checkPermissionStatus),
+      iff(isAction('studio'), filterUserPermissions, resolveProjectId),
+      discardQuery('action'),
+      discardQuery('project')
+    ],
     get: [],
     create: [
       iff(isProvider('external'), verifyProjectOwner()),
