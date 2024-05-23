@@ -1135,7 +1135,7 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
-      "uploadAsset": "Upload Asset",
+      "uploadAssets": "Upload Assets",
       "search-placeholder": "Search files and folders ...",
       "fileProperties": {
         "name": "Name:",
