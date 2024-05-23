@@ -239,8 +239,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   }
 
   eJson.parent =
-    getOptionalComponent(parentEntity, NodeIDComponent) ??
-    (getOptionalComponent(parentEntity, UUIDComponent) as any as NodeID)
+    getOptionalComponent(parentEntity, NodeIDComponent) ?? getOptionalComponent(rootEntity, NodeIDComponent)
 
   const sceneID = getModelSceneID(rootEntity)
   setComponent(objEntity, SourceComponent, sceneID)

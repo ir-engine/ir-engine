@@ -26,15 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 
-export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { position: Vector3; rotation: Quaternion } {
-  const entity = UUIDComponent.getEntityByUUID(spawnPointNodeId as EntityUUID)
+export function getSpawnPoint(spawnPointNodeId: NodeID, userId: UserID): { position: Vector3; rotation: Quaternion } {
+  const entity = NodeIDComponent.getEntitiesByNodeID(spawnPointNodeId)?.[0]
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
     const spawnComponent = getComponent(entity, SpawnPointComponent)

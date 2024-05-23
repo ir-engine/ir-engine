@@ -218,6 +218,7 @@ export const GLTFSnapshotState = defineState({
     //create new node list with the model entity removed
     //remove model entity from scene nodes
     const srcEntity = UUIDComponent.getEntityByUUID(srcNode)
+    const srcNodeID = getComponent(srcEntity, NodeIDComponent)
     const srcTransform = getComponent(srcEntity, TransformComponent)
     const childEntities = getComponent(srcEntity, EntityTreeComponent).children
     for (const child of childEntities) {
@@ -241,10 +242,12 @@ export const GLTFSnapshotState = defineState({
       childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
     }
     const modelIndex = parentSnapshot.data.nodes?.findIndex(
-      (node) => node.extensions?.[NodeIDComponent.jsonID] === srcNode
+      (node) => node.extensions?.[NodeIDComponent.jsonID] === srcNodeID
     )
     parentSnapshot.data.scenes![0].nodes = parentSnapshot.data.scenes![0].nodes.filter((node) => node !== modelIndex)
-    const newNodes = parentSnapshot.data.nodes?.filter((node) => node.extensions?.[NodeIDComponent.jsonID] !== srcNode)
+    const newNodes = parentSnapshot.data.nodes?.filter(
+      (node) => node.extensions?.[NodeIDComponent.jsonID] !== srcNodeID
+    )
     //recalculate child indices
     if (!newNodes) return
     for (const node of newNodes) {
@@ -262,11 +265,16 @@ export const GLTFSnapshotState = defineState({
     }
     parentSnapshot.data.nodes = newNodes
 
+    const dstEntity = UUIDComponent.getEntityByUUID(dstNode)
+    const dstNodeID = getComponent(dstEntity, NodeIDComponent)
+
     const rootIndices = snapshot.data.scenes![0].nodes!
     const roots = rootIndices.map((index) => snapshot.data.nodes?.[index])
     parentSnapshot.data.nodes = [...parentSnapshot.data.nodes!, ...snapshot.data.nodes!]
     const childIndices = roots.map((root) => parentSnapshot.data.nodes!.findIndex((node) => node === root)!)
-    const parentNode = parentSnapshot.data.nodes?.find((node) => node.extensions?.[NodeIDComponent.jsonID] === dstNode)
+    const parentNode = parentSnapshot.data.nodes?.find(
+      (node) => node.extensions?.[NodeIDComponent.jsonID] === dstNodeID
+    )
     //if the parent is not the root of the gltf document, add the child indices to the parent's children
     if (parentNode) {
       parentNode.children = [...(parentNode.children ?? []), ...childIndices]

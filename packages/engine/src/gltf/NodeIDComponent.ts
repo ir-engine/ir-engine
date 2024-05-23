@@ -85,5 +85,9 @@ export const NodeIDComponent = defineComponent({
       return `${getComponent(nearestSourceEntity, UUIDComponent)}-${nodeID}` as EntityUUID
     }
     return nodeID as any as EntityUUID
+  },
+
+  getEntitiesByNodeID: (nodeID: NodeID): Entity[] | undefined => {
+    return NodeIDComponent.entitiesByNodeID[nodeID]
   }
 })

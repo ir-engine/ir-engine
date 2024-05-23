@@ -58,6 +58,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { NodeID } from '../../gltf/NodeIDComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -85,7 +86,7 @@ export const PortalComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      linkedPortalId: '' as EntityUUID,
+      linkedPortalId: '' as NodeID,
       location: '',
       effectType: 'None',
       previewType: PortalPreviewTypeSimple as string,
