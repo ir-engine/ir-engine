@@ -150,7 +150,7 @@ const AssetPanel = () => {
             className={twMerge(`p-2`, selectedCategory === resource ? 'bg-theme-primary text-grey' : 'text-white')}
             onClick={() => onClick(resource)}
           >
-            {resource.name}
+            <span className="dark:text-[#A3A3A3]">{resource.name}</span>
           </div>
         </div>
       )
@@ -160,7 +160,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+      <div className="h-[100%] overflow-y-auto">
         {categories.map((category, index) => (
           <AssetCategory
             data={{
@@ -279,7 +279,7 @@ const AssetPanel = () => {
           />
           <CategoriesList />
         </div>
-        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-scroll">
+        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-y-auto">
           <ResourceItems />
         </div>
       </div>
