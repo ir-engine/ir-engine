@@ -679,6 +679,7 @@ const removeObject = (entities: Entity[]) => {
       )
       for (const entityUUID of uuidsToDelete) {
         const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+        if (oldNodeIndex < 0) continue
         // immediately remove the node from the document
         gltf.data.nodes!.splice(oldNodeIndex, 1)
         const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)
