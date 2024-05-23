@@ -94,6 +94,7 @@ export const PublishLocation = () => {
         selectedLocation={existingLocation.data[0]}
         selectedScene={sceneID.value}
         onClose={handleCloseLocationDrawer}
+        disabledEditButton={permission?.type !== 'owner' && permission?.type !== 'editor'}
       />
     </>
   )

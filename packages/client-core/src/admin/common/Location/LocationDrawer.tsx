@@ -37,7 +37,7 @@ import {
   LocationType
 } from '@etherealengine/common/src/schema.type.module'
 import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -45,9 +45,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useProjectPermissions } from '../../../user/useUserProjectPermission'
 import styles from '../../old-styles/admin.module.scss'
 import DrawerView from '../DrawerView'
 import { validateForm } from '../validation/formValidation'
@@ -63,6 +61,7 @@ interface Props {
   selectedLocation?: LocationType
   onClose: () => void
   selectedScene?: string | null
+  disabledEditButton: boolean
 }
 
 const defaultState = {
@@ -84,7 +83,7 @@ const defaultState = {
   }
 }
 
-const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }: Props) => {
+const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose, disabledEditButton }: Props) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -97,10 +96,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
   const selectedSceneData = useGet(assetPath, selectedScene!)
-
-  const editorState = getState(EditorState)
-
-  const permission = useProjectPermissions(editorState.projectName!, 'studio')
 
   useEffect(() => {
     if (selectedScene) state.scene.set(selectedScene)
@@ -316,11 +311,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
             </Button>
           )}
           {mode === LocationDrawerMode.ViewEdit && !editMode.value && (
-            <Button
-              className={styles.gradientButton}
-              disabled={permission?.type !== 'owner' && permission?.type !== 'editor'}
-              onClick={() => editMode.set(true)}
-            >
+            <Button className={styles.gradientButton} disabled={disabledEditButton} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}
