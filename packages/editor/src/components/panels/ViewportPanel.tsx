@@ -78,7 +78,7 @@ const ViewPortPanelContent = () => {
     <ViewportDnD />
   ) : (
     <div className={styles.bgImageBlock}>
-      <img src="/static/irengine-icon.png" alt="" />
+      <img src="/static/irengine-icon.png" alt="iR Engine Logo" />
       <h2>{t('editor:selectSceneMsg')}</h2>
     </div>
   )
