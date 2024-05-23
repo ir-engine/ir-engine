@@ -236,18 +236,24 @@ export const ObjectGridSnapSystem = defineSystem({
   reactor: () => {
     const snapState = useMutableState(ObjectGridSnapState)
     const selectionState = useMutableState(SelectionState)
-    const models = useQuery([ModelComponent, Not(AvatarRigComponent), Not(ObjectGridSnapComponent)])
-    const toRemove = useQuery([ObjectGridSnapComponent, Not(ModelComponent)])
+    const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
-      if (!snapState.enabled.value) {
+      const modelEntities = models as Entity[]
+      if (snapState.enabled.value) {
+        for (const entity of modelEntities) setComponent(entity, ObjectGridSnapComponent)
+      } else {
         for (const entity of objectGridQuery()) {
           setHelperColor(entity, new Color(1, 0, 0))
           setHelperLayer(entity, ObjectLayers.NodeHelper)
           resetHelperTransform(entity)
         }
       }
-    }, [snapState.enabled])
+
+      return () => {
+        for (const entity of modelEntities) removeComponent(entity, ObjectGridSnapComponent)
+      }
+    }, [snapState.enabled, models])
 
     useEffect(() => {
       const selectedEntities = SelectionState.getSelectedEntities()
@@ -260,14 +266,6 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
     }, [selectionState.selectedEntities])
-
-    useEffect(() => {
-      for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
-    }, [models])
-
-    useEffect(() => {
-      for (const entity of toRemove) removeComponent(entity, ObjectGridSnapComponent)
-    })
 
     return null
   },
@@ -312,7 +310,7 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
 
-      const helperEntity = getComponent(selectedEntity, BoundingBoxHelperComponent).entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
       const resetHelper = () => {
         if (helperEntity) {
           //reset helper bbox if exists

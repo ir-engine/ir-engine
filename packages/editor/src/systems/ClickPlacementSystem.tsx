@@ -131,16 +131,14 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     if (!clickState.placedEntity.value) return
     const placedEntity = clickState.placedEntity.value
     const sceneID = getComponent(placedEntity, SourceComponent)
-    const uuid = getComponent(placedEntity, UUIDComponent)
-    if (!sceneState.scenes[sceneID].value) return
-    const scene = sceneState.scenes[sceneID].value
-    if (!scene.scene.entities[uuid]) return
-    if (getState(ObjectGridSnapState).enabled) {
-      getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
-      getMutableState(ObjectGridSnapState).apply.set(true)
+    if (sceneState[sceneID].value) {
+      if (getState(ObjectGridSnapState).enabled) {
+        getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
+        getMutableState(ObjectGridSnapState).apply.set(true)
+      }
     }
     clickState.placedEntity.set(UndefinedEntity)
-  }, [sceneState.scenes.keys])
+  }, [clickState.placedEntity])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />

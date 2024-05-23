@@ -187,10 +187,11 @@ export const ObjectGridSnapComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
-    const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const modelComponent = useComponent(entity, ModelComponent)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
 
     useEffect(() => {
+      if (!modelComponent.scene.value) return
       const originalPosition = new Vector3()
       const originalRotation = new Quaternion()
       const originalScale = new Vector3()
@@ -204,9 +205,11 @@ export const ObjectGridSnapComponent = defineComponent({
       const meshes: Mesh[] = []
       //iterate through children and update their transforms to reflect identity from parent
       iterateEntityNode(entity, (childEntity: Entity) => {
-        computeTransformMatrix(childEntity)
-        if (hasComponent(childEntity, MeshComponent)) {
-          meshes.push(getComponent(childEntity, MeshComponent))
+        if (hasComponent(childEntity, TransformComponent)) {
+          computeTransformMatrix(childEntity)
+          if (hasComponent(childEntity, MeshComponent)) {
+            meshes.push(getComponent(childEntity, MeshComponent))
+          }
         }
       })
       //compute bounding box
@@ -225,17 +228,19 @@ export const ObjectGridSnapComponent = defineComponent({
         rotation: originalRotation,
         scale: originalScale
       })
-      iterateEntityNode(entity, computeTransformMatrix)
+      iterateEntityNode(entity, computeTransformMatrix, (childEntity) => hasComponent(childEntity, TransformComponent))
       //set bounding box in component
-      setComponent(entity, ObjectGridSnapComponent, {
-        bbox
-      })
-    }, [modelComponent?.scene])
+      snapComponent.bbox.set(bbox)
+    }, [modelComponent.scene])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return
       const bbox = snapComponent.bbox.value
       setComponent(entity, BoundingBoxHelperComponent, { bbox })
+
+      return () => {
+        removeComponent(entity, BoundingBoxHelperComponent)
+      }
     }, [snapComponent.bbox, engineState.isEditing])
 
     return null
