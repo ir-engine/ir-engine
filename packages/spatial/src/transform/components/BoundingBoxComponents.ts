@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   getComponent,
@@ -38,15 +36,16 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { NameComponent } from '../../common/NameComponent'
-import { RendererState } from '../../renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { RendererState } from '../../renderer/RendererState'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',

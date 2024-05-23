@@ -29,15 +29,14 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
+import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
+import { Text as TroikaText } from 'troika-three-text'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-
 import { matches } from '@etherealengine/hyperflux'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { Color, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector2 } from 'three'
-import { Text as TroikaText } from 'troika-three-text'
 
 /**
  * @description
@@ -320,52 +319,53 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       text.troikaMesh.set(new TroikaText())
-      addObjectToGroup(entity, text.troikaMesh.value!)
+      addObjectToGroup(entity, text.troikaMesh.value as TextMesh)
       return () => {
         text.troikaMesh.value!.dispose()
       }
     }, [])
 
     useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       // Update the Text content/properties
-      text.troikaMesh.value!.text = text.text.value
-      text.troikaMesh.value!.fillOpacity = text.textOpacity.value / 100
-      text.troikaMesh.value!.maxWidth = text.textWidth.value
-      text.troikaMesh.value!.textIndent = text.textIndent.value
-      text.troikaMesh.value!.textAlign = text.textAlign.value
-      text.troikaMesh.value!.overflowWrap = text.textWrapKind.value
-      text.troikaMesh.value!.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
-      text.troikaMesh.value!.anchorX = `${text.textAnchor.x.value}%`
-      text.troikaMesh.value!.anchorY = `${text.textAnchor.y.value}%`
-      text.troikaMesh.value!.depthOffset = text.textDepthOffset.value
-      text.troikaMesh.value!.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
-      text.troikaMesh.value!.letterSpacing = text.letterSpacing.value
-      text.troikaMesh.value!.lineHeight = text.lineHeight.value
-      text.troikaMesh.value!.direction = text.textDirection.value
+      troikaMesh.text = text.text.value
+      troikaMesh.fillOpacity = text.textOpacity.value / 100
+      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.textIndent = text.textIndent.value
+      troikaMesh.textAlign = text.textAlign.value
+      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
+      troikaMesh.anchorX = `${text.textAnchor.x.value}%`
+      troikaMesh.anchorY = `${text.textAnchor.y.value}%`
+      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
+      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.lineHeight = text.lineHeight.value
+      troikaMesh.direction = text.textDirection.value
       // Update the font properties
-      text.troikaMesh.value!.font = text.font.value
-      text.troikaMesh.value!.fontSize = text.fontSize.value
-      text.troikaMesh.value!.color = text.fontColor.value.getHex()
+      troikaMesh.font = text.font.value
+      troikaMesh.fontSize = text.fontSize.value
+      troikaMesh.color = text.fontColor.value.getHex()
       switch (text.fontMaterial.value) {
         case FontMaterialKind.Basic:
-          text.troikaMesh.value!.material = new MeshBasicMaterial()
+          troikaMesh.material = new MeshBasicMaterial()
           break
         case FontMaterialKind.Standard:
-          text.troikaMesh.value!.material = new MeshStandardMaterial()
+          troikaMesh.material = new MeshStandardMaterial()
           break
       }
-      text.troikaMesh.value!.outlineOpacity = text.outlineOpacity.value / 100
-      text.troikaMesh.value!.outlineWidth = `${text.outlineWidth.value}%`
-      text.troikaMesh.value!.outlineBlur = `${text.outlineBlur.value}%`
-      text.troikaMesh.value!.outlineOffsetX = `${text.outlineOffset.x.value}%`
-      text.troikaMesh.value!.outlineOffsetY = `${text.outlineOffset.y.value}%`
-      text.troikaMesh.value!.outlineColor = text.outlineColor.value.getHex()
-      text.troikaMesh.value!.strokeOpacity = text.strokeOpacity.value / 100
-      text.troikaMesh.value!.strokeWidth = `${text.strokeWidth.value}%`
-      text.troikaMesh.value!.strokeColor = text.strokeColor.value.getHex()
+      troikaMesh.outlineOpacity = text.outlineOpacity.value / 100
+      troikaMesh.outlineWidth = `${text.outlineWidth.value}%`
+      troikaMesh.outlineBlur = `${text.outlineBlur.value}%`
+      troikaMesh.outlineOffsetX = `${text.outlineOffset.x.value}%`
+      troikaMesh.outlineOffsetY = `${text.outlineOffset.y.value}%`
+      troikaMesh.outlineColor = text.outlineColor.value.getHex()
+      troikaMesh.strokeOpacity = text.strokeOpacity.value / 100
+      troikaMesh.strokeWidth = `${text.strokeWidth.value}%`
+      troikaMesh.strokeColor = text.strokeColor.value.getHex()
       // Update the Advanced configuration propertiess
-      text.troikaMesh.value!.orientation = text.textOrientation.value
-      ;(text.troikaMesh.value!.clipRect = text.clipActive.value
+      troikaMesh.orientation = text.textOrientation.value
+      ;(troikaMesh.clipRect = text.clipActive.value
         ? [
             // Send as [minX, minY, maxX, maxY] :Array<number>
             text.clipRectMin.x.value,
@@ -374,11 +374,11 @@ export const TextComponent = defineComponent({
             text.clipRectMax.x.value
           ]
         : []),
-        (text.troikaMesh.value!.gpuAccelerateSDF = text.gpuAccelerated.value)
-      text.troikaMesh.value!.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
-      text.troikaMesh.value!.glyphGeometryDetail = text.glyphDetail.value
+        (troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value)
+      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
+      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
       // Order troika to synchronize the mesh
-      text.troikaMesh.value!.sync()
+      troikaMesh.sync()
     }, [
       text.text,
       text.textOpacity,

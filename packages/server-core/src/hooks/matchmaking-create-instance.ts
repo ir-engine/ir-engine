@@ -27,19 +27,19 @@ import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { matchInstancePath } from '@etherealengine/common/src/schemas/matchmaking/match-instance.schema'
 import {
-  LocationID,
-  locationPath,
-  LocationType,
-  RoomCode
-} from '@etherealengine/common/src/schemas/social/location.schema'
-
-import {
   InstanceData,
   InstanceID,
   instancePath,
   InstanceType
 } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import {
+  LocationID,
+  locationPath,
+  LocationType,
+  RoomCode
+} from '@etherealengine/common/src/schemas/social/location.schema'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'

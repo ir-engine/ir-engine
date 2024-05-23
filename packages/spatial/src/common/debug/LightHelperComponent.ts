@@ -23,20 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { useEffect } from 'react'
 import {
+  Camera,
   ColorRepresentation,
   DirectionalLight,
   DirectionalLightHelper,
   HemisphereLight,
   HemisphereLightHelper,
   Light,
+  LightShadow,
   PointLightHelper,
   SpotLight,
   SpotLightHelper
 } from 'three'
+
+import { defineComponent, Entity, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
@@ -73,7 +77,7 @@ export const LightHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LightHelperComponent)
-    const light = component.light.value
+    const light = component.light.value as Light<LightShadow<Camera>>
     const [helper] = useDisposable(getLightHelperType(light), entity, light, component.size.value)
     useHelperEntity(entity, component, helper)
     helper.update()

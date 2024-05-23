@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
 

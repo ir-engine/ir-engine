@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
+import { scopePath, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 
-import { ScopeTypeInterface, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
-import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 
 export default (currentType: string, scopeToVerify: string) => {

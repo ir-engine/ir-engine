@@ -27,6 +27,7 @@ import {
   staticResourceMethods,
   staticResourcePath
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+
 import { Application } from '../../../declarations'
 import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'

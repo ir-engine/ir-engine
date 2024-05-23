@@ -23,19 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import JSZip from 'jszip'
 import fetch from 'node-fetch'
 
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { BadRequest } from '@feathersjs/errors'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
+import logger from '../../ServerLogger'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes

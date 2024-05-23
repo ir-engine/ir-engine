@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
@@ -41,13 +42,12 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
+import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import {
   deleteProjectFilesInStorageProvider,
   engineVersion,

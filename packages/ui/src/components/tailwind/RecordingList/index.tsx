@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RecordingID, RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import React from 'react'
+import { HiPlay, HiPlusCircle, HiStop } from 'react-icons/hi2'
+
+import { RecordingID, recordingPath, RecordingType } from '@etherealengine/common/src/schema.type.module'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React from 'react'
-import { HiPlay, HiPlusCircle, HiStop } from 'react-icons/hi2'
+
 import Icon from '../../../primitives/mui/Icon'
 import IconButtonWithTooltip from '../../../primitives/mui/IconButtonWithTooltip'
 

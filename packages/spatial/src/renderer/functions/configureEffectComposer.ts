@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@etherealengine/ecs'
-import { getState } from '@etherealengine/hyperflux'
 import {
   BlendFunction,
   DepthDownsamplingPass,
@@ -38,14 +36,18 @@ import {
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
-import { EngineState } from '../../EngineState'
+
+import { Entity, getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { EngineState } from '../../EngineState'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { defaultPostProcessingSchema, EffectMap, Effects } from '../effects/PostProcessing'
 import { HighlightState } from '../HighlightState'
-import { RendererState } from '../RendererState'
-import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
-import { EffectMap, Effects, defaultPostProcessingSchema } from '../effects/PostProcessing'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
+import { RendererState } from '../RendererState'
+import { RendererComponent, RenderSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (entity: Entity, schema?: typeof defaultPostProcessingSchema): void => {

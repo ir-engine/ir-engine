@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hookstate, none } from '@etherealengine/hyperflux'
-
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { hookstate, none } from '@etherealengine/hyperflux'
 
 const entitiesByName = {} as Record<string, Entity[]>
 

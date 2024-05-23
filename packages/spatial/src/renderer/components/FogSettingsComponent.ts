@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
+import { Fog, FogExp2 } from 'three'
 
 import {
   defineComponent,
@@ -34,7 +35,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { FogComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { Fog, FogExp2 } from 'three'
+
 import { FogShaders } from '../FogSystem'
 
 export enum FogType {

@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { MotionCapturePoseState, MotionCapturePoses } from './poseToInput'
+
+import { MotionCapturePoses, MotionCapturePoseState } from './poseToInput'
 
 export const MotionCapturePoseComponent = defineComponent({
   name: 'MotionCapturePoseComponent',

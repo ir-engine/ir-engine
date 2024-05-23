@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Vector3 } from 'three'
+
 import {
-  Engine,
-  UUIDComponent,
   defineQuery,
   defineSystem,
+  Engine,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@etherealengine/network'
@@ -42,7 +44,7 @@ import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camer
 import { DistanceFromLocalClientComponent } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { getDistanceSquaredFromTarget } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
-import { Vector3 } from 'three'
+
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'

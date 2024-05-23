@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appConfig from '@etherealengine/server-core/src/appconfig'
+
 import { HookContext } from '../../declarations'
 
 const { forceRefresh } = appConfig.db

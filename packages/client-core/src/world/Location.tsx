@@ -29,10 +29,14 @@ import { useParams } from 'react-router-dom'
 import { LocationIcons } from '@etherealengine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import './LocationModule'
 
+import { t } from 'i18next'
+
+import { useMutableState } from '@etherealengine/hyperflux'
+
+import { LoadingCircle } from '../components/LoadingCircle'
 import { useLoadEngineWithScene, useNetwork } from '../components/World/EngineHooks'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
@@ -42,7 +46,7 @@ type Props = {
 
 const LocationPage = ({ online }: Props) => {
   const params = useParams()
-  const ready = useHookstate(getMutableState(LoadingUISystemState).ready)
+  const ready = useMutableState(LoadingUISystemState).ready
 
   useNetwork({ online })
 
@@ -58,7 +62,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      {/* {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />} */}
+      {!ready.value && <LoadingCircle message={t('common:loader.loadingEngine')} />}
       <LocationIcons />
     </>
   )

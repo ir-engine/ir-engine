@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
+import matches, { Validator } from 'ts-matches'
+
 import multiLogger from '@etherealengine/common/src/logger'
 import {
   RecordingID,
+  recordingPath,
   RecordingSchemaType,
   UserID,
-  recordingPath,
   userPath
 } from '@etherealengine/common/src/schema.type.module'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import {
+  defineSystem,
   ECSState,
   Engine,
   EntityUUID,
+  getComponent,
   PresentationSystemGroup,
-  UUIDComponent,
-  defineSystem,
-  getComponent
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import {
@@ -49,36 +53,34 @@ import {
   SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
-  PeerID,
-  Topic,
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getMutableState,
-  getState
+  getState,
+  PeerID,
+  Topic
 } from '@etherealengine/hyperflux'
 import {
+  addDataChannelHandler,
   DataChannelRegistryState,
   DataChannelType,
+  matchesUserID,
   Network,
   NetworkPeerFunctions,
   NetworkState,
   NetworkTopics,
-  SerializationSchema,
-  WorldNetworkAction,
-  addDataChannelHandler,
-  matchesUserID,
   removeDataChannelHandler,
+  SerializationSchema,
   updatePeers,
   webcamAudioDataChannelType,
-  webcamVideoDataChannelType
+  webcamVideoDataChannelType,
+  WorldNetworkAction
 } from '@etherealengine/network'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 import { PhysicsSerialization } from '@etherealengine/spatial/src/physics/PhysicsSerialization'
-import { decode, encode } from 'msgpackr'
-import { PassThrough } from 'stream'
-import matches, { Validator } from 'ts-matches'
+
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
 

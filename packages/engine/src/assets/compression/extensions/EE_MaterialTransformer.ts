@@ -35,7 +35,6 @@ import {
   TextureInfo,
   WriterContext
 } from '@gltf-transform/core'
-
 import { KHRTextureTransform } from '@gltf-transform/extensions'
 
 const EXTENSION_NAME = 'EE_material'

@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect, useLayoutEffect } from 'react'
+import { Vector3 } from 'three'
+
 import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-import { useLayoutEffect } from 'react'
-import { Vector3 } from 'three'
-import { findAncestorWithComponent } from '../../transform/components/EntityTree'
+
+import { useAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -78,19 +80,22 @@ export const ColliderComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, ColliderComponent)
+    const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
 
-    useLayoutEffect(() => {
-      const shape = Physics.getShape(entity)
-      if (!shape || shape === component.shape.value) return
+    useEffect(() => {
+      if (!rigidbodyEntity) return
 
-      const ancestor = findAncestorWithComponent(entity, RigidBodyComponent)
-      if (ancestor) {
-        const physicsWorld = getState(PhysicsState).physicsWorld
+      const physicsWorld = getState(PhysicsState).physicsWorld
+
+      const colliderDesc = Physics.createColliderDesc(entity, rigidbodyEntity)
+      if (!colliderDesc) return
+
+      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+
+      return () => {
         Physics.removeCollider(physicsWorld, entity)
-        const colliderDesc = Physics.createColliderDesc(entity, ancestor)
-        if (colliderDesc) Physics.attachCollider(physicsWorld, colliderDesc, ancestor, entity)
       }
-    }, [component.shape])
+    }, [component.shape, rigidbodyEntity])
 
     useLayoutEffect(() => {
       Physics.setMass(entity, component.mass.value)

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { archiverMethods, archiverPath } from '@etherealengine/common/src/schemas/media/archiver.schema'
+
 import { Application } from '../../../declarations'
 import { ArchiverService } from './archiver.class'
 import archiverDocs from './archiver.docs'

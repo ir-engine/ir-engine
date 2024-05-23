@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { CameraSettingsState } from '@etherealengine/spatial/src/camera/CameraSceneMetadata'
 
 export const CameraSettingsComponent = defineComponent({

@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { EditorState } from '../../services/EditorServices'
 import { EditorActiveInstanceState } from './EditorActiveInstanceService'
 

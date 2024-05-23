@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
+
 import { ITableHeadCell } from '../Table'
 
 type IdType = 'id' | 'user' | 'ended' | 'schema' | 'view' | 'action'

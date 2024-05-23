@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraMode } from '../types/CameraMode'
 

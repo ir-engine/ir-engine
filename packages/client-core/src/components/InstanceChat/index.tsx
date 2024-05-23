@@ -23,13 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CloseIcon from '@mui/icons-material/Close'
+import MessageIcon from '@mui/icons-material/Message'
+import Fab from '@mui/material/Fab'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { InstanceID, MessageID, messagePath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
@@ -39,12 +44,6 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import CloseIcon from '@mui/icons-material/Close'
-import MessageIcon from '@mui/icons-material/Message'
-import Fab from '@mui/material/Fab'
-
-import { InstanceID, MessageID, UserName, messagePath } from '@etherealengine/common/src/schema.type.module'
-import { NetworkState } from '@etherealengine/network'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -224,7 +223,7 @@ export const InstanceChat = ({ styles = defaultStyles }: InstanceChatProps) => {
   const isInitRender = useHookstate<boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useHookstate(getMutableState(ChannelState))
+  const chatState = useMutableState(ChannelState)
 
   /**
    * Audio effect

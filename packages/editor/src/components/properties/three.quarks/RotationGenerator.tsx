@@ -57,7 +57,7 @@ export default function RotationGenerator({
 
   const AxisAngleGeneratorInput = useCallback(() => {
     const axisAngleScope = scope as State<AxisAngleGeneratorJSON>
-    const axisAngle = axisAngleScope.value
+    const axisAngle = axisAngleScope.value as AxisAngleGeneratorJSON
     return (
       <>
         <InputGroup name="Axis" label="Axis">
@@ -72,7 +72,7 @@ export default function RotationGenerator({
 
   const EulerGeneratorInput = useCallback(() => {
     const eulerScope = scope as State<EulerGeneratorJSON>
-    const euler = eulerScope.value
+    const euler = eulerScope.value as EulerGeneratorJSON
     return (
       <>
         <InputGroup name="Angle X" label="Angle X">

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Color, Material, SRGBColorSpace } from 'three'
+import matches from 'ts-matches'
 
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -32,7 +33,7 @@ import {
   MaterialPrototypeObjectConstructor,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import matches from 'ts-matches'
+
 import {
   getPrototypeConstructorFromName,
   injectMaterialDefaults,

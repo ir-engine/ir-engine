@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { EngineState } from '../../EngineState'
 import { iOS } from '../../common/functions/isMobile'
+import { EngineState } from '../../EngineState'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RenderModes } from '../constants/RenderModes'

@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   Action,
-  PeerID,
   addOutgoingTopicIfNecessary,
   clearOutgoingActions,
   dispatchAction,
-  getState
+  getState,
+  PeerID
 } from '@etherealengine/hyperflux'
+
 import { Network } from '../Network'
 import { NetworkState } from '../NetworkState'
 

@@ -31,9 +31,8 @@ import {
   InstanceAttendanceQuery,
   InstanceAttendanceType
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({
   createdAt: virtual(async (instanceAttendance) => fromDateTimeSql(instanceAttendance.createdAt)),

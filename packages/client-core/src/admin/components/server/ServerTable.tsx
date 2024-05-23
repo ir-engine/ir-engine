@@ -18,10 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServerPodInfoType, podsPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiTrash } from 'react-icons/hi2'
 
+import { podsPath, ServerPodInfoType } from '@etherealengine/common/src/schema.type.module'
 import { timeAgo } from '@etherealengine/common/src/utils/datetime-sql'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -29,10 +30,10 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
-import { HiTrash } from 'react-icons/hi2'
+
 import { PopoverState } from '../../../common/services/PopoverState'
+import { serverColumns, ServerRowType } from '../../common/constants/server'
 import DataTable from '../../common/Table'
-import { ServerRowType, serverColumns } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import ServerLogsModal from './ServerLogsModal'
 

@@ -27,6 +27,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+
 import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 

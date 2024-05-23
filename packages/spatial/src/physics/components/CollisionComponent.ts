@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { ColliderHitEvent } from '../types/PhysicsTypes'
 
 export const CollisionComponent = defineComponent({

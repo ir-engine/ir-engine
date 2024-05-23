@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiXCircle } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+
+import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Checkbox from '../Checkbox'
 import Input from '../Input'
 import Label from '../Label'
@@ -140,7 +142,7 @@ const MultiSelect = <T extends string | number>({
               onClick={() => {
                 if (option.disabled) return
                 if (!selectedOptions.find((opt) => opt === option.value)) {
-                  onChange([...selectedOptions, option.value])
+                  onChange([...selectedOptions, option.value as T])
                 } else {
                   onChange(selectedOptions.filter((opt) => opt && opt !== option.value))
                 }
@@ -152,7 +154,7 @@ const MultiSelect = <T extends string | number>({
                 <Checkbox
                   onChange={(selected) => {
                     if (selected) {
-                      onChange([...selectedOptions, option.value])
+                      onChange([...selectedOptions, option.value as T])
                     } else {
                       onChange(selectedOptions.filter((opt) => opt && opt !== option.value))
                     }

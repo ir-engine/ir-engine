@@ -32,7 +32,7 @@ import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnch
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

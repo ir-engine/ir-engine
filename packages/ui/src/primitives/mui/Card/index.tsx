@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CardProps, Card as MuiCard } from '@mui/material'
 import React from 'react'
 
 import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
-
-import { CardProps, Card as MuiCard } from '@mui/material'
 
 // import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 

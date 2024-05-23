@@ -29,9 +29,10 @@ import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFun
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'
-import { LIGHTMAP_READONLY_FLAG, WorkbenchSettings, initializeWorkbench } from './workbench'
+import { initializeWorkbench, LIGHTMAP_READONLY_FLAG, WorkbenchSettings } from './workbench'
 
 const meshQuery = defineQuery([MeshComponent])
 

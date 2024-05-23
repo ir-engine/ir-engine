@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React from 'react'
 
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
-
-import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
 import styles from './index.module.scss'

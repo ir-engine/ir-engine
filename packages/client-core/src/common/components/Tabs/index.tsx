@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React from 'react'
 
 import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import { default as MUITabs } from '@etherealengine/ui/src/primitives/mui/Tabs'
-
-import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
 import { InputMenuItem } from '../InputSelect'

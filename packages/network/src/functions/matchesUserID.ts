@@ -24,6 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { Validator, matches } from '@etherealengine/hyperflux'
+import { matches, Validator } from '@etherealengine/hyperflux'
 
 export const matchesUserID = matches.string as Validator<unknown, UserID>

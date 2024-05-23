@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
 import Fade from '@mui/material/Fade'
@@ -38,8 +32,13 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Switch from '@mui/material/Switch'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectPermissionType, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 

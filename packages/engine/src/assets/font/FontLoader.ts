@@ -27,6 +27,7 @@ import { LoadingManager, ShapePath } from 'three'
 
 import { FileLoader } from '../loaders/base/FileLoader'
 import { Loader } from '../loaders/base/Loader'
+
 export class FontLoader extends Loader {
   constructor(manager?: LoadingManager) {
     super(manager)

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   AnalyticsData,
@@ -32,8 +32,6 @@ import {
   AnalyticsQuery,
   AnalyticsType
 } from '@etherealengine/common/src/schemas/analytics/analytics.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 

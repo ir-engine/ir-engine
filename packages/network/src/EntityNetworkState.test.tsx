@@ -23,31 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import React from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID, generateEntityUUID } from '@etherealengine/ecs'
+import { EntityUUID, generateEntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { destroyEngine, Engine } from '@etherealengine/ecs/src/Engine'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
 import { PeerID, ReactorReconciler } from '@etherealengine/hyperflux'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { createMockNetwork } from '../tests/createMockNetwork'
 import { Network, NetworkTopics } from './Network'
 
-import { SystemDefinitions } from '@etherealengine/ecs/src/SystemFunctions'
-import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { act, render } from '@testing-library/react'
-import React from 'react'
-import { createMockNetwork } from '../tests/createMockNetwork'
 import './EntityNetworkState'
+
+import { NetworkPeerFunctions } from './functions/NetworkPeerFunctions'
+import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
 import { NetworkState } from './NetworkState'
 import { NetworkWorldUserStateSystem } from './NetworkUserState'
-import { NetworkPeerFunctions } from './functions/NetworkPeerFunctions'
-import { WorldNetworkAction } from './functions/WorldNetworkAction'
 
 describe('EntityNetworkState', () => {
   beforeEach(async () => {

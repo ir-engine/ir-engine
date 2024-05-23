@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
 import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 

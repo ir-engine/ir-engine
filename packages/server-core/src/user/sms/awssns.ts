@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
 import { MessageID } from '@etherealengine/common/src/schemas/social/message.schema'
-import logger from '../../ServerLogger'
+
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 
 const snsClient = new SNSClient(config.aws.sms)
 

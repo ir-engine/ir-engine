@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // Generates node specs based on provided configuration,
 // and caches the results.
 
+import { useEffect, useState } from 'react'
+
 import { getComponent } from '@etherealengine/ecs'
 import { EngineVariableGet, EngineVariableSet, EngineVariableUse, VisualScriptComponent } from '@etherealengine/engine'
 import {
@@ -35,7 +37,7 @@ import {
   writeDefaultNodeSpecsToJSON,
   writeNodeSpecToJSON
 } from '@etherealengine/visual-script'
-import { useEffect, useState } from 'react'
+
 import { SelectionState } from '../../../services/SelectionServices'
 
 export class NodeSpecGenerator {

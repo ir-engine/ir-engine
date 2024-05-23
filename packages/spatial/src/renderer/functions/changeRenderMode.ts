@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { RenderPass } from 'postprocessing'
 import { MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
+import { Engine, getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { RenderModes } from '../constants/RenderModes'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
-import { RenderModes } from '../constants/RenderModes'
 
 /**
  * Change render mode of the renderer

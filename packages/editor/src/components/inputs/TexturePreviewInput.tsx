@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Stack } from '@mui/material'
 import React, { Fragment, useEffect } from 'react'
 import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
@@ -31,8 +32,6 @@ import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/asset
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
-
-import { Stack } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'

@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
+import crypto from 'crypto'
+import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 
 import { LoginTokenQuery, LoginTokenType } from '@etherealengine/common/src/schemas/user/login-token.schema'
+import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import crypto from 'crypto'
-import moment from 'moment'
 import config from '../../appconfig'
 
 export const loginTokenResolver = resolve<LoginTokenType, HookContext>({

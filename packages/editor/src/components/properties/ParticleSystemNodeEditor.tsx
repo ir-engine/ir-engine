@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -53,8 +54,6 @@ import {
   ValueGeneratorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
-
-import ScatterPlotOutlined from '@mui/icons-material/ScatterPlotOutlined'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -169,7 +168,9 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const onRemoveBurst = useCallback((burst: State<BurstParameters>) => {
     return () => {
       const data = JSON.parse(
-        JSON.stringify(particleSystem.systemParameters.emissionBursts.filter((b) => b !== burst.value))
+        JSON.stringify(
+          particleSystem.systemParameters.emissionBursts.filter((b: BurstParametersJSON) => b !== (burst.value as any))
+        )
       )
       commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
@@ -425,8 +426,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         element={(behaviorState: State<BehaviorJSON>) => {
           return (
             <>
-              <BehaviorInput scope={behaviorState} value={behaviorState.value} onChange={onSetState} />
-              <Button onClick={onRemoveBehavior(behaviorState.value)}>Remove</Button>
+              <BehaviorInput scope={behaviorState} value={behaviorState.value as BehaviorJSON} onChange={onSetState} />
+              <Button onClick={onRemoveBehavior(behaviorState.value as BehaviorJSON)}>Remove</Button>
             </>
           )
         }}

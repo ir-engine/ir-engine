@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import * as k8s from '@kubernetes/client-node'
 
 import { objectToArgs } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
+import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'

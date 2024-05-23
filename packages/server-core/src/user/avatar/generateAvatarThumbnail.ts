@@ -39,11 +39,11 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
+import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
-
-import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+
 import logger from '../../ServerLogger'
 
 /**

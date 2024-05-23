@@ -36,7 +36,7 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -53,15 +53,15 @@ const argTypes = {}
 const decorators = [
   (Story) => {
     const notistackRef = useRef<SnackbarProvider>()
-    const authState = useHookstate(getMutableState(AuthState))
+    const authState = useMutableState(AuthState)
     const selfUser = authState.user
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [projectComponents, setProjectComponents] = useState<Array<any>>([])
     const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-    const projectState = useHookstate(getMutableState(ProjectState))
+    const projectState = useMutableState(ProjectState)
 
-    const notificationstate = useHookstate(getMutableState(NotificationState))
+    const notificationstate = useMutableState(NotificationState)
 
     useEffect(() => {
       notificationstate.snackbar.set(notistackRef.current)
@@ -106,7 +106,7 @@ const decorators = [
 
     const locationName = 'default'
 
-    // const engineState = useHookstate(getMutableState(EngineState))
+    // const engineState = useMutableState(EngineState)
 
     return (
       <div className="container mx-auto h-full w-full">

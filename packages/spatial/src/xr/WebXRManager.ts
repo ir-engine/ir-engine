@@ -34,15 +34,15 @@ import {
   UnsignedIntType,
   Vector4,
   WebGLMultiviewRenderTarget,
+  WebGLRenderer,
   WebGLRenderTarget,
-  WebGLRenderTargetOptions,
-  WebGLRenderer
+  WebGLRenderTargetOptions
 } from 'three'
-
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { XRState } from './XRState'
 
@@ -116,7 +116,7 @@ export function createWebXRManager(renderer: WebGLRenderer) {
 
     // restore framebuffer/rendering state
 
-    renderer.setRenderTarget(xrRendererState.initialRenderTarget.value)
+    renderer.setRenderTarget(xrRendererState.initialRenderTarget.value as WebGLRenderTarget)
 
     xrRendererState.glBaseLayer.set(null)
     xrRendererState.glProjLayer.set(null)
@@ -289,8 +289,8 @@ export function createWebXRManager(renderer: WebGLRenderer) {
 
   /** @todo put foveation in state and make a reactor to update it */
   scope.setFoveation = function (foveation) {
-    const glBaseLayer = xrRendererState.glBaseLayer.value
-    const glProjLayer = xrRendererState.glProjLayer.value
+    const glBaseLayer = xrRendererState.glBaseLayer.value as XRWebGLLayer
+    const glProjLayer = xrRendererState.glProjLayer.value as XRProjectionLayer
 
     // 0 = no foveation = full resolution
     // 1 = maximum foveation = the edges render at lower resolution
