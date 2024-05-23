@@ -344,15 +344,11 @@ const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
     const inputComponent = getMutableComponent(inputEntity, InputComponent)
-    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
-      inputComponent.inputSources.merge(inputSources)
-    } else {
-      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
-        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
 
-        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
-        sinkInputComponent.inputSources.merge(inputSources)
-      }
+    for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+      const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+      const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+      sinkInputComponent.inputSources.merge(inputSources)
     }
   }
 }
