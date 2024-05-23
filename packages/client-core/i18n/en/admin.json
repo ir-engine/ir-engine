@@ -385,6 +385,10 @@
         "header": "AWS",
         "subtitle": "Edit AWS Settings"
       },
+      "features": {
+        "header": "Features",
+        "subtitle": "Edit Feature Flag Settings"
+      },
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
