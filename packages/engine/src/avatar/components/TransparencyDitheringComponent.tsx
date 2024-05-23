@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Uniform, Vector3 } from 'three'
+import { Material, Uniform, Vector3 } from 'three'
 
 import {
   defineComponent,
   Entity,
-  EntityUUID,
-  getMutableComponent,
-  getOptionalMutableComponent
+  getComponent,
+  getOptionalMutableComponent,
+  useEntityContext
 } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
@@ -86,50 +86,46 @@ export const TransparencyDitheringPlugin = defineComponent({
   name: 'TransparencyDithering',
   onInit: (entity) => {
     return {
-      parameters: {} as Record<
-        EntityUUID,
-        {
-          centers: Uniform
-          distances: Uniform
-          exponents: Uniform
-          useWorldCalculation: Uniform
-        }
-      >,
-      compile: (material) => {
-        addOBCPlugin(material, (shader) => {
-          const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
-          const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-
-          if (!plugin) return
-
-          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
-            shader.vertexShader = shader.vertexShader.replace(
-              /#include <common>/,
-              '#include <common>\n' + ditheringVertexUniform
-            )
-          }
-          shader.vertexShader = shader.vertexShader.replace(
-            /#include <worldpos_vertex>/,
-            '	#include <worldpos_vertex>\n' + ditheringVertex
-          )
-          if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
-            shader.fragmentShader = shader.fragmentShader.replace(
-              /#include <common>/,
-              '#include <common>\n' + ditheringFragUniform
-            )
-          shader.fragmentShader = shader.fragmentShader.replace(
-            /#include <alphatest_fragment>/,
-            ditheringAlphatestChunk
-          )
-          getMutableComponent(entity, TransparencyDitheringPlugin).parameters[material.uuid].set({
-            centers: new Uniform(Array.from({ length: maxDitherPoints }, () => new Vector3())),
-            exponents: new Uniform(Array.from({ length: maxDitherPoints }, () => 2)),
-            distances: new Uniform(Array.from({ length: maxDitherPoints }, () => 3)),
-            useWorldCalculation: new Uniform(Array.from({ length: maxDitherPoints }, () => false))
-          })
-        })
-      },
-      onSet: (entity, component, json) => {}
+      centers: new Uniform(Array.from({ length: maxDitherPoints }, () => new Vector3())),
+      exponents: new Uniform(Array.from({ length: maxDitherPoints }, () => 2)),
+      distances: new Uniform(Array.from({ length: maxDitherPoints }, () => 3)),
+      useWorldCalculation: new Uniform(Array.from({ length: maxDitherPoints }, () => false))
     }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+    const material = materialComponent.material as Material
+    addOBCPlugin(material, (shader) => {
+      const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
+      const plugin = getOptionalMutableComponent(pluginEntity, TransparencyDitheringPlugin)
+
+      if (!plugin) return
+
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+        shader.vertexShader = shader.vertexShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringVertexUniform
+        )
+      }
+      shader.vertexShader = shader.vertexShader.replace(
+        /#include <worldpos_vertex>/,
+        '	#include <worldpos_vertex>\n' + ditheringVertex
+      )
+      if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
+        shader.fragmentShader = shader.fragmentShader.replace(
+          /#include <common>/,
+          '#include <common>\n' + ditheringFragUniform
+        )
+      shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
+
+      shader.uniforms.centers = plugin.centers
+      shader.uniforms.exponents = plugin.exponents
+      shader.uniforms.distances = plugin.distances
+      shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
+    })
+
+    return null
   }
 })
