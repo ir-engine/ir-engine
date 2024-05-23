@@ -181,12 +181,12 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   useEffect(() => {
     if (peerMediaChannelState.videoStream.value?.track)
       videoTrackId.set(peerMediaChannelState.videoStream.value.track.id)
-  }, [peerMediaChannelState.videoStream])
+  }, [peerMediaChannelState.videoStream.value?.track?.id])
 
   useEffect(() => {
     if (peerMediaChannelState.audioStream.value?.track)
       audioTrackId.set(peerMediaChannelState.audioStream.value.track.id)
-  }, [peerMediaChannelState.audioStream])
+  }, [peerMediaChannelState.audioStream.value?.track?.id])
 
   useEffect(() => {
     function onUserInteraction() {
@@ -284,6 +284,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
         }
       }, 100)
     }
+    if (isSelf && videoProducerPaused && videoStream != null && videoElement != null)
+      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
   }, [videoProducerPaused])
 
   useEffect(() => {

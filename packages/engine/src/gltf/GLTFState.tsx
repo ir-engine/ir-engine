@@ -440,19 +440,19 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
   }, [entity, node.name])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, TransformComponent)
@@ -491,8 +491,8 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
   const node = nodes[props.nodeIndex]!
-
   const extension = node.extensions![props.extension]
+
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return
@@ -501,7 +501,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))

@@ -142,7 +142,7 @@ export const QueryReactor = memo((props: { Components: QueryComponents; ChildEnt
   return (
     <>
       {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props} />
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
       ))}
     </>
   )
