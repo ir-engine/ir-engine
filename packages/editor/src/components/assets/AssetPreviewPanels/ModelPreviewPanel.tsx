@@ -53,6 +53,7 @@ export const ModelPreviewPanel = (props) => {
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     const uuid = generateEntityUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
+    setComponent(sceneEntity, VisibleComponent)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })

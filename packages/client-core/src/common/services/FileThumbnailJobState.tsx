@@ -52,7 +52,6 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
@@ -311,8 +310,8 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     setComponent(entity, NameComponent, 'thumbnail job asset ' + props.src)
     const uuid = MathUtils.generateUUID() as EntityUUID
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, ModelComponent, { src: props.src, cameraOcclusion: false })
     setComponent(entity, VisibleComponent)
+    setComponent(entity, ModelComponent, { src: props.src, cameraOcclusion: false })
     setComponent(entity, BoundingBoxComponent)
 
     state.entity.set(entity)
@@ -343,15 +342,7 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     computeTransformMatrix(cameraEntity)
     setComponent(cameraEntity, CameraComponent)
     const camera = getComponent(cameraEntity, CameraComponent)
-    camera.lookAt(0, 0, 0)
-    computeTransformMatrix(cameraEntity)
-    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
-    const viewCamera = camera.cameras[0]
-    viewCamera.matrixWorld.copy(camera.matrixWorld)
-    viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
-    viewCamera.projectionMatrix.copy(camera.projectionMatrix)
-    viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
-    viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+
     setComponent(cameraEntity, SceneComponent, { children: [entity] })
 
     const scene = new Scene()
