@@ -314,7 +314,7 @@ export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(en
 const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  const onRenderEnd = PerformanceManager.profileGPURender(deltaSeconds)
+  const onRenderEnd = PerformanceManager.profileGPURender()
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)

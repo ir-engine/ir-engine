@@ -38,6 +38,7 @@ import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
+type TargetFPS = 30 | 60
 
 const tieredSettings = {
   [0]: {
@@ -76,7 +77,7 @@ type ExponentialMovingAverage = {
   multiplier: number
 }
 
-const createExponentialMovingAverage = (timePeriods = 10, startingMean = 16): ExponentialMovingAverage => {
+const createExponentialMovingAverage = (timePeriods: number, startingMean: number): ExponentialMovingAverage => {
   return {
     mean: startingMean,
     multiplier: 2 / (timePeriods + 1)
@@ -84,9 +85,10 @@ const createExponentialMovingAverage = (timePeriods = 10, startingMean = 16): Ex
 }
 
 const updateExponentialMovingAverage = (average: State<ExponentialMovingAverage>, newValue: number) => {
-  const meanIncrement = average.multiplier.value * (newValue - average.mean.value)
-  const newMean = average.mean.value + meanIncrement
-  average.mean.set(newMean)
+  const multiplier = average.multiplier.value
+  const prev = average.mean.value
+  const ema = newValue * multiplier + prev * (1 - multiplier)
+  average.mean.set(ema)
 }
 
 export const PerformanceState = defineState({
@@ -99,22 +101,15 @@ export const PerformanceState = defineState({
     supportWebGL2: true,
     renderContext: null! as WebGL2RenderingContext,
 
+    targetFPS: 60 as TargetFPS,
+
     // The lower the performance the higher the offset
     gpuPerformanceOffset: 0,
     cpuPerformanceOffset: 0,
 
-    // Render timings and constants
-    // 180 = 3 * 60 = 3 seconds @ 60fps
-    // 35 = 28fps
-    // 18 = 55fps
-    averageRenderTime: createExponentialMovingAverage(180 as const),
-    maxRenderTime: 35 as const,
-    minRenderTime: 18 as const,
-
-    // System timings and constants
-    averageSystemTime: createExponentialMovingAverage(180 as const),
-    maxSystemTime: 35 as const,
-    minSystemTime: 18 as const,
+    averageFrameTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
+    averageRenderTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
+    averageSystemTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
 
     gpu: 'unknown',
     device: 'unknown',
@@ -134,6 +129,17 @@ export const PerformanceState = defineState({
     const isEditing = getState(EngineState).isEditing
 
     useEffect(() => {
+      const targetFPS = performanceState.targetFPS.value
+      const timePeriods = targetFPS * 3
+      const startingMean = (1 / targetFPS) * 1000
+      performanceState.merge({
+        averageFrameTime: createExponentialMovingAverage(timePeriods, startingMean),
+        averageRenderTime: createExponentialMovingAverage(timePeriods, startingMean),
+        averageSystemTime: createExponentialMovingAverage(timePeriods, startingMean)
+      })
+    }, [performanceState.targetFPS])
+
+    useEffect(() => {
       if (isEditing) return
 
       const performanceTier = performanceState.gpuTier.value
@@ -145,54 +151,56 @@ export const PerformanceState = defineState({
     useEffect(() => {
       if (isEditing) return
 
-      const { averageRenderTime, maxRenderTime, minRenderTime, averageSystemTime, maxSystemTime, minSystemTime } =
-        performanceState.value
+      const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState.value
 
-      const renderMean = averageRenderTime.mean
-      if (renderMean > maxRenderTime) {
+      const maxDelta = 1000 / (targetFPS / 2 - 2)
+      const minDelta = 1000 / (targetFPS - 5)
+      const maxSystemDelta = maxDelta / 2
+      const minSystemDelta = minDelta / 2
+
+      const renderMean = averageRenderTime.mean + averageFrameTime.mean
+      if (renderMean > maxDelta) {
         decrementGPUPerformance()
-      } else if (renderMean < minRenderTime) {
+      } else if (renderMean < minDelta) {
         incrementGPUPerformance()
       }
 
-      const systemMean = averageSystemTime.mean
-      if (systemMean > maxSystemTime) {
+      const systemMean = averageSystemTime.mean + averageFrameTime.mean
+      if (systemMean > maxSystemDelta) {
         decrementGPUPerformance()
-      } else if (renderMean < minSystemTime) {
+      } else if (renderMean < minSystemDelta) {
         incrementGPUPerformance()
       }
     }, [performanceState.averageRenderTime])
 
     useEffect(() => {
       if (isEditing) return
-
-      const lastDuration = ecsState.lastSystemExecutionDuration.value
-      updateExponentialMovingAverage(performanceState.averageSystemTime, lastDuration)
+      updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration.value)
     }, [ecsState.lastSystemExecutionDuration])
+
+    useEffect(() => {
+      if (isEditing) return
+      updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.elapsedSeconds.value)
+    }, [ecsState.elapsedSeconds])
   }
 })
 
-const timeBeforeCheck = 3
-let timeAccum = 0
 let checkingRenderTime = false
 /**
  * API to get GPU timings, with fallback if WebGL extension is not available (Not available on WebGL1 devices and Safari)
  * Will only run if not already running and the number of elapsed seconds since it last ran is greater than timeBeforeCheck
  *
  * @param renderer EngineRenderer
- * @param dt delta time
  * @returns Function to call after you call your render function
  */
-const profileGPURender = (dt: number): (() => void) => {
-  timeAccum += dt
-  if (checkingRenderTime || timeAccum < timeBeforeCheck) return () => {}
-  checkingRenderTime = true
+const profileGPURender = (): (() => void) => {
+  if (checkingRenderTime) return () => {}
 
+  checkingRenderTime = true
   return timeRenderFrameGPU((renderTime) => {
     checkingRenderTime = false
-    timeAccum = 0
     const performanceState = getMutableState(PerformanceState)
-    updateExponentialMovingAverage(performanceState.averageRenderTime, Math.min(renderTime, 50))
+    updateExponentialMovingAverage(performanceState.averageRenderTime, renderTime)
   })
 }
 
@@ -239,7 +247,6 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
               gl.deleteQuery(startQuery)
               gl.deleteQuery(endQuery)
               checkingRenderTime = false
-              timeAccum = 0
             } else {
               requestAnimationFrame(poll)
             }
@@ -363,7 +370,10 @@ const buildPerformanceState = async (
     maxVerticies: gl.getParameter(gl.MAX_ELEMENTS_VERTICES) * 2
   })
 
-  if (gpuTier.isMobile) tier = Math.max(tier - 2, 0)
+  if (gpuTier.isMobile) {
+    performanceState.targetFPS.set(30)
+    tier = Math.max(tier - 2, 0)
+  }
 
   performanceState.gpuTier.set(tier as PerformanceTier)
   onFinished()
