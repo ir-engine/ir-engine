@@ -61,6 +61,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { defineState } from '@etherealengine/hyperflux'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -86,6 +87,7 @@ import { GrabbableComponentNodeEditor } from '../components/properties/Grabbable
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
+import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 import { InstancingNodeEditor } from '../components/properties/InstancingNodeEditor'
 import InteractableComponentNodeEditor from '../components/properties/InteractableComponentNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
@@ -175,6 +177,7 @@ export const ComponentEditorsState = defineState({
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
+      [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor

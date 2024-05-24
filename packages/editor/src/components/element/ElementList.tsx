@@ -67,6 +67,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -122,6 +123,7 @@ export const ComponentShelfCategoriesState = defineState({
         LinkComponent,
         MountPointComponent,
         InteractableComponent,
+        InputComponent,
         GrabbableComponent
       ],
       Lighting: [

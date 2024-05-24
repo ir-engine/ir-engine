@@ -81,6 +81,7 @@ export const ReactiveQuerySystem = defineSystem({
 
 /**
  * Use a query in a reactive context (a React component)
+ * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
   const result = useHookstate([] as Entity[])
@@ -141,7 +142,7 @@ export const QueryReactor = memo((props: { Components: QueryComponents; ChildEnt
   return (
     <>
       {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props} />
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
       ))}
     </>
   )

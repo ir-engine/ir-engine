@@ -47,7 +47,7 @@ import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
-import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
+
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -90,13 +90,11 @@ describe('Physics', () => {
     setComponent(entity, TransformComponent)
     setComponent(entity, RigidBodyComponent, { type: BodyTypes.Dynamic })
     setComponent(entity, ColliderComponent, { shape: Shapes.Sphere })
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     assert.deepEqual(physicsWorld.bodies.len(), 1)
     assert.deepEqual(physicsWorld.colliders.len(), 1)
 
     removeComponent(entity, RigidBodyComponent)
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     assert.deepEqual(physicsWorld.bodies.len(), 0)
   })
@@ -221,7 +219,6 @@ describe('Physics', () => {
       collisionMask: DefaultCollisionMask
     })
 
-    handlePhysicsEnterExitQueries(physicsWorld)
     physicsWorld.step()
 
     const raycastComponentData = {
@@ -259,8 +256,6 @@ describe('Physics', () => {
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask
     })
-
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
@@ -326,8 +321,6 @@ describe('Physics', () => {
       collisionMask: AllCollisionMask
     })
     setComponent(entity2, TriggerComponent)
-
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)

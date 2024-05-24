@@ -78,11 +78,11 @@ const onSecondaryReleased = (viewerEntity: Entity) => {
 
 const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
 const cameraQuery = defineQuery([CameraComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const inputSourceEntities = inputSourceQuery()
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
