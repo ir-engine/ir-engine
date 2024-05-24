@@ -31,8 +31,7 @@ import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
   return (
     <Select
-      className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
+      className="text-theme-primary h-10 w-full max-w-[80%] bg-[#212226]"
       inputClassName="rounded-none text-xs p-1"
       {...rest}
     />

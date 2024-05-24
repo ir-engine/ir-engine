@@ -92,11 +92,11 @@ export default function TexturePreviewInput({
 
   return (
     <ImageContainer>
-      <div className="flex flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
-        <div className="relative h-[274px] w-[305px]">
-          <div className="flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
-            <div className="h-auto w-auto rounded bg-neutral-900">
-              {showPreview && (
+      <div className="flex w-[100%] flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
+        {showPreview && (
+          <div className="relative h-full max-h-[274px] w-full max-w-[305px]">
+            <div className="flex max-h-[274px] max-w-[305px] justify-center rounded bg-zinc-900">
+              <div className="h-auto w-auto rounded bg-neutral-900">
                 <Fragment>
                   {(typeof preview === 'string' ||
                     (typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetClass.Image)) && (
@@ -111,11 +111,11 @@ export default function TexturePreviewInput({
                     <video src={previewSrc} className="h-[100%] w-[100%] rounded object-contain" />
                   )}
                 </Fragment>
-              )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="inline-flex items-center justify-center gap-2.5 self-stretch rounded bg-neutral-900 px-2 py-1">
+        )}
+        <div className="inline-flex items-end justify-center gap-2.5 self-stretch rounded bg-neutral-900 px-2 py-1">
           <TextureInput value={inputSrc} onRelease={onRelease} />
         </div>
         {texture?.isTexture && !texture.isRenderTargetTexture && (

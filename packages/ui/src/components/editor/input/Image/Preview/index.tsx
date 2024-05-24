@@ -30,7 +30,7 @@ import InputGroup from '../../Group'
 import { StringInputProps } from '../../String'
 
 export const ImageContainer = ({ children }) => {
-  return <div className="inline-flex h-auto w-[313px] flex-col items-start justify-start gap-2">{children}</div>
+  return <div className="flex h-auto w-[60%] flex-col items-end justify-start gap-2">{children}</div>
 }
 
 export default function ImagePreviewInput({
@@ -45,7 +45,7 @@ export default function ImagePreviewInput({
       {label && (
         <div className="self-stretch font-['Figtree'] text-[8px] font-normal leading-3 text-neutral-200">{label}</div>
       )}
-      <div className="flex flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
+      <div className="flex w-[70%] flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1 ">
         <div className="h-[274px] w-[305px]">
           <div className="flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
             <div className="h-auto w-auto rounded bg-neutral-900">

@@ -40,6 +40,7 @@ import StreetviewIcon from '@mui/icons-material/Streetview'
 import { VRM } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
@@ -86,8 +87,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>
         <SelectInput
           key={props.entity}
-          options={animationOptions.value}
-          value={loopAnimationComponent.value.activeClipIndex}
+          options={animationOptions.value as SelectOptionsType[]}
+          currentValue={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>

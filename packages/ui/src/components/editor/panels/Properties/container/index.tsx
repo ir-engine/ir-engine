@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import Popover from '../../../layout/Popover'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../elementList'
+import MaterialEditor from '../material'
 
 const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   const { entity, component, multiEdit } = props
@@ -126,10 +127,13 @@ export const PropertiesPanelContainer = () => {
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
   const { t } = useTranslation()
+  const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
   return (
     <div className="flex h-full flex-col gap-2 overflow-y-auto rounded-[5px] bg-neutral-900 px-1">
-      {uuid ? (
+      {materialUUID ? (
+        <MaterialEditor materialUUID={materialUUID} />
+      ) : uuid ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div className="flex h-full items-center justify-center text-gray-500">
