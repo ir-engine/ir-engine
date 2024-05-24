@@ -19,8 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { startCase } from 'lodash'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
@@ -28,12 +27,12 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { usePopoverContextClose } from '../element/PopoverContext'
-import { PrefabShelfCategoriese, PrefabShelfItem } from './PrefabEditors'
+import { PrefabShelfItem, PrefabShelfState } from './PrefabEditors'
 
-const PrefabListItem = ({ item }: { item: string }) => {
+const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
   const { t } = useTranslation()
   const handleClosePopover = usePopoverContextClose()
 
@@ -41,8 +40,7 @@ const PrefabListItem = ({ item }: { item: string }) => {
     <ListItemButton
       sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
       onClick={() => {
-        const PrefabNameShelfCategories = getState(PrefabShelfItem)
-        const url = PrefabNameShelfCategories[item]
+        const url = item.url
         //add prefab gltfs in the scene via add media node
         if (url === 'empty') {
           EditorControlFunctions.createObjectFromSceneElement()
@@ -58,12 +56,13 @@ const PrefabListItem = ({ item }: { item: string }) => {
       <ListItemText
         primary={
           <Typography variant="subtitle1" color={'var(--textColor)'}>
-            {startCase(item.replace('-', ' ').toLowerCase())}
+            {item.name}
           </Typography>
         }
         secondary={
           <Typography variant="caption" color={'var(--textColor)'}>
-            {t(`editor:layout.assetGrid.component-detail.${item}`)}
+            {item.detail ??
+              t(`editor:layout.assetGrid.component-detail.${item.name.toLowerCase().replaceAll(/\s+/g, '-')}`)}
           </Typography>
         }
       />
@@ -76,7 +75,7 @@ const ScenePrefabListItem = ({
   isCollapsed
 }: {
   categoryTitle: string
-  categoryItems: string[]
+  categoryItems: PrefabShelfItem[]
   isCollapsed: boolean
 }) => {
   const open = useHookstate(categoryTitle === 'Empty')
@@ -108,31 +107,31 @@ const ScenePrefabListItem = ({
 }
 
 const usePrefabShelfCategories = (search: string) => {
-  useHookstate(getMutableState(PrefabShelfCategoriese)).value
+  useHookstate(getMutableState(PrefabShelfState)).value
 
   if (!search) {
-    return Object.entries(getState(PrefabShelfCategoriese))
+    return getState(PrefabShelfState)
   }
 
   const searchRegExp = new RegExp(search, 'gi')
 
-  return Object.entries(getState(PrefabShelfCategoriese))
-    .map(([category, items]) => {
-      // const filteredcategory = category.match(searchRegExp)?.length ? category : ''
-      // return [filteredcategory, items] as [string, string]
-      const filteredItems = items.filter((item) => (item.match(searchRegExp)?.length ? category : ''))
-      return [category, filteredItems] as [string, string[]]
-    })
-    .filter(([_, items]) => !!items.length)
+  return getState(PrefabShelfState).filter(({ name }) => !!name.match(searchRegExp)?.length)
 }
 
 export function PrefabList() {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const shelves = usePrefabShelfCategories(search.query.value)
+  const validItems = usePrefabShelfCategories(search.query.value)
+  const inputReference = useRef<HTMLInputElement>(null)
+
+  const shelves: Record<string, PrefabShelfItem[]> = {}
+  for (const item of validItems) {
+    shelves[item.category] ??= []
+    shelves[item.category].push(item)
+  }
   const shelveslist: string[] = []
-  shelves.map(([category, items]) => {
+  Object.entries(shelves).map(([category, items]) => {
     shelveslist.push(category)
   })
 
@@ -143,6 +142,10 @@ export function PrefabList() {
       search.query.set(text)
     }, 50)
   }
+
+  useEffect(() => {
+    inputReference.current?.focus()
+  }, [])
 
   return (
     <List
@@ -157,11 +160,13 @@ export function PrefabList() {
             value={search.local.value}
             sx={{ mt: 1 }}
             onChange={(e) => onSearch(e.target.value)}
+            inputRef={inputReference}
           />
         </div>
       }
     >
-      {shelves.map(([category, items]) => (
+      <PrefabListItem item={{ name: 'Empty', url: 'empty', category: '', detail: 'Basic scene entity' }} />
+      {Object.entries(shelves).map(([category, items]) => (
         <ScenePrefabListItem categoryTitle={category} categoryItems={items} isCollapsed={!!search.query.value} />
       ))}
     </List>

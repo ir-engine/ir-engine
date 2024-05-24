@@ -14,7 +14,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "Post Processing",
+      "name": "Postprocessing",
       "extensions": {
         "EE_uuid": "10eb1bb2-5cf2-4b4e-abab-3132b3a995fa",
         "EE_visible": true,
