@@ -20,16 +20,48 @@ Ethereal Engine. All Rights Reserved.
 import config from '@etherealengine/common/src/config'
 import { defineState } from '@etherealengine/hyperflux'
 
-export const PrefabShelfCategories = defineState({
-  name: 'ee.editor.PrefabShelfCategories',
+export const PrefabShelfItem = defineState({
+  name: 'ee.editor.PrefabShelfItem',
   initial: () => {
     return {
       //hardcode to test replace with parseStorageProviderURLs
-      'Point Light Prefab': `${config.client.fileServer}/projects/default-project/assets/pointLight.prefab.gltf`,
-      'Geometry Prefab': `${config.client.fileServer}/projects/default-project/assets/geo.prefab.gltf`,
-      'Empty Prefab': 'empty'
-
+      'Empty Prefab': 'empty',
+      '3D Model Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/3d-model.prefab.gltf`,
+      'Point Light Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/point-light.prefab.gltf`,
+      'Spot Light Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/spot-light.prefab.gltf`,
+      'Directional Light Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/directional-light.prefab.gltf`,
+      'Ambient Light Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/ambient-light.prefab.gltf`,
+      'Hemisphere Light Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/hemisphere-light.prefab.gltf`,
+      'Box Collider Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/box-collider.prefab.gltf`,
+      'Sphere Collider Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/sphere-collider.prefab.gltf`,
+      'Cylinder Collider Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/cylinder-collider.prefab.gltf`,
+      'Mesh Collider Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/mesh-collider.prefab.gltf`,
+      'Text Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
+      'Skybox Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/skybox.prefab.gltf`,
+      'Postprocessing Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/postprocessing.prefab.gltf`,
+      'Fog Prefab': `${config.client.fileServer}/projects/default-project/assets/prefabs/fog.prefab.gltf`
       //will continue to add more prefabs
     } as Record<string, string>
+  }
+})
+
+export const PrefabShelfCategoriese = defineState({
+  name: 'ee.editor.PrefabShelfCategoriese',
+  initial: () => {
+    return {
+      Geo: ['3D Model Prefab'],
+      Lighting: [
+        'Point Light Prefab',
+        'Spot Light Prefab',
+        'Directional Light Prefab',
+        'Ambient Light Prefab',
+        'Hemisphere Light Prefab'
+      ],
+      Collider: ['Box Collider Prefab', 'Sphere Collider Prefab', 'Cylinder Collider Prefab', 'Mesh Collider Prefab'],
+      Text: ['Text Prefab'],
+      Lookdev: ['Skybox Prefab', 'Postprocessing Prefab', 'Fog Prefab'],
+      Empty: ['Empty Prefab']
+      //will continue to add more prefabs
+    } as Record<string, string[]>
   }
 })

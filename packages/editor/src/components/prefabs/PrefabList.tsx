@@ -18,40 +18,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { startCase } from 'lodash'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { usePopoverContextClose } from '../element/PopoverContext'
-import { PrefabShelfCategories } from './PrefabEditors'
+import { PrefabShelfCategoriese, PrefabShelfItem } from './PrefabEditors'
 
 const PrefabListItem = ({ item }: { item: string }) => {
   const { t } = useTranslation()
-  const Icon = getState(ComponentEditorsState)[item]?.iconComponent ?? PlaceHolderIcon
   const handleClosePopover = usePopoverContextClose()
 
   return (
     <ListItemButton
       sx={{ pl: 4, bgcolor: 'var(--dockBackground)' }}
       onClick={() => {
-        const PrefabNameShelfCategories = getState(PrefabShelfCategories)
-        const componentJsons: ComponentJsonType[] = []
+        const PrefabNameShelfCategories = getState(PrefabShelfItem)
         const url = PrefabNameShelfCategories[item]
-        // PrefabNameShelfCategories[item].forEach((component) => {
-        //   componentJsons.push({ name: component.jsonID as string })
-        // })
-        //EditorControlFunctions.createObjectFromSceneElement(componentJsons)
-
         //add prefab gltfs in the scene via add media node
         if (url === 'empty') {
           EditorControlFunctions.createObjectFromSceneElement()
@@ -63,9 +54,7 @@ const PrefabListItem = ({ item }: { item: string }) => {
         handleClosePopover()
       }}
     >
-      <ListItemIcon style={{ color: 'var(--textColor)' }}>
-        <Icon />
-      </ListItemIcon>
+      <ListItemIcon style={{ color: 'var(--textColor)' }}></ListItemIcon>
       <ListItemText
         primary={
           <Typography variant="subtitle1" color={'var(--textColor)'}>
@@ -81,31 +70,58 @@ const PrefabListItem = ({ item }: { item: string }) => {
     </ListItemButton>
   )
 }
-const ScenePrefabListItem = ({ categoryItems }: { categoryItems: string[]; isCollapsed: boolean }) => {
+const ScenePrefabListItem = ({
+  categoryTitle,
+  categoryItems,
+  isCollapsed
+}: {
+  categoryTitle: string
+  categoryItems: string[]
+  isCollapsed: boolean
+}) => {
+  const open = useHookstate(categoryTitle === 'Empty')
   return (
     <>
-      <List component={'div'} sx={{ bgcolor: 'var(--dockBackground)', width: '100%' }} disablePadding>
-        {categoryItems.map((item) => (
-          <PrefabListItem item={item} />
-        ))}
-      </List>
+      <ListItemButton
+        onClick={() => open.set((prev) => !prev)}
+        style={{
+          backgroundColor: 'var(--dockBackground)',
+          cursor: 'pointer',
+          color: 'var(--textColor)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%'
+        }}
+      >
+        <Typography>{categoryTitle}</Typography>
+        <Icon type={isCollapsed || open.value ? 'KeyboardArrowUp' : 'KeyboardArrowDown'} />
+      </ListItemButton>
+      <Collapse in={isCollapsed || open.value} timeout={'auto'} unmountOnExit>
+        <List component={'div'} sx={{ bgcolor: 'var(--dockBackground)', width: '100%' }} disablePadding>
+          {categoryItems.map((item) => (
+            <PrefabListItem item={item} />
+          ))}
+        </List>
+      </Collapse>
     </>
   )
 }
 
 const usePrefabShelfCategories = (search: string) => {
-  useHookstate(getMutableState(PrefabShelfCategories)).value
+  useHookstate(getMutableState(PrefabShelfCategoriese)).value
 
   if (!search) {
-    return Object.entries(getState(PrefabShelfCategories))
+    return Object.entries(getState(PrefabShelfCategoriese))
   }
 
   const searchRegExp = new RegExp(search, 'gi')
 
-  return Object.entries(getState(PrefabShelfCategories))
+  return Object.entries(getState(PrefabShelfCategoriese))
     .map(([category, items]) => {
-      const filteredcategory = category.match(searchRegExp)?.length ? category : ''
-      return [filteredcategory, items] as [string, string]
+      // const filteredcategory = category.match(searchRegExp)?.length ? category : ''
+      // return [filteredcategory, items] as [string, string]
+      const filteredItems = items.filter((item) => (item.match(searchRegExp)?.length ? category : ''))
+      return [category, filteredItems] as [string, string[]]
     })
     .filter(([_, items]) => !!items.length)
 }
@@ -130,7 +146,7 @@ export function PrefabList() {
 
   return (
     <List
-      sx={{ width: 300, height: 900, bgcolor: 'var(--dockBackground)' }}
+      sx={{ width: 300, height: 500, bgcolor: 'var(--dockBackground)' }}
       subheader={
         <div style={{ padding: '0.5rem' }}>
           <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
@@ -145,7 +161,9 @@ export function PrefabList() {
         </div>
       }
     >
-      <ScenePrefabListItem categoryItems={shelveslist} isCollapsed={!!search.query.value} />
+      {shelves.map(([category, items]) => (
+        <ScenePrefabListItem categoryTitle={category} categoryItems={items} isCollapsed={!!search.query.value} />
+      ))}
     </List>
   )
 }
