@@ -25,8 +25,8 @@ export const PrefabShelfCategories = defineState({
   initial: () => {
     return {
       //hardcode to test replace with parseStorageProviderURLs
-      'Point Light Prefab': `${config.client.fileServer}/projects/default-project/assets/pointLight.prefab.gltf`,
-      'Geometry Prefab': `${config.client.fileServer}/projects/default-project/assets/geo.prefab.gltf`,
+      'Point Light Prefab': `${config.client.fileServer}/projects/default-project/pointLight.prefab.gltf`,
+      'Geometry Prefab': `${config.client.fileServer}/projects/default-project/geo.prefab.gltf`,
       'Empty Prefab': 'empty'
 
       //will continue to add more prefabs
