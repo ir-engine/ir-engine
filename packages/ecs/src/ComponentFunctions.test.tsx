@@ -36,7 +36,6 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
-  useAllComponents,
   useComponent,
   useOptionalComponent
 } from './ComponentFunctions'
@@ -482,66 +481,6 @@ describe('ComponentFunctions Hooks', async () => {
       return destroyEngine()
     })
   }) // useOptionalComponent : Isolated Test Cases
-
-  describe('useAllComponents', async () => {
-    type ResultType = any[] | undefined
-    const ResultValue1 = 'ResultValue1'
-    const ResultValue2 = 'ResultValue1'
-    const ResultValue3 = 'ResultValue3'
-    const component1 = defineComponent({ name: 'TestComponent1', onInit: () => ResultValue1 })
-    const component2 = defineComponent({ name: 'TestComponent2', onInit: () => ResultValue2 })
-    const component3 = defineComponent({ name: 'TestComponent3', onInit: () => ResultValue3 })
-    let result: ResultType = undefined
-    let testEntity = UndefinedEntity
-    let counter = 0
-
-    beforeEach(() => {
-      startEngine()
-      ComponentMap.clear()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      counter = 0
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    // Define the Reactor that will run the tested hook
-    const Reactor = () => {
-      const data = useAllComponents(testEntity)
-      useEffect(() => {
-        result = data as ResultType
-        ++counter
-      }, [data])
-      return null
-    }
-
-    it('returns all components of an entity', async () => {
-      const ExpectedValue = [component1, component2, component3]
-      setComponent(testEntity, component1)
-      setComponent(testEntity, component2)
-      setComponent(testEntity, component3)
-      assert.ok(hasComponent(testEntity, component1), 'The test entity did not get its test component1 set correctly')
-      assert.ok(hasComponent(testEntity, component2), 'The test entity did not get its test component2 set correctly')
-      assert.ok(hasComponent(testEntity, component3), 'The test entity did not get its test component3 set correctly')
-      // Run the test
-      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
-      const tag = <Reactor />
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
-      assert.notEqual(result, undefined, `The result data didn't get assigned.\n  result = ${result}`)
-      for (let id = 0; id < ExpectedValue.length; id++) {
-        assert.equal(
-          result![id],
-          ExpectedValue[id],
-          `Did not return the correct component at id=${id}\n  result = ${result}\n  expected = ${ExpectedValue}`
-        )
-      }
-      unmount()
-    })
-  })
 
   // TODO
   describe('defineQuery', () => {})
