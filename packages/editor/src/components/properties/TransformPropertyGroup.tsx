@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
