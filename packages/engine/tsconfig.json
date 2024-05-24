@@ -34,5 +34,5 @@
     "../engine/**/*",
     "./**/*.ts",
     "./**/*.tsx"
-, "../spatial/src/transform/components/NodeIDComponent.ts", "../spatial/src/transform/components/SourceComponent.ts"  ]
+  ]
 }
