@@ -136,7 +136,7 @@ export default function ParameterInput({
                 case 'select':
                   return (
                     <SelectInput
-                      currentValue={values[k]}
+                      value={values[k]}
                       options={JSON.parse(JSON.stringify(parms.options))}
                       onChange={setArgsProp(k)}
                     />

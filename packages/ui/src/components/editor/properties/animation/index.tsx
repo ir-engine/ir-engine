@@ -88,7 +88,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={animationOptions.value as SelectOptionsType[]}
-          currentValue={loopAnimationComponent.value.activeClipIndex}
+          value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
