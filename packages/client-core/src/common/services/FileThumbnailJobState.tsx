@@ -342,7 +342,15 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     computeTransformMatrix(cameraEntity)
     setComponent(cameraEntity, CameraComponent)
     const camera = getComponent(cameraEntity, CameraComponent)
-
+    camera.lookAt(0, 0, 0)
+    computeTransformMatrix(cameraEntity)
+    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+    // const viewCamera = camera.cameras[0]
+    // viewCamera.matrixWorld.copy(camera.matrixWorld)
+    // viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
+    // viewCamera.projectionMatrix.copy(camera.projectionMatrix)
+    // viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+    // viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
     setComponent(cameraEntity, SceneComponent, { children: [entity] })
 
     const scene = new Scene()
