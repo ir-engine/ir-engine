@@ -302,8 +302,8 @@ describe('ComponentFunctions', async () => {
 
 describe('ComponentFunctions Hooks', async () => {
   describe('useComponent', async () => {
-    type ResultType = undefined | Entity[]
-    const ResultValue = 'ReturnValue'
+    type ResultType = undefined | string
+    const ResultValue: ResultType = 'ReturnValue'
     const component = defineComponent({ name: 'TestComponent', onInit: () => ResultValue })
     let testEntity = UndefinedEntity
     let result = undefined as ResultType
@@ -325,7 +325,7 @@ describe('ComponentFunctions Hooks', async () => {
     const Reactor = () => {
       const data = useComponent(testEntity, component)
       useEffect(() => {
-        result = data.value
+        result = data.value as ResultType
         ++counter
       }, [data])
       return null
@@ -534,7 +534,7 @@ describe('ComponentFunctions Hooks', async () => {
       assert.notEqual(result, undefined, `The result data didn't get assigned.\n  result = ${result}`)
       for (let id = 0; id < ExpectedValue.length; id++) {
         assert.equal(
-          result[id],
+          result![id],
           ExpectedValue[id],
           `Did not return the correct component at id=${id}\n  result = ${result}\n  expected = ${ExpectedValue}`
         )
