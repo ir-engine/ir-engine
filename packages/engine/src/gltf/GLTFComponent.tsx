@@ -39,10 +39,10 @@ import {
 } from '@etherealengine/ecs'
 import { dispatchAction, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
 import { SceneJsonType } from '../gltf/convertJsonToGLTF'
-import { SourceComponent } from '../scene/components/SourceComponent'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { ResourcePendingComponent } from './ResourcePendingComponent'

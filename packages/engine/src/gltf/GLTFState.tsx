@@ -67,8 +67,8 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -104,21 +104,22 @@ export const GLTFSourceState = defineState({
   initial: {} as Record<string, Entity>,
 
   /**
-   * @param source The asset URL for the GLTF file
+   * @param src The asset URL for the GLTF file
    * @param uuid Identitifies this GLTF uniquely, either as a location instance or loaded as an asset referenced in another GLTF file
    * @param parentEntity The parent entity to attach the GLTF to
    * @returns
    */
-  load: (source: string, uuid = source as EntityUUID, parentEntity = UndefinedEntity) => {
+  load: (src: string, uuid = src as EntityUUID, parentEntity = UndefinedEntity) => {
     const entity = createEntity()
     setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, NameComponent, source.split('/').pop()!)
+    setComponent(entity, NameComponent, src.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
+    setComponent(entity, NodeIDComponent, src as any as NodeID)
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
+    const sourceID = `${getComponent(entity, UUIDComponent)}-${src}` as SourceID
     setComponent(entity, SourceComponent, sourceID)
-    setComponent(entity, GLTFComponent, { src: source })
+    setComponent(entity, GLTFComponent, { src: src })
     const obj3d = new Group()
     setComponent(entity, Object3DComponent, obj3d)
     addObjectToGroup(entity, obj3d)
@@ -342,7 +343,10 @@ const ChildGLTFReactor = (props: { source: string }) => {
 
 export const DocumentReactor = () => {
   const nodeState = useHookstate(getMutableState(GLTFNodeState))
-  const scenes = Object.entries(nodeState.get(NO_PROXY))
+  const scenes = Object.entries(nodeState.get(NO_PROXY)) as [
+    SourceID,
+    Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID }>
+  ][]
   const nodes = scenes
     .map(([source, nodes]) => {
       const entries = Object.entries(nodes)
@@ -374,7 +378,7 @@ const ParentNodeReactor = (props: {
   nodeIndex: number
   childIndex: number
   parentUUID: EntityUUID
-  documentID: string
+  documentID: SourceID
 }) => {
   const parentEntity = UUIDComponent.useEntityByUUID(props.parentUUID)
   if (!parentEntity) return null
@@ -382,7 +386,12 @@ const ParentNodeReactor = (props: {
   return <NodeReactor {...props} />
 }
 
-const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID: EntityUUID; documentID: string }) => {
+const NodeReactor = (props: {
+  nodeIndex: number
+  childIndex: number
+  parentUUID: EntityUUID
+  documentID: SourceID
+}) => {
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
 

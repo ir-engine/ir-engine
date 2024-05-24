@@ -37,8 +37,8 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -48,8 +48,8 @@ import {
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
   maxDitherPoints,

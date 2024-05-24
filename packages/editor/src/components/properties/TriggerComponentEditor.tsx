@@ -27,7 +27,7 @@ import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
+import { getOptionalComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useState } from '@etherealengine/hyperflux'
@@ -36,12 +36,13 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 type OptionsType = Array<{
   callbacks: Array<{
@@ -49,14 +50,14 @@ type OptionsType = Array<{
     value: string
   }>
   label: string
-  value: string
+  value: NodeID | 'Self'
 }>
 
-const callbackQuery = defineQuery([CallbackComponent])
+const callbackQuery = defineQuery([CallbackComponent, NodeIDComponent])
 
 export const TriggerComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useState<OptionsType>([])
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
 
@@ -67,7 +68,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
     if (entityCallbacks) {
       options.push({
         label: 'Self',
-        value: getComponent(props.entity, UUIDComponent),
+        value: getComponent(props.entity, NodeIDComponent),
         callbacks: Object.keys(entityCallbacks).map((cb) => {
           return { label: cb, value: cb }
         })
@@ -75,7 +76,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
     } else {
       options.push({
         label: 'Self',
-        value: 'Self',
+        value: getComponent(props.entity, NodeIDComponent),
         callbacks: []
       })
     }
@@ -85,7 +86,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        value: getComponent(entity, NodeIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => {
           return { label: cb, value: cb }
         })

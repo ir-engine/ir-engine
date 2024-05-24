@@ -37,6 +37,7 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import {
   GeometryTransformParameters,
   ImageTransformParameters,
@@ -46,18 +47,18 @@ import {
 } from '../../../assets/classes/ModelTransform'
 import { ModelComponent } from '../../components/ModelComponent'
 
-export function getModelSceneID(entity: Entity): string {
+export function getModelSceneID(entity: Entity): SourceID {
   if (!hasComponent(entity, ModelComponent) || !hasComponent(entity, UUIDComponent)) {
-    return ''
+    return '' as SourceID
   }
-  return getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src
+  return (getComponent(entity, UUIDComponent) + '-' + getComponent(entity, ModelComponent).src) as SourceID
 }
 
-export function useModelSceneID(entity: Entity): string {
+export function useModelSceneID(entity: Entity): SourceID {
   const uuid = useOptionalComponent(entity, UUIDComponent)?.value
   const model = useOptionalComponent(entity, ModelComponent)?.value
-  if (!uuid || !model) return ''
-  return uuid + '-' + model.src
+  if (!uuid || !model) return '' as SourceID
+  return (uuid + '-' + model.src) as SourceID
 }
 
 export function getModelResources(entity: Entity, defaultParms: ModelTransformParameters): ResourceTransforms {

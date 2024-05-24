@@ -30,7 +30,7 @@ import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 
 export function getSpawnPoint(spawnPointNodeId: NodeID, userId: UserID): { position: Vector3; rotation: Quaternion } {

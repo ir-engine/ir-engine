@@ -26,16 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import {
   Entity,
-  EntityUUID,
-  UUIDComponent,
   defineComponent,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  useOptionalComponent,
+  useQuery
 } from '@etherealengine/ecs'
 import { hookstate, none } from '@etherealengine/hyperflux'
-import { getAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { ModelComponent } from '../scene/components/ModelComponent'
-import { GLTFComponent } from './GLTFComponent'
+import { SourceComponent } from './SourceComponent'
 
 export type NodeID = OpaqueType<'NodeID'> & string
 
@@ -76,18 +74,23 @@ export const NodeIDComponent = defineComponent({
   entitiesByNodeIDState: hookstate(entitiesByNodeID),
   entitiesByNodeID: entitiesByNodeID as Readonly<typeof entitiesByNodeID>,
 
-  getEntityUUIDForNodeEntity: (entity: Entity) => {
-    const nodeID = getOptionalComponent(entity, NodeIDComponent)
-    if (!nodeID) throw new Error('Entity does not have a NodeIDComponent')
-    const nearestSourceEntity =
-      getAncestorWithComponent(entity, ModelComponent) || getAncestorWithComponent(entity, GLTFComponent)
-    if (nearestSourceEntity) {
-      return `${getComponent(nearestSourceEntity, UUIDComponent)}-${nodeID}` as EntityUUID
-    }
-    return nodeID as any as EntityUUID
-  },
-
   getEntitiesByNodeID: (nodeID: NodeID): Entity[] | undefined => {
     return NodeIDComponent.entitiesByNodeID[nodeID]
+  },
+
+  getNodeEntityFromSameSource: (sourceEntity: Entity, nodeID: NodeID) => {
+    const sourceID = getComponent(sourceEntity, SourceComponent)
+    return SourceComponent.entitiesBySource[sourceID].findLast(
+      (entity) => getComponent(entity, NodeIDComponent) === nodeID
+    )
+  },
+
+  useNodeEntityFromSameSource: (sourceEntity: Entity, nodeID: NodeID) => {
+    const sourceID = useOptionalComponent(sourceEntity, SourceComponent)
+    useQuery([NodeIDComponent]) // reactivity
+    if (!sourceID) return
+    return SourceComponent.entitiesBySourceState[sourceID.value].value.findLast(
+      (entity) => getOptionalComponent(entity, NodeIDComponent) === nodeID
+    )
   }
 })

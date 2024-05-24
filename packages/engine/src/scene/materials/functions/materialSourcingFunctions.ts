@@ -51,8 +51,8 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { MaterialExtensionPluginType } from '../../../assets/exporters/gltf/extensions/EEMaterialExporterExtension'
-import { SourceComponent } from '../../components/SourceComponent'
 import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
 export function MaterialNotFoundError(message) {

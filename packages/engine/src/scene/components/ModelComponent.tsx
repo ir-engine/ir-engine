@@ -45,6 +45,8 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
@@ -56,12 +58,10 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { autoconvertMixamoAvatar } from '../../avatar/functions/avatarFunctions'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { SceneJsonType, convertSceneJSONToGLTF } from '../../gltf/convertJsonToGLTF'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel, proxifyParentChildRelationships } from '../functions/loadGLTFModel'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
-import { SourceComponent } from './SourceComponent'
 
 /**
  * ModelComponent is an entity/object hierarchy loaded from a resource

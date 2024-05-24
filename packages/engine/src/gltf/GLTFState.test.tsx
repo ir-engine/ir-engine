@@ -38,8 +38,8 @@ import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsS
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
 

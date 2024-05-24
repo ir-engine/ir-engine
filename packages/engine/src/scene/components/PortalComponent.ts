@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
-import { EntityUUID } from '@etherealengine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -56,9 +55,9 @@ import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/Obj
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { NodeID } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NodeID } from '../../gltf/NodeIDComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -168,7 +167,7 @@ export const PortalComponent = defineComponent({
           {
             onEnter: 'teleport',
             onExit: null,
-            target: '' as EntityUUID
+            target: '' as NodeID
           }
         ]
       })

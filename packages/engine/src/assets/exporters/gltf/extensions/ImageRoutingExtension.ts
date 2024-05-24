@@ -28,7 +28,7 @@ import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
 import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
 
-import { SourceComponent } from '../../../../scene/components/SourceComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'

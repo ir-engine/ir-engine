@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 
 import { EditorState } from '../../services/EditorServices'
 

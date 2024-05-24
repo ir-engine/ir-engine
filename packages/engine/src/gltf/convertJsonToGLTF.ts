@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 

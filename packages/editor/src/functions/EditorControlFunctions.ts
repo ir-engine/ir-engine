@@ -43,7 +43,6 @@ import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocument
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
@@ -57,10 +56,11 @@ import {
   findCommonAncestors,
   iterateEntityNode
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
-import { NodeID, NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'

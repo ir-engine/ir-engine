@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
 import { defineAction, defineState } from '@etherealengine/hyperflux'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
 
@@ -37,7 +38,7 @@ export const GLTFDocumentState = defineState({
 export const GLTFNodeState = defineState({
   name: 'ee.engine.gltf.GLTFNodeState',
   initial: {} as Record<
-    string,
+    SourceID,
     Record<
       string,
       {
@@ -49,7 +50,7 @@ export const GLTFNodeState = defineState({
   >,
 
   convertGltfToNodeDictionary: (rootUUID: EntityUUID, gltf: GLTF.IGLTF) => {
-    const nodes: Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID }> = {}
+    const nodes: Record<SourceID, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID }> = {}
 
     const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID) => {
       const node = gltf.nodes![nodeIndex]

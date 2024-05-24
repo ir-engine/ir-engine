@@ -28,8 +28,8 @@ import { LayoutData } from 'rc-dock'
 import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 
 interface IExpandedNodes {
   [scene: string]: {

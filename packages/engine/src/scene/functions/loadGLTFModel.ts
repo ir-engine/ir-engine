@@ -50,14 +50,15 @@ import { FrustumCullCameraComponent } from '@etherealengine/spatial/src/transfor
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { BoneComponent } from '../../avatar/components/BoneComponent'
 import { SkinnedMeshComponent } from '../../avatar/components/SkinnedMeshComponent'
 import { ComponentJsonType, EntityJsonType } from '../../gltf/convertJsonToGLTF'
-import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { getEntityUUIDForNodeEntity } from '../../gltf/getEntityUUIDForNodeEntity'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { SourceComponent } from '../components/SourceComponent'
 import { createMaterialInstance } from '../materials/functions/materialSourcingFunctions'
 import { getModelSceneID } from './loaders/ModelFunctions'
 
@@ -247,7 +248,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
     parentEntity
   })
   setComponent(objEntity, NodeIDComponent, nodeID)
-  setComponent(objEntity, UUIDComponent, NodeIDComponent.getEntityUUIDForNodeEntity(objEntity))
+  setComponent(objEntity, UUIDComponent, getEntityUUIDForNodeEntity(objEntity))
 
   setComponent(objEntity, NameComponent, name)
   setComponent(objEntity, TransformComponent, {
@@ -340,7 +341,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const materials = Array.isArray(material) ? material : [material]
   materials.map((material) => {
-    const path = getOptionalComponent(rootEntity, ModelComponent)?.src ?? ''
+    const path = getModelSceneID(rootEntity)
     createMaterialInstance(path, objEntity, material)
   })
   mesh.material = isArray(mesh.material) ? materials : materials[0]

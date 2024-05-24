@@ -35,10 +35,10 @@ import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { copyTransformToRigidBody } from '@etherealengine/spatial/src/physics/systems/PhysicsPreTransformSystem'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   NodeCategory,

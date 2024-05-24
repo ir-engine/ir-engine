@@ -37,10 +37,10 @@ import { assetPath, AssetType } from '@etherealengine/common/src/schema.type.mod
 import { getComponent } from '@etherealengine/ecs'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { deleteScene, onNewScene, renameScene } from '../../functions/sceneFunctions'

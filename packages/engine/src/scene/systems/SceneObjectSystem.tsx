@@ -71,10 +71,10 @@ import {
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 import { createMaterialEntity } from '../materials/functions/materialSourcingFunctions'
@@ -260,7 +260,7 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
     envmapComponent?.envMapSourceColor,
     envmapComponent?.envMapSourceURL,
     envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
+    envmapComponent?.envMapSourceNodeID
   ])
 
   useEffect(() => {

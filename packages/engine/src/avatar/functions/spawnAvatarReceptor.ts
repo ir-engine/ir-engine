@@ -54,6 +54,7 @@ import {
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
@@ -86,7 +87,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Bake,
     envMapIntensity: 0.5,
-    envMapSourceEntityUUID: getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
+    envMapSourceNodeID: getComponent(getComponent(entity, EntityTreeComponent).parentEntity, NodeIDComponent)
   })
 
   setComponent(entity, AvatarComponent)

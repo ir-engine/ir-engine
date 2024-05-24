@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -42,6 +41,7 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -56,7 +56,7 @@ export const SplineTrackComponent = defineComponent({
   onInit: (entity) => {
     return {
       alpha: 0, // internal
-      splineEntityUUID: null as EntityUUID | null,
+      splineNodeID: '' as NodeID,
       velocity: 1.0,
       enableRotation: false,
       lockToXZPlane: true,
@@ -66,7 +66,10 @@ export const SplineTrackComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.splineEntityUUID !== 'undefined') component.splineEntityUUID.set(json.splineEntityUUID)
+    // backcompat
+    if (typeof (json as any).splineEntityUUID !== 'undefined')
+      component.splineNodeID.set((json as any).splineEntityUUID)
+    if (typeof json.splineNodeID !== 'undefined') component.splineNodeID.set(json.splineNodeID)
     if (typeof json.velocity === 'number') component.velocity.set(json.velocity)
     if (typeof json.enableRotation === 'boolean') component.enableRotation.set(json.enableRotation)
     if (typeof json.lockToXZPlane === 'boolean') component.lockToXZPlane.set(json.lockToXZPlane)
@@ -75,7 +78,7 @@ export const SplineTrackComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      splineEntityUUID: component.splineEntityUUID.value,
+      splineNodeID: component.splineNodeID.value,
       velocity: component.velocity.value,
       enableRotation: component.enableRotation.value,
       lockToXZPlane: component.lockToXZPlane.value,
@@ -92,8 +95,8 @@ export const SplineTrackComponent = defineComponent({
         const { isEditor } = getState(EngineState)
         const { deltaSeconds } = getState(ECSState)
         if (isEditor) return
-        if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
+        if (!component.splineNodeID.value) return
+        const splineTargetEntity = NodeIDComponent.getNodeEntityFromSameSource(entity, component.splineNodeID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -172,8 +175,8 @@ export const SplineTrackComponent = defineComponent({
     )
 
     useEffect(() => {
-      if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
+      if (!component.splineNodeID.value) return
+      const splineTargetEntity = NodeIDComponent.getNodeEntityFromSameSource(entity, component.splineNodeID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return

@@ -52,7 +52,7 @@ import {
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
-import { NodeIDComponent } from '@etherealengine/engine/src/gltf/NodeIDComponent'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 

@@ -31,15 +31,13 @@ import {
   ECSState,
   Engine,
   Entity,
-  EntityUUID,
   getComponent,
   getMutableComponent,
   removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useEntityContext,
-  UUIDComponent
+  useEntityContext
 } from '@etherealengine/ecs'
 import { defineComponent, getOptionalComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
@@ -61,6 +59,7 @@ import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
@@ -231,7 +230,7 @@ export const InteractableComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: null | EntityUUID
+        target: null | NodeID
       }>
     }
   },
@@ -332,8 +331,7 @@ export const InteractableComponent = defineComponent({
 const callInteractCallbacks = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
   for (const callback of interactable.callbacks) {
-    if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-    const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+    const targetEntity = callback.target ? NodeIDComponent.getNodeEntityFromSameSource(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue

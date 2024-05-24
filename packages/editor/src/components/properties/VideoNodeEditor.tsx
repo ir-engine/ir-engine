@@ -27,13 +27,13 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
@@ -70,9 +70,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
     .map((entity) => {
-      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+      return { label: getComponent(entity, NameComponent), value: getComponent(entity, NodeIDComponent) }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
+  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {

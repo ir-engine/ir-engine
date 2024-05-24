@@ -23,18 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { hookstate, none } from '@etherealengine/hyperflux'
 
-const entitiesBySource = {} as Record<string, Entity[]>
+export type SourceID = OpaqueType<'SourceID'> & string
+
+const entitiesBySource = {} as Record<SourceID, Entity[]>
 
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  onInit: (entity) => '',
+  onInit: (entity) => '' as SourceID,
 
-  onSet: (entity, component, src) => {
+  onSet: (entity, component, src: SourceID) => {
     if (typeof src !== 'string') throw new Error('SourceComponent expects a non-empty string')
 
     component.set(src)
