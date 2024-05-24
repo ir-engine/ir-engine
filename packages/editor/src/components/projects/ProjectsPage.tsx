@@ -165,7 +165,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
   )
 }
 
-const ProjectsPage = () => {
+const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   const { t } = useTranslation()
   const activeProject = useHookstate<ProjectType | null>(null)
   const activeProjectValue = activeProject.value as ProjectType | null
@@ -254,7 +254,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    navigate(`/studio?project=${project.name}`)
+    navigate(`${studioPath}?project=${project.name}`)
     getMutableState(EditorState).projectName.set(project.name)
     const parsed = new URL(window.location.href)
     const query = parsed.searchParams
