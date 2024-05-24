@@ -95,7 +95,7 @@ const MultiSelect = <T extends string | number>({
         </p>
       )}
       <div
-        className="bg-theme-surface-main border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
+        className="textshadow-sm border-theme-primary bg-theme-surface-main mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
         onClick={() => showOptions.set((value) => !value)}
       >
         {selectedOptions.length === 0 && (

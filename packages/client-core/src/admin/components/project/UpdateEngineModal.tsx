@@ -188,7 +188,7 @@ export default function UpdateEngineModal() {
               {projectState.projects.value
                 .filter((project) => project.name !== 'default-project' && project.repositoryPath)
                 .map((project) => (
-                  <div key={project.id} className="bg-theme-surfaceInput border-theme-primary border px-3.5 py-5">
+                  <div key={project.id} className="border-theme-primary bg-theme-surfaceInput border px-3.5 py-5">
                     <Checkbox
                       label={project.name}
                       value={projectsToUpdate.value.has(project.name)}

@@ -161,7 +161,7 @@ const Select = <T extends OptionValueType>({
               value={option.value}
               className={twMerge(
                 'text-theme-secondary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
+                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-highlight hover:text-theme-highlight',
                 menuItemClassName
               )}
               onClick={() => handleOptionItem(option)}
