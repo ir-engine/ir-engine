@@ -70,7 +70,7 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value }: Auto
     <div className={`relative ${className}`}>
       <Input value={inputValue.value} placeholder={placeholder} className="w-full" onChange={onChange} />
       {showDropdown.value && filteredOptions.value.length > 0 && (
-        <div className="border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ">
+        <div className="border-theme-primary bg-theme-surface-main fixed left-0 right-0 z-[60] mt-2 w-full rounded border">
           <ul className="max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2">
             {filteredOptions.value.map((option, index) => (
               <li
