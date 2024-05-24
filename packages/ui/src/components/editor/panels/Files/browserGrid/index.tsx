@@ -92,7 +92,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
-                <th key={header} className="table-cell text-xs font-normal ">
+                <th key={header} className="table-cell text-xs font-normal dark:text-[#A3A3A3]">
                   {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
                 </th>
               ))}
@@ -159,7 +159,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className={`text-base`}>
+          <td key={idx} className={`text-base dark:text-[#A3A3A3]`} style={{ fontSize }}>
             {tableColumns[header]}
           </td>
         ))}

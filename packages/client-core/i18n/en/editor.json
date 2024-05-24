@@ -1136,7 +1136,7 @@
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
-      "search-placeholder": "Search files and folders ...",
+      "search-placeholder": "Search folders",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",

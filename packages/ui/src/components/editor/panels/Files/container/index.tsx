@@ -61,10 +61,12 @@ import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
 import { FiDownload, FiGrid, FiRefreshCcw } from 'react-icons/fi'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
 import Button from '../../../../../primitives/tailwind/Button'
+import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
@@ -579,20 +581,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ))}
         </div>
 
-        <div className="flex h-7 w-full gap-2 px-[50px]">
+        <div className="align-center flex h-7 w-full justify-center gap-2 px-[50px]">
           <div className="flex h-full w-[400px]">
             <BreadcrumbItems />
           </div>
-          {/* <Input
+          <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            labelClassname='text-sm text-[#A3A3A3]'
-            containerClassname="flex w-full h-7 bg-theme-primary rounded-[4px]"
-            startComponent={<HiMagnifyingGlass />}
-          /> */}
+            labelClassname="text-sm text-[#A3A3A3]"
+            containerClassname="flex h-7 bg-theme-primary rounded-[4px] w-[170px]"
+            className="bg-theme-primary h-[25px] w-[170px] rounded py-0"
+            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-white" />}
+          />
         </div>
 
         <div id="downloadProject" className="flex items-center">
