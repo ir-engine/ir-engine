@@ -42,7 +42,6 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -52,7 +51,6 @@ import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -347,10 +345,8 @@ export class CSM {
       const frustum = frustums[i]
       const shadowCam = light.shadow.camera
 
-      const shadowMapSize = getState(RendererState).shadowMapResolution
-
-      const texelWidth = (shadowCam.right - shadowCam.left) / shadowMapSize
-      const texelHeight = (shadowCam.top - shadowCam.bottom) / shadowMapSize
+      const texelWidth = (shadowCam.right - shadowCam.left) / this.shadowMapSize
+      const texelHeight = (shadowCam.top - shadowCam.bottom) / this.shadowMapSize
 
       // This matrix only represents sun orientation, origin is zero
       _lightOrientationMatrix.lookAt(Vector3_Zero, this.lightDirection, this.lightDirectionUp)
