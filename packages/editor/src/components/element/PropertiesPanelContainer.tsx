@@ -28,10 +28,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -58,8 +59,15 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   const { t } = useTranslation()
 
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
-  useHookstate(getMutableState(ComponentEditorsState).keys).value
-  const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
+  const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
+  const node = useHookstate(GLTFNodeState.getMutableNode(entity))
+  const components: Component[] = []
+  for (const jsonID of Object.keys(node.extensions.value!)) {
+    const component = ComponentJSONIDMap.get(jsonID)!
+    if (!componentEditors[component.name]) continue
+    components.push(component)
+  }
+  //const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
 
   const open = !!anchorEl.value
 
