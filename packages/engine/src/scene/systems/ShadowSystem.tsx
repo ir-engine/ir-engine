@@ -128,6 +128,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   useEffect(() => {
     if (!directionalLightComponent.value) return
+    if (!directionalLightComponent.castShadow.value) return
     const csm = new CSM({
       light: directionalLight as DirectionalLight,
       shadowMapSize: shadowMapResolution.value,
@@ -147,6 +148,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
     () => {
+      if (!directionalLightComponent.castShadow.value) return
       directionalLight.visible = false
     },
     { after: SceneObjectSystem }
@@ -154,19 +156,21 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   useEffect(() => {
     if (!csm) return
+    if (!directionalLightComponent.castShadow.value) return
 
     csm.shadowBias = directionalLight.shadow.bias
+    csm.maxFar = directionalLightComponent.cameraFar.value
+    csm.shadowMapSize = shadowMapResolution.value
 
     for (const light of csm.lights) {
       light.color.copy(directionalLightComponent.color.value)
       light.intensity = directionalLightComponent.intensity.value
-      light.shadow.bias = directionalLightComponent.shadowBias.value
       light.shadow.mapSize.setScalar(shadowMapResolution.value)
-      csm.shadowMapSize = shadowMapResolution.value
-      csm.needsUpdate = true
+      light.shadow.radius = directionalLightComponent.shadowRadius.value
     }
+    csm.needsUpdate = true
   }, [
-    csm,
+    rendererComponent.csm,
     shadowMapResolution,
     directionalLightComponent.shadowBias,
     directionalLightComponent.intensity,

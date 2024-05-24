@@ -44,9 +44,9 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
@@ -168,6 +168,30 @@ export class CSM {
     })
   }
 
+  createLight(light: DirectionalLight, i: number): void {
+    light.castShadow = true
+    light.frustumCulled = false
+
+    light.shadow.mapSize.width = this.shadowMapSize
+    light.shadow.mapSize.height = this.shadowMapSize
+
+    light.shadow.camera.near = 0
+    light.shadow.camera.far = 1
+
+    light.intensity = this.lightIntensity
+
+    const entity = createEntity()
+    addObjectToGroup(entity, light)
+    setComponent(entity, NameComponent, 'CSM light ' + i)
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+    this.lightEntities.push(entity)
+    this.lights.push(light)
+    light.name = 'CSM_' + light.name
+    light.target.name = 'CSM_' + light.target.name
+  }
+
   createLights(sourceLight?: DirectionalLight): void {
     if (sourceLight) {
       this.sourceLight = sourceLight
@@ -176,50 +200,15 @@ export class CSM {
 
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
-        light.castShadow = true
-        light.frustumCulled = false
-
-        light.intensity = this.lightIntensity
-
-        const entity = createEntity()
-        addObjectToGroup(entity, light)
-        setComponent(entity, NameComponent, 'CSM light ' + i)
-        setComponent(entity, VisibleComponent)
-        setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-        this.lightEntities.push(entity)
-        this.lights.push(light)
-        light.name = 'CSM_' + sourceLight.name
-        light.target.name = 'CSM_' + sourceLight.target.name
+        this.createLight(light, i)
       }
       return
     }
 
     // if no lights are provided, create default ones
-
     for (let i = 0; i < this.cascades; i++) {
       const light = new DirectionalLight(this.lightColor, this.lightIntensity)
-
-      light.castShadow = true
-
-      light.shadow.mapSize.width = this.shadowMapSize
-      light.shadow.mapSize.height = this.shadowMapSize
-
-      light.shadow.camera.near = 0
-      light.shadow.camera.far = 1
-
-      light.frustumCulled = false
-
-      const entity = createEntity()
-      addObjectToGroup(entity, light)
-      setComponent(entity, NameComponent, 'CSM light ' + i)
-      setComponent(entity, VisibleComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-      this.lightEntities.push(entity)
-      this.lights.push(light)
-      light.name = 'CSM_' + light.name
-      light.target.name = 'CSM_' + light.target.name
+      this.createLight(light, i)
     }
   }
 
@@ -329,6 +318,7 @@ export class CSM {
   update(): void {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
+      this.injectInclude()
       this.updateFrustums()
       for (const light of this.lights) {
         light.shadow.map?.dispose()
@@ -494,6 +484,9 @@ export class CSM {
   remove(): void {
     this.lightEntities.forEach((entity) => {
       removeEntity(entity)
+    })
+    this.lights.forEach((light) => {
+      light.dispose()
     })
     this.lightEntities = []
     this.lights = []
