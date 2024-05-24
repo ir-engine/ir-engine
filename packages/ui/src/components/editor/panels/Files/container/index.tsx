@@ -371,11 +371,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
             <>
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="align-middle text-sm">{'>'}</span>
+                <span className="cursor-default align-middle text-sm">{'>'}</span>
               )}
               {index === arr.length - 1 ? (
                 <span className="overflow-hidden">
-                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
                     {file}
                   </span>
                 </span>
@@ -556,7 +556,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottomRight">
+          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
