@@ -292,7 +292,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const showUploadAndDownloadButtons =
     selectedDirectory.value.slice(1).startsWith('projects/') &&
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
-  const showBackButton = selectedDirectory.value !== originalPath
+  const showBackButton = selectedDirectory.value.split('/').length > originalPath.split('/').length
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
@@ -364,14 +364,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     return (
       <nav
-        className="bg-theme-primary border-theme-primary flex h-full w-full rounded-[4px] border text-sm text-[#A3A3A3]"
+        className="bg-theme-primary border-theme-primary flex h-full w-full rounded-[4px] border text-xs text-[#A3A3A3]"
         aria-label="Breadcrumb"
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
             <>
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="cursor-default align-middle text-sm">{'>'}</span>
+                <span className="cursor-default align-middle text-xs">{'>'}</span>
               )}
               {index === arr.length - 1 ? (
                 <span className="overflow-hidden">
@@ -381,7 +381,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 </span>
               ) : (
                 <a
-                  className="hover:text-theme-highlight focus:text-theme-highlight cursor-pointer overflow-hidden align-middle text-sm text-[#A3A3A3] hover:underline"
+                  className="hover:text-theme-highlight focus:text-theme-highlight cursor-pointer overflow-hidden align-middle text-xs text-[#A3A3A3] hover:underline"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
                   <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
@@ -581,8 +581,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           ))}
         </div>
 
-        <div className="align-center flex h-7 w-full justify-center gap-2 px-[50px]">
-          <div className="flex h-full w-[400px]">
+        <div className="align-center flex h-7 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+          <div className="hidden h-full lg:block lg:w-1/2 xl:w-[400px]">
             <BreadcrumbItems />
           </div>
           <Input
@@ -591,10 +591,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            labelClassname="text-sm text-[#A3A3A3]"
-            containerClassname="flex h-7 bg-theme-primary rounded-[4px] w-[170px]"
-            className="bg-theme-primary h-[25px] w-[170px] rounded py-0"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-white" />}
+            labelClassname="text-sm text-red-500"
+            containerClassname="flex h-full bg-theme-primary rounded-[4px] w-full"
+            className="bg-theme-primary h-7 w-full rounded-[4px] py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
 
@@ -615,25 +615,24 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Tooltip>
         </div>
 
-        {showUploadAndDownloadButtons && (
-          <Button
-            id="uploadAssets"
-            startIcon={<HiOutlinePlusCircle />}
-            variant="transparent"
-            rounded="none"
-            className="bg-theme-highlight h-full whitespace-nowrap px-2"
-            size="small"
-            onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
-                .then(refreshDirectory)
-                .catch((err) => {
-                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                })
-            }}
-          >
-            {t('editor:layout.filebrowser.uploadAssets')}
-          </Button>
-        )}
+        <Button
+          id="uploadAssets"
+          startIcon={<HiOutlinePlusCircle />}
+          variant="transparent"
+          disabled={!showUploadAndDownloadButtons}
+          rounded="none"
+          className="bg-theme-highlight h-full whitespace-nowrap px-2"
+          size="small"
+          onClick={async () => {
+            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              .then(refreshDirectory)
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }}
+        >
+          {t('editor:layout.filebrowser.uploadAssets')}
+        </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
