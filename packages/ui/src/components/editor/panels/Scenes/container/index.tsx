@@ -93,7 +93,10 @@ export default function ScenesPanel() {
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene: AssetType) => (
-                <div key={scene.id} className="bg-theme-surface-main my-2 w-56 rounded">
+                <div
+                  key={scene.id}
+                  className="bg-theme-surface-main my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg"
+                >
                   <img
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
                     alt={scene.assetURL}
@@ -101,11 +104,11 @@ export default function ScenesPanel() {
                       e.currentTarget.src = 'static/etherealengine_logo.png'
                     }}
                     crossOrigin="anonymous"
-                    className="block h-auto w-auto cursor-pointer rounded-t object-cover"
+                    className="block h-[100%] w-auto cursor-pointer rounded-t-lg object-cover"
                     onClick={() => onClickScene(scene)}
                   />
-                  <div className="flex items-center justify-between px-4 py-2">
-                    <Text className="dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                  <div className="flex items-center justify-between px-4 py-1">
+                    <Text className="text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
                     <div className="relative">
                       <Button
                         variant="transparent"
