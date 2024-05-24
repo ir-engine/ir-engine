@@ -66,6 +66,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { XRScenePlacementComponent } from './XRScenePlacementComponent'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
@@ -192,6 +193,7 @@ export const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, XRScenePlacementComponent)
     setComponent(scenePlacementEntity, TransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)

@@ -29,7 +29,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import PanToolIcon from '@mui/icons-material/PanTool'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -55,13 +55,6 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
     label: 'Self',
     value: getComponent(props.entity, UUIDComponent)
   })
-
-  useEffect(() => {
-    //convenience to add a sink if none exist
-    if (inputComponent.inputSinks.value.length === 0) {
-      addSink()
-    }
-  }, [authoringLayerEntities.length])
 
   const addSink = () => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
@@ -100,7 +93,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       </PropertiesPanelButton>
 
       <div id={`inputSinks-list`}>
-        {options.length > 1
+        {options.length > 1 && inputComponent.inputSinks.value?.length > 0
           ? inputComponent.inputSinks.value.map((sink, index) => {
               return (
                 <div key={index}>

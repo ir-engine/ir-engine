@@ -80,10 +80,10 @@ export const gltfToSceneJson = (gltf: any): SceneJsonType => {
  * @param gltf
  * @param mode 'encode' or 'decode'
  */
-export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
+export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') => {
   const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
   const symbolRe = /__\$project\$__/
-  const frontier = [...gltf.scenes, ...gltf.nodes]
+  const frontier = [...(gltf.scenes ?? []), ...(gltf.nodes ?? [])]
   while (frontier.length > 0) {
     const elt = frontier.pop()
     if (typeof elt === 'object' && elt !== null) {
@@ -104,6 +104,7 @@ export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
       }
     }
   }
+  return gltf
 }
 
 export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: EntityUUID): GLTF.INode {
