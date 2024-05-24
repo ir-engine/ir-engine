@@ -176,8 +176,9 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
+      // Decrementing performance state twice consecutively should only have one reactive change with the value off by 1 instead of 2
       PerformanceManager.decrementGPUPerformance()
-      PerformanceManager.incrementGPUPerformance()
+      PerformanceManager.decrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()

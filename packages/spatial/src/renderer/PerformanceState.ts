@@ -173,14 +173,12 @@ export const PerformanceSystem = defineSystem({
     if (getState(EngineState).isEditing) return
 
     const performanceState = getMutableState(PerformanceState)
-    if (performanceState.isSmoothing.value) {
-      console.log('In smoothing period')
-      return
-    }
     const ecsState = getState(ECSState)
 
     updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration)
     updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.deltaSeconds * 1000)
+
+    if (performanceState.isSmoothing.value) return
 
     const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState.value
 
@@ -199,19 +197,15 @@ export const PerformanceSystem = defineSystem({
 
       // Check if we are GPU bound
       if (gpuRatio < maxRatio) {
-        console.log('Decrementing GPU performance')
         decrementGPUPerformance()
         // Check if we are system bound
       } else if (systemRatio < maxRatio) {
-        console.log('Decrementing CPU performance - systems')
         decrementCPUPerformance()
         // We are CPU bound by something other than systems
       } else {
-        console.log('Decrementing CPU performance - unknown')
         decrementCPUPerformance()
       }
     } else if (frameMean < minDelta) {
-      console.log('Incrementing performance')
       incrementGPUPerformance()
       incrementCPUPerformance()
     }
@@ -311,11 +305,9 @@ const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFi
 
 const updatePerformanceState = (tierState: State<number>, tier: number, offsetState: State<number>, offset: number) => {
   if (tier !== tierState.value) {
-    console.log('Updating performance tier')
     tierState.set(tier)
   }
   if (offset !== offsetState.value) {
-    console.log('Updating performance offset')
     offsetState.set(offset)
   }
 }
