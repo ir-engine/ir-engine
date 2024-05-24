@@ -32,11 +32,12 @@ import { RenderModes, RenderModesType } from './constants/RenderModes'
 export const RendererState = defineState({
   name: 'RendererState',
   initial: () => ({
-    qualityLevel: isIPhone ? 2 : 5, // range from 0 to 5
+    // qualityLevel: isIPhone ? 2 : 5, // range from 0 to 5
     automatic: isIPhone ? false : true,
     // usePBR: true,
     usePostProcessing: isIPhone ? false : true,
     useShadows: isIPhone ? false : true,
+    updateCSMFrustums: true,
     physicsDebug: false,
     bvhDebug: false,
     avatarDebug: false,

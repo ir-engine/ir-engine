@@ -54,11 +54,10 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { EngineState } from '../EngineState'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
@@ -107,13 +106,6 @@ export class EngineRenderer {
   static activeRender = false
   /** Is resize needed? */
   needsResize: boolean
-
-  /** Maximum Quality level of the rendered. **Default** value is 5. */
-  maxQualityLevel = 5
-  /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 28 // 28 fps = 35 ms  (on some devices, rAF updates at 30fps, e.g., Low Power Mode)
-  /** point at which we upgrade quality level (small delta) */
-  minRenderDelta = 1000 / 55 // 55 fps = 18 ms
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
@@ -214,31 +206,6 @@ export class EngineRenderer {
 }
 
 /**
- * Change the quality of the renderer.
- */
-const changeQualityLevel = (renderer: EngineRenderer) => {
-  const time = Date.now()
-  const delta = time - lastRenderTime
-  lastRenderTime = time
-
-  const { qualityLevel } = getState(RendererState)
-  let newQualityLevel = qualityLevel
-
-  renderer.movingAverage.update(Math.min(delta, 50))
-  const averageDelta = renderer.movingAverage.mean
-
-  if (averageDelta > renderer.maxRenderDelta && newQualityLevel > 1) {
-    newQualityLevel--
-  } else if (averageDelta < renderer.minRenderDelta && newQualityLevel < renderer.maxQualityLevel) {
-    newQualityLevel++
-  }
-
-  if (newQualityLevel !== qualityLevel) {
-    getMutableState(RendererState).qualityLevel.set(newQualityLevel)
-  }
-}
-
-/**
  * Executes the system. Called each frame by default from the Engine.instance.
  * @param delta Time since last frame.
  */
@@ -256,9 +223,6 @@ export const render = (
 
   const state = getState(RendererState)
 
-  const engineState = getState(EngineState)
-  if (!engineState.isEditor && state.automatic) changeQualityLevel(renderer)
-
   if (renderer.needsResize) {
     const curPixelRatio = renderer.renderer.getPixelRatio()
     const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
@@ -273,7 +237,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.qualityLevel > 0 && renderer.csm?.updateFrustums()
+    state.updateCSMFrustums && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -366,10 +330,9 @@ const rendererReactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.scaleFactor.set(engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel.value)
     renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
     renderer.needsResize.set(true)
-  }, [engineRendererSettings.qualityLevel])
+  }, [renderer.scaleFactor])
 
   useEffect(() => {
     changeRenderMode()

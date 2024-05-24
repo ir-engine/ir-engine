@@ -44,27 +44,63 @@ const maxPerformanceOffset = 12
 
 const tieredSettings = {
   [0]: {
-    engine: { useShadows: false, shadowMapResolution: 0, usePostProcessing: false, forceBasicMaterials: true },
+    engine: {
+      useShadows: false,
+      shadowMapResolution: 0,
+      usePostProcessing: false,
+      forceBasicMaterials: true,
+      updateCSMFrustums: false
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [1]: {
-    engine: { useShadows: false, shadowMapResolution: 0, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: false,
+      shadowMapResolution: 0,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [2]: {
-    engine: { useShadows: true, shadowMapResolution: 256, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 256,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true
+    },
     render: { smaaPreset: SMAAPreset.LOW }
   },
   [3]: {
-    engine: { useShadows: true, shadowMapResolution: 512, usePostProcessing: false, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 512,
+      usePostProcessing: false,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true
+    },
     render: { smaaPreset: SMAAPreset.MEDIUM }
   },
   [4]: {
-    engine: { useShadows: true, shadowMapResolution: 1024, usePostProcessing: true, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 1024,
+      usePostProcessing: true,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true
+    },
     render: { smaaPreset: SMAAPreset.HIGH }
   },
   [5]: {
-    engine: { useShadows: true, shadowMapResolution: 2048, usePostProcessing: true, forceBasicMaterials: false },
+    engine: {
+      useShadows: true,
+      shadowMapResolution: 2048,
+      usePostProcessing: true,
+      forceBasicMaterials: false,
+      updateCSMFrustums: true
+    },
     render: { smaaPreset: SMAAPreset.ULTRA }
   }
 } as {
@@ -148,13 +184,13 @@ export const PerformanceState = defineState({
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (isEditing) return
+      if (isEditing || !engineSettings.automatic.value) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.gpuTier])
+    }, [performanceState.gpuTier, engineSettings.automatic])
 
     useEffect(() => {
       performanceState.isSmoothing.set(true)
