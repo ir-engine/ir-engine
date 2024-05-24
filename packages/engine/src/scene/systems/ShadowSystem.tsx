@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Suspense, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   Box3,
   DirectionalLight,
@@ -55,15 +55,7 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  hookstate,
-  NO_PROXY,
-  useHookstate,
-  useMutableState
-} from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, hookstate, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Back } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -88,8 +80,7 @@ import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/c
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  useChildWithComponent,
-  useTreeQuery
+  useChildWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
@@ -191,7 +182,13 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
     csm.needsUpdate = true
   }, [csm, renderSettingsComponent.cascades])
 
-  return <ChildCSMReactor rendererEntity={rendererEntity} />
+  return (
+    <QueryReactor
+      Components={[ShadowComponent, GroupComponent]}
+      ChildEntityReactor={EntityChildCSMReactor}
+      props={{ rendererEntity: rendererEntity }}
+    />
+  )
 }
 
 const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
@@ -225,24 +222,18 @@ const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
     }
   }, [rendererComponent.csm, shadowMapResolution])
 
-  return <ChildCSMReactor rendererEntity={rendererEntity} />
-}
-
-const ChildCSMReactor = (props: { rendererEntity: Entity }) => {
-  const entities = useTreeQuery(props.rendererEntity)
   return (
-    <>
-      {entities.map((entity) => (
-        <Suspense key={entity}>
-          <EntityChildCSMReactor entity={entity} rendererEntity={props.rendererEntity} />
-        </Suspense>
-      ))}
-    </>
+    <QueryReactor
+      Components={[ShadowComponent, GroupComponent]}
+      ChildEntityReactor={EntityChildCSMReactor}
+      props={{ rendererEntity: rendererEntity }}
+    />
   )
 }
 
-const EntityChildCSMReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
-  const { entity, rendererEntity } = props
+const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
+  const entity = useEntityContext()
+  const { rendererEntity } = props
 
   const shadowComponent = useComponent(entity, ShadowComponent)
   const groupComponent = useComponent(entity, GroupComponent)
@@ -284,7 +275,7 @@ function _CSMReactor() {
 
 function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entity }) {
   const { rendererEntity, renderSettingsEntity } = props
-  const rendererComponent = useComponent(rendererEntity, RendererComponent)
+  //const rendererComponent = useComponent(rendererEntity, RendererComponent)
 
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
 
@@ -292,7 +283,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   const activeLightEntity = useHookstate(UndefinedEntity)
 
-  const rendererState = useMutableState(RendererState)
+  //const rendererState = useMutableState(RendererState)
 
   // useEffect(() => {
   //   if (!rendererComponent) return
