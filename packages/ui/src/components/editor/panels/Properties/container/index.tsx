@@ -39,6 +39,7 @@ import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
 import Button from '../../../../../primitives/tailwind/Button'
 import Popover from '../../../layout/Popover'
+import TransformPropertyGroup from '../../../properties/transform'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../elementList'
 import MaterialEditor from '../material'
@@ -94,7 +95,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       </div>
       <Popover
         open={open}
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as any}
         onClose={() => {
           anchorEl.set(null)
           setAnchorPosition(undefined)
@@ -105,7 +106,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       >
         {<ElementList />}
       </Popover>
-      {/*<CoreNodeEditor entity={entity} key={entityUUID + entity} />*/}
+      <TransformPropertyGroup entity={entity} />
       {components.map((c, i) => (
         <EntityComponentEditor
           key={`${entityUUID + entity}-${c.name}`}

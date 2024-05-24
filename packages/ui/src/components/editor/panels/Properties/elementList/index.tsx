@@ -159,19 +159,19 @@ const ComponentListItem = ({ item }: { item: Component }) => {
 
   return (
     <button
-      className="bg-theme-primary flex w-full items-center p-4"
+      className="bg-theme-primary flex w-full items-center p-4 text-white"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         handleClosePopover()
       }}
     >
-      <Icon className="text-textColor h-6 w-6" />
+      <Icon className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
-        <h3 className="text-subtitle1 text-textColor text-center">
+        <h3 className="text-subtitle1 text-center text-white">
           {startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase())}
         </h3>
-        <p className="text-caption text-textColor text-center">
+        <p className="text-caption text-center text-white">
           {t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}
         </p>
       </div>
@@ -193,7 +193,7 @@ const SceneElementListItem = ({
     <>
       <button
         onClick={() => open.set((prev) => !prev)}
-        className="bg-theme-primary text-textColor flex w-full cursor-pointer items-center justify-between px-4 py-2"
+        className="bg-theme-primary flex w-full cursor-pointer items-center justify-between px-4 py-2 text-white"
       >
         <span>{categoryTitle}</span>
         {isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
@@ -245,7 +245,7 @@ export function ElementList() {
     <>
       <div className="bg-theme-primary h-auto w-full overflow-x-hidden overflow-y-scroll">
         <div className="p-2">
-          <h2 className="text-gray text-center uppercase">{t('editor:layout.assetGrid.components')}</h2>
+          <h2 className="text-center uppercase text-white">{t('editor:layout.assetGrid.components')}</h2>
           <StringInput
             placeholder={t('editor:layout.assetGrid.components-search')}
             value={search.local.value}
