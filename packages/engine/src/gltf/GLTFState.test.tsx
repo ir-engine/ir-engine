@@ -649,4 +649,70 @@ describe('GLTFState', () => {
     assert.equal(getState(GLTFSnapshotState)[sceneID].index, 2)
     assert.equal(getState(GLTFSnapshotState)[sceneID].snapshots.length, 3)
   })
+
+  it('should be able to remove an entity', async () => {
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [
+        {
+          nodes: [0, 1, 2]
+        }
+      ],
+      scene: 0,
+      nodes: [
+        {
+          name: 'test one',
+          extensions: {
+            EE_uuid: '0d5a20e1-abe2-455e-9963-d5e1e19fca19',
+            EE_visible: true
+          }
+        },
+        {
+          matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2.5, 5, 1],
+          name: 'test two',
+          extensions: {
+            EE_uuid: 'bb362197-f14d-4da7-9c3c-1ed834386423',
+            EE_visible: true
+          }
+        },
+        {
+          matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 2.5, 5, 1],
+          name: 'test three',
+          extensions: {
+            EE_uuid: '38793f94-0b92-4ea1-af7b-5ec0e117628d',
+            EE_visible: true
+          }
+        }
+      ],
+      extensionsUsed: ['EE_uuid', 'EE_visible']
+    }
+
+    Cache.add('/test.gltf', gltf)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+
+    applyIncomingActions()
+
+    const sceneID = getComponent(gltfEntity, SourceComponent)
+
+    let gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    const nodeLength = gltfClone.data.nodes?.length
+    let testNode = gltfClone.data.nodes!.pop()
+    const nodeName = testNode?.name
+
+    assert(nodeLength === 3)
+    assert(testNode)
+    assert(nodeName)
+
+    dispatchAction(GLTFSnapshotAction.createSnapshot(gltfClone))
+
+    applyIncomingActions()
+
+    gltfClone = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+    testNode = gltfClone.data.nodes!.find((node) => node.name == nodeName)
+    assert(gltfClone.data.nodes?.length === nodeLength - 1)
+    assert(!testNode)
+  })
 })
