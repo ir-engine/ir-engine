@@ -26,18 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 
-import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
+import { getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { AuthState } from '../user/services/AuthService'
 import { AllowedAdminRoutesState } from './AllowedAdminRoutesState'
 import Projects from './components/project'
 
-import { ThemeState } from '@etherealengine/client-core/src/common/services/ThemeService'
 import '@etherealengine/engine/src/EngineModule'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+
 import { useTranslation } from 'react-i18next'
 import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
+
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
@@ -108,7 +111,7 @@ const AdminRoutes = () => {
   const location = useLocation()
   const admin = useHookstate(getMutableState(AuthState)).user
 
-  const allowedRoutes = useHookstate(getMutableState(AllowedAdminRoutesState))
+  const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 
   const scopes = admin?.scopes?.value
 

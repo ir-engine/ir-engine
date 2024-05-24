@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { HookContext, NextFunction } from '@feathersjs/feathers'
-
 import { AsyncLocalStorage } from 'async_hooks'
+
 import { Application } from '../../declarations'
 
 export const asyncLocalStorage = new AsyncLocalStorage<{ headers: object }>()

@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { isArray } from 'lodash'
+import { Color, Material, Mesh, Shader, Texture, Uniform } from 'three'
+
 import {
+  createEntity,
   Entity,
   EntityUUID,
-  UUIDComponent,
-  createEntity,
   generateEntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalMutableComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
-import { isArray } from 'lodash'
-import { Color, Mesh, Shader, Texture, Uniform } from 'three'
+
+import { addOBCPlugin, hasOBCPlugin, PluginObjectType } from '../../common/functions/OnBeforeCompilePlugin'
 import { NameComponent } from '../../common/NameComponent'
-import { PluginObjectType, addOBCPlugin, hasOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { GroupComponent } from '../components/GroupComponent'
 import {
   MaterialComponent,
@@ -117,13 +119,16 @@ export const getPluginObject = (pluginId: string) => {
 export const applyMaterialPlugins = (materialEntity: Entity) => {
   const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.pluginEntities || !materialComponent.material) return
+  const material = materialComponent.material as Material
+  material.plugins = []
   for (const pluginEntity of materialComponent.pluginEntities) {
     const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (pluginComponent.plugin) {
-      if (hasOBCPlugin(materialComponent.material, pluginComponent.plugin)) return
-      addOBCPlugin(materialComponent.material, pluginComponent.plugin)
+      if (hasOBCPlugin(material, pluginComponent.plugin)) return
+      addOBCPlugin(material, pluginComponent.plugin)
     }
   }
+  material.needsUpdate = true
 }
 
 export const applyPluginShaderParameters = (
@@ -143,7 +148,8 @@ export const applyPluginShaderParameters = (
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State]).material!
+  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State])
+    .material! as Material
 }
 
 export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {

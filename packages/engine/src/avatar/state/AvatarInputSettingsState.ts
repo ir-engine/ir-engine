@@ -47,13 +47,11 @@ export const AvatarInputSettingsState = defineState({
     invertRotationAndMoveSticks: true,
     showAvatar: true
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(AvatarInputSettingsState, [
-      'controlType',
-      'leftAxesControlScheme',
-      'rightAxesControlScheme',
-      'invertRotationAndMoveSticks',
-      'showAvatar'
-    ])
-  }
+  extension: syncStateWithLocalStorage([
+    'controlType',
+    'leftAxesControlScheme',
+    'rightAxesControlScheme',
+    'invertRotationAndMoveSticks',
+    'showAvatar'
+  ])
 })

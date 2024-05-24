@@ -45,10 +45,10 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
+import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -60,6 +60,7 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { defineState } from '@etherealengine/hyperflux'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
@@ -71,6 +72,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
+
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AudioAnalysisEditor } from '../components/properties/AudioAnalysisEditor'
 import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
@@ -83,6 +85,7 @@ import { GrabbableComponentNodeEditor } from '../components/properties/Grabbable
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
+import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 import { InstancingNodeEditor } from '../components/properties/InstancingNodeEditor'
 import InteractableComponentNodeEditor from '../components/properties/InteractableComponentNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
@@ -101,10 +104,10 @@ import { PostProcessingSettingsEditor } from '../components/properties/PostProce
 import PrimitiveGeometryNodeEditor from '../components/properties/PrimitiveGeometryNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import RigidBodyComponentEditor from '../components/properties/RigidbodyComponentEditor'
-import SDFEditor from '../components/properties/SDFEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import { SceneSettingsEditor } from '../components/properties/SceneSettingsEditor'
 import ScreenshareTargetNodeEditor from '../components/properties/ScreenshareTargetNodeEditor'
+import SDFEditor from '../components/properties/SDFEditor'
 import ShadowProperties from '../components/properties/ShadowProperties'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
@@ -168,6 +171,7 @@ export const ComponentEditorsState = defineState({
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
+      [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor

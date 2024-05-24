@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { NoiseOffsetSystem } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
+
 import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
@@ -64,7 +65,6 @@ import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
-import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { ShadowSystem } from './systems/ShadowSystem'
@@ -120,7 +120,6 @@ export {
   MeshBVHSystem,
   ParticleSystem,
   PortalSystem,
-  SceneLoadingSystem,
   SceneKillHeightSystem,
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,

@@ -30,9 +30,8 @@ import {
   taskServerSettingPath,
   TaskServerSettingType
 } from '@etherealengine/common/src/schemas/setting/task-server-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

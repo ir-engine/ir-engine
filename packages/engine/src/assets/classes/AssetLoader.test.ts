@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import Sinon from 'sinon'
 import { Mesh } from 'three'
+
 // hack to make tests happy
 import '../../EngineModule'
 
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { AssetLoader } from './AssetLoader'

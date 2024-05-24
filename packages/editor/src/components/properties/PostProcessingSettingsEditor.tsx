@@ -36,6 +36,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
+import React from 'react'
 
 import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
 import BooleanInput from '../inputs/BooleanInput'
@@ -48,7 +49,7 @@ import Vector2Input from '../inputs/Vector2Input'
 import Vector3Input from '../inputs/Vector3Input'
 import styles from '../styles.module.scss'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 enum PropertyTypes {
   BlendFunction,

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { InviteCode, UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -54,6 +55,8 @@ export const projectPermissionSchema = Type.Object(
   { $id: 'ProjectPermission', additionalProperties: false }
 )
 export interface ProjectPermissionType extends Static<typeof projectPermissionSchema> {}
+
+export interface ProjectPermissionDatabaseType extends Omit<ProjectPermissionType, 'user'> {}
 
 // Schema for creating new entries
 export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)

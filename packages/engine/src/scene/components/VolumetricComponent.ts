@@ -36,11 +36,12 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { State, getState } from '@etherealengine/hyperflux'
+import { getState, State } from '@etherealengine/hyperflux'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { AudioState } from '../../audio/AudioState'
 import { PlayMode } from '../constants/PlayMode'
-import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
+import { AudioNodeGroups, createAudioNodeGroup, getNextTrack, MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 import { UVOL2Component } from './UVOL2Component'

@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine } from '@etherealengine/ecs'
 import {
@@ -38,8 +37,9 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
@@ -150,7 +150,7 @@ export const SkyboxComponent = defineComponent({
 
       skyboxState.sky.set(new Sky())
 
-      const sky = skyboxState.sky.value!
+      const sky = skyboxState.sky.value! as Sky
 
       sky.azimuth = skyboxState.skyboxProps.value.azimuth
       sky.inclination = skyboxState.skyboxProps.value.inclination

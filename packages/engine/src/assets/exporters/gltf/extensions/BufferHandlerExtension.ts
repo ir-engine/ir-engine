@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { sha3_256 } from 'js-sha3'
 import { LoaderUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
-
-import { NO_PROXY, defineAction, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { v4 as uuidv4 } from 'uuid'
 
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { defineAction, dispatchAction, getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
-import { v4 as uuidv4 } from 'uuid'
+
 import { AssetLoader } from '../../../classes/AssetLoader'
 import { modelResourcesPath } from '../../../functions/pathResolver'
 import { UploadRequestState } from '../../../state/UploadRequestState'

@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID, getState } from '@etherealengine/hyperflux'
-
 import { getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { PeerID, getState } from '@etherealengine/hyperflux'
+
 import { Network } from '../Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'

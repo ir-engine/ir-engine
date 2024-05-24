@@ -36,6 +36,7 @@ import {
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import {
   GeometryTransformParameters,
   ImageTransformParameters,

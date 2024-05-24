@@ -27,6 +27,7 @@ import {
   instanceActiveMethods,
   instanceActivePath
 } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
+
 import { Application } from '../../../declarations'
 import { InstanceActiveService } from './instance-active.class'
 import instanceActiveDocs from './instance-active.docs'

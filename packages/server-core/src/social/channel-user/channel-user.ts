@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { channelUserMethods, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+
 import { Application } from '../../../declarations'
 import { ChannelUserService } from './channel-user.class'
 import channelUserDocs from './channel-user.docs'

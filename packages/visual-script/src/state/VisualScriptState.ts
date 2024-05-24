@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
-import { IRegistry } from '../VisualScriptModule'
+
 import { createBaseRegistry } from '../functions/createRegistry'
 import { GraphTemplate } from '../types/GraphTemplate'
+import { IRegistry } from '../VisualScriptModule'
 
 export enum VisualScriptDomain {
   'ECS' = 'ECS'

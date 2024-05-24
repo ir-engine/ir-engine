@@ -26,22 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { DescribeImagesCommand as DescribePrivateImagesCommand, ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
-import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import * as k8s from '@kubernetes/client-node'
+import { RestEndpointMethodTypes } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
+import fs from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
-
-import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
-import fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
 
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
@@ -57,6 +57,7 @@ import {
   ProjectSettingType,
   ProjectType
 } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -71,10 +72,9 @@ import {
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { RestEndpointMethodTypes } from '@octokit/rest'
-import { v4 as uuidv4 } from 'uuid'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'

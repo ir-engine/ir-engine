@@ -34,7 +34,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 /**
  *

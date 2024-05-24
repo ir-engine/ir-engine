@@ -23,6 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PauseIcon from '@mui/icons-material/Pause'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent, removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -33,16 +38,13 @@ import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/Av
 import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/avatar/functions/receiveJoinWorld'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import PauseIcon from '@mui/icons-material/Pause'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
 import { EditorState } from '../../../services/EditorServices'
 import { SelectionState } from '../../../services/SelectionServices'
@@ -54,7 +56,7 @@ const PlayModeTool = () => {
   const { t } = useTranslation()
 
   const isEditing = useHookstate(getMutableState(EngineState).isEditing)
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
 
   const sceneEntity = useHookstate(getMutableState(EditorState).rootEntity)
   const gltfComponent = getOptionalComponent(sceneEntity.value, GLTFComponent)

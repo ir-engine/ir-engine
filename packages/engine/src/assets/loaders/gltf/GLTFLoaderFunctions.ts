@@ -33,10 +33,11 @@ import {
   Quaternion,
   Sphere,
   TriangleFanDrawMode,
-  TriangleStripDrawMode,
   TrianglesDrawMode,
+  TriangleStripDrawMode,
   Vector3
 } from 'three'
+
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from './GLTFConstants'
 import { EXTENSIONS } from './GLTFExtensions'
 

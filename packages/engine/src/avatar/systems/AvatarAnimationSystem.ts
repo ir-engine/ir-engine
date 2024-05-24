@@ -23,21 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { useEffect } from 'react'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import config from '@etherealengine/common/src/config'
 import {
-  ECSState,
-  Entity,
   defineQuery,
   defineSystem,
+  ECSState,
+  Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs'
 import {
-  NO_PROXY,
   defineState,
   getMutableState,
   getState,
+  NO_PROXY,
   none,
   useHookstate,
   useMutableState
@@ -48,29 +52,28 @@ import {
   createSortAndApplyPriorityQueue
 } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { compareDistanceToCamera } from '@etherealengine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+import { TransformSystem } from '@etherealengine/spatial/src/transform/TransformModule'
 import { XRLeftHandComponent, XRRightHandComponent } from '@etherealengine/spatial/src/xr/XRComponents'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
-import { useEffect } from 'react'
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { useBatchGLTF } from '../../assets/functions/resourceLoaderHooks'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
-import { AnimationState } from '../AnimationManager'
-import { IKSerialization } from '../IKSerialization'
+import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
-import { applyHandRotationFK } from '../animation/applyHandRotationFK'
-import { getArmIKHint } from '../animation/getArmIKHint'
+import { AnimationState } from '../AnimationManager'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkinnedMeshComponent } from '../components/SkinnedMeshComponent'
 import { retargetAnimationClip } from '../functions/retargetMixamoRig'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
+import { IKSerialization } from '../IKSerialization'
 import { LocalAvatarState } from '../state/AvatarState'
 import { AnimationSystem } from './AnimationSystem'
 
@@ -335,7 +338,7 @@ const reactor = () => {
     const assets = gltfs.get(NO_PROXY)
     if (assets.length !== animations.length) return
     for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i]
+      const asset = assets[i] as GLTF | null
       if (asset && !manager.loadedAnimations[animations[i]].value) {
         // delete unneeded geometry data to save memory
         asset.scene.traverse((node) => {

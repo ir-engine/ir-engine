@@ -24,15 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CubeTexture, Material, Texture } from 'three'
+import matches from 'ts-matches'
 
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import {
+  materialByName,
   MaterialComponent,
-  MaterialComponents,
-  materialByName
+  MaterialComponents
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import matches from 'ts-matches'
+
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'

@@ -32,7 +32,5 @@ export const AppState = defineState({
     showBottomShelf: true,
     showTouchPad: true
   }),
-  onCreate: () => {
-    syncStateWithLocalStorage(AppState, ['showTopShelf', 'showBottomShelf'])
-  }
+  extension: syncStateWithLocalStorage(['showTopShelf', 'showBottomShelf'])
 })

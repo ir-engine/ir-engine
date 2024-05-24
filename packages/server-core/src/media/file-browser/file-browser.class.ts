@@ -24,27 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
+import { Knex } from 'knex'
 import path from 'path/posix'
 
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-
-import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { KnexAdapterParams } from '@feathersjs/knex'
-import { Knex } from 'knex'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getIncrementalName } from '../FileUtil'
@@ -59,8 +59,6 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {
   nestingDirectory?: string
 }
-
-const PROJECT_FILE_REGEX = /^projects/
 
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
   if (!nestingDirectory) {

@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Toolbar as MuiToolbar, ToolbarProps } from '@mui/material'
 import React from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { Toolbar as MuiToolbar, ToolbarProps } from '@mui/material'
 
 const Toolbar = (props: ToolbarProps) => <MuiToolbar {...props} />
 

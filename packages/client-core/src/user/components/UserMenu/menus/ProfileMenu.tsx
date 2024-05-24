@@ -42,6 +42,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -49,7 +50,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { authenticationSettingPath, clientSettingPath, UserName } from '@etherealengine/common/src/schema.type.module'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'

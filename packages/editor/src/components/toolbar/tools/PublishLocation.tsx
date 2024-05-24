@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Button } from '@mui/material'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { locationPath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import { Button } from '@mui/material'
-import { useTranslation } from 'react-i18next'
+
 import { EditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'

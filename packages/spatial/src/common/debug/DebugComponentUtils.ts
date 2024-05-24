@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Object3D } from 'three'
+
 import {
-  Entity,
-  UUIDComponent,
   createEntity,
+  Entity,
   generateEntityUUID,
   removeEntity,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -38,8 +41,6 @@ import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/c
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import { Object3D } from 'three'
 
 export function useHelperEntity<
   TObject extends Object3D,

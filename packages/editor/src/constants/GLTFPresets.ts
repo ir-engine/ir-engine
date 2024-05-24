@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ModelTransformParameters,
-  DefaultModelTransformParameters as defaultParams
+  DefaultModelTransformParameters as defaultParams,
+  ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
 export type LODVariantDescriptor = {

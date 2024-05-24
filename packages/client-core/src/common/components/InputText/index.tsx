@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React, { RefObject, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -34,8 +35,6 @@ import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import InputLabel from '@etherealengine/ui/src/primitives/mui/InputLabel'
 import OutlinedInput from '@etherealengine/ui/src/primitives/mui/OutlinedInput'
-
-import { SxProps, Theme } from '@mui/material/styles'
 
 import commonStyles from '../common.module.scss'
 import styles from './index.module.scss'

@@ -27,6 +27,7 @@ import {
   projectCommitsMethods,
   projectCommitsPath
 } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectCommitsService } from './project-commits.class'
 import projectCommitsDocs from './project-commits.docs'

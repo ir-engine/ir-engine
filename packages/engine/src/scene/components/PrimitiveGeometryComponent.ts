@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useLayoutEffect } from 'react'
 import { MeshLambertMaterial } from 'three'
 
 import { defineComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { Geometry } from '@etherealengine/spatial/src/common/constants/Geometry'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { useLayoutEffect } from 'react'
+
 import { GeometryTypeEnum, GeometryTypeToClass } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {

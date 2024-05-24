@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
 
 import { LoadingCircle } from '../LoadingCircle'
 
 export const XRLoading = () => {
   const { t } = useTranslation()
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
   return xrState.requestingSession.value ? <LoadingCircle message={t('common:loader.loadingXRSystems')} /> : <></>
 }

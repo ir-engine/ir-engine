@@ -34,7 +34,7 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const mapValue = (v) => ({ label: v, value: v })
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)

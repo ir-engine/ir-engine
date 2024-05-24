@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
+import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 
 import { matchTicketAssignmentSchema } from './match-ticket-assignment.schema'
 

@@ -23,27 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-
-import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { ChannelUserType, channelUserPath } from '@etherealengine/common/src/schemas/social/channel-user.schema'
-import {
-  ChannelData,
-  ChannelID,
-  ChannelType,
-  channelDataValidator,
-  channelPatchValidator,
-  channelPath
-} from '@etherealengine/common/src/schemas/social/channel.schema'
-import {
-  UserRelationshipType,
-  userRelationshipPath
-} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
+
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/schemas/social/channel-user.schema'
+import {
+  ChannelData,
+  channelDataValidator,
+  ChannelID,
+  channelPatchValidator,
+  channelPath,
+  ChannelType
+} from '@etherealengine/common/src/schemas/social/channel.schema'
+import {
+  userRelationshipPath,
+  UserRelationshipType
+} from '@etherealengine/common/src/schemas/user/user-relationship.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+
 import { HookContext } from '../../../declarations'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'

@@ -31,8 +31,8 @@ import {
   IGraph,
   NodeDescription,
   Socket,
-  VisualScriptEngine,
-  toCamelCase
+  toCamelCase,
+  VisualScriptEngine
 } from '../../../../VisualScriptModule'
 import { ILifecycleEventEmitter } from '../../../ProfilesModule'
 import { IScene } from '../../abstractions/IScene'

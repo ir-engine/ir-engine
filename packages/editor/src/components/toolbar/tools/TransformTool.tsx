@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
-
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { useMutableState } from '@etherealengine/hyperflux'
+
 import { setTransformMode } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -41,7 +40,7 @@ import * as styles from '../styles.module.scss'
 const TransformTool = () => {
   const { t } = useTranslation()
 
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
 
   return (

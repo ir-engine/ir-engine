@@ -23,20 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SxProps, Theme } from '@mui/material/styles'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
-
-import { SxProps, Theme } from '@mui/material/styles'
-
-import styles from './index.module.scss'
-
 import { createEntity, generateEntityUUID, setComponent, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { defaultAnimationPath, preloadedAnimations } from '@etherealengine/engine/src/avatar/animation/Util'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -48,6 +41,11 @@ import { AmbientLightComponent, TransformComponent } from '@etherealengine/spati
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
+
+import styles from './index.module.scss'
 
 interface Props {
   fill?: boolean

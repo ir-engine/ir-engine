@@ -36,7 +36,14 @@ import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/disc
 import { githubRepoAccessWebhookPath } from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
+
 import multiLogger from './ServerLogger'
+import {
+  DISCORD_SCOPES,
+  GITHUB_SCOPES,
+  GOOGLE_SCOPES,
+  LINKEDIN_SCOPES
+} from './setting/authentication-setting/authentication-setting.seed'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
 
@@ -289,7 +296,7 @@ const authentication = {
     discord: {
       key: process.env.DISCORD_CLIENT_ID!,
       secret: process.env.DISCORD_CLIENT_SECRET!,
-      scope: ['identify', 'email'],
+      scope: DISCORD_SCOPES,
       custom_params: {
         prompt: 'none'
       }
@@ -301,17 +308,17 @@ const authentication = {
     github: {
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
-      scope: ['repo', 'user', 'workflow']
+      scope: GITHUB_SCOPES
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,
       secret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: ['profile', 'email']
+      scope: GOOGLE_SCOPES
     },
     linkedin: {
       key: process.env.LINKEDIN_CLIENT_ID!,
       secret: process.env.LINKEDIN_CLIENT_SECRET!,
-      scope: ['r_liteprofile', 'r_emailaddress']
+      scope: LINKEDIN_SCOPES
     },
     twitter: {
       key: process.env.TWITTER_CLIENT_ID!,

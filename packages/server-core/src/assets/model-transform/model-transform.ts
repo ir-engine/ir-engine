@@ -27,6 +27,7 @@ import {
   modelTransformMethods,
   modelTransformPath
 } from '@etherealengine/common/src/schemas/assets/model-transform.schema'
+
 import { Application } from '../../../declarations'
 import { ModelTransformService } from './model-transform.class'
 import modelTransformDocs from './model-transform.docs'

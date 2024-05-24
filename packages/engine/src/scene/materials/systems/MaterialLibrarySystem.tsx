@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactElement, useEffect } from 'react'
 
 import {
+  EntityUUID,
+  getOptionalComponent,
   PresentationSystemGroup,
   QueryReactor,
-  getOptionalComponent,
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
@@ -48,6 +49,7 @@ import {
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { removeMaterial } from '../functions/materialSourcingFunctions'
 
 const reactor = (): ReactElement => {
@@ -81,7 +83,9 @@ const MaterialEntityReactor = () => {
     if (materialComponent.instances.value)
       for (const sourceEntity of materialComponent.instances.value) {
         iterateEntityNode(sourceEntity, (childEntity) => {
-          const uuid = getOptionalComponent(childEntity, MaterialComponent[MaterialComponents.Instance])?.uuid
+          const uuid = getOptionalComponent(childEntity, MaterialComponent[MaterialComponents.Instance])?.uuid as
+            | EntityUUID[]
+            | undefined
           if (uuid) setGroupMaterial(childEntity, uuid)
         })
       }
@@ -98,17 +102,17 @@ const MaterialEntityReactor = () => {
   useEffect(() => {
     if (materialComponent.instances.value?.length === 0) removeMaterial(entity)
   }, [materialComponent.instances])
+
   return null
 }
 
 const MaterialInstanceReactor = () => {
   const entity = useEntityContext()
-  const modelComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
-  const uuid = modelComponent.uuid
+  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.Instance])
+  const uuid = materialComponent.uuid
   useEffect(() => {
-    if (uuid.value) setGroupMaterial(entity, uuid.value)
-  }, [modelComponent.uuid])
-
+    if (uuid.value) setGroupMaterial(entity, uuid.value as EntityUUID[])
+  }, [materialComponent.uuid])
   return null
 }
 

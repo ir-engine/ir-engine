@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetType, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
 import { v4 } from 'uuid'
+
+import { assetPath, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 /**
  * @param { import("knex").Knex } knex

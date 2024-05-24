@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import verifyScope from '../../hooks/verify-scope'
-
 import {
   InstanceData,
-  InstanceType,
   instanceDataValidator,
   instancePatchValidator,
   instancePath,
-  instanceQueryValidator
+  instanceQueryValidator,
+  InstanceType
 } from '@etherealengine/common/src/schemas/networking/instance.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
-import { BadRequest } from '@feathersjs/errors'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
+
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
-import { InstanceService, generateRoomCode } from './instance.class'
+import verifyScope from '../../hooks/verify-scope'
+import { generateRoomCode, InstanceService } from './instance.class'
 import {
   instanceDataResolver,
   instanceExternalResolver,

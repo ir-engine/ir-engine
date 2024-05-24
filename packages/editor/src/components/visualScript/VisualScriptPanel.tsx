@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import hierarchyStyles from '../hierarchy/styles.module.scss'
-import VisualFlow from './VisualFlow'
-
 import VisualScriptIcon from '@mui/icons-material/AutoGraph'
-
 import { TabData } from 'rc-dock'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import hierarchyStyles from '../hierarchy/styles.module.scss'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import styles from '../styles.module.scss'
+import VisualFlow from './VisualFlow'
 
 export const VisualScriptPanel = () => {
   return (

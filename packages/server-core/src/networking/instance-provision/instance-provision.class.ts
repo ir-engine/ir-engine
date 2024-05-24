@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
 import _ from 'lodash'
@@ -47,14 +48,14 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
-const releaseRegex = /^([a-zA-Z0-9]+)-/
+const releaseRegex = /^([a-zA-Z0-9_-]+)-instanceserver/
 
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 

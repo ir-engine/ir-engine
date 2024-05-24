@@ -47,7 +47,5 @@ export const EditorHelperState = defineState({
     rotationSnap: 10,
     scaleSnap: 0.1
   }),
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(EditorHelperState, ['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
-  }
+  extension: syncStateWithLocalStorage(['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
 })

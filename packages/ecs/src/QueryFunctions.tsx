@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { HyperFlux, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
 import * as bitECS from 'bitecs'
-import React, { ErrorInfo, FC, Suspense, memo, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { getState, HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
+
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
@@ -79,6 +81,7 @@ export const ReactiveQuerySystem = defineSystem({
 
 /**
  * Use a query in a reactive context (a React component)
+ * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
   const result = useHookstate([] as Entity[])
@@ -139,7 +142,7 @@ export const QueryReactor = memo((props: { Components: QueryComponents; ChildEnt
   return (
     <>
       {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props} />
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
       ))}
     </>
   )

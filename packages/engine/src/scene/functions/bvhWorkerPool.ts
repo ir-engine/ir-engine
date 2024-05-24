@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Box3, BufferAttribute, BufferGeometry, InstancedMesh, InterleavedBufferAttribute, Mesh } from 'three'
+import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
+import Worker from 'web-worker'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { WorkerPool } from '@etherealengine/xrui/core/WorkerPool'
-import { MeshBVH, SerializedBVH } from 'three-mesh-bvh'
-import Worker from 'web-worker'
 
 const createWorker = () => {
   if (isClient) {

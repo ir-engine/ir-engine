@@ -40,14 +40,14 @@ import {
   Vector2
 } from 'three'
 
-import { Engine, EntityUUID } from '@etherealengine/ecs'
-
 import config from '@etherealengine/common/src/config'
 import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { Engine, EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -199,7 +199,7 @@ export function ImageReactor() {
         case ImageProjection.Flat:
         default:
           mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-          resizeImageMesh(mesh.value)
+          resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
       }
     },
     [mesh.material.map, image.projection]

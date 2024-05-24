@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/common/src/schema.type.module'
-import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
@@ -36,6 +34,9 @@ import {
   RiMessage2Line,
   RiTwitterFill
 } from 'react-icons/ri'
+
+import { UserType } from '@etherealengine/common/src/schema.type.module'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
   const discordIp = user.identityProviders.find((ip) => ip.type === 'discord')

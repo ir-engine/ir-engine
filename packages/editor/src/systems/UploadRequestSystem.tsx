@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NO_PROXY, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { UploadRequestState } from '@etherealengine/engine/src/assets/state/UploadRequestState'
+import { getMutableState, getState, NO_PROXY, useState } from '@etherealengine/hyperflux'
+
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { uploadProjectFiles } from '../functions/assetFunctions'
 import { EditorState } from '../services/EditorServices'

@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { SystemUUID, defineSystem, destroySystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineSystem, destroySystem, SystemUUID } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import {
-  NodeCategory,
-  NodeDefinition,
   makeEventNodeDefinition,
-  makeFlowNodeDefinition
+  makeFlowNodeDefinition,
+  NodeCategory,
+  NodeDefinition
 } from '@etherealengine/visual-script'
-import { useEffect } from 'react'
-import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
+
+import { EnginetoNodetype, getSocketType, NodetoEnginetype } from './commonHelper'
 
 const skipState = [''] //visual script state is skipped since its a type of record we do want to skip it anyways
 

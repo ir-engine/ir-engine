@@ -27,6 +27,7 @@ import {
   recordingResourceUploadMethods,
   recordingResourceUploadPath
 } from '@etherealengine/common/src/schemas/recording/recording-resource-upload.schema'
+
 import { Application } from '../../../declarations'
 import { RecordingResourceUploadService } from './recording-resource-upload.class'
 import RecordingResourceUploadDocs from './recording-resource-upload.docs'

@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
+
 import {
   StaticResourceData,
   StaticResourcePatch,
   StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 export interface StaticResourceParams extends KnexAdapterParams<StaticResourceQuery> {}
 

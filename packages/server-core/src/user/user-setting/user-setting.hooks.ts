@@ -29,15 +29,15 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-
 import {
   userSettingDataValidator,
   userSettingPatchValidator,
   userSettingPath,
   userSettingQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+
 import {
   userSettingDataResolver,
   userSettingExternalResolver,

@@ -27,15 +27,16 @@ Ethereal Engine. All Rights Reserved.
 
 import * as VolumetricNodes from '@etherealengine/engine/src/scene/components/VolumetricNodes'
 import {
+  getNodeDescriptions,
   GetSceneProperty,
+  getStringConversionsForValueType,
   IRegistry,
+  memo,
   NodeDefinition,
   SetSceneProperty,
-  ValueTypeMap,
-  getNodeDescriptions,
-  getStringConversionsForValueType,
-  memo
+  ValueTypeMap
 } from '@etherealengine/visual-script'
+
 import { OnButton } from './EngineProfileModule'
 import { OnAxis } from './events/onAxis'
 import { OnCollision } from './events/onCollision'

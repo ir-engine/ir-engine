@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ExtensionIcon from '@mui/icons-material/Extension'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -30,12 +31,10 @@ import { validatePath } from '@etherealengine/common/src/utils/validatePath'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
-import ExtensionIcon from '@mui/icons-material/Extension'
-
 import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties } from './Util'
+import { commitProperties, EditorComponentType } from './Util'
 
 export const SystemNodeEditor: EditorComponentType = (props) => {
   const [isPathValid, setPathValid] = useState(true)

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
@@ -37,7 +36,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string
@@ -50,12 +49,12 @@ export const ThemeContext = createContext<ThemeContextProps>({
 })
 
 export const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const selfUser = authState.user
 
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const clientSettingState = useMutableState(AdminClientSettingsState)
 
-  const appTheme = useHookstate(getMutableState(AppThemeState))
+  const appTheme = useMutableState(AppThemeState)
   const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
 

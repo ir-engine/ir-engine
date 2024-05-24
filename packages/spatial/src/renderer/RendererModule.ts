@@ -30,7 +30,6 @@ import { PointLightComponent } from '../renderer/components/PointLightComponent'
 import { SpotLightComponent } from '../renderer/components/SpotLightComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAnchorComponent } from '../xr/XRComponents'
-
 import { DebugRendererSystem } from './DebugRendererSystem'
 import { RenderInfoSystem } from './RenderInfoSystem'
 import { WebGLRendererSystem } from './WebGLRendererSystem'

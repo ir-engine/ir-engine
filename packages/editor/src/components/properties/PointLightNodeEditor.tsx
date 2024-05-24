@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
 
-import LightbulbIcon from '@mui/icons-material/Lightbulb'
-
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

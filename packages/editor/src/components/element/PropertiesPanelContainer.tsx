@@ -23,17 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import { Popover } from '@mui/material'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
-import { EntityUUID } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { Popover } from '@mui/material'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
@@ -81,7 +79,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
       <Popover
         id={open ? 'add-component-popover' : undefined}
         open={open}
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as HTMLButtonElement}
         onClose={() => anchorEl.set(null)}
         anchorOrigin={{
           vertical: 'center',

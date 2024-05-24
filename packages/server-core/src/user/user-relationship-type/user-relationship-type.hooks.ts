@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow } from 'feathers-hooks-common'
 
 import {
   userRelationshipTypeDataValidator,
@@ -31,7 +32,6 @@ import {
   userRelationshipTypeQueryValidator
 } from '@etherealengine/common/src/schemas/user/user-relationship-type.schema'
 
-import { disallow } from 'feathers-hooks-common'
 import {
   userRelationshipTypeDataResolver,
   userRelationshipTypeExternalResolver,

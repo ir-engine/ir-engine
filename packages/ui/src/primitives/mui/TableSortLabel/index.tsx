@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import { TableSortLabel as MuiTableSortLabel, TableSortLabelProps } from '@mui/material'
+import React from 'react'
 
 const TableSortLabel = ({ children, ...props }: TableSortLabelProps) => (
   <MuiTableSortLabel {...props}>{children}</MuiTableSortLabel>

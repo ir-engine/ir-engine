@@ -23,25 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  AuthenticationSettingPatch,
-  AuthenticationSettingType,
   authenticationSettingDataValidator,
+  AuthenticationSettingPatch,
   authenticationSettingPatchValidator,
   authenticationSettingPath,
-  authenticationSettingQueryValidator
+  authenticationSettingQueryValidator,
+  AuthenticationSettingType
 } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
-import * as k8s from '@kubernetes/client-node'
 
-import { getState } from '@etherealengine/hyperflux'
-import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
+import refreshApiPods from '../../hooks/refresh-api-pods'
 import verifyScope from '../../hooks/verify-scope'
 import { AuthenticationSettingService } from './authentication-setting.class'
 import {
@@ -117,44 +114,6 @@ const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) =
  * @param context
  * @returns
  */
-const refreshAPIPods = async (context: HookContext<AuthenticationSettingService>) => {
-  const k8AppsClient = getState(ServerState).k8AppsClient
-
-  if (k8AppsClient) {
-    try {
-      logger.info('Attempting to refresh API pods')
-      const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-etherealengine-api`,
-        'default',
-        {
-          spec: {
-            template: {
-              metadata: {
-                annotations: {
-                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
-                }
-              }
-            }
-          }
-        },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        {
-          headers: {
-            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
-          }
-        }
-      )
-      logger.info(refreshApiPodResponse, 'updateBuilderTagResponse')
-    } catch (e) {
-      logger.error(e)
-      return e
-    }
-  }
-}
 
 export default {
   around: {
@@ -192,7 +151,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [refreshAPIPods],
+    patch: [refreshApiPods],
     remove: []
   },
 

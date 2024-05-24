@@ -41,7 +41,7 @@
           "bakeType": "Baked",
           "resolution": 2048,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/default.envmap.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/default.envmap.ktx2",
           "boxProjection": true
         },
         "EE_fog": {
@@ -210,8 +210,8 @@
           "shadowMapType": 2
         },
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/default.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/default.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/default-project/public/scenes/default.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/default.loadingscreen.ktx2",
           "primaryColor": "#38620D",
           "backgroundColor": "rgb(214, 214, 211)",
           "alternativeColor": "#376312",

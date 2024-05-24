@@ -23,26 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
-import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-
-import { PeerID } from '@etherealengine/hyperflux'
 import { HiPlay, HiPlusCircle } from 'react-icons/hi2'
 
-import { RecordingType, recordingPath } from '@etherealengine/common/src/schema.type.module'
+import { recordingPath, RecordingType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import {
   ECSRecordingActions,
   PlaybackState,
   RecordingState
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import {
+  defineState,
+  getMutableState,
+  getState,
+  PeerID,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { WidgetAppService } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
+
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { PeerMediaChannelState } from '../../transports/PeerMediaChannelState'
 
 // TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {
@@ -84,9 +89,8 @@ const Button = (props: { label: string | JSX.Element; onClick: () => void }) => 
 const VideoPreview = (props: { peerID: PeerID }) => {
   const { peerID } = props
 
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID]['cam'] as State<PeerMediaStreamInterface>
-  )
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[peerID]['cam']
+
   const { videoStream: videoStreamState } = peerMediaChannelState
 
   const ref = useRef<HTMLVideoElement>(null)
@@ -134,7 +138,7 @@ const PeerRecordOptions = ['Video', 'Audio', 'Mocap'] as const
 export const RecordingPeer = (props: { peerID: PeerID }) => {
   const { peerID } = props
 
-  const recordingSchemaState = useHookstate(getMutableState(RecordingSchemaState))
+  const recordingSchemaState = useMutableState(RecordingSchemaState)
 
   useEffect(() => {
     if (!recordingSchemaState.peers.value[peerID]) {
@@ -182,10 +186,10 @@ export const RecordingPeer = (props: { peerID: PeerID }) => {
 
 export const RecordingPeerList = () => {
   const mediaNetworkState = useMediaNetwork()
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
-  const recordingSchemaState = useHookstate(getMutableState(RecordingSchemaState))
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
+  const recordingSchemaState = useMutableState(RecordingSchemaState)
 
-  const recordingState = useHookstate(getMutableState(RecordingState))
+  const recordingState = useMutableState(RecordingState)
 
   const onToggleRecording = () => {
     if (recordingState.recordingID.value) {
@@ -267,7 +271,7 @@ export const RecordingPeerList = () => {
 }
 
 export const RecordingTimer = () => {
-  const recordingState = useHookstate(getMutableState(RecordingState))
+  const recordingState = useMutableState(RecordingState)
   const currentTime = useHookstate(0)
   const seconds = Math.round((currentTime.value - recordingState.startedAt.value!) / 1000)
   const minutes = Math.floor(seconds / 60)
@@ -288,7 +292,7 @@ export const RecordingTimer = () => {
 }
 
 const RecordingPlayback = () => {
-  const playbackState = useHookstate(getMutableState(PlaybackState))
+  const playbackState = useMutableState(PlaybackState)
   const recording = useGet(recordingPath, playbackState.recordingID.value!)
 
   useEffect(() => {
@@ -417,8 +421,8 @@ export const RecordingUIState = defineState({
 })
 
 export const RecordingsWidgetUI = () => {
-  const recordingState = useHookstate(getMutableState(RecordingState))
-  const mode = useHookstate(getMutableState(RecordingUIState).mode)
+  const recordingState = useMutableState(RecordingState)
+  const mode = useMutableState(RecordingUIState).mode
   return (
     <>
       <div

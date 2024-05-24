@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /** List of Asset Classes. */
 export enum AssetClass {
   Material = 'Material',
+  Lookdev = 'Lookdev',
   Asset = 'Asset',
   Model = 'Model',
   Image = 'Image',
@@ -34,6 +35,7 @@ export enum AssetClass {
   Document = 'Document',
   Text = 'Text',
   Script = 'Script',
+  Prefab = 'Prefab',
   Unknown = 'unknown',
   Volumetric = 'Volumetric'
 }

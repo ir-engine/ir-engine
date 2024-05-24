@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { TransformComponent } from '@etherealengine/spatial'
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
+
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { TransformComponent } from '@etherealengine/spatial'
+
 import { migrateDirectionalLightUseInCSM } from '../scene/functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from '../scene/functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from '../scene/functions/migrateOldComponentJSONIDs'
