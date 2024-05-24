@@ -13,7 +13,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "EE_transform",
+      "name": "Point Light",
       "extensions": {
         "EE_uuid": "45a35b2e-0e35-46e4-993a-bcf6831c4fb1",
         "EE_visible": true,
