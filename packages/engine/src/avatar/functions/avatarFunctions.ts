@@ -91,7 +91,7 @@ export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
     const vrm = new VRM({
-      ...model,
+      ...foundModel,
       humanoid,
       scene: foundModel.scene,
       meta: { name: foundModel.scene.children[0].name } as VRM1Meta
