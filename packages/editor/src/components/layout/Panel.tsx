@@ -25,98 +25,65 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode } from 'react'
 
-const panelIconStyles = {
-  color: 'var(--textColor)',
-  marginRight: '6px',
-  width: '18px'
-}
+// const panelDragContainerStyles = {
+//   display: 'flex',
+//   flex: 1,
+//   flexDirection: 'row',
+//   alignItems: 'center',
+//   padding: '0px',
 
-const panelTitleStyles = {
-  color: 'var(--textColor)',
-  position: 'relative'
-}
-
-const panelCheckboxStyles = {
-  color: 'var(--textColor)',
-  position: 'relative',
-  padding: '0px'
-}
-
-const panelDragContainerStyles = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  padding: '0px',
-
-  '&.dockTabActive': {
-    '& > div': {
-      color: 'white !important'
-    }
-  }
-}
-
-const panelContainerStyles = {
-  position: 'relative',
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  borderRadius: '4px',
-  backgroundColor: 'var(--dockBackground)',
-  overflow: 'hidden',
-  userSelect: 'none'
-}
-
-const panelToolbarStyles = {
-  display: 'flex',
-  padding: '4px',
-  height: '24px',
-  alignItems: 'center',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.2)'
-}
-
-const panelContentStyles = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  position: 'relative',
-  overflow: 'hidden'
-}
+//   '&.dockTabActive': {
+//     '& > div': {
+//       color: 'white !important'
+//     }
+//   }
+// }
 
 export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
-  return <IconComponent style={panelIconStyles} size={size} />
+  return <IconComponent className="mr-[6px] w-[18px] text-[var(--textColor)]" size={size} />
 }
 
 export const PanelTitle = ({ children }) => {
-  return <div style={panelTitleStyles as React.CSSProperties}>{children}</div>
+  return <div className="relative text-[var(--textColor)]">{children}</div>
 }
+
+// export const PanelTitle = ({ children }) => {
+//   return (
+//     <Text fontSize="sm" fontFamily="Figtree" className="leading-none">
+//       {children}
+//     </Text>
+//   )
+// }
 
 export const PanelCheckbox = ({ children }) => {
-  return <div style={panelCheckboxStyles as React.CSSProperties}>{children}</div>
+  return <div className="relative p-0 text-[var(--textColor)]">{children}</div>
 }
 
+// export const PanelDragContainer = ({ children }) => {
+//   return <div style={panelDragContainerStyles as React.CSSProperties}>{children}</div>
+// }
+
 export const PanelDragContainer = ({ children }) => {
-  return <div style={panelDragContainerStyles as React.CSSProperties}>{children}</div>
+  return <div className="bg-theme-surface-main cursor-pointer rounded-t-md px-4 py-1">{children}</div>
 }
 
 export const PanelContainer = ({ children, ...rest }) => {
   return (
-    <div style={panelContainerStyles as React.CSSProperties} {...rest}>
+    <div
+      className="relative flex flex-1 select-none flex-col overflow-hidden rounded bg-[var(--dockBackground)]"
+      {...rest}
+    >
       {children}
     </div>
   )
 }
 
 export const PanelToolbar = ({ children }) => {
-  return (
-    <div className="toolbar" style={panelToolbarStyles}>
-      {children}
-    </div>
-  )
+  return <div className="toolbar flex h-6 items-center border-b border-black border-opacity-20 p-1">{children}</div>
 }
 
 export const PanelContent = ({ children }) => {
-  return <div style={panelContentStyles as React.CSSProperties}>{children}</div>
+  return <div className="relative flex flex-1 flex-col overflow-hidden">{children}</div>
 }
 
 interface PanelProps {
