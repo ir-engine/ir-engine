@@ -71,7 +71,7 @@ import {
 } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
-import { ArrayCamera, Scene, Texture } from 'three'
+import { ArrayCamera, Scene, Texture, WebGLRenderer } from 'three'
 import { EffectPropsSchema, Effects, defaultPostProcessingSchema } from '../PostProcessing'
 import { CustomNormalPass } from '../passes/CustomNormalPass'
 
@@ -160,11 +160,11 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   const effects = useHookstate<Record<string, Effect>>({})
 
   useEffect(() => {
-    const composer = new EffectComposer(renderer.value.renderer)
-    renderer.value.effectComposer = composer
+    const composer = new EffectComposer(renderer.value.renderer as WebGLRenderer)
+    renderer.effectComposer.set(composer)
     const renderPass = new RenderPass()
     renderer.value.effectComposer.addPass(renderPass)
-    renderer.value.renderPass = renderPass
+    renderer.renderPass.set(renderPass)
   }, [])
 
   useEffect(() => {
@@ -174,7 +174,7 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
   useEffect(() => {
     const renderSettings = getState(RendererState)
 
-    const effectsVal = effects.get(NO_PROXY)
+    const effectsVal = effects.get(NO_PROXY) as Record<string, Effect>
 
     if (renderSettings.usePostProcessing) {
       for (const key in effectsVal) {
@@ -191,18 +191,18 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     })
 
     //always have the outline effect for the highlight selection
-    const outlineEffect = new OutlineEffect(scene.value, camera.value, getState(HighlightState))
+    const outlineEffect = new OutlineEffect(scene.value as Scene, camera.value as ArrayCamera, getState(HighlightState))
     outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
     effectsVal[Effects.OutlineEffect] = outlineEffect
-    renderer.value.effectComposer[Effects.OutlineEffect] = outlineEffect
+    renderer.effectComposer[Effects.OutlineEffect].set(outlineEffect)
 
     if (renderer.value.effectComposer.EffectPass) {
-      renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass)
+      renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass as EffectPass)
     }
 
     const effectArray = Object.values(effectsVal)
-    renderer.value.effectComposer.EffectPass = new EffectPass(camera.value, ...effectArray)
-    renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass)
+    renderer.effectComposer.EffectPass.set(new EffectPass(camera.value as ArrayCamera, ...effectArray))
+    renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass as EffectPass)
   }, [effects])
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
             useVelocityDepthNormalPass={useVelocityDepthNormalPass}
             normalPass={normalPass}
             depthDownsamplingPass={depthDownsamplingPass}
-            composer={renderer.value.effectComposer}
+            composer={renderer.value.effectComposer as EffectComposer}
           ></EffectReactor>
         )
       })}
@@ -242,16 +242,16 @@ const EffectReactor = (props: {
   entity: Entity
   effectKey: string
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
-  uiEffects: State<EffectPropsSchema, {}>
-  scene: State<Scene, {}>
+  uiEffects: State<EffectPropsSchema>
+  scene: State<Scene>
   lut1DEffectTexture: Texture | null
   lut3DEffectTexture: Texture | null
   velocityDepthNormalPass: any
   useVelocityDepthNormalPass: StateMethods<boolean, {}>
-  normalPass: State<CustomNormalPass, {}>
-  depthDownsamplingPass: State<DepthDownsamplingPass, {}>
+  normalPass: State<CustomNormalPass>
+  depthDownsamplingPass: State<DepthDownsamplingPass>
   composer: EffectComposer
 }) => {
   const {
@@ -331,31 +331,31 @@ const EffectReactor = (props: {
   return null
 }
 
-const BloomEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const BloomEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new BloomEffect(schema)
   effects[Effects.BloomEffect].set(eff)
 }
 
-const BrightnessContrastEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const BrightnessContrastEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new BrightnessContrastEffect(schema)
   effects[Effects.BrightnessContrastEffect].set(eff)
 }
 
-const ChromaticAberrationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const ChromaticAberrationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new ChromaticAberrationEffect(schema)
   effects[Effects.ChromaticAberrationEffect].set(eff)
 }
 
-const ColorAverageEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const ColorAverageEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new ColorAverageEffect(schema.blendFunction)
   effects[Effects.ColorAverageEffect].set(eff)
 }
 
-const ColorDepthEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const ColorDepthEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new ColorDepthEffect(schema)
   effects[Effects.ColorDepthEffect].set(eff)
@@ -363,39 +363,39 @@ const ColorDepthEffectProcess = (props: { schema: any; effects: State<Record<str
 
 const DepthOfFieldEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
 }) => {
   const { schema, effects, camera } = props
-  const eff = new DepthOfFieldEffect(camera.value, schema)
+  const eff = new DepthOfFieldEffect(camera.value as ArrayCamera, schema)
   effects[Effects.DepthOfFieldEffect].set(eff)
 }
 
-const DotScreenEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const DotScreenEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new DotScreenEffect(schema)
   effects[Effects.DotScreenEffect].set(eff)
 }
 
-const FXAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const FXAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new FXAAEffect(schema)
   effects[Effects.FXAAEffect].set(eff)
 }
 
-const GlitchEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const GlitchEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new GlitchEffect(schema)
   effects[Effects.GlitchEffect].set(eff)
 }
 
-const GridEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const GridEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new GridEffect(schema)
   effects[Effects.GridEffect].set(eff)
 }
 
-const HueSaturationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const HueSaturationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new HueSaturationEffect(schema)
   effects[Effects.HueSaturationEffect].set(eff)
@@ -403,7 +403,7 @@ const HueSaturationEffectProcess = (props: { schema: any; effects: State<Record<
 
 const LUT1DEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   lut1DEffectTexture: Texture
 }) => {
   const { schema, effects, lut1DEffectTexture } = props
@@ -415,7 +415,7 @@ const LUT1DEffectProcess = (props: {
 
 const LUT3DEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   lut3DEffectTexture: Texture
 }) => {
   const { schema, effects, lut3DEffectTexture } = props
@@ -425,13 +425,13 @@ const LUT3DEffectProcess = (props: {
   }
 }
 
-const LensDistortionEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const LensDistortionEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new LensDistortionEffect(schema)
   effects[Effects.LensDistortionEffect].set(eff)
 }
 
-const LinearTosRGBEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const LinearTosRGBEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new LinearTosRGBEffect(schema)
   effects[Effects.LinearTosRGBEffect].set(eff)
@@ -439,7 +439,7 @@ const LinearTosRGBEffectProcess = (props: { schema: any; effects: State<Record<s
 
 const MotionBlurEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   velocityDepthNormalPass: any
 }) => {
   const { schema, effects, velocityDepthNormalPass } = props
@@ -449,22 +449,22 @@ const MotionBlurEffectProcess = (props: {
 
 const NoiseEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
-  scene: State<Scene, {}>
+  scene: State<Scene>
 }) => {
   const { schema, effects, camera } = props
   const eff = new NoiseEffect(schema)
   effects[Effects.NoiseEffect].set(eff)
 }
 
-const PixelationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const PixelationEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new PixelationEffect(schema.granularity)
   effects[Effects.PixelationEffect].set(eff)
 }
 
-const SMAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const SMAAEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new SMAAEffect(schema)
   effects[Effects.SMAAEffect].set(eff)
@@ -472,20 +472,20 @@ const SMAAEffectProcess = (props: { schema: any; effects: State<Record<string, E
 
 const SSAOEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
-  normalPass: State<CustomNormalPass, {}>
-  depthDownsamplingPass: State<DepthDownsamplingPass, {}>
+  normalPass: State<CustomNormalPass>
+  depthDownsamplingPass: State<DepthDownsamplingPass>
 }) => {
   const { schema, effects, camera, normalPass, depthDownsamplingPass } = props
-  const eff = new SSAOEffect(camera.value, normalPass.value.texture, {
+  const eff = new SSAOEffect(camera.value as ArrayCamera, normalPass.value.texture, {
     ...schema,
     normalDepthBuffer: depthDownsamplingPass.value.texture
   })
   effects[Effects.SSAOEffect].set(eff)
 }
 
-const SSGIEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const SSGIEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new SSGIEffect(schema)
   effects[Effects.SSGIEffect].set(eff)
@@ -494,12 +494,12 @@ const SSGIEffectProcess = (props: { schema: any; effects: State<Record<string, E
 // SSR is just a mode of SSGI, and can't both be run at the same time
 const SSREffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
   scene: State<Scene, {}>
   velocityDepthNormalPass: any
   useVelocityDepthNormalPass: StateMethods<boolean, {}>
-  composer: State<EffectComposer, {}>
+  composer: State<EffectComposer>
 }) => {
   const { schema, effects, camera, scene, velocityDepthNormalPass, useVelocityDepthNormalPass, composer } = props
 
@@ -515,7 +515,7 @@ const SSREffectProcess = (props: {
   }
 }
 
-const ScanlineEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const ScanlineEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new ScanlineEffect(schema)
   effects[Effects.ScanlineEffect].set(eff)
@@ -523,17 +523,17 @@ const ScanlineEffectProcess = (props: { schema: any; effects: State<Record<strin
 
 const ShockWaveEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
 }) => {
   const { schema, effects, camera } = props
-  const eff = new ShockWaveEffect(camera.value, schema.position, schema)
+  const eff = new ShockWaveEffect(camera.value as ArrayCamera, schema.position, schema)
   effects[Effects.ShockWaveEffect].set(eff)
 }
 
 const TRAAEffectProcess = (props: {
   schema: any
-  effects: State<Record<string, Effect>, {}>
+  effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
   scene: State<Scene, {}>
   velocityDepthNormalPass: any
@@ -547,25 +547,25 @@ const TRAAEffectProcess = (props: {
   effects[Effects.TRAAEffect].set(eff)
 }
 
-const TextureEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const TextureEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new TextureEffect(schema)
   effects[Effects.TextureEffect].set(eff)
 }
 
-const TiltShiftEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const TiltShiftEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new TiltShiftEffect(schema)
   effects[Effects.TiltShiftEffect].set(eff)
 }
 
-const ToneMappingEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const ToneMappingEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new ToneMappingEffect(schema)
   effects[Effects.ToneMappingEffect].set(eff)
 }
 
-const VignetteEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>, {}> }) => {
+const VignetteEffectProcess = (props: { schema: any; effects: State<Record<string, Effect>> }) => {
   const { schema, effects } = props
   const eff = new VignetteEffect(schema)
   effects[Effects.VignetteEffect].set(eff)
