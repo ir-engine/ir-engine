@@ -29,10 +29,10 @@ import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/common/src/schemas/user/github-repo-access-refresh.schema'
-
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'

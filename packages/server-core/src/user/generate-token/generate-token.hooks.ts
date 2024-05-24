@@ -30,6 +30,7 @@ import {
   generateTokenPatchValidator,
   generateTokenQueryValidator
 } from '@etherealengine/common/src/schemas/user/generate-token.schema'
+
 import {
   generateTokenDataResolver,
   generateTokenExternalResolver,

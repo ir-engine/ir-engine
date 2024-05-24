@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Resizable } from 're-resizable'
 import React, { useEffect } from 'react'
-
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
+import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
+import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'react-icons/md'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
@@ -38,17 +37,19 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { ChannelID, ChannelType, channelPath, messagePath } from '@etherealengine/common/src/schema.type.module'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { ChannelID, channelPath, ChannelType, messagePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
-import { Resizable } from 're-resizable'
-import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
-import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
-import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'react-icons/md'
-import { ChatState } from './ChatState'
-import { MediaCall } from './VideoCall'
+import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
+import { ChatState } from './ChatState'
+import { MediaCall } from './VideoCall'
+
 /**
  * Create reactor in client-core around messages
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
@@ -202,7 +203,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   const channelName = channel ? getChannelName(channel) : ''
   console.log(selectedChannelID, channel, channelName)
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
   const isScreenVideoEnabled =

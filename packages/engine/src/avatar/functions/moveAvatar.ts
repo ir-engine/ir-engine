@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -50,7 +52,7 @@ import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/Physic
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '@etherealengine/spatial/src/transform/updateWorldOrigin'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { preloadedAnimations } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent } from '../components/AvatarControllerComponent'

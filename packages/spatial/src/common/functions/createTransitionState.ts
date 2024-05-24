@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MathUtils } from 'three'
+
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
-import { MathUtils } from 'three'
+import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 type TransitionType = 'IN' | 'OUT'
 

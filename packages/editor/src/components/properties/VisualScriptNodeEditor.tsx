@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
-import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
-
 import { VisualScriptComponent } from '@etherealengine/engine'
+
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 /**
  *

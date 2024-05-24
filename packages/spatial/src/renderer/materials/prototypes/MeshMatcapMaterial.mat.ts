@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { MeshMatcapMaterial as Matcap } from 'three'
-import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, NormalMapArgs } from '../constants/BasicArgs'
 import { BoolArg, TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
 export const MeshMatcapArguments = {
   ...BasicArgs,

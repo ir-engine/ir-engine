@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide system level functionalities. */
 
 import { FC, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
 
-import { v4 as uuidv4 } from 'uuid'
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
 

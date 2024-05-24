@@ -25,18 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { ChannelType, channelPath } from '@etherealengine/common/src/schema.type.module'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { channelPath, ChannelType } from '@etherealengine/common/src/schema.type.module'
 import { State } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
+
+import { channelColumns, ChannelRowType } from '../../common/constants/channel'
 import DataTable from '../../common/Table'
-import { ChannelRowType, channelColumns } from '../../common/constants/channel'
 import AddEditChannelModal from './AddEditChannelModal'
 
 export default function ChannelTable({

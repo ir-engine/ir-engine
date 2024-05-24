@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity, defineComponent, matchesEntity, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { useEffect } from 'react'
+
+import { defineComponent, matchesEntity, UndefinedEntity, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
+
 import { ModelComponent } from '../../scene/components/ModelComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({

@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, defineQuery, defineSystem, getComponent, setComponent } from '@etherealengine/ecs'
+import { defineQuery, defineSystem, getComponent, PresentationSystemGroup, setComponent } from '@etherealengine/ecs'
+
 import { AudioAnalysisComponent } from '../../scene/components/AudioAnalysisComponent'
 
 const audioAnalysisQuery = defineQuery([AudioAnalysisComponent])

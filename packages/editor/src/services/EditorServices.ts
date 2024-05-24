@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { LayoutData } from 'rc-dock'
+
 import { EntityUUID, getComponent } from '@etherealengine/ecs'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
-import { LayoutData } from 'rc-dock'
 
 interface IExpandedNodes {
   [scene: string]: {
@@ -55,7 +56,5 @@ export const EditorState = defineState({
     if (!rootEntity) return false
     return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
-  onCreate: () => {
-    syncStateWithLocalStorage(EditorState, ['expandedNodes'])
-  }
+  extension: syncStateWithLocalStorage(['expandedNodes'])
 })

@@ -36,6 +36,7 @@ import { discordBotAuthPath } from '@etherealengine/common/src/schemas/user/disc
 import { githubRepoAccessWebhookPath } from '@etherealengine/common/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@etherealengine/common/src/schemas/user/login.schema'
+
 import multiLogger from './ServerLogger'
 import {
   DISCORD_SCOPES,

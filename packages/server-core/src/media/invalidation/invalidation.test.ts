@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

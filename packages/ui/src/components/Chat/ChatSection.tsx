@@ -23,18 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Resizable } from 're-resizable'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { Resizable } from 're-resizable'
-import { ChannelsList } from './ChannelsList'
+
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
 import SettingIcon from './assets/setting.svg'
+import { ChannelsList } from './ChannelsList'
 
 /**
  * Chat

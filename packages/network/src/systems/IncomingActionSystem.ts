@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { applyIncomingActions } from '@etherealengine/hyperflux'
-
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { applyIncomingActions } from '@etherealengine/hyperflux'
 
 const execute = () => {
   applyIncomingActions()

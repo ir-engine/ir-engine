@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { ArrayCamera, PerspectiveCamera } from 'three'
 
 import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+
 import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
 export const CameraComponent = defineComponent({
@@ -40,10 +41,10 @@ export const CameraComponent = defineComponent({
     return camera
   },
   onSet: (entity, component, json: undefined) => {
-    addObjectToGroup(entity, component.value)
+    addObjectToGroup(entity, component.value as ArrayCamera)
   },
   onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.value)
+    removeObjectFromGroup(entity, component.value as ArrayCamera)
   },
   toJSON: () => {
     return null

@@ -23,20 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PanToolIcon from '@mui/icons-material/PanTool'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
-import PanToolIcon from '@mui/icons-material/PanTool'
-
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { commitProperty, EditorComponentType } from './Util'
 
 const bodyTypeOptions = Object.entries(BodyTypes).map(([label, value]) => {
   return { label: camelCaseToSpacedString(label as string), value }

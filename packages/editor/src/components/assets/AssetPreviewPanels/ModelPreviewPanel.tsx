@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React, { useEffect, useRef } from 'react'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { useHookstate } from '@etherealengine/hyperflux'
-
-import { UUIDComponent, createEntity, generateEntityUUID, setComponent } from '@etherealengine/ecs'
+import { createEntity, generateEntityUUID, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import { t } from 'i18next'
+
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {

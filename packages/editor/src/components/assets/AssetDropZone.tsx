@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { Vector2, Vector3 } from 'three'
 
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'

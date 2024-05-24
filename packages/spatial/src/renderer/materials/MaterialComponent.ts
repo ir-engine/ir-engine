@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material, Shader, WebGLRenderer } from 'three'
+
 import {
-  UUIDComponent,
   defineComponent,
   defineQuery,
   getMutableComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { BoxProjectionPlugin } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { Material, Shader, WebGLRenderer } from 'three'
+
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'

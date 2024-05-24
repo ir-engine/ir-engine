@@ -24,9 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { config } from '@etherealengine/common/src/config'
-import { UserID } from '@etherealengine/common/src/schema.type.module'
-
-import { avatarPath, userAvatarPath } from '@etherealengine/common/src/schema.type.module'
+import { avatarPath, userAvatarPath, UserID } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`

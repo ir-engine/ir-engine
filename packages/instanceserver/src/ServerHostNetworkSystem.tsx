@@ -22,19 +22,16 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { NetworkPeerFunctions, updatePeers } from '@etherealengine/network'
 import { useEffect } from 'react'
 
-import { RecordingID } from '@etherealengine/common/src/schema.type.module'
-import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { getMutableState, none } from '@etherealengine/hyperflux'
-
-import { recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { RecordingID, recordingResourceUploadPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { PeerID } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
+import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { PeerID, getMutableState, none } from '@etherealengine/hyperflux'
+import { NetworkPeerFunctions, NetworkState, updatePeers } from '@etherealengine/network'
+
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Promise<void> {

@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
+import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3 } from 'three'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { BoxGeometry, CapsuleGeometry, CylinderGeometry, SphereGeometry, Vector3 } from 'three'
+
 import { CollisionGroups } from '../enums/CollisionGroups'
 
 export interface Vec3 {

@@ -23,16 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 

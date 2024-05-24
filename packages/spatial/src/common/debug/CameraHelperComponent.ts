@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { Camera, CameraHelper } from 'three'
+
+import { defineComponent, Entity, useComponent, useEntityContext } from '@etherealengine/ecs'
+
 import { useDisposable } from '../../resources/resourceHooks'
 import { useHelperEntity } from './DebugComponentUtils'
 
@@ -49,7 +51,7 @@ export const CameraHelperComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, CameraHelperComponent)
-    const [helper] = useDisposable(CameraHelper, entity, component.camera.value)
+    const [helper] = useDisposable(CameraHelper, entity, component.camera.value as Camera)
     useHelperEntity(entity, component, helper)
     helper.update()
 

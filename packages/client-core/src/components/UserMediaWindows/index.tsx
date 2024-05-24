@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { PeerID, getMutableState } from '@etherealengine/hyperflux'
-
+import { PeerID, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
+
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { FilteredUsersState } from '../../transports/FilteredUsersSystem'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -48,10 +47,10 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
 }
 
 export const useMediaWindows = () => {
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
-  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const selfUser = useMutableState(AuthState).user
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -106,7 +105,7 @@ export const useMediaWindows = () => {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 
-  const filteredUsersState = useHookstate(getMutableState(FilteredUsersState))
+  const filteredUsersState = useMutableState(FilteredUsersState)
 
   const nearbyPeers = mediaNetwork
     ? filteredUsersState.nearbyLayerUsers.value.map((userID) => mediaNetwork.users[userID]).flat()
@@ -122,7 +121,7 @@ export const useMediaWindows = () => {
 
 export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
 
   const windows = useMediaWindows()
 
@@ -140,7 +139,7 @@ export const UserMediaWindows = () => {
 }
 
 export const UserMediaWindowsWidget = () => {
-  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+  const peerMediaChannelState = useMutableState(PeerMediaChannelState)
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
     PeerID,

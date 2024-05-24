@@ -23,12 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
-import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
-import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   inviteDataValidator,
@@ -40,7 +37,10 @@ import {
   identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
-import { Paginated } from '@feathersjs/feathers'
+import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
+import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import { sendInvite } from '../../hooks/send-invite'

@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ScopeType,
-  UserApiKeyType,
-  UserName,
-  avatarPath,
-  identityProviderPath,
-  projectDestinationCheckPath,
-  userApiKeyPath,
-  userPath
-} from '@etherealengine/common/src/schema.type.module'
-import { destroyEngine } from '@etherealengine/ecs'
 import assert from 'assert'
 import nock from 'nock'
 import { v4 as uuidv4 } from 'uuid'
+
+import {
+  avatarPath,
+  identityProviderPath,
+  projectDestinationCheckPath,
+  ScopeType,
+  userApiKeyPath,
+  UserApiKeyType,
+  UserName,
+  userPath
+} from '@etherealengine/common/src/schema.type.module'
+import { destroyEngine } from '@etherealengine/ecs'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import {

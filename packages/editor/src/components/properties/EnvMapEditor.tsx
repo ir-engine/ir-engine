@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
@@ -41,10 +43,7 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
-
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import SportsBarTwoTone from '@mui/icons-material/SportsBarTwoTone'
+import { commitProperty, EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap

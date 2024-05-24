@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Knex } from 'knex'
+
 import {
   analyticsPath,
   channelPath,
@@ -33,7 +35,6 @@ import {
 } from '@etherealengine/common/src/schema.type.module'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { Knex } from 'knex'
 
 const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
 

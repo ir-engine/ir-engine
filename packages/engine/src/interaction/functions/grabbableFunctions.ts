@@ -27,6 +27,7 @@ import { Engine, Entity, getComponent, matchesEntityUUID, UUIDComponent } from '
 import { defineAction, dispatchAction, getState, matches } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent, NetworkState, NetworkTopics, WorldNetworkAction } from '@etherealengine/network'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+
 import { GrabberComponent } from '../components/GrabbableComponent'
 
 export const grabbableInteractMessage = 'Grab'

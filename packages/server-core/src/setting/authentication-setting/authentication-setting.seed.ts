@@ -30,10 +30,10 @@ import {
   AuthenticationSettingDatabaseType,
   authenticationSettingPath
 } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+
 import config from '../../appconfig'
 
 export const DISCORD_SCOPES = ['email', 'identify']

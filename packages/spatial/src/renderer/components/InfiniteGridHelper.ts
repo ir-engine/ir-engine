@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -38,14 +39,14 @@ import {
 import { Entity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
+
 import { NameComponent } from '../../common/NameComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { useResource } from '../../resources/resourceHooks'
-import { RendererState } from '../RendererState'
 import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
+import { RendererState } from '../RendererState'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { useMeshComponent } from './MeshComponent'
 
@@ -158,7 +159,7 @@ export const InfiniteGridComponent = defineComponent({
     const entity = useEntityContext()
 
     const component = useComponent(entity, InfiniteGridComponent)
-    const engineRendererSettings = useHookstate(getMutableState(RendererState))
+    const engineRendererSettings = useMutableState(RendererState)
     const mesh = useMeshComponent(
       entity,
       () => new PlaneGeometry(2, 2, 1, 1),

@@ -23,12 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, defineComponent, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { BufferGeometry, Color, ColorRepresentation, LineBasicMaterial, LineSegments, Material } from 'three'
-import { NameComponent } from '../../common/NameComponent'
+import {
+  BufferGeometry,
+  Color,
+  ColorRepresentation,
+  LineBasicMaterial,
+  LineSegments,
+  Material,
+  NormalBufferAttributes
+} from 'three'
+
+import { defineComponent, Entity, setComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+
 import { matchesColor, matchesGeometry, matchesMaterial } from '../../common/functions/MatchesUtils'
+import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -66,7 +76,12 @@ export const LineSegmentComponent = defineComponent({
     const component = useComponent(entity, LineSegmentComponent)
     const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
     const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
-    const [lineSegment] = useDisposable(LineSegments, entity, geometryState.value, materialState.value)
+    const [lineSegment] = useDisposable(
+      LineSegments,
+      entity,
+      geometryState.value as BufferGeometry<NormalBufferAttributes>,
+      materialState.value as Material
+    )
 
     useEffect(() => {
       addObjectToGroup(entity, lineSegment)
@@ -87,13 +102,13 @@ export const LineSegmentComponent = defineComponent({
     useEffect(() => {
       const color = component.color.value
       if (!color) return
-      const mat = component.material.get(NO_PROXY)
+      const mat = component.material.get(NO_PROXY) as Material & { color: Color }
       mat.color.set(color)
       mat.needsUpdate = true
     }, [component.color])
 
     useEffect(() => {
-      const geo = component.geometry.get(NO_PROXY)
+      const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
       if (geo != geometryState.value) {
         geometryState.set(geo)
         lineSegment.geometry = geo
@@ -101,9 +116,9 @@ export const LineSegmentComponent = defineComponent({
     }, [component.geometry])
 
     useEffect(() => {
-      const mat = component.material.get(NO_PROXY)
+      const mat = component.material.get(NO_PROXY) as Material
       if (mat != materialState.value) {
-        materialState.set(mat)
+        materialState.set(component.material.get(NO_PROXY))
         lineSegment.material = mat
       }
       mat.needsUpdate = true

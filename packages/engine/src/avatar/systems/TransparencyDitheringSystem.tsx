@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+import { FrontSide, Material } from 'three'
+
 import {
-  Entity,
-  PresentationSystemGroup,
-  QueryReactor,
-  UUIDComponent,
   defineQuery,
   defineSystem,
+  Entity,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  PresentationSystemGroup,
+  QueryReactor,
   useComponent,
   useEntityContext,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -44,15 +47,14 @@ import {
   MaterialComponents,
   pluginByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import React, { useEffect } from 'react'
-import { FrontSide } from 'three'
+
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import {
+  maxDitherPoints,
   TransparencyDitheringComponent,
-  TransparencyDitheringPlugin,
-  maxDitherPoints
+  TransparencyDitheringPlugin
 } from '../components/TransparencyDitheringComponent'
 
 const TransparencyDitheringQuery = defineQuery([TransparencyDitheringComponent[0]])
@@ -115,8 +117,9 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
       const materialName = getComponent(material, NameComponent)
       if (materialComponent.pluginEntities.value)
         materialComponent.pluginEntities.set([pluginByName[TransparencyDitheringPlugin.id]])
-      materialComponent.material.value!.alphaTest = 0.5
-      materialComponent.material.value!.side = FrontSide
+      const materialValue = materialComponent.material.value as Material
+      materialValue.alphaTest = 0.5
+      materialValue.side = FrontSide
       const ditheringComponent = getMutableComponent(rootEntity, TransparencyDitheringComponent[0])
       if (!ditheringComponent.shaders.value.includes(materialName))
         ditheringComponent.shaders.set([...ditheringComponent.shaders.value, materialName])

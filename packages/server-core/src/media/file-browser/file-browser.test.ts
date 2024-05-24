@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getCachedURL } from '../storageprovider/getCachedURL'

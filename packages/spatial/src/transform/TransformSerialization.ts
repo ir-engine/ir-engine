@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import {
-  ViewCursor,
   checkBitflag,
   readUint8,
   readVector3,
   readVector4,
   rewindViewCursor,
   spaceUint8,
+  ViewCursor,
   writeVector3,
   writeVector4
 } from '@etherealengine/network'
+
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { TransformComponent } from './components/TransformComponent'
 

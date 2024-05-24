@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+
 import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
 import { MockEventListener } from './MockEventListener'
 

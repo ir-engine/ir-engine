@@ -23,13 +23,73 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState } from '@etherealengine/hyperflux'
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
+
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 
 export const GLTFDocumentState = defineState({
   name: 'ee.engine.gltf.GLTFDocumentState',
   initial: {} as Record<string, GLTF.IGLTF>
+})
+
+export const GLTFNodeState = defineState({
+  name: 'ee.engine.gltf.GLTFNodeState',
+  initial: {} as Record<
+    string,
+    Record<
+      string,
+      {
+        nodeIndex: number
+        childIndex: number
+        parentUUID: EntityUUID | null // store parent, if no parent, then it is a root node
+      }
+    >
+  >,
+
+  convertGltfToNodeDictionary: (gltf: GLTF.IGLTF) => {
+    const nodes: Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID | null }> = {}
+
+    const addNode = (nodeIndex: number, childIndex: number, parentUUID: EntityUUID | null) => {
+      const node = gltf.nodes![nodeIndex]
+      const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
+      if (uuid) {
+        nodes[uuid] = { nodeIndex, childIndex, parentUUID }
+      } else {
+        /** @todo generate a globally deterministic UUID here */
+        console.warn('Node does not have a UUID:', node)
+        return
+      }
+      if (node.children) {
+        for (let i = 0; i < node.children.length; i++) {
+          addNode(node.children[i], i, uuid)
+        }
+      }
+    }
+
+    const scene = gltf.scenes![0]
+    for (let i = 0; i < scene.nodes!.length; i++) {
+      const index = scene.nodes[i]
+      addNode(index, i, null)
+    }
+
+    for (let i = 0; i < gltf.scenes![0].nodes!.length; i++) {
+      const nodeIndex = gltf.scenes![0].nodes![i]
+      const node = gltf.nodes![nodeIndex]
+      const uuid = node.extensions?.[UUIDComponent.jsonID] as any as EntityUUID
+      if (uuid) {
+        nodes[uuid] = {
+          nodeIndex,
+          childIndex: i,
+          parentUUID: null
+        }
+      } else {
+        console.warn('Node does not have a UUID:', node)
+      }
+    }
+    return nodes
+  }
 })
 
 export const GLTFModifiedState = defineState({
@@ -58,6 +118,11 @@ export class GLTFSnapshotAction {
 
   static clearHistory = defineAction({
     type: 'ee.gltf.snapshot.CLEAR_HISTORY' as const,
+    source: matches.string as Validator<unknown, string>
+  })
+
+  static unload = defineAction({
+    type: 'ee.gltf.snapshot.UNLOAD' as const,
     source: matches.string as Validator<unknown, string>
   })
 }

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/ecs'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   ResourceAssetType,
   ResourceManager,
@@ -32,6 +32,7 @@ import {
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
 
 export const loadResource = <T extends ResourceAssetType>(

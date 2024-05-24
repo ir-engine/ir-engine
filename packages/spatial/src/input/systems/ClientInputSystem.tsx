@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { Not } from 'bitecs'
+import React, { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
-import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-
-import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import {
   getComponent,
   getMutableComponent,
@@ -39,37 +38,41 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { QueryReactor, defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { Not } from 'bitecs'
-import React from 'react'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
+
+import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { NameComponent } from '../../common/NameComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
+import { NameComponent } from '../../common/NameComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
-import { XRState } from '../../xr/XRState'
+import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
+import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
@@ -120,11 +123,16 @@ const pointers = defineQuery([InputPointerComponent, InputSourceComponent, Not(X
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const spatialInputSourceQuery = defineQuery([InputSourceComponent, TransformComponent])
 const inputSourceQuery = defineQuery([InputSourceComponent])
+const nonSpatialInputSourceQuery = defineQuery([InputSourceComponent, Not(TransformComponent)])
 const inputs = defineQuery([InputComponent])
+
+const worldPosInputSourceComponent = new Vector3()
+const worldPosInputComponent = new Vector3()
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const spatialInputObjects = defineQuery([InputComponent, VisibleComponent, TransformComponent, Not(CameraComponent)]) //TODO may be overkill if visible means it always has transform
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
@@ -135,7 +143,7 @@ const inputRaycast = {
   origin: new Vector3(),
   direction: new Vector3(),
   maxDistance: 1000,
-  groups: getInteractionGroups(AllCollisionMask, AllCollisionMask),
+  groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
   excludeRigidBody: undefined //
 } as RaycastArgs
 
@@ -146,12 +154,14 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  InputState.setCapturingEntity(UndefinedEntity, true)
+
   for (const eid of inputs())
     if (getComponent(eid, InputComponent).inputSources.length)
       getMutableComponent(eid, InputComponent).inputSources.set([])
 
   // update 2D screen-based (driven by pointer api) input sources
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
@@ -189,92 +199,161 @@ const execute = () => {
     }
   }
 
-  // assign input sources (InputSourceComponent) to input sinks (InputComponent)
-  for (const sourceEid of spatialInputSourceQuery()) {
+  const capturedEntity = getMutableState(InputState).capturingEntity
+
+  // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
+  for (const sourceEid of inputSourceQuery()) {
+    const isSpatialInput = hasComponent(sourceEid, TransformComponent)
+
     const intersectionData = [] as {
       entity: Entity
       distance: number
     }[]
 
-    const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
-    inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+    if (isSpatialInput) {
+      const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
+      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
-    TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
-    inputRay.set(inputRaycast.origin, inputRaycast.direction)
+      TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
+      inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
-    // only heuristic is scene objects when in the editor
-    if (getState(EngineState).isEditing) {
-      const pickerObj = gizmoPickerObjects() // gizmo heuristic
-      const inputObj = inputObjects()
-      raycaster.set(inputRaycast.origin, inputRaycast.direction)
-      const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
-        .map((eid) => getComponent(eid, GroupComponent))
-        .flat()
-      pickerObj.length > 0
-        ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-        : raycaster.layers.disable(ObjectLayers.TransformGizmo)
-      const hits = raycaster.intersectObjects<Object3D>(objects, true)
-      for (const hit of hits) {
-        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-        if (parentObject?.entity) {
-          intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
-        }
-      }
-    } else {
-      // 1st heuristic is XRUI
-      for (const entity of inputXRUIs()) {
-        const xrui = getComponent(entity, XRUIComponent)
-        const layerHit = xrui.hitTest(inputRay)
-        if (
-          !layerHit ||
-          !layerHit.intersection.object.visible ||
-          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-        )
-          continue
-        intersectionData.push({ entity, distance: layerHit.intersection.distance })
-      }
-
-      const physicsWorld = getState(PhysicsState).physicsWorld
-
-      // 2nd heuristic is physics colliders
-      if (physicsWorld) {
-        const hits = Physics.castRay(physicsWorld, inputRaycast)
-        // console.log("objDir inputraycast direction = " + inputRaycast.direction.toArray())
+      // only heuristic is scene objects when in the editor
+      if (getState(EngineState).isEditing) {
+        const pickerObj = gizmoPickerObjects() // gizmo heuristic
+        const inputObj = inputObjects()
+        raycaster.set(inputRaycast.origin, inputRaycast.direction)
+        const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
+          .map((eid) => getComponent(eid, GroupComponent))
+          .flat()
+        pickerObj.length > 0
+          ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+          : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+        const hits = raycaster.intersectObjects<Object3D>(objects, true)
         for (const hit of hits) {
-          if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
-          intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
+          if (parentObject?.entity) {
+            intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
+          }
         }
-      }
+      } else {
+        // 1st heuristic is XRUI
+        for (const entity of inputXRUIs()) {
+          const xrui = getComponent(entity, XRUIComponent)
+          const layerHit = xrui.hitTest(inputRay)
+          if (
+            !layerHit ||
+            !layerHit.intersection.object.visible ||
+            (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+          )
+            continue
+          intersectionData.push({ entity, distance: layerHit.intersection.distance })
+        }
 
-      // 3rd heuristic is bboxes
-      for (const entity of inputBoundingBoxes()) {
-        const boundingBox = getComponent(entity, BoundingBoxComponent)
-        const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
-        if (hit) {
-          intersectionData.push({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+        const physicsWorld = getState(PhysicsState).physicsWorld
+
+        // 2nd heuristic is physics colliders
+        if (physicsWorld) {
+          const hits = Physics.castRay(physicsWorld, inputRaycast)
+          for (const hit of hits) {
+            if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
+            intersectionData.push({ entity: hit.entity, distance: hit.distance })
+          }
+        }
+
+        // 3rd heuristic is bboxes
+        for (const entity of inputBoundingBoxes()) {
+          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
+          if (hit) {
+            intersectionData.push({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+          }
         }
       }
     }
 
     const sortedIntersections = intersectionData.sort((a, b) => a.distance - b.distance)
-
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
+
+    //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
+    //Proximity check ONLY if we have no raycast results, as it is always lower priority
+    if (
+      capturedEntity.value === UndefinedEntity &&
+      sortedIntersections.length === 0 &&
+      !hasComponent(sourceEid, InputPointerComponent)
+    ) {
+      let closestEntity = UndefinedEntity
+      let closestDistanceSquared = Infinity
+
+      //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
+      const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
+      const inputSourceEntity =
+        getState(XRControlsState).isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
+
+      if (inputSourceEntity !== UndefinedEntity) {
+        TransformComponent.getWorldPosition(inputSourceEntity, worldPosInputSourceComponent)
+
+        //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
+        for (const inputEntity of spatialInputObjects()) {
+          if (inputEntity === selfAvatarEntity) continue
+          const inputComponent = getComponent(inputEntity, InputComponent)
+
+          TransformComponent.getWorldPosition(inputEntity, worldPosInputComponent)
+
+          const distSquared = worldPosInputSourceComponent.distanceToSquared(worldPosInputComponent)
+
+          //closer than our current closest AND within inputSource's activation distance
+          if (
+            distSquared < closestDistanceSquared &&
+            inputComponent.activationDistance * inputComponent.activationDistance > distSquared
+          ) {
+            closestDistanceSquared = distSquared
+            closestEntity = inputEntity
+          }
+        }
+        if (closestEntity !== UndefinedEntity) {
+          sortedIntersections.push({ entity: closestEntity, distance: Math.sqrt(closestDistanceSquared) })
+        }
+      }
+    }
+
+    const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
+    if (inputPointerComponent) {
+      sortedIntersections.push({ entity: inputPointerComponent.canvasEntity, distance: 0 })
+    }
+
     sourceState.intersections.set(sortedIntersections)
 
-    const capturedEntity = getState(InputState).capturingEntity
+    const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
 
-    const inputEntity = capturedEntity || sortedIntersections[0]?.entity
-
-    // if(sortedIntersections.length > 0) console.log('sortedIntersections = ' + sortedIntersections[0].entity + '   capturedentity = ' + capturedEntity )
-    // else console.log('capturedentity = ' + capturedEntity )
-
-    if (inputEntity && hasComponent(inputEntity, InputComponent)) {
-      getMutableComponent(inputEntity, InputComponent).inputSources.merge([sourceEid])
+    //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
+    if (capturedEntity.value !== UndefinedEntity) {
+      setInputSources(capturedEntity.value, finalInputSources)
+    } else {
+      for (const intersection of sortedIntersections) {
+        setInputSources(intersection.entity, finalInputSources)
+      }
     }
   }
 
   for (const sourceEid of inputSourceQuery()) {
     updateGamepadInput(sourceEid)
+  }
+}
+
+const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
+  const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
+  if (inputEntity) {
+    const inputComponent = getMutableComponent(inputEntity, InputComponent)
+    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
+      inputComponent.inputSources.merge(inputSources)
+    } else {
+      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
+
+        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+        sinkInputComponent.inputSources.merge(inputSources)
+      }
+    }
   }
 }
 
@@ -368,7 +447,7 @@ const useGamepadInputSources = () => {
 
 const usePointerInputSources = () => {
   const canvasEntity = useEntityContext()
-  const xrState = useHookstate(getMutableState(XRState))
+  const xrState = useMutableState(XRState)
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
@@ -496,7 +575,7 @@ const useXRInputSources = () => {
       setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
-          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.cameraEntity
+          source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
       })
       setComponent(eid, TransformComponent)
       setComponent(eid, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
@@ -558,7 +637,7 @@ const reactor = () => {
 
 export const ClientInputSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputSystem',
-  insert: { with: InputSystemGroup },
+  insert: { before: InputSystemGroup },
   execute,
   reactor
 })

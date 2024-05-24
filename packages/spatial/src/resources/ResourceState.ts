@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, UndefinedEntity, getOptionalComponent } from '@etherealengine/ecs'
-import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { Cache, CompressedTexture, Material, Mesh, Object3D, Scene, SkinnedMesh, Texture } from 'three'
+
+import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@etherealengine/ecs'
+import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@etherealengine/hyperflux'
+import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
@@ -633,7 +635,7 @@ const removeResource = (id: string) => {
   ResourceState.debugLog('ResourceManager:removeResource: Removing ' + resource.type.value + ' resource with ID: ' + id)
   Cache.remove(id)
 
-  const asset = resource.asset.get(NO_PROXY)
+  const asset = resource.asset.get(NO_PROXY) as ResourceAssetType
   if (asset) {
     resourceCallbacks[resource.type.value].onUnload(asset, resource, resourceState)
   }

@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
-import knex from 'knex'
-/* eslint-disable @typescript-eslint/no-var-requires */
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import knex from 'knex'
 
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,

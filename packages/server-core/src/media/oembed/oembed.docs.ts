@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { oembedSchema } from '@etherealengine/common/src/schemas/media/oembed.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { oembedSchema } from '@etherealengine/common/src/schemas/media/oembed.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {

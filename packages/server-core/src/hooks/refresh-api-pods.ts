@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
 import * as k8s from '@kubernetes/client-node'
+
+import { getState } from '@etherealengine/hyperflux'
+
+import config from '../appconfig'
 import logger from '../ServerLogger'
 import { ServerState } from '../ServerState'
-import config from '../appconfig'
 
 export default async () => {
   const k8AppsClient = getState(ServerState).k8AppsClient

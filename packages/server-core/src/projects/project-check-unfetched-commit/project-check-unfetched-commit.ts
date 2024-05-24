@@ -27,6 +27,7 @@ import {
   projectCheckUnfetchedCommitMethods,
   projectCheckUnfetchedCommitPath
 } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectCheckUnfetchedCommitService } from './project-check-unfetched-commit.class'
 import projectCheckUnfetchedCommitDocs from './project-check-unfetched-commit.docs'

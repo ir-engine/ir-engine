@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { WebGLRenderer } from 'three'
+
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
 const performance: Performance = isClient ? window.performance : require('perf_hooks').performance
 

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, PeerID } from '@etherealengine/hyperflux'
 
 import { ConsumerExtension, ProducerExtension } from './SocketWebRTCClientFunctions'
 

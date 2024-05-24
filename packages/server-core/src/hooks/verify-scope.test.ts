@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
-
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Forbidden } from '@feathersjs/errors'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
 import verifyScope from './verify-scope'

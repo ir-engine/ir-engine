@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import Button from '../Button'
 import Input from '../Input'
 import Accordion from './index'

@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-
+import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -35,28 +34,28 @@ import {
   LineSegments,
   MathUtils,
   Matrix4,
+  Mesh,
+  MeshBasicMaterial,
   Plane,
   Quaternion,
   SphereGeometry,
   Vector3
 } from 'three'
 
+import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-
-import { Mesh, MeshBasicMaterial } from 'three'
-
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Vector3_Right, Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { LandmarkIndices } from './MocapConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'

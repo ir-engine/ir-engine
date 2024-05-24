@@ -24,19 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { useTranslation } from 'react-i18next'
-import { HiEye, HiTrash } from 'react-icons/hi2'
+
+import { Engine } from '@etherealengine/ecs'
 import { PopoverState } from '../../../common/services/PopoverState'
-import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
-import { RESOURCE_PAGE_LIMIT, ResourceService } from '../../services/ResourceService'
+import DataTable from '../../common/Table'
 import AddEditResourceModal from './AddEditResourceModal'
+
+const RESOURCE_PAGE_LIMIT = 25
 
 export default function ResourceTable({ search }: { search: string }) {
   const { t } = useTranslation()
@@ -85,7 +87,7 @@ export default function ResourceTable({ search }: { search: string }) {
                 <ConfirmDialog
                   text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
                   onSubmit={async () => {
-                    await ResourceService.removeResource(el.id)
+                    await Engine.instance.api.service(staticResourcePath).remove(el.id)
                   }}
                 />
               )

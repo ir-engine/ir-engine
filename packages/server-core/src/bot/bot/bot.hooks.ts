@@ -28,15 +28,16 @@ import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   BotCommandData,
-  BotCommandType,
-  botCommandPath
+  botCommandPath,
+  BotCommandType
 } from '@etherealengine/common/src/schemas/bot/bot-command.schema'
 import {
-  BotType,
   botDataValidator,
   botPatchValidator,
-  botQueryValidator
+  botQueryValidator,
+  BotType
 } from '@etherealengine/common/src/schemas/bot/bot.schema'
+
 import { HookContext } from '../../../declarations'
 import {
   botDataResolver,

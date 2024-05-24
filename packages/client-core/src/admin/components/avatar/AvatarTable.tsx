@@ -25,20 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { AvatarID, AvatarType, avatarPath } from '@etherealengine/common/src/schema.type.module'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { UserName } from '@etherealengine/common/src/schema.type.module'
+import { AvatarID, avatarPath, AvatarType, UserName } from '@etherealengine/common/src/schema.type.module'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { ConfirmDialog } from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import { useHookstate } from '@hookstate/core'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
+
+import { avatarColumns, AvatarRowType } from '../../common/constants/avatar'
 import DataTable from '../../common/Table'
-import { AvatarRowType, avatarColumns } from '../../common/constants/avatar'
 import AddEditAvatarModal from './AddEditAvatarModal'
 
 export default function AvatarTable({ search }: { search: string }) {

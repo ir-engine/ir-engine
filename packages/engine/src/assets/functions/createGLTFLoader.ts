@@ -24,18 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-
-import { getState } from '@etherealengine/hyperflux'
+import { Group } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Engine, getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import { Group } from 'three'
+
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
 import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
@@ -45,7 +42,10 @@ import { KHRMaterialsPBRSpecularGlossinessExtension } from '../loaders/gltf/exte
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
 import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/ResourceManagerLoadExtension'
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
+import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()

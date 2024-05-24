@@ -27,8 +27,6 @@ import type { Knex } from 'knex'
 
 import { authenticationSettingPath } from '@etherealengine/common/src/schemas/setting/authentication-setting.schema'
 
-import { LINKEDIN_SCOPES } from '../authentication-setting.seed'
-
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -38,7 +36,7 @@ export async function up(knex: Knex): Promise<void> {
 
   if (authSettings) {
     const oauthSettings = JSON.parse(authSettings.oauth)
-    oauthSettings.linkedin.scope = LINKEDIN_SCOPES
+    oauthSettings.linkedin.scope = ['profile', 'email']
 
     await knex.table(authenticationSettingPath).update({
       oauth: JSON.stringify(oauthSettings)

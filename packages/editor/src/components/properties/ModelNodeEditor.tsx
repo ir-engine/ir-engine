@@ -23,25 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+import { VRM } from '@pixiv/three-vrm'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getState, useState } from '@etherealengine/hyperflux'
-
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
+import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getState, useState } from '@etherealengine/hyperflux'
+
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
@@ -52,9 +54,6 @@ import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import { EditorComponentType, commitProperty } from './Util'
-
-import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
-import { VRM } from '@pixiv/three-vrm'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -116,7 +115,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (!modelComponent.asset.value) return
     bonematchable.set(
       modelComponent.asset.value &&
-        (modelComponent.asset.value instanceof VRM || recursiveHipsLookup(modelComponent.asset.value.scene))
+        (modelComponent.asset.value instanceof VRM ||
+          recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
     )
   }, [modelComponent.asset])
 
@@ -137,6 +137,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
+      <Button onClick={() => modelComponent.dereference.set(true)} disabled={!modelComponent.src.value}>
+        Dereference
+      </Button>
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
         <BooleanInput
           value={modelComponent.cameraOcclusion.value}

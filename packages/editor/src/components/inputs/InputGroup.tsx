@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import { createStyles } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
+import React from 'react'
 
 import { InfoTooltip } from '../layout/Tooltip'
 

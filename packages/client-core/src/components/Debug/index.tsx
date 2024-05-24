@@ -26,27 +26,31 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { defineState, getMutableState, syncStateWithLocalStorage, useHookstate } from '@etherealengine/hyperflux'
+import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
+import {
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
+} from '@etherealengine/hyperflux'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
-import { SystemDebug } from './SystemDebug'
 import styles from './styles.module.scss'
+import { SystemDebug } from './SystemDebug'
 
 export const DebugState = defineState({
   name: 'DebugState',
   initial: {
     activeTab: 'None'
   },
-  onCreate: (store, state) => {
-    syncStateWithLocalStorage(DebugState, ['activeTab'])
-  }
+  extension: syncStateWithLocalStorage(['activeTab'])
 })
 
 export const DebugTabs = {
@@ -57,8 +61,8 @@ export const DebugTabs = {
 
 export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
   useHookstate(getMutableState(ECSState).frameTime).value
-  const rendererState = useHookstate(getMutableState(RendererState))
-  const activeTab = useHookstate(getMutableState(DebugState).activeTab)
+  const rendererState = useMutableState(RendererState)
+  const activeTab = useMutableState(DebugState).activeTab
 
   const { t } = useTranslation()
 

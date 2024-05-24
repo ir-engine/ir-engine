@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
+
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'

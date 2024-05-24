@@ -23,6 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import {
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  ShaderLib,
+  ShaderMaterial,
+  SkinnedMesh,
+  UniformsLib,
+  UniformsUtils
+} from 'three'
+
 import {
   defineComponent,
   getComponent,
@@ -35,17 +47,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { matches } from '@etherealengine/hyperflux'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { useEffect } from 'react'
-import {
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  ShaderLib,
-  ShaderMaterial,
-  SkinnedMesh,
-  UniformsLib,
-  UniformsUtils
-} from 'three'
+
 import { SkinnedMeshComponent } from './SkinnedMeshComponent'
 
 export type MaterialMap = {

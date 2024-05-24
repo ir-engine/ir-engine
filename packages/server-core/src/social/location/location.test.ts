@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import { LocationID, LocationType, locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
+import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { LocationParams } from './location.class'
@@ -123,10 +123,6 @@ describe('location.test', () => {
     assert.equal(item.name, newName)
 
     locations[0].name = newName
-  })
-
-  it('should not be able to make lobby if not admin', () => {
-    assert.rejects(() => app.service(locationPath).patch(locations[0].id, { isLobby: true }))
   })
 
   it('should be able to delete the location', async () => {

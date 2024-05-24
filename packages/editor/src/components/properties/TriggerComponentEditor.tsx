@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -32,11 +33,9 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useState } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import PanToolIcon from '@mui/icons-material/PanTool'
-
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -127,7 +126,7 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                   key={props.entity}
                   value={trigger.target.value ?? 'Self'}
                   onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                  options={targets.value}
+                  options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
               </InputGroup>
@@ -144,7 +143,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onEnter.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}
@@ -163,7 +169,14 @@ export const TriggerComponentEditor: EditorComponentType = (props) => {
                     key={props.entity}
                     value={trigger.onExit.value!}
                     onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
+                    options={
+                      targetOption?.callbacks
+                        ? (targetOption.callbacks as Array<{
+                            label: string
+                            value: string
+                          }>)
+                        : []
+                    }
                     disabled={props.multiEdit || !target}
                   />
                 )}

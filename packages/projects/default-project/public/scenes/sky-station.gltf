@@ -33,7 +33,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/sky-station.envmap.ktx2",
           "boxProjection": true
         },
         "EE_camera_settings": {
@@ -203,8 +203,8 @@
         },
         "EE_visible": true,
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/sky-station.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/sky-station.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/default-project/public/scenes/sky-station.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/sky-station.loadingscreen.ktx2",
           "primaryColor": "#0A6493",
           "backgroundColor": "rgb(238, 232, 243)",
           "alternativeColor": "#316F9E",
@@ -342,7 +342,7 @@
           "redirect": false,
           "effectType": "Hyperspace",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20to%20Apartment.ktx2",
           "spawnPosition": {
             "x": 49.5,
             "y": 2,
@@ -403,7 +403,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
           "spawnPosition": {
             "x": 15,
             "y": 9,
@@ -464,7 +464,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
           "spawnPosition": {
             "x": -60,
             "y": 3,

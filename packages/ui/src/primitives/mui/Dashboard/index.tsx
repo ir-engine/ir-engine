@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useTheme } from '@mui/material/styles'
 import clsx from 'clsx'
 import React from 'react'
 
@@ -30,15 +31,13 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import AppBar from '@etherealengine/ui/src/primitives/mui/AppBar'
 import DashboardMenuItem from '@etherealengine/ui/src/primitives/mui/DashboardMenuItem'
 import Drawer from '@etherealengine/ui/src/primitives/mui/Drawer'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { useTheme } from '@mui/material/styles'
 
 import styles from './index.module.scss'
 
@@ -50,7 +49,7 @@ import styles from './index.module.scss'
  */
 
 const Dashboard = ({ children }) => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const { user } = authState

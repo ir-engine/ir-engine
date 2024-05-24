@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ScatterPlot from '@mui/icons-material/ScatterPlot'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
-
-import ScatterPlot from '@mui/icons-material/ScatterPlot'
 
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
