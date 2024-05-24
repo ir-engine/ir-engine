@@ -73,7 +73,7 @@ export default function ScenesPanel() {
   useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
   return (
-    <div className="bg-theme-primary h-[100%]">
+    <div className="bg-theme-primary h-full">
       <div className="bg-theme-surface-main mb-4 w-full">
         <Button
           startIcon={<HiOutlinePlusCircle />}
@@ -86,11 +86,11 @@ export default function ScenesPanel() {
           {t('editor:newScene')}
         </Button>
       </div>
-      <div className="bg-theme-primary h-[100%]">
+      <div className="bg-theme-primary h-full">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
-          <div className="relative h-[100%] flex-1 overflow-y-auto px-4 py-3 pb-8">
+          <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
               {scenes.map((scene: AssetType) => (
                 <div key={scene.id} className="bg-theme-surface-main my-2 w-56 rounded">

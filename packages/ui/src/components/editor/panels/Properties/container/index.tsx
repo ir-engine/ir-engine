@@ -102,7 +102,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         }}
         panelId="propertiesPanel"
         anchorPosition={anchorPosition}
-        className="h-[60%] w-[100%] min-w-[300px] overflow-y-auto"
+        className="h-[60%] w-full min-w-[300px] overflow-y-auto"
       >
         {<ElementList />}
       </Popover>
