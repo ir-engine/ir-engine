@@ -119,13 +119,16 @@ export const getPluginObject = (pluginId: string) => {
 export const applyMaterialPlugins = (materialEntity: Entity) => {
   const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.pluginEntities || !materialComponent.material) return
+  const material = materialComponent.material as Material
+  material.plugins = []
   for (const pluginEntity of materialComponent.pluginEntities) {
     const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (pluginComponent.plugin) {
-      if (hasOBCPlugin(materialComponent.material as Material, pluginComponent.plugin)) return
-      addOBCPlugin(materialComponent.material as Material, pluginComponent.plugin)
+      if (hasOBCPlugin(material, pluginComponent.plugin)) return
+      addOBCPlugin(material, pluginComponent.plugin)
     }
   }
+  material.needsUpdate = true
 }
 
 export const applyPluginShaderParameters = (

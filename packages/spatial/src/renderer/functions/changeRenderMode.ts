@@ -82,6 +82,7 @@ export function changeRenderMode() {
       break
     case RenderModes.WIREFRAME:
       renderPass.overrideMaterial = new MeshBasicMaterial({
+        color: 0x000000,
         wireframe: true
       })
       break

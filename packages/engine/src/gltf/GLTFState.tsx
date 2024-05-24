@@ -37,6 +37,7 @@ import {
   EntityUUID,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -426,19 +427,19 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
   }, [entity, node.name])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!entity) return
 
     setComponent(entity, TransformComponent)
@@ -450,7 +451,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     const scale = new Vector3()
     mat4.decompose(position, rotation, scale)
     setComponent(entity, TransformComponent, { position, rotation, scale })
-  }, [entity, node.matrix.value])
+  }, [entity, node.matrix])
 
   if (!entity) return null
 
@@ -477,14 +478,14 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
   const documentState = useMutableState(GLTFDocumentState)[props.documentID]
   const nodes = documentState.nodes! // as State<GLTF.INode[]>
   const node = nodes[props.nodeIndex]!
-
   const extension = node.extensions![props.extension]
+
   useEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return
     return () => {
       //check if entity is in some other document and has the component
-      const uuid = getComponent(props.entity, UUIDComponent)
+      const uuid = getOptionalComponent(props.entity, UUIDComponent)
       const documents = getState(GLTFDocumentState)
       for (const documentID in documents) {
         const document = documents[documentID]
@@ -499,7 +500,7 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const Component = ComponentJSONIDMap.get(props.extension)
     if (!Component) return console.warn('no component found for extension', props.extension)
     setComponent(props.entity, Component, extension.get(NO_PROXY_STEALTH))
