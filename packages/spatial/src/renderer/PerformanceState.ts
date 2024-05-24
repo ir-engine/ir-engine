@@ -27,9 +27,9 @@ import { GetGPUTier, getGPUTier } from 'detect-gpu'
 import { debounce } from 'lodash'
 import { SMAAPreset } from 'postprocessing'
 import { useEffect } from 'react'
-import { Camera, Scene } from 'three'
+import { Camera, MathUtils, Scene } from 'three'
 
-import { ECSState } from '@etherealengine/ecs'
+import { defineSystem, ECSState, PresentationSystemGroup } from '@etherealengine/ecs'
 import { profile } from '@etherealengine/ecs/src/Timer'
 import { defineState, getMutableState, getState, State, useMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer, RenderSettingsState } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -39,6 +39,8 @@ import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
 type TargetFPS = 30 | 60
+const maxPerformanceTier = 5
+const maxPerformanceOffset = 12
 
 const tieredSettings = {
   [0]: {
@@ -111,6 +113,9 @@ export const PerformanceState = defineState({
     averageRenderTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
     averageSystemTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
 
+    performanceSmoothingTime: 3000 as const,
+    isSmoothing: false,
+
     gpu: 'unknown',
     device: 'unknown',
     budgets: {
@@ -125,10 +130,9 @@ export const PerformanceState = defineState({
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)
     const engineSettings = useMutableState(RendererState)
-    const ecsState = useMutableState(ECSState)
     const isEditing = getState(EngineState).isEditing
 
-    useEffect(() => {
+    const recreateEMA = () => {
       const targetFPS = performanceState.targetFPS.value
       const timePeriods = targetFPS * 3
       const startingMean = (1 / targetFPS) * 1000
@@ -137,6 +141,10 @@ export const PerformanceState = defineState({
         averageRenderTime: createExponentialMovingAverage(timePeriods, startingMean),
         averageSystemTime: createExponentialMovingAverage(timePeriods, startingMean)
       })
+    }
+
+    useEffect(() => {
+      recreateEMA()
     }, [performanceState.targetFPS])
 
     useEffect(() => {
@@ -149,39 +157,64 @@ export const PerformanceState = defineState({
     }, [performanceState.gpuTier])
 
     useEffect(() => {
-      if (isEditing) return
+      performanceState.isSmoothing.set(true)
+      recreateEMA()
+      setTimeout(() => {
+        performanceState.isSmoothing.set(false)
+      }, performanceState.performanceSmoothingTime.value)
+    }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
+  }
+})
 
-      const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState.value
+export const PerformanceSystem = defineSystem({
+  uuid: 'ee.engine.PerformanceSystem',
+  insert: { after: PresentationSystemGroup },
+  execute: () => {
+    if (getState(EngineState).isEditing) return
 
-      const maxDelta = 1000 / (targetFPS / 2 - 2)
-      const minDelta = 1000 / (targetFPS - 5)
-      const maxSystemDelta = maxDelta / 2
-      const minSystemDelta = minDelta / 2
+    const performanceState = getMutableState(PerformanceState)
+    if (performanceState.isSmoothing.value) {
+      console.log('In smoothing period')
+      return
+    }
+    const ecsState = getState(ECSState)
 
-      const renderMean = averageRenderTime.mean + averageFrameTime.mean
-      if (renderMean > maxDelta) {
+    updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration)
+    updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.deltaSeconds * 1000)
+
+    const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState.value
+
+    const maxDelta = 1000 / (targetFPS / 2 - 2)
+    const minDelta = 1000 / (targetFPS - 5)
+
+    const frameMean = averageFrameTime.mean
+    const renderMean = averageRenderTime.mean
+    const systemMean = averageSystemTime.mean
+
+    // Frame time is below target
+    if (frameMean > maxDelta) {
+      const maxRatio = 2.5
+      const gpuRatio = frameMean / renderMean
+      const systemRatio = frameMean / systemMean
+
+      // Check if we are GPU bound
+      if (gpuRatio < maxRatio) {
+        console.log('Decrementing GPU performance')
         decrementGPUPerformance()
-      } else if (renderMean < minDelta) {
-        incrementGPUPerformance()
+        // Check if we are system bound
+      } else if (systemRatio < maxRatio) {
+        console.log('Decrementing CPU performance - systems')
+        decrementCPUPerformance()
+        // We are CPU bound by something other than systems
+      } else {
+        console.log('Decrementing CPU performance - unknown')
+        decrementCPUPerformance()
       }
-
-      const systemMean = averageSystemTime.mean + averageFrameTime.mean
-      if (systemMean > maxSystemDelta) {
-        decrementGPUPerformance()
-      } else if (renderMean < minSystemDelta) {
-        incrementGPUPerformance()
-      }
-    }, [performanceState.averageRenderTime])
-
-    useEffect(() => {
-      if (isEditing) return
-      updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration.value)
-    }, [ecsState.lastSystemExecutionDuration])
-
-    useEffect(() => {
-      if (isEditing) return
-      updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.elapsedSeconds.value)
-    }, [ecsState.elapsedSeconds])
+    } else if (frameMean < minDelta) {
+      console.log('Incrementing performance')
+      incrementGPUPerformance()
+      incrementCPUPerformance()
+    }
   }
 })
 
@@ -278,9 +311,11 @@ const timeRender = (renderer: EngineRenderer, scene: Scene, camera: Camera, onFi
 
 const updatePerformanceState = (tierState: State<number>, tier: number, offsetState: State<number>, offset: number) => {
   if (tier !== tierState.value) {
+    console.log('Updating performance tier')
     tierState.set(tier)
   }
   if (offset !== offsetState.value) {
+    console.log('Updating performance offset')
     offsetState.set(offset)
   }
 }
@@ -288,7 +323,12 @@ const updatePerformanceState = (tierState: State<number>, tier: number, offsetSt
 const debounceTime = 1000
 const updateStateTierAndOffset = debounce(
   (tierState: State<number>, tier: number, offsetState: State<number>, offset: number) => {
-    updatePerformanceState(tierState, tier, offsetState, offset)
+    updatePerformanceState(
+      tierState,
+      MathUtils.clamp(tier, 0, maxPerformanceTier),
+      offsetState,
+      MathUtils.clamp(offset, 0, maxPerformanceOffset)
+    )
   },
   debounceTime,
   { trailing: true, maxWait: debounceTime * 2 }
@@ -298,20 +338,19 @@ const incrementGPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
   updateStateTierAndOffset(
     performanceState.gpuTier,
-    Math.min(performanceState.gpuTier.value + 1, 5),
+    performanceState.gpuTier.value + 1,
     performanceState.gpuPerformanceOffset,
-    Math.max(performanceState.gpuPerformanceOffset.value - 1, 0)
+    performanceState.gpuPerformanceOffset.value - 1
   )
 }
 
-const maxOffset = 12
 const decrementGPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
   updateStateTierAndOffset(
     performanceState.gpuTier,
-    Math.max(performanceState.gpuTier.value - 1, 0),
+    performanceState.gpuTier.value - 1,
     performanceState.gpuPerformanceOffset,
-    Math.min(performanceState.gpuPerformanceOffset.value + 1, maxOffset)
+    performanceState.gpuPerformanceOffset.value + 1
   )
 }
 
@@ -319,9 +358,9 @@ const incrementCPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
   updateStateTierAndOffset(
     performanceState.cpuTier,
-    Math.min(performanceState.cpuTier.value + 1, 5),
+    performanceState.cpuTier.value + 1,
     performanceState.cpuPerformanceOffset,
-    Math.max(performanceState.cpuPerformanceOffset.value - 1, 0)
+    performanceState.cpuPerformanceOffset.value - 1
   )
 }
 
@@ -329,9 +368,9 @@ const decrementCPUPerformance = () => {
   const performanceState = getMutableState(PerformanceState)
   updateStateTierAndOffset(
     performanceState.cpuTier,
-    Math.max(performanceState.cpuTier.value - 1, 0),
+    performanceState.cpuTier.value - 1,
     performanceState.cpuPerformanceOffset,
-    Math.min(performanceState.cpuPerformanceOffset.value + 1, maxOffset)
+    performanceState.cpuPerformanceOffset.value + 1
   )
 }
 
