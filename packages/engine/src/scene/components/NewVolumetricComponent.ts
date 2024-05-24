@@ -502,9 +502,6 @@ function NewVolumetricComponentReactor() {
   }
 
   useEffect(() => {
-    if (!hasComponent(entity, PlaylistComponent)) {
-      setComponent(entity, PlaylistComponent)
-    }
     if (!hasComponent(entity, MediaElementComponent)) {
       setComponent(entity, MediaElementComponent, {
         element: document.createElement('video')

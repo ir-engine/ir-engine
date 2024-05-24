@@ -44,7 +44,6 @@ export const PlaylistComponent = defineComponent({
   }),
 
   onSet: (entity, component, json) => {
-    console.log('onSet', json)
     if (!json) return
     if (json.tracks && Array.isArray(json.tracks)) component.tracks.set(json.tracks)
     if (typeof json.currentTrackUUID === 'string') component.currentTrackUUID.set(json.currentTrackUUID)
@@ -55,7 +54,6 @@ export const PlaylistComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
-    console.log('toJSON', component.get(NO_PROXY))
     return {
       tracks: component.tracks.value,
       currentTrackUUID: component.currentTrackUUID.value,

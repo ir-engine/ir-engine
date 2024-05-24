@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, useComponent } from '@etherealengine/ecs'
+import { Entity, hasComponent, useComponent } from '@etherealengine/ecs'
 import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
+import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { Scrubber } from 'react-scrubber'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { SelectionState } from '../../services/SelectionServices'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -46,6 +49,13 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
 
   const geometryTargets = useHookstate([] as OptionsType[])
   const textureTargets = useHookstate({} as Partial<Record<TextureType, OptionsType[]>>)
+
+  useEffect(() => {
+    if (!hasComponent(props.entity, PlaylistComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, PlaylistComponent, true)
+    }
+  }, [])
 
   useEffect(() => {
     if (component.geometry.targets.length > 0) {
