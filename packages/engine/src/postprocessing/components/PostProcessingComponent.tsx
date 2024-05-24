@@ -249,7 +249,7 @@ const EffectReactor = (props: {
   lut1DEffectTexture: Texture | null
   lut3DEffectTexture: Texture | null
   velocityDepthNormalPass: any
-  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+  useVelocityDepthNormalPass: StateMethods<boolean, unknown>
   normalPass: State<CustomNormalPass>
   depthDownsamplingPass: State<DepthDownsamplingPass>
   composer: EffectComposer
@@ -496,9 +496,9 @@ const SSREffectProcess = (props: {
   schema: any
   effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
-  scene: State<Scene, {}>
+  scene: State<Scene, unknown>
   velocityDepthNormalPass: any
-  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+  useVelocityDepthNormalPass: StateMethods<boolean, unknown>
   composer: State<EffectComposer>
 }) => {
   const { schema, effects, camera, scene, velocityDepthNormalPass, useVelocityDepthNormalPass, composer } = props
@@ -535,9 +535,9 @@ const TRAAEffectProcess = (props: {
   schema: any
   effects: State<Record<string, Effect>>
   camera: State<ArrayCamera>
-  scene: State<Scene, {}>
+  scene: State<Scene, unknown>
   velocityDepthNormalPass: any
-  useVelocityDepthNormalPass: StateMethods<boolean, {}>
+  useVelocityDepthNormalPass: StateMethods<boolean, unknown>
 }) => {
   const { schema, effects, camera, scene, velocityDepthNormalPass, useVelocityDepthNormalPass } = props
   // todo support more than 1 texture

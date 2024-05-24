@@ -126,9 +126,8 @@ describe('PostProcessingComponent', () => {
 
     //test that the effect pass has the the effect set
     // @ts-ignore
-    assert(
-      getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects.find((el) => el.name == effectKey)
-    )
+    const effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    assert(effects.find((el) => el.name == effectKey))
 
     EffectComposer.prototype.addPass = originalAddPass
 
