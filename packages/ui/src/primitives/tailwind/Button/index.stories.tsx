@@ -22,12 +22,13 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { ArgTypes } from '@storybook/react'
 import React from 'react'
 import { IoAddOutline, IoSend } from 'react-icons/io5'
 
 import Button from './index'
 
-const argTypes = {
+const argTypes: ArgTypes = {
   size: {
     control: 'select',
     options: ['small', 'medium', 'large']

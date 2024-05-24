@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
-import { Box, Divider, Stack } from '@mui/material'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
@@ -39,11 +38,12 @@ import {
   UUIDComponent
 } from '@etherealengine/ecs'
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
+import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import {
@@ -53,15 +53,13 @@ import {
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { none, State, useHookstate } from '@hookstate/core'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { Button } from '../inputs/Button'
-import { InputGroup } from '../inputs/InputGroup'
-import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { InfoTooltip } from '../layout/Tooltip'
+import Button from '../../../../../primitives/tailwind/Button'
+import InputGroup from '../../../input/Group'
+import SelectInput from '../../../input/Select'
+import StringInput from '../../../input/String'
+import { PanelDragContainer, PanelIcon, PanelTitle } from '../../../layout/Panel'
+import { InfoTooltip } from '../../../layout/Tooltip'
+import ParameterInput from '../../../properties/parameter'
 
 type ThumbnailData = {
   src: string
@@ -205,7 +203,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialName, selectedPlugin, pluginState?.parameters[materialName.value]])
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative flex flex-col gap-2">
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
         <StringInput
           value={materialComponent.material.value!.name}
@@ -213,32 +211,25 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
-        <div className={styles.contentContainer}>
-          <Box className="Box" sx={{ padding: '8px', overflow: 'scroll' }}>
-            <Stack className="Stack" spacing={2} direction="column" alignContent={'center'}>
-              <Stack className="Stack" spacing={2} direction="row" alignContent={'flex-start'}></Stack>
-              <Stack className="Stack" spacing={2} direction="row">
-                <div>
-                  <label>{t('editor:properties.mesh.material.path')}</label>
-                </div>
-                <div>{getComponent(entity, SourceComponent)}</div>
-              </Stack>
-            </Stack>
-          </Box>
+        <div className="bg-theme-surface-main border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid p-1 text-xs text-white">
+          <div className="justify-cneter flex items-center align-middle">
+            <label>{t('editor:properties.mesh.material.path')}</label>
+          </div>
+          <div>{getComponent(entity, SourceComponent)}</div>
         </div>
       </InputGroup>
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={prototypeName.value}
+          currentValue={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
             if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
-            prototypeName.set(protoId)
+            prototypeName.set(protoId as string)
           }}
         />
       </InputGroup>
-      <Divider className={styles.divider} />
+
       <ParameterInput
         entity={props.materialUUID}
         values={materialComponent.parameters.value!}
@@ -254,24 +245,17 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         defaults={prototype.prototypeArguments!.value}
         thumbnails={toBlobs(thumbnails.value)}
       />
+
       <br />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          border: '1px solid #fff',
-          borderRadius: '4px',
-          padding: '4px'
-        }}
-      >
+      <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">
         <SelectInput
-          value={selectedPlugin.value}
+          currentValue={selectedPlugin.value}
           options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
-          onChange={selectedPlugin.set}
+          onChange={(value) => selectedPlugin.set(value as string)}
         />
         <Button
+          variant="outline"
+          size="small"
           onClick={() => {
             setComponent(entity, MaterialComponent[MaterialComponents.State], {
               pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]]
@@ -297,6 +281,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             defaults={pluginParameters.value}
           />
           <Button
+            variant="outline"
+            size="small"
             onClick={() => {
               if (materialComponent.pluginEntities.value)
                 materialComponent.pluginEntities.set(

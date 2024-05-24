@@ -101,7 +101,7 @@ const TransformSnapTool = () => {
         className="w-20 p-1"
         onChange={onChangeTranslationSnap}
         options={translationSnapOptions}
-        value={editorHelperState.translationSnap.value}
+        currentValue={editorHelperState.translationSnap.value}
       />
       {/* </Tooltip>
           <Tooltip title={t('editor:toolbar.transformSnapTool.info-rotate')} direction="right"> */}
@@ -111,7 +111,7 @@ const TransformSnapTool = () => {
         className="w-20 p-1"
         onChange={onChangeRotationSnap}
         options={rotationSnapOptions}
-        value={editorHelperState.rotationSnap.value}
+        currentValue={editorHelperState.rotationSnap.value}
       />
       {/* </Tooltip> */}
     </div>

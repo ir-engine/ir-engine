@@ -28,11 +28,14 @@ import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-ico
 import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
 
 /**Tailwind `Select` styled for studio */
-const SelectInput = ({ ...rest }: SelectProps<string | number>) => {
+const SelectInput = ({
+  value,
+  ...rest
+}: Omit<SelectProps<string | number>, 'currentValue'> & { value: string | number }) => {
   return (
     <Select
+      currentValue={value}
       className="text-theme-primary h-10 w-72 bg-[#212226]"
-      menuContainerClassName="border-none mt-0 rounded-none"
       inputClassName="rounded-none text-xs p-1"
       {...rest}
     />

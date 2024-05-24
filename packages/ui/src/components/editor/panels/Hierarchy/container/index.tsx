@@ -460,7 +460,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
         </Button>
       </div>
-      <div id="heirarchy-panel" className="h-full overflow-hidden">
+      <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
       <ContextMenu

@@ -371,11 +371,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
             <>
               {index !== 0 && ( // Add separator for all but the first item
-                <span className="align-middle text-sm">{'>'}</span>
+                <span className="cursor-default align-middle text-sm">{'>'}</span>
               )}
               {index === arr.length - 1 ? (
                 <span className="overflow-hidden">
-                  <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
+                  <span className="inline-block w-full cursor-default overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
                     {file}
                   </span>
                 </span>
@@ -556,7 +556,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             showBackButton ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
         >
-          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottomRight">
+          <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
             <Button variant="transparent" startIcon={<IoArrowBack />} className={`p-0`} onClick={onBackDirectory} />
           </Tooltip>
         </div>
@@ -635,7 +635,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Button>
         )}
       </div>
-      {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} />}
+      {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
@@ -659,69 +659,3 @@ export default function FilesPanelContainer() {
     </>
   )
 }
-
-/*<div
-      style={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        color: 'var(--textColor)',
-        fontFamily: 'var(--lato)',
-        fontSize: '12px'
-      }}
-    >
-      <Header />
-      <div className={styles.searchContainer}>
-        <StringInput
-          placeholder={t('editor:layout.filebrowser.search-placeholder')}
-          value={searchText.value}
-          onChange={searchText.set}
-        />
-      </div>
-      {retrieving && (
-        <LoadingView className={styles.filesLoading} title={t('editor:layout.filebrowser.loadingFiles')} />
-      )}
-      <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
-        <DndWrapper id="file-browser-panel">
-          <DropArea />
-        </DndWrapper>
-      </div>
-
-      {openConvert.value && fileProperties.value && (
-        <ImageConvertPanel
-          openConvert={openConvert}
-          fileProperties={fileProperties}
-          convertProperties={convertProperties}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
-        <ModelCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
-        <ImageCompressionPanel
-          openCompress={openCompress}
-          fileProperties={fileProperties as any}
-          onRefreshDirectory={refreshDirectory}
-        />
-      )}
-
-      {openProperties.value && fileProperties.value && (
-        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
-      )}
-      <ConfirmDialog
-        open={openConfirm.value}
-        description={t('editor:dialog.delete.confirm-content', {
-          content: contentToDeletePath.value.split('/').at(-1)
-        })}
-        onClose={handleConfirmClose}
-        onSubmit={deleteContent}
-      />
-      </div>*/

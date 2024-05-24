@@ -33,7 +33,7 @@ import Text from '../../../primitives/tailwind/Text'
 
 interface ConfirmDialogProps {
   text: string
-  onSubmit: (e) => Promise<void>
+  onSubmit: () => Promise<void>
   onClose?: () => void
   modalProps?: Partial<ModalProps>
 }
@@ -42,10 +42,10 @@ export const ConfirmDialog = ({ text, onSubmit, onClose, modalProps }: ConfirmDi
   const errorText = useHookstate('')
   const modalProcessing = useHookstate(false)
 
-  const handled = async (e) => {
+  const handled = async () => {
     modalProcessing.set(true)
     try {
-      await onSubmit(e)
+      await onSubmit()
       PopoverState.hidePopupover()
     } catch (error) {
       errorText.set(error.message)

@@ -160,7 +160,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div className="h-[100%] overflow-y-auto pb-8">
+      <div className="mb-8 h-[100%] w-full overflow-y-auto pb-8">
         {categories.map((category, index) => (
           <AssetCategory
             data={{
@@ -266,15 +266,15 @@ const AssetPanel = () => {
   return (
     <>
       <div className="bg-theme-surface-main mb-1 flex h-7" />
-      <div className="flex h-[100%] flex-row p-2">
-        <div className="flex h-[100%] w-[25%] flex-col gap-2">
+      <div className="flex h-full flex-row p-2">
+        <div className="flex h-full w-[25%] flex-col gap-2">
           <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            className="bg-theme-primary w-[100%] rounded"
+            className="bg-theme-primary w-full rounded"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
           <CategoriesList />

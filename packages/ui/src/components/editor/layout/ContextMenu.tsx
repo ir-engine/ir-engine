@@ -62,7 +62,7 @@ export const ContextMenu = ({
 
       if (shouldRepositionMenu) {
         // Align the menu bottom with the bottom of the viewport
-        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 50
+        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 30
       }
     }
 
