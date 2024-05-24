@@ -89,7 +89,6 @@ import { SceneSettingsEditor } from '../components/properties/SceneSettingsEdito
 import ScreenshareTargetNodeEditor from '../components/properties/ScreenshareTargetNodeEditor'
 import SDFEditor from '../components/properties/SDFEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
-import TriggerComponentEditor from '../components/properties/TriggerComponentEditor'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 
 // everythign above still needs to be built
@@ -124,6 +123,7 @@ import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
+import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'

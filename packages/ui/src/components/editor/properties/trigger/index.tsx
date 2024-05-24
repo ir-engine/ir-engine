@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
+  commitProperties,
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
@@ -36,32 +37,26 @@ import { TriggerComponent } from '@etherealengine/spatial/src/physics/components
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPlus } from 'react-icons/hi2'
-import { PiTrashSimple } from 'react-icons/pi'
-import Select from '../../../../primitives/tailwind/Select'
-import Text from '../../../../primitives/tailwind/Text'
+import { HiPlus, HiTrash } from 'react-icons/hi2'
+import Button from '../../../../primitives/tailwind/Button'
+import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
+import SelectInput from '../../input/Select'
 import StringInput from '../../input/String'
-
-type OptionsType = Array<{
-  callbacks: Array<{
-    label: string
-    value: string
-  }>
-  label: string
-  value: string
-}>
+import NodeEditor from '../nodeEditor'
 
 const callbackQuery = defineQuery([CallbackComponent])
 
+type TargetOptionType = { label: string; value: string; callbacks: SelectOptionsType[] }
+
 const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useHookstate<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useHookstate<TargetOptionType[]>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
   const triggerComponent = useComponent(props.entity, TriggerComponent)
 
   useEffect(() => {
-    const options = [] as OptionsType
+    const options = [] as TargetOptionType[]
     options.push({
       label: 'Self',
       value: 'Self',
@@ -73,79 +68,103 @@ const TriggerProperties: EditorComponentType = (props) => {
       options.push({
         label: getComponent(entity, NameComponent),
         value: getComponent(entity, UUIDComponent),
-        callbacks: Object.keys(callbacks).map((cb) => {
-          return { label: cb, value: cb }
-        })
+        callbacks: Object.keys(callbacks).map((cb) => ({ label: cb, value: cb }))
       })
     }
     targets.set(options)
   }, [])
 
   return (
-    <>
-      <div className="mb-3 mt-5 flex items-center">
-        <Text fontSize="xs" className="ml-12">
-          {t('editor:properties.triggerVolume.name')}
-        </Text>
-        <div className="ml-auto mr-5 flex items-center gap-1">
-          <HiPlus className="text-sm text-[#8B8B8D]" />
-          <PiTrashSimple className="text-sm text-[#8B8B8D]" />
-        </div>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.trigger.name')}
+      description={t('editor:properties.trigger.description')}
+    >
+      <div className="my-3 flex justify-end">
+        <Button
+          variant="transparent"
+          title={t('editor:properties.triggerVolume.lbl-addTrigger')}
+          startIcon={<HiPlus />}
+          className="text-sm text-[#8B8B8D]"
+          onClick={() => {
+            const triggers = [
+              ...triggerComponent.triggers.value,
+              {
+                target: 'Self',
+                onEnter: '',
+                onExit: ''
+              }
+            ]
+            commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
+          }}
+        />
       </div>
-      <div className="w-full bg-[#1A1A1A]">
-        {triggerComponent.triggers.map((trigger, index) => {
-          const targetOption = targets.value.find((o) => o.value === trigger.target.value)
-          const target = targetOption ? targetOption.value : 'Self'
-          return (
-            <>
-              <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
-                <Select
-                  value={trigger.target.value ?? 'Self'}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
-                  options={targets.value}
-                  disabled={props.multiEdit}
+      {triggerComponent.triggers.map((trigger, index) => {
+        const targetOption = targets.value.find((o) => o.value === trigger.target.value)
+        const target = targetOption ? targetOption.value : 'Self'
+        console.log('debug1 ', targetOption, 'and', targetOption?.callbacks.length)
+        return (
+          <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
+            <Button
+              variant="transparent"
+              title={t('editor:properties.triggerVolume.lbl-removeTrigger')}
+              startIcon={<HiTrash />}
+              className="ml-auto text-sm text-[#8B8B8D]"
+              onClick={() => {
+                const triggers = [...triggerComponent.triggers.value]
+                triggers.splice(index, 1)
+                commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
+              }}
+            />
+            <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
+              <SelectInput
+                value={trigger.target.value ?? 'Self'}
+                onChange={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
+                options={targets.value.map(({ label, value }) => ({ label, value }))}
+                disabled={props.multiEdit}
+              />
+            </InputGroup>
+            <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
+              {targetOption?.callbacks.length ? (
+                <SelectInput
+                  value={trigger.onEnter.value!}
+                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
+                  disabled={props.multiEdit || !target}
                 />
-              </InputGroup>
-              <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
-                {targetOption?.callbacks.length == 0 ? (
-                  <StringInput
-                    value={trigger.onEnter.value!}
-                    onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    disabled={props.multiEdit || !target}
-                  />
-                ) : (
-                  <Select
-                    value={trigger.onEnter.value!}
-                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
-                    disabled={props.multiEdit || !target}
-                  />
-                )}
-              </InputGroup>
+              ) : (
+                <StringInput
+                  value={trigger.onEnter.value!}
+                  onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  disabled={props.multiEdit || !target}
+                  className="bg-[#212226]"
+                />
+              )}
+            </InputGroup>
 
-              <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
-                {targetOption?.callbacks.length == 0 ? (
-                  <StringInput
-                    value={trigger.onExit.value!}
-                    onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    disabled={props.multiEdit || !target}
-                  />
-                ) : (
-                  <Select
-                    value={trigger.onExit.value!}
-                    onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                    options={targetOption?.callbacks ? targetOption.callbacks : []}
-                    disabled={props.multiEdit || !target}
-                  />
-                )}
-              </InputGroup>
-            </>
-          )
-        })}
-      </div>
-    </>
+            <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
+              {targetOption?.callbacks.length ? (
+                <SelectInput
+                  value={trigger.onExit.value!}
+                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
+                  disabled={props.multiEdit || !target}
+                />
+              ) : (
+                <StringInput
+                  value={trigger.onExit.value!}
+                  onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  disabled={props.multiEdit || !target}
+                  className="bg-[#212226]"
+                />
+              )}
+            </InputGroup>
+          </div>
+        )
+      })}
+    </NodeEditor>
   )
 }
 
