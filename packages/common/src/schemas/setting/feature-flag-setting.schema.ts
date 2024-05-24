@@ -25,12 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { OpaqueType } from '../../interfaces/OpaqueType'
-import { TypedString } from '../../types/TypeboxUtils'
+import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
 
-export type FeatureFlag = OpaqueType<'FeatureFlag'> & string
+export type FeatureFlag = FeatureFlagSettingType['flagName']
 
 export const featureFlagSettingPath = 'feature-flag-setting'
 
@@ -42,7 +40,12 @@ export const featureFlagSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    flagName: TypedString<FeatureFlag>(),
+    flagName: StringEnum([
+      'ir.client.menu.social',
+      'ir.client.menu.emote',
+      'ir.client.menu.avaturn',
+      'ir.client.menu.readyPlayerMe'
+    ]),
     flagValue: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

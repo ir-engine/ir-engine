@@ -44,7 +44,7 @@ export const FeatureFlagsState = defineState({
 
     useEffect(() => {
       const data = featureFlagQuery.data
-      getMutableState(FeatureFlagsState).set(
+      getMutableState(FeatureFlagsState).merge(
         Object.fromEntries(data.map(({ flagName, flagValue }) => [flagName, flagValue]))
       )
     }, [featureFlagQuery.data])
