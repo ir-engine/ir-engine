@@ -229,12 +229,12 @@ const PlainCSMReactor = (props: { rendererEntity: Entity }) => {
 }
 
 const ChildCSMReactor = (props: { rendererEntity: Entity }) => {
-  const entities = useHookstate(useTreeQuery(props.rendererEntity))
+  const entities = useTreeQuery(props.rendererEntity)
   return (
     <>
-      {entities.value.map((entity) => (
-        <Suspense>
-          <EntityChildCSMReactor key={entity} entity={entity} rendererEntity={props.rendererEntity} />
+      {entities.map((entity) => (
+        <Suspense key={entity}>
+          <EntityChildCSMReactor entity={entity} rendererEntity={props.rendererEntity} />
         </Suspense>
       ))}
     </>
@@ -251,19 +251,19 @@ const EntityChildCSMReactor = (props: { entity: Entity; rendererEntity: Entity }
   useEffect(() => {
     if (!csm || !shadowComponent.receive.value) return
 
-    if (groupComponent) {
-      const objs = [...groupComponent.value] as Mesh<any, Material>[]
+    if (!groupComponent) return
+
+    const objs = [...groupComponent.value] as Mesh<any, Material>[]
+    for (const obj of objs) {
+      if (obj.material) {
+        csm.setupMaterial(obj)
+      }
+    }
+
+    return () => {
       for (const obj of objs) {
         if (obj.material) {
-          csm.setupMaterial(obj)
-        }
-      }
-
-      return () => {
-        for (const obj of objs) {
-          if (obj.material) {
-            csm.teardownMaterial(obj.material)
-          }
+          csm.teardownMaterial(obj.material)
         }
       }
     }
@@ -274,9 +274,9 @@ const EntityChildCSMReactor = (props: { entity: Entity; rendererEntity: Entity }
 
 function _CSMReactor() {
   const rendererEntity = useEntityContext()
+  const renderSettingsEntity = useChildWithComponent(rendererEntity, RenderSettingsComponent)
 
   if (!rendererEntity) return null
-  const renderSettingsEntity = useChildWithComponent(rendererEntity, RenderSettingsComponent)
   if (!renderSettingsEntity) return null
 
   return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={renderSettingsEntity} />
