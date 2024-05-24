@@ -77,28 +77,29 @@ declare module '@pixiv/three-vrm/types/VRM' {
 export const autoconvertMixamoAvatar = (model: GLTF | VRM) => {
   const scene = model.scene ?? model // FBX assets do not have 'scene' property
   if (!scene) return null!
-
-  //vrm1's vrm object is in the userData property
+  let foundModel = model
+  //sometimes, for some exporters, the vrm object is stored in the userData
   if (model.userData?.vrm instanceof VRM) {
-    return model.userData.vrm
+    if (model.userData.vrmMeta.metaVersion > 0) return model.userData.vrm
+    foundModel = model.userData.vrm
   }
 
   //vrm0 is an instance of the vrm object
-  if (model instanceof VRM) {
-    const bones = model.humanoid.rawHumanBones
-    model.humanoid.normalizedHumanBonesRoot.removeFromParent()
+  if (foundModel instanceof VRM) {
+    const bones = foundModel.humanoid.rawHumanBones
+    foundModel.humanoid.normalizedHumanBonesRoot.removeFromParent()
     bones.hips.node.rotateY(Math.PI)
     const humanoid = new VRMHumanoid(bones)
     const vrm = new VRM({
       humanoid,
-      scene: model.scene,
-      meta: { name: model.scene.children[0].name } as VRM1Meta
+      scene: foundModel.scene,
+      meta: { name: foundModel.scene.children[0].name } as VRM1Meta
     })
     if (!vrm.userData) vrm.userData = {}
     return vrm
   }
 
-  return avatarBoneMatching(model)
+  return avatarBoneMatching(foundModel)
 }
 
 export const isAvaturn = (url: string) => {
