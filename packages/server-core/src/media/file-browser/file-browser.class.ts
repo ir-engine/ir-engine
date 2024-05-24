@@ -60,8 +60,6 @@ export interface FileBrowserParams extends KnexAdapterParams {
   nestingDirectory?: string
 }
 
-const PROJECT_FILE_REGEX = /^projects/
-
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
   if (!nestingDirectory) {
     if (/recordings/.test(directory)) nestingDirectory = 'recordings'

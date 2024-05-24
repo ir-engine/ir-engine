@@ -31,7 +31,7 @@ import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/u
 import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'
 
-function toPrecisionString(value: number, precision: number) {
+function toPrecisionString(value: number, precision?: number) {
   if (precision && precision <= 1) {
     const numDigits = Math.abs(Math.log10(precision))
     const minimumFractionDigits = Math.min(numDigits, 2)
@@ -54,7 +54,7 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   inputClassName?: string
   unit?: string
   prefix?: React.ReactNode
-  displayPrecision?: any
+  displayPrecision?: number
   precision?: number
   mediumStep?: number
   smallStep?: number

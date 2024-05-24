@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 
 import { createEntity, destroyEngine, removeComponent, setComponent } from '@etherealengine/ecs'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../SpatialModule'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
-import { handlePhysicsEnterExitQueries } from '../systems/PhysicsSystem'
 import { ColliderComponent } from './ColliderComponent'
 import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
@@ -49,14 +48,11 @@ describe('ColliderComponent', () => {
   })
 
   it('should add collider to rigidbody', () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
     setComponent(entity, RigidBodyComponent, { type: 'fixed' })
     setComponent(entity, ColliderComponent)
-
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     const body = Physics._Rigidbodies.get(entity)!
     const collider = Physics._Colliders.get(entity)!
@@ -67,14 +63,11 @@ describe('ColliderComponent', () => {
   })
 
   it('should remove collider from rigidbody', () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
     setComponent(entity, RigidBodyComponent, { type: 'fixed' })
     setComponent(entity, ColliderComponent)
-
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     const body = Physics._Rigidbodies.get(entity)!
     const collider = Physics._Colliders.get(entity)!
@@ -85,13 +78,10 @@ describe('ColliderComponent', () => {
 
     removeComponent(entity, ColliderComponent)
 
-    handlePhysicsEnterExitQueries(physicsWorld)
-
     assert.equal(body.numColliders(), 0)
   })
 
   it('should add trigger collider', () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setComponent(entity, TransformComponent)
@@ -99,8 +89,6 @@ describe('ColliderComponent', () => {
     setComponent(entity, RigidBodyComponent, { type: 'fixed' })
     setComponent(entity, TriggerComponent)
     setComponent(entity, ColliderComponent)
-
-    handlePhysicsEnterExitQueries(physicsWorld)
 
     const collider = Physics._Colliders.get(entity)!
     assert.equal(collider!.isSensor(), true)

@@ -342,7 +342,7 @@
           "redirect": false,
           "effectType": "Hyperspace",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20to%20Apartment.ktx2",
           "spawnPosition": {
             "x": 49.5,
             "y": 2,
@@ -403,7 +403,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
           "spawnPosition": {
             "x": 15,
             "y": 9,
@@ -464,7 +464,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
           "spawnPosition": {
             "x": -60,
             "y": 3,

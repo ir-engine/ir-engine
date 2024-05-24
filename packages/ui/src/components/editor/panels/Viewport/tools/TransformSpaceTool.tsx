@@ -70,7 +70,7 @@ const TransformSpaceTool = () => {
         className="w-24 p-1 text-[#A3A3A3]"
         onChange={setTransformSpace}
         options={transformSpaceOptions}
-        value={transformSpace.value}
+        currentValue={transformSpace.value}
       />
       {/* </Tooltip> */}
     </div>

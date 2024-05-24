@@ -138,8 +138,8 @@ export default function Toolbar() {
         panelId="toolbar-menu"
         onClose={() => anchorOpen.set(false)}
       >
-        {toolbarMenu.map(({ name, action, hotkey }) => (
-          <div className="m-1">
+        {toolbarMenu.map(({ name, action, hotkey }, index) => (
+          <div key={index} className="m-1">
             <Button size="small" variant="outline" fullWidth onClick={action} endIcon={hotkey}>
               {name}
             </Button>

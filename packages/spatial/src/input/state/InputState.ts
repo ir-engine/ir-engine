@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Raycaster, Vector2 } from 'three'
 
-import { UndefinedEntity } from '@etherealengine/ecs'
-import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 export const InputState = defineState({
   name: 'InputState',
@@ -37,5 +37,11 @@ export const InputState = defineState({
     scroll: new Vector2(),
     capturingEntity: UndefinedEntity
   }),
-  extension: syncStateWithLocalStorage(['preferredHand'])
+  extension: syncStateWithLocalStorage(['preferredHand']),
+  setCapturingEntity: (entity: Entity, force = false) => {
+    const inputState = getMutableState(InputState)
+    if (force || inputState.capturingEntity.value === UndefinedEntity) {
+      inputState.capturingEntity.set(entity)
+    }
+  }
 })

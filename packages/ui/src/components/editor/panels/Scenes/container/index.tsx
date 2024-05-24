@@ -92,7 +92,7 @@ export default function ScenesPanel() {
         ) : (
           <div className="flex flex-wrap gap-4">
             {scenes.map((scene: AssetType) => (
-              <div className="bg-theme-surface-main my-2 h-40 w-56 rounded">
+              <div key={scene.id} className="bg-theme-surface-main my-2 h-40 w-56 rounded">
                 <img
                   src={config.client.fileServer + '/' + scene.thumbnailURL}
                   alt={scene.assetURL}

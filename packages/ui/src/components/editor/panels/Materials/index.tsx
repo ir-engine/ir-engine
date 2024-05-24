@@ -28,6 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PanelDragContainer, PanelTitle } from '../../layout/Panel'
+import MaterialLibraryPanel from './container'
 
 export const MaterialsPanelTitle = () => {
   const { t } = useTranslation()
@@ -46,8 +47,8 @@ export const MaterialsPanelTitle = () => {
 export default MaterialsPanelTitle
 
 export const MaterialsPanelTab: TabData = {
-  id: 'viewPanel',
+  id: 'materialsPanel',
   closable: true,
   title: <MaterialsPanelTitle />,
-  content: <></>
+  content: <MaterialLibraryPanel />
 }

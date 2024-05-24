@@ -77,7 +77,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       : 'bg-transparent border border-neutral-500 rounded-none placeholder:text-neutral-200 placeholder:text-[17px]'
 
     const twClassname = twMerge(
-      'text-base font-normal tracking-tight',
+      'text-base font-normal tracking-tight text-white',
       'textshadow-sm border-theme-primary bg-theme-surfaceInput flex h-9 w-full rounded-lg border px-3.5 py-5 transition-colors',
       'file:bg-theme-surfaceInput file:border-0 file:text-sm file:font-medium',
       'dark:[color-scheme:dark]',

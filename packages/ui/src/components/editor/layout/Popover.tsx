@@ -48,7 +48,6 @@ export const PopOver = ({
   const panel = document.getElementById(panelId)
   const positionX = anchorPosition?.left - panel?.getBoundingClientRect().left!
   const positionY = anchorPosition?.top - panel?.getBoundingClientRect().top!
-  console.log('DEBUG', positionX, positionY)
   return (
     <ClickAwayListener onClickAway={() => onClose()}>
       <div className={`${open ? 'block' : 'hidden'}`}>

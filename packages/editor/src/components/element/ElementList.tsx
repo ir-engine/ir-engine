@@ -29,10 +29,9 @@ import { startCase } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ComponentShelfCategoriesState } from '@etherealengine/ui/src/components/editor/panels/Properties/elementList'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'

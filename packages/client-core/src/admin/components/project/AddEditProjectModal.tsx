@@ -34,7 +34,7 @@ import { ProjectService } from '@etherealengine/client-core/src/common/services/
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { toDateTimeSql, toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
@@ -146,13 +146,7 @@ export default function AddEditProjectModal({
     if (projectCommit.projectVersion) label += ` -- Project Ver. ${projectCommit.projectVersion}`
     if (projectCommit.engineVersion) label += ` -- Engine Ver. ${projectCommit.engineVersion}`
     if (projectCommit.datetime) {
-      const datetime = new Date(projectCommit.datetime).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+      const datetime = toDisplayDateTime(projectCommit.datetime)
       label += ` -- Pushed ${datetime}`
     }
     return {

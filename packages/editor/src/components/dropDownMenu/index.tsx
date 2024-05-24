@@ -81,7 +81,6 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
   return (
     <>
       <ToolButton icon={icon} onClick={onOpen} isSelected={open} id="menu" />
-
       <ContextMenu
         open={open}
         anchorEl={anchorEl}

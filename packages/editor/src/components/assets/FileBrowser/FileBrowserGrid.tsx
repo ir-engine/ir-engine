@@ -33,10 +33,9 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, StateMethods, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 
@@ -219,13 +218,12 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
-  isFilesLoading: StateMethods<boolean, any>
+  isFilesLoading: boolean
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
   addFolder: () => void
-  refreshDirectory: () => Promise<void>
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
 }
@@ -244,7 +242,6 @@ export function FileBrowserItem({
   moveContent,
   isFilesLoading,
   addFolder,
-  refreshDirectory,
   isListView,
   staticResourceModifiedDates
 }: FileBrowserItemType) {
@@ -253,6 +250,8 @@ export function FileBrowserItem({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const [renamingAsset, setRenamingAsset] = useState(false)
+
+  const fileService = useMutation(fileBrowserPath)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -315,18 +314,14 @@ export function FileBrowserItem({
   const pasteContent = async () => {
     handleClose()
 
-    if (isFilesLoading.value) return
-    isFilesLoading.set(true)
-
-    await FileBrowserService.moveContent(
-      currentContent.current.item.fullName,
-      currentContent.current.item.fullName,
-      currentContent.current.item.path,
-      item.isFolder ? item.path + item.fullName : item.path,
-      currentContent.current.isCopy
-    )
-
-    await refreshDirectory()
+    if (isFilesLoading) return
+    fileService.update(null, {
+      oldName: currentContent.current.item.fullName,
+      newName: currentContent.current.item.fullName,
+      oldPath: currentContent.current.item.path,
+      newPath: item.isFolder ? item.path + item.fullName : item.path,
+      isCopy: currentContent.current.isCopy
+    })
   }
 
   const viewAssetProperties = () => {

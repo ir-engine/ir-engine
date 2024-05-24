@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect } from 'react'
 import { DoubleSide, Mesh } from 'three'
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentType,
@@ -129,7 +128,6 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       const batchCompressed = isBatchCompress.value
       const clientside = isClientside.value
       const textureSizes = batchCompressed ? [2048, 1024, 512] : [transformParms.maxTextureSize.value]
-      const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
       let nuPath: string | null = null
 
       const variants = batchCompressed
@@ -151,7 +149,6 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
       if (!batchCompressed) {
         onChangeModel(nuPath)
       }
-      await FileBrowserService.fetchFiles(directoryToRefresh)
       transformHistory.set([modelSrc, ...transformHistory.value])
       transforming.set(false)
     },

@@ -299,7 +299,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     <li
       style={props.style}
       className={twMerge(
-        `bg-${props.index % 2 ? 'neutral-800' : 'zinc-800'}`,
+        `bg-${props.index % 2 ? 'theme-surfaceInput' : 'zinc-800'}`,
         selected ? 'border border-gray-100' : 'border-none'
       )}
     >
@@ -308,7 +308,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         id={getNodeElId(node)}
         tabIndex={0}
         onKeyDown={onNodeKeyDown}
-        className={`ml-3.5 h-7 items-center justify-between bg-inherit py-1 pr-2`}
+        className={`py-.5 ml-3.5 h-7 justify-between bg-inherit pr-2`}
         onMouseDown={onMouseDownNode}
         onClick={onClickNode}
         onContextMenu={(event) => props.onContextMenu(event, node)}
@@ -317,7 +317,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           className={twMerge(`border-t-[${isOverBefore && canDropBefore ? 2 : 0}px]`, `ml-${marginLeft} bg-inherit`)}
           ref={beforeDropTarget}
         />
-        <div className={twMerge('flex pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
+        <div className={twMerge('flex items-center pr-2', `pl-${node.depth * 3} bg-inherit`)} ref={onDropTarget}>
           {node.isLeaf ? (
             <div className={'w-5 shrink-0'} />
           ) : (
@@ -335,14 +335,14 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             </button>
           )}
 
-          <div className={'flex flex-1 bg-inherit py-0.5 pl-0 pr-1'}>
-            {IconComponent ? <IconComponent className={'h-5 w-5 text-white'} /> : null}
-            <div className={'flex flex-1'}>
+          <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
+            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />}
+            <div className="flex flex-1 items-center">
               {renaming ? (
-                <div className={'relative h-[15px] w-full'}>
+                <div className="relative h-[15px] w-full">
                   <input
                     type="text"
-                    className={'absolute top-[-3px] m-0 w-full rounded-[3px] px-1 py-0.5'}
+                    className="absolute top-[-3px] m-0 w-full rounded-lg px-1 py-0.5"
                     onChange={onChangeNodeName}
                     onKeyDown={onKeyDownNameInput}
                     value={data.renamingNode.name}
@@ -350,20 +350,23 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className={'shrink-0 rounded bg-transparent px-0.5 py-0 text-inherit'}>{nodeName}</div>
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
+                  <span className="text-nowrap text-sm leading-4">{nodeName}</span>
+                </div>
               )}
             </div>
-            {/*errors?.value && <NodeIssuesIcon errors={errors.value} />*/}
-            {/*sceneAssetLoading?.value && <CircularProgress className={styles.assetLoadingIndicator} />*/}
+            <button
+              type="button"
+              className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+              onClick={toggleVisible}
+            >
+              {visible ? (
+                <PiEyeBold className="font-small text-[#6B7280]" />
+              ) : (
+                <PiEyeClosedBold className="font-small text-[#6B7280]" />
+              )}
+            </button>
           </div>
-
-          <button type="button" className={'m-0 h-5 w-5 border-[none] p-0 hover:opacity-80'} onClick={toggleVisible}>
-            {visible ? (
-              <PiEyeBold className=" font-small text-[#6B7280]" />
-            ) : (
-              <PiEyeClosedBold className=" font-small text-[#6B7280]" />
-            )}
-          </button>
         </div>
 
         <div

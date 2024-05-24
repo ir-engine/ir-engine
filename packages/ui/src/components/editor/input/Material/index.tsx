@@ -31,14 +31,13 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { ControlledStringInput } from '../String'
 
-export function MaterialInput<T extends { value: Entity; onChange: (val: EntityUUID) => any; [key: string]: any }>({
+export function MaterialInput<T extends { value: Entity; onChange: (val: EntityUUID) => void }>({
   value,
   onChange,
   ...rest
 }: T) {
-  function onDrop(item, monitor: DropTargetMonitor) {
-    const value = item.value
-    let element = value as Entity | Entity[] | undefined
+  function onDrop(item: { value?: Entity | Entity[] | undefined }, _monitor: DropTargetMonitor) {
+    let element = item.value
     if (typeof element === 'undefined') return
     if (Array.isArray(value)) {
       element = element[0]
@@ -57,15 +56,7 @@ export function MaterialInput<T extends { value: Entity; onChange: (val: EntityU
   })
 
   return (
-    <>
-      <ControlledStringInput
-        ref={dropRef}
-        onChange={onChange}
-        canDrop={isOver && canDrop}
-        value={'' + value}
-        {...rest}
-      />
-    </>
+    <ControlledStringInput ref={dropRef} onChange={onChange} canDrop={isOver && canDrop} value={'' + value} {...rest} />
   )
 }
 

@@ -32,6 +32,7 @@ import AvatarImage from '@etherealengine/ui/src/primitives/tailwind/AvatarImage'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/tailwind/Checkbox'
 
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
@@ -120,15 +121,7 @@ export default function UserTable({
         name: row.name,
         avatar: <AvatarImage src={row?.avatar?.thumbnailResource?.url || ''} name={row.name} />,
         accountIdentifier: <AccountIdentifiers user={row} />,
-        lastLogin: row.lastLogin
-          ? new Date(row.lastLogin).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })
-          : '-',
+        lastLogin: toDisplayDateTime(row.lastLogin),
         isGuest: row.isGuest.toString(),
         action: (
           <div className="flex items-center justify-start gap-3">

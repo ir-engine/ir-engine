@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { Pause, PlayArrow } from '@mui/icons-material'
+import { HiPause, HiPlay } from 'react-icons/hi2'
 import Progress, { ProgressProps } from '../../../../primitives/tailwind/Progress'
 
 export interface ProgressBarProps extends ProgressProps {
@@ -36,7 +36,7 @@ export interface ProgressBarProps extends ProgressProps {
 export default function ProgressBar({ value, paused, totalTime, ...rest }: ProgressBarProps) {
   return (
     <div className="flex h-10 w-[314px] flex-row place-items-center gap-2 rounded bg-zinc-900 px-2">
-      {paused ? <PlayArrow className="text-white" /> : <Pause className="text-white" />}
+      {paused ? <HiPlay className="text-white" /> : <HiPause className="text-white" />}
       <Progress value={value} className="w-[173px]" barClassName="bg-blue-800 " />
       <div className="w-[85px] truncate text-right font-['Figtree'] text-sm font-normal leading-normal text-neutral-400">
         {paused

@@ -82,7 +82,7 @@ export const PanelCheckbox = ({ children }) => {
 }
 
 export const PanelDragContainer = ({ children }) => {
-  return <div className="bg-theme-surface-main rounded-t-md px-4 py-1">{children}</div>
+  return <div className="bg-theme-surface-main cursor-pointer rounded-t-md px-4 py-1">{children}</div>
 }
 
 export const PanelContainer = ({ children, ...rest }) => {

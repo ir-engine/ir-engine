@@ -38,6 +38,7 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
@@ -69,13 +70,7 @@ export default function UpdateEngineModal() {
   }, [user])
 
   const selectCommitTagOptions = projectState.builderTags.value.map((builderTag) => {
-    const pushedDate = new Date(builderTag.pushedAt).toLocaleString('en-us', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
-    })
+    const pushedDate = toDisplayDateTime(builderTag.pushedAt)
     return {
       value: builderTag.tag,
       label: `Commit ${builderTag.commitSHA?.slice(0, 8)} -- ${
