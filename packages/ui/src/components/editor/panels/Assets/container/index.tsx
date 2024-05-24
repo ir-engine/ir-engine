@@ -160,7 +160,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div className="h-[100%] overflow-y-auto">
+      <div className="h-[100%] overflow-y-auto pb-8">
         {categories.map((category, index) => (
           <AssetCategory
             data={{
@@ -279,7 +279,7 @@ const AssetPanel = () => {
           />
           <CategoriesList />
         </div>
-        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-y-auto">
+        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-y-auto pb-8">
           <ResourceItems />
         </div>
       </div>
