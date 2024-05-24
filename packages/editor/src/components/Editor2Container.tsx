@@ -30,6 +30,7 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
 import { HierarchyPanelTab } from '@etherealengine/ui/src/components/editor/panels/Hierarchy'
+import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Materials'
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
@@ -100,7 +101,7 @@ const defaultLayout: LayoutData = {
         size: 3,
         children: [
           {
-            tabs: [HierarchyPanelTab]
+            tabs: [HierarchyPanelTab, MaterialsPanelTab]
           },
           {
             tabs: [PropertiesPanelTab]

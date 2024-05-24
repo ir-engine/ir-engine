@@ -35,7 +35,6 @@ import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/s
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import React, { MouseEventHandler, MutableRefObject, useEffect, useState } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -50,21 +49,18 @@ import { FileIcon } from '../icon'
 
 const RenameInput = ({ fileName, onNameChanged }: { fileName: string; onNameChanged: (newName: string) => void }) => {
   const newFileName = useHookstate(fileName)
-  //className={styles.inputContainer}
+
   return (
-    <Paper component="div">
-      <Input
-        autoFocus={true}
-        //className={styles.input}
-        value={newFileName.value}
-        onChange={(event) => newFileName.set(event.target.value)}
-        onKeyUp={async (e) => {
-          if (e.key == 'Enter') {
-            onNameChanged(newFileName.value)
-          }
-        }}
-      />
-    </Paper>
+    <Input
+      autoFocus={true}
+      value={newFileName.value}
+      onChange={(event) => newFileName.set(event.target.value)}
+      onKeyUp={async (e) => {
+        if (e.key == 'Enter') {
+          onNameChanged(newFileName.value)
+        }
+      }}
+    />
   )
 }
 
@@ -88,7 +84,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
     <div className="table-container">
       <table className="w-full">
         <thead>
-          <tr className="table-header-row h-8 text-left">
+          <tr className="table-header-row h-8 text-left text-[#E7E7E7]">
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
@@ -137,8 +133,8 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-white">
-        {file.isFolder ? <IoIosArrowForward className="text-grey" /> : <VscBlank className="text-grey" />}
+      <span className="flex max-h-7 flex-row items-center gap-2">
+        {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
       </span>
@@ -159,7 +155,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className={`text-base dark:text-[#A3A3A3]`} style={{ fontSize }}>
+          <td key={idx} className="text-base text-[#E7E7E7]" style={{ fontSize }}>
             {tableColumns[header]}
           </td>
         ))}
