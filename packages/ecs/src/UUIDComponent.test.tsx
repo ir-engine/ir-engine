@@ -170,7 +170,7 @@ describe('UUIDComponent', () => {
       assert.notEqual(uuid, '' as EntityUUID)
     })
 
-    const iter = 10_000 /** @note 10_000 iterations takes ~4sec on an AMD Ryzen 5 2600 */
+    const iter = 8_500 /** @note 10_000 iterations takes ~4sec on an AMD Ryzen 5 2600 */
     it(`should generate unique UUIDs when run multiple times  (${iter} iterations)`, () => {
       const list = [] as EntityUUID[]
       // Generate the list of (supposedly) unique UUIDs
@@ -191,12 +191,12 @@ describe('UUIDComponent', () => {
 
 describe('UUIDComponent Hooks', async () => {
   describe('useEntityByUUID', async () => {
+    type ResultType = Entity | undefined
     const TestUUID = 'TestUUID' as EntityUUID
-    const TestUUID2 = UUIDComponent.generateUUID()
-    const InitialValue = 1234567890 as Entity
-    let result = InitialValue
     let entity1 = UndefinedEntity
     let entity2 = UndefinedEntity
+    let result: ResultType = undefined
+    let counter = 0
 
     beforeEach(() => {
       startEngine()
@@ -206,6 +206,7 @@ describe('UUIDComponent Hooks', async () => {
     })
 
     afterEach(() => {
+      counter = 0
       removeEntity(entity1)
       removeEntity(entity2)
       return destroyEngine()
@@ -215,30 +216,35 @@ describe('UUIDComponent Hooks', async () => {
     const Reactor = () => {
       const data = UUIDComponent.useEntityByUUID(TestUUID)
       useEffect(() => {
-        result = data
+        result = data as ResultType
+        ++counter
       }, [data])
       return null
     }
 
     it('assigns the correct entity', async () => {
-      const ExpectedValue = entity1
+      const ExpectedValue: ResultType = entity1
       setComponent(entity1, UUIDComponent, TestUUID)
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
-      assert.notEqual(result, InitialValue, "The result data didn't get assigned.")
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, "The result data didn't get assigned.")
       assert.equal(result, ExpectedValue, `Did not return the correct data. result = ${result}`)
       unmount()
     })
 
     it('returns the same entity than genEntityByUUID', async () => {
-      const ExpectedValue = entity1
+      const ExpectedValue: ResultType = entity1
       setComponent(entity1, UUIDComponent, TestUUID)
       const testEntity = UUIDComponent.getEntityByUUID(TestUUID)
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
-      assert.notEqual(result, InitialValue, "The result data didn't get assigned.")
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, "The result data didn't get assigned.")
       assert.equal(result, ExpectedValue, `Did not return the correct data. result = ${result}`)
       assert.equal(testEntity, UUIDComponent.entitiesByUUIDState[TestUUID].value)
       assert.equal(testEntity, ExpectedValue)

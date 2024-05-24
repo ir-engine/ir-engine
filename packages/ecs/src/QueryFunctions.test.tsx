@@ -92,11 +92,12 @@ describe('QueryFunctions', () => {
 
 describe('QueryFunctions Hooks', async () => {
   describe('useQuery', async () => {
+    type ResultType = undefined | Entity[]
     const component = defineComponent({ name: 'TestComponent' })
-    const InitialValue = [123456789 as Entity, 987654321 as Entity]
     let entity1 = UndefinedEntity
     let entity2 = UndefinedEntity
-    let result = InitialValue
+    let result = undefined as ResultType
+    let counter = 0
 
     beforeEach(() => {
       startEngine()
@@ -106,6 +107,7 @@ describe('QueryFunctions Hooks', async () => {
     })
 
     afterEach(() => {
+      counter = 0
       removeEntity(entity1)
       removeEntity(entity2)
       return destroyEngine()
@@ -115,44 +117,41 @@ describe('QueryFunctions Hooks', async () => {
     const Reactor = () => {
       const data = useQuery([component])
       useEffect(() => {
-        result = data as Entity[]
+        result = data as ResultType
+        ++counter
       }, [data])
       return null
     }
 
-    it('should return an empty array when entities have the component', async () => {
-      const ExpectedValue = [] as Entity[]
+    it(`should return an empty array when entities don't have the component`, async () => {
+      const ExpectedValue: ResultType = []
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
-      assertArrayNotEqual(
-        result,
-        InitialValue,
-        `The result data did not get assigned.\n  result = ${result}\n  initial = ${InitialValue}`
-      )
+      assert.equal(counter, 3, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
-        result,
-        ExpectedValue,
-        `Did not return the correct data.\n  result = ${result}\n  expected = ${ExpectedValue}`
+        result as Entity[],
+        ExpectedValue as Entity[],
+        `Did not return the correct data.\n  result = ${result}`
       )
       unmount()
     })
 
     it('should return the list of entities that have the component', async () => {
-      const ExpectedValue = [entity1, entity2]
+      const ExpectedValue: ResultType = [entity1, entity2]
       setComponent(entity1, component)
       setComponent(entity2, component)
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
-      assertArrayNotEqual(
-        result,
-        InitialValue,
-        `The result data did not get assigned.\n  result = ${result}\n  initial = ${InitialValue}`
-      )
+      assert.equal(counter, 3, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
-        result,
-        ExpectedValue,
+        result as Entity[],
+        ExpectedValue as Entity[],
         `Did not return the correct data.\n  result = ${result}\n  expected = ${ExpectedValue}`
       )
       unmount()
