@@ -33,11 +33,14 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
   onRelease?: (value: string) => void
 }
 
-const StringInput = ({ value, onChange, onRelease, ...rest }: StringInputProps) => {
+const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringInputProps) => {
   return (
     <Input
       containerClassname="w-50 h-7 bg-[#1A1A1A] rounded"
-      className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
+      className={twMerge(
+        'h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        className
+      )}
       value={value}
       onChange={(e) => {
         onChange?.(e.target.value)

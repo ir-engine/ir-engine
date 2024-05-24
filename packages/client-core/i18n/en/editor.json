@@ -838,6 +838,8 @@
     "triggerVolume": {
       "name": "Trigger",
       "description": "Sets a property on the target object on enter and leave.",
+      "lbl-addTrigger": "Add Trigger",
+      "lbl-removeTrigger": "Remove Trigger",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
       "lbl-onexit": "On Exit",

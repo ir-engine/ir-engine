@@ -39,10 +39,10 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 const EditorRouter = () => {
   const ready = useStudioEditor()
 
-  if (!ready) return <LoadingView spinnerOnly message={t('common:loader.loadingStudio')} />
+  if (!ready) return <LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />
 
   return (
-    <Suspense fallback={<LoadingView spinnerOnly message={t('common:loader.loadingStudio')} />}>
+    <Suspense fallback={<LoadingView fullScreen className="h-8 w-8" title={t('common:loader.loadingStudio')} />}>
       <PopupMenuInline />
       <Routes>
         <Route path="*" element={<EditorPage />} />
