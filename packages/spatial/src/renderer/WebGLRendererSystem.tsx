@@ -72,6 +72,7 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
+import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -342,6 +343,9 @@ const execute = () => {
       .filter(Boolean)
 
     _scene.children = objects
+
+    const renderMode = getState(RendererState).renderMode
+    background = renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
     const sessionMode = getState(XRState).sessionMode
     _scene.background = sessionMode === 'immersive-ar' ? null : background
