@@ -70,6 +70,8 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
+import { ModelComponent } from '../scene/components/ModelComponent'
+import { getModelSceneID } from '../scene/functions/loaders/ModelFunctions'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFCallbackState } from './GLTFCallbackState'
 import { GLTFComponent } from './GLTFComponent'
@@ -223,11 +225,14 @@ export const GLTFSnapshotState = defineState({
 
   moveChildrenToParent: (entity: Entity, targetEntityUUID: EntityUUID) => {
     const sourceEntityUUID = getComponent(entity, UUIDComponent)
-    const sourceID = getComponent(entity, SourceComponent)
+    const sourceID = hasComponent(entity, ModelComponent)
+      ? getModelSceneID(entity)
+      : getComponent(entity, SourceComponent)
     const targetEntity = UUIDComponent.getEntityByUUID(targetEntityUUID)
     const destinationEntityUUID = getComponent(targetEntity, UUIDComponent)
     const destinationSourceID = getComponent(targetEntity, SourceComponent)
     GLTFSnapshotState.copyNodes(sourceEntityUUID, sourceID, destinationEntityUUID, destinationSourceID)
+    dispatchAction(GLTFSnapshotAction.unload({ source: sourceID }))
   },
 
   copyNodes: (
