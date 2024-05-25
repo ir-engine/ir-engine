@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
@@ -40,6 +41,8 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
+import React from 'react'
+import { ModelComponent } from '../scene/components/ModelComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
 
@@ -738,5 +741,77 @@ describe('GLTFState', () => {
     testNode = gltfClone.data.nodes!.find((node) => node.name == nodeName)
     assert(gltfClone.data.nodes?.length === nodeLength - 1)
     assert(!testNode)
+  })
+
+  it('explodeModelIntoParent should explode a model with a single node', async () => {
+    const modelNodeID = MathUtils.generateUUID() as NodeID
+    const hemisphereNodeID = MathUtils.generateUUID() as NodeID
+
+    const gltf: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'node',
+          extensions: {
+            [NodeIDComponent.jsonID]: modelNodeID,
+            [ModelComponent.jsonID]: {
+              src: '/model.gltf'
+            }
+          }
+        }
+      ]
+    }
+
+    const model: GLTF.IGLTF = {
+      asset: {
+        version: '2.0'
+      },
+      scenes: [{ nodes: [0] }],
+      scene: 0,
+      nodes: [
+        {
+          name: 'model',
+          extensions: {
+            [NodeIDComponent.jsonID]: hemisphereNodeID,
+            [HemisphereLightComponent.jsonID!]: {
+              intensity: 0.5
+            }
+          }
+        }
+      ]
+    }
+
+    Cache.add('/test.gltf', gltf)
+    Cache.add('/model.gltf', model)
+
+    const gltfEntity = GLTFSourceState.load('/test.gltf')
+    const rootEntityUUID = getComponent(gltfEntity, UUIDComponent)
+
+    applyIncomingActions()
+
+    const { rerender, unmount } = render(<></>)
+    await act(() => rerender(<></>))
+
+    applyIncomingActions()
+
+    const modelEntityUUID = (rootEntityUUID + '-' + modelNodeID) as EntityUUID
+    const nodeEntity = UUIDComponent.getEntityByUUID(modelEntityUUID)
+
+    GLTFSnapshotState.explodeModelIntoParent(nodeEntity)
+
+    applyIncomingActions()
+
+    const hemisphereEntityUUID = (rootEntityUUID + '-' + hemisphereNodeID) as EntityUUID
+    const hemisphereEntity = UUIDComponent.getEntityByUUID(hemisphereEntityUUID)
+    const hemisphereComponent = getComponent(hemisphereEntity, HemisphereLightComponent)
+
+    assert(hemisphereEntity)
+    assert.equal(hemisphereComponent.intensity, 0.5)
+
+    unmount()
   })
 })

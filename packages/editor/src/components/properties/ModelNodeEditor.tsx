@@ -40,6 +40,7 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getState, useState } from '@etherealengine/hyperflux'
 
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
@@ -137,7 +138,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_SOURCE && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
-      <Button onClick={() => modelComponent.dereference.set(true)} disabled={!modelComponent.src.value}>
+      <Button onClick={() => GLTFSnapshotState.explodeModelIntoParent(entity)} disabled={!modelComponent.src.value}>
         Dereference
       </Button>
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>

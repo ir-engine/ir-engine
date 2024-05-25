@@ -34,6 +34,7 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
@@ -128,8 +129,7 @@ export async function addMediaNode(
         sceneID,
         callback: (entityUUID) => {
           const entity = UUIDComponent.getEntityByUUID(entityUUID)
-          const modelComponent = getMutableComponent(entity, ModelComponent)
-          modelComponent.dereference.set(true)
+          GLTFSnapshotState.explodeModelIntoParent(entity)
         }
       })
     } else {

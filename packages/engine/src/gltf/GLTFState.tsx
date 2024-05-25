@@ -69,6 +69,8 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
+import { ModelComponent } from '../scene/components/ModelComponent'
+import { getModelSceneID } from '../scene/functions/loaders/ModelFunctions'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
@@ -213,12 +215,29 @@ export const GLTFSnapshotState = defineState({
     }
   },
 
-  injectSnapshot: (srcNode: EntityUUID, srcSnapshotID: string, dstNode: EntityUUID, dstSnapshotID: string) => {
-    const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(srcSnapshotID)
-    const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(dstSnapshotID)
+  explodeModelIntoParent: (entity: Entity) => {
+    if (!hasComponent(entity, ModelComponent)) return
+    const sourceEntityUUID = getComponent(entity, UUIDComponent)
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    if (!parentEntity) return
+    const sourceID = getModelSceneID(entity)
+    const destinationEntityUUID = getComponent(parentEntity, UUIDComponent)
+    const destinationSourceID = getComponent(parentEntity, SourceComponent)
+    GLTFSnapshotState.copyNodes(sourceEntityUUID, sourceID, destinationEntityUUID, destinationSourceID)
+    dispatchAction(GLTFSnapshotAction.unload({ source: sourceID }))
+  },
+
+  copyNodes: (
+    sourceEntityUUID: EntityUUID,
+    sourceID: SourceID,
+    destinationEntityUUID: EntityUUID,
+    destinationSourceID: SourceID
+  ) => {
+    const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sourceID)
+    const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(destinationSourceID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
-    const srcEntity = UUIDComponent.getEntityByUUID(srcNode)
+    const srcEntity = UUIDComponent.getEntityByUUID(sourceEntityUUID)
     const srcNodeID = getComponent(srcEntity, NodeIDComponent)
     const srcTransform = getComponent(srcEntity, TransformComponent)
     const childEntities = getComponent(srcEntity, EntityTreeComponent).children
@@ -269,7 +288,7 @@ export const GLTFSnapshotState = defineState({
     parentSnapshot.data.nodes = newNodes
 
     // Get get the destination node
-    const dstEntity = UUIDComponent.getEntityByUUID(dstNode)
+    const dstEntity = UUIDComponent.getEntityByUUID(destinationEntityUUID)
     const dstNodeID = getComponent(dstEntity, NodeIDComponent)
 
     // Add the nodes to the new parent node
@@ -307,8 +326,7 @@ export const GLTFSnapshotState = defineState({
       }
       node.children = newChildren
     }
-    dispatchAction(GLTFSnapshotAction.createSnapshot({ source: dstSnapshotID, data: parentSnapshot.data }))
-    dispatchAction(GLTFSnapshotAction.unload({ source: srcSnapshotID }))
+    dispatchAction(GLTFSnapshotAction.createSnapshot({ source: destinationSourceID, data: parentSnapshot.data }))
   }
 })
 
