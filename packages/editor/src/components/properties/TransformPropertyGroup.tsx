@@ -24,16 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import {
-  getComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -61,15 +56,14 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  transformSpace.value === TransformSpace.world
-    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-    : transformComponent.matrix.value.decompose(position, rotation, scale)
-
-  scale.copy(transformComponent.scale.value)
+  useEffect(() => {
+    transformSpace.value === TransformSpace.world
+      ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
+      : transformComponent.matrix.value.decompose(position, rotation, scale)
+  }, [transformComponent.position, transformComponent.rotation, transformComponent.scale, transformSpace])
 
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
