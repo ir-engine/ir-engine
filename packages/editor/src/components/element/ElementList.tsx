@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { startCase } from 'lodash'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { VisualScriptComponent } from '@etherealengine/engine'
@@ -36,6 +30,7 @@ import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/compo
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
+import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -74,11 +69,14 @@ import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
+import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { startCase } from 'lodash'
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PrimitiveGeometryComponent } from '../../../../engine/src/scene/components/PrimitiveGeometryComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { ComponentEditorsState } from '../../functions/ComponentEditors'

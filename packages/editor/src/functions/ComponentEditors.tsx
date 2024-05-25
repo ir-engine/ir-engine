@@ -28,6 +28,7 @@ import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/compo
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
+import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -69,7 +70,6 @@ import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/compo
 import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 

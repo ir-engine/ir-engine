@@ -33,7 +33,6 @@ import {
   EdgeDetectionMode,
   HueSaturationEffect,
   KernelSize,
-  OutlineEffect,
   PredicationMode,
   Resolution,
   SMAAEffect,
@@ -44,15 +43,16 @@ import {
   VignetteEffect,
   VignetteTechnique
 } from 'postprocessing'
-import { Color, ColorSpace, Texture, TextureEncoding, Vector2 } from 'three'
+import { Color, ColorSpace, SRGBColorSpace, Texture, TextureEncoding, Vector2, Vector3 } from 'three'
 
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { LinearTosRGBEffect } from '../../../spatial/src/renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
   SMAAEffect: 'SMAAEffect' as const,
   OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
+  SSGIEffect: 'SSGIEffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
   BloomEffect: 'BloomEffect' as const,
   ToneMappingEffect: 'ToneMappingEffect' as const,
@@ -60,40 +60,26 @@ export const Effects = {
   HueSaturationEffect: 'HueSaturationEffect' as const,
   ColorDepthEffect: 'ColorDepthEffect' as const,
   LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
-  SSGIEffect: 'SSGIEffect' as const,
+  //SSGIEffect: 'SSGIEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,
-  // ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
+  ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
   MotionBlurEffect: 'MotionBlurEffect' as const,
-  // ColorAverageEffect: 'ColorAverageEffect' as const,
-  // DotScreenEffect: 'DotScreenEffect' as const,
-  // TiltShiftEffect: 'TiltShiftEffect' as const,
-  // GlitchEffect: 'GlitchEffect' as const,
-  // GodRaysEffect: 'GodRaysEffect' as const,
-  // GridEffect: 'GridEffect' as const,
-  // LUT1DEffect: 'LUT1DEffect' as const,
-  // LUT3DEffect: 'LUT3DEffect' as const,
-  // NoiseEffect: 'NoiseEffect' as const,
-  // PixelationEffect: 'PixelationEffect' as const,
-  // ScanlineEffect: 'ScanlineEffect' as const,
-  // ShockWaveEffect: 'ShockWaveEffect' as const,
-  // FXAAEffect: 'FXAAEffect' as const,
-  // TextureEffect: 'TextureEffect' as const,
-  VignetteEffect: 'VignetteEffect' as const
-  // LensDistortionEffect: 'LensDistortionEffect' as const
-}
-
-export const EffectMap = {
-  [Effects.SMAAEffect]: SMAAEffect,
-  [Effects.OutlineEffect]: OutlineEffect,
-  [Effects.SSAOEffect]: SSAOEffect,
-  [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
-  [Effects.BloomEffect]: BloomEffect,
-  [Effects.ToneMappingEffect]: ToneMappingEffect,
-  [Effects.BrightnessContrastEffect]: BrightnessContrastEffect,
-  [Effects.HueSaturationEffect]: HueSaturationEffect,
-  [Effects.ColorDepthEffect]: ColorDepthEffect,
-  [Effects.LinearTosRGBEffect]: LinearTosRGBEffect,
-  [Effects.VignetteEffect]: VignetteEffect
+  ColorAverageEffect: 'ColorAverageEffect' as const,
+  DotScreenEffect: 'DotScreenEffect' as const,
+  TiltShiftEffect: 'TiltShiftEffect' as const,
+  GlitchEffect: 'GlitchEffect' as const,
+  //GodRaysEffect: 'GodRaysEffect' as const,
+  GridEffect: 'GridEffect' as const,
+  LUT1DEffect: 'LUT1DEffect' as const,
+  LUT3DEffect: 'LUT3DEffect' as const,
+  NoiseEffect: 'NoiseEffect' as const,
+  PixelationEffect: 'PixelationEffect' as const,
+  ScanlineEffect: 'ScanlineEffect' as const,
+  ShockWaveEffect: 'ShockWaveEffect' as const,
+  FXAAEffect: 'FXAAEffect' as const,
+  TextureEffect: 'TextureEffect' as const,
+  VignetteEffect: 'VignetteEffect' as const,
+  LensDistortionEffect: 'LensDistortionEffect' as const
 }
 
 declare module 'postprocessing' {
@@ -115,8 +101,6 @@ declare module 'postprocessing' {
   }
 }
 
-export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
-
 export type EffectProps = {
   isActive: boolean
 }
@@ -126,7 +110,7 @@ export type SMAAEffectProps = EffectProps & {
   edgeDetectionMode?: EdgeDetectionMode
   predicationMode?: PredicationMode
 }
-
+/*
 export type OutlineEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   patternTexture?: Texture
@@ -145,6 +129,7 @@ export type OutlineEffectProps = EffectProps & {
   blur?: boolean
   xRay?: boolean
 }
+*/
 
 export type SSAOEffectProps = EffectProps & {
   blendFunction?: BlendFunction
@@ -173,8 +158,6 @@ export type SSAOEffectProps = EffectProps & {
   resolutionY?: number
   width?: number
   height?: number
-  blur?: boolean
-  kernelSize?: KernelSize
 }
 
 const defaultSSROptions = {
@@ -286,7 +269,6 @@ export type MotionBlurEffectProps = EffectProps & {
 }
 
 export type ChromaticAberrationEffectProps = EffectProps & {
-  blendFunction?: BlendFunction
   offset?: Vector2
   radialModulation: boolean
   modulationOffset: number
@@ -306,7 +288,6 @@ export type TiltShiftEffectProps = EffectProps & {
   rotation?: number
   focusArea?: number
   feather?: number
-  bias?: number
   kernelSize?: KernelSize
   resolutionScale?: number
   resolutionX?: number
@@ -323,33 +304,39 @@ export type GlitchEffectProps = EffectProps & {
   columns?: number
   ratio?: number
 }
-export type GodRaysEffectProps = EffectProps & {
-  blendFunction?: BlendFunction
-  samples?: number
-  density?: number
-  decay?: number
-  weight?: number
-  exposure?: number
-  clampMax?: number
-  resolutionScale?: number
-  resolutionX?: number
-  resolutionY?: number
-  width?: number
-  height?: number
-  kernelSize?: KernelSize
-  blur?: boolean
-}
+//export type GodRaysEffectProps = EffectProps & {
+//  blendFunction?: BlendFunction
+//  samples?: number
+//  density?: number
+//  decay?: number
+//  weight?: number
+//  exposure?: number
+//  clampMax?: number
+//  resolutionScale?: number
+//  resolutionX?: number
+//  resolutionY?: number
+//  width?: number
+//  height?: number
+//  kernelSize?: KernelSize
+//  blur?: boolean
+//}
 export type GridEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   scale?: number
   lineWidth?: number
 }
-export type LUT1DEffectProps = EffectProps & { blendFunction?: BlendFunction }
+export type LUT1DEffectProps = EffectProps & {
+  blendFunction?: BlendFunction
+  lutPath?: string
+  lut?: Texture
+}
 export type LUT3DEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   tetrahedralInterpolation?: boolean
   inputEncoding?: TextureEncoding
   inputColorSpace?: ColorSpace
+  lutPath?: string
+  lut?: Texture
 }
 export type NoiseEffectProps = EffectProps & {
   blendFunction?: BlendFunction
@@ -359,8 +346,10 @@ export type PixelationEffectProps = EffectProps & { granularity?: number }
 export type ScanlineEffectProps = EffectProps & {
   blendFunction?: BlendFunction
   density?: number
+  scrollSpeed?: number
 }
 export type ShockWaveEffectProps = EffectProps & {
+  position?: Vector3
   speed?: number
   maxRadius?: number
   waveSize?: number
@@ -369,6 +358,7 @@ export type ShockWaveEffectProps = EffectProps & {
 export type FXAAEffectProps = EffectProps & { blendFunction?: BlendFunction }
 export type TextureEffectProps = EffectProps & {
   blendFunction?: BlendFunction
+  texturePath?: string
   texture?: Texture
   aspectCorrection?: boolean
 }
@@ -387,8 +377,8 @@ export type LensDistortionEffectProps = EffectProps & {
 }
 
 export type EffectPropsSchema = {
-  // [Effects.SMAAEffect]: SMAAEffectProps
-  // [Effects.OutlineEffect]: OutlineEffectProps
+  [Effects.SMAAEffect]: SMAAEffectProps
+  //[Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -398,59 +388,62 @@ export type EffectPropsSchema = {
   [Effects.HueSaturationEffect]: HueSaturationEffectProps
   [Effects.ColorDepthEffect]: ColorDepthEffectProps
   [Effects.LinearTosRGBEffect]: LinearTosRGBEffectProps
-  [Effects.SSGIEffect]: SSGIEffectProps
+  //[Effects.SSGIEffect]: SSGIEffectProps
   [Effects.TRAAEffect]: TRAAEffectProps
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
-  // [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
-  // [Effects.ColorAverageEffect]: ColorAverageEffectProps
-  // [Effects.DotScreenEffect]: DotScreenEffectProps
-  // [Effects.TiltShiftEffect]: TiltShiftEffectProps
-  // [Effects.GlitchEffect]: GlitchEffectProps
-  // [Effects.GodRaysEffect]: GodRaysEffectProps
-  // [Effects.GridEffect]: GridEffectProps
-  // [Effects.LUT1DEffect]: LUT1DEffectProps
-  // [Effects.LUT3DEffect]: LUT3DEffectProps
-  // [Effects.NoiseEffect]: NoiseEffectProps
-  // [Effects.PixelationEffect]: PixelationEffectProps
-  // [Effects.ScanlineEffect]: ScanlineEffectProps
-  // [Effects.ShockWaveEffect]: ShockWaveEffectProps
-  // [Effects.FXAAEffect]: FXAAEffectProps
-  // [Effects.TextureEffect]: TextureEffectProps
+  [Effects.ChromaticAberrationEffect]: ChromaticAberrationEffectProps
+  [Effects.ColorAverageEffect]: ColorAverageEffectProps
+  [Effects.DotScreenEffect]: DotScreenEffectProps
+  [Effects.TiltShiftEffect]: TiltShiftEffectProps
+  [Effects.GlitchEffect]: GlitchEffectProps
+  //[Effects.GodRaysEffect]: GodRaysEffectProps
+  [Effects.GridEffect]: GridEffectProps
+  [Effects.LUT1DEffect]: LUT1DEffectProps
+  [Effects.LUT3DEffect]: LUT3DEffectProps
+  [Effects.NoiseEffect]: NoiseEffectProps
+  [Effects.PixelationEffect]: PixelationEffectProps
+  [Effects.ScanlineEffect]: ScanlineEffectProps
+  [Effects.ShockWaveEffect]: ShockWaveEffectProps
+  [Effects.FXAAEffect]: FXAAEffectProps
+  [Effects.TextureEffect]: TextureEffectProps
   [Effects.VignetteEffect]: VignetteEffectProps
-  // [Effects.LensDistortionEffect]: LensDistortionEffectProps
+  [Effects.LensDistortionEffect]: LensDistortionEffectProps
 }
 
 export type EffectPropsSchemaType = (typeof defaultPostProcessingSchema)[keyof typeof defaultPostProcessingSchema]
 
 export const defaultPostProcessingSchema: EffectPropsSchema = {
-  // [Effects.SMAAEffect]: {
-  //   isActive: false,
-  //   preset: SMAAPreset.MEDIUM,
-  //   edgeDetectionMode: EdgeDetectionMode.COLOR,
-  //   predicationMode: PredicationMode.DISABLED
-  // },
-  // [Effects.OutlineEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.SCREEN,
-  //   patternScale: 1.0,
-  //   edgeStrength: 1.0,
-  //   pulseSpeed: 0.0,
-  //   visibleEdgeColor: 0xffffff,
-  //   hiddenEdgeColor: 0x22090a,
-  //   multisampling: 0,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE,
-  //   width: Resolution.AUTO_SIZE,
-  //   height: 480,
-  //   kernelSize: KernelSize.VERY_SMALL,
-  //   blur: false,
-  //   xRay: true
-  // },
+  [Effects.SMAAEffect]: {
+    isActive: false,
+    preset: SMAAPreset.MEDIUM,
+    edgeDetectionMode: EdgeDetectionMode.COLOR,
+    predicationMode: PredicationMode.DISABLED
+  },
+  /*
+  [Effects.OutlineEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SCREEN,
+    patternScale: 1.0,
+    edgeStrength: 1.0,
+    pulseSpeed: 0.0,
+    visibleEdgeColor: 0xffffff,
+    hiddenEdgeColor: 0x22090a,
+    multisampling: 0,
+    resolutionScale: 0.5,
+    resolutionX: Resolution.AUTO_SIZE,
+    resolutionY: Resolution.AUTO_SIZE,
+    width: Resolution.AUTO_SIZE,
+    height: 480,
+    kernelSize: KernelSize.VERY_SMALL,
+    blur: false,
+    xRay: true
+  },
+  */
   [Effects.SSREffect]: {
     isActive: false,
     ...defaultSSROptions
   },
+  /*
   [Effects.SSGIEffect]: {
     isActive: false,
     distance: 10,
@@ -473,6 +466,7 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     resolutionScale: 1,
     missedRays: false
   },
+  */
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
@@ -485,8 +479,8 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     // worldDistanceFalloff: 0.03,
     // worldProximityThreshold: 0.0005,
     // worldProximityFalloff: 0.001,
-    distanceThreshold: 0.125, // Render up to a distance of ~20 world units
-    distanceFalloff: 0.02, // with an additional ~2.5 units of falloff.
+    distanceThreshold: 0.97, // Render up to a distance of ~20 world units
+    distanceFalloff: 0.03, // with an additional ~2.5 units of falloff.
     rangeThreshold: 0.0005,
     rangeFalloff: 0.001,
     minRadiusScale: 0.1,
@@ -500,14 +494,12 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     resolutionX: Resolution.AUTO_SIZE,
     resolutionY: Resolution.AUTO_SIZE,
     width: Resolution.AUTO_SIZE,
-    height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.SMALL,
-    blur: true
+    height: Resolution.AUTO_SIZE
   },
   [Effects.DepthOfFieldEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
-    focusDistance: 0.1,
+    focusDistance: 0.0,
     focalLength: 0.1,
     focusRange: 0.1,
     bokehScale: 1.0,
@@ -528,9 +520,9 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.ToneMappingEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     adaptive: false,
-    mode: ToneMappingMode.ACES_FILMIC,
+    mode: ToneMappingMode.AGX,
     resolution: 256,
     maxLuminance: 4.0,
     whitePoint: 4.0,
@@ -541,13 +533,13 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   [Effects.BrightnessContrastEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     brightness: 0.0,
     contrast: 0.0
   },
   [Effects.HueSaturationEffect]: {
     isActive: false,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.SRC,
     hue: 0,
     saturation: 0.0
   },
@@ -576,85 +568,117 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     jitter: 1,
     samples: 16
   },
-  // [Effects.ChromaticAberrationEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   offset: undefined,
-  //   radialModulation: false,
-  //   modulationOffset: 0.15
-  // },
-  // [Effects.ColorAverageEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL
-  // },
-  // [Effects.DotScreenEffect]: { isActive: false, blendFunction: BlendFunction.NORMAL, angle: 1.57, scale: 1.0 },
-  // [Effects.TiltShiftEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   offset: 0.0,
-  //   rotation: 0.0,
-  //   focusArea: 0.4,
-  //   feather: 0.3,
-  //   bias: 0.06,
-  //   kernelSize: KernelSize.MEDIUM,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE
-  // },
-  // [Effects.GlitchEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   chromaticAberrationOffset: undefined,
-  //   delay: undefined,
-  //   duration: undefined,
-  //   strength: undefined,
-  //   perturbationMap: undefined,
-  //   dtSize: 64,
-  //   columns: 0.05,
-  //   ratio: 0.85
-  // },
-  // [Effects.GodRaysEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.SCREEN,
-  //   samples: 60.0,
-  //   density: 0.96,
-  //   decay: 0.9,
-  //   weight: 0.4,
-  //   exposure: 0.6,
-  //   clampMax: 1.0,
-  //   resolutionScale: 0.5,
-  //   resolutionX: Resolution.AUTO_SIZE,
-  //   resolutionY: Resolution.AUTO_SIZE,
-  //   width: Resolution.AUTO_SIZE,
-  //   height: Resolution.AUTO_SIZE,
-  //   kernelSize: KernelSize.SMALL,
-  //   blur: true
-  // },
-  // [Effects.GridEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.OVERLAY,
-  //   scale: 1.0,
-  //   lineWidth: 0.0
-  // },
-  // [Effects.LUT1DEffect]: { isActive: false, blendFunction: BlendFunction.SET },
-  // [Effects.LUT3DEffect]: { isActive: false, blendFunction: BlendFunction.SET, tetrahedralInterpolation: false, inputEncoding: sRGBEncoding, inputColorSpace: SRGBColorSpace },
-  // [Effects.NoiseEffect]: { isActive: false, blendFunction: BlendFunction.SCREEN, premultiply: false },
-  // [Effects.PixelationEffect]: { isActive: false, granularity: 30 },
-  // [Effects.ScanlineEffect]: { isActive: false, blendFunction: BlendFunction.OVERLAY, density: 1.25},
-  // [Effects.ShockWaveEffect]: {
-  //   isActive: false,
-  //   speed: 2.0,
-  //   maxRadius: 1.0,
-  //   waveSize: 0.2,
-  //   amplitude: 0.05,
-  // },
-  // [Effects.FXAAEffect]: { isActive: false, blendFunction: BlendFunction.SRC },
-  // [Effects.TextureEffect]: {
-  //   isActive: false,
-  //   blendFunction: BlendFunction.NORMAL,
-  //   texture: undefined,
-  //   aspectCorrection: false
-  // },
+  [Effects.ChromaticAberrationEffect]: {
+    isActive: false,
+    offset: new Vector2(1e-3, 5e-4),
+    radialModulation: false,
+    modulationOffset: 0.15
+  },
+  [Effects.ColorAverageEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL
+  },
+  [Effects.DotScreenEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    angle: Math.PI * 0.5,
+    scale: 1.0
+  },
+  [Effects.TiltShiftEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    offset: 0.0,
+    rotation: 0.0,
+    focusArea: 0.4,
+    feather: 0.3,
+    kernelSize: KernelSize.MEDIUM,
+    resolutionScale: 0.5,
+    resolutionX: Resolution.AUTO_SIZE,
+    resolutionY: Resolution.AUTO_SIZE
+  },
+  [Effects.GlitchEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    chromaticAberrationOffset: undefined,
+    delay: new Vector2(1.5, 3.5),
+    duration: new Vector2(0.6, 1.0),
+    strength: new Vector2(0.3, 1.0),
+    perturbationMap: undefined,
+    dtSize: 64,
+    columns: 0.05,
+    ratio: 0.85
+  },
+  //[Effects.GodRaysEffect]: {
+  //  isActive: false,
+  //  blendFunction: BlendFunction.SCREEN,
+  //  samples: 60.0,
+  //  density: 0.96,
+  //  decay: 0.9,
+  //  weight: 0.4,
+  //  exposure: 0.6,
+  //  clampMax: 1.0,
+  //  resolutionScale: 0.5,
+  //  resolutionX: Resolution.AUTO_SIZE,
+  //  resolutionY: Resolution.AUTO_SIZE,
+  //  width: Resolution.AUTO_SIZE,
+  //  height: Resolution.AUTO_SIZE,
+  //  kernelSize: KernelSize.SMALL,
+  //  blur: true
+  //},
+  [Effects.GridEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.OVERLAY,
+    scale: 1.0,
+    lineWidth: 0.0
+  },
+  [Effects.LUT1DEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SRC,
+    lutPath: undefined,
+    lut: undefined
+  },
+  [Effects.LUT3DEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SRC,
+    tetrahedralInterpolation: false,
+    inputColorSpace: SRGBColorSpace,
+    lutPath: undefined,
+    lut: undefined
+  },
+  [Effects.NoiseEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SCREEN,
+    premultiply: false
+  },
+  [Effects.ScanlineEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.OVERLAY,
+    density: 1.25,
+    scrollSpeed: 0.0
+  },
+  [Effects.PixelationEffect]: {
+    isActive: false,
+    granularity: 30
+  },
+  [Effects.ShockWaveEffect]: {
+    isActive: false,
+    position: new Vector3(0, 0, 0),
+    speed: 2.0,
+    maxRadius: 1.0,
+    waveSize: 0.2,
+    amplitude: 0.05
+  },
+  [Effects.FXAAEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.SRC
+  },
+  [Effects.TextureEffect]: {
+    isActive: false,
+    blendFunction: BlendFunction.NORMAL,
+    texturePath: undefined,
+    texture: undefined,
+    aspectCorrection: false
+  },
   [Effects.VignetteEffect]: {
     isActive: false,
     blendFunction: BlendFunction.NORMAL,
@@ -662,14 +686,14 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     eskil: false,
     offset: 0.5,
     darkness: 0.5
+  },
+  [Effects.LensDistortionEffect]: {
+    isActive: false,
+    distortion: new Vector2(0, 0),
+    principalPoint: new Vector2(0, 0),
+    focalLength: new Vector2(1, 1),
+    skew: 0
   }
-  // [Effects.LensDistortionEffect]: {
-  //   isActive: false,
-  //   distortion: new Vector2(0,0),
-  //   principalPoint: new Vector2(0,0),
-  //   focalLength: new Vector2(0,0),
-  //   skew: 0
-  // }
 }
 
 /**
@@ -679,23 +703,23 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
  * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@17.0/manual
  */
 
-/** 1. input aliasing */
-// Effects.SMAAEffect,
-// Effects.OutlineEffect,
-
 export const effectInOrder = [
+  /** 1. input aliasing */
+  Effects.SMAAEffect,
+  Effects.OutlineEffect,
+
   /** 2. world effects */
   // Effects.PaniniProjection,
   Effects.DepthOfFieldEffect,
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
-  Effects.SSGIEffect,
-  // Effects.GodRaysEffect,
+  //Effects.SSGIEffect,
+  //Effects.GodRaysEffect,
 
   /** 3. camera effects */
-  // Effects.LensDistortionEffect,
+  Effects.LensDistortionEffect,
   //Effects.LensFlareEffect,
-  // Effects.ChromaticAberrationEffect,
+  Effects.ChromaticAberrationEffect,
   Effects.MotionBlurEffect,
   Effects.BloomEffect,
   Effects.VignetteEffect,
@@ -706,11 +730,11 @@ export const effectInOrder = [
   Effects.BrightnessContrastEffect,
   Effects.HueSaturationEffect,
   Effects.ColorDepthEffect,
-  // Effects.LUT1DEffect,
-  // Effects.LUT3DEffect,
+  Effects.LUT1DEffect,
+  Effects.LUT3DEffect,
 
   /** 5. final fix, aliasing and noise passes */
   Effects.LinearTosRGBEffect, // should this just be always on?
-  Effects.TRAAEffect
-  // Effects.FXAAEffect
+  Effects.TRAAEffect,
+  Effects.FXAAEffect
 ]

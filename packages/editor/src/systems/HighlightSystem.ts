@@ -23,23 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInfoSystem'
+import { removeComponent, setComponent } from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
+import { useEffect } from 'react'
+import { SelectionState } from '../services/SelectionServices'
 
-import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { EditorControlSystem } from './systems/EditorControlSystem'
-import { GizmoSystem } from './systems/GizmoSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
-import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
-import { UploadRequestSystem } from './systems/UploadRequestSystem'
+const reactor = () => {
+  const selectedEntities = SelectionState.useSelectedEntities()
 
-export {
-  EditorInstanceNetworkingSystem,
-  EditorControlSystem,
-  GizmoSystem,
-  HighlightSystem,
-  ModelHandlingSystem,
-  ObjectGridSnapSystem,
-  UploadRequestSystem,
-  RenderInfoSystem
+  useEffect(() => {
+    if (!selectedEntities) return
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (!lastSelection) return
+    setComponent(lastSelection, HighlightComponent)
+    return () => {
+      removeComponent(lastSelection, HighlightComponent)
+    }
+  }, [selectedEntities])
+
+  return null
 }
+
+export const HighlightSystem = defineSystem({
+  uuid: 'ee.editor.HighlightSystem',
+  insert: { with: AnimationSystemGroup },
+  reactor
+})
