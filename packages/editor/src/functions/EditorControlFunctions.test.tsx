@@ -322,8 +322,8 @@ describe('EditorControlFunctions', () => {
     })
   })
 
-  describe('overwriteLookdevObject', () => {
-    it('should overwrite a lookdev object', () => {
+  describe('overwriteComponentData', () => {
+    it('should overwrite first components found in scene', () => {
       const nodeID = MathUtils.generateUUID() as NodeID
 
       const gltf: GLTF.IGLTF = {
