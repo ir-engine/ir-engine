@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   useComponent,
   useEntityContext,
   useQuery
@@ -189,6 +190,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
 
     return () => {
       abortController.abort()
+      if (!hasComponent(entity, GLTFComponent)) return
       state.merge({
         extensions: {}
       })

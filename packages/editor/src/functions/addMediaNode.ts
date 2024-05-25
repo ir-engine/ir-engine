@@ -33,7 +33,6 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
@@ -50,6 +49,7 @@ import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/comp
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -62,7 +62,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
 
 export async function addMediaNode(
   url: string,
-  parent?: Entity,
+  parent = getState(EditorState).rootEntity,
   before?: Entity,
   extraComponentJson: ComponentJsonType[] = []
 ) {
@@ -119,19 +119,7 @@ export async function addMediaNode(
         EditorControlFunctions.overwriteComponentData(componentJson, parent)
       })
     } else if (contentType.startsWith('model/prefab')) {
-      const { entityUUID, sourceID: sceneID } = EditorControlFunctions.createObjectFromSceneElement(
-        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-        parent!,
-        before
-      )
-      addAuthoringHook({
-        entityUUID,
-        sceneID,
-        callback: (entityUUID) => {
-          const entity = UUIDComponent.getEntityByUUID(entityUUID)
-          GLTFSnapshotState.explodeModelIntoParent(entity)
-        }
-      })
+      GLTFSnapshotState.copyNodesFromFile(url, getComponent(parent, UUIDComponent))
     } else {
       EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],

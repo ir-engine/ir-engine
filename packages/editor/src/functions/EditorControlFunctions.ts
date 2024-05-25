@@ -253,9 +253,6 @@ const createObjectFromSceneElement = (
 ) => {
   const sources = getSourcesForEntities([parentEntity])
 
-  const entityUUID: EntityUUID =
-    componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
-  const sourceIDUsed = Object.keys(sources)[0] /** @todo we need to fully support multi-source editing */
   for (const [sourceID, entities] of Object.entries(sources)) {
     const name = 'New Object'
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sourceID)
@@ -269,8 +266,11 @@ const createObjectFromSceneElement = (
         ...comp.props
       }
     }
+
+    const nodeID: NodeID =
+      componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
     if (!extensions[NodeIDComponent.jsonID]) {
-      extensions[NodeIDComponent.jsonID] = entityUUID
+      extensions[NodeIDComponent.jsonID] = nodeID
     }
     if (!extensions[VisibleComponent.jsonID]) {
       extensions[VisibleComponent.jsonID] = true
@@ -329,7 +329,6 @@ const createObjectFromSceneElement = (
     }
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
-  return { entityUUID, sourceID: sourceIDUsed }
 }
 
 /**

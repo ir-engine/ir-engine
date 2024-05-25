@@ -37,6 +37,7 @@ import {
   EntityUUID,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -69,9 +70,8 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
-import { ModelComponent } from '../scene/components/ModelComponent'
-import { getModelSceneID } from '../scene/functions/loaders/ModelFunctions'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
+import { GLTFCallbackState } from './GLTFCallbackState'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState, GLTFModifiedState, GLTFNodeState, GLTFSnapshotAction } from './GLTFDocumentState'
 
@@ -215,14 +215,20 @@ export const GLTFSnapshotState = defineState({
     }
   },
 
-  explodeModelIntoParent: (entity: Entity) => {
-    if (!hasComponent(entity, ModelComponent)) return
+  copyNodesFromFile: (filePath: string, targetEntityUUID: EntityUUID) => {
+    GLTFCallbackState.add(filePath, (entity: Entity) => {
+      GLTFSnapshotState.moveChildrenToParent(entity, targetEntityUUID)
+    })
+  },
+
+  moveChildrenToParent: (entity: Entity, targetEntityUUID: EntityUUID) => {
+    console.log('moving children to parent', entity, targetEntityUUID)
+    if (!hasComponent(entity, GLTFComponent)) throw new Error(`Entity ${entity} does not have a ModelComponent`)
     const sourceEntityUUID = getComponent(entity, UUIDComponent)
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-    if (!parentEntity) return
-    const sourceID = getModelSceneID(entity)
-    const destinationEntityUUID = getComponent(parentEntity, UUIDComponent)
-    const destinationSourceID = getComponent(parentEntity, SourceComponent)
+    const sourceID = getComponent(entity, SourceComponent)
+    const targetEntity = UUIDComponent.getEntityByUUID(targetEntityUUID)
+    const destinationEntityUUID = getComponent(targetEntity, UUIDComponent)
+    const destinationSourceID = getComponent(targetEntity, SourceComponent)
     GLTFSnapshotState.copyNodes(sourceEntityUUID, sourceID, destinationEntityUUID, destinationSourceID)
     dispatchAction(GLTFSnapshotAction.unload({ source: sourceID }))
   },
@@ -233,33 +239,40 @@ export const GLTFSnapshotState = defineState({
     destinationEntityUUID: EntityUUID,
     destinationSourceID: SourceID
   ) => {
+    console.log('copying nodes from', sourceEntityUUID, 'to', destinationEntityUUID)
+    if (!getState(GLTFSnapshotState)[sourceID]) return console.warn('sourceID not found in snapshot state')
+    if (!getState(GLTFSnapshotState)[destinationSourceID])
+      return console.warn('destinationSourceID not found in snapshot state')
+
     const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sourceID)
     const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(destinationSourceID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
     const srcEntity = UUIDComponent.getEntityByUUID(sourceEntityUUID)
     const srcNodeID = getComponent(srcEntity, NodeIDComponent)
-    const srcTransform = getComponent(srcEntity, TransformComponent)
-    const childEntities = getComponent(srcEntity, EntityTreeComponent).children
-    for (const child of childEntities) {
-      const transform = getComponent(child, TransformComponent)
-      //apply the model's transform to the children, such that it has the same world transform after the model is removed
-      //combine position
-      const position = new Vector3().copy(transform.position)
-      position.applyQuaternion(srcTransform.rotation)
-      position.add(srcTransform.position)
-      //combine rotation
-      const rotation = new Quaternion().copy(srcTransform.rotation)
-      rotation.multiply(transform.rotation)
-      //combine scale
-      const scale = new Vector3().copy(transform.scale)
-      scale.multiply(srcTransform.scale)
-      //set new transform on the node in the new snapshot
-      const childNode = snapshot.data.nodes?.find(
-        (node) => node.extensions?.[NodeIDComponent.jsonID] === getComponent(child, NodeIDComponent)
-      )
-      if (!childNode) continue
-      childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
+    const srcTransform = getOptionalComponent(srcEntity, TransformComponent)
+    if (srcTransform) {
+      const childEntities = getComponent(srcEntity, EntityTreeComponent).children
+      for (const child of childEntities) {
+        const transform = getComponent(child, TransformComponent)
+        //apply the model's transform to the children, such that it has the same world transform after the model is removed
+        //combine position
+        const position = new Vector3().copy(transform.position)
+        position.applyQuaternion(srcTransform.rotation)
+        position.add(srcTransform.position)
+        //combine rotation
+        const rotation = new Quaternion().copy(srcTransform.rotation)
+        rotation.multiply(transform.rotation)
+        //combine scale
+        const scale = new Vector3().copy(transform.scale)
+        scale.multiply(srcTransform.scale)
+        //set new transform on the node in the new snapshot
+        const childNode = snapshot.data.nodes?.find(
+          (node) => node.extensions?.[NodeIDComponent.jsonID] === getComponent(child, NodeIDComponent)
+        )
+        if (!childNode) continue
+        childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
+      }
     }
     // Get index of current parent node
     const modelIndex = parentSnapshot.data.nodes?.findIndex(

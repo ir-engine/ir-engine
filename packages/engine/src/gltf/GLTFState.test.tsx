@@ -42,7 +42,6 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import React from 'react'
-import { ModelComponent } from '../scene/components/ModelComponent'
 import { GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
 
@@ -743,7 +742,7 @@ describe('GLTFState', () => {
     assert(!testNode)
   })
 
-  it('explodeModelIntoParent should explode a model with a single node', async () => {
+  it('copyNodesFromFile should explode a gltf with a single node', async () => {
     const modelNodeID = MathUtils.generateUUID() as NodeID
     const hemisphereNodeID = MathUtils.generateUUID() as NodeID
 
@@ -757,10 +756,7 @@ describe('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [NodeIDComponent.jsonID]: modelNodeID,
-            [ModelComponent.jsonID]: {
-              src: '/model.gltf'
-            }
+            [NodeIDComponent.jsonID]: modelNodeID
           }
         }
       ]
@@ -798,11 +794,18 @@ describe('GLTFState', () => {
 
     applyIncomingActions()
 
-    const modelEntityUUID = (rootEntityUUID + '-' + modelNodeID) as EntityUUID
-    const nodeEntity = UUIDComponent.getEntityByUUID(modelEntityUUID)
+    GLTFSnapshotState.copyNodesFromFile('/model.gltf', rootEntityUUID)
 
-    GLTFSnapshotState.explodeModelIntoParent(nodeEntity)
+    // run GLTFCallbackState reactor to load the model
+    await act(() => rerender(<></>))
 
+    // load model snapshot
+    applyIncomingActions()
+
+    // run GLTFCallbackState reactor to call the callback
+    await act(() => rerender(<></>))
+
+    // handle the new snapshot
     applyIncomingActions()
 
     const hemisphereEntityUUID = (rootEntityUUID + '-' + hemisphereNodeID) as EntityUUID
