@@ -27,7 +27,6 @@ import LinkIcon from '@mui/icons-material/Link'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   InteractableComponent,
@@ -36,6 +35,7 @@ import {
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -64,7 +64,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         callbacks: [
           {
             callbackID: LinkComponent.linkCallbackName,
-            target: getComponent(props.entity, UUIDComponent)
+            target: getComponent(props.entity, NodeIDComponent)
           }
         ]
       })

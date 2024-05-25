@@ -52,7 +52,7 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
+import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -78,7 +78,7 @@ const createTempEntity = (name: string, parentEntity: Entity = UndefinedEntity):
   if (hasComponent(parentEntity, SourceComponent)) {
     sceneID = getComponent(parentEntity, SourceComponent)
   }
-  setComponent(entity, SourceComponent, sceneID)
+  setComponent(entity, SourceComponent, sceneID as SourceID)
 
   const uuid = generateEntityUUID()
   setComponent(entity, UUIDComponent, uuid)
