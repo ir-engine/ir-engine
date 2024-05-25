@@ -34,13 +34,13 @@ import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
@@ -123,7 +123,7 @@ export async function addMediaNode(
         )
       })
     } else if (contentType.startsWith('model/prefab')) {
-      const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID, sourceID: sceneID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
         parent!,
         before
