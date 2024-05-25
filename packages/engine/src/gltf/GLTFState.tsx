@@ -222,7 +222,6 @@ export const GLTFSnapshotState = defineState({
   },
 
   moveChildrenToParent: (entity: Entity, targetEntityUUID: EntityUUID) => {
-    console.log('moving children to parent', entity, targetEntityUUID)
     if (!hasComponent(entity, GLTFComponent)) throw new Error(`Entity ${entity} does not have a ModelComponent`)
     const sourceEntityUUID = getComponent(entity, UUIDComponent)
     const sourceID = getComponent(entity, SourceComponent)
@@ -239,7 +238,6 @@ export const GLTFSnapshotState = defineState({
     destinationEntityUUID: EntityUUID,
     destinationSourceID: SourceID
   ) => {
-    console.log('copying nodes from', sourceEntityUUID, 'to', destinationEntityUUID)
     if (!getState(GLTFSnapshotState)[sourceID]) return console.warn('sourceID not found in snapshot state')
     if (!getState(GLTFSnapshotState)[destinationSourceID])
       return console.warn('destinationSourceID not found in snapshot state')
