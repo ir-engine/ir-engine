@@ -54,7 +54,7 @@ import {
   useComponent,
   useEntityContext
 } from '@etherealengine/ecs'
-import { defineState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -75,7 +75,7 @@ import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
-import { PerformanceManager } from './PerformanceState'
+import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 
@@ -106,8 +106,6 @@ export class EngineRenderer {
   static activeRender = false
   /** Is resize needed? */
   needsResize: boolean
-  /** Resoulion scale. **Default** value is 1. */
-  scaleFactor = 1
 
   renderPass: RenderPass
   normalPass: NormalPass
@@ -225,7 +223,7 @@ export const render = (
 
   if (renderer.needsResize) {
     const curPixelRatio = renderer.renderer.getPixelRatio()
-    const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
+    const scaledPixelRatio = window.devicePixelRatio * state.renderScale
 
     if (curPixelRatio !== scaledPixelRatio) renderer.renderer.setPixelRatio(scaledPixelRatio)
 
@@ -330,9 +328,19 @@ const rendererReactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
+    if (engineRendererSettings.automatic.value) return
+
+    const qualityLevel = engineRendererSettings.qualityLevel.value
+    getMutableState(PerformanceState).merge({
+      gpuTier: qualityLevel,
+      cpuTier: qualityLevel
+    } as any)
+  }, [engineRendererSettings.qualityLevel, engineRendererSettings.automatic])
+
+  useEffect(() => {
+    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
     renderer.needsResize.set(true)
-  }, [renderer.scaleFactor])
+  }, [engineRendererSettings.renderScale])
 
   useEffect(() => {
     changeRenderMode()

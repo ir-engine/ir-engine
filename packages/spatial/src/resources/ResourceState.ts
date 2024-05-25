@@ -171,8 +171,8 @@ const getRendererInfo = () => {
 const checkBudgets = () => {
   const resourceState = getState(ResourceState)
   const performanceState = getState(PerformanceState)
-  const maxVerts = performanceState.budgets.maxVerticies
-  const maxBuffer = performanceState.budgets.maxBufferSize
+  const maxVerts = performanceState.maxVerticies
+  const maxBuffer = performanceState.maxBufferSize
   const currVerts = resourceState.totalVertexCount
   const currBuff = resourceState.totalBufferCount
   if (currVerts > maxVerts)

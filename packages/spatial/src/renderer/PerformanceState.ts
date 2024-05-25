@@ -49,7 +49,8 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: true,
-      updateCSMFrustums: false
+      updateCSMFrustums: false,
+      renderScale: 0.75
     },
     render: { smaaPreset: SMAAPreset.LOW }
   },
@@ -59,7 +60,8 @@ const tieredSettings = {
       shadowMapResolution: 0,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true
+      updateCSMFrustums: true,
+      renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
   },
@@ -69,7 +71,8 @@ const tieredSettings = {
       shadowMapResolution: 256,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true
+      updateCSMFrustums: true,
+      renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.LOW }
   },
@@ -79,7 +82,8 @@ const tieredSettings = {
       shadowMapResolution: 512,
       usePostProcessing: false,
       forceBasicMaterials: false,
-      updateCSMFrustums: true
+      updateCSMFrustums: true,
+      renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.MEDIUM }
   },
@@ -89,7 +93,8 @@ const tieredSettings = {
       shadowMapResolution: 1024,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true
+      updateCSMFrustums: true,
+      renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.HIGH }
   },
@@ -99,7 +104,8 @@ const tieredSettings = {
       shadowMapResolution: 2048,
       usePostProcessing: true,
       forceBasicMaterials: false,
-      updateCSMFrustums: true
+      updateCSMFrustums: true,
+      renderScale: 1
     },
     render: { smaaPreset: SMAAPreset.ULTRA }
   }
@@ -131,15 +137,25 @@ const updateExponentialMovingAverage = (average: State<ExponentialMovingAverage>
 
 export const PerformanceState = defineState({
   name: 'PerformanceState',
+
   initial: () => ({
-    isMobileGPU: false as boolean | undefined,
+    isMobileGPU: false,
     gpuTier: 3 as PerformanceTier,
     cpuTier: 3 as PerformanceTier,
 
     supportWebGL2: true,
-    renderContext: null! as WebGL2RenderingContext,
-
     targetFPS: 60 as TargetFPS,
+
+    gpu: 'unknown',
+    device: 'unknown',
+
+    maxTextureSize: 0,
+    max3DTextureSize: 0,
+    maxBufferSize: 0,
+    maxIndices: 0,
+    maxVerticies: 0,
+
+    renderContext: null! as WebGL2RenderingContext,
 
     // The lower the performance the higher the offset
     gpuPerformanceOffset: 0,
@@ -150,18 +166,9 @@ export const PerformanceState = defineState({
     averageSystemTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
 
     performanceSmoothingTime: 3000 as const,
-    isSmoothing: false,
-
-    gpu: 'unknown',
-    device: 'unknown',
-    budgets: {
-      maxTextureSize: 0,
-      max3DTextureSize: 0,
-      maxBufferSize: 0,
-      maxIndices: 0,
-      maxVerticies: 0
-    }
+    isSmoothing: false
   }),
+
   reactor: () => {
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)
@@ -184,13 +191,13 @@ export const PerformanceState = defineState({
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (isEditing || !engineSettings.automatic.value) return
+      if (isEditing) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
       engineSettings.merge(settings.engine)
       renderSettings.merge(settings.render)
-    }, [performanceState.gpuTier, engineSettings.automatic])
+    }, [performanceState.gpuTier])
 
     useEffect(() => {
       performanceState.isSmoothing.set(true)
@@ -205,8 +212,9 @@ export const PerformanceState = defineState({
 export const PerformanceSystem = defineSystem({
   uuid: 'ee.engine.PerformanceSystem',
   insert: { after: PresentationSystemGroup },
+
   execute: () => {
-    if (getState(EngineState).isEditing) return
+    if (getState(EngineState).isEditing || !getState(RendererState).automatic) return
 
     const performanceState = getMutableState(PerformanceState)
     const ecsState = getState(ECSState)
@@ -416,7 +424,7 @@ const buildPerformanceState = async (
     override
   })
   let tier = gpuTier.tier
-  performanceState.isMobileGPU.set(gpuTier.isMobile)
+  performanceState.isMobileGPU.set(!!gpuTier.isMobile)
   if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
   if (gpuTier.device) performanceState.device.set(gpuTier.device)
 
@@ -424,7 +432,7 @@ const buildPerformanceState = async (
   performanceState.supportWebGL2.set(renderer.supportWebGL2)
   performanceState.renderContext.set(gl)
   const max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE)
-  performanceState.budgets.set({
+  performanceState.merge({
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: max3DTextureSize,
     maxBufferSize:
