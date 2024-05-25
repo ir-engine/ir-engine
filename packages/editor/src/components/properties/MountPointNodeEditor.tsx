@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -37,6 +36,7 @@ import {
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -62,7 +62,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
         callbacks: [
           {
             callbackID: MountPointComponent.mountCallbackName,
-            target: getComponent(props.entity, UUIDComponent)
+            target: getComponent(props.entity, NodeIDComponent)
           }
         ]
       })
