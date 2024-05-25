@@ -43,6 +43,7 @@ import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/re
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
   EntityTreeComponent,
+  iterateEntityNode,
   removeEntityNodeRecursively
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
@@ -233,6 +234,9 @@ function ModelReactor() {
     if (!parentEntity) return
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     const parentSource = getComponent(parentEntity, SourceComponent)
+    iterateEntityNode(entity, (entity) => {
+      setComponent(entity, SourceComponent, parentSource)
+    })
     GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
   }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
