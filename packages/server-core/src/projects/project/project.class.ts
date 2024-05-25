@@ -190,7 +190,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
+      let seeded = false
       if (!data.find((e) => e.name === projectName)) {
+        seeded = true
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
@@ -210,6 +212,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
         { query: { name: projectName } }
       )
+
+      if (!seeded) await uploadLocalProjectToProvider(this.app, projectName)
     }
 
     await Promise.all(promises)
