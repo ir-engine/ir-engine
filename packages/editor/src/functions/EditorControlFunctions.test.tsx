@@ -42,6 +42,7 @@ import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, MathUtils } from 'three'
 
+import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -318,6 +319,53 @@ describe('EditorControlFunctions', () => {
       assert.equal(extensionData.elements[1].position.x, 10)
       assert.equal(extensionData.elements[1].position.y, 10)
       assert.equal(extensionData.elements[1].position.z, 10)
+    })
+  })
+
+  describe('overwriteLookdevObject', () => {
+    it('should overwrite a lookdev object', () => {
+      const nodeID = MathUtils.generateUUID() as NodeID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            extensions: {
+              [NodeIDComponent.jsonID]: nodeID,
+              [HemisphereLightComponent.jsonID]: {
+                intensity: 1
+              }
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = GLTFSourceState.load('/test.gltf')
+      const rootEntityUUID = getComponent(rootEntity, UUIDComponent)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      applyIncomingActions()
+
+      const nodeUUID = (rootEntityUUID + '-' + nodeID) as EntityUUID
+
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+
+      const componentJson = {
+        name: HemisphereLightComponent.jsonID,
+        props: {
+          intensity: 10
+        }
+      } as ComponentJsonType
+      EditorControlFunctions.overwriteComponentData([componentJson])
+
+      applyIncomingActions()
+
+      assert.equal(getComponent(nodeEntity, HemisphereLightComponent).intensity, 10)
     })
   })
 

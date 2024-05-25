@@ -237,19 +237,21 @@ export const GLTFSnapshotState = defineState({
       scale.multiply(srcTransform.scale)
       //set new transform on the node in the new snapshot
       const childNode = snapshot.data.nodes?.find(
-        (node) => node.extensions?.[NodeIDComponent.jsonID] === getComponent(child, UUIDComponent)
+        (node) => node.extensions?.[NodeIDComponent.jsonID] === getComponent(child, NodeIDComponent)
       )
       if (!childNode) continue
       childNode.matrix = new Matrix4().compose(position, rotation, scale).toArray()
     }
+    // Get index of current parent node
     const modelIndex = parentSnapshot.data.nodes?.findIndex(
       (node) => node.extensions?.[NodeIDComponent.jsonID] === srcNodeID
     )
+    // Remove model entity from parent scene
     parentSnapshot.data.scenes![0].nodes = parentSnapshot.data.scenes![0].nodes.filter((node) => node !== modelIndex)
     const newNodes = parentSnapshot.data.nodes?.filter(
       (node) => node.extensions?.[NodeIDComponent.jsonID] !== srcNodeID
     )
-    //recalculate child indices
+    // recalculate child indices
     if (!newNodes) return
     for (const node of newNodes) {
       if (!node.children) continue
@@ -266,9 +268,11 @@ export const GLTFSnapshotState = defineState({
     }
     parentSnapshot.data.nodes = newNodes
 
+    // Get get the destination node
     const dstEntity = UUIDComponent.getEntityByUUID(dstNode)
     const dstNodeID = getComponent(dstEntity, NodeIDComponent)
 
+    // Add the nodes to the new parent node
     const rootIndices = snapshot.data.scenes![0].nodes!
     const roots = rootIndices.map((index) => snapshot.data.nodes?.[index])
     parentSnapshot.data.nodes = [...parentSnapshot.data.nodes!, ...snapshot.data.nodes!]
@@ -276,7 +280,7 @@ export const GLTFSnapshotState = defineState({
     const parentNode = parentSnapshot.data.nodes?.find(
       (node) => node.extensions?.[NodeIDComponent.jsonID] === dstNodeID
     )
-    //if the parent is not the root of the gltf document, add the child indices to the parent's children
+    // If the parent is not the root of the gltf document, add the child indices to the parent's children
     if (parentNode) {
       parentNode.children = [...(parentNode.children ?? []), ...childIndices]
     } else {
@@ -450,20 +454,14 @@ const NodeReactor = (props: {
   }, [])
 
   useLayoutEffect(() => {
-    if (!entity) return
-
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
   }, [entity, parentEntity, props.childIndex])
 
   useLayoutEffect(() => {
-    if (!entity) return
-
     setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
   }, [entity, node.name])
 
   useLayoutEffect(() => {
-    if (!entity) return
-
     setComponent(entity, TransformComponent)
     if (!node.matrix.value) return
 
@@ -474,8 +472,6 @@ const NodeReactor = (props: {
     mat4.decompose(position, rotation, scale)
     setComponent(entity, TransformComponent, { position, rotation, scale })
   }, [entity, node.matrix])
-
-  if (!entity) return null
 
   return (
     <>

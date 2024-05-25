@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID } from '@etherealengine/ecs'
 import { NO_PROXY, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import React, { useEffect } from 'react'
 import { generateUUID } from 'three/src/math/MathUtils'
 import { GLTFDocumentState } from './GLTFDocumentState'
@@ -64,7 +65,7 @@ const HookReactor = (props: AuthoringHookJob) => {
   const gltfDocument = useState(getMutableState(GLTFDocumentState))[sceneID]
   if (!gltfDocument.value) return null
   useEffect(() => {
-    const entity = gltfDocument.value.nodes!.find((node) => node.extensions![UUIDComponent.jsonID] === entityUUID)
+    const entity = gltfDocument.value.nodes!.find((node) => node.extensions![NodeIDComponent.jsonID] === entityUUID)
     if (entity) {
       callback(entityUUID)
       authoringHooks.set(authoringHooks.value.filter((hook) => hook.hookID !== props.hookID))

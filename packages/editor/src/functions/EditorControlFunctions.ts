@@ -41,7 +41,6 @@ import { Entity } from '@etherealengine/ecs/src/Entity'
 import { ComponentJsonType } from '@etherealengine/engine/src/gltf/convertJsonToGLTF'
 import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
-import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -205,11 +204,16 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
   }
 }
 
-const overwriteLookdevObject = (
-  beforeComponentJson: ComponentJsonType[] = [],
+export const OverwriteableComponents = [
+  SkyboxComponent,
+  HemisphereLightComponent,
+  DirectionalLightComponent,
+  PostProcessingComponent
+]
+
+const overwriteComponentData = (
   componentJson: ComponentJsonType[] = [],
-  parentEntity = getState(EditorState).rootEntity,
-  beforeEntity?: Entity
+  parentEntity = getState(EditorState).rootEntity
 ) => {
   const sources = getSourcesForEntities([parentEntity])
 
@@ -223,30 +227,19 @@ const overwriteLookdevObject = (
           ...comp.props
         }
       }
-      //check lookdev entity
-      const lookDevComponent: Component[] = [
-        SkyboxComponent,
-        HemisphereLightComponent,
-        DirectionalLightComponent,
-        PostProcessingComponent,
-        PrimitiveGeometryComponent //this component is for test will remove later
-      ]
       let overwrited = false
-      for (const comp of lookDevComponent) {
-        if (extensions[comp.jsonID as string]) {
-          const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID as string] !== undefined) as number
+      for (const comp of OverwriteableComponents) {
+        if (extensions[comp.jsonID!]) {
+          const index = gltf.data.nodes?.findIndex((n) => n.extensions?.[comp.jsonID!] !== undefined)
           if (typeof index === 'number' && index > -1) {
             if (gltf.data.nodes !== undefined) {
-              gltf.data.nodes[index].extensions![comp.jsonID as string] = extensions[comp.jsonID as string]
+              gltf.data.nodes[index].extensions![comp.jsonID!] = extensions[comp.jsonID!]
               overwrited = true
             }
           }
         }
       }
-      if (!overwrited) {
-        //if no lookdev object found then create new object
-        createObjectFromSceneElement(beforeComponentJson, parentEntity, beforeEntity)
-      } else {
+      if (overwrited) {
         dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
       }
     }
@@ -795,6 +788,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyName,
   modifyMaterial,
+  overwriteComponentData,
   createObjectFromSceneElement,
   duplicateObject,
   positionObject,
@@ -807,6 +801,5 @@ export const EditorControlFunctions = {
   addToSelection,
   replaceSelection,
   toggleSelection,
-  commitTransformSave,
-  overwriteLookdevObject
+  commitTransformSave
 }

@@ -115,12 +115,7 @@ export async function addMediaNode(
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       gltfLoader.load(url, (gltf) => {
         const componentJson = gltf.scene.children[0].userData.componentJson
-        EditorControlFunctions.overwriteLookdevObject(
-          [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-          componentJson,
-          parent!,
-          before
-        )
+        EditorControlFunctions.overwriteComponentData(componentJson, parent)
       })
     } else if (contentType.startsWith('model/prefab')) {
       const { entityUUID, sourceID: sceneID } = EditorControlFunctions.createObjectFromSceneElement(
