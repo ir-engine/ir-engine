@@ -145,7 +145,7 @@ const Select = <T extends OptionValueType>({
       <MdOutlineKeyboardArrowDown
         size="1.5em"
         className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-          label ? 'top-8' : 'top-2'
+          label ? 'top-8' : 'top-1'
         }`}
         onClick={toggleDropdown}
       />
