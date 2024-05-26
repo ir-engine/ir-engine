@@ -189,6 +189,8 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
       preset: smaaPreset,
       edgeDetectionMode: EdgeDetectionMode.COLOR
     })
+    effectsVal[Effects.SMAAEffect] = outlineEffect
+    renderer.effectComposer[Effects.SMAAEffect].set(smaaEffect)
 
     //always have the outline effect for the highlight selection
     const outlineEffect = new OutlineEffect(scene.value as Scene, camera.value as ArrayCamera, getState(HighlightState))
