@@ -37,7 +37,7 @@ import {
   LocationType
 } from '@etherealengine/common/src/schema.type.module'
 import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -45,11 +45,15 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { EntityUUID } from '@etherealengine/ecs'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { saveSceneGLTF, setCurrentEditorScene } from '../../../../../editor/src/functions/sceneFunctions'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../old-styles/admin.module.scss'
 import DrawerView from '../DrawerView'
 import { validateForm } from '../validation/formValidation'
+import ConfirmSubmitDialog from './ConfirmSubmitDialog'
 
 export enum LocationDrawerMode {
   Create,
@@ -87,6 +91,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
+  const confirmWindowOpen = useHookstate(false)
 
   const scenes = useFind(assetPath)
   // const locationTypes = useFind(locationTypePath).data
@@ -153,6 +158,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
     } else handleClose()
   }
 
+  const handleConfirmWindowOpen = () => {
+    confirmWindowOpen.set(true)
+  }
+
+  const handleConfirmCancel = () => {
+    confirmWindowOpen.set(false)
+  }
+
   const handleClose = () => {
     onClose()
     state.set({ ...defaultState })
@@ -181,8 +194,54 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
     state.merge({ [name]: value })
   }
 
-  const handleSubmit = () => {
-    const data: LocationData = {
+  const handleSubmit = async () => {
+    confirmWindowOpen.set(false)
+
+    state.formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.location.nameCantEmpty'),
+      maxUsers: state.maxUsers.value ? '' : t('admin:components.location.maxUserCantEmpty'),
+      scene: state.scene.value ? '' : t('admin:components.location.sceneCantEmpty'),
+      type: state.type.value ? '' : t('admin:components.location.typeCantEmpty')
+    })
+
+    if (!validateForm(state.value, state.formErrors.value)) {
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
+      return
+    }
+
+    // TODO: new checkbox
+    const isBaked = true
+
+    // TODO: Present blocking modal to user "Are you sure you want to Publish?"
+
+    await publishScene(isBaked)
+
+    // TODO: After publish succeeds or fails, restore original scene and close blocking modal
+
+    handleClose()
+  }
+
+  const publishScene = async (bake: boolean) => {
+    // TODO: Save current scene in place, and create new version to publish
+    const { sceneAssetID, projectName, sceneName, scenePath } = getState(EditorState)
+
+    if (projectName && sceneName && scenePath) {
+      const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath ?? '' } }).data
+      const sceneURL = sceneQuery?.[0]?.assetURL
+      const abortController = new AbortController()
+
+      // TODO: Bake implementation
+      if (bake) {
+        await saveSceneGLTF(sceneAssetID, projectName, sceneName + '-optimized', abortController.signal)
+      }
+
+      setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
+    }
+
+    // TODO: In duplicated scene, perform mesh baking to de-reference all models in the scene (saving scene as GLTF & fuse/compress scenes)
+    // TODO: Publish the duplicated scene
+
+    const locationData: LocationData = {
       name: state.name.value,
       slugifiedName: '',
       sceneId: state.scene.value,
@@ -202,28 +261,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
       isFeatured: false //state.isFeatured.value
     }
 
-    state.formErrors.merge({
-      name: state.name.value ? '' : t('admin:components.location.nameCantEmpty'),
-      maxUsers: state.maxUsers.value ? '' : t('admin:components.location.maxUserCantEmpty'),
-      scene: state.scene.value ? '' : t('admin:components.location.sceneCantEmpty'),
-      type: state.type.value ? '' : t('admin:components.location.typeCantEmpty')
-    })
+    const onError = (error) => NotificationService.dispatchNotify(error.message, { variant: 'error' })
 
-    if (validateForm(state.value, state.formErrors.value)) {
-      if (mode === LocationDrawerMode.Create) {
-        locationMutation.create(data).catch((error) => {
-          NotificationService.dispatchNotify(error.message, { variant: 'error' })
-        })
-      } else if (selectedLocation) {
-        locationMutation.patch(selectedLocation.id, data).catch((error) => {
-          NotificationService.dispatchNotify(error.message, { variant: 'error' })
-        })
-        editMode.set(false)
-      }
-
-      handleClose()
-    } else {
-      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
+    if (mode === LocationDrawerMode.Create) {
+      await locationMutation.create(locationData).catch(onError)
+    } else if (selectedLocation) {
+      await locationMutation.patch(selectedLocation.id, locationData).catch(onError)
+      editMode.set(false)
     }
   }
 
@@ -308,7 +352,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === LocationDrawerMode.Create || editMode.value) && (
-            <Button className={styles.gradientButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleConfirmWindowOpen}>
               {t('admin:components.common.submit')}
             </Button>
           )}
@@ -319,6 +363,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
           )}
         </DialogActions>
       </Container>
+
+      <ConfirmSubmitDialog
+        open={confirmWindowOpen.value}
+        onConfirm={handleSubmit}
+        handleCancel={handleConfirmCancel}
+        onClose={handleConfirmCancel}
+      />
     </DrawerView>
   )
 }
