@@ -51,12 +51,12 @@ export const RadioRoot = ({
         name={label}
         onChange={onChange}
         disabled={disabled}
-        className="text-blue-primary checked:border-blue-primary focus:ring-blue-primary shrink-0 rounded-full border-gray-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
+        className="shrink-0 rounded-full border-gray-200 text-blue-primary checked:border-blue-primary focus:ring-blue-primary disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-offset-gray-800"
       />
       <label
         onClick={() => onChange({ target: { value } } as any)}
         htmlFor={label}
-        className="text-theme-primary ml-2 cursor-pointer align-bottom text-sm font-medium"
+        className="ml-2 cursor-pointer align-bottom text-sm font-medium text-theme-primary"
       >
         {label}
       </label>

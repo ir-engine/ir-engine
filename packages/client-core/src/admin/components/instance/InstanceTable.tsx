@@ -94,7 +94,7 @@ export default function InstanceTable({ search }: { search: string }) {
             {t('admin:components.instance.actions.view')}
           </Button>
           <Button
-            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             rounded="full"
             onClick={() => {
               PopoverState.showPopupover(
@@ -107,7 +107,7 @@ export default function InstanceTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )
