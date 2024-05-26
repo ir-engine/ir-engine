@@ -27,13 +27,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@etherealengine/ecs'
-import { useAllComponents, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
@@ -64,8 +65,14 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
 
   useHookstate(getMutableState(ComponentEditorsState).keys).value
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
-
-  const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
+  const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
+  const node = useHookstate(GLTFNodeState.getMutableNode(entity))
+  const components: Component[] = []
+  for (const jsonID of Object.keys(node.extensions.value!)) {
+    const component = ComponentJSONIDMap.get(jsonID)!
+    if (!componentEditors[component.name]) continue
+    components.push(component)
+  }
 
   const open = !!anchorEl.value
   const panel = document.getElementById('propertiesPanel')
