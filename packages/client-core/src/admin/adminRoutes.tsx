@@ -89,9 +89,9 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
+                    className={`hover:bg-theme-highlight] text-theme-secondary flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
                       relativePath === path
-                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        ? 'bg-theme-highlight text-theme-primary font-semibold '
                         : 'bg-theme-surface-main'
                     }`}
                     startIcon={sidebarItem.icon}
