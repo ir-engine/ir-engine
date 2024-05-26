@@ -56,6 +56,7 @@ import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/compone
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 
+import { NewVolumetricNodeEditor } from '@etherealengine/editor/src/components/properties/NewVolumetricNodeEditor'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -64,12 +65,14 @@ import { VisualScriptComponent } from '@etherealengine/engine'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
+import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -80,7 +83,6 @@ import { TextComponent } from '@etherealengine/engine/src/scene/components/TextC
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
@@ -102,7 +104,9 @@ export const ComponentShelfCategoriesState = defineState({
         PositionalAudioComponent,
         AudioAnalysisComponent,
         VideoComponent,
-        ImageComponent
+        ImageComponent,
+        NewVolumetricNodeEditor,
+        PlaylistComponent
       ],
       'Scene Composition': [
         PrimitiveGeometryComponent,
