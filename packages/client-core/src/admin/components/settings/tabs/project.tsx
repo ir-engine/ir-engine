@@ -156,7 +156,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           <div className="mb-3 grid grid-cols-8 gap-2">
             <Button
               size="small"
-              className="text-primary bg-theme-highlight col-span-1"
+              className="text-primary col-span-1 bg-theme-highlight"
               fullWidth
               onClick={handleCancel}
             >
