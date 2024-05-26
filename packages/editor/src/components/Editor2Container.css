@@ -1,0 +1,46 @@
+/** references https://github.com/ticlo/rc-dock/blob/master/dist/rc-dock.css */
+
+.dock-top .dock-bar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  background: transparent;
+}
+
+.dock-panel {
+  border: none;
+}
+
+.dock.dock-top {
+  background: var(--bg-primary);
+}
+
+.dock-nav-list {
+  background: var(--bg-surface-main);
+  justify-content: center;
+  align-items: center;
+}
+
+.dock-top .dock-bar {
+  border-bottom: none !important;
+}
+
+.dock-tab {
+  background: transparent;
+  margin: 0;
+  border-bottom: none !important;
+}
+
+.dock-tab > div {
+  padding: 0 !important;
+}
+
+.dock-ink-bar {
+  display: none;  
+}
+
+.dock-tab-close-btn{
+  display: none;
+}
+
+.dock-bar.drag-initiator{
+  padding: 0;
+}

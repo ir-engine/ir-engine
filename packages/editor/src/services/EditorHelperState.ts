@@ -34,10 +34,12 @@ import {
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
 
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
+    editorMode: EditorMode.Simple as EditorModeType,
     transformMode: TransformMode.translate as TransformModeType,
     transformModeOnCancel: TransformMode.translate as TransformModeType,
     transformSpace: TransformSpace.world as TransformSpaceType,
