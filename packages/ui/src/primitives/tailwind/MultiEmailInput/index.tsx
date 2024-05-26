@@ -130,10 +130,10 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
       {label && <Label className="self-stretch">{label}</Label>}
 
       {emailList.length > 0 && (
-        <div className="border-theme-primary bg-theme-surfaceInput flex flex-wrap gap-2	rounded-lg border px-3.5 py-1.5">
+        <div className="flex flex-wrap gap-2 rounded-lg border	border-theme-primary bg-theme-surfaceInput px-3.5 py-1.5">
           {emailList.value.map((item) => (
             <div
-              className="bg-theme-surface-main text-theme-primary flex w-fit items-center justify-between gap-1 rounded px-2 py-1 text-black"
+              className="flex w-fit items-center justify-between gap-1 rounded bg-theme-surface-main px-2 py-1 text-black text-theme-primary"
               key={item}
             >
               {item}

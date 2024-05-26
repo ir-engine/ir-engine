@@ -37,7 +37,7 @@ const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'text-neutral-600 dark:text-white',
     'p-4',
-    'border-theme-primary border border-[0.5px]',
+    'border border-[0.5px] border-theme-primary',
     className
   )
   return (
@@ -57,7 +57,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('bg-theme-table-secondary sticky top-0', theadClassName)
+  const twClassNameThead = twMerge('sticky top-0 bg-theme-table-secondary', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -68,7 +68,7 @@ const TableHeadRow = ({
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
   const twClassName = twMerge(
     'p-4',
-    'border-theme-primary border border-[0.5px]',
+    'border border-[0.5px] border-theme-primary',
     'text-left text-neutral-600 dark:text-white',
     className
   )
@@ -134,7 +134,7 @@ const TablePagination = ({
   onPageChange: (newPage: number) => void
 }) => {
   const commonClasses = twMerge(
-    'bg-theme-primary flex h-8 items-center justify-center border px-3 leading-tight',
+    'flex h-8 items-center justify-center border bg-theme-primary px-3 leading-tight',
     'border-gray-300 dark:border-gray-600',
     'text-gray-400 dark:text-gray-500',
     'enabled:text-gray-600 dark:enabled:dark:text-gray-300',

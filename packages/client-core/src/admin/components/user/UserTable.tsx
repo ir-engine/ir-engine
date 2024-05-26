@@ -133,7 +133,7 @@ export default function UserTable({
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
             >
-              <HiPencil className="text-theme-iconGreen place-self-center" />
+              <HiPencil className="place-self-center text-theme-iconGreen" />
             </Button>
             <Button
               rounded="full"
@@ -152,7 +152,7 @@ export default function UserTable({
                 )
               }}
             >
-              <HiTrash className="text-theme-iconRed place-self-center" />
+              <HiTrash className="place-self-center text-theme-iconRed" />
             </Button>
           </div>
         )
