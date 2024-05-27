@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as bitECS from 'bitecs'
-import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { ErrorInfo, FC, memo, Suspense, useMemo } from 'react'
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
 import { getState, HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
@@ -87,23 +88,27 @@ export function useQuery(components: QueryComponents) {
   const result = useHookstate([] as Entity[])
   const forceUpdate = useForceUpdate()
 
-  // Use an immediate (layout) effect to ensure that `queryResult`
+  // Use an immediate effect to ensure that `queryResult`
   // is deleted from the `reactiveQueryStates` map immediately when the current
   // component is unmounted, before any other code attempts to set it
   // (component state can't be modified after a component is unmounted)
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     const query = defineQuery(components)
-    result.set(query())
+    const queryResult = query()
+    if (JSON.stringify(queryResult) !== JSON.stringify(result.value)) {
+      result.set(queryResult)
+    }
     const queryState = { query, result, components }
     getState(SystemState).reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
       getState(SystemState).reactiveQueryStates.delete(queryState)
     }
-  }, [])
+  }, undefined)
 
   // create an effect that forces an update when any components in the query change
-  useEffect(() => {
+  // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
+  useImmediateEffect(() => {
     const entities = [...result.value]
     const root = startReactor(function useQueryReactor() {
       for (const entity of entities) {

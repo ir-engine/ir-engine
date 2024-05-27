@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
+import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
@@ -59,7 +60,7 @@ function useLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     const controller = new AbortController()
     if (url !== urlState.value) {
       if (urlState.value) {
@@ -145,7 +146,7 @@ function useBatchLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
     const controller = new AbortController()
 

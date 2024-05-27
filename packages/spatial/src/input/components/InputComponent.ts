@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 
 import {
+  AnimationSystemGroup,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -96,8 +97,7 @@ export const InputComponent = defineComponent({
       () => {
         const capturingEntity = getState(InputState).capturingEntity
         if (
-          !executeWhenEditing ||
-          getState(EngineState).isEditing ||
+          (!executeWhenEditing && getState(EngineState).isEditing) ||
           (capturingEntity && !isAncestor(capturingEntity, entity, true))
         )
           return
@@ -192,10 +192,13 @@ export const InputComponent = defineComponent({
   useHasFocus() {
     const entity = useEntityContext()
     const hasFocus = useHookstate(false)
-    InputComponent.useExecuteWithInput(() => {
-      const inputSources = InputComponent.getInputSourceEntities(entity)
-      hasFocus.set(inputSources.length > 0)
-    }, true)
+    useExecute(
+      () => {
+        const inputSources = InputComponent.getInputSourceEntities(entity)
+        hasFocus.set(inputSources.length > 0)
+      },
+      { before: AnimationSystemGroup }
+    )
     return hasFocus
   },
 
@@ -244,7 +247,9 @@ export const InputComponent = defineComponent({
         if (!inputComponent) return
         inputComponent.hasFocus.set(inputComponent.inputSources.value.length > 0)
       },
-      { with: InputSystemGroup }
+      // we want to execute after the input system group has run, after all input systems
+      // have had a chance to respond to input and/or capture input sources
+      { after: InputSystemGroup }
     )
     /** @todo - fix */
     // useLayoutEffect(() => {

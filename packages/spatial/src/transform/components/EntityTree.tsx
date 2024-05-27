@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect } from 'react'
-
+import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
 import {
   ComponentType,
   defineComponent,
@@ -40,6 +39,7 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
@@ -399,7 +399,7 @@ export function useTreeQuery(entity: Entity) {
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
