@@ -246,8 +246,6 @@ describe('ResourceLoaderHooks', () => {
     })
   })
 
-  // ensure that the loadResource function is synchronously called when the hook is rendered
-  // use sinon to spy on the loadResource function and assert that it is called
   it('useGLTF calls loadResource synchronously', () => {
     const resourceState = getState(ResourceState)
     const entity = createEntity()
@@ -256,7 +254,7 @@ describe('ResourceLoaderHooks', () => {
       // call the useGLTF hook
       useGLTF(gltfURL, entity)
     })
-    // assert that the loadResource function is called
+    // ensure that the loadResource function is synchronously called when the hook is rendered
     assert(resourceState.resources[gltfURL])
   })
 })
