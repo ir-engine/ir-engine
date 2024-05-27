@@ -78,7 +78,7 @@ export const EditorPage = () => {
     }
   }, [scenePath])
 
-  if (!scenePath.value && !projectName.value) return <ProjectPage />
+  if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio" />
 
   return <EditorContainer />
 }
