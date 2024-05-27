@@ -258,8 +258,7 @@ export default {
       ),
       checkIsLobby,
       removeLocationSetting,
-      removeLocationAdmin,
-      discard('action')
+      removeLocationAdmin
     ]
   },
 
