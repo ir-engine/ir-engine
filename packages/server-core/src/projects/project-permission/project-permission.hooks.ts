@@ -38,7 +38,7 @@ import {
   projectPermissionPath,
   projectPermissionQueryValidator
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
@@ -47,6 +47,7 @@ import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import resolveProjectId from '../../hooks/resolve-project-id'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 import { ProjectPermissionService } from './project-permission.class'
 import {
@@ -207,26 +208,6 @@ const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionServ
   if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(result[0].projectId)
 }
 
-/**
- * resolve project id from name in query
- * @param context
- * @returns
- */
-const resolveProjectId = async (context: HookContext<ProjectPermissionService>) => {
-  if (!context.params.query?.project) {
-    return
-  }
-
-  const projectResult = (await context.app.service(projectPath).find({
-    query: { name: context.params.query?.project, $limit: 1 }
-  })) as Paginated<ProjectType>
-
-  if (projectResult.data.length === 0) {
-    throw new BadRequest(`No project named ${context.params.query.project} exists`)
-  }
-  context.params.query.projectId = projectResult.data[0].id
-}
-
 export default {
   around: {
     all: [
@@ -243,7 +224,7 @@ export default {
     find: [
       enableClientPagination(),
       iff(checkUserScopes, checkPermissionStatus),
-      iff(isAction('studio'), setLoggedInUserInQuery('userId'), resolveProjectId),
+      iff(isAction('studio'), setLoggedInUserInQuery('userId'), resolveProjectId()),
       discardQuery('action'),
       discardQuery('project')
     ],
