@@ -42,6 +42,11 @@ import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRen
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import {
   EntityTreeComponent,
   iterateEntityNode,
   removeEntityNodeRecursively,
@@ -117,6 +122,16 @@ function ModelReactor() {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
+
+  useEffect(() => {
+    const occlusion =
+      !!modelComponent?.cameraOcclusion?.value || hasComponent(entity, ObjectLayerComponents[ObjectLayers.Camera])
+    if (!occlusion) return
+    ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+    return () => {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    }
+  }, [modelComponent?.cameraOcclusion?.value])
 
   useEffect(() => {
     if (!error) return

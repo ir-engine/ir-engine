@@ -292,11 +292,7 @@ const execute = () => {
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
 
-        //TODO figure out why this is only working for the avatar
         const hits = raycaster.intersectObjects<Object3D>(objects, true)
-        if (hits.length > 0) {
-          console.log('yay')
-        }
         for (const hit of hits) {
           const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
           if (parentObject) {
