@@ -56,15 +56,171 @@ const gizmoLineMaterial = new LineBasicMaterial({
   transparent: true
 })
 
+// Make unique material for each axis/color
+
+export const GizmoMaterial = {
+  INVISIBLE: 'matInvisible',
+  HELPER: 'matHelper',
+  RED: 'matRed',
+  GREEN: 'matGreen',
+  BLUE: 'matBlue',
+  RED_TRANSPARENT: 'matRedTransparent',
+  GREEN_TRANSPARENT: 'matGreenTransparent',
+  BLUE_TRANSPARENT: 'matBlueTransparent',
+  WHITE_TRANSPARENT: 'matWhiteTransparent',
+  YELLOW_TRANSPARENT: 'matYellowTransparent',
+  YELLOW: 'matYellow',
+  GRAY: 'matGray'
+}
+
+export const materialProperties = {
+  [GizmoMaterial.INVISIBLE]: { color: 0xffffff, opacity: 0.15, visibility: 0.0 },
+  [GizmoMaterial.HELPER]: { color: 0xffffff, opacity: 0.5, visibility: 1.0 },
+  [GizmoMaterial.RED]: { color: 0xff0000, opacity: 1.0, visibility: 1.0 },
+  [GizmoMaterial.GREEN]: { color: 0x00ff00, opacity: 1.0, visibility: 1.0 },
+  [GizmoMaterial.BLUE]: { color: 0x0000ff, opacity: 1.0, visibility: 1.0 },
+  [GizmoMaterial.RED_TRANSPARENT]: { color: 0xff0000, opacity: 0.5, visibility: 0.5 },
+  [GizmoMaterial.GREEN_TRANSPARENT]: { color: 0x00ff00, opacity: 0.5, visibility: 0.5 },
+  [GizmoMaterial.BLUE_TRANSPARENT]: { color: 0x0000ff, opacity: 0.5, visibility: 0.5 },
+  [GizmoMaterial.WHITE_TRANSPARENT]: { color: 0xffffff, opacity: 0.25, visibility: 0.25 },
+  [GizmoMaterial.YELLOW_TRANSPARENT]: { color: 0xffff00, opacity: 0.25, visibility: 0.25 },
+  [GizmoMaterial.YELLOW]: { color: 0xffff00, opacity: 1.0, visibility: 1.0 },
+  [GizmoMaterial.GRAY]: { color: 0x787878, opacity: 1.0, visibility: 1.0 }
+}
+
+export const matInvisible = gizmoMaterial.clone()
+matInvisible.opacity = materialProperties[GizmoMaterial.INVISIBLE].opacity
+matInvisible.visible = false
+
+export const matHelper = gizmoLineMaterial.clone()
+matHelper.opacity = materialProperties[GizmoMaterial.HELPER].opacity
+
+export const matRed = gizmoMaterial.clone()
+matRed.color.setHex(materialProperties[GizmoMaterial.RED].color)
+
+export const matGreen = gizmoMaterial.clone()
+matGreen.color.setHex(materialProperties[GizmoMaterial.GREEN].color)
+
+export const matBlue = gizmoMaterial.clone()
+matBlue.color.setHex(materialProperties[GizmoMaterial.BLUE].color)
+
+export const matRedTransparent = gizmoMaterial.clone()
+matRedTransparent.color.setHex(materialProperties[GizmoMaterial.RED_TRANSPARENT].color)
+matRedTransparent.opacity = materialProperties[GizmoMaterial.RED_TRANSPARENT].opacity
+
+export const matGreenTransparent = gizmoMaterial.clone()
+matGreenTransparent.color.setHex(materialProperties[GizmoMaterial.GREEN_TRANSPARENT].color)
+matGreenTransparent.opacity = materialProperties[GizmoMaterial.GREEN_TRANSPARENT].opacity
+
+export const matBlueTransparent = gizmoMaterial.clone()
+matBlueTransparent.color.setHex(materialProperties[GizmoMaterial.BLUE_TRANSPARENT].color)
+matBlueTransparent.opacity = materialProperties[GizmoMaterial.BLUE_TRANSPARENT].opacity
+
+export const matWhiteTransparent = gizmoMaterial.clone()
+matWhiteTransparent.opacity = materialProperties[GizmoMaterial.WHITE_TRANSPARENT].opacity
+
+export const matYellowTransparent = gizmoMaterial.clone()
+matYellowTransparent.color.setHex(materialProperties[GizmoMaterial.YELLOW_TRANSPARENT].color)
+matYellowTransparent.opacity = materialProperties[GizmoMaterial.YELLOW_TRANSPARENT].opacity
+
+//export const matYellow = gizmoMaterial.clone()
+//matYellow.color.setHex(materialProperties[GizmoMaterial.YELLOW].color)
+
+// we dont need mat yellow seperately
+
+export const matGray = gizmoMaterial.clone()
+matGray.color.setHex(materialProperties[GizmoMaterial.GRAY].color)
+
+// shader material implementation, presently broken
+
+/*
+const gizmoUniforms = UniformsUtils.merge([
+  UniformsLib.common,  // Includes common uniforms like opacity and transparent
+  {
+    color: { value: new Color(0xffffff) }, // Default color white
+    visibility: { value: 1.0 },            // Default visibility (1.0 means fully visible, 0.0 means invisible)
+  }
+]);
+
+// Vertex shader
+const vertexShader = `
+  varying vec3 vColor;
+  void main() {
+    vColor = color;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+// Fragment shader
+const fragmentShader = `
+  uniform vec3 color;
+  uniform float visibility;
+  varying vec3 vColor;
+  void main() {
+    gl_FragColor = vec4(color * vColor, visibility);
+  }
+`;
+
+// Create the shader material
+const gizmoMaterialShader = new ShaderMaterial({
+  name: 'GizmoMatShader',
+  uniforms: gizmoUniforms,
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
+  depthTest: false,
+  depthWrite: false,
+  fog: false,
+  toneMapped: false,
+  transparent: true
+});
+
+// Function to update the material uniforms
+export function setGizmoMaterialProperties(material, colorHex, opacity, visibility) {
+  material.uniforms.color.value.setHex(colorHex);
+  material.uniforms.visibility.value = visibility;
+  material.opacity = opacity;
+}
+
+// Example materials
+
+
+// Function to get material by name
+export function getGizmoMaterial(name) {
+  const props = materialProperties[name];
+  const material = gizmoMaterialShader.clone()
+  setGizmoMaterialProperties(material, props.color, props.opacity, props.visibility);
+  return material;
+}
+
+export function setGizmoMaterial(material , name) {
+  const props = materialProperties[name];
+  setGizmoMaterialProperties(material, props.color, props.opacity, props.visibility);
+  return material;
+}
+
+// Usage example
+
+
+const matInvisible = getGizmoMaterial(GizmoMaterial.INVISIBLE);
+const matHelper = getGizmoMaterial(GizmoMaterial.HELPER);
+const matRed = getGizmoMaterial(GizmoMaterial.RED);
+const matGreen = getGizmoMaterial(GizmoMaterial.GREEN);
+const matBlue = getGizmoMaterial(GizmoMaterial.BLUE);
+const matRedTransparent = getGizmoMaterial(GizmoMaterial.RED_TRANSPARENT);
+const matGreenTransparent = getGizmoMaterial(GizmoMaterial.GREEN_TRANSPARENT);
+const matBlueTransparent = getGizmoMaterial(GizmoMaterial.BLUE_TRANSPARENT);
+const matWhiteTransparent = getGizmoMaterial(GizmoMaterial.WHITE_TRANSPARENT);
+const matYellowTransparent = getGizmoMaterial(GizmoMaterial.YELLOW_TRANSPARENT);
+const matYellow = getGizmoMaterial(GizmoMaterial.YELLOW);
+const matGray = getGizmoMaterial(GizmoMaterial.GRAY);
+*/
+
 // reusable geometry
 
-export const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
-export const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
-export const lineGeometry = new BufferGeometry().setAttribute(
-  'position',
-  new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3)
-)
-export const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
+const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 0)
+const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
+const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
+const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
 
 function CircleGeometry(radius, arc) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)
@@ -83,54 +239,11 @@ function TranslateHelperGeometry() {
   return geometry
 }
 
-// Make unique material for each axis/color
-
-export const matInvisible = gizmoMaterial.clone()
-matInvisible.opacity = 0.15
-matInvisible.visible = false
-
-export const matHelper = gizmoLineMaterial.clone()
-matHelper.opacity = 0.5
-
-export const matRed = gizmoMaterial.clone()
-matRed.color.setHex(0xff0000)
-
-export const matGreen = gizmoMaterial.clone()
-matGreen.color.setHex(0x00ff00)
-
-export const matBlue = gizmoMaterial.clone()
-matBlue.color.setHex(0x0000ff)
-
-export const matRedTransparent = gizmoMaterial.clone()
-matRedTransparent.color.setHex(0xff0000)
-matRedTransparent.opacity = 0.5
-
-export const matGreenTransparent = gizmoMaterial.clone()
-matGreenTransparent.color.setHex(0x00ff00)
-matGreenTransparent.opacity = 0.5
-
-export const matBlueTransparent = gizmoMaterial.clone()
-matBlueTransparent.color.setHex(0x0000ff)
-matBlueTransparent.opacity = 0.5
-
-export const matWhiteTransparent = gizmoMaterial.clone()
-matWhiteTransparent.opacity = 0.25
-
-export const matYellowTransparent = gizmoMaterial.clone()
-matYellowTransparent.color.setHex(0xffff00)
-matYellowTransparent.opacity = 0.25
-
-export const matYellow = gizmoMaterial.clone()
-matYellow.color.setHex(0xffff00)
-
-export const matGray = gizmoMaterial.clone()
-matGray.color.setHex(0x787878)
-
 // Creates an Object3D with gizmos described in custom hierarchy definition.
 
 // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
 
-export const gizmoTranslate = {
+const gizmoTranslate = {
   X: [
     [new Mesh(arrowGeometry, matRed), [0.5, 0, 0], [0, 0, -Math.PI / 2]],
     [new Mesh(arrowGeometry, matRed), [-0.5, 0, 0], [0, 0, Math.PI / 2]],
@@ -152,7 +265,7 @@ export const gizmoTranslate = {
   XZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
 }
 
-export const pickerTranslate = {
+const pickerTranslate = {
   X: [
     [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, -Math.PI / 2]],
     [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [-0.3, 0, 0], [0, 0, Math.PI / 2]]
@@ -171,7 +284,7 @@ export const pickerTranslate = {
   XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
 }
 
-export const helperTranslate = {
+const helperTranslate = {
   START: [[new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']],
   END: [[new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']],
   DELTA: [[new Line(TranslateHelperGeometry(), matHelper), null, null, null, 'helper']],
@@ -180,7 +293,7 @@ export const helperTranslate = {
   Z: [[new Line(lineGeometry, matHelper), [0, 0, -1e3], [0, -Math.PI / 2, 0], [1e6, 1, 1], 'helper']]
 }
 
-export const gizmoRotate = {
+const gizmoRotate = {
   XYZE: [[new Mesh(CircleGeometry(0.5, 1), matGray), null, [0, Math.PI / 2, 0]]],
   X: [[new Mesh(CircleGeometry(0.5, 0.5), matRed)]],
   Y: [[new Mesh(CircleGeometry(0.5, 0.5), matGreen), null, [0, 0, -Math.PI / 2]]],
@@ -188,11 +301,11 @@ export const gizmoRotate = {
   E: [[new Mesh(CircleGeometry(0.75, 1), matYellowTransparent), null, [0, Math.PI / 2, 0]]]
 }
 
-export const helperRotate = {
+const helperRotate = {
   AXIS: [[new Line(lineGeometry, matHelper.clone()), [-1e3, 0, 0], null, [1e6, 1, 1], 'helper']]
 }
 
-export const pickerRotate = {
+const pickerRotate = {
   XYZE: [[new Mesh(new SphereGeometry(0.25, 10, 8), matInvisible)]],
   X: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, -Math.PI / 2, -Math.PI / 2]]],
   Y: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [Math.PI / 2, 0, 0]]],
@@ -200,7 +313,7 @@ export const pickerRotate = {
   E: [[new Mesh(new TorusGeometry(0.75, 0.1, 2, 24), matInvisible)]]
 }
 
-export const gizmoScale = {
+const gizmoScale = {
   X: [
     [new Mesh(scaleHandleGeometry, matRed), [0.5, 0, 0], [0, 0, -Math.PI / 2]],
     [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, -Math.PI / 2]],
@@ -222,7 +335,7 @@ export const gizmoScale = {
   XYZ: [[new Mesh(new BoxGeometry(0.1, 0.1, 0.1), matWhiteTransparent)]]
 }
 
-export const pickerScale = {
+const pickerScale = {
   X: [
     [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, -Math.PI / 2]],
     [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [-0.3, 0, 0], [0, 0, Math.PI / 2]]
@@ -241,13 +354,13 @@ export const pickerScale = {
   XYZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.2), matInvisible), [0, 0, 0]]]
 }
 
-export const helperScale = {
+const helperScale = {
   X: [[new Line(lineGeometry, matHelper), [-1e3, 0, 0], null, [1e6, 1, 1], 'helper']],
   Y: [[new Line(lineGeometry, matHelper), [0, -1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1], 'helper']],
   Z: [[new Line(lineGeometry, matHelper), [0, 0, -1e3], [0, -Math.PI / 2, 0], [1e6, 1, 1], 'helper']]
 }
 
-export function setupGizmo(gizmoMap) {
+function setupGizmo(gizmoMap) {
   const gizmo = new Object3D()
 
   for (const name in gizmoMap) {
