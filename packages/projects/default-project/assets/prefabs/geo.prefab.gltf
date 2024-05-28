@@ -14,7 +14,7 @@
   "scene": 0,
   "nodes": [
     {
-      "name": "New Object",
+      "name": "Primitive Geometry",
       "extensions": {
         "EE_uuid": "852336f7-89fd-48db-a2fa-98443914e4ca",
         "EE_visible": true,
