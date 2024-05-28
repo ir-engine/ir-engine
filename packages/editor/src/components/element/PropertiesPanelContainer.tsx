@@ -67,7 +67,6 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
     if (!componentEditors[component.name]) continue
     components.push(component)
   }
-  //const components = useAllComponents(entity).filter((c) => !!getState(ComponentEditorsState)[c.name])
 
   const open = !!anchorEl.value
 
