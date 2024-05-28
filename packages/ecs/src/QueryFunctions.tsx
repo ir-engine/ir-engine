@@ -70,12 +70,10 @@ export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
   insert: { after: PresentationSystemGroup },
   execute: () => {
-    for (const { query, result } of getState(SystemState).reactiveQueryStates) {
+    for (const { query, forceUpdate } of getState(SystemState).reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) {
-        result.set(query())
-      }
+      if (entitiesAdded || entitiesRemoved) forceUpdate()
     }
   }
 })
