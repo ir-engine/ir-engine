@@ -33,11 +33,12 @@ import { RenderModes, RenderModesType } from '@etherealengine/spatial/src/render
 import { GiWireframeGlobe } from 'react-icons/gi'
 import { RiArrowDownSLine } from 'react-icons/ri'
 import { TbBallBowling, TbInnerShadowBottom, TbInnerShadowBottomFilled, TbShadow } from 'react-icons/tb'
+import { ViewportPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import ContextMenu from '../../../layout/ContextMenu'
+import PopOver from '../../../layout/Popover'
 
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
@@ -101,17 +102,18 @@ const RenderModeTool = () => {
         className="p-2"
         onClick={(event) => {
           anchorEl.set(event.currentTarget)
-          anchorPosition.set({ left: event.clientX, top: event.clientY })
+          anchorPosition.set({ left: event.clientX - 240, top: event.clientY + 10 })
         }}
         startIcon={<RiArrowDownSLine />}
         id="render-settings-menu"
       />
-      <ContextMenu
+      <PopOver
         open={!!anchorEl}
         anchorEl={anchorEl.value as HTMLElement}
         anchorPosition={anchorPosition.value}
-        panelId="render-settings-menu"
+        panelId={ViewportPanelTab.id!}
         onClose={() => anchorEl.set(null)}
+        className="w-60 p-2"
       >
         <InputGroup
           name="Use Post Processing"
@@ -136,7 +138,7 @@ const RenderModeTool = () => {
             disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
           />
         </InputGroup>
-      </ContextMenu>
+      </PopOver>
     </div>
   )
 }
