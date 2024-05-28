@@ -245,4 +245,16 @@ describe('ResourceLoaderHooks', () => {
       })
     })
   })
+
+  it('useGLTF calls loadResource synchronously', () => {
+    const resourceState = getState(ResourceState)
+    const entity = createEntity()
+    // use renderHook to render the hook
+    renderHook(() => {
+      // call the useGLTF hook
+      useGLTF(gltfURL, entity)
+    })
+    // ensure that the loadResource function is synchronously called when the hook is rendered
+    assert(resourceState.resources[gltfURL])
+  })
 })
