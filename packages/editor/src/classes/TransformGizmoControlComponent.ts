@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
+import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import {
   defineComponent,
@@ -51,10 +51,10 @@ import { matches, useMutableState } from '@etherealengine/hyperflux'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { gizmoPlane } from '../constants/GizmoPresets'
 import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
@@ -166,20 +166,7 @@ export const TransformGizmoControlComponent = defineComponent({
     )
 
     useEffect(() => {
-      const plane = new Mesh(
-        new PlaneGeometry(100000, 100000, 2, 2),
-        new MeshBasicMaterial({
-          visible: false,
-          wireframe: true,
-          side: DoubleSide,
-          transparent: true,
-          opacity: 0.1,
-          toneMapped: false
-        })
-      )
-
-      addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
-      plane.layers.set(ObjectLayers.TransformGizmo)
+      addObjectToGroup(gizmoControlComponent.planeEntity.value, gizmoPlane)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
     }, [])

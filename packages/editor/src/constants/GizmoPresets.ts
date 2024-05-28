@@ -29,6 +29,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   CylinderGeometry,
+  DoubleSide,
   Float32BufferAttribute,
   Line,
   LineBasicMaterial,
@@ -36,6 +37,7 @@ import {
   MeshBasicMaterial,
   Object3D,
   OctahedronGeometry,
+  PlaneGeometry,
   SphereGeometry,
   TorusGeometry
 } from 'three'
@@ -221,6 +223,20 @@ const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12).translate(0, 0.05, 
 const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04, 0)
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
+
+//plane geomerty
+export const gizmoPlane = new Mesh(
+  new PlaneGeometry(100000, 100000, 2, 2),
+  new MeshBasicMaterial({
+    visible: false,
+    wireframe: true,
+    side: DoubleSide,
+    transparent: true,
+    opacity: 0.1,
+    toneMapped: false
+  })
+)
+gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
 
 function CircleGeometry(radius, arc) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)
