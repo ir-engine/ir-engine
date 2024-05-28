@@ -66,6 +66,7 @@ import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
+import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
@@ -132,7 +133,13 @@ const worldPosInputComponent = new Vector3()
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
-const spatialInputObjects = defineQuery([InputComponent, VisibleComponent, TransformComponent, Not(CameraComponent)]) //TODO may be overkill if visible means it always has transform
+const spatialInputObjects = defineQuery([
+  InputComponent,
+  VisibleComponent,
+  TransformComponent,
+  Not(CameraComponent),
+  Not(XRScenePlacementComponent)
+])
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
@@ -344,15 +351,11 @@ const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
     const inputComponent = getMutableComponent(inputEntity, InputComponent)
-    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
-      inputComponent.inputSources.merge(inputSources)
-    } else {
-      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
-        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
 
-        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
-        sinkInputComponent.inputSources.merge(inputSources)
-      }
+    for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+      const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+      const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+      sinkInputComponent.inputSources.merge(inputSources)
     }
   }
 }

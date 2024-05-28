@@ -44,10 +44,10 @@ const config: ProjectConfigInterface = {
     '/auth': {
       component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
     },
-    '/studio': {
+    '/studio-old': {
       component: () => import('@etherealengine/client/src/pages/editor/editor')
     },
-    '/studio2': {
+    '/studio': {
       component: () => import('@etherealengine/client/src/pages/editor2')
     },
     '/room': {

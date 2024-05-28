@@ -432,7 +432,11 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
   return result.value
 }
 
-export function useChildWithComponent(entity: Entity, component: ComponentType<any>) {
+/**
+ * @todo - return an array of entities that have the component
+ *
+ */
+export function useChildWithComponent(rootEntity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
   useLayoutEffect(() => {
@@ -463,13 +467,23 @@ export function useChildWithComponent(entity: Entity, component: ComponentType<a
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={entity} key={entity} />
+      const isScene = useOptionalComponent(rootEntity, SceneComponent)
+      if (isScene) {
+        return (
+          <>
+            {isScene.children.value.map((entity) => (
+              <ChildSubReactor entity={entity} key={entity} />
+            ))}
+          </>
+        )
+      }
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
     })
     return () => {
       unmounted = true
       root.stop()
     }
-  }, [entity, component])
+  }, [rootEntity, component])
 
   return result.value
 }
