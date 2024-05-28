@@ -188,7 +188,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     })
     // Keep only the latest token and remove the rest
     if (previousTokens.total > 1) {
-      const tokensToRemove = previousTokens.data.slice(0, -1)
+      const tokensToRemove = previousTokens.data.slice(1)
       for (const token of tokensToRemove) {
         await loginTokenService.remove(token.id)
       }
