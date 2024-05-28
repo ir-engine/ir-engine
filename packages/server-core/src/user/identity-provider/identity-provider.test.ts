@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-
-import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

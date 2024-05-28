@@ -27,11 +27,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { InstanceID } from '@etherealengine/common/src/schema.type.module'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 

@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
@@ -41,13 +42,12 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { ServerMode, ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
+import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import {
   deleteProjectFilesInStorageProvider,
   engineVersion,
@@ -190,7 +190,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
+      let seeded = false
       if (!data.find((e) => e.name === projectName)) {
+        seeded = true
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
@@ -210,6 +212,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { enabled, commitSHA, commitDate: toDateTimeSql(commitDate) },
         { query: { name: projectName } }
       )
+
+      if (!seeded) await uploadLocalProjectToProvider(this.app, projectName)
     }
 
     await Promise.all(promises)

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Bone } from 'three'
+
+import { defineComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
 export const BoneComponent = defineComponent({
   name: 'BoneComponent',

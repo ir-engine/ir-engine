@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { AuthState } from './services/AuthService'
 
 export const useUserHasAccessHook = (scope: string) => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const hasScope = authState.value.user?.scopes?.find((r) => r.type === scope)
   return Boolean(hasScope)
 }

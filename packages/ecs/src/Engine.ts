@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { UserID } from '@etherealengine/common/src/schema.type.module'
-import * as Hyperflux from '@etherealengine/hyperflux'
-import { ReactorReconciler, createHyperStore, getState } from '@etherealengine/hyperflux'
-import { HyperFlux, HyperStore, disposeStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
-import * as bitECS from 'bitecs'
-
 import type { FeathersApplication } from '@feathersjs/feathers'
+import * as bitECS from 'bitecs'
+import { getAllEntities } from 'bitecs'
+import { Cache } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
+import type { UserID } from '@etherealengine/common/src/schema.type.module'
+import * as Hyperflux from '@etherealengine/hyperflux'
+import { createHyperStore, getState, ReactorReconciler } from '@etherealengine/hyperflux'
+import { disposeStore, HyperFlux, HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { getAllEntities } from 'bitecs'
 import { ECSState } from './ECSState'
 import { Entity, UndefinedEntity } from './Entity'
 import { removeEntity } from './EntityFunctions'
@@ -88,6 +88,8 @@ export function startEngine() {
 }
 
 export async function destroyEngine() {
+  Cache.clear()
+
   getState(ECSState).timer?.clear()
 
   if (Engine.instance.api) {

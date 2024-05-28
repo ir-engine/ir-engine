@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useLayoutEffect } from 'react'
-
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { Mesh } from 'three'
+import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import {
@@ -40,6 +40,7 @@ import {
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -62,8 +63,7 @@ import {
   computeTransformMatrix,
   updateGroupChildren
 } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { Mesh } from 'three'
-import matches from 'ts-matches'
+
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 

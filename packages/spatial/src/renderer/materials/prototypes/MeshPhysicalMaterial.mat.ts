@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { MeshPhysicalMaterial as Physical } from 'three'
 
-import { MaterialPrototypeDefinition } from '../MaterialComponent'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 import { MeshStandardArguments as StandardDefaults } from './MeshStandardMaterial.mat'
 
 export const MeshPhysicalArguments = {

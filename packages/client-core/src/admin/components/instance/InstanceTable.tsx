@@ -25,19 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 
-import { instancePath } from '@etherealengine/common/src/schema.type.module'
-
+import { instancePath, InstanceType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import DataTable from '../../common/Table'
-
-import { instanceColumns } from '../../common/constants/instance'
-
-import { InstanceType } from '@etherealengine/common/src/schema.type.module'
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import { HiEye, HiTrash } from 'react-icons/hi2'
+
 import { PopoverState } from '../../../common/services/PopoverState'
+import { instanceColumns } from '../../common/constants/instance'
+import DataTable from '../../common/Table'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
@@ -97,7 +94,7 @@ export default function InstanceTable({ search }: { search: string }) {
             {t('admin:components.instance.actions.view')}
           </Button>
           <Button
-            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             rounded="full"
             onClick={() => {
               PopoverState.showPopupover(
@@ -110,7 +107,7 @@ export default function InstanceTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )

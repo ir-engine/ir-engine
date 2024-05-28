@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Spark } from 'primus'
+
 import { ChannelID, InstanceID, LocationID, RoomCode, UserID } from '@etherealengine/common/src/schema.type.module'
 import {
   PeerID,
@@ -34,7 +36,7 @@ import {
   matches,
   none
 } from '@etherealengine/hyperflux'
-import { Spark } from 'primus'
+
 import { DataChannelType } from './DataChannelRegistry'
 import { Network } from './Network'
 import { SerializationSchema } from './serialization/Utils'

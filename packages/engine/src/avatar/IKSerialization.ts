@@ -28,15 +28,16 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import {
-  NetworkObjectSendPeriodicUpdatesTag,
-  ViewCursor,
   checkBitflag,
+  NetworkObjectSendPeriodicUpdatesTag,
   readComponentProp,
   readUint8,
   rewindViewCursor,
   spaceUint8,
+  ViewCursor,
   writePropIfChanged
 } from '@etherealengine/network'
+
 import { AvatarIKTargetComponent } from './components/AvatarIKComponents'
 
 export const readBlendWeight = (v: ViewCursor, entity: Entity) => {

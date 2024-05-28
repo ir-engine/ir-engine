@@ -56,9 +56,9 @@ async function installAllProjects() {
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
 
-    const projects = await app.service(projectPath).find({ paginate: false })
+    const projects = await app.service(projectPath).find({ paginate: false, assetsOnly: false })
     logger.info('found projects %o', projects)
-    await Promise.all(projects.filter((project) => !project.assetsOnly).map((project) => download(project.name)))
+    await Promise.all(projects.map((project) => download(project.name)))
     await app.service(projectPath).update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')

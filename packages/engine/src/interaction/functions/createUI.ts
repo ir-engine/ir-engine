@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebLayer3D } from '@etherealengine/xrui'
-
 import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
+import { WebLayer3D } from '@etherealengine/xrui'
+
 import { createModalView } from '../ui/InteractiveModalView'
 
 /**

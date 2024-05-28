@@ -23,17 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -41,7 +40,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.

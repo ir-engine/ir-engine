@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Types } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
@@ -39,12 +40,12 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { NetworkObjectComponent } from '@etherealengine/network'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { AxesHelperComponent } from '@etherealengine/spatial/src/common/debug/AxesHelperComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { Types } from 'bitecs'
+
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 

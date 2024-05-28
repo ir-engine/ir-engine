@@ -61,7 +61,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       })
       .filter((hasServices) => !!hasServices)
       .map((servicesDir) => {
-        return require(`../../projects/projects/${servicesDir}`).default
+        return require(`../../projects/projects/${servicesDir}`).default as (app: Application) => void
       })
       .flat()
   : []
@@ -81,10 +81,11 @@ export default (app: Application): void => {
     ...SettingService,
     ...RouteService,
     ...RecordingServices,
-    ...installedProjects,
     ...MatchMakingServices,
     ...WorldServices
-  ].forEach((service) => {
-    app.configure(service)
-  })
+  ]
+    .concat(...installedProjects)
+    .forEach((service) => {
+      app.configure(service)
+    })
 }

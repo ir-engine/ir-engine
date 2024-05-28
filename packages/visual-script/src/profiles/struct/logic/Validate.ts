@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValidateFunction } from 'ajv'
 import { DataValidationCxt } from 'ajv/dist/types/index'
+
 import { makeFunctionNodeDefinition, NodeCategory } from '../../../VisualScriptModule'
 
 export type IValidatorFactory = () => ValidateFunction

@@ -33,18 +33,18 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { MountPointComponent } from '../../scene/components/MountPointComponent'
-import { SittingComponent } from '../../scene/components/SittingComponent'
-
-import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
+import { MountPointComponent } from '../../scene/components/MountPointComponent'
+import { SittingComponent } from '../../scene/components/SittingComponent'
 import { InteractableState } from '../functions/interactableFunctions'
 
 const sittingIdleQuery = defineQuery([SittingComponent])

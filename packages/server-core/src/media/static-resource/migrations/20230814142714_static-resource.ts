@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import type { Knex } from 'knex'
+
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'static_resource'

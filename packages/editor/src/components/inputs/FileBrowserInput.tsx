@@ -29,6 +29,7 @@ import { useDrop } from 'react-dnd'
 
 import config from '@etherealengine/common/src/config'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProps } from './StringInput'

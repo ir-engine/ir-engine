@@ -23,6 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebGLRendererSystem } from './WebGLRendererSystem'
+import { t } from 'i18next'
 
-export const RendererSystems = () => [WebGLRendererSystem]
+import { ITableHeadCell } from '../Table'
+
+type IdType = 'id' | 'name' | 'batch' | 'migration_time'
+
+export type MigrationsInfoRowType = Record<IdType, string | JSX.Element | undefined>
+
+interface IMigrationsInfoColumn extends ITableHeadCell {
+  id: IdType
+}
+
+export const migrationsInfoColumns: IMigrationsInfoColumn[] = [
+  { id: 'id', label: t('admin:components.server.columns.id') },
+  { id: 'name', label: t('admin:components.server.columns.name') },
+  { id: 'batch', label: t('admin:components.server.columns.batch') },
+  { id: 'migration_time', label: t('admin:components.server.columns.migration_time'), sortable: true }
+]

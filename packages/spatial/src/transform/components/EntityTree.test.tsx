@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
+import React, { useEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/ecs'
-
-import { UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { startReactor } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-import { act, render } from '@testing-library/react'
-import React, { useEffect } from 'react'
+
 import {
-  EntityTreeComponent,
   destroyEntityTree,
+  EntityTreeComponent,
   findIndexOfEntityNode,
   iterateEntityNode,
   removeFromEntityTree,

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
@@ -34,7 +33,7 @@ import { PopupMenuInline } from '@etherealengine/client-core/src/user/components
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { EditorPage, useStudioEditor } from '@etherealengine/editor/src/pages/EditorPage'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 
 const EditorRouter = () => {
   const ready = useStudioEditor()
@@ -53,7 +52,7 @@ const EditorRouter = () => {
 
 const EditorProtectedRoutes = () => {
   const location = useLocation()
-  const authState = useHookstate(getMutableState(AuthState))
+  const authState = useMutableState(AuthState)
   const user = authState.user
   const [isAuthorized, setAuthorized] = useState<boolean | null>(null)
 

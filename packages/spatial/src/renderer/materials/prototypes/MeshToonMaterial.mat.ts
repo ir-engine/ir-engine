@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { MeshToonMaterial as Toon } from 'three'
-import { MaterialPrototypeDefinition } from '../MaterialComponent'
+
 import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../constants/BasicArgs'
 import { BoolArg, TextureArg } from '../constants/DefaultArgs'
+import { MaterialPrototypeDefinition } from '../MaterialComponent'
 
 export const MeshToonArguments = {
   ...BasicArgs,

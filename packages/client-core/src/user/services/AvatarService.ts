@@ -25,14 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { AvatarID, avatarPath, AvatarType, uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
+import {
+  AvatarID,
+  avatarPath,
+  AvatarType,
+  staticResourcePath,
+  StaticResourceType,
+  uploadAssetPath
+} from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { uploadToFeathersService } from '../../util/upload'
-
-import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 
 export const AVATAR_PAGE_LIMIT = 100
 

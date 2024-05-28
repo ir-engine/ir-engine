@@ -38,6 +38,7 @@ Ethereal Engine. All Rights Reserved.
 import type { FeathersApplication } from '@feathersjs/feathers'
 import NodeCache from 'node-cache'
 import schedule from 'node-schedule'
+
 import { ServiceTypes } from '../declarations'
 import config from './config'
 import { logsApiPath } from './schema.type.module'

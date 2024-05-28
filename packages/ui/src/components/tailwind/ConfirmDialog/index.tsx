@@ -22,16 +22,18 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import React from 'react'
+
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 import Text from '../../../primitives/tailwind/Text'
 
 interface ConfirmDialogProps {
   text: string
-  onSubmit: () => Promise<void>
+  onSubmit: () => Promise<void> | void
   modalProps?: Partial<ModalProps>
 }
 

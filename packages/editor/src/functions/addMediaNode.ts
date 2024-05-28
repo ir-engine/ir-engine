@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material, Mesh, Raycaster, Vector2 } from 'three'
+
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
+import { UUIDComponent } from '@etherealengine/ecs'
+import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
+import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-
-import { UUIDComponent } from '@etherealengine/ecs'
-import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
-import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { createMaterialEntity } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneTypes'
 import { getState } from '@etherealengine/hyperflux'
@@ -47,7 +49,6 @@ import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/comp
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { Material, Mesh, Raycaster, Vector2 } from 'three'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -109,6 +110,32 @@ export async function addMediaNode(
           if (materialStateComponent.instances.value)
             materialStateComponent.instances.set([...materialStateComponent.instances.value, mesh.entity])
         })
+      })
+    } else if (contentType.startsWith('model/lookdev')) {
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      gltfLoader.load(url, (gltf) => {
+        const componentJson = gltf.scene.children[0].userData.componentJson
+        EditorControlFunctions.overwriteLookdevObject(
+          [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+          componentJson,
+          parent!,
+          before
+        )
+      })
+    } else if (contentType.startsWith('model/prefab')) {
+      const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        parent!,
+        before
+      )
+      addAuthoringHook({
+        entityUUID,
+        sceneID,
+        callback: (entityUUID) => {
+          const entity = UUIDComponent.getEntityByUUID(entityUUID)
+          const modelComponent = getMutableComponent(entity, ModelComponent)
+          modelComponent.dereference.set(true)
+        }
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(

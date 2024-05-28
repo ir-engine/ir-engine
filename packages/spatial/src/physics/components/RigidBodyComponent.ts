@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
+import { useEffect, useLayoutEffect } from 'react'
 
 import { useEntityContext } from '@etherealengine/ecs'
 import {
@@ -32,9 +33,11 @@ import {
   setComponent,
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { useLayoutEffect } from 'react'
+
+import { getState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
+import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
@@ -106,6 +109,14 @@ export const RigidBodyComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
 
+    useEffect(() => {
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.createRigidBody(entity, physicsWorld)
+      return () => {
+        Physics.removeRigidbody(entity, physicsWorld)
+      }
+    }, [])
+
     useLayoutEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
@@ -124,7 +135,7 @@ export const RigidBodyComponent = defineComponent({
     }, [component.allowRolling])
 
     useLayoutEffect(() => {
-      Physics.setEnabledRotations(entity, component.enabledRotations.value)
+      Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations])
 
     return null

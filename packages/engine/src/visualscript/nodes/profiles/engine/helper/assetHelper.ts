@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
+
 import { addEntityToScene } from './entityHelper'
 
 export async function addMediaComponent(url: string, parent = UndefinedEntity, before = UndefinedEntity) {

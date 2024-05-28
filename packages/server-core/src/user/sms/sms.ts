@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { smsMethods, smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
+
 import { Application } from '../../../declarations'
 import { SmsService } from './sms.class'
 import smsDocs from './sms.docs'

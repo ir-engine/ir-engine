@@ -32,9 +32,8 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export const clientSettingSeedData = {
   logo: process.env.APP_LOGO || '',
@@ -98,24 +97,6 @@ export async function seed(knex: Knex): Promise<void> {
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
         await knex(clientSettingPath).insert(item)
-      }
-    } else {
-      // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
-      const existingRows = await knex(clientSettingPath).select<ClientSettingDatabaseType[]>()
-
-      for (const item of existingRows) {
-        if (!item.appleTouchIcon) {
-          await knex(clientSettingPath).update({
-            ...item,
-            appleTouchIcon: seedData[0].appleTouchIcon
-          })
-        }
-        if (!item.privacyPolicy) {
-          await knex(clientSettingPath).update({
-            ...item,
-            privacyPolicy: seedData[0].privacyPolicy
-          })
-        }
       }
     }
   }

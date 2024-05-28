@@ -18,14 +18,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+
 import {
   SpawnPointData,
   SpawnPointPatch,
   SpawnPointQuery,
   SpawnPointType
 } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
-import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
 
 export interface SpawnPointParams extends Params<SpawnPointQuery> {
   paginate?: false

@@ -39,7 +39,7 @@
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/projects": "^1.6.0",
     "@etherealengine/ui": "^1.6.0",
-    "@hookstate/core": "4.0.0-rc21",
+    "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
     "@originjs/vite-plugin-commonjs": "^1.0.3",

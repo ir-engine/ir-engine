@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CanvasTexture, Texture } from 'three'
+
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
-import { CanvasTexture, Texture } from 'three'
+
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Types } from 'bitecs'
+import { Object3D } from 'three'
+
 import { entityExists } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -31,8 +34,6 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import { Types } from 'bitecs'
-import { Object3D } from 'three'
 
 const maxBitWidth = 32
 

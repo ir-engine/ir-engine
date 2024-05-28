@@ -25,16 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
-import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/spatial/src/xrui/WidgetAppService'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
-import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
+import { createState, dispatchAction, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/spatial/src/xrui/WidgetAppService'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
@@ -113,11 +113,11 @@ const HandednessWidgetButton = () => {
 }
 
 const WidgetButtons = () => {
-  const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
+  const widgetMutableState = useMutableState(WidgetAppState)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
   const mediaInstanceState = useMediaInstance()
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const mediaStreamState = useMutableState(MediaStreamState)
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there

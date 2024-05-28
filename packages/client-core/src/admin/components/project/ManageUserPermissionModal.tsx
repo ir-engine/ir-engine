@@ -23,22 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
+
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { userHasAccess } from '@etherealengine/client-core/src/user/userHasAccess'
 import { InviteCode, ProjectPermissionType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import { useHookstate } from '@hookstate/core'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { MdOutlineRemoveCircleOutline } from 'react-icons/md'
 
 export default function ManageUserPermissionModal({
   project,

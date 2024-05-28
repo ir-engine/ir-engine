@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
 import React, { ReactNode, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import { useHookstate } from '@etherealengine/hyperflux'
+
 import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -56,7 +58,7 @@ const Tabs = ({
 }: TabProps): JSX.Element => {
   const twTabcontainerClassName = twMerge('flex gap-4', tabcontainerClassName)
   const twTabClassName = twMerge(
-    'text-theme-secondary p-3 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
+    'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
     tabClassName
   )
   const currentTab = useHookstate(0)
@@ -100,7 +102,7 @@ const Tabs = ({
               key={index}
               className={twMerge(
                 twTabClassName,
-                currentTab.value === index ? 'text-theme-primary border-b-blue-primary border-b font-semibold' : '',
+                currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
                 tab.disabled ? 'border-none' : ''
               )}
               disabled={tab.disabled}

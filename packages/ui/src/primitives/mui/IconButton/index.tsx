@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CloseIcon from '@mui/icons-material/Close'
+import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 import React from 'react'
 
 import { handleSoundEffect } from '@etherealengine/client-core/src/common/utils'
-
-import CloseIcon from '@mui/icons-material/Close'
-import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 
 // @ts-ignore
 import styles from './index.module.scss'

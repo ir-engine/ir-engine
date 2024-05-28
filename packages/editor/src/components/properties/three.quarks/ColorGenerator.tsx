@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Grid } from '@mui/material'
 import React, { useCallback } from 'react'
 import { Color } from 'three'
 
@@ -38,8 +39,6 @@ import {
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
-
-import { Grid } from '@mui/material'
 
 import { Button } from '../../inputs/Button'
 import ColorInput from '../../inputs/ColorInput'

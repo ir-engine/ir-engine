@@ -28,14 +28,14 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-
 import { FogSettingsComponent, FogType } from '@etherealengine/spatial/src/renderer/components/FogSettingsComponent'
+
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const FogTypeOptions = [
   {

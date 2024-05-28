@@ -23,29 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  InviteCode,
-  UserID,
-  UserPatch,
-  UserType,
-  userDataValidator,
-  userPatchValidator,
-  userQueryValidator
-} from '@etherealengine/common/src/schemas/user/user.schema'
+import { MethodNotAllowed } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-
 import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { ScopeType, scopePath } from '@etherealengine/common/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { userAvatarPath } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { userSettingPath } from '@etherealengine/common/src/schemas/user/user-setting.schema'
+import {
+  InviteCode,
+  userDataValidator,
+  UserID,
+  UserPatch,
+  userPatchValidator,
+  userQueryValidator,
+  UserType
+} from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { MethodNotAllowed } from '@feathersjs/errors'
+
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import disallowNonId from '../../hooks/disallow-non-id'

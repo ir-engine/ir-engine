@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  UserID,
-  UserPublicPatch,
-  UserType,
-  userMethods,
-  userPath
-} from '@etherealengine/common/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import _ from 'lodash'
 
 import {
-  InstanceAttendanceType,
-  instanceAttendancePath
+  instanceAttendancePath,
+  InstanceAttendanceType
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
-import { Knex } from 'knex'
-import { Application, HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
-import config from '../../appconfig'
+import {
+  UserID,
+  userMethods,
+  userPath,
+  UserPublicPatch,
+  UserType
+} from '@etherealengine/common/src/schemas/user/user.schema'
 
+import { Application, HookContext } from '../../../declarations'
+import config from '../../appconfig'
+import logger from '../../ServerLogger'
 import { UserService } from './user.class'
 import userDocs from './user.docs'
 import hooks from './user.hooks'

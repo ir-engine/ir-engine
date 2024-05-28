@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { spawnPointSchema } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import { spawnPointSchema } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
 
 export default createSwaggerServiceOptions({
   schemas: { spawnPointSchema },

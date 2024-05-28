@@ -28,9 +28,9 @@ Ethereal Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
+import React, { startTransition, use } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -39,6 +39,7 @@ import { getNestedObject } from '@etherealengine/common/src/utils/getNestedPrope
 import { HyperFlux, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
 import {
   hookstate,
+  InferStateValueType,
   NO_PROXY,
   NO_PROXY_STEALTH,
   none,
@@ -48,9 +49,9 @@ import {
 
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
+import { defineQuery } from './QueryFunctions'
 import { useExecute } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
-import { defineQuery } from './QueryFunctions'
 
 /**
  * @description
@@ -86,7 +87,7 @@ type StringLiteral<T> = string extends T ? SomeStringLiteral : string
  */
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -169,7 +170,7 @@ export interface Component<
 /** @todo Describe this type */
 export type SoAComponentType<S extends bitECS.ISchema> = bitECS.ComponentType<S>
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
-export type ComponentType<C extends Component> = NonNullable<C['stateMap'][Entity]>['value']
+export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */
@@ -212,22 +213,23 @@ export type ComponentErrorsType<C extends Component> =
  */
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
-  ComponentExtras = unknown,
+  ComponentExtras = Record<string, any>,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   Error extends StringLiteral<Error> = ''
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
-    SoAComponentType<Schema> &
-    Component<ComponentType, Schema, JSON, SetJSON, Error>
+  const Component = (
+    def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
+  ) as SoAComponentType<Schema> & Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
+
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -239,10 +241,14 @@ export const defineComponent = <
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  } else if (def.toJSON) {
+    console.warn(
+      `Component ${Component.name} has toJson defined, but no jsonID defined. This will cause serialization issues.`
+    )
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType }
+  return Component as typeof Component & { _TYPE: ComponentType } & ComponentExtras
 
   // const ExternalComponentReactor = (props: SetJSON) => {
   //   const entity = useEntityContext()
@@ -352,11 +358,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return
+    return getComponent(entity, Component) as ComponentType<C>
   }
 
   const root = Component.reactorMap.get(entity)
   root?.run()
+  return getComponent(entity, Component) as ComponentType<C>
 }
 
 /**
@@ -443,21 +450,6 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
 export const getAllComponents = (entity: Entity): Component[] => {
   if (!bitECS.entityExists(HyperFlux.store, entity)) return []
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
-}
-
-export const useAllComponents = (entity: Entity) => {
-  const result = useHookstate([] as Component[])
-
-  useExecute(
-    () => {
-      const components = getAllComponents(entity)
-      /** @todo we need a better strategy than relying on lengths */
-      if (components.length !== result.length) result.set(components)
-    },
-    { after: PresentationSystemGroup }
-  )
-
-  return result.get(NO_PROXY) // for some reason .value does not work
 }
 
 /**

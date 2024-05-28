@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
+
 import { ParticleState } from '../components/ParticleSystemComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
 
