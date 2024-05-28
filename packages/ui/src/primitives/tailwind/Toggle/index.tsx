@@ -57,7 +57,7 @@ const Toggle = ({
 }: ToggleProps) => {
   const twClassName = twMerge(
     "peer relative cursor-pointer rounded-full bg-gray-200 after:absolute after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-['']",
-    'peer-checked:bg-blue-primary peer-focus:bg-blue-primary dark:peer-focus:bg-blue-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:ring-4 dark:border-gray-600 dark:bg-gray-700',
+    'peer-checked:bg-blue-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:bg-blue-primary peer-focus:ring-4 dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:bg-blue-primary',
     'peer-disabled:pointer-events-none peer-disabled:opacity-50',
     className,
     sizeMap[size ?? 'md']

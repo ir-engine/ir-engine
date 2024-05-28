@@ -1,0 +1,43 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Sphere Collider",
+      "extensions": {
+        "EE_uuid": "5e0d2a3a-1ed0-4076-83e6-ceea0f15cdfd",
+        "EE_visible": true,
+        "EE_collider": {
+          "shape": "sphere",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_collider",
+    "EE_ecs"
+  ]
+}

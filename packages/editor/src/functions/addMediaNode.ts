@@ -33,6 +33,7 @@ import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@etherealengine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { addAuthoringHook } from '@etherealengine/engine/src/gltf/AuthoringHookState'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -48,7 +49,6 @@ import { ObjectLayerComponents } from '@etherealengine/spatial/src/renderer/comp
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -121,6 +121,21 @@ export async function addMediaNode(
           parent!,
           before
         )
+      })
+    } else if (contentType.startsWith('model/prefab')) {
+      const { entityUUID, sceneID } = EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+        parent!,
+        before
+      )
+      addAuthoringHook({
+        entityUUID,
+        sceneID,
+        callback: (entityUUID) => {
+          const entity = UUIDComponent.getEntityByUUID(entityUUID)
+          const modelComponent = getMutableComponent(entity, ModelComponent)
+          modelComponent.dereference.set(true)
+        }
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(

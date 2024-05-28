@@ -76,7 +76,7 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.range)) component.range.set(json.range)
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
     if (matches.number.test(json.angle)) component.angle.set(json.angle)
-    if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
+    if (matches.number.test(json.penumbra)) component.penumbra.set(json.penumbra)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
