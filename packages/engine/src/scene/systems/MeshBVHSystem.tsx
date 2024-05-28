@@ -37,7 +37,7 @@ import {
 } from 'three'
 import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
 
-import { defineSystem, Entity, PresentationSystemGroup } from '@etherealengine/ecs'
+import { defineSystem, Entity, PresentationSystemGroup, QueryReactor } from '@etherealengine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -54,7 +54,7 @@ import {
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 
-import { MeshOrModelQuery, ModelComponent } from '../components/ModelComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 const ray = new Ray()
@@ -179,5 +179,5 @@ const MeshBVHChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <MeshOrModelQuery ChildReactor={MeshBVHChildReactor} />
+  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHChildReactor} />
 })

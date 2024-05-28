@@ -44,7 +44,8 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import {
   EntityTreeComponent,
   iterateEntityNode,
-  removeEntityNodeRecursively
+  removeEntityNodeRecursively,
+  useAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
@@ -249,11 +250,10 @@ function ModelReactor() {
  * @returns
  */
 export const useMeshOrModel = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
-  return isEntityHierarchyOrMesh
+  const isModel = !!useOptionalComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  return isModel && !isChildOfModel && hasMesh
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
