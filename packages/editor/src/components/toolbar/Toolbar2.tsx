@@ -125,10 +125,11 @@ export default function Toolbar() {
             anchorEl.set(event.currentTarget)
           }}
         />
+        {/* TO BE ADDED
         <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
-        </div>
+        </div> */}
         <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
       </div>
       <ContextMenu

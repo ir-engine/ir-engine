@@ -36,7 +36,7 @@ import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/S
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
 
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -112,8 +112,6 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const tabs = [HierarchyPanelTab, PropertiesPanelTab, ViewportPanelTab, ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
@@ -122,35 +120,6 @@ const EditorContainer = () => {
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
-
-  const panelMenu = tabs.map((tab) => {
-    return {
-      name: tab.title,
-      action: () => {
-        const currentLayout = dockPanelRef?.current?.getLayout()
-        if (!currentLayout) return
-        if (dockPanelRef.current!.find(tab.id!)) {
-          return
-        }
-        //todo: add support for multiple instances of a panel type
-        // let panelId = panel.id!
-        // while (dockPanelRef.current!.find(panelId)) {
-        //   if (/\d+$/.test(panelId)) {
-        //     panelId = panelId.replace(/\d+$/, (match) => {
-        //       return (parseInt(match) + 1).toString()
-        //     })
-        //   } else {
-        //     panelId += '1'
-        //   }
-        // }
-        // panel.id = panelId
-        const targetId = tab.parent!.id! ?? currentLayout.dockbox.children[0].id
-        const targetPanel = dockPanelRef.current!.find(targetId) as PanelData
-        targetPanel.tabs.push(tab)
-        dockPanelRef?.current?.loadLayout(currentLayout)
-      }
-    }
-  })
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
