@@ -34,7 +34,7 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { useHookstate } from '@etherealengine/hyperflux'
 import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
@@ -55,6 +55,7 @@ export const ModelPreviewPanel = (props) => {
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
+    setVisibleComponent(sceneEntity, true)
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     const lightEntity = createEntity()
@@ -64,6 +65,10 @@ export const ModelPreviewPanel = (props) => {
     setComponent(lightEntity, NameComponent, 'Ambient Light')
     setComponent(lightEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     loading.set(false)
+
+    return () => {
+      setVisibleComponent(sceneEntity, false)
+    }
   }, [url])
 
   return (
