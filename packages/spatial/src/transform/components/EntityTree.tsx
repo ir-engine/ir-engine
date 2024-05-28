@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
 import {
   ComponentType,
   defineComponent,
@@ -38,7 +37,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
 import { SceneComponent } from '../../renderer/components/SceneComponents'

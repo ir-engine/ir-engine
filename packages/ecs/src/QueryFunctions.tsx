@@ -27,8 +27,7 @@ import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
-import { getState, HyperFlux, startReactor } from '@etherealengine/hyperflux'
+import { getState, HyperFlux, startReactor, useImmediateEffect } from '@etherealengine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'

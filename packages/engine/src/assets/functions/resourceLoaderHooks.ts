@@ -28,9 +28,8 @@ import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
 import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'

@@ -34,8 +34,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
 import { World } from '@dimforge/rapier3d-compat'
-import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
-import { useMutableState } from '@etherealengine/hyperflux'
+import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { PhysicsState } from '../state/PhysicsState'
