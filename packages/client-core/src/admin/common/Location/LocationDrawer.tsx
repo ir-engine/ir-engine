@@ -212,27 +212,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose, 
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === LocationDrawerMode.Create) {
-        locationMutation
-          .create(data, {
-            query: {
-              action: 'studio',
-              project: editorState.projectName!
-            }
-          })
-          .catch((error) => {
-            NotificationService.dispatchNotify(error.message, { variant: 'error' })
-          })
+        locationMutation.create(data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
       } else if (selectedLocation) {
-        locationMutation
-          .patch(selectedLocation.id, data, {
-            query: {
-              action: 'studio',
-              project: editorState.projectName!
-            }
-          })
-          .catch((error) => {
-            NotificationService.dispatchNotify(error.message, { variant: 'error' })
-          })
+        locationMutation.patch(selectedLocation.id, data).catch((error) => {
+          NotificationService.dispatchNotify(error.message, { variant: 'error' })
+        })
         editMode.set(false)
       }
 

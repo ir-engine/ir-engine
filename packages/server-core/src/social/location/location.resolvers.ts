@@ -39,6 +39,7 @@ import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { BadRequest } from '@feathersjs/errors'
 import slugify from 'slugify'
 
 export const locationResolver = resolve<LocationType, HookContext>({
@@ -104,6 +105,14 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       userId: '' as UserID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
+    }
+  },
+  projectId: async (value, location, context) => {
+    try {
+      const scene = await context.app.service(assetPath).get(location.sceneId)
+      return scene.projectId
+    } catch (error) {
+      throw new BadRequest(`Failed to retrieve project ID from scene ID: ${location.sceneId}`)
     }
   },
   createdAt: getDateTimeSql,

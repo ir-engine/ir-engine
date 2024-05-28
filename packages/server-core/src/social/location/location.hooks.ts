@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, isProvider, when } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 import { locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
@@ -44,9 +44,7 @@ import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
-import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
-import resolveProjectId from '../../hooks/resolve-project-id'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
@@ -213,49 +211,23 @@ export default {
     find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
-      when(
-        isProvider('external'),
-        iff(
-          isAction('studio'),
-          verifyScope('editor', 'write'),
-          resolveProjectId(),
-          verifyProjectPermission(['owner', 'editor'])
-        ).else(verifyScope('location', 'write'))
-      ),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
+      iff(isProvider('external'), verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])),
       persistData,
-      discard('locationSetting', 'locationAdmin'),
-      discard('action')
+      discard('locationSetting', 'locationAdmin')
     ],
     update: [disallow()],
     patch: [
-      when(
-        isProvider('external'),
-        iff(
-          isAction('studio'),
-          verifyScope('editor', 'write'),
-          resolveProjectId(),
-          verifyProjectPermission(['owner', 'editor'])
-        ).else(verifyScope('location', 'write'))
-      ),
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
+      iff(isProvider('external'), verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])),
       disallowNonId,
       persistData,
-      discard('locationSetting'),
-      discard('action')
+      discard('locationSetting')
     ],
     remove: [
-      when(
-        isProvider('external'),
-        iff(
-          isAction('studio'),
-          verifyScope('editor', 'write'),
-          resolveProjectId(),
-          verifyProjectPermission(['owner', 'editor'])
-        ).else(verifyScope('location', 'write'))
-      ),
+      iff(isProvider('external'), verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])),
       checkIsLobby,
       removeLocationSetting,
       removeLocationAdmin

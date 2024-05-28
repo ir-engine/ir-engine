@@ -52,6 +52,9 @@ export const locationSchema = Type.Object(
     }),
     name: Type.String(),
     sceneId: Type.String(),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     slugifiedName: Type.String(),
     /** @todo review */
     isLobby: Type.Boolean(),
@@ -94,6 +97,7 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
   'id',
   'name',
   'sceneId',
+  'projectId',
   'slugifiedName',
   'isLobby',
   'isFeatured',
@@ -112,13 +116,7 @@ export const locationQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object(
-      {
-        action: Type.Optional(Type.String()),
-        project: Type.Optional(Type.String())
-      },
-      { additionalProperties: false }
-    )
+    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )

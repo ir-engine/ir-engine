@@ -43,18 +43,16 @@ export default (types: string[]) => {
 
     if (!loggedInUser) throw new NotAuthenticated('No logged in user')
 
-    const app = context.app
-
     const projectId =
       context.service === 'project' ? context.id : context.params.query.projectId ?? context.data.projectId
 
     if (!projectId) throw new BadRequest('Invalid project ID')
 
-    const project = await app.service(projectPath).get(projectId)
+    const project = await context.app.service(projectPath).get(projectId)
 
     if (!project) throw new NotFound('Project not found')
 
-    const { data } = (await app.service(projectPermissionPath).find({
+    const { data } = (await context.app.service(projectPermissionPath).find({
       query: {
         userId: loggedInUser.id,
         projectId: projectId,
