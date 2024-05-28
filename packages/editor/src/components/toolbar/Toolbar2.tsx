@@ -113,7 +113,7 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="bg-theme-primary flex items-center justify-between">
+      <div className="flex items-center justify-between bg-theme-primary">
         <Button
           variant="outline"
           rounded="none"
@@ -125,14 +125,14 @@ export default function Toolbar() {
             anchorEl.set(event.currentTarget)
           }}
         />
-        <div className="bg-theme-surface-main flex items-center gap-2.5 rounded-full p-0.5">
+        <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-          <div className="bg-blue-primary rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+          <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div>
         <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
       </div>
       <ContextMenu
-        anchorEl={anchorEl.value}
+        anchorEl={anchorEl.value as HTMLElement}
         anchorPosition={anchorPosition.value}
         open={anchorOpen.value}
         panelId="toolbar-menu"

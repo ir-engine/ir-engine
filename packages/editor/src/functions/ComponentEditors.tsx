@@ -66,7 +66,6 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@etherealengine/spatial'
-import InputComponentNodeEditor from '@etherealengine/spatial/src/input/properties/InputComponentNodeEditor'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/components/FogSettingsComponent'
@@ -127,6 +126,7 @@ import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/pro
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
+import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
