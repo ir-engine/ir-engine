@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PostProcessingComponent } from '@etherealengine/engine/src/postprocessing/components/PostProcessingComponent'
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { FogSystem } from '@etherealengine/spatial/src/renderer/FogSystem'
 import { NoiseOffsetSystem } from '@etherealengine/spatial/src/renderer/materials/constants/plugins/NoiseOffsetPlugin'
 
