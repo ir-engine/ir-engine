@@ -42,7 +42,7 @@ import {
   TorusGeometry
 } from 'three'
 
-export const gizmoMaterial = new MeshBasicMaterial({
+const gizmoMaterial = new MeshBasicMaterial({
   depthTest: false,
   depthWrite: false,
   fog: false,
@@ -60,7 +60,7 @@ const gizmoLineMaterial = new LineBasicMaterial({
 
 // Make unique material for each axis/color
 
-export const GizmoMaterial = {
+const GizmoMaterial = {
   INVISIBLE: 'matInvisible',
   HELPER: 'matHelper',
   RED: 'matRed',
@@ -75,7 +75,7 @@ export const GizmoMaterial = {
   GRAY: 'matGray'
 }
 
-export const materialProperties = {
+const gizmoMaterialProperties = {
   [GizmoMaterial.INVISIBLE]: { color: 0xffffff, opacity: 0.15, visibility: 0.0 },
   [GizmoMaterial.HELPER]: { color: 0xffffff, opacity: 0.5, visibility: 1.0 },
   [GizmoMaterial.RED]: { color: 0xff0000, opacity: 1.0, visibility: 1.0 },
@@ -90,48 +90,48 @@ export const materialProperties = {
   [GizmoMaterial.GRAY]: { color: 0x787878, opacity: 1.0, visibility: 1.0 }
 }
 
-export const matInvisible = gizmoMaterial.clone()
-matInvisible.opacity = materialProperties[GizmoMaterial.INVISIBLE].opacity
+const matInvisible = gizmoMaterial.clone()
+matInvisible.opacity = gizmoMaterialProperties[GizmoMaterial.INVISIBLE].opacity
 matInvisible.visible = false
 
-export const matHelper = gizmoLineMaterial.clone()
-matHelper.opacity = materialProperties[GizmoMaterial.HELPER].opacity
+const matHelper = gizmoLineMaterial.clone()
+matHelper.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
 
-export const matRed = gizmoMaterial.clone()
-matRed.color.setHex(materialProperties[GizmoMaterial.RED].color)
+const matRed = gizmoMaterial.clone()
+matRed.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED].color)
 
-export const matGreen = gizmoMaterial.clone()
-matGreen.color.setHex(materialProperties[GizmoMaterial.GREEN].color)
+const matGreen = gizmoMaterial.clone()
+matGreen.color.setHex(gizmoMaterialProperties[GizmoMaterial.GREEN].color)
 
-export const matBlue = gizmoMaterial.clone()
-matBlue.color.setHex(materialProperties[GizmoMaterial.BLUE].color)
+const matBlue = gizmoMaterial.clone()
+matBlue.color.setHex(gizmoMaterialProperties[GizmoMaterial.BLUE].color)
 
-export const matRedTransparent = gizmoMaterial.clone()
-matRedTransparent.color.setHex(materialProperties[GizmoMaterial.RED_TRANSPARENT].color)
-matRedTransparent.opacity = materialProperties[GizmoMaterial.RED_TRANSPARENT].opacity
+const matRedTransparent = gizmoMaterial.clone()
+matRedTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED_TRANSPARENT].color)
+matRedTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.RED_TRANSPARENT].opacity
 
-export const matGreenTransparent = gizmoMaterial.clone()
-matGreenTransparent.color.setHex(materialProperties[GizmoMaterial.GREEN_TRANSPARENT].color)
-matGreenTransparent.opacity = materialProperties[GizmoMaterial.GREEN_TRANSPARENT].opacity
+const matGreenTransparent = gizmoMaterial.clone()
+matGreenTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.GREEN_TRANSPARENT].color)
+matGreenTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.GREEN_TRANSPARENT].opacity
 
-export const matBlueTransparent = gizmoMaterial.clone()
-matBlueTransparent.color.setHex(materialProperties[GizmoMaterial.BLUE_TRANSPARENT].color)
-matBlueTransparent.opacity = materialProperties[GizmoMaterial.BLUE_TRANSPARENT].opacity
+const matBlueTransparent = gizmoMaterial.clone()
+matBlueTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.BLUE_TRANSPARENT].color)
+matBlueTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.BLUE_TRANSPARENT].opacity
 
-export const matWhiteTransparent = gizmoMaterial.clone()
-matWhiteTransparent.opacity = materialProperties[GizmoMaterial.WHITE_TRANSPARENT].opacity
+const matWhiteTransparent = gizmoMaterial.clone()
+matWhiteTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.WHITE_TRANSPARENT].opacity
 
-export const matYellowTransparent = gizmoMaterial.clone()
-matYellowTransparent.color.setHex(materialProperties[GizmoMaterial.YELLOW_TRANSPARENT].color)
-matYellowTransparent.opacity = materialProperties[GizmoMaterial.YELLOW_TRANSPARENT].opacity
+const matYellowTransparent = gizmoMaterial.clone()
+matYellowTransparent.color.setHex(gizmoMaterialProperties[GizmoMaterial.YELLOW_TRANSPARENT].color)
+matYellowTransparent.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW_TRANSPARENT].opacity
 
-//export const matYellow = gizmoMaterial.clone()
+// const matYellow = gizmoMaterial.clone()
 //matYellow.color.setHex(materialProperties[GizmoMaterial.YELLOW].color)
 
 // we dont need mat yellow seperately
 
-export const matGray = gizmoMaterial.clone()
-matGray.color.setHex(materialProperties[GizmoMaterial.GRAY].color)
+const matGray = gizmoMaterial.clone()
+matGray.color.setHex(gizmoMaterialProperties[GizmoMaterial.GRAY].color)
 
 // shader material implementation, presently broken
 
@@ -225,7 +225,7 @@ const lineGeometry = new BufferGeometry().setAttribute('position', new Float32Bu
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3).translate(0, 0.25, 0)
 
 //plane geomerty
-export const gizmoPlane = new Mesh(
+const gizmoPlane = new Mesh(
   new PlaneGeometry(100000, 100000, 2, 2),
   new MeshBasicMaterial({
     visible: false,
@@ -421,9 +421,9 @@ function setupGizmo(gizmoMap) {
   return gizmo
 }
 
-export const gizmoObject = {}
-export const pickerObject = {}
-export const helperObject = {}
+const gizmoObject = {}
+const pickerObject = {}
+const helperObject = {}
 
 gizmoObject[TransformMode.translate] = setupGizmo(gizmoTranslate)
 gizmoObject[TransformMode.rotate] = setupGizmo(gizmoRotate)
@@ -436,3 +436,23 @@ pickerObject[TransformMode.scale] = setupGizmo(pickerScale)
 helperObject[TransformMode.translate] = setupGizmo(helperTranslate)
 helperObject[TransformMode.rotate] = setupGizmo(helperRotate)
 helperObject[TransformMode.scale] = setupGizmo(helperScale)
+
+export {
+  gizmoObject,
+  pickerObject,
+  helperObject,
+  GizmoMaterial,
+  gizmoMaterialProperties,
+  matInvisible,
+  matHelper,
+  matRed,
+  matGreen,
+  matBlue,
+  matRedTransparent,
+  matGreenTransparent,
+  matBlueTransparent,
+  matWhiteTransparent,
+  matYellowTransparent,
+  matGray,
+  gizmoPlane
+}
