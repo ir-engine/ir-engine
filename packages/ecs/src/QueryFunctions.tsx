@@ -28,7 +28,7 @@ import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from '
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { useImmediateEffect } from '@etherealengine/common/src/utils/useImmediateEffect'
-import { getState, HyperFlux, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { getState, HyperFlux, startReactor } from '@etherealengine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -85,12 +85,10 @@ export const ReactiveQuerySystem = defineSystem({
  * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
-  const result = useHookstate<Entity[]>(() => {
-    const query = defineQuery(components)
-    const eids = query()
-    removeQuery(query)
-    return eids
-  })
+  const query = defineQuery(components)
+  const eids = query()
+  removeQuery(query)
+
   const forceUpdate = useForceUpdate()
 
   // Use a layout effect to ensure that `queryResult`
@@ -99,7 +97,7 @@ export function useQuery(components: QueryComponents) {
   // (component state can't be modified after a component is unmounted)
   useLayoutEffect(() => {
     const query = defineQuery(components)
-    const queryState = { query, result, components }
+    const queryState = { query, forceUpdate, components }
     getState(SystemState).reactiveQueryStates.add(queryState)
     return () => {
       removeQuery(query)
@@ -110,9 +108,8 @@ export function useQuery(components: QueryComponents) {
   // create an effect that forces an update when any components in the query change
   // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
   useImmediateEffect(() => {
-    const entities = [...result.value]
     const root = startReactor(function useQueryReactor() {
-      for (const entity of entities) {
+      for (const entity of eids) {
         components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
       }
       forceUpdate()
@@ -121,9 +118,9 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [result])
+  }, [JSON.stringify(eids)])
 
-  return result.value
+  return eids
 }
 
 export type Query = ReturnType<typeof defineQuery>
