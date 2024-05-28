@@ -105,13 +105,39 @@ export function useQuery(components: QueryComponents) {
   // create an effect that forces an update when any components in the query change
   // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
   useImmediateEffect(() => {
-    const root = startReactor(function useQueryReactor() {
-      for (const entity of eids) {
-        components.forEach((C) => ('isComponent' in C ? useOptionalComponent(entity, C as any)?.value : undefined))
-      }
+    function UseQueryEntityReactor({ entity }: { entity: Entity }) {
+      return (
+        <>
+          {components.map((C) => {
+            const Component = ('isComponent' in C ? C : (C as any)()[0]) as Component
+            return (
+              <UseQueryComponentReactor
+                entity={entity}
+                key={Component.name}
+                Component={Component}
+              ></UseQueryComponentReactor>
+            )
+          })}
+        </>
+      )
+    }
+
+    function UseQueryComponentReactor(props: { entity: Entity; Component: Component }) {
+      useOptionalComponent(props.entity, props.Component)
       forceUpdate()
       return null
+    }
+
+    const root = startReactor(function UseQueryReactor() {
+      return (
+        <>
+          {eids.map((entity) => (
+            <UseQueryEntityReactor key={entity} entity={entity}></UseQueryEntityReactor>
+          ))}
+        </>
+      )
     })
+
     return () => {
       root.stop()
     }
