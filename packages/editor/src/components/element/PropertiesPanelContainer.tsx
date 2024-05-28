@@ -27,7 +27,7 @@ import { Popover } from '@mui/material'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
 import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -122,6 +122,8 @@ export const PropertiesPanelContainer = () => {
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
+  const entity = UUIDComponent.useEntityByUUID(uuid)
+
   const { t } = useTranslation()
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
 
@@ -134,7 +136,7 @@ export const PropertiesPanelContainer = () => {
     >
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
-      ) : uuid ? (
+      ) : uuid && entity && entityExists(entity) ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
