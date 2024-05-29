@@ -42,11 +42,9 @@ import { projectPath } from '@etherealengine/common/src/schemas/projects/project
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
-import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
-import isAction from '../../hooks/is-action'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 import { ProjectPermissionService } from './project-permission.class'
@@ -224,8 +222,7 @@ export default {
     find: [
       enableClientPagination(),
       iff(checkUserScopes, checkPermissionStatus),
-      iff(isAction('studio'), setLoggedInUserInQuery('userId'), resolveProjectId()),
-      discardQuery('action'),
+      resolveProjectId(),
       discardQuery('project')
     ],
     get: [],

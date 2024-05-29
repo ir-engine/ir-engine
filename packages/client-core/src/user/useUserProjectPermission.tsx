@@ -36,7 +36,6 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 export const useProjectPermissions = (project: string, action: string): ProjectPermissionType => {
   const { data } = useFind(projectPermissionPath, {
     query: {
-      action,
       project,
       paginate: false
     }
