@@ -303,13 +303,13 @@ export const getComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
-  const componentState = component.stateMap[entity]!
-  if (!componentState || componentState.promised) {
+  if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
   }
+  const componentState = component.stateMap[entity]!
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
