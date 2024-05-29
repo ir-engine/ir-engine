@@ -18,9 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
+
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+
 import { Application } from '../../../declarations'
 import { pushProjectToGithub } from '../project/github-helper'
 

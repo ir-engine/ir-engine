@@ -18,12 +18,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { iff, isProvider } from 'feathers-hooks-common'
+
 import {
   spawnPointDataValidator,
   spawnPointQueryValidator
 } from '@etherealengine/common/src/schemas/world/spawn-point.schema'
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'

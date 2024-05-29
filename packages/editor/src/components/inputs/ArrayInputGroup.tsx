@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import AddIcon from '@mui/icons-material/Add'
 import IconButton from '@mui/material/IconButton'
 import React from 'react'
+
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
 import styles from './ArrayInputGroup.module.scss'
 import FileBrowserInput from './FileBrowserInput'
 import InputGroup from './InputGroup'

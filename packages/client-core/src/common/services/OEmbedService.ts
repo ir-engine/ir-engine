@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
-
 import { oembedPath, OembedType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
+
 import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:OEmbedService' })

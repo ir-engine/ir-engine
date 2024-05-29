@@ -18,10 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { ProjectBuildPatch, ProjectBuildType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
 import { checkBuilderService, updateBuilder } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 

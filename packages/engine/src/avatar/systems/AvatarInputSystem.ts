@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
 import {
   ComponentType,
   getComponent,
@@ -40,6 +38,7 @@ import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
 import { Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
@@ -53,6 +52,7 @@ import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/Colli
 import { getInteractionGroups } from '@etherealengine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { XRControlsState, XRState } from '@etherealengine/spatial/src/xr/XRState'
+
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -243,10 +243,11 @@ const execute = () => {
 
   controller.gamepadLocalInput.set(0, 0, 0)
 
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const viewerEntity = Engine.instance.viewerEntity
+  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(viewerEntity)
   if (!inputPointerEntity && !xrState.session) return
 
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 

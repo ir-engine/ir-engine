@@ -41,11 +41,6 @@ function RouterComp({ route }: { route: string }) {
   const customRoutes = useCustomRoutes()
   const { t } = useTranslation()
 
-  // still allow admin even if no custom routes are loaded in case routes fail to load
-  if (route !== 'adminold' && !customRoutes.length) {
-    return <LoadingCircle message={t('common:loader.loadingRoutes')} />
-  }
-
   let RouteElement
 
   switch (route) {
@@ -60,9 +55,6 @@ function RouterComp({ route }: { route: string }) {
       break
     case 'location':
       RouteElement = $location
-      break
-    case 'adminold':
-      RouteElement = $admin
       break
   }
 

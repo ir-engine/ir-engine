@@ -22,6 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
@@ -32,11 +33,10 @@ import {
   staticResourceQueryValidator
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
-import verifyScope from '../../hooks/verify-scope'
 
-import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StaticResourceService } from './static-resource.class'
 import {

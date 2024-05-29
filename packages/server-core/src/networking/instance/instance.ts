@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application, HookContext } from '../../../declarations'
+import { Paginated } from '@feathersjs/feathers'
 
 import {
   instanceMethods,
@@ -33,7 +33,8 @@ import {
 import { scopePath, ScopeType, ScopeTypeInterface } from '@etherealengine/common/src/schemas/scope/scope.schema'
 import { channelPath, ChannelType } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+
+import { Application, HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { InstanceService } from './instance.class'
 import instanceDocs from './instance.docs'

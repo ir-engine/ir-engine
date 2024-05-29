@@ -27,6 +27,7 @@ import { Group, Object3D, SkinnedMesh } from 'three'
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+
 import { XRHandBones } from './XRHandBones'
 
 export class XRHandMeshModel extends Object3D {

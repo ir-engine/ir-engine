@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { Vector2, Vector3 } from 'three'
+
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
@@ -47,8 +49,9 @@ const ViewportDnD = () => {
     drop(item: SceneElementType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+
       EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentJsonID },
+        { name: (item as SceneElementType).componentJsonID },
         { name: TransformComponent.jsonID, props: { position: vec3 } }
       ])
     }

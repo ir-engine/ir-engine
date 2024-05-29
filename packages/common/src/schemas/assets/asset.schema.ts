@@ -20,12 +20,11 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
 import { dataValidator, queryValidator } from '../validators'
 
 export const assetPath = 'asset'
-/** @deprecated use assetPath instead */
-export const scenePath = assetPath
 
 export const assetMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
@@ -34,6 +33,7 @@ export const assetSchema = Type.Object(
     id: Type.String(),
     assetURL: Type.String(),
     thumbnailURL: Type.String(),
+    projectName: Type.String(),
     projectId: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -42,12 +42,15 @@ export const assetSchema = Type.Object(
 )
 export interface AssetType extends Static<typeof assetSchema> {}
 
+export interface AssetDatabaseType extends Omit<AssetType, 'projectName'> {}
+
 // Schema for creating new entries
 export const assetDataSchema = Type.Object(
   {
     id: Type.Optional(Type.String()),
-    name: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
+    isScene: Type.Optional(Type.Boolean()),
+    sourceURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.Any()),
     project: Type.Optional(Type.String()),
     projectId: Type.Optional(Type.String())
@@ -68,7 +71,6 @@ export interface AssetUpdate extends Static<typeof assetUpdateSchema> {}
 // Schema for updating existing entries
 export const assetPatchSchema = Type.Object(
   {
-    name: Type.Optional(Type.String()),
     project: Type.Optional(Type.String()),
     assetURL: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.String())
@@ -81,17 +83,16 @@ export const assetPatchSchema = Type.Object(
 export interface AssetPatch extends Static<typeof assetPatchSchema> {}
 
 // Schema for allowed query properties
+export const assetQueryProperties = Type.Pick(assetDataSchema, ['assetURL', 'project', 'projectId'])
+
 export const assetQuerySchema = Type.Intersect(
   [
+    querySyntax(assetQueryProperties),
+    // Add additional query properties here
     Type.Object(
       {
-        project: Type.Optional(Type.String()),
-        projectId: Type.Optional(Type.String()),
-        assetURL: Type.Optional(Type.String()),
-        internal: Type.Optional(Type.Boolean()),
         paginate: Type.Optional(Type.Boolean()),
-        directory: Type.Optional(Type.String()),
-        localDirectory: Type.Optional(Type.String())
+        internal: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

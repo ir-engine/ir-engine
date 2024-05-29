@@ -24,14 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { concat, equals } from 'rambdax'
+
 import {
   Assert,
-  NodeCategory,
-  SocketsList,
   makeFlowNodeDefinition,
   makeFunctionNodeDefinition,
   makeInNOutFunctionDesc,
-  sequence
+  NodeCategory,
+  sequence,
+  SocketsList
 } from '../../../VisualScriptModule'
 
 export const Constant = makeInNOutFunctionDesc({

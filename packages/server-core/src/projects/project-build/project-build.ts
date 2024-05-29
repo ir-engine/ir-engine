@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { projectBuildMethods, projectBuildPath } from '@etherealengine/common/src/schemas/projects/project-build.schema'
+
 import { Application } from '../../../declarations'
 import { ProjectBuildService } from './project-build.class'
 import projectBuildDocs from './project-build.docs'

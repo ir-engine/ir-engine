@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
 import matches, { Validator } from 'ts-matches'
 
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '@etherealengine/common/src/utils/parseSceneJSON'
+import { Entity } from '@etherealengine/ecs'
 import { defineComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import { Entity } from '@etherealengine/ecs'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { GraphJSON, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
-import React, { useEffect } from 'react'
+import { GraphJSON, IRegistry, VisualScriptState, defaultVisualScript } from '@etherealengine/visual-script'
+
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { useVisualScriptRunner } from '../systems/useVisualScriptRunner'
 
@@ -83,13 +83,13 @@ export const VisualScriptComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const visualScript = useComponent(entity, VisualScriptComponent)
-    const visualScriptState = useHookstate(getMutableState(VisualScriptState))
+    const visualScriptState = useMutableState(VisualScriptState)
     const canPlay = visualScript.run.value && !visualScript.disabled.value
-    const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true })
+    const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
     const gltfAncestor = useAncestorWithComponent(entity, GLTFComponent)
 
     const visualScriptRunner = useVisualScriptRunner({
-      visualScriptJson: visualScript.visualScript.get({ noproxy: true }),
+      visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,
       autoRun: canPlay,
       registry
     })

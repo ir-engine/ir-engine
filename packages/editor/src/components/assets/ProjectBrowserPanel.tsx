@@ -24,17 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Inventory2Icon from '@mui/icons-material/Inventory2'
+import { t } from 'i18next'
 import DockLayout, { DockMode, TabData } from 'rc-dock'
 import React from 'react'
 
-import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
-import FileBrowserContentPanel from './FileBrowser/FileBrowserContentPanel'
-
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { t } from 'i18next'
+
 import { EditorState } from '../../services/EditorServices'
 import { DockContainer } from '../EditorContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import FileBrowserContentPanel from './FileBrowser/FileBrowserContentPanel'
 
 /**
  * ProjectBrowserPanel used to render view for Project Panel.

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction } from '@etherealengine/hyperflux'
 import { WorldNetworkAction } from '@etherealengine/network'
+
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 
 export const SpawnObjectActions = {

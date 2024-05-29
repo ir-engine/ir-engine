@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+
+import { Object3DUtils } from '@etherealengine/common/src/utils/Object3DUtils'
 
 const toLocalQuat = new Quaternion(),
   rotation = new Quaternion(),

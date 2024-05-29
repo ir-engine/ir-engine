@@ -23,9 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { forwardRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
@@ -34,9 +38,6 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { forwardRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -44,7 +45,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     loading: false,
     errorMessage: ''
   })
-  const projectState = useHookstate(getMutableState(ProjectState))
+  const projectState = useMutableState(ProjectState)
   const projects = projectState.projects
 
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
@@ -102,7 +103,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   const handleSubmit = () => {
     state.loading.set(true)
-    patchProjectSetting(selectedProjectId.value, { settings: settings.value })
+    patchProjectSetting(selectedProjectId.value, { settings: settings.value as Array<ProjectSettingType> })
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -134,17 +135,14 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       <Select
         options={projectsMenu}
         currentValue={selectedProjectId.value}
-        onChange={(value) => {
-          console.log('selectedProject', value)
-          selectedProjectId.set(value)
-        }}
+        onChange={(value) => selectedProjectId.set(value)}
         label={t('admin:components.setting.project.header')}
         className="mb-8 mt-6 max-w-[50%]"
       />
 
       {settings?.length > 0 ? (
         <>
-          {settings.value.map((setting, index) => (
+          {settings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
               <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
               <Input
@@ -158,7 +156,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           <div className="mb-3 grid grid-cols-8 gap-2">
             <Button
               size="small"
-              className="bg-theme-highlight text-primary col-span-1"
+              className="text-primary col-span-1 bg-theme-highlight"
               fullWidth
               onClick={handleCancel}
             >

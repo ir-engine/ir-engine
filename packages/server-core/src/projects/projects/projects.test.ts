@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import assert from 'assert'
+
 import { projectsPath } from '@etherealengine/common/src/schemas/projects/projects.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import assert from 'assert'
+
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

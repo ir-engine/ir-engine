@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
-
 import { TabData } from 'rc-dock'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from '../styles.module.scss'

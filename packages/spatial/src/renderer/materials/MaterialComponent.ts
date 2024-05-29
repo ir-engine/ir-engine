@@ -23,17 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Material, Shader, WebGLRenderer } from 'three'
+
 import {
-  UUIDComponent,
   defineComponent,
   defineQuery,
   getMutableComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
+import { BoxProjectionPlugin } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { Material, Shader, WebGLRenderer } from 'three'
+
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
@@ -80,7 +83,7 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin]
+export const MaterialPlugins = [NoiseOffsetPlugin, TransparencyDitheringPlugin, BoxProjectionPlugin]
 
 export enum MaterialComponents {
   Instance,
@@ -109,6 +112,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
             // material & material specific data
             material: {} as Material,
             parameters: {} as { [key: string]: any },
+            // all entities using this material. an undefined entity at index 0 is a fake user
             instances: [] as Entity[],
             pluginEntities: [] as Entity[],
             prototypeEntity: UndefinedEntity as Entity
@@ -123,7 +127,7 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
           return {
             // plugin state
             plugin: {} as PluginObjectType,
-            shader: {} as Record<string, Shader>
+            parameters: {} as { [key: string]: any }
           }
         default:
           return {}

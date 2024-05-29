@@ -27,9 +27,9 @@ import { removeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
+import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { WidgetAppActions } from '@etherealengine/spatial/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/spatial/src/xrui/Widgets'
-import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 
 export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)

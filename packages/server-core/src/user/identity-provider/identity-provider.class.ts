@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   IdentityProviderData,
@@ -32,8 +32,6 @@ import {
   IdentityProviderQuery,
   IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface IdentityProviderParams extends KnexAdapterParams<IdentityProviderQuery> {
   authentication?: any

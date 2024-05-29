@@ -26,19 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import getImagePalette from 'image-palette-core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { Color } from 'three'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
   imageDataToBlob
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { getState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
-import { Color } from 'three'
+import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
+import { getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { takeScreenshot } from '../../functions/takeScreenshot'
 import { generateEnvmapBake } from '../../functions/uploadEnvMapBake'
@@ -49,7 +48,7 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
+import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -80,7 +79,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     state.uploadingThumbnail.set(true)
     const editorState = getState(EditorState)
     const projectName = editorState.projectName!
-    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value])
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value], [currentSceneDirectory])
     const [[savedThumbnailURL]] = await Promise.all(promises)
     commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
     state.merge({
@@ -119,10 +119,12 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     const envmapFilename = `${sceneName}.envmap.ktx2`
     const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
 
-    const promises = uploadProjectFiles(projectName, [
-      new File([envmap], envmapFilename),
-      new File([loadingScreen], loadingScreenFilename)
-    ])
+    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+    const promises = uploadProjectFiles(
+      projectName,
+      [new File([envmap], envmapFilename), new File([loadingScreen], loadingScreenFilename)],
+      [currentSceneDirectory, currentSceneDirectory]
+    )
 
     const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
 

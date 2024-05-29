@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
 import {
@@ -41,7 +42,7 @@ import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/compon
 import { TargetCameraRotationComponent } from '@etherealengine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { PhysicsState } from '@etherealengine/spatial/src/physics/state/PhysicsState'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
-import { useEffect } from 'react'
+
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'

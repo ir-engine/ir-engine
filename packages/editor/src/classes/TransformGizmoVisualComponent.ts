@@ -23,24 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Engine,
-  UndefinedEntity,
-  createEntity,
-  defineComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
   BoxGeometry,
@@ -56,6 +38,25 @@ import {
   SphereGeometry,
   TorusGeometry
 } from 'three'
+
+import {
+  createEntity,
+  defineComponent,
+  Engine,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',

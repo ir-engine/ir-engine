@@ -40,6 +40,7 @@ import {
   locationAuthorizedUserQueryResolver,
   locationAuthorizedUserResolver
 } from './location-authorized-user.resolvers'
+
 export default {
   around: {
     all: [

@@ -58,6 +58,7 @@ import {
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -67,7 +68,16 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { Body, BodyTypes, CollisionEvents, RaycastHit, SceneQueryType, Shapes } from '../types/PhysicsTypes'
+import {
+  Body,
+  BodyTypes,
+  CollisionEvents,
+  RapierShapeToString,
+  RaycastHit,
+  SceneQueryType,
+  Shape,
+  Shapes
+} from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -430,10 +440,59 @@ function setTrigger(entity: Entity, isTrigger: boolean) {
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
   // if we are a trigger, we need to update the collision groups to include the trigger group
-  const collisionLayer = isTrigger
+  const collisionLayer = isTrigger ? CollisionGroups.Trigger : colliderComponent.collisionLayer
+  collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
+}
+
+function setFriction(entity: Entity, friction: number) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  collider.setFriction(friction)
+}
+
+function setRestitution(entity: Entity, restitution: number) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  collider.setRestitution(restitution)
+}
+
+function setMass(entity: Entity, mass: number) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  collider.setMass(mass)
+}
+
+function setMassCenter(entity: Entity, massCenter: Vector3) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  /** @todo */
+  // collider.setMassProperties(massCenter, collider.mass())
+}
+
+function setCollisionLayer(entity: Entity, collisionLayer: InteractionGroups) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  const colliderComponent = getComponent(entity, ColliderComponent)
+  const _collisionLayer = hasComponent(entity, TriggerComponent)
+    ? collisionLayer | ~CollisionGroups.Trigger
+    : collisionLayer
+  collider.setCollisionGroups(getInteractionGroups(_collisionLayer, colliderComponent.collisionMask))
+}
+
+function setCollisionMask(entity: Entity, collisionMask: InteractionGroups) {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  const colliderComponent = getComponent(entity, ColliderComponent)
+  const collisionLayer = hasComponent(entity, TriggerComponent)
     ? colliderComponent.collisionLayer | ~CollisionGroups.Trigger
     : colliderComponent.collisionLayer
-  collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
+  collider.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+}
+
+function getShape(entity: Entity): Shape | undefined {
+  const collider = Colliders.get(entity)
+  if (!collider) return
+  return RapierShapeToString[collider.shape.type]
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
@@ -709,6 +768,13 @@ export const Physics = {
   attachCollider,
   setColliderPose,
   setTrigger,
+  setFriction,
+  setRestitution,
+  setMass,
+  setMassCenter,
+  setCollisionLayer,
+  setCollisionMask,
+  getShape,
   removeCollider,
   removeCollidersFromRigidBody,
   /** Charcter Controller */
@@ -730,3 +796,5 @@ export const Physics = {
   _Rigidbodies: Rigidbodies,
   _Controllers: Controllers
 }
+
+globalThis.Physics = Physics

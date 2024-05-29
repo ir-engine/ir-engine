@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, defineComponent, getOptionalMutableComponent } from '@etherealengine/ecs'
+import { Vector3 } from 'three'
+
+import { defineComponent, Entity, getOptionalMutableComponent } from '@etherealengine/ecs'
 import { defineState, matches } from '@etherealengine/hyperflux'
 import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { PluginObjectType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { getPluginByName } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
-import { Vector3 } from 'three'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  pluginByName
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -57,8 +63,7 @@ export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoin
         distance: 2,
         exponent: 2,
         calculationType: ditherCalculationType.worldTransformed,
-        //internal
-        materialUUIDs: [] as EntityUUID[]
+        shaders: [] as string[]
       }
     },
 
@@ -75,11 +80,9 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
   id: 'TransparencyDithering',
   priority: 10,
   compile: (shader, renderer) => {
-    const pluginEntity = getPluginByName(TransparencyDitheringPlugin.id)
+    const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
     const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
     if (!plugin) return
-
-    plugin.shader[(shader as any).shaderName].set(shader)
 
     if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
       shader.vertexShader = shader.vertexShader.replace(
@@ -97,12 +100,12 @@ export const TransparencyDitheringPlugin: PluginObjectType = {
         '#include <common>\n' + ditheringFragUniform
       )
     shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-    shader.uniforms.centers = {
-      value: Array.from({ length: maxDitherPoints }, () => new Vector3())
-    }
-    shader.uniforms.exponents = { value: Array.from({ length: maxDitherPoints }, () => 1) }
-    shader.uniforms.distances = { value: Array.from({ length: maxDitherPoints }, () => 1) }
-    shader.uniforms.useWorldCalculation = { value: Array.from({ length: maxDitherPoints }, () => 1) }
-    shader.uniforms.maxDitherPoints = { value: 1 }
+    applyPluginShaderParameters(pluginEntity, shader, {
+      centers: Array.from({ length: maxDitherPoints }, () => new Vector3()),
+      exponents: Array.from({ length: maxDitherPoints }, () => 2),
+      distances: Array.from({ length: maxDitherPoints }, () => 3),
+      useWorldCalculation: Array.from({ length: maxDitherPoints }, () => 1),
+      maxDitherPoints: 1
+    })
   }
 }

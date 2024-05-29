@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Validator, matches } from 'ts-matches'
-
-import { defineAction, defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { matches, Validator } from 'ts-matches'
 
 import { hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { defineAction, defineActionQueue, getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { VisualScriptState } from '@etherealengine/visual-script'
-import { useEffect } from 'react'
-import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
+
 import { registerEngineProfile } from '../nodes/profiles/ProfileModule'
+import { VisualScriptComponent, VisualScriptDomain } from '../VisualScriptModule'
 
 export const VisualScriptActions = {
   execute: defineAction({

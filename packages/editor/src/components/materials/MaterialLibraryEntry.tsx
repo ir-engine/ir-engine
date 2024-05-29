@@ -23,18 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
+import { Grid } from '@mui/material'
 import React, { MouseEvent, StyleHTMLAttributes, useCallback } from 'react'
 import { useDrag } from 'react-dnd'
 
-import { getMutableState } from '@etherealengine/hyperflux'
-
-import MaterialComponentIcon from '@mui/icons-material/LocalFloristTwoTone'
-import { Grid } from '@mui/material'
-
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
@@ -58,17 +56,19 @@ export type MaterialLibraryEntryProps = {
 }
 
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
-  return getComponent(
-    UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
-    MaterialComponent[MaterialComponents.State]
-  ).material?.name
+  return (
+    getOptionalComponent(
+      UUIDComponent.getEntityByUUID(node.uuid as EntityUUID),
+      MaterialComponent[MaterialComponents.State]
+    )?.material?.name ?? ''
+  )
 }
 
 export default function MaterialLibraryEntry(props: MaterialLibraryEntryProps) {
   const data = props.data
   const node = data.nodes[props.index]
 
-  const selectionState = useHookstate(getMutableState(SelectionState))
+  const selectionState = useMutableState(SelectionState)
 
   const onClickNode = (e) => {
     data.onClick(e, node)

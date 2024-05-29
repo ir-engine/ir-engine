@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers/lib'
+import { v4 as uuidv4 } from 'uuid'
+
 import {
   LocationData,
   LocationID,
@@ -31,32 +34,25 @@ import {
   LocationType
 } from '@etherealengine/common/src/schema.type.module'
 import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { toCapitalCase } from '@etherealengine/common/src/utils/miscUtils'
 import { Application } from '@etherealengine/server-core/declarations'
-import { Paginated } from '@feathersjs/feathers/lib'
-import { v4 as uuidv4 } from 'uuid'
+import logger from '@etherealengine/server-core/src/ServerLogger'
 
-export const createLocations = async (app: Application, projectName: string, sceneFiles: string[] = []) => {
+export const createLocations = async (app: Application, projectName: string, sceneFiles: Record<string, string>) => {
   return Promise.all(
-    sceneFiles.map(async (fileName) => {
+    Object.entries(sceneFiles).map(async ([locationName, fileName]) => {
+      const cleanedLocationName = locationName.replace('-', ' ')
+
       const assetURL = `projects/${projectName}/${fileName}`
       const locationId = uuidv4() as LocationID
-      const sceneId = uuidv4()
       const settingsId = uuidv4()
-      const sceneName = fileName.split('/').pop()!.replace('.scene.json', '').replace('.gltf', '')
 
-      /** @todo use .gltf instead */
-      const scene = await app.service(assetPath).create(
-        {
-          id: sceneId,
-          assetURL,
-          thumbnailURL: assetURL.replace('.scene.json', '.thumbnail.jpg').replace('.gltf', '.thumbnail.jpg'),
-          project: projectName
-        },
-        { isInternal: true }
-      )
+      const scene = (
+        await app.service(assetPath).find({
+          query: { assetURL }
+        })
+      ).data.pop()
+      if (!scene) return logger.warn(`Location ${cleanedLocationName} Scene not found for ${fileName}`)
 
-      const locationName = toCapitalCase(sceneName.replace('-', ' '))
       const locationSetting = {
         id: settingsId,
         locationId,
@@ -68,8 +64,8 @@ export const createLocations = async (app: Application, projectName: string, sce
       } as LocationSettingType
       const location = {
         id: locationId,
-        name: locationName,
-        slugifiedName: sceneName,
+        name: cleanedLocationName,
+        slugifiedName: cleanedLocationName,
         maxUsersPerInstance: 20,
         sceneId: scene.id,
         locationSetting,
@@ -79,7 +75,7 @@ export const createLocations = async (app: Application, projectName: string, sce
 
       const existingLocation = (await app.service(locationPath).find({
         query: {
-          slugifiedName: sceneName
+          slugifiedName: cleanedLocationName
         }
       })) as Paginated<LocationType>
       if (existingLocation.total === 0) await app.service(locationPath).create(location)

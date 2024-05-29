@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import matches from 'ts-matches'
 
 import { defineAction, defineState } from '@etherealengine/hyperflux'
+
 import { SpawnObjectActions } from '../transform/SpawnObjectActions'
 
 export const CameraSettings = defineState({

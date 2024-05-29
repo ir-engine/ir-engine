@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { projectPath } from '@etherealengine/common/src/schema.type.module'
 import logger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
-import { syncAllSceneJSONAssets } from '@etherealengine/server-core/src/assets/asset/asset-helper'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { createDefaultStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { download } from '@etherealengine/server-core/src/projects/project/downloadProjects'
@@ -57,10 +56,9 @@ async function installAllProjects() {
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
 
-    const projects = await app.service(projectPath).find({ paginate: false })
+    const projects = await app.service(projectPath).find({ paginate: false, assetsOnly: false })
     logger.info('found projects %o', projects)
-    await Promise.all(projects.filter((project) => !project.assetsOnly).map((project) => download(project.name)))
-    await syncAllSceneJSONAssets(projects, app)
+    await Promise.all(projects.map((project) => download(project.name)))
     await app.service(projectPath).update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')

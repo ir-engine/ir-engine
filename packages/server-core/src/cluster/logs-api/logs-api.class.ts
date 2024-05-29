@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import config from '@etherealengine/common/src/config'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 import { logger } from '../../ServerLogger'
 

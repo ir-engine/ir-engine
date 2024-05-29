@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useAutocomplete } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
@@ -30,8 +31,6 @@ import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
 import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-
-import { useAutocomplete } from '@mui/material'
 
 import { InputMenuItem } from '../InputSelect'
 import styles from './index.module.scss'

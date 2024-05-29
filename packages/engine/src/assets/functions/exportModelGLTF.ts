@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import createGLTFExporter from './createGLTFExporter'
 

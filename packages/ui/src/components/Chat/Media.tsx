@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Resizable } from 're-resizable'
 import React from 'react'
 
 import { UserName } from '@etherealengine/common/src/schema.type.module'
-import { Resizable } from 're-resizable'
+
 import DownloadIcon from './assets/download-icon.svg'
 import DownloadImage1 from './assets/download-image1.png'
 import DownloadImage2 from './assets/download-image2.png'

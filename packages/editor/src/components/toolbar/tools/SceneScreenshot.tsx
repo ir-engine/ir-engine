@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon/index'
 
-import { useTranslation } from 'react-i18next'
 import { downloadScreenshot } from '../../../functions/takeScreenshot'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'

@@ -32,6 +32,7 @@ export type * from './schemas/bot/bot.schema'
 export type * from './schemas/cluster/api-job.schema'
 export type * from './schemas/cluster/build-status.schema'
 export type * from './schemas/cluster/logs-api.schema'
+export type * from './schemas/cluster/migrations-info.schema'
 export type * from './schemas/cluster/pods.schema'
 export type * from './schemas/matchmaking/match-instance.schema'
 export type * from './schemas/matchmaking/match-user.schema'
@@ -40,7 +41,6 @@ export type * from './schemas/media/file-browser-upload.schema'
 export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
-export type * from './schemas/media/static-resource-filters.schema'
 export type * from './schemas/media/static-resource.schema'
 export type * from './schemas/networking/instance-active.schema'
 export type * from './schemas/networking/instance-attendance.schema'
@@ -75,6 +75,7 @@ export type * from './schemas/setting/chargebee-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/coil-setting.schema'
 export type * from './schemas/setting/email-setting.schema'
+export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
@@ -199,8 +200,6 @@ export const oembedPath = 'oembed'
 
 export const instanceActivePath = 'instance-active'
 
-export const staticResourceFiltersPath = 'static-resource-filters'
-
 export const archiverPath = 'archiver'
 
 export const instanceProvisionPath = 'instance-provision'
@@ -223,6 +222,8 @@ export const awsSettingPath = 'aws-setting'
 export const taskServerSettingPath = 'task-server-setting'
 
 export const emailSettingPath = 'email-setting'
+
+export const featureFlagSettingPath = 'feature-flag-setting'
 
 export const instanceServerSettingPath = 'instance-server-setting'
 
@@ -259,8 +260,6 @@ export const projectPath = 'project'
 export const projectsPath = 'projects'
 
 export const assetPath = 'asset'
-/** @deprecated use assetPath instead */
-export const scenePath = assetPath
 
 export const builderInfoPath = 'builder-info'
 
@@ -293,6 +292,8 @@ export const podsPath = 'pods'
 export const buildStatusPath = 'build-status'
 export const helmSettingPath = 'helm-setting'
 export const apiJobPath = 'api-job'
+
+export const migrationsInfoPath = 'knex_migrations'
 
 export const uploadAssetPath = 'upload-asset'
 

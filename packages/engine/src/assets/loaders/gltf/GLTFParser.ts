@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { toTrianglesDrawMode } from '@etherealengine/spatial/src/common/classes/BufferGeometryUtils'
 import { GLTF } from '@gltf-transform/core'
 import {
   AnimationClip,
@@ -38,12 +37,12 @@ import {
   InterleavedBufferAttribute,
   InterpolateLinear,
   Line,
-  LineBasicMaterial,
-  LineLoop,
-  LineSegments,
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
+  LineBasicMaterial,
+  LineLoop,
+  LineSegments,
   LoaderUtils,
   LoadingManager,
   Material,
@@ -61,9 +60,9 @@ import {
   PropertyBinding,
   QuaternionKeyframeTrack,
   RepeatWrapping,
-  SRGBColorSpace,
   Skeleton,
   SkinnedMesh,
+  SRGBColorSpace,
   Texture,
   TextureLoader,
   TriangleFanDrawMode,
@@ -71,6 +70,9 @@ import {
   Vector2,
   VectorKeyframeTrack
 } from 'three'
+
+import { toTrianglesDrawMode } from '@etherealengine/spatial/src/common/classes/BufferGeometryUtils'
+
 import { FileLoader } from '../base/FileLoader'
 import {
   ALPHA_MODES,
@@ -84,14 +86,14 @@ import {
 } from './GLTFConstants'
 import { EXTENSIONS } from './GLTFExtensions'
 import {
-  GLTFCubicSplineInterpolant,
-  GLTFCubicSplineQuaternionInterpolant,
   addPrimitiveAttributes,
   addUnknownExtensionsToUserData,
   assignExtrasToUserData,
   createDefaultMaterial,
   createPrimitiveKey,
   getNormalizedComponentScale,
+  GLTFCubicSplineInterpolant,
+  GLTFCubicSplineQuaternionInterpolant,
   updateMorphTargets
 } from './GLTFLoaderFunctions'
 import { KTX2Loader } from './KTX2Loader'

@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity } from '@etherealengine/ecs/src/Entity'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
 import { createXRUI } from './functions/createXRUI'
+import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
 
 /**
  * The widget interface.

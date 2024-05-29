@@ -23,25 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import VideocamIcon from '@mui/icons-material/Videocam'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 
-import VideocamIcon from '@mui/icons-material/Videocam'
-
-import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 const fitOptions = [
   { label: 'Cover', value: 'cover' },

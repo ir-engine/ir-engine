@@ -29,10 +29,9 @@ import {
   locationSettingPath,
   LocationSettingType
 } from '@etherealengine/common/src/schemas/social/location-setting.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { LocationID } from '@etherealengine/common/src/schemas/social/location.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export const locationSettingSeedData = [
   {

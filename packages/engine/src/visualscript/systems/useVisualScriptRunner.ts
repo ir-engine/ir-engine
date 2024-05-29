@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PresentationSystemGroup, SystemUUID, defineSystem } from '@etherealengine/ecs'
+import { useCallback, useEffect, useState } from 'react'
+
+import { defineSystem, PresentationSystemGroup, SystemUUID } from '@etherealengine/ecs'
 import {
   GraphJSON,
   GraphNodes,
   ILifecycleEventEmitter,
   IRegistry,
-  VisualScriptEngine,
-  readGraphFromJSON
+  readGraphFromJSON,
+  VisualScriptEngine
 } from '@etherealengine/visual-script'
-import { useCallback, useEffect, useState } from 'react'
 
 /** Runs the visual script by building the execution
  * engine and triggering start on the lifecycle event emitter.

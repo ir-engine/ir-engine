@@ -23,42 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetType, ProjectType, assetPath } from '@etherealengine/common/src/schema.type.module'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { v4 } from 'uuid'
+
+import { AssetData, assetPath } from '@etherealengine/common/src/schema.type.module'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+
 import { Application } from '../../../declarations'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
-export const syncAllSceneJSONAssets = async (projects: ProjectType[], app: Application) => {
+export const seedSceneAssets = async (app: Application, projectName: string, assetPaths: string[]) => {
+  if (!assetPaths.length) return
+
   const now = await getDateTimeSql()
-  const storageProvider = getStorageProvider()
 
-  const sceneJSONAssetsData = (
-    await Promise.all(
-      projects.map(async (project) => {
-        const projectPath = `projects/${project.name}/`
-        const projectAssets = (await storageProvider.listObjects(projectPath, false)).Contents.map(({ Key }) => Key)
-        const assets = await app.service(assetPath).find({ query: { projectId: project.id } })
-        const sceneJSONAssets = projectAssets.filter(
-          (asset) => asset.endsWith('.scene.json') && !assets.data.find((item: AssetType) => item.assetURL === asset)
-        )
-        if (!sceneJSONAssets.length) return
-        return sceneJSONAssets.map((asset) => ({
-          id: v4(),
-          assetURL: asset,
-          projectId: project.id,
-          thumbnailURL: asset.replace('.scene.json', '.thumbnail.jpg'),
-          createdAt: now,
-          updatedAt: now
-        }))
-      })
-    )
+  assetPaths = assetPaths.map((asset) => `projects/${projectName}/${asset}`)
+
+  const sceneAssets = await Promise.all(
+    assetPaths.filter(async (asset) => (await app.service(assetPath).find({ query: { assetURL: asset } })).total > 0)
   )
-    .flat()
-    .filter(Boolean)
+  if (!sceneAssets.length) return
+  const sceneAssetData: AssetData[] = sceneAssets.map(
+    (asset) =>
+      ({
+        id: v4(),
+        assetURL: asset,
+        project: projectName,
+        thumbnailURL: asset.endsWith('.gltf') ? asset.replace('.gltf', '.thumbnail.jpg') : null,
+        createdAt: now,
+        updatedAt: now
+      }) as AssetData
+  )
 
-  if (!sceneJSONAssetsData.length) return
-
-  const knex = app.get('knexClient')
-  await knex(assetPath).insert(sceneJSONAssetsData)
+  await Promise.all(sceneAssetData.map((asset) => app.service(assetPath).create(asset)))
 }

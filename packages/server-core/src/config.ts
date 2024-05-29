@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VideoConstants } from '@etherealengine/network'
+
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 

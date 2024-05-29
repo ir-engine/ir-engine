@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
+
 import { twMerge } from 'tailwind-merge'
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -31,7 +32,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   endIcon?: ReactNode
   children?: ReactNode
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'onboarding'
+  variant?: 'primary' | 'outline' | 'danger' | 'success' | 'pink' | 'transparent' | 'onboarding' | 'sidebar'
   disabled?: boolean
   fullWidth?: boolean
   rounded?: 'partial' | 'full' | 'none'
@@ -59,7 +60,8 @@ const variants = {
   danger: 'bg-red-500',
   success: 'bg-teal-700',
   transparent: 'bg-transparent',
-  onboarding: 'bg-button-gradient-onboarding'
+  onboarding: 'bg-button-gradient-onboarding',
+  sidebar: 'bg-[#141619]'
 }
 
 const Button = ({

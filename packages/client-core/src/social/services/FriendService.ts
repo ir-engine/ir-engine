@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import {
   UserID,
   UserName,
-  UserRelationshipType,
-  userRelationshipPath
+  userRelationshipPath,
+  UserRelationshipType
 } from '@etherealengine/common/src/schema.type.module'
-import { Paginated } from '@feathersjs/feathers'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 

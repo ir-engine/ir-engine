@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID, getMutableState } from '@etherealengine/hyperflux'
-
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { NetworkTopics, createNetwork } from '../src/Network'
-import { NetworkState, addNetwork } from '../src/NetworkState'
+import { getMutableState, PeerID } from '@etherealengine/hyperflux'
+
 import { NetworkPeerFunctions } from '../src/functions/NetworkPeerFunctions'
+import { createNetwork, NetworkTopics } from '../src/Network'
+import { addNetwork, NetworkState } from '../src/NetworkState'
 
 export const createMockNetwork = (networkType = NetworkTopics.world) => {
   if (networkType === NetworkTopics.world) getMutableState(NetworkState).hostIds.world.set('instanceID' as InstanceID)

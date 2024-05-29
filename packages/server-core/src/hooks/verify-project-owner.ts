@@ -27,12 +27,13 @@ import { BadRequest, Forbidden, NotAuthenticated } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import {
-  ProjectPermissionType,
-  projectPermissionPath
+  projectPermissionPath,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+
 import { Application } from '../../declarations'
 
 export default () => {

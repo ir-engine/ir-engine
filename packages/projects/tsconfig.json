@@ -26,7 +26,6 @@
   },
   "exclude": [
     "../projects/template-project/**",
-    "../projects/template-code-project/**",
     "../projects/projects/**",
     "**/node_modules/**"
   ],

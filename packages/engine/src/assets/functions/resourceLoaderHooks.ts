@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 import { GLTF } from '@gltf-transform/core'
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
+
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
@@ -57,7 +59,7 @@ function useLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     const controller = new AbortController()
     if (url !== urlState.value) {
       if (urlState.value) {
@@ -117,7 +119,7 @@ function useLoader<T extends ResourceAssetType>(
     }
   }, [url])
 
-  return [value.get(NO_PROXY), error.get(NO_PROXY), progress.get(NO_PROXY), unload]
+  return [value.get(NO_PROXY) as T | null, error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
 function useBatchLoader<T extends ResourceAssetType>(
@@ -143,7 +145,7 @@ function useBatchLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
     const controller = new AbortController()
 

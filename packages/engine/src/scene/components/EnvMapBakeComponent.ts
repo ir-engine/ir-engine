@@ -24,35 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import {
-  Mesh,
-  MeshLambertMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  SphereGeometry,
-  Vector3
-} from 'three'
+import { MeshPhysicalMaterial, SphereGeometry, Vector3 } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
-import {
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { getMutableState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { DebugMeshComponent } from '@etherealengine/spatial/src/common/debug/DebugMeshComponent'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import {
-  envmapParsReplaceLambert,
-  envmapPhysicalParsReplace,
-  envmapReplaceLambert,
-  worldposReplace
-} from '../classes/BPCEMShader'
+
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
@@ -122,47 +101,3 @@ export const EnvMapBakeComponent = defineComponent({
     return null
   }
 })
-
-// Hacky tentative solution, injects shader code into threejs' shaders for box projected envmaps
-// Depends on shader type to add pbr or non pbr shader logic
-export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
-  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
-  for (const target of targets) {
-    const child = target as Mesh<any, MeshStandardMaterial>
-    if (!child.material || child.type == 'VFXBatch') return
-
-    if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
-      child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
-      child.material.onBeforeCompile = (shader, renderer) => {
-        shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-        shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
-
-        if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-          shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
-
-        shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <envmap_physical_pars_fragment>',
-          envmapPhysicalParsReplace
-        )
-      }
-    }
-    if ((child.material as any) instanceof MeshLambertMaterial) {
-      child.material.onBeforeCompile = function (shader) {
-        //these parameters are for the cubeCamera texture
-        shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-        shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
-        //replace shader chunks with box projection chunks
-
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <envmap_pars_fragment>',
-          envmapParsReplaceLambert
-        )
-        shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
-
-        shader.uniforms.envMap = { value: child.material.envMap }
-      }
-    }
-  }
-}

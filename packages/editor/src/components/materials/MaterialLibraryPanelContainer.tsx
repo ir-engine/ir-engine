@@ -23,34 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Stack } from '@mui/material'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
-import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
-
-import { Stack } from '@mui/material'
-
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent, useQuery } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, UndefinedEntity, useQuery, UUIDComponent } from '@etherealengine/ecs'
+import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import {
   createMaterialEntity,
   getMaterialsFromSource
 } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
+import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
+import { ImportSettingsState } from '../assets/ImportSettingsPanel'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
-
-import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { SelectionState } from '../../services/SelectionServices'
 
 export default function MaterialLibraryPanel() {
   const srcPath = useState('/mat/material-test')
@@ -73,7 +72,7 @@ export default function MaterialLibraryPanel() {
       ]
     })
     nodes.set(result)
-  }, [materialQuery, selected])
+  }, [materialQuery.length, selected])
 
   const onClick = (e: MouseEvent, node: MaterialLibraryEntryType) => {
     getMutableState(MaterialSelectionState).selectedMaterial.set(node.uuid)
@@ -108,7 +107,7 @@ export default function MaterialLibraryPanel() {
             <Button
               onClick={() => {
                 const newMaterial = new MeshBasicMaterial({ name: 'New Material' })
-                createMaterialEntity(newMaterial, '')
+                createMaterialEntity(newMaterial, '', UndefinedEntity)
               }}
             >
               New
@@ -131,7 +130,11 @@ export default function MaterialLibraryPanel() {
                 })!) as { [key: string]: any }
                 const blob = [JSON.stringify(gltf)]
                 const file = new File(blob, libraryName)
-                const urls = await Promise.all(uploadProjectFiles(projectName, [file], true).promises)
+                const importSettings = getState(ImportSettingsState)
+                const urls = await Promise.all(
+                  uploadProjectFiles(projectName, [file], [`projects/${projectName}${importSettings.importFolder}`])
+                    .promises
+                )
                 console.log('exported material data to ', ...urls)
               }}
             >

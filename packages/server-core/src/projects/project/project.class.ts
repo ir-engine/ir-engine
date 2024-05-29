@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
-
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { ProjectBuildUpdateItemType } from '@etherealengine/common/src/schemas/projects/project-build.schema'
 import {
   ProjectData,
@@ -40,21 +42,20 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import { getState } from '@etherealengine/hyperflux'
-import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
-import { v4 as uuidv4 } from 'uuid'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
-import config from '../../appconfig'
-import { syncAllSceneJSONAssets } from '../../assets/asset/asset-helper'
 import {
   deleteProjectFilesInStorageProvider,
+  engineVersion,
   getCommitSHADate,
-  getEnginePackageJson,
   getGitProjectData,
   getProjectConfig,
   getProjectEnabled,
-  getProjectPackageJson,
+  getProjectManifest,
   onProjectEvent,
   uploadLocalProjectToProvider
 } from './project-helper'
@@ -106,10 +107,24 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const projectConfig = getProjectConfig(projectName) ?? {}
     const enabled = getProjectEnabled(projectName)
 
+    // if no manifest.json exists, add one
+    const packageJsonPath = path.resolve(projectsRootFolder, projectName, 'package.json')
+    const manifestJsonPath = path.resolve(projectsRootFolder, projectName, 'manifest.json')
+    if (!fs.existsSync(manifestJsonPath) && fs.existsSync(packageJsonPath)) {
+      const json = getProjectManifest(projectName)
+      const sceneJsonFiles = fs
+        .readdirSync(path.resolve(projectsRootFolder, projectName))
+        .filter((file) => file.endsWith('.scene.json'))
+      if (sceneJsonFiles.length) json.scenes = [...sceneJsonFiles]
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(json, null, 2))
+    }
+
+    const projectManifest = getProjectManifest(projectName)
+
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-    await super._create({
+    const project = await super._create({
       id: uuidv4(),
       name: projectName,
       enabled,
@@ -125,6 +140,24 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     })
+
+    await uploadLocalProjectToProvider(this.app, projectName)
+
+    if (projectManifest?.scenes) {
+      // check all scene assets exist in the storage provider
+      const sceneAssets = (
+        await Promise.all(
+          projectManifest.scenes.map(async (assetKey) =>
+            (await this.app.service(fileBrowserPath).get(`projects/${projectName}/${assetKey}`)) ? assetKey : undefined
+          )
+        )
+      ).filter(Boolean) as string[]
+      // update manifest json
+      projectManifest.scenes = sceneAssets
+      fs.writeFileSync(manifestJsonPath, JSON.stringify(projectManifest, null, 2))
+      await seedSceneAssets(this.app, project.name, sceneAssets)
+    }
+
     // run project install script
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
@@ -157,7 +190,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
+      let seeded = false
       if (!data.find((e) => e.name === projectName)) {
+        seeded = true
         try {
           promises.push(this._seedProject(projectName))
         } catch (e) {
@@ -169,9 +204,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      const engineVersion = getProjectPackageJson(projectName).etherealEngine?.version
-      const version = getEnginePackageJson().version
-      const enabled = config.allowOutOfDateProjects ? true : engineVersion === version
+      const projectEngineVersion = getProjectManifest(projectName).engineVersion
+      const enabled = config.allowOutOfDateProjects ? true : projectEngineVersion === engineVersion
 
       await super._patch(
         null,
@@ -179,7 +213,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { query: { name: projectName } }
       )
 
-      promises.push(uploadLocalProjectToProvider(this.app, projectName))
+      if (!seeded) await uploadLocalProjectToProvider(this.app, projectName)
     }
 
     await Promise.all(promises)
@@ -194,9 +228,5 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
           await super._remove(id)
         }
       }
-
-    const refetchedData = (await super._find({ paginate: false })) as ProjectType[]
-
-    await syncAllSceneJSONAssets(refetchedData, this.app)
   }
 }

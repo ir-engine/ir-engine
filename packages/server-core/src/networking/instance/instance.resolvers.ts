@@ -27,18 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  InstanceID,
-  InstanceQuery,
-  InstanceType,
-  instancePath
-} from '@etherealengine/common/src/schemas/networking/instance.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
-import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
+import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/common/src/schemas/social/location.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { BadRequest } from '@feathersjs/errors'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
@@ -55,32 +47,6 @@ export const instanceExternalResolver = resolve<InstanceType, HookContext>({})
 export const instanceDataResolver = resolve<InstanceType, HookContext>({
   id: async () => {
     return uuidv4() as InstanceID
-  },
-  projectId: async (value, instance, context) => {
-    try {
-      // Populate projectId from locationId
-      if (instance.locationId) {
-        const locationData = await context.app.service(locationPath).get(instance.locationId)
-        if (locationData) {
-          return locationData.projectId
-        } else {
-          console.error('Error populating projectId into instance', instance)
-          throw new BadRequest('Error populating projectId into instance')
-        }
-      }
-      // Populate projectId from channelId
-      if (instance.channelId) {
-        const channelData = await context.app.service(channelPath).get(instance.channelId)
-        if (channelData.instanceId) {
-          const channelInstance = await context.app.service(instancePath).get(channelData.instanceId)
-          return channelInstance.projectId
-        }
-        return ''
-      }
-    } catch (error) {
-      console.error('Error populating projectId into instance', instance)
-      throw new BadRequest('Error populating projectId into instance')
-    }
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

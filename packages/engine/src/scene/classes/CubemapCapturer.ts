@@ -27,8 +27,8 @@ import {
   CubeCamera,
   LinearFilter,
   RGBAFormat,
-  SRGBColorSpace,
   Scene,
+  SRGBColorSpace,
   Vector3,
   WebGLCubeRenderTarget,
   WebGLRenderer

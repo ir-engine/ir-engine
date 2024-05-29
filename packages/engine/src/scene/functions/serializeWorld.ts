@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { getAllComponents, getOptionalComponent, serializeComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ComponentJsonType } from '../types/SceneTypes'
 

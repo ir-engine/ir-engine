@@ -24,10 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CubeTexture, Material, Texture } from 'three'
-
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import matches from 'ts-matches'
+
+import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import {
+  materialByName,
+  MaterialComponent,
+  MaterialComponents
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
@@ -52,6 +58,8 @@ export function isOldEEMaterial(extension: any) {
     .test(argValues)
 }
 
+export type MaterialExtensionPluginType = { id: string; parameters: { [key: string]: any } }
+
 export type EEMaterialExtensionType = {
   uuid: EntityUUID
   name: string
@@ -62,7 +70,7 @@ export type EEMaterialExtensionType = {
       contents: any
     }
   }
-  plugins: string[]
+  plugins: MaterialExtensionPluginType[]
 }
 
 export default class EEMaterialExporterExtension extends ExporterExtension {
@@ -75,7 +83,9 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
   matCache: Map<any, any>
 
   writeMaterial(material: Material, materialDef) {
-    const argData = injectMaterialDefaults(material.uuid as EntityUUID)
+    const materialEntityUUID = materialByName[material.name]
+    const materialEntity = UUIDComponent.getEntityByUUID(materialEntityUUID)
+    const argData = injectMaterialDefaults(materialEntityUUID)
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {
@@ -106,17 +116,19 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.normalTexture
     delete materialDef.emissiveTexture
     delete materialDef.emissiveFactor
-    const materialComponent = getComponent(
-      UUIDComponent.getEntityByUUID(material.uuid as EntityUUID),
-      MaterialComponent[MaterialComponents.State]
-    )
+    const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
     const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
+    const materialStates = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+    const materialPlugins = materialStates.pluginEntities?.map((entity) => {
+      const plugin = getComponent(entity, MaterialComponent[MaterialComponents.Plugin])
+      return { id: plugin?.plugin?.id ?? '', name: plugin?.parameters ?? '' }
+    })
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
-      uuid: material.uuid,
-      name: material.name,
-      prototype: material.userData.type ?? Object.keys(prototype.prototypeConstructor!)[0],
-      plugins: [] /**@TODO PLUGINS */,
+      uuid: getComponent(materialEntity, UUIDComponent),
+      name: getComponent(materialEntity, NameComponent),
+      prototype: Object.keys(prototype.prototypeConstructor!)[0],
+      plugins: materialPlugins,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

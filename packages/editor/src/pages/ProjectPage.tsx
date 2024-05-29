@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
-import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-
-export const ProjectPage = () => {
+export const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   useRemoveEngineCanvas()
   return (
     <>
       <EditorNavbar />
-      <Projects />
+      <Projects studioPath={studioPath} />
     </>
   )
 }
