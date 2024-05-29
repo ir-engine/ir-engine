@@ -36,7 +36,7 @@ import { ProjectPermissionService } from '../projects/project-permission/project
 export default () => {
   return async (context: HookContext<ProjectPermissionService>) => {
     if (!context.params.query?.project) {
-      throw new BadRequest(`Project name missing`)
+      return context
     }
 
     const projectResult = (await context.app.service(projectPath).find({
