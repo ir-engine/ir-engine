@@ -42,6 +42,7 @@ import {
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
+import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
@@ -81,6 +82,27 @@ const sortByLocationSetting = async (context: HookContext<LocationService>) => {
       }
     }
   }
+}
+
+/**
+ * Populate projectId from sceneId into location data
+ * @param context
+ */
+const populateProjectIdInData = async (context: HookContext) => {
+  const process = async (location: LocationType) => {
+    const data = { ...location }
+
+    const scene = await context.app.service(assetPath).get(location.sceneId)
+    if (scene.projectId) {
+      data.projectId = scene.projectId
+    }
+
+    return data
+  }
+
+  context.data = Array.isArray(context.data)
+    ? await Promise.all(context.data.map(process))
+    : await process(context.data as LocationType)
 }
 
 /* (AFTER) CREATE HOOKS */
@@ -213,6 +235,7 @@ export default {
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
+      populateProjectIdInData,
       persistData,
       discard('locationSetting', 'locationAdmin')
     ],

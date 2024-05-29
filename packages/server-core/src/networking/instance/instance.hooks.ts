@@ -37,6 +37,7 @@ import {
 } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import { LocationID, locationPath, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 
+import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
@@ -133,6 +134,44 @@ const addRoomCode = async (context: HookContext<InstanceService>) => {
   return context
 }
 
+/**
+ * Populate projectId into instance data from locationId or channelId
+ * @param context
+ */
+const populateProjectIdInData = async (context: HookContext) => {
+  const process = async (instance: InstanceType) => {
+    const data = { ...instance }
+
+    // Populate projectId from locationId
+    if (instance.locationId) {
+      const locationData = await context.app.service(locationPath).get(instance.locationId)
+      if (locationData) {
+        data.projectId = locationData.projectId
+      } else {
+        throw new BadRequest('Error populating projectId into instance')
+      }
+    }
+
+    // Populate projectId from channelId
+    if (instance.channelId) {
+      const channelData = await context.app.service(channelPath).get(instance.channelId)
+      if (channelData.instanceId) {
+        const channelInstance = await context.app.service(instancePath).get(channelData.instanceId)
+        data.projectId = channelInstance.projectId
+      } else {
+        // When instance is running for scenarios like harmony chat
+        data.projectId = ''
+      }
+    }
+
+    return data
+  }
+
+  context.data = Array.isArray(context.data)
+    ? await Promise.all(context.data.map(process))
+    : await process(context.data as InstanceType)
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(instanceExternalResolver), schemaHooks.resolveResult(instanceResolver)]
@@ -151,6 +190,7 @@ export default {
       iff(isProvider('external'), verifyScope('instance', 'write')),
       () => schemaHooks.validateData(instanceDataValidator),
       schemaHooks.resolveData(instanceDataResolver),
+      populateProjectIdInData,
       addRoomCode
     ],
     update: [disallow()],
