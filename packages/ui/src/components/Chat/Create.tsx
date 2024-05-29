@@ -56,7 +56,7 @@ export const Create = () => {
       <div className="ml-[150px] box-border w-[370px] border-t-[1px]  border-solid border-[#f6f7f8]" />
 
       <div className="grid h-[86%] w-full grid-cols-2 divide-x-0 bg-[#f6f7f8]">
-        <div className="h-[100%] w-[150px] bg-[#15171B]">
+        <div className="h-full w-[150px] bg-[#15171B]">
           <div
             className={`ml-7 mt-7 flex w-[120px]  flex-wrap justify-start gap-2 ${
               activeSideButton === 1 ? 'text-[#935CFF]' : 'text-[#ffffff]'

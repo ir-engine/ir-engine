@@ -62,7 +62,7 @@ export const ContextMenu = ({
 
       if (shouldRepositionMenu) {
         // Align the menu bottom with the bottom of the viewport
-        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 50
+        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 30
       }
     }
 
@@ -81,7 +81,7 @@ export const ContextMenu = ({
       const parentHeight = parentRect?.height || 0
 
       // Make the menu scrollable if it is too tall for the parent component
-      setIsScrollable(parentHeight < menuHeight)
+      setIsScrollable(parentHeight <= menuHeight + 1)
 
       setPositionY(calculatePositionY())
     }

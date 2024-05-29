@@ -133,7 +133,7 @@ const AssetPanel = () => {
       const resource = categories[index]
 
       return (
-        <div className={`bg-theme-surface-main flex items-center ml-${resource.depth}`}>
+        <div className={`flex items-center ml-${resource.depth}`}>
           {resource.isLeaf ? (
             <></>
           ) : (
@@ -150,7 +150,7 @@ const AssetPanel = () => {
             className={twMerge(`p-2`, selectedCategory === resource ? 'bg-theme-primary text-grey' : 'text-white')}
             onClick={() => onClick(resource)}
           >
-            {resource.name}
+            <span className="dark:text-[#A3A3A3]">{resource.name}</span>
           </div>
         </div>
       )
@@ -160,7 +160,7 @@ const AssetPanel = () => {
 
   const CategoriesList = () => {
     return (
-      <div className="mb-8 h-full w-full overflow-scroll">
+      <div className="mb-8 h-[100%] w-full overflow-y-auto pb-8">
         {categories.map((category, index) => (
           <AssetCategory
             data={{
@@ -265,21 +265,21 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 ml-1 flex h-7" />
-      <div className="flex h-[100%] flex-row p-2">
-        <div className="flex h-[100%] w-[25%] flex-col gap-2">
+      <div className="bg-theme-surface-main mb-1 flex h-7" />
+      <div className="flex h-full flex-row p-2">
+        <div className="flex h-full w-[25%] flex-col gap-2">
           <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            className="bg-theme-primary w-[100%] rounded"
+            className="bg-theme-primary w-full rounded"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
           <CategoriesList />
         </div>
-        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-scroll">
+        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-y-auto pb-8">
           <ResourceItems />
         </div>
       </div>
