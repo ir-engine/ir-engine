@@ -46,11 +46,13 @@ cli.enable('status')
 const options = cli.parse({
   manifestURL: [false, 'Manifest URL', 'string'],
   branch: ['b', 'Branch', 'string', 'main'],
-  replace: ['r', 'Replace existing project?', 'string', 'no']
+  replace: ['r', 'Replace existing project?', 'string', 'no'],
+  singleBranch: ['s', 'Clone repos in a single branch?', 'string', 'no']
 }) as {
   manifestURL?: string
   branch?: string
   replace?: string
+  singleBranch?: string
 }
 
 /**
@@ -93,7 +95,7 @@ interface PackageManifest_V_1_0_0 {
 }
 
 const installManifest = async () => {
-  const { branch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
+  const { branch, singleBranch } = options // ?? 'main' -> unnecessary coalescing operator, leveraging default value from cli settings instead
   const manifest = (await fetchManifest()) as PackageManifest_V_1_0_0
   const replacing = options.replace?.toLowerCase() === 'yes' || options.replace?.toLowerCase() === 'y'
   if (!manifest) throw new Error('No manifest found')
@@ -143,7 +145,7 @@ const installManifest = async () => {
       const curatedURL = url.replace('https://github.com/', 'git@github.com:')
       console.log(`Cloning ${curatedURL}`)
       // Improving performance by cloning the code from the expected branch in a single step
-      await execPromise(`git clone -b ${branch} --single-branch ${curatedURL}`, {
+      await execPromise(`git clone -b ${branch} ${singleBranch === 'yes' ? '--single-branch' : ''} ${curatedURL}`, {
         cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
       })
 
@@ -159,9 +161,18 @@ const installManifest = async () => {
       */
     })
   )
+
   await execPromise(`ls`, {
     cwd: path.resolve(appRootPath.path, 'packages/projects/projects')
   })
+
+  if (singleBranch === 'yes') {
+    console.log(`You enabled cloning a single branch, the only branch currently available in your local environment
+    is "${branch}", in case you need to checkout a different remote branch, run the following commands in your terminal:
+    
+    $ git fetch origin [branch]
+    $ git checkout FETCH_HEAD -b [branch]`)
+  }
 }
 
 cli.main(async () => {
