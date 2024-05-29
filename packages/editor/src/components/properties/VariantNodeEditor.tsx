@@ -27,7 +27,7 @@ import DeblurIcon from '@mui/icons-material/Deblur'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
@@ -100,7 +100,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
 
   const setPreview = (index: number) => {
     previewIndex.set(index)
-    const modelComponent = useOptionalComponent(entity, ModelComponent)
+    const modelComponent = getOptionalMutableComponent(entity, ModelComponent)
     if (!modelComponent) return
     modelComponent.src.set(variantComponent.levels[index].src.value)
   }
