@@ -52,6 +52,7 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import '@etherealengine/ui/src/fonts/font.css'
 import 'rc-dock/dist/rc-dock.css'
 import './Editor2Container.css'
 
@@ -139,7 +140,7 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!dockPanelRef.current) return
-    const activePanel = rootEntity.value ? 'filesPanel' : 'scenePanel'
+    const activePanel = rootEntity.value ? 'scenePanel' : 'filesPanel'
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [rootEntity])
 

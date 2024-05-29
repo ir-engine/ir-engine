@@ -31,6 +31,12 @@ module.exports = {
   important: true, // important in prod is must be
   theme: {
     extend: {
+      gradientColorStops: {
+        ...Array.from({ length: 101 }, (_, i) => i).reduce((acc, curr) => {
+          acc[curr] = `${curr}%`;
+          return acc;
+        }, {})
+      },
       backgroundImage: {
         'gradient-onboarding': 'linear-gradient(180deg, #0A0A0A 0%, #262626 100%)',
         'text-gradient-onboarding': 'linear-gradient(275deg, #4195FB 4.98%, #4E9CFB 61.64%, #A5CDFD 97.96%)',
@@ -70,5 +76,11 @@ module.exports = {
         'blue-primary': '#375DAF'
       }
     }
+  },
+  purge: {
+    safelist: [
+      ...Array.from({ length: 101 }, (_, i) => `via-[${i}%]`),
+      ...Array.from({ length: 101 }, (_, i) => `to-[${i}%]`)
+    ]
   }
 }
