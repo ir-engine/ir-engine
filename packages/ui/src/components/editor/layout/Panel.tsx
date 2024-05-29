@@ -26,47 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactNode } from 'react'
 import Text from '../../../primitives/tailwind/Text'
 
-const panelIconStyles = {
-  color: 'var(--textColor)',
-  marginRight: '6px',
-  width: '18px'
-}
-
-const panelCheckboxStyles = {
-  color: 'var(--textColor)',
-  position: 'relative',
-  padding: '0px'
-}
-
-const panelContainerStyles = {
-  position: 'relative',
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  borderRadius: '4px',
-  backgroundColor: 'var(--dockBackground)',
-  overflow: 'hidden',
-  userSelect: 'none'
-}
-
-const panelToolbarStyles = {
-  display: 'flex',
-  padding: '4px',
-  height: '24px',
-  alignItems: 'center',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.2)'
-}
-
-const panelContentStyles = {
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  position: 'relative',
-  overflow: 'hidden'
-}
-
 export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
-  return <IconComponent style={panelIconStyles} size={size} />
+  return <IconComponent className="mr-[6px] w-[18px] text-[var(--textColor)]" size={size} />
 }
 
 export const PanelTitle = ({ children }) => {
@@ -78,7 +39,7 @@ export const PanelTitle = ({ children }) => {
 }
 
 export const PanelCheckbox = ({ children }) => {
-  return <div style={panelCheckboxStyles as React.CSSProperties}>{children}</div>
+  return <div className="cursor-pointer rounded-t-md bg-theme-surface-main px-4 py-1">{children}</div>
 }
 
 export const PanelDragContainer = ({ children }) => {
@@ -88,22 +49,21 @@ export const PanelDragContainer = ({ children }) => {
 
 export const PanelContainer = ({ children, ...rest }) => {
   return (
-    <div style={panelContainerStyles as React.CSSProperties} {...rest}>
+    <div
+      className="relative flex flex-1 select-none flex-col overflow-hidden rounded bg-[var(--dockBackground)]"
+      {...rest}
+    >
       {children}
     </div>
   )
 }
 
 export const PanelToolbar = ({ children }) => {
-  return (
-    <div className="toolbar" style={panelToolbarStyles}>
-      {children}
-    </div>
-  )
+  return <div className="toolbar flex h-6 items-center border-b border-black border-opacity-20 p-1">{children}</div>
 }
 
 export const PanelContent = ({ children }) => {
-  return <div style={panelContentStyles as React.CSSProperties}>{children}</div>
+  return <div className="relative flex flex-1 flex-col overflow-hidden">{children}</div>
 }
 
 interface PanelProps {
