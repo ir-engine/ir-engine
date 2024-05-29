@@ -86,14 +86,14 @@ export default function Servers() {
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`bg-theme-surface-main flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl p-4 ${
-              serverType.value === info.id && 'border-b-blue-primary border-b-2'
+            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-theme-surface-main p-4 ${
+              serverType.value === info.id && 'border-b-2 border-b-blue-primary'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="bg-blue-primary h-6 rounded-[90px] text-white"
+              className="h-6 rounded-[90px] bg-blue-primary text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>

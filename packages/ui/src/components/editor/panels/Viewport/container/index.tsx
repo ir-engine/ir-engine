@@ -40,6 +40,7 @@ import { Vector2, Vector3 } from 'three'
 import Text from '../../../../../primitives/tailwind/Text'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
+import RenderModeTool from '../tools/RenderTool'
 import TransformPivotTool from '../tools/TransformPivotTool'
 import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
@@ -100,13 +101,14 @@ const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
   const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
   return (
-    <div className="bg-theme-surface-main z-30 flex h-full w-full flex-col">
+    <div className="z-30 flex h-full w-full flex-col bg-theme-surface-main">
       <div className="flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
         <GridTool />
         <TransformSnapTool />
         <div className="flex-1" />
+        <RenderModeTool />
         <PlayModeTool />
       </div>
       {sceneName ? (

@@ -88,7 +88,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
-                <th key={header} className="table-cell text-xs font-normal">
+                <th key={header} className="table-cell text-xs font-normal dark:text-[#A3A3A3]">
                   {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
                 </th>
               ))}
@@ -133,7 +133,7 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2">
+      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]">
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
@@ -146,7 +146,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`h-[${fontSize * 3}px] cursor-pointer`}
+      className={`h-[${fontSize * 3}px] text-[${fontSize}px] hover:bg-theme-surfaceInput text-[#a3a3a3]`}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
@@ -155,7 +155,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base text-[#E7E7E7]" style={{ fontSize }}>
+          <td key={idx} className="text-base" style={{ fontSize }}>
             {tableColumns[header]}
           </td>
         ))}
@@ -177,28 +177,32 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex cursor-pointer flex-col items-center text-center"
+      className="flex w-[112px] cursor-pointer flex-col items-center text-center"
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
-      onClick={props.item.isFolder ? undefined : props.onClick}
-      style={{
-        width: iconSize + 20,
-        margin: 0.1 * iconSize
-      }}
+      onClick={props.onClick}
     >
       <div
+        className="mx-[16px] mt-[8px]"
         style={{
           height: iconSize,
           width: iconSize,
           fontSize: iconSize
         }}
       >
-        <FileIcon thumbnailURL={thumbnailURL} type={props.item.type} isFolder={props.item.isFolder} showRibbon />
+        <FileIcon
+          thumbnailURL={thumbnailURL}
+          type={props.item.type}
+          isFolder={props.item.isFolder}
+          color="text-[#375DAF]"
+        />
       </div>
       {props.isRenaming ? (
         <></>
       ) : (
         /*<RenameInput fileName={props.item.name} onNameChanged={props.onNameChanged} />*/
-        <div className="w-full text-wrap break-all text-[#E7E7E7]">{props.item.fullName}</div>
+        <div className="text-secondary mb-[8px] line-clamp-1 w-full text-wrap break-all text-[14px]">
+          {props.item.fullName}
+        </div>
       )}
     </div>
   )

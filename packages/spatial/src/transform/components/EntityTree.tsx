@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect } from 'react'
-
 import {
   ComponentType,
   defineComponent,
@@ -39,7 +37,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
@@ -399,7 +398,7 @@ export function useTreeQuery(entity: Entity) {
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
@@ -432,7 +431,11 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
   return result.value
 }
 
-export function useChildWithComponent(entity: Entity, component: ComponentType<any>) {
+/**
+ * @todo - return an array of entities that have the component
+ *
+ */
+export function useChildWithComponent(rootEntity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
   useLayoutEffect(() => {
@@ -463,13 +466,23 @@ export function useChildWithComponent(entity: Entity, component: ComponentType<a
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={entity} key={entity} />
+      const isScene = useOptionalComponent(rootEntity, SceneComponent)
+      if (isScene) {
+        return (
+          <>
+            {isScene.children.value.map((entity) => (
+              <ChildSubReactor entity={entity} key={entity} />
+            ))}
+          </>
+        )
+      }
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
     })
     return () => {
       unmounted = true
       root.stop()
     }
-  }, [entity, component])
+  }, [rootEntity, component])
 
   return result.value
 }

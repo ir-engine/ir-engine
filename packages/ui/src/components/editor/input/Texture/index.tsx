@@ -92,7 +92,7 @@ export default function TexturePreviewInput({
 
   return (
     <ImageContainer>
-      <div className="flex w-[100%] flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
+      <div className="flex w-full flex-col items-start justify-start gap-1 rounded bg-neutral-800 p-1">
         {showPreview && (
           <div className="relative h-full max-h-[274px] w-full max-w-[305px]">
             <div className="flex max-h-[274px] max-w-[305px] justify-center rounded bg-zinc-900">
@@ -102,13 +102,13 @@ export default function TexturePreviewInput({
                     (typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetClass.Image)) && (
                     <img
                       src={previewSrc}
-                      className="h-[100%] w-[100%] rounded object-contain"
+                      className="h-full w-full rounded object-contain"
                       alt=""
                       crossOrigin="anonymous"
                     />
                   )}
                   {typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetClass.Video && (
-                    <video src={previewSrc} className="h-[100%] w-[100%] rounded object-contain" />
+                    <video src={previewSrc} className="h-full w-full rounded object-contain" />
                   )}
                 </Fragment>
               </div>

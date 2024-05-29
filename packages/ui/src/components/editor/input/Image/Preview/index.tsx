@@ -49,7 +49,7 @@ export default function ImagePreviewInput({
         <div className="h-[274px] w-[305px]">
           <div className="flex h-[274px] w-[305px] justify-center rounded bg-zinc-900">
             <div className="h-auto w-auto rounded bg-neutral-900">
-              <img src={value} crossOrigin="anonymous" className="h-[100%] w-[100%] rounded object-contain" />
+              <img src={value} crossOrigin="anonymous" className="h-full w-full rounded object-contain" />
             </div>
           </div>
         </div>

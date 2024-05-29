@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
 import Button from '../../../../primitives/tailwind/Button'
 import ContextMenu from '../../layout/ContextMenu'
 
@@ -42,7 +41,7 @@ interface MainMenuProp {
 }
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
+  const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
@@ -59,7 +58,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
 
   const handleClose = () => {
     setAnchorEl(null)
-    setAnchorPosition(undefined)
+    setAnchorPosition({ left: 0, top: 0 })
   }
 
   const renderMenu = (command: Command) => {
@@ -80,7 +79,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
 
   return (
     <>
-      <div id="menu" className="bg-theme-surfaceInput flex items-center ">
+      <div id="menu" className="flex items-center bg-theme-surfaceInput ">
         <Button
           variant="transparent"
           startIcon={icon}

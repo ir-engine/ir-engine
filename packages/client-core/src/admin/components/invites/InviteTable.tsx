@@ -115,7 +115,7 @@ export default function InviteTable({
           </Button>
           <Button
             variant="outline"
-            startIcon={<HiTrash className="text-theme-iconRed place-self-center" />}
+            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
             onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}
           />
         </div>

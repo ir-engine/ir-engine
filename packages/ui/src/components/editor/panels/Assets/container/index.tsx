@@ -23,9 +23,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { CircularProgress } from '@mui/material'
 import { debounce } from 'lodash'
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -35,11 +34,14 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { BiSolidDownArrow, BiSolidRightArrow } from 'react-icons/bi'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
-import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Text from '../../../../../primitives/tailwind/Text'
 import { FileIcon } from '../../Files/icon'
 
 type FolderType = { folderType: 'folder'; assetClass: string }
@@ -109,6 +111,43 @@ function iterativelyListTags(obj: object): string[] {
   return tags
 }
 
+const AssetCategory = (props: {
+  data: {
+    categories: Category[]
+    onClick: (resource: Category) => void
+    selectedCategory: Category | null
+    collapsedCategories: State<{ [key: string]: boolean }>
+  }
+  index: number
+}) => {
+  const { categories, onClick, selectedCategory, collapsedCategories } = props.data
+  const index = props.index
+  const resource = categories[index]
+
+  return (
+    <div
+      className={twMerge(
+        'my-2 flex items-center gap-2 bg-[#3F3F3F] px-2 py-0.5',
+        resource.depth === 0 && !resource.collapsed && 'mt-4',
+        selectedCategory?.name === resource.name && 'bg-[#D9D9D9]'
+      )}
+      style={{ marginLeft: resource.depth * 28 }}
+    >
+      <Button
+        variant="transparent"
+        className={twMerge('m-0 p-0', resource.isLeaf && 'invisible cursor-auto')}
+        title={resource.collapsed ? 'expand' : 'collapse'}
+        startIcon={resource.collapsed ? <BiSolidRightArrow /> : <BiSolidDownArrow />}
+        onClick={() => !resource.isLeaf && collapsedCategories[resource.name].set(!resource.collapsed)}
+      />
+      <div className="h-5 w-5 cursor-pointer bg-[#868686]" onClick={() => onClick(resource)} />
+      <Text className="cursor-pointer" onClick={() => onClick(resource)}>
+        {resource.name}
+      </Text>
+    </div>
+  )
+}
+
 const AssetPanel = () => {
   const { t } = useTranslation()
   const collapsedCategories = useHookstate<{ [key: string]: boolean }>({})
@@ -119,56 +158,19 @@ const AssetPanel = () => {
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
 
-  const AssetCategory = useCallback(
-    (props: {
-      data: {
-        categories: Category[]
-        onClick: (resource: Category) => void
-        selectedCategory: Category | null
-      }
-      index: number
-    }) => {
-      const { categories, onClick, selectedCategory } = props.data
-      const index = props.index
-      const resource = categories[index]
-
-      return (
-        <div className={`bg-theme-surface-main flex items-center ml-${resource.depth}`}>
-          {resource.isLeaf ? (
-            <></>
-          ) : (
-            <div onClick={() => collapsedCategories[resource.name].set(!resource.collapsed)}>
-              {resource.collapsed ? (
-                <MdKeyboardArrowRight className="font-small text-white" />
-              ) : (
-                <MdKeyboardArrowDown className="font-small text-white" />
-              )}
-            </div>
-          )}
-          <div
-            key={resource.name}
-            className={twMerge(`p-2`, selectedCategory === resource ? 'bg-theme-primary text-grey' : 'text-white')}
-            onClick={() => onClick(resource)}
-          >
-            {resource.name}
-          </div>
-        </div>
-      )
-    },
-    []
-  )
-
   const CategoriesList = () => {
     return (
-      <div className="mb-8 h-full w-full overflow-scroll">
+      <div className="mb-8 h-[100%] w-full overflow-y-auto pb-8">
         {categories.map((category, index) => (
           <AssetCategory
+            key={category.name.value}
             data={{
               categories: categories.value as Category[],
               selectedCategory: selectedCategory.value,
               onClick: (resource: Category) => {
                 selectedCategory.set(JSON.parse(JSON.stringify(resource)))
-              }
+              },
+              collapsedCategories
             }}
             index={index}
           />
@@ -242,7 +244,7 @@ const AssetPanel = () => {
     if (loading.value) {
       return (
         <div className="flex items-center justify-center">
-          <CircularProgress />
+          <LoadingView className="h-4 w-4" spinnerOnly />
         </div>
       )
     }
@@ -265,21 +267,21 @@ const AssetPanel = () => {
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 ml-1 flex h-7" />
-      <div className="flex h-[100%] flex-row p-2">
-        <div className="flex h-[100%] w-[25%] flex-col gap-2">
+      <div className="mb-1 flex h-7 bg-theme-surface-main" />
+      <div className="flex h-full flex-row p-2">
+        <div className="flex h-full w-[25%] flex-col gap-2">
           <Input
             placeholder={t('editor:layout.filebrowser.search-placeholder')}
             value={searchText.value}
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            className="bg-theme-primary w-[100%] rounded"
+            className="w-full rounded bg-theme-primary"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
           <CategoriesList />
         </div>
-        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-scroll">
+        <div className="grid h-[100%] w-[75%] grid-cols-4 overflow-y-auto pb-8">
           <ResourceItems />
         </div>
       </div>

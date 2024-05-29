@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -34,27 +35,25 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-
+import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
-import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
-import 'rc-dock/dist/rc-dock.css'
+import { t } from 'i18next'
+import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+import Toolbar from '../components/toolbar/Toolbar2'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import './Editor2Container.css'
 import AssetDropZone from './assets/AssetDropZone'
+import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
-import { t } from 'i18next'
-import Toolbar from '../components/toolbar/Toolbar2'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
+import 'rc-dock/dist/rc-dock.css'
+import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -112,8 +111,6 @@ const defaultLayout: LayoutData = {
   }
 }
 
-const tabs = [HierarchyPanelTab, PropertiesPanelTab, ViewportPanelTab, ScenePanelTab, FilesPanelTab, AssetsPanelTab]
-
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
@@ -122,35 +119,6 @@ const EditorContainer = () => {
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
   const dockPanelRef = useRef<DockLayout>(null)
-
-  const panelMenu = tabs.map((tab) => {
-    return {
-      name: tab.title,
-      action: () => {
-        const currentLayout = dockPanelRef?.current?.getLayout()
-        if (!currentLayout) return
-        if (dockPanelRef.current!.find(tab.id!)) {
-          return
-        }
-        //todo: add support for multiple instances of a panel type
-        // let panelId = panel.id!
-        // while (dockPanelRef.current!.find(panelId)) {
-        //   if (/\d+$/.test(panelId)) {
-        //     panelId = panelId.replace(/\d+$/, (match) => {
-        //       return (parseInt(match) + 1).toString()
-        //     })
-        //   } else {
-        //     panelId += '1'
-        //   }
-        // }
-        // panel.id = panelId
-        const targetId = tab.parent!.id! ?? currentLayout.dockbox.children[0].id
-        const targetPanel = dockPanelRef.current!.find(targetId) as PanelData
-        targetPanel.tabs.push(tab)
-        dockPanelRef?.current?.loadLayout(currentLayout)
-      }
-    }
-  })
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 

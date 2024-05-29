@@ -73,7 +73,7 @@ export default function ScenesPanel() {
   useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
   return (
-    <div className="bg-theme-primary">
+    <div className="bg-theme-primary h-full">
       <div className="bg-theme-surface-main mb-4 w-full">
         <Button
           startIcon={<HiOutlinePlusCircle />}
@@ -86,67 +86,72 @@ export default function ScenesPanel() {
           {t('editor:newScene')}
         </Button>
       </div>
-      <div className="bg-theme-primary mx-5">
+      <div className="bg-theme-primary h-full">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
-          <div className="flex flex-wrap gap-4">
-            {scenes.map((scene: AssetType) => (
-              <div key={scene.id} className="bg-theme-surface-main my-2 h-40 w-56 rounded">
-                <img
-                  src={config.client.fileServer + '/' + scene.thumbnailURL}
-                  alt={scene.assetURL}
-                  onError={(e) => {
-                    e.currentTarget.src = 'static/etherealengine_logo.png'
-                  }}
-                  crossOrigin="anonymous"
-                  className="h-full w-full cursor-pointer object-contain"
-                  onClick={() => onClickScene(scene)}
-                />
-                <div className="flex items-center justify-between px-4 py-2">
-                  <Text>{getSceneName(scene)}</Text>
-                  <div className="relative">
-                    <Button
-                      variant="transparent"
-                      startIcon={<HiDotsHorizontal />}
-                      iconContainerClassName="mx-0"
-                      onClick={() => isContextMenuOpen.set(scene.id)}
-                    />
-                    {isContextMenuOpen.value === scene.id ? (
-                      <div className={'absolute top-1 flex flex-col'} ref={contextMenuRef}>
-                        <Button
-                          variant="outline"
-                          size="small"
-                          fullWidth
-                          onClick={() =>
-                            PopoverState.showPopupover(
-                              <RenameSceneModal sceneName={getSceneName(scene)} scene={scene} />
-                            )
-                          }
-                        >
-                          {t('editor:hierarchy.lbl-rename')}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="small"
-                          fullWidth
-                          onClick={() => {
-                            PopoverState.showPopupover(
-                              <ConfirmDialog
-                                text={t('editor:hierarchy.lbl-deleteScene')}
-                                onSubmit={async () => deleteSelectedScene(scene)}
-                              />
-                            )
-                          }}
-                        >
-                          {t('editor:hierarchy.lbl-delete')}
-                        </Button>
-                      </div>
-                    ) : null}
+          <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
+            <div className="flex flex-wrap gap-4 pb-8">
+              {scenes.map((scene: AssetType) => (
+                <div
+                  key={scene.id}
+                  className="bg-theme-surface-main my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg"
+                >
+                  <img
+                    src={config.client.fileServer + '/' + scene.thumbnailURL}
+                    alt={scene.assetURL}
+                    onError={(e) => {
+                      e.currentTarget.src = 'static/etherealengine_logo.png'
+                    }}
+                    crossOrigin="anonymous"
+                    className="block h-[100%] w-auto cursor-pointer rounded-t-lg object-cover"
+                    onClick={() => onClickScene(scene)}
+                  />
+                  <div className="flex items-center justify-between px-4 py-1">
+                    <Text className="text-sm leading-5 dark:text-[#A3A3A3]">{getSceneName(scene)}</Text>
+                    <div className="relative">
+                      <Button
+                        variant="transparent"
+                        startIcon={<HiDotsHorizontal />}
+                        iconContainerClassName="mx-0"
+                        onClick={() => isContextMenuOpen.set(scene.id)}
+                      />
+                      {isContextMenuOpen.value === scene.id ? (
+                        <div className={'absolute top-1 flex flex-col'} ref={contextMenuRef}>
+                          <Button
+                            variant="outline"
+                            size="small"
+                            fullWidth
+                            onClick={() =>
+                              PopoverState.showPopupover(
+                                <RenameSceneModal sceneName={getSceneName(scene)} scene={scene} />
+                              )
+                            }
+                          >
+                            {t('editor:hierarchy.lbl-rename')}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="small"
+                            fullWidth
+                            onClick={() => {
+                              PopoverState.showPopupover(
+                                <ConfirmDialog
+                                  text={t('editor:hierarchy.lbl-deleteScene')}
+                                  onSubmit={async () => deleteSelectedScene(scene)}
+                                />
+                              )
+                            }}
+                          >
+                            {t('editor:hierarchy.lbl-delete')}
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>

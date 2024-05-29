@@ -44,7 +44,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   const color = (() => {
     switch (axis) {
       case 'x':
-        return 'red-400'
+        return 'red-500'
       case 'y':
         return 'green-400' // must be fushsia-400 , but these colors doesnt show up
       case 'z':
@@ -117,7 +117,7 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+    <div className="flex flex-row justify-start gap-1.5">
       <NumericInput
         {...rest}
         value={vx}
