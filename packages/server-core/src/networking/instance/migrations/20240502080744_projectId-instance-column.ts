@@ -23,12 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
+import type { Knex } from 'knex'
+import {
+  addProjectColumn,
+  dropProjectColumn
+} from '../../../social/location/migrations/20240502080725_projectId-location-column'
+
 /**
- * Create a lerp alpha value that is exponentially smoothed.
- * @param lerpMultiplier
- * @param deltaSeconds
- * @returns
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
-export function smootheLerpAlpha(lerpMultiplier: number, deltaSeconds: number) {
-  return 1 - Math.exp(-lerpMultiplier * deltaSeconds)
+export async function up(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await addProjectColumn(trx, instancePath)
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await dropProjectColumn(trx, instancePath)
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
