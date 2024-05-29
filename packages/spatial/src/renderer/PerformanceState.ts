@@ -165,8 +165,8 @@ export const PerformanceState = defineState({
     averageRenderTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
     averageSystemTime: createExponentialMovingAverage(180, (1 / 60) * 1000),
 
-    performanceSmoothingTime: 3000 as const,
-    isSmoothing: false
+    performanceSmoothingCycles: 300 as const,
+    performanceSmoothingAccum: 0
   }),
 
   reactor: () => {
@@ -200,11 +200,8 @@ export const PerformanceState = defineState({
     }, [performanceState.gpuTier])
 
     useEffect(() => {
-      performanceState.isSmoothing.set(true)
       recreateEMA()
-      setTimeout(() => {
-        performanceState.isSmoothing.set(false)
-      }, performanceState.performanceSmoothingTime.value)
+      performanceState.performanceSmoothingAccum.set(0)
     }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
   }
 })
@@ -216,15 +213,27 @@ export const PerformanceSystem = defineSystem({
   execute: () => {
     if (getState(EngineState).isEditing || !getState(RendererState).automatic) return
 
-    const performanceState = getMutableState(PerformanceState)
-    const ecsState = getState(ECSState)
+    const {
+      averageFrameTime,
+      averageRenderTime,
+      averageSystemTime,
+      targetFPS,
+      performanceSmoothingAccum,
+      performanceSmoothingCycles
+    } = getState(PerformanceState)
 
-    updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration)
-    updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.deltaSeconds * 1000)
+    {
+      const performanceState = getMutableState(PerformanceState)
+      const ecsState = getState(ECSState)
 
-    if (performanceState.isSmoothing.value) return
+      updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration)
+      updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.deltaSeconds * 1000)
 
-    const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState.value
+      if (performanceSmoothingAccum < performanceSmoothingCycles) {
+        performanceState.performanceSmoothingAccum.set(performanceSmoothingAccum + 1)
+        return
+      }
+    }
 
     const maxDelta = 1000 / (targetFPS / 2 - 2)
     const minDelta = 1000 / (targetFPS - 5)
