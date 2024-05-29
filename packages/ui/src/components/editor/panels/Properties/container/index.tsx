@@ -31,7 +31,7 @@ import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealen
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/ecs'
-import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
+import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
