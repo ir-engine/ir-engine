@@ -256,7 +256,7 @@ const SceneAssetsPanel = () => {
         <>
           {searchedStaticResources
             .filter((resource) => {
-              if (selectedCategory.value !== null) {
+              if (selectedCategory.value?.name && selectedCategory.value?.object) {
                 const tags = [selectedCategory.value!.name, ...iterativelyListTags(selectedCategory.value!.object)]
                 return tags.some((tag) => resource.tags.value?.map((x) => x.toLowerCase()).includes(tag.toLowerCase()))
               } else if (searchText.value === '') {
@@ -265,9 +265,9 @@ const SceneAssetsPanel = () => {
                 return true
               }
             })
-            .map((resource) => {
-              return <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
-            })}
+            .map((resource) => (
+              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
+            ))}
         </>
       )
     }
