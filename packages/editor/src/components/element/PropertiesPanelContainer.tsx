@@ -27,7 +27,7 @@ import { Popover } from '@mui/material'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID, UUIDComponent, entityExists } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { Component, ComponentJSONIDMap, useOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -112,6 +112,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   )
 }
 
+const NodeEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const node = GLTFNodeState.useMutableNode(entity)
+  if (!node) return null
+  return <EntityEditor entityUUID={props.entityUUID} multiEdit={props.multiEdit} />
+}
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
@@ -133,10 +140,12 @@ export const PropertiesPanelContainer = () => {
         height: '100%'
       }}
     >
-      {materialUUID ? (
-        <MaterialEditor materialUUID={materialUUID} />
-      ) : uuid && entity && entityExists(entity) ? (
-        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+      {entity ? (
+        materialUUID ? (
+          <MaterialEditor materialUUID={materialUUID} />
+        ) : (
+          <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+        )
       ) : (
         <div
           style={{

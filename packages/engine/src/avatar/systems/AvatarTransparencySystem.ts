@@ -27,28 +27,26 @@ import { Vector3 } from 'three'
 
 import {
   defineSystem,
-  ECSState,
   Engine,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
-  hasComponent,
-  PresentationSystemGroup
+  PresentationSystemGroup,
+  useOptionalComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { useEffect } from 'react'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { TransparencyDitheringComponent } from '../components/TransparencyDitheringComponent'
 
-export const eyeOffset = 0.25
 const execute = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const deltaSeconds = getState(ECSState).deltaSeconds
   const cameraDithering = getOptionalMutableComponent(selfAvatarEntity, TransparencyDitheringComponent[0])
   if (!cameraDithering) return
 
@@ -67,15 +65,27 @@ const execute = () => {
   )
   cameraDithering.distance.set(cameraAttached ? 8 : 3)
   cameraDithering.exponent.set(cameraAttached ? 10 : 2)
-
-  if (!cameraComponent) return
-  const hasDecapComponent = hasComponent(selfAvatarEntity, AvatarHeadDecapComponent)
-  if (hasDecapComponent) cameraComponent.offset.setZ(Math.min(cameraComponent.offset.z + deltaSeconds, eyeOffset))
-  else cameraComponent.offset.setZ(Math.max(cameraComponent.offset.z - deltaSeconds, 0))
 }
+
+export const eyeOffset = 0.25
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
   execute,
-  insert: { with: PresentationSystemGroup }
+  insert: { with: PresentationSystemGroup },
+  reactor: () => {
+    const selfEid = AvatarComponent.useSelfAvatarEntity()
+    const hasDecapComponent = !!useOptionalComponent(selfEid, AvatarHeadDecapComponent)
+    const hasFollowCamera = !!useOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
+    useEffect(() => {
+      const followCamera = getOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
+      if (!followCamera) return
+      const prevOffsetZ = followCamera.offset.z
+      followCamera.offset.setZ(eyeOffset)
+      return () => {
+        followCamera.offset.setZ(prevOffsetZ)
+      }
+    }, [hasFollowCamera, hasDecapComponent, selfEid])
+    return null
+  }
 })
