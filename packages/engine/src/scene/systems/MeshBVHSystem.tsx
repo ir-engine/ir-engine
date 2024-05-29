@@ -42,7 +42,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  useOptionalComponent
+  useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
@@ -109,6 +109,11 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
+/**
+ * @todo we need a fast way to raycast skinned meshes - uncommenting this will cause skinned meshes to intersect and be very slow
+ */
+SkinnedMesh.prototype.raycast = () => {}
+
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
@@ -122,7 +127,7 @@ const edgeMaterial = new LineBasicMaterial({
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
-  const mesh = useOptionalComponent(entity, MeshComponent)
+  const mesh = useComponent(entity, MeshComponent)
 
   useEffect(() => {
     const mesh = getOptionalComponent(entity, MeshComponent)
