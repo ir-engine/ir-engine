@@ -42,7 +42,18 @@ import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { gizmoObject, helperObject, pickerObject } from '../constants/GizmoPresets'
+import {
+  gizmoRotate,
+  gizmoScale,
+  gizmoTranslate,
+  helperRotate,
+  helperScale,
+  helperTranslate,
+  pickerRotate,
+  pickerScale,
+  pickerTranslate,
+  setupGizmo
+} from '../constants/GizmoPresets'
 
 export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
@@ -99,6 +110,21 @@ export const TransformGizmoVisualComponent = defineComponent({
 
     useEffect(() => {
       // Gizmo creation
+      const gizmoObject = {}
+      const pickerObject = {}
+      const helperObject = {}
+
+      gizmoObject[TransformMode.translate] = setupGizmo(gizmoTranslate)
+      gizmoObject[TransformMode.rotate] = setupGizmo(gizmoRotate)
+      gizmoObject[TransformMode.scale] = setupGizmo(gizmoScale)
+
+      pickerObject[TransformMode.translate] = setupGizmo(pickerTranslate)
+      pickerObject[TransformMode.rotate] = setupGizmo(pickerRotate)
+      pickerObject[TransformMode.scale] = setupGizmo(pickerScale)
+
+      helperObject[TransformMode.translate] = setupGizmo(helperTranslate)
+      helperObject[TransformMode.rotate] = setupGizmo(helperRotate)
+      helperObject[TransformMode.scale] = setupGizmo(helperScale)
       for (const mode in TransformMode) {
         setComponent(gizmo[mode], NameComponent, `gizmo${mode}Entity`)
         addObjectToGroup(gizmo[mode], gizmoObject[mode])

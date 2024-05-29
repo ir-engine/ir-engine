@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   BoxGeometry,
@@ -381,7 +380,7 @@ function setupGizmo(gizmoMap) {
 
   for (const name in gizmoMap) {
     for (let i = gizmoMap[name].length; i--; ) {
-      const object = gizmoMap[name][i][0]
+      const object = gizmoMap[name][i][0].clone()
       const position = gizmoMap[name][i][1]
       const rotation = gizmoMap[name][i][2]
       const scale = gizmoMap[name][i][3]
@@ -421,26 +420,17 @@ function setupGizmo(gizmoMap) {
   return gizmo
 }
 
-const gizmoObject = {}
-const pickerObject = {}
-const helperObject = {}
-
-gizmoObject[TransformMode.translate] = setupGizmo(gizmoTranslate)
-gizmoObject[TransformMode.rotate] = setupGizmo(gizmoRotate)
-gizmoObject[TransformMode.scale] = setupGizmo(gizmoScale)
-
-pickerObject[TransformMode.translate] = setupGizmo(pickerTranslate)
-pickerObject[TransformMode.rotate] = setupGizmo(pickerRotate)
-pickerObject[TransformMode.scale] = setupGizmo(pickerScale)
-
-helperObject[TransformMode.translate] = setupGizmo(helperTranslate)
-helperObject[TransformMode.rotate] = setupGizmo(helperRotate)
-helperObject[TransformMode.scale] = setupGizmo(helperScale)
-
 export {
-  gizmoObject,
-  pickerObject,
-  helperObject,
+  gizmoTranslate,
+  pickerTranslate,
+  helperTranslate,
+  gizmoRotate,
+  pickerRotate,
+  helperRotate,
+  gizmoScale,
+  pickerScale,
+  helperScale,
+  setupGizmo,
   GizmoMaterial,
   gizmoMaterialProperties,
   matInvisible,
