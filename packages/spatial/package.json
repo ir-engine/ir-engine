@@ -20,7 +20,7 @@
     "@etherealengine/visual-script": "^1.6.0",
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/network": "^1.6.0",
-    "@tweenjs/tween.js": "^18.6.4",
+    "@tweenjs/tween.js": "^23.1.2",
     "bitecs": "0.3.40",
     "lodash": "4.17.21",
     "noisejs": "2.1.0",

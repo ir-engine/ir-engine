@@ -259,9 +259,9 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity
 ) => {
   const scenes = getSourcesForEntities([parentEntity])
-  const entityUUID =
+  const entityUUID: EntityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
-
+  const sceneIDUsed = Object.keys(scenes)[0]
   for (const [sceneID, entities] of Object.entries(scenes)) {
     const name = 'New Object'
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
@@ -331,9 +331,9 @@ const createObjectFromSceneElement = (
       }
       parentNode.children.splice(beforeIndex, 0, nodeIndex)
     }
-
     dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
   }
+  return { entityUUID, sceneID: sceneIDUsed }
 }
 
 /**
@@ -679,6 +679,7 @@ const removeObject = (entities: Entity[]) => {
       )
       for (const entityUUID of uuidsToDelete) {
         const oldNodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
+        if (oldNodeIndex < 0) continue
         // immediately remove the node from the document
         gltf.data.nodes!.splice(oldNodeIndex, 1)
         const childRootIndex = gltf.data.scenes![0].nodes.indexOf(oldNodeIndex)

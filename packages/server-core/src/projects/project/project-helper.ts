@@ -1832,7 +1832,9 @@ export const uploadLocalProjectToProvider = async (
           AssetClass.Image,
           AssetClass.Model,
           AssetClass.Video,
-          AssetClass.Volumetric
+          AssetClass.Volumetric,
+          AssetClass.Material,
+          AssetClass.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {

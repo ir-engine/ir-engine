@@ -1,0 +1,45 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Skybox",
+      "extensions": {
+        "EE_uuid": "48df21aa-aea3-4105-a987-2a7f0adf4bb3",
+        "EE_visible": true,
+        "EE_skybox": {
+          "backgroundColor": 0,
+          "equirectangularPath": "",
+          "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
+          "backgroundType": 1,
+          "skyboxProps": {
+            "turbidity": 10,
+            "rayleigh": 1,
+            "luminance": 1,
+            "mieCoefficient": 0.004999999999999893,
+            "mieDirectionalG": 0.99,
+            "inclination": 0.10471975511965978,
+            "azimuth": 0.16666666666666666
+          }
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_skybox",
+    "EE_ecs"
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Postprocessing",
+      "extensions": {
+        "EE_uuid": "10eb1bb2-5cf2-4b4e-abab-3132b3a995fa",
+        "EE_visible": true,
+        "EE_postprocessing": {
+          "effects": {
+            "SSREffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "radius": 3,
+              "phi": 0.5,
+              "lumaPhi": 5,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 50,
+              "specularPhi": 50,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "steps": 20,
+              "refineSteps": 5,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "SSGIEffect": {
+              "isActive": false,
+              "distance": 10,
+              "thickness": 10,
+              "denoiseIterations": 1,
+              "denoiseKernel": 2,
+              "denoiseDiffuse": 10,
+              "denoiseSpecular": 10,
+              "radius": 3,
+              "phi": 0.5,
+              "lumaPhi": 5,
+              "depthPhi": 2,
+              "normalPhi": 50,
+              "roughnessPhi": 50,
+              "specularPhi": 50,
+              "envBlur": 0.5,
+              "importanceSampling": true,
+              "steps": 20,
+              "refineSteps": 5,
+              "resolutionScale": 1,
+              "missedRays": false
+            },
+            "SSAOEffect": {
+              "isActive": false,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 9,
+              "rings": 7,
+              "distanceThreshold": 0.125,
+              "distanceFalloff": 0.02,
+              "rangeThreshold": 0.0005,
+              "rangeFalloff": 0.001,
+              "minRadiusScale": 0.1,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "radius": 0.1825,
+              "intensity": 1,
+              "fade": 0.01,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1,
+              "width": -1,
+              "height": -1,
+              "kernelSize": 1,
+              "blur": true
+            },
+            "DepthOfFieldEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "focusDistance": 0.1,
+              "focalLength": 0.1,
+              "focusRange": 0.1,
+              "bokehScale": 1,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1
+            },
+            "BloomEffect": {
+              "isActive": true,
+              "blendFunction": 28,
+              "kernelSize": 3,
+              "luminanceThreshold": 0.9,
+              "luminanceSmoothing": 0.025,
+              "mipmapBlur": false,
+              "intensity": 1,
+              "radius": 0.85,
+              "levels": 8
+            },
+            "ToneMappingEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "adaptive": false,
+              "mode": 5,
+              "resolution": 256,
+              "maxLuminance": 4,
+              "whitePoint": 4,
+              "middleGrey": 0.6,
+              "minLuminance": 0.01,
+              "averageLuminance": 1,
+              "adaptationRate": 1
+            },
+            "BrightnessContrastEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "brightness": 0,
+              "contrast": 0
+            },
+            "HueSaturationEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "hue": 0,
+              "saturation": 0
+            },
+            "ColorDepthEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "bits": 16
+            },
+            "LinearTosRGBEffect": {
+              "isActive": false
+            },
+            "TRAAEffect": {
+              "isActive": false,
+              "blend": 0.8,
+              "constantBlend": true,
+              "dilation": true,
+              "blockySampling": false,
+              "logTransform": false,
+              "depthDistance": 10,
+              "worldDistance": 5,
+              "neighborhoodClamping": true
+            },
+            "MotionBlurEffect": {
+              "isActive": false,
+              "intensity": 1,
+              "jitter": 1,
+              "samples": 16
+            },
+            "VignetteEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "technique": 0,
+              "eskil": false,
+              "offset": 0.5,
+              "darkness": 0.5
+            }
+          },
+          "enabled": true
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_postprocessing",
+    "EE_ecs"
+  ]
+}
