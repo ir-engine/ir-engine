@@ -28,59 +28,15 @@ import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
-import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
-import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
-import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
-import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { SDFComponent } from '@etherealengine/engine/src/scene/components/SDFComponent'
-import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
-import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
-import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
-import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
-import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
-import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
-import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { AmbientLightComponent } from '@etherealengine/spatial/src/renderer/components/AmbientLightComponent'
-import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
-import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { HemisphereLightComponent } from '@etherealengine/spatial/src/renderer/components/HemisphereLightComponent'
-import { PointLightComponent } from '@etherealengine/spatial/src/renderer/components/PointLightComponent'
-import { SpotLightComponent } from '@etherealengine/spatial/src/renderer/components/SpotLightComponent'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
 
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
-import { ComponentEditorsState } from '@etherealengine/editor/src/functions/ComponentEditors'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
+import { ComponentShelfCategoriesState } from '@etherealengine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { VisualScriptComponent } from '@etherealengine/engine'
-import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
-import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
-import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
-import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
-import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
-import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
-import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
-import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
-import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
-import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
-import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
-import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
-import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
@@ -92,65 +48,6 @@ export type SceneElementType = {
   type: typeof ItemTypes.Component
 }
 
-export const ComponentShelfCategoriesState = defineState({
-  name: 'ee.editor.ComponentShelfCategories',
-  initial: () => {
-    return {
-      Files: [
-        ModelComponent,
-        VolumetricComponent,
-        PositionalAudioComponent,
-        AudioAnalysisComponent,
-        VideoComponent,
-        ImageComponent
-      ],
-      'Scene Composition': [
-        PrimitiveGeometryComponent,
-        GroundPlaneComponent,
-        GroupComponent,
-        VariantComponent,
-        SceneDynamicLoadTagComponent
-      ],
-      Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [
-        SpawnPointComponent,
-        PortalComponent,
-        LinkComponent,
-        MountPointComponent,
-        InteractableComponent,
-        InputComponent,
-        GrabbableComponent
-      ],
-      Lighting: [
-        AmbientLightComponent,
-        PointLightComponent,
-        SpotLightComponent,
-        DirectionalLightComponent,
-        HemisphereLightComponent
-      ],
-      FX: [
-        LoopAnimationComponent,
-        ShadowComponent,
-        ParticleSystemComponent,
-        EnvmapComponent,
-        SDFComponent,
-        PostProcessingComponent
-      ],
-      Scripting: [SystemComponent, VisualScriptComponent],
-      Settings: [SceneSettingsComponent, RenderSettingsComponent, MediaSettingsComponent, CameraSettingsComponent],
-      Misc: [
-        EnvMapBakeComponent,
-        ScenePreviewCameraComponent,
-        SkyboxComponent,
-        SplineTrackComponent,
-        SplineComponent,
-        TextComponent,
-        ScreenshareTargetComponent
-      ]
-    } as Record<string, Component[]>
-  }
-})
-
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
   useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
@@ -159,7 +56,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
 
   return (
     <button
-      className="bg-theme-primary flex w-full items-center p-4 text-white"
+      className="flex w-full items-center bg-theme-primary p-4 text-white"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
@@ -193,13 +90,13 @@ const SceneElementListItem = ({
     <>
       <button
         onClick={() => open.set((prev) => !prev)}
-        className="bg-theme-primary flex w-full cursor-pointer items-center justify-between px-4 py-2 text-white"
+        className="flex w-full cursor-pointer items-center justify-between bg-theme-primary px-4 py-2 text-white"
       >
         <span>{categoryTitle}</span>
         {isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
       </button>
       <div className={`${isCollapsed || open.value ? '' : 'hidden'}`}>
-        <ul className="bg-theme-primary w-full">
+        <ul className="w-full bg-theme-primary">
           {categoryItems.map((item) => (
             <ComponentListItem key={item.jsonID || item.name} item={item} />
           ))}
@@ -243,7 +140,7 @@ export function ElementList() {
 
   return (
     <>
-      <div className="bg-theme-primary h-auto w-full overflow-x-hidden overflow-y-scroll">
+      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary">
         <div className="p-2">
           <h2 className="text-center uppercase text-white">{t('editor:layout.assetGrid.components')}</h2>
           <StringInput

@@ -121,7 +121,7 @@ const NumericInput = ({
   return (
     <div
       className={twMerge(
-        prefix ? 'w-[93px] px-2 py-[7px]' : 'w-[200px] px-5 py-2',
+        prefix ? 'w-24 px-2 py-2' : 'w-52 px-5 py-2',
         'flex h-8 items-center justify-between rounded bg-[#1A1A1A]',
         className
       )}

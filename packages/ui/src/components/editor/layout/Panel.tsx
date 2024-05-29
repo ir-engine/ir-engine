@@ -82,7 +82,8 @@ export const PanelCheckbox = ({ children }) => {
 }
 
 export const PanelDragContainer = ({ children }) => {
-  return <div className="bg-theme-surface-main cursor-pointer rounded-t-md px-4 py-1">{children}</div>
+  // .dock-tab styled in Editor2Container.css
+  return <div className={`flex h-[30px] cursor-pointer rounded-t-md px-4 py-2`}>{children}</div>
 }
 
 export const PanelContainer = ({ children, ...rest }) => {

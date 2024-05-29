@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -34,27 +35,25 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-
+import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
+import { t } from 'i18next'
 import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
-import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+import Toolbar from '../components/toolbar/Toolbar2'
 import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import './Editor2Container.css'
 import AssetDropZone from './assets/AssetDropZone'
+import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
-import { t } from 'i18next'
-import Toolbar from '../components/toolbar/Toolbar2'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
+import 'rc-dock/dist/rc-dock.css'
+import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {

@@ -79,7 +79,7 @@ export const MaterialPreviewCanvas = () => {
 
   return (
     <>
-      <div id="materialPreview" className="aspect-square h-[100%] min-h-[100px] w-[100%]">
+      <div id="materialPreview" className="aspect-square h-full min-h-[100px] w-full">
         <canvas ref={panelRef} className="pointer-events-auto" />
       </div>
     </>
