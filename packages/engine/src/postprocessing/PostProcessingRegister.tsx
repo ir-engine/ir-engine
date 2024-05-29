@@ -23,52 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
-import {
-  EffectReactorProps,
-  PostProcessingEffectState
-} from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
-import { ChromaticAberrationEffect } from 'postprocessing'
-import React, { useEffect } from 'react'
-import { Vector2 } from 'three'
-
 export const Effects = {
-  SMAAEffect: 'SMAAEffect' as const,
-  OutlineEffect: 'OutlineEffect' as const,
-  SSAOEffect: 'SSAOEffect' as const,
-  SSREffect: 'SSREffect' as const,
-  SSGIEffect: 'SSGIEffect' as const,
-  DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
-  BloomEffect: 'BloomEffect' as const,
-  ToneMappingEffect: 'ToneMappingEffect' as const,
   BrightnessContrastEffect: 'BrightnessContrastEffect' as const,
-  HueSaturationEffect: 'HueSaturationEffect' as const,
-  ColorDepthEffect: 'ColorDepthEffect' as const,
-  LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
-  //SSGIEffect: 'SSGIEffect' as const,
-  TRAAEffect: 'TRAAEffect' as const,
-  ChromaticAberrationEffect: 'ChromaticAberrationEffect' as const,
-  MotionBlurEffect: 'MotionBlurEffect' as const,
   ColorAverageEffect: 'ColorAverageEffect' as const,
+  ColorDepthEffect: 'ColorDepthEffect' as const,
+  DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
   DotScreenEffect: 'DotScreenEffect' as const,
-  TiltShiftEffect: 'TiltShiftEffect' as const,
+  FXAAEffect: 'FXAAEffect' as const,
   GlitchEffect: 'GlitchEffect' as const,
   //GodRaysEffect: 'GodRaysEffect' as const,
   GridEffect: 'GridEffect' as const,
+  HueSaturationEffect: 'HueSaturationEffect' as const,
+  LensDistortionEffect: 'LensDistortionEffect' as const,
+  LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
   LUT1DEffect: 'LUT1DEffect' as const,
   LUT3DEffect: 'LUT3DEffect' as const,
+  MotionBlurEffect: 'MotionBlurEffect' as const,
   NoiseEffect: 'NoiseEffect' as const,
+  OutlineEffect: 'OutlineEffect' as const,
   PixelationEffect: 'PixelationEffect' as const,
   ScanlineEffect: 'ScanlineEffect' as const,
   ShockWaveEffect: 'ShockWaveEffect' as const,
-  FXAAEffect: 'FXAAEffect' as const,
+  SMAAEffect: 'SMAAEffect' as const,
+  SSAOEffect: 'SSAOEffect' as const,
+  SSREffect: 'SSREffect' as const,
+  SSGIEffect: 'SSGIEffect' as const,
   TextureEffect: 'TextureEffect' as const,
-  VignetteEffect: 'VignetteEffect' as const,
-  LensDistortionEffect: 'LensDistortionEffect' as const
+  TiltShiftEffect: 'TiltShiftEffect' as const,
+  ToneMappingEffect: 'ToneMappingEffect' as const,
+  TRAAEffect: 'TRAAEffect' as const,
+  VignetteEffect: 'VignetteEffect' as const
 }
 
-enum PropertyTypes {
+export enum PropertyTypes {
   BlendFunction,
   Number,
   Boolean,
@@ -82,53 +69,4 @@ enum PropertyTypes {
   Vector2,
   Vector3,
   VignetteTechnique
-}
-
-const ChromaticAberrationEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
-  isActive
-  rendererEntity: Entity
-  effectData
-  effects
-}) => {
-  const { isActive, rendererEntity, effectData, effects } = props
-  const effectState = getState(PostProcessingEffectState)
-
-  useEffect(() => {
-    if (effectData[Effects.ChromaticAberrationEffect].value) return
-    effectData[Effects.ChromaticAberrationEffect].set(effectState[Effects.ChromaticAberrationEffect].defaultValues)
-  }, [])
-
-  useEffect(() => {
-    if (!isActive?.value) {
-      if (effects[Effects.ChromaticAberrationEffect].value) effects[Effects.ChromaticAberrationEffect].set(none)
-      return
-    }
-    const eff = new ChromaticAberrationEffect(effectData[Effects.ChromaticAberrationEffect].value)
-    effects[Effects.ChromaticAberrationEffect].set(eff)
-    return () => {
-      effects[Effects.ChromaticAberrationEffect].set(none)
-    }
-  }, [isActive])
-
-  return null
-}
-
-export const populateEffectRegistry = () => {
-  // registers the effect
-  getMutableState(PostProcessingEffectState).merge({
-    [Effects.ChromaticAberrationEffect]: {
-      reactor: ChromaticAberrationEffectProcessReactor,
-      defaultValues: {
-        isActive: false,
-        offset: new Vector2(1e-3, 5e-4),
-        radialModulation: false,
-        modulationOffset: 0.15
-      },
-      schema: {
-        offset: { propertyType: PropertyTypes.Vector2, name: 'Offset' },
-        radialModulation: { propertyType: PropertyTypes.Boolean, name: 'Radial Modulation' },
-        modulationOffset: { propertyType: PropertyTypes.Number, name: 'Modulation Offset', min: 0, max: 10, step: 0.01 }
-      }
-    }
-  })
 }
