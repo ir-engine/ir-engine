@@ -33,6 +33,7 @@ import {
   useQuery
 } from '@etherealengine/ecs'
 import { hookstate, none } from '@etherealengine/hyperflux'
+import { v4 as uuidv4 } from 'uuid'
 import { SourceComponent } from './SourceComponent'
 
 export type NodeID = OpaqueType<'NodeID'> & string
@@ -92,5 +93,9 @@ export const NodeIDComponent = defineComponent({
     return SourceComponent.entitiesBySourceState[sourceID.value].value.findLast(
       (entity) => getOptionalComponent(entity, NodeIDComponent) === nodeID
     )
+  },
+
+  generateNodeID: () => {
+    return uuidv4() as NodeID
   }
 })

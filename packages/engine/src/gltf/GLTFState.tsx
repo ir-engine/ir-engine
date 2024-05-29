@@ -219,11 +219,11 @@ export const GLTFSnapshotState = defineState({
 
   copyNodesFromFile: (filePath: string, targetEntityUUID: EntityUUID) => {
     GLTFCallbackState.add(filePath, (entity: Entity) => {
-      GLTFSnapshotState.moveChildrenToParent(entity, targetEntityUUID)
+      GLTFSnapshotState.moveChildrenToParent(entity, targetEntityUUID, true)
     })
   },
 
-  moveChildrenToParent: (entity: Entity, targetEntityUUID: EntityUUID) => {
+  moveChildrenToParent: (entity: Entity, targetEntityUUID: EntityUUID, regenerateNodeIDs = false) => {
     const sourceEntityUUID = getComponent(entity, UUIDComponent)
     const sourceID = hasComponent(entity, ModelComponent)
       ? getModelSceneID(entity)
@@ -231,7 +231,13 @@ export const GLTFSnapshotState = defineState({
     const targetEntity = UUIDComponent.getEntityByUUID(targetEntityUUID)
     const destinationEntityUUID = getComponent(targetEntity, UUIDComponent)
     const destinationSourceID = getComponent(targetEntity, SourceComponent)
-    GLTFSnapshotState.copyNodes(sourceEntityUUID, sourceID, destinationEntityUUID, destinationSourceID)
+    GLTFSnapshotState.copyNodes(
+      sourceEntityUUID,
+      sourceID,
+      destinationEntityUUID,
+      destinationSourceID,
+      regenerateNodeIDs
+    )
     dispatchAction(GLTFSnapshotAction.unload({ source: sourceID }))
   },
 
@@ -239,13 +245,22 @@ export const GLTFSnapshotState = defineState({
     sourceEntityUUID: EntityUUID,
     sourceID: SourceID,
     destinationEntityUUID: EntityUUID,
-    destinationSourceID: SourceID
+    destinationSourceID: SourceID,
+    regenerateNodeIDs = false
   ) => {
     if (!getState(GLTFSnapshotState)[sourceID]) return console.warn('sourceID not found in snapshot state')
     if (!getState(GLTFSnapshotState)[destinationSourceID])
       return console.warn('destinationSourceID not found in snapshot state')
 
     const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sourceID)
+
+    if (regenerateNodeIDs) {
+      for (const node of snapshot.data.nodes!) {
+        if (!node.extensions) node.extensions = {}
+        node.extensions[NodeIDComponent.jsonID] = NodeIDComponent.generateNodeID()
+      }
+    }
+
     const parentSnapshot = GLTFSnapshotState.cloneCurrentSnapshot(destinationSourceID)
     //create new node list with the model entity removed
     //remove model entity from scene nodes
