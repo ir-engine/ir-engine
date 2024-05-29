@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ObjectEncodingOptions, promises as fsp } from 'fs'
 import path from 'path'
-import logger from '../../../server-core/src/ServerLogger'
+import logger from '../logger'
 
 /**
  * @function existsAsync
@@ -43,6 +43,7 @@ export async function existsAsync(path: string): Promise<boolean> {
     return false
   }
 }
+
 /**
  * @author Jonathan Casarrubias <jcasarrubias@theinfinitereality.com>
  * @function writeFileAsync
@@ -76,6 +77,7 @@ export async function writeFileAsync(
   // Write file
   await fsp.writeFile(filename, data, options.charset)
 }
+
 /**
  * @author Jonathan Casarrubias <jcasarrubias@theinfinitereality.com>
  * @function cpAsync
@@ -154,6 +156,3 @@ export async function getFilesRecursive(path, includeDirs = false) {
   }
   return files
 }
-
-// /home/joina/development/ir-projects/etherealengine/packages/projects/projects/default-project
-// /home/joina/development/ir-projects/etherealengine/packages/projects/default-project
