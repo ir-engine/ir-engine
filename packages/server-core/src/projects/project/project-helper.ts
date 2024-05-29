@@ -1837,7 +1837,10 @@ export const uploadLocalProjectToProvider = async (
           AssetClass.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
-        if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+        if (
+          (filePathRelative.startsWith('/assets/') || filePathRelative.startsWith('/public/')) &&
+          staticResourceClasses.includes(thisFileClass)
+        ) {
           const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
             // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)

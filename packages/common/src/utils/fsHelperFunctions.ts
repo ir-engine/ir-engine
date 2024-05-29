@@ -142,7 +142,7 @@ export async function getFilesRecursive(path, includeDirs = false) {
   if (await existsAsync(path)) {
     const curFiles = await fsp.readdir(path)
 
-    for (const file of files) {
+    for (const file of curFiles) {
       const curPath = path + '/' + file
       if ((await fsp.lstat(curPath)).isDirectory()) {
         if (includeDirs) files.push(curPath)
