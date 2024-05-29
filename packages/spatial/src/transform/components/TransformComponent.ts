@@ -30,7 +30,7 @@ import { defineComponent, getComponent, getOptionalComponent } from '@etherealen
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { Engine, useEntityContext } from '@etherealengine/ecs'
+import { Engine } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
@@ -233,9 +233,13 @@ export const TransformComponent = defineComponent({
     transform.matrixWorld.compose(vec3, quat, scale)
   },
 
-  useInViewingFrustum: () => {
-    const entity = useEntityContext()
-    const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  /**
+   * Checks if entity is in the viewing frustum of the specified camera
+   * @param entity - The entity to check
+   * @param cameraEntity - The camera entity to use for the frustum check
+   */
+  inViewingFrustum: (entity: Entity, cameraEntity: Entity = Engine.instance.viewerEntity) => {
+    const camera = getComponent(cameraEntity, CameraComponent)
     mat4CamFrustum.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
     frustum.setFromProjectionMatrix(mat4CamFrustum)
     TransformComponent.getWorldPosition(entity, worldPosVec3)
