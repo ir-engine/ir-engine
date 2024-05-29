@@ -365,7 +365,6 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineSta
 
 export type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
-  forceAssetType?: AssetType | null
   assetRoot?: Entity
 }
 
@@ -383,7 +382,7 @@ const load = async (
   }
   let url = getAbsolutePath(_url)
 
-  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
+  const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
     const img = new Image()
