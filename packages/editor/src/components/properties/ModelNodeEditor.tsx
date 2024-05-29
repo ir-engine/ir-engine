@@ -143,7 +143,11 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <Button
         onClick={() => {
           SelectionState.updateSelection([])
-          GLTFSnapshotState.moveChildrenToParent(entity, getComponent(getState(EditorState).rootEntity, UUIDComponent))
+          GLTFSnapshotState.moveChildrenToParent(
+            entity,
+            getComponent(getState(EditorState).rootEntity, UUIDComponent),
+            true
+          )
         }}
         disabled={!modelComponent.src.value}
       >
