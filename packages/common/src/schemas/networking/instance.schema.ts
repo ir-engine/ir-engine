@@ -53,6 +53,9 @@ export const instanceSchema = Type.Object(
         format: 'uuid'
       })
     ),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     podName: Type.Optional(Type.String()),
     currentUsers: Type.Integer(),
     ended: Type.Optional(Type.Boolean()),
@@ -93,6 +96,7 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
   'roomCode',
   'ipAddress',
   'channelId',
+  'projectId',
   'podName',
   'currentUsers',
   'ended',

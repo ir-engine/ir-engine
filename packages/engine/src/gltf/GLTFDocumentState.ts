@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { Entity, EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
-import { State, defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { Entity, EntityUUID, UUIDComponent, getComponent, useOptionalComponent } from '@etherealengine/ecs'
+import { State, defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { GLTF } from '@gltf-transform/core'
@@ -62,6 +62,17 @@ export const GLTFNodeState = defineState({
     }
     const gltf = getMutableState(GLTFDocumentState)[source]
     return gltf.nodes![nodeLookup.nodeIndex]
+  },
+
+  useMutableNode(entity: Entity): GLTF.INode | undefined {
+    const nodeState = useHookstate(getMutableState(GLTFNodeState))
+    const source = useOptionalComponent(entity, SourceComponent)?.value
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    if (!source) return
+    if (!uuid) return
+    const nodeLookup = nodeState.value[source][uuid]
+    if (!nodeLookup) return
+    return getState(GLTFDocumentState)[source].nodes?.[nodeLookup.nodeIndex]
   },
 
   convertGltfToNodeDictionary: (rootUUID: EntityUUID, gltf: GLTF.IGLTF) => {
