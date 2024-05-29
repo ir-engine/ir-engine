@@ -33,7 +33,7 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { ComponentEditorsState } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
