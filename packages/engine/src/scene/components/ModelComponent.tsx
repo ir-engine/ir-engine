@@ -41,6 +41,12 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { useAncestorWithComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 import { VRM } from '@pixiv/three-vrm'
@@ -109,6 +115,16 @@ function ModelReactor() {
     forceAssetType: modelComponent.assetTypeOverride.value,
     ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
   })
+
+  useEffect(() => {
+    const occlusion =
+      !!modelComponent?.cameraOcclusion?.value || hasComponent(entity, ObjectLayerComponents[ObjectLayers.Camera])
+    if (!occlusion) return
+    ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+    return () => {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    }
+  }, [modelComponent?.cameraOcclusion?.value])
 
   useEffect(() => {
     if (!error) return
@@ -220,11 +236,10 @@ function ModelReactor() {
  * @returns
  */
 export const useMeshOrModel = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
-  return isEntityHierarchyOrMesh
+  const isModel = !!useOptionalComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  return isModel && !isChildOfModel && hasMesh
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {
