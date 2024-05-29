@@ -43,8 +43,7 @@ export default (types: string[]) => {
 
     if (!loggedInUser) throw new NotAuthenticated('No logged in user')
 
-    const projectId =
-      context.service === 'project' ? context.id : context.params.query.projectId ?? context.data.projectId
+    const projectId = context.params.query.projectId ?? context.data.projectId
 
     if (!projectId) throw new BadRequest('Invalid project ID')
 

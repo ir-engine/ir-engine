@@ -46,7 +46,6 @@ export const LocationSeed: LocationType = {
   sceneId: '',
   projectId: '',
   sceneAsset: {} as any,
-  projectId: '',
   isLobby: false,
   isFeatured: false,
   locationSetting: {
