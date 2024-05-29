@@ -40,7 +40,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'
 import NodeEditor from './NodeEditor'
-import { commitProperty, EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
