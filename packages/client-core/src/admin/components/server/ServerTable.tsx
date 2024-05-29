@@ -123,7 +123,7 @@ export default function ServerTable({
               )
             }}
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )

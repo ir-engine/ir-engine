@@ -34,7 +34,7 @@ const Label = ({ className, children, ...props }: LabelProps) => {
   return (
     <label
       className={twMerge(
-        'text-theme-secondary inline-block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        'inline-block text-sm font-medium leading-none text-theme-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         className
       )}
       {...props}

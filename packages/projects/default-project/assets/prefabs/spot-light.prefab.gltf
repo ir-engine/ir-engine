@@ -1,0 +1,41 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Spot Light",
+      "extensions": {
+        "EE_uuid": "f2495904-bfe4-4777-ba0b-80aaee34e46b",
+        "EE_visible": true,
+        "EE_spot_light": {
+          "color": 16777215,
+          "intensity": 10,
+          "range": 0,
+          "decay": 2,
+          "angle": 1,
+          "penumbra": 1,
+          "castShadow": false,
+          "shadowBias": 0.00001,
+          "shadowRadius": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_spot_light",
+    "EE_ecs"
+  ]
+}
