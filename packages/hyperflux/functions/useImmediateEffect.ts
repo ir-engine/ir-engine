@@ -23,18 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isDev } from '@etherealengine/common/src/config'
-import { defineState, ReactorRoot } from '@etherealengine/hyperflux'
+import { DependencyList, EffectCallback, useLayoutEffect, useRef } from 'react'
 
-import { Query, QueryComponents } from './QueryFunctions'
-import { SystemUUID } from './SystemFunctions'
+function depsDiff(deps1, deps2) {
+  return !(
+    Array.isArray(deps1) &&
+    Array.isArray(deps2) &&
+    deps1.length === deps2.length &&
+    deps1.every((dep, idx) => Object.is(dep, deps2[idx]))
+  )
+}
 
-export const SystemState = defineState({
-  name: 'ee.meta.SystemState',
-  initial: () => ({
-    performanceProfilingEnabled: isDev,
-    activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
-    currentSystemUUID: '__null__' as SystemUUID,
-    reactiveQueryStates: new Set<{ query: Query; forceUpdate: () => void; components: QueryComponents }>()
-  })
-})
+export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList) {
+  const cleanupRef = useRef<any>()
+  const depsRef = useRef<any>()
+
+  if (!depsRef.current || depsDiff(depsRef.current, deps)) {
+    depsRef.current = deps
+
+    if (cleanupRef.current) {
+      cleanupRef.current()
+    }
+
+    cleanupRef.current = effect()
+  }
+
+  useLayoutEffect(() => {
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current()
+      }
+    }
+  }, [])
+}
