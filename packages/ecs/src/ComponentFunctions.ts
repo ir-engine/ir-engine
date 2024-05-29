@@ -161,7 +161,7 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  reactor?: HookableFunction<React.FC>
+  reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]
