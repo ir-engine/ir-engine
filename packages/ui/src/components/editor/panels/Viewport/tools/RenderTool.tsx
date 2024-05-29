@@ -35,6 +35,7 @@ import { RiArrowDownSLine } from 'react-icons/ri'
 import { TbBallBowling, TbInnerShadowBottom, TbInnerShadowBottomFilled, TbShadow } from 'react-icons/tb'
 import { ViewportPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
+import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
@@ -88,14 +89,14 @@ const RenderModeTool = () => {
   return (
     <div className="flex items-center gap-1">
       {renderModes.map((mode) => (
-        <Button
-          key={mode.name}
-          title={mode.name}
-          startIcon={mode.icon}
-          variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}
-          onClick={() => rendererState.renderMode.set(mode.name)}
-          className="p-2"
-        />
+        <Tooltip key={mode.name} title={mode.name} direction="bottom">
+          <Button
+            startIcon={mode.icon}
+            variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}
+            onClick={() => rendererState.renderMode.set(mode.name)}
+            className="p-2"
+          />
+        </Tooltip>
       ))}
       <Button
         variant="transparent"
