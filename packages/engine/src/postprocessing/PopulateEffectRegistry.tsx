@@ -27,6 +27,7 @@ import { bloomAddToEffectRegistry } from './BloomEffect'
 import { brightnessContrastAddToEffectRegistry } from './BrightnessContrastEffect'
 import { chromaticAberrationAddToEffectRegistry } from './ChromaticAberrationEffect'
 import { colorAverageAddToEffectRegistry } from './ColorAverageEffect'
+import { colorDepthAddToEffectRegistry } from './ColorDepthEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -34,4 +35,5 @@ export const populateEffectRegistry = () => {
   brightnessContrastAddToEffectRegistry()
   chromaticAberrationAddToEffectRegistry()
   colorAverageAddToEffectRegistry()
+  colorDepthAddToEffectRegistry()
 }

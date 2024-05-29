@@ -24,8 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  ColorAverageEffect: 'ColorAverageEffect' as const,
-  ColorDepthEffect: 'ColorDepthEffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
   DotScreenEffect: 'DotScreenEffect' as const,
   FXAAEffect: 'FXAAEffect' as const,
