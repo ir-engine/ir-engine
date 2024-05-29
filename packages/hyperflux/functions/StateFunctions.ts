@@ -148,8 +148,8 @@ export function syncStateWithLocalStorage<S, E extends Identifiable>(
         for (const key of keys) {
           const storageKey = `${stateNamespaceKey}.${rootState.identifier}.${key}`
           const value = rootState[key]?.get(NO_PROXY)
-          // We should still store flags that have been set to false
-          if (value === null || value === undefined) localStorage.removeItem(storageKey)
+          // We should still store flags that have been set to false or null
+          if (value === undefined) localStorage.removeItem(storageKey)
           else localStorage.setItem(storageKey, JSON.stringify(value))
         }
       }
