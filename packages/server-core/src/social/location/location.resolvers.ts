@@ -93,7 +93,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       const asset = await context.app.service(assetPath).get(location.sceneId)
       return asset.projectId
     } catch (error) {
-      throw new BadRequest('Failed to retrieve project ID from scene ID')
+      throw new BadRequest('Error populating projectId into location')
     }
   },
   locationSetting: async (value, location) => {
