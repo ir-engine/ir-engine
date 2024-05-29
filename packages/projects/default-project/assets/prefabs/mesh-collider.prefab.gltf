@@ -1,0 +1,56 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Mesh Collider",
+      "extensions": {
+        "EE_uuid": "a5924904-1fec-418f-90f1-821e4b17faa5",
+        "EE_visible": true,
+        "EE_collider": {
+          "shape": "mesh",
+          "mass": 1,
+          "massCenter": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "friction": 0.5,
+          "restitution": 0.5,
+          "collisionLayer": 1,
+          "collisionMask": 7
+        },
+        "EE_model": {
+          "src": "",
+          "cameraOcclusion": true,
+          "convertToVRM": false
+        },
+        "EE_input": {
+          "inputSinks": [
+            "a5924904-1fec-418f-90f1-821e4b17faa5"
+          ],
+          "activationDistance": 2
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_collider",
+    "EE_model",
+    "EE_input",
+    "EE_ecs"
+  ]
+}

@@ -242,7 +242,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
       </div>
 
-      <hr className="border-theme-primary my-6 border" />
+      <hr className="my-6 border border-theme-primary" />
 
       <div className="grid grid-cols-3 gap-4">
         {holdAuth?.discord?.value && (
@@ -330,7 +330,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         )}
 
         {(holdAuth?.discord?.value || holdAuth?.linkedin?.value || holdAuth?.facebook?.value) && (
-          <hr className="border-theme-primary col-span-full my-6 border" />
+          <hr className="col-span-full my-6 border border-theme-primary" />
         )}
 
         {holdAuth?.google?.value && (
@@ -419,7 +419,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 

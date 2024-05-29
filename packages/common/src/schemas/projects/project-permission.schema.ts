@@ -56,6 +56,8 @@ export const projectPermissionSchema = Type.Object(
 )
 export interface ProjectPermissionType extends Static<typeof projectPermissionSchema> {}
 
+export interface ProjectPermissionDatabaseType extends Omit<ProjectPermissionType, 'user'> {}
+
 // Schema for creating new entries
 export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
 
