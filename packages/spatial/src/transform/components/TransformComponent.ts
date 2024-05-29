@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Frustum, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { defineComponent, getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { Engine, useEntityContext } from '@etherealengine/ecs'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 
@@ -40,6 +42,10 @@ export type TransformComponentType = {
   matrix: Matrix4
   matrixWorld: Matrix4
 }
+
+const worldPosVec3 = new Vector3()
+const mat4CamFrustum = new Matrix4()
+const frustum = new Frustum()
 
 const { f64 } = Types
 export const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -225,6 +231,15 @@ export const TransformComponent = defineComponent({
     const transform = getComponent(entity, TransformComponent)
     transform.matrixWorld.decompose(vec3, quat, vec3_2)
     transform.matrixWorld.compose(vec3, quat, scale)
+  },
+
+  useInViewingFrustum: () => {
+    const entity = useEntityContext()
+    const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+    mat4CamFrustum.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+    frustum.setFromProjectionMatrix(mat4CamFrustum)
+    TransformComponent.getWorldPosition(entity, worldPosVec3)
+    return frustum.containsPoint(worldPosVec3)
   },
 
   dirtyTransforms: {} as Record<Entity, boolean>,
