@@ -24,10 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { bloomAddToEffectRegistry } from './BloomEffect'
+import { brightnessContrastAddToEffectRegistry } from './BrightnessContrastEffect'
 import { chromaticAberrationAddToEffectRegistry } from './ChromaticAberrationEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
   bloomAddToEffectRegistry()
+  brightnessContrastAddToEffectRegistry()
   chromaticAberrationAddToEffectRegistry()
 }
