@@ -28,6 +28,10 @@ import { brightnessContrastAddToEffectRegistry } from './BrightnessContrastEffec
 import { chromaticAberrationAddToEffectRegistry } from './ChromaticAberrationEffect'
 import { colorAverageAddToEffectRegistry } from './ColorAverageEffect'
 import { colorDepthAddToEffectRegistry } from './ColorDepthEffect'
+import { depthOfFieldAddToEffectRegistry } from './DepthOfFieldEffect'
+import { dotScreenAddToEffectRegistry } from './DotScreenEffect'
+import { fxaaAddToEffectRegistry } from './FXAAEffect'
+import { glitchAddToEffectRegistry } from './GlitchEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -36,4 +40,8 @@ export const populateEffectRegistry = () => {
   chromaticAberrationAddToEffectRegistry()
   colorAverageAddToEffectRegistry()
   colorDepthAddToEffectRegistry()
+  depthOfFieldAddToEffectRegistry()
+  dotScreenAddToEffectRegistry()
+  fxaaAddToEffectRegistry()
+  glitchAddToEffectRegistry()
 }

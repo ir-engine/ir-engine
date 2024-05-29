@@ -24,10 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
-  DotScreenEffect: 'DotScreenEffect' as const,
-  FXAAEffect: 'FXAAEffect' as const,
-  GlitchEffect: 'GlitchEffect' as const,
   //GodRaysEffect: 'GodRaysEffect' as const,
   GridEffect: 'GridEffect' as const,
   HueSaturationEffect: 'HueSaturationEffect' as const,
