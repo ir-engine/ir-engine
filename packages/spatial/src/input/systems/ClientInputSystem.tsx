@@ -43,7 +43,7 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   EntityTreeComponent,
@@ -473,7 +473,7 @@ const useGamepadInputSources = () => {
   }, [])
 }
 
-const usePointerInputSources = () => {
+const CanvasInputReactor = () => {
   const canvasEntity = useEntityContext()
   const xrState = useMutableState(XRState)
   useEffect(() => {
@@ -662,39 +662,32 @@ const reactor = () => {
 
   return (
     <>
-      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={usePointerInputSources} />
-      <QueryReactor
-        Components={[MeshComponent, GroupComponent, VisibleComponent]}
-        ChildEntityReactor={filterMeshComponentsReactor}
-      />
-      <QueryReactor
-        Components={[BoundingBoxComponent, VisibleComponent]}
-        ChildEntityReactor={filterBoundingBoxComponentsReactor}
-      />
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={CanvasInputReactor} />
+      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshInputReactor} />
+      <QueryReactor Components={[BoundingBoxComponent]} ChildEntityReactor={BoundingBoxInputReactor} />
     </>
   )
 }
 
-const filterMeshComponentsReactor = () => {
+const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const inputState = getState(InputState)
-
-  if (useAncestorWithComponent(entity, InputComponent) !== UndefinedEntity) {
-    inputState.inputMeshes.add(entity)
-  } else {
-    inputState.inputMeshes.delete(entity)
-  }
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputMeshes.add(entity)
+    else inputState.inputMeshes.delete(entity)
+  }, [shouldReceiveInput])
   return null
 }
-const filterBoundingBoxComponentsReactor = () => {
-  const entity = useEntityContext()
-  const inputState = getState(InputState)
 
-  if (useAncestorWithComponent(entity, InputComponent) !== UndefinedEntity) {
-    inputState.inputBoundingBoxes.add(entity)
-  } else {
-    inputState.inputBoundingBoxes.delete(entity)
-  }
+const BoundingBoxInputReactor = () => {
+  const entity = useEntityContext()
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)
+    else inputState.inputBoundingBoxes.delete(entity)
+  }, [shouldReceiveInput])
   return null
 }
 
