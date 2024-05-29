@@ -25,21 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { instancePath } from '@etherealengine/common/src/schemas/networking/instance.schema'
 import type { Knex } from 'knex'
+import {
+  addProjectColumn,
+  dropProjectColumn
+} from '../../../social/location/migrations/20240502080725_projectId-location-column'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const projectIdColumnExists = await knex.schema.hasColumn(instancePath, 'projectId')
-  if (!projectIdColumnExists) {
-    await knex.schema.alterTable(instancePath, async (table) => {
-      //@ts-ignore
-      table.uuid('projectId', 36).collate('utf8mb4_bin').nullable().index()
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-      table.foreign('projectId').references('id').inTable('project').onDelete('CASCADE').onUpdate('CASCADE')
-    })
-  }
+  await addProjectColumn(trx, instancePath)
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -47,12 +49,11 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const projectIdColumnExists = await knex.schema.hasColumn(instancePath, 'projectId')
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (projectIdColumnExists) {
-    await knex.schema.alterTable(instancePath, async (table) => {
-      table.dropForeign('projectId')
-      table.dropColumn('projectId')
-    })
-  }
+  await dropProjectColumn(trx, instancePath)
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
