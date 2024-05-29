@@ -289,6 +289,7 @@ const execute = () => {
 
         // 4th heuristic is meshes
         const objects = Array.from(inputState.inputMeshes) // gizmo heuristic
+          .filter((eid) => hasComponent(eid, GroupComponent))
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
 
@@ -374,9 +375,9 @@ const execute = () => {
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
-    const inputComponent = getMutableComponent(inputEntity, InputComponent)
+    const inputComponent = getComponent(inputEntity, InputComponent)
 
-    for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+    for (const sinkEntityUUID of inputComponent.inputSinks) {
       const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
       const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
       sinkInputComponent.inputSources.merge(inputSources)
@@ -662,7 +663,10 @@ const reactor = () => {
   return (
     <>
       <QueryReactor Components={[RendererComponent]} ChildEntityReactor={usePointerInputSources} />
-      <QueryReactor Components={[MeshComponent, VisibleComponent]} ChildEntityReactor={filterMeshComponentsReactor} />
+      <QueryReactor
+        Components={[MeshComponent, GroupComponent, VisibleComponent]}
+        ChildEntityReactor={filterMeshComponentsReactor}
+      />
       <QueryReactor
         Components={[BoundingBoxComponent, VisibleComponent]}
         ChildEntityReactor={filterBoundingBoxComponentsReactor}
