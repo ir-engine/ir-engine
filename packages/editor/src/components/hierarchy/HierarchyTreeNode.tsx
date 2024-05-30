@@ -47,9 +47,9 @@ import { EntityTreeComponent, isAncestor } from '@etherealengine/spatial/src/tra
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
-import { ComponentEditorsState } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import TransformPropertyGroup from '../properties/TransformPropertyGroup'
