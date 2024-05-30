@@ -38,7 +38,7 @@ import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panel
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
-import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import React, { useEffect, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toolbar from '../components/toolbar/Toolbar2'
@@ -137,12 +137,6 @@ const EditorContainer = () => {
       getMutableState(SelectionState).selectedEntities.set([])
     }
   }, [scenePath])
-
-  useEffect(() => {
-    if (!dockPanelRef.current) return
-    const activePanel = rootEntity.value ? 'scenePanel' : 'filesPanel'
-    dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
-  }, [rootEntity])
 
   useEffect(() => {
     if (errorState.value) {
