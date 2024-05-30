@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { createEntity, getComponent, setComponent } from '@etherealengine/ecs'
+import { createEntity, generateEntityUUID, getComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
@@ -38,10 +38,18 @@ import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRen
 import { removeEntityNodeRecursively } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
-  const panelState = useHookstate(() => ({
-    cameraEntity: createEntity(),
-    sceneEntity: createEntity()
-  }))
+  const panelState = useHookstate(() => {
+    const cameraEntity = createEntity()
+    const sceneEntity = createEntity()
+
+    setComponent(cameraEntity, UUIDComponent, generateEntityUUID())
+    setComponent(sceneEntity, UUIDComponent, generateEntityUUID())
+
+    return {
+      cameraEntity,
+      sceneEntity
+    }
+  })
 
   useEffect(() => {
     const { cameraEntity, sceneEntity } = panelState.value
@@ -56,6 +64,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     if (!canvas.current) return
 
     const { cameraEntity, sceneEntity } = panelState.value
+
     setComponent(cameraEntity, CameraComponent)
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)

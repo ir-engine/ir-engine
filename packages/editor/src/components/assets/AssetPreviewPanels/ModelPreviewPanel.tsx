@@ -27,17 +27,18 @@ import { t } from 'i18next'
 import React, { useEffect, useRef } from 'react'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { createEntity, generateEntityUUID, setComponent, UUIDComponent } from '@etherealengine/ecs'
+import { createEntity, getOptionalMutableComponent, setComponent, useOptionalComponent } from '@etherealengine/ecs'
 import { AssetPreviewCameraComponent } from '@etherealengine/engine/src/camera/components/AssetPreviewCameraComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY_STEALTH, useHookstate } from '@etherealengine/hyperflux'
 import { AmbientLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
+import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import styles from '../styles.module.scss'
 
 export const ModelPreviewPanel = (props) => {
@@ -47,12 +48,11 @@ export const ModelPreviewPanel = (props) => {
   const error = useHookstate('')
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
+  const sceneChildren = useOptionalComponent(renderPanel.sceneEntity, EntityTreeComponent)?.children
 
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
-    const uuid = generateEntityUUID()
-    setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, ModelComponent, { src: url, cameraOcclusion: false })
     setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
     setVisibleComponent(sceneEntity, true)
@@ -70,6 +70,15 @@ export const ModelPreviewPanel = (props) => {
       setVisibleComponent(sceneEntity, false)
     }
   }, [url])
+
+  useEffect(() => {
+    if (!sceneChildren || !sceneChildren.length) return
+    const { cameraEntity } = renderPanel
+    const cameraOrbitComponent = getOptionalMutableComponent(cameraEntity, CameraOrbitComponent)
+    if (!cameraOrbitComponent) return
+    cameraOrbitComponent.focusedEntities.set(sceneChildren.get(NO_PROXY_STEALTH))
+    cameraOrbitComponent.refocus.set(true)
+  }, [sceneChildren])
 
   return (
     <>
