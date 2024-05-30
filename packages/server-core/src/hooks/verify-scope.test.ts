@@ -88,6 +88,38 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
+  it('should return false if user does not have scope', async () => {
+    const name = `Test #${Math.random()}` as UserName
+    const isGuest = true
+
+    let user = await app.service(userPath).create({
+      name,
+      isGuest,
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
+      scopes: []
+    })
+
+    user = await app.service(userPath).get(user.id, { user })
+
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
+        userId: user.id
+      }
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
+
+    const verifyLocationReadScope = verifyScope('location', 'read', false)
+    const hookContext = mockUserHookContext(user, app)
+
+    const hasScope = verifyLocationReadScope(hookContext)
+    assert.equal(hasScope, false)
+
+    // cleanup
+    await app.service(userPath).remove(user.id!)
+  })
+
   it('should verify guest has scope', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = true
@@ -111,6 +143,35 @@ describe('verify-scope', () => {
     const hookContext = mockUserHookContext(user, app)
 
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+
+    // cleanup
+    await app.service(userPath).remove(user.id!)
+  })
+
+  it('should not return false if guest has scope', async () => {
+    const name = `Test #${Math.random()}` as UserName
+    const isGuest = true
+
+    let user = await app.service(userPath).create({
+      name,
+      isGuest,
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
+      scopes: []
+    })
+
+    await app.service(scopePath).create({
+      type: 'location:read' as ScopeType,
+      userId: user.id
+    })
+
+    user = await app.service(userPath).get(user.id, { user })
+
+    const verifyLocationReadScope = verifyScope('location', 'read', false)
+    const hookContext = mockUserHookContext(user, app)
+
+    const hasScope = verifyLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
@@ -152,7 +213,7 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should verify admin', async () => {
+  it('should not return false if user has scope', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
@@ -167,6 +228,38 @@ describe('verify-scope', () => {
     await app.service(scopePath).create({
       type: 'location:read' as ScopeType,
       userId: user.id
+    })
+
+    user = await app.service(userPath).get(user.id, { user })
+
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
+        userId: user.id
+      }
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
+
+    const verifyLocationReadScope = verifyScope('location', 'read', false)
+    const hookContext = mockUserHookContext(user, app)
+
+    const hasScope = verifyLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
+
+    // cleanup
+    await app.service(userPath).remove(user.id!)
+  })
+
+  it('should verify admin', async () => {
+    const name = `Test #${Math.random()}` as UserName
+    const isGuest = false
+
+    let user = await app.service(userPath).create({
+      name,
+      isGuest,
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
+      scopes: []
     })
 
     await app.service(scopePath).create({
@@ -193,11 +286,57 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
+  it('should not return false if admin', async () => {
+    const name = `Test #${Math.random()}` as UserName
+    const isGuest = false
+
+    let user = await app.service(userPath).create({
+      name,
+      isGuest,
+      avatarId: '' as AvatarID,
+      inviteCode: '' as InviteCode,
+      scopes: []
+    })
+
+    await app.service(scopePath).create({
+      type: 'admin:admin' as ScopeType,
+      userId: user.id
+    })
+
+    user = await app.service(userPath).get(user.id, { user })
+
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
+        userId: user.id
+      }
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
+
+    const verifyLocationReadScope = verifyScope('location', 'read', false)
+    const hookContext = mockUserHookContext(user, app)
+
+    const hasScope = verifyLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
+
+    // cleanup
+    await app.service(userPath).remove(user.id!)
+  })
+
   it('should verify if isInternal', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(null!, app)
     hookContext.params.isInternal = true
 
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+  })
+
+  it('should not return false if isInternal', () => {
+    const verifyLocationReadScope = verifyScope('location', 'read', false)
+    const hookContext = mockUserHookContext(null!, app)
+    hookContext.params.isInternal = true
+
+    const hasScope = verifyLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
   })
 })
