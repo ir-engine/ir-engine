@@ -24,12 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  LensDistortionEffect: 'LensDistortionEffect' as const,
-  LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
-  LUT1DEffect: 'LUT1DEffect' as const,
-  LUT3DEffect: 'LUT3DEffect' as const,
-  MotionBlurEffect: 'MotionBlurEffect' as const,
-  NoiseEffect: 'NoiseEffect' as const,
   OutlineEffect: 'OutlineEffect' as const,
   PixelationEffect: 'PixelationEffect' as const,
   ScanlineEffect: 'ScanlineEffect' as const,

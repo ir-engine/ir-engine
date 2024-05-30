@@ -34,6 +34,12 @@ import { fxaaAddToEffectRegistry } from './FXAAEffect'
 import { glitchAddToEffectRegistry } from './GlitchEffect'
 import { gridAddToEffectRegistry } from './GridEffect'
 import { hueSaturationAddToEffectRegistry } from './HueSaturationEffect'
+import { lensDistortionAddToEffectRegistry } from './LensDistortionEffect'
+import { linearTosRGBAddToEffectRegistry } from './LinearTosRGBEffect'
+import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
+import { noiseAddToEffectRegistry } from './NoiseEffect'
+import { pixelationAddToEffectRegistry } from './PixelationEffect'
+import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -49,4 +55,12 @@ export const populateEffectRegistry = () => {
   //GodRaysEffect
   gridAddToEffectRegistry()
   hueSaturationAddToEffectRegistry()
+  lensDistortionAddToEffectRegistry()
+  linearTosRGBAddToEffectRegistry()
+  //lut1DAddToEffectRegistry()
+  //lut3DAddToEffectRegistry()
+  motionBlurAddToEffectRegistry()
+  noiseAddToEffectRegistry()
+  pixelationAddToEffectRegistry()
+  scanlineAddToEffectRegistry()
 }
