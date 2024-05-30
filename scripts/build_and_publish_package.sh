@@ -128,9 +128,9 @@ fi
 
 if [ $PRIVATE_REPO == "true" ]
 then
-  node ./scripts/prune_ecr_images.js --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
+  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
 else
-  node ./scripts/prune_ecr_images.js --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
+  npx ts-node ./scripts/prune_ecr_images.ts --repoName $DESTINATION_REPO_NAME_STEM-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
 fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
