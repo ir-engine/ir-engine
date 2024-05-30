@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
@@ -35,7 +34,7 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
-import verifyScope from './verify-scope'
+import checkScope from './check-scope'
 
 const mockUserHookContext = (user: UserType, app: Application) => {
   return {
@@ -46,7 +45,7 @@ const mockUserHookContext = (user: UserType, app: Application) => {
   } as unknown as HookContext<Application>
 }
 
-describe('verify-scope', () => {
+describe('check-scope', () => {
   let app: Application
   before(async () => {
     app = createFeathersKoaApp()
@@ -57,7 +56,7 @@ describe('verify-scope', () => {
     return destroyEngine()
   })
 
-  it('should fail if user does not have scope', async () => {
+  it('should return false if user does not have scope', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
@@ -79,16 +78,17 @@ describe('verify-scope', () => {
 
     user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
-    const verifyLocationReadScope = verifyScope('location', 'read')
+    const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.rejects(() => verifyLocationReadScope(hookContext), Forbidden)
+    const hasScope = await checkLocationReadScope(hookContext)
+    assert.equal(hasScope, false)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should verify guest has scope', async () => {
+  it('should return true if guest has scope', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
@@ -107,16 +107,17 @@ describe('verify-scope', () => {
 
     user = await app.service(userPath).get(user.id, { user })
 
-    const verifyLocationReadScope = verifyScope('location', 'read')
+    const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+    const hasScope = await checkLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should verify user has scope', async () => {
+  it('should return true if user has scope', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
@@ -143,16 +144,17 @@ describe('verify-scope', () => {
 
     user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
-    const verifyLocationReadScope = verifyScope('location', 'read')
+    const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+    const hasScope = await checkLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should verify admin', async () => {
+  it('should return true if admin', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
@@ -179,20 +181,22 @@ describe('verify-scope', () => {
 
     user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
-    const verifyLocationReadScope = verifyScope('location', 'read')
+    const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+    const hasScope = await checkLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should verify if isInternal', () => {
-    const verifyLocationReadScope = verifyScope('location', 'read')
+  it('should return true if isInternal', async () => {
+    const checkLocationReadScope = checkScope('location', 'read')
     const hookContext = mockUserHookContext(null!, app)
     hookContext.params.isInternal = true
 
-    assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
+    const hasScope = await checkLocationReadScope(hookContext)
+    assert.notEqual(hasScope, false)
   })
 })
