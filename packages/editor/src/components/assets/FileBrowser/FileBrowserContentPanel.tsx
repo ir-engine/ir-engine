@@ -66,6 +66,8 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import BooleanInput from '../../inputs/BooleanInput'
+import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
 import { ToolButton } from '../../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from '../AssetsPreviewPanel'
@@ -180,7 +182,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+    //FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
   }, [fileQuery.data])
 
   useEffect(() => {
@@ -448,6 +450,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const ViewModeSettings = () => {
     const viewModeSettings = useMutableState(FilesViewModeSettings)
+    const forceRegenerateThumbnails = useHookstate(false)
     return (
       <>
         <ToolButton
@@ -517,10 +520,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             </div>
           </div>
           <div style={{ display: 'flex', width: '200px', flexDirection: 'column' }}>
+            <InputGroup name="Force Regenerate Thumbnails" label="Force Regenerate">
+              <BooleanInput
+                value={forceRegenerateThumbnails.value}
+                onChange={() => forceRegenerateThumbnails.set(!forceRegenerateThumbnails.value)}
+              />
+            </InputGroup>
             <Button
               className={'medium-button button'}
               style={{ width: '100%' }}
-              onClick={() => FileThumbnailJobState.processAllFiles(selectedDirectory.value)}
+              onClick={() =>
+                FileThumbnailJobState.processAllFiles(selectedDirectory.value, forceRegenerateThumbnails.value)
+              }
             >
               Generate thumbnails
             </Button>

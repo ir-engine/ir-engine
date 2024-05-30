@@ -33,14 +33,14 @@ import {
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import {
-  createEntity,
   Engine,
   EntityUUID,
+  UUIDComponent,
+  UndefinedEntity,
+  createEntity,
   getComponent,
   removeEntity,
-  setComponent,
-  UndefinedEntity,
-  UUIDComponent
+  setComponent
 } from '@etherealengine/ecs'
 import { previewScreenshot } from '@etherealengine/editor/src/functions/takeScreenshot'
 import { useTexture } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
@@ -51,12 +51,12 @@ import { defineState, getMutableState, none, useHookstate, useMutableState } fro
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { RendererComponent, getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
-import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import {
   BoundingBoxComponent,
   updateBoundingBox
@@ -162,7 +162,7 @@ export const FileThumbnailJobState = defineState({
     )
   },
 
-  processAllFiles: async (topDirectory: string) => {
+  processAllFiles: async (topDirectory: string, forceRegenerate = false) => {
     let directories = [topDirectory]
     let needThumbnails: FileBrowserContentType[] = []
 
@@ -180,12 +180,14 @@ export const FileThumbnailJobState = defineState({
         .filter((file) => file.type === 'folder')
         .map((file) => directory + file.name)
         .concat(directories)
-      needThumbnails = needThumbnails.concat(
-        files.data.filter(
-          (file) => !seenThumbnails.has(file.key) && extensionCanHaveThumbnail(file.key.split('.').pop() ?? '')
-        )
-      )
+      let theseThumbnails = files.data.filter((file) => extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
+      if (!forceRegenerate) {
+        theseThumbnails = theseThumbnails.filter((file) => !seenThumbnails.has(file.key))
+      }
+      needThumbnails = needThumbnails.concat(theseThumbnails)
     }
+
+    needThumbnails = needThumbnails.slice(0, 1) // for testing
 
     Promise.all(
       needThumbnails.map(async (file) => {
@@ -201,7 +203,7 @@ export const FileThumbnailJobState = defineState({
           return
         }
         const resource = resources.data[0]
-        if (resource.thumbnailURL != null) {
+        if (!forceRegenerate && resource.thumbnailURL != null) {
           return
         }
         getMutableState(FileThumbnailJobState)[url].set({
@@ -335,13 +337,17 @@ const ThumbnailJobReactor = (props: { src: string }) => {
     const normalizedSize = new Vector3().setScalar(length)
 
     const cameraEntity = createEntity()
+    setComponent(cameraEntity, CameraComponent)
+    setComponent(cameraEntity, RendererComponent, {
+      canvas: document.getElementById('preview-canvas') as HTMLCanvasElement
+    })
     setComponent(cameraEntity, VisibleComponent, true)
     setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + props.src)
 
     // make camera look at the model from outside it's bounding box
     setComponent(cameraEntity, TransformComponent, { position: normalizedSize.add(bbox.getCenter(new Vector3())) })
     computeTransformMatrix(cameraEntity)
-    setComponent(cameraEntity, CameraComponent)
+
     const camera = getComponent(cameraEntity, CameraComponent)
     camera.lookAt(0, 0, 0)
     computeTransformMatrix(cameraEntity)

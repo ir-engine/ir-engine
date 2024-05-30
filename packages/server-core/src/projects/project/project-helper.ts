@@ -1747,7 +1747,7 @@ export const uploadLocalProjectToProvider = async (
   const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
-  const files = getFilesRecursive(projectRootPath)
+  const files = getFilesRecursive(projectRootPath, false, [path.join(projectRootPath, 'thumbnails')])
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
