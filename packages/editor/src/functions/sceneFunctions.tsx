@@ -86,11 +86,13 @@ export const saveSceneGLTF = async (
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
-  const existingScene = (await Engine.instance.api.service(assetPath).find({
-    query: { assetURL: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
-  })) as Paginated<AssetType>
+  if (!sceneAssetID) {
+    const existingScene = (await Engine.instance.api.service(assetPath).find({
+      query: { assetURL: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
+    })) as Paginated<AssetType>
 
-  if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
+    if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
+  }
 
   const gltfData = getState(GLTFDocumentState)[sourceID]
   if (!gltfData) {
@@ -105,7 +107,7 @@ export const saveSceneGLTF = async (
   const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
-    const result = await Engine.instance.api.service(assetPath).patch(sceneAssetID, { assetURL, project: projectName })
+    const result = await Engine.instance.api.service(assetPath).update(sceneAssetID, { assetURL, project: projectName })
 
     // no need to update state if the assetURL is the same
     if (getState(EditorState).scenePath === result.assetURL && getState(EditorState).sceneAssetID === result.id) return

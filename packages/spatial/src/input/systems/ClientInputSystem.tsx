@@ -548,8 +548,8 @@ const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
       pointerComponent.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
+        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -558,8 +558,8 @@ const CanvasInputReactor = () => {
       if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
+        ((touch.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((touch.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
