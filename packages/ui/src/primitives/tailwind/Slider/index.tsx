@@ -67,6 +67,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         className="h-8 w-14 rounded bg-neutral-900 text-center font-['Figtree'] text-sm font-normal leading-[21px] text-neutral-400"
       />
       <input
+        id="slider"
         min={min}
         max={max}
         value={value}
@@ -75,18 +76,20 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         step={step}
         type="range"
         className={twMerge(
-          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden bg-red-500 focus:outline-none disabled:pointer-events-none disabled:opacity-50
+          `w-[${width}px] h-8 cursor-pointer appearance-none overflow-hidden rounded bg-[#111113] from-[#214AA6] via-[#214AA6] focus:outline-none
         
+        disabled:pointer-events-none
+        disabled:opacity-50
         [&::-moz-range-progress]:bg-[#214AA6]
         [&::-moz-range-track]:h-full
         [&::-moz-range-track]:w-full
+
         [&::-moz-range-track]:rounded
         [&::-moz-range-track]:bg-[#111113]
-
         [&::-webkit-slider-runnable-track]:h-full
-        [&::-webkit-slider-runnable-track]:w-full
-        [&::-webkit-slider-runnable-track]:rounded
-        [&::-webkit-slider-runnable-track]:bg-[#111113]
+        [&::-webkit-slider-runnable-track]:w-full [&::-webkit-slider-runnable-track]:rounded [&::-webkit-slider-runnable-track]:bg-gradient-to-r via-[${
+          value - 5
+        }%] to-[${value}%]     
         [&::-webkit-slider-thumb]:h-full
         [&::-webkit-slider-thumb]:shadow-[-${width}px_0_0_${width}px_#214AA6]
 

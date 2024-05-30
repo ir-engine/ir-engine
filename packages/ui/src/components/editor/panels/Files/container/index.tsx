@@ -40,7 +40,8 @@ import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
-  FilesViewModeState
+  FilesViewModeState,
+  availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -65,10 +66,15 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
+import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import BooleanInput from '../../../input/Boolean'
+import InputGroup from '../../../input/Group'
+import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
@@ -121,6 +127,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
   const fileProperties = useHookstate<FileType | null>(null)
+  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -131,7 +138,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
-  const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
+  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -335,32 +342,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
-    /*
-    return (
-      <Breadcrumbs
-        maxItems={3}
-        classes={{ separator: styles.separator, li: styles.breadcrumb, ol: styles.breadcrumbList }}
-        separator="›"
-      >
-        {breadcrumbDirectoryFiles.map((file, index, arr) =>
-          arr.length - 1 == index ? (
-            <Typography key={file} style={{ fontSize: '0.9rem' }}>
-              {file}
-            </Typography>
-          ) : (
-            <Link
-              underline="hover"
-              key={file}
-              color="#5d646c"
-              style={{ fontSize: '0.9rem' }}
-              onClick={() => handleBreadcrumbDirectoryClick(file)}
-            >
-              {file}
-            </Link>
-          )
-        )}
-      </Breadcrumbs>
-    )*/
 
     return (
       <nav
@@ -482,62 +463,66 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               variant="transparent"
               startIcon={<IoSettingsSharp />}
               className="p-0"
-              onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
+              onClick={(event) => {
+                setAnchorPosition({ left: event.clientX, top: event.clientY })
+                anchorEl.set(event.currentTarget)
+              }}
             />
           </Tooltip>
         </div>
-        {/*
         <Popover
-          anchorPosition={viewModeSettingsAnchorPosition.get(NO_PROXY)}
-          open={!!viewModeSettingsAnchorPosition.left.value}
-          onClose={() => viewModeSettingsAnchorPosition.set({ left: 0, top: 0 })} 
-          anchorEl={null}>
-          <div className={styles.viewModeSettings}>
-            <div className = "flex flex-col w-40">
-              {filesViewMode.value === 'icons' ? (
-
+          open={!!anchorEl.value}
+          anchorEl={anchorEl.value as any}
+          onClose={() => {
+            anchorEl.set(null)
+            setAnchorPosition(undefined)
+          }}
+          panelId={FilesPanelTab.id!}
+          anchorPosition={anchorPosition}
+          className="w-45 flex min-w-[300px] flex-col p-2"
+        >
+          {filesViewMode.value === 'icons' ? (
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+              <Slider
+                min={10}
+                max={100}
+                step={0.5}
+                value={viewModeSettings.icons.iconSize.value}
+                onChange={viewModeSettings.icons.iconSize.set}
+                onRelease={viewModeSettings.icons.iconSize.set}
+              />
+            </InputGroup>
+          ) : (
+            <>
+              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
                 <Slider
                   min={10}
                   max={100}
-                  step={.5}
-                  value={viewModeSettings.icons.iconSize.value}
-                  onChange={viewModeSettings.icons.iconSize.set}
-                  onRelease={viewModeSettings.icons.iconSize.set}    // label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}             
-                />
-              ) : (
-                <>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={.5}
+                  step={0.5}
                   value={viewModeSettings.list.fontSize.value}
-                  onChange={viewModeSettings.list.fontSize.set} 
-                  onRelease={viewModeSettings.list.fontSize.set} //label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}             
-                  />
-                  <div>
-                    <div className="mt-1">
-                      <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                    </div>
-                    <div className="flex-col">
-                      {availableTableColumns.map((column) => (  
-                        <Checkbox
-                          style={{ color: 'var(--textColor)' }}
-                          checked={viewModeSettings.list.selectedTableColumns[column].value}
-                          onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-          <div className = "flex flex-col w-40">
-            <Button onClick={() => makeAllThumbnails()}>
-              Generate thumbnails
-            </Button>
-          </div>
-        </Popover>*/}
+                  onChange={viewModeSettings.list.fontSize.set}
+                  onRelease={viewModeSettings.list.fontSize.set}
+                />
+              </InputGroup>
+
+              <div>
+                <div className="mt-1 flex flex-auto text-white">
+                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+                </div>
+                <div className="flex-col">
+                  {availableTableColumns.map((column) => (
+                    <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                      <BooleanInput
+                        value={viewModeSettings.list.selectedTableColumns[column].value}
+                        onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                      />
+                    </InputGroup>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </Popover>
       </>
     )
   }
