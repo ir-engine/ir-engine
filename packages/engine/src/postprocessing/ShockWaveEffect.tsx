@@ -29,13 +29,14 @@ import {
   EffectReactorProps,
   PostProcessingEffectState
 } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
-import { BlendFunction, ScanlineEffect } from 'postprocessing'
+import { ShockWaveEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
+import { Vector3 } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
-const effectKey = 'ScanlineEffect'
+const effectKey = 'ShockWaveEffect'
 
-export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
+export const ShockWaveEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   isActive
   rendererEntity: Entity
   effectData
@@ -54,7 +55,7 @@ export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const eff = new ScanlineEffect(effectData[effectKey].value)
+    const eff = new ShockWaveEffect(effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
@@ -64,22 +65,26 @@ export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props
   return null
 }
 
-export const scanlineAddToEffectRegistry = () => {
+export const shockWaveAddToEffectRegistry = () => {
   // registers the effect
 
   getMutableState(PostProcessingEffectState).merge({
     [effectKey]: {
-      reactor: ScanlineEffectProcessReactor,
+      reactor: ShockWaveEffectProcessReactor,
       defaultValues: {
         isActive: false,
-        blendFunction: BlendFunction.OVERLAY,
-        density: 1.25,
-        scrollSpeed: 0.0
+        position: new Vector3(0, 0, 0),
+        speed: 2.0,
+        maxRadius: 1.0,
+        waveSize: 0.2,
+        amplitude: 0.05
       },
       schema: {
-        blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-        density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 },
-        scrollSpeed: { propertyType: PropertyTypes.Number, name: 'Scroll Speed', min: 0, max: 10, step: 0.05 }
+        position: { propertyType: PropertyTypes.Vector3, name: 'Position' },
+        speed: { propertyType: PropertyTypes.Number, name: 'Speed', min: 0, max: 10, step: 0.05 },
+        maxRadius: { propertyType: PropertyTypes.Number, name: 'Max Radius', min: 0, max: 10, step: 0.05 },
+        waveSize: { propertyType: PropertyTypes.Number, name: 'Wave Size', min: 0, max: 10, step: 0.05 },
+        amplitude: { propertyType: PropertyTypes.Number, name: 'Amplitude', min: 0, max: 10, step: 0.05 }
       }
     }
   })

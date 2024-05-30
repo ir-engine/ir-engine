@@ -39,7 +39,10 @@ import { linearTosRGBAddToEffectRegistry } from './LinearTosRGBEffect'
 import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
 import { noiseAddToEffectRegistry } from './NoiseEffect'
 import { pixelationAddToEffectRegistry } from './PixelationEffect'
+import { ssaoAddToEffectRegistry } from './SSAOEffect'
+import { ssgiAddToEffectRegistry } from './SSGIEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
+import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -63,4 +66,8 @@ export const populateEffectRegistry = () => {
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
   scanlineAddToEffectRegistry()
+  shockWaveAddToEffectRegistry()
+  ssaoAddToEffectRegistry()
+  //ssrAddToEffectRegistry()
+  ssgiAddToEffectRegistry()
 }

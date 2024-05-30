@@ -29,13 +29,13 @@ import {
   EffectReactorProps,
   PostProcessingEffectState
 } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
-import { BlendFunction, ScanlineEffect } from 'postprocessing'
+import { EdgeDetectionMode, PredicationMode, SMAAEffect, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
-const effectKey = 'ScanlineEffect'
+const effectKey = 'SMAAEffect'
 
-export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
+export const SMAAEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   isActive
   rendererEntity: Entity
   effectData
@@ -54,7 +54,7 @@ export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const eff = new ScanlineEffect(effectData[effectKey].value)
+    const eff = new SMAAEffect(effectData[effectKey].granularity.value)
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
@@ -64,22 +64,20 @@ export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props
   return null
 }
 
-export const scanlineAddToEffectRegistry = () => {
+export const smaaAddToEffectRegistry = () => {
   // registers the effect
 
   getMutableState(PostProcessingEffectState).merge({
     [effectKey]: {
-      reactor: ScanlineEffectProcessReactor,
+      reactor: SMAAEffectProcessReactor,
       defaultValues: {
         isActive: false,
-        blendFunction: BlendFunction.OVERLAY,
-        density: 1.25,
-        scrollSpeed: 0.0
+        preset: SMAAPreset.MEDIUM,
+        edgeDetectionMode: EdgeDetectionMode.COLOR,
+        predicationMode: PredicationMode.DISABLED
       },
       schema: {
-        blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-        density: { propertyType: PropertyTypes.Number, name: 'Density', min: 0, max: 10, step: 0.05 },
-        scrollSpeed: { propertyType: PropertyTypes.Number, name: 'Scroll Speed', min: 0, max: 10, step: 0.05 }
+        preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
       }
     }
   })

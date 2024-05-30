@@ -24,10 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  ShockWaveEffect: 'ShockWaveEffect' as const,
-  SMAAEffect: 'SMAAEffect' as const,
-  SSAOEffect: 'SSAOEffect' as const,
-  SSREffect: 'SSREffect' as const,
   SSGIEffect: 'SSGIEffect' as const,
   TextureEffect: 'TextureEffect' as const,
   TiltShiftEffect: 'TiltShiftEffect' as const,
