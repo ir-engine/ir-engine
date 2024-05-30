@@ -45,7 +45,7 @@ export default (types: string[]) => {
 
     const projectId = context.params.query.projectId ?? context.data.projectId
 
-    if (!projectId) throw new BadRequest('Invalid project ID')
+    if (!projectId) throw new BadRequest('Missing project ID in request')
 
     const project = await context.app.service(projectPath).get(projectId)
 
