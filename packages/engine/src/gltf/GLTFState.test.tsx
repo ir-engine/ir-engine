@@ -808,7 +808,13 @@ describe('GLTFState', () => {
     // handle the new snapshot
     applyIncomingActions()
 
-    const hemisphereEntityUUID = (rootEntityUUID + '-' + hemisphereNodeID) as EntityUUID
+    const snapshot = getState(GLTFSnapshotState)[getComponent(gltfEntity, SourceComponent)]
+    const hemipshereNode = snapshot.snapshots[snapshot.index].nodes!.find(
+      (node) => !!node.extensions![HemisphereLightComponent.jsonID]
+    )!
+    const hemisphereEntityUUID = (rootEntityUUID +
+      '-' +
+      hemipshereNode.extensions![NodeIDComponent.jsonID]) as EntityUUID
     const hemisphereEntity = UUIDComponent.getEntityByUUID(hemisphereEntityUUID)
     const hemisphereComponent = getComponent(hemisphereEntity, HemisphereLightComponent)
 
