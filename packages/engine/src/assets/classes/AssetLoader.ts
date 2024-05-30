@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { AudioLoader, Material, RepeatWrapping, Texture, TextureLoader } from 'three'
 
-import { Entity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
@@ -184,49 +183,41 @@ export const getLoader = (assetType: AssetType) => {
   }
 }
 
-const assetLoadCallback =
-  (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-    const assetClass = AssetLoader.getAssetClass(url)
-    if (assetClass === AssetClass.Model) {
-      const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
-      if (notGLTF) {
-        asset = { scene: asset }
-      } else if (assetType === AssetType.VRM) {
-        asset = asset.userData.vrm
-      }
-
-      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-      if (asset.scene.userData) asset.scene.userData.type = assetType
-      if (asset.userData) asset.userData.type = assetType
-      else asset.userData = { type: assetType }
-    }
-    if (assetClass === AssetClass.Material) {
-      const material = asset as Material
-      material.userData.type = assetType
-    }
-    if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
-      const texture = asset as Texture
-      texture.wrapS = RepeatWrapping
-      texture.wrapT = RepeatWrapping
+const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+  const assetClass = AssetLoader.getAssetClass(url)
+  if (assetClass === AssetClass.Model) {
+    const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
+    if (notGLTF) {
+      asset = { scene: asset }
+    } else if (assetType === AssetType.VRM) {
+      asset = asset.userData.vrm
     }
 
-    const gltf = asset as GLTF
-    if (gltf.parser) delete asset.parser
-
-    onLoad(asset)
+    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+    if (asset.scene.userData) asset.scene.userData.type = assetType
+    if (asset.userData) asset.userData.type = assetType
+    else asset.userData = { type: assetType }
   }
+  if (assetClass === AssetClass.Material) {
+    const material = asset as Material
+    material.userData.type = assetType
+  }
+  if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
+    const texture = asset as Texture
+    texture.wrapS = RepeatWrapping
+    texture.wrapT = RepeatWrapping
+  }
+
+  const gltf = asset as GLTF
+  if (gltf.parser) delete asset.parser
+
+  onLoad(asset)
+}
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-export type LoadingArgs = {
-  ignoreDisposeGeometry?: boolean
-  forceAssetType?: AssetType | null
-  assetRoot?: Entity
-}
-
 const load = async (
   _url: string,
-  args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {},
@@ -238,7 +229,7 @@ const load = async (
   }
   let url = getAbsolutePath(_url)
 
-  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
+  const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
     const img = new Image()
@@ -278,7 +269,7 @@ const load = async (
     url = dataURI
   }
 
-  const callback = assetLoadCallback(url, args, assetType, onLoad)
+  const callback = assetLoadCallback(url, assetType, onLoad)
 
   try {
     return loader.load(url, callback, onProgress, onError, signal)
@@ -287,9 +278,9 @@ const load = async (
   }
 }
 
-const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject)
+    load(url, resolve, onProgress, reject)
   })
 }
 

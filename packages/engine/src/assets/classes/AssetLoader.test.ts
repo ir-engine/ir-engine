@@ -112,7 +112,7 @@ describe('AssetLoader', async () => {
     })
 
     it('should give error for empty url', async () => {
-      AssetLoader.load('', {}, undefined, undefined, (err) => {
+      AssetLoader.load('', undefined, undefined, (err) => {
         assert.notEqual(err, null)
       })
     })
