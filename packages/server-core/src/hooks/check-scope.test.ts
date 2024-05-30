@@ -111,7 +111,7 @@ describe('check-scope', () => {
     const hookContext = mockUserHookContext(user, app)
 
     const hasScope = await checkLocationReadScope(hookContext)
-    assert.notEqual(hasScope, false)
+    assert.equal(hasScope, true)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
@@ -148,7 +148,7 @@ describe('check-scope', () => {
     const hookContext = mockUserHookContext(user, app)
 
     const hasScope = await checkLocationReadScope(hookContext)
-    assert.notEqual(hasScope, false)
+    assert.equal(hasScope, true)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
@@ -164,6 +164,11 @@ describe('check-scope', () => {
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
+    })
+
+    await app.service(scopePath).create({
+      type: 'location:read' as ScopeType,
+      userId: user.id
     })
 
     await app.service(scopePath).create({
@@ -185,7 +190,7 @@ describe('check-scope', () => {
     const hookContext = mockUserHookContext(user, app)
 
     const hasScope = await checkLocationReadScope(hookContext)
-    assert.notEqual(hasScope, false)
+    assert.equal(hasScope, true)
 
     // cleanup
     await app.service(userPath).remove(user.id!)
@@ -197,6 +202,6 @@ describe('check-scope', () => {
     hookContext.params.isInternal = true
 
     const hasScope = await checkLocationReadScope(hookContext)
-    assert.notEqual(hasScope, false)
+    assert.equal(hasScope, true)
   })
 })

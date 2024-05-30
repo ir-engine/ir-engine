@@ -165,6 +165,11 @@ describe('verify-scope', () => {
     })
 
     await app.service(scopePath).create({
+      type: 'location:read' as ScopeType,
+      userId: user.id
+    })
+
+    await app.service(scopePath).create({
       type: 'admin:admin' as ScopeType,
       userId: user.id
     })
