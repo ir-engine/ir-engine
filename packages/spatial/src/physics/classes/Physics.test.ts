@@ -23,31 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { RigidBodyType, ShapeType, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { ObjectDirection } from '../../common/constants/MathConstants'
+import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
-  getTagComponentForRigidBody,
   RigidBodyComponent,
-  RigidBodyFixedTagComponent
+  RigidBodyFixedTagComponent,
+  getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
+import { UndefinedEntity, removeEntity } from '@etherealengine/ecs'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -361,3 +362,714 @@ describe('Physics', () => {
     assert.equal(getComponent(entity2, CollisionComponent).get(entity1)?.type, CollisionEvents.TRIGGER_END)
   })
 })
+
+describe('PhysicsAPI', () => {
+  describe('createWorld', () => {
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    it('should create a new world object successfully', () => {
+      const world = Physics.createWorld()
+      assert.ok(world instanceof World, 'The create world has an incorrect type.')
+    })
+
+    it('should create a world object with the default gravity when not specified', () => {
+      const world = Physics.createWorld()
+      const gravity = new Vector3(0.0, -9.81, 0.0)
+      assert.deepEqual(world.gravity, gravity, 'The physics world was initialized with an unexpected gravity value')
+    })
+
+    it('should create a world object with a different gravity value when specified', () => {
+      const expected = new Vector3(1.0, 2.0, 3.0)
+      const world = Physics.createWorld(expected)
+      assert.deepEqual(world.gravity, expected, 'The physics world was initialized with an unexpected gravity value')
+    })
+  })
+
+  describe('Rigidbodies', () => {
+    describe('createRigidBody', () => {
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(4, 5, 6, 1)
+
+      const scale = new Vector3(10, 10, 10)
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent, { position: position, scale: scale, rotation: rotation })
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should create a rigidBody successfully', () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)
+        assert.ok(body)
+      })
+
+      it("shouldn't mark the entity transform as dirty", () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.ok(TransformComponent.dirtyTransforms[testEntity] == false)
+      })
+
+      it('should assign the correct RigidBodyType enum', () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.equal(body.bodyType(), RigidBodyType.Dynamic)
+      })
+
+      it("should assign the entity's position to the rigidBody.translation property", () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.translation(), position)
+      })
+
+      /*
+    // @todo How to check rotations?
+    it("should assign the entity's rotation to the rigidBody.rotation property", () => {
+      Physics.createRigidBody(testEntity, physicsWorld!)
+      const body = Physics._Rigidbodies.get(testEntity)
+      assert.deepEqual(body!.rotation(), {
+        w: 0.06706728786230087,
+        x: 0.3365011513233185,
+        y: 0.4241691827774048,
+        z: 0.8380629420280457
+      })
+    })
+    */
+
+      it('should create a body with no Linear Velocity', () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.linvel(), Vector3_Zero)
+      })
+
+      it('should create a body with no Angular Velocity', () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const result = new Vector3(body.angvel().x, body.angvel().y, body.angvel().z)
+        assert.equal(result.x, Vector3_Zero.x)
+        assert.equal(result.y, Vector3_Zero.y)
+        assert.equal(result.z, Vector3_Zero.z)
+      })
+
+      it("should store the entity in the body's userData property", () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.userData, { entity: testEntity })
+      })
+    })
+
+    describe('removeRigidbody', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should successfully remove the body from the RigidBodies map', () => {
+        let body = Physics._Rigidbodies.get(testEntity)
+        assert.ok(body)
+        Physics.removeRigidbody(testEntity, physicsWorld!)
+        body = Physics._Rigidbodies.get(testEntity)
+        assert.equal(body, undefined)
+      })
+    })
+
+    describe('isSleeping', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should return the correct values', () => {
+        const noBodyEntity = createEntity()
+        assert.equal(Physics.isSleeping(noBodyEntity), true, 'Returns true when the entity does not have a RigidBody')
+        assert.equal(
+          Physics.isSleeping(testEntity),
+          false,
+          "Returns false when the entity is first created and physics haven't been simulated yet"
+        )
+      })
+    })
+
+    describe('setRigidBodyType', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should assign the correct RigidBodyType to the entity's body", () => {
+        let body = Physics._Rigidbodies.get(testEntity)!
+        assert.equal(body.bodyType(), RigidBodyType.Dynamic)
+        // Check change to fixed
+        Physics.setRigidBodyType(testEntity, BodyTypes.Fixed)
+        body = Physics._Rigidbodies.get(testEntity)!
+        assert.notEqual(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed")
+        assert.equal(body.bodyType(), RigidBodyType.Fixed, "The RigidBody's type was not changed to Fixed")
+        // Check change to dynamic
+        Physics.setRigidBodyType(testEntity, BodyTypes.Dynamic)
+        body = Physics._Rigidbodies.get(testEntity)!
+        assert.notEqual(body.bodyType(), RigidBodyType.Fixed, "The RigidBody's type was not changed")
+        assert.equal(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed to Dynamic")
+        // Check change to kinematic
+        Physics.setRigidBodyType(testEntity, BodyTypes.Kinematic)
+        body = Physics._Rigidbodies.get(testEntity)!
+        assert.notEqual(body.bodyType(), RigidBodyType.Dynamic, "The RigidBody's type was not changed")
+        assert.equal(
+          body.bodyType(),
+          RigidBodyType.KinematicPositionBased,
+          "The RigidBody's type was not changed to KinematicPositionBased"
+        )
+      })
+    })
+
+    describe('setRigidbodyPose', () => {
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(4, 5, 6, 1)
+      const linVel = new Vector3(7, 8, 9)
+      const angVel = new Vector3(0, 1, 2)
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should set the body's Translation to the given Position", () => {
+        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.translation(), position)
+      })
+
+      /*
+    // @todo How to check rotations?
+    it("should set the body's Rotation to the given value", () => {
+      Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
+      const body = Physics._Rigidbodies.get(testEntity)!
+      assert.deepEqual(body.rotation(), rotation)
+    })
+    */
+
+      it("should set the body's Linear Velocity to the given value", () => {
+        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.linvel(), linVel)
+      })
+
+      it("should set the body's Angular Velocity to the given value", () => {
+        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body.angvel(), angVel)
+      })
+    })
+
+    describe('enabledCcd', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should enable Continuous Collision Detection on the entity', () => {
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.equal(body.isCcdEnabled(), false)
+        Physics.enabledCcd(testEntity, true)
+        assert.equal(body.isCcdEnabled(), true)
+      })
+
+      it('should disable CCD on the entity when passing `false` to the `enabled` property', () => {
+        const body = Physics._Rigidbodies.get(testEntity)!
+        Physics.enabledCcd(testEntity, true)
+        assert.equal(body.isCcdEnabled(), true)
+        Physics.enabledCcd(testEntity, false)
+        assert.equal(body.isCcdEnabled(), false)
+      })
+    })
+
+    /**
+  // @todo How to check for the impulse of an entity?
+  describe("applyImpulse", () => {
+    let testEntity = UndefinedEntity
+    let physicsWorld :World | undefined= undefined
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      physicsWorld  = Physics.createWorld()
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+      physicsWorld!.timestep = 1 / 60
+
+      // Create the entity
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      Physics.createRigidBody(testEntity, physicsWorld!)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      physicsWorld = undefined
+      return destroyEngine()
+    })
+
+    it("should apply the impulse to the RigidBody of the entity", () => {
+      const testImpulse = new Vector3(1,2,3)
+      const body = Physics._Rigidbodies.get(testEntity)!
+      Physics.applyImpulse(testEntity, testImpulse)
+    })
+  })
+  */
+
+    /**
+  // @todo How to check rotations?
+  describe("lockRotations", () => {
+    let testEntity = UndefinedEntity
+    let physicsWorld :World | undefined= undefined
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      physicsWorld  = Physics.createWorld()
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+      physicsWorld!.timestep = 1 / 60
+
+      // Create the entity
+      testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      Physics.createRigidBody(testEntity, physicsWorld!)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      physicsWorld = undefined
+      return destroyEngine()
+    })
+
+    it("should lock rotations on the entity", () => {
+      const ExpectedValue = {x: 4, y: 3, z: 2, w: 1} as Rotation
+      const body = Physics._Rigidbodies.get(testEntity)!
+      assert.notDeepEqual(body.rotation(), ExpectedValue)
+      Physics.lockRotations(testEntity, true)
+      body.setRotation(ExpectedValue, false)
+      assert.notDeepEqual(body.rotation(), ExpectedValue)
+    })
+
+    it("should disable locked rotations on the entity", () => {
+      const ExpectedValue = {x: 4, y: 3, z: 2, w: 1} as Rotation
+      const body = Physics._Rigidbodies.get(testEntity)!
+      assert.notDeepEqual(body.rotation(), ExpectedValue)
+      Physics.lockRotations(testEntity, true)
+      body.setRotation(ExpectedValue, false)
+      assert.notDeepEqual(body.rotation(), ExpectedValue)
+      Physics.lockRotations(testEntity, true)
+      assert.deepEqual(body.rotation(), ExpectedValue)
+    })
+  })
+  */
+
+    /**
+  // @todo How to check rotations?
+  describe("setEnabledRotations", () => {})
+  describe("updatePreviousRigidbodyPose", () => {})
+  describe("updateRigidbodyPose", () => {})
+  describe("setKinematicRigidbodyPose", () => {})
+  */
+  }) // << Rigidbodies
+
+  describe('Colliders', () => {
+    /**
+    // @todo How to check for `CollisionGroups` behavior?
+    // @todo How to check for `setSensor` behavior?
+    describe("setTrigger", () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld :World | undefined= undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld  = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should ... on the entity', () => {
+        const collider = Physics._Colliders.get(testEntity)!
+        Physics.setTrigger(testEntity, true)
+      })
+
+      it('should ... when `isTrigger` is passed as true', () => {
+        const collider = Physics._Colliders.get(testEntity)!
+        Physics.setTrigger(testEntity, true)
+      })
+    }) // << setTrigger
+    */
+
+    describe('setFriction', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should set the friction value on the entity', () => {
+        const ExpectedValue = 42
+        const collider = Physics._Colliders.get(testEntity)!
+        assert.notEqual(collider.friction(), ExpectedValue)
+        Physics.setFriction(testEntity, ExpectedValue)
+        assert.equal(collider.friction(), ExpectedValue)
+      })
+    }) // << setFriction
+
+    describe('setRestitution', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should set the restitution value on the entity', () => {
+        const ExpectedValue = 42
+        const collider = Physics._Colliders.get(testEntity)!
+        assert.notEqual(collider.restitution(), ExpectedValue)
+        Physics.setRestitution(testEntity, ExpectedValue)
+        assert.equal(collider.restitution(), ExpectedValue)
+      })
+    }) // << setRestitution
+
+    describe('setMass', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should set the mass value on the entity', () => {
+        const ExpectedValue = 42
+        const collider = Physics._Colliders.get(testEntity)!
+        assert.notEqual(collider.mass(), ExpectedValue)
+        Physics.setMass(testEntity, ExpectedValue)
+        assert.equal(collider.mass(), ExpectedValue)
+      })
+    }) // << setMass
+
+    describe('getShape', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should return a sphere shape', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Sphere)
+      })
+
+      it('should return a capsule shape', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Capsule)
+      })
+
+      it('should return a cylinder shape', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Cylinder)
+      })
+
+      it('should return a box shape', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Box)
+      })
+
+      /**
+      // @todo Why is it returning a Box for the Plane case?
+      it("should return a plane shape", () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Plane })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Plane)
+      })
+      */
+
+      it('should return undefined for the convex_hull case', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.ConvexHull })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), undefined /** @todo Shapes.ConvexHull */)
+      })
+
+      it('should return undefined for the mesh case', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), undefined /** @todo Shapes.Mesh */)
+      })
+
+      /**
+      // @todo The heightfield triggers an Error exception
+      it("should return undefined for the heightfield case", () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Heightfield })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        assert.equal(Physics.getShape(testEntity), Shapes.Heightfield)
+      })
+      */
+    }) // << getShape
+
+    describe('removeCollider', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      /**
+      // @todo Why is before undefined?
+      it("should remove the entity's collider", () => {
+        const before = Physics._Colliders.get(testEntity)
+        assert.ok(before !== undefined)
+        Physics.removeCollider(physicsWorld!, testEntity)
+        const after = Physics._Colliders.get(testEntity)
+        assert.equal(after, undefined)
+      })
+      */
+    }) // << removeCollider
+  }) // << Colliders
+})
+
+/** TODO:
+    describe("load", () => {})
+  // Colliders
+    describe("createColliderDesc", () => {})  // @todo How does ColliderDesc work?
+    describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
+    describe("setColliderPose", () => {})  // @todo How to check rotations?
+    describe("setMassCenter", () => {})  // @todo The function is not implemented. It is annotated with a todo tag
+    describe("setCollisionLayer", () => {})  // @todo How to check for `CollisionGroups` behavior?
+    describe("setCollisionMask", () => {})  // @todo How to check for `CollisionGroups` behavior?
+    describe("removeCollidersFromRigidBody", () => {})
+    // Character Controller
+    describe("createCharacterController", () => {})
+    describe("removeCharacterController", () => {})
+    describe("computeColliderMovement", () => {})
+    describe("getComputedMovement", () => {})
+    describe("getControllerOffset", () => {})
+    // Raycasts
+    describe("castRay", () => {})
+    describe("castRayFromCamera", () => {})
+    describe("castShape", () => {})
+    // Collisions
+    describe("createCollisionEventQueue", () => {})
+    describe("drainCollisionEventQueue", () => {})
+    describe("drainContactEventQueue", () => {})
+  // Internals
+  _Colliders: Colliders,
+  _Rigidbodies: Rigidbodies,
+  _Controllers: Controllers
+  */
