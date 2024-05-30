@@ -40,7 +40,7 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
   const newSceneName = useHookstate(sceneName)
 
   const handleSubmit = async () => {
-    const newData = await renameScene(scene.id, newSceneName.value)
+    const newData = await renameScene(scene.id, newSceneName.value, scene.projectName)
     getMutableState(EditorState).scenePath.set(newData.assetURL)
     PopoverState.hidePopupover()
   }

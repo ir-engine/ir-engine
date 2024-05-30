@@ -78,7 +78,7 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
           <Button
             variant="transparent"
             startIcon={<HiTrash />}
-            className="text-theme-iconRed absolute right-0 top-1"
+            className="absolute right-0 top-1 text-theme-iconRed"
             onClick={() => deleteBufferAttribute(attribute.name.value)}
           />
           {['name', 'count', 'itemSize'].map((property) => (

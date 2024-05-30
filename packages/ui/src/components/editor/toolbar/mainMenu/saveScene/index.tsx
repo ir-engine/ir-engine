@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '../../../../tailwind/ConfirmDialog'
@@ -40,34 +40,11 @@ export function SaveSceneDialog({
 }) {
   const { t } = useTranslation()
 
-  /**
-   * onConfirmCallback callback function is used handle confirm dialog.
-   *
-   * @type {function}
-   */
-  const onConfirmCallback = useCallback(
-    (e) => {
-      e.preventDefault()
-      onConfirm(true)
-    },
-    [onConfirm]
-  )
-
-  /**
-   * onCancelCallback callback function used to handle cancel of dialog.
-   *
-   * @type {function}
-   */
-  const onCancelCallback = useCallback(() => {
-    onCancel()
-  }, [onCancel])
-
-  //returning view for dialog view.
   return (
     <ConfirmDialog
       text={t('editor:dialog.saveScene.title')}
-      onSubmit={async (e) => onConfirmCallback(e)}
-      onClose={onCancelCallback}
+      onSubmit={async () => onConfirm(true)}
+      onClose={onCancel}
     />
   )
 }

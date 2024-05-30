@@ -86,7 +86,7 @@ const TransformSnapTool = () => {
   // }
 
   return (
-    <div id="transform-snap" className="bg-theme-surfaceInput flex items-center">
+    <div id="transform-snap" className="flex items-center bg-theme-surfaceInput">
       <Button
         startIcon={<MdOutlineCenterFocusWeak />}
         onClick={toggleAttachmentPointSnap}

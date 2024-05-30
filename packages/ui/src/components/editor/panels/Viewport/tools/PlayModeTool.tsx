@@ -92,7 +92,7 @@ const PlayModeTool = () => {
   }
 
   return (
-    <div id="preview" className="bg-theme-surfaceInput flex items-center">
+    <div id="preview" className="flex items-center bg-theme-surfaceInput">
       <Tooltip
         title={
           isEditing.value

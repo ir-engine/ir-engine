@@ -23,21 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { HookContext } from '@feathersjs/feathers'
 
-const argTypes = {}
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
 
-export default {
-  title: 'Editor/Input/Audio',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'AudioInput',
-    jest: 'Audio.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    try {
+      await verifyScope(currentType, scopeToVerify)(context)
+
+      return true
+    } catch {
+      return false
     }
-  },
-  argTypes
+  }
 }
-export const Default = { args: Component }

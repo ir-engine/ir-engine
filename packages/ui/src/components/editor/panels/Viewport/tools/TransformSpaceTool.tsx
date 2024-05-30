@@ -55,7 +55,7 @@ const TransformSpaceTool = () => {
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
   return (
-    <div id="transform-space" className="bg-theme-surfaceInput flex items-center">
+    <div id="transform-space" className="flex items-center bg-theme-surfaceInput">
       <Button
         startIcon={<PiGlobeSimple />}
         onClick={toggleTransformSpace}

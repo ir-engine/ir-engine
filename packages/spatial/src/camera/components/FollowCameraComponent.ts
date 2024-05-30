@@ -97,7 +97,7 @@ export const FollowCameraComponent = defineComponent({
       offset: new Vector3(),
       targetEntity: UndefinedEntity,
       currentTargetPosition: new Vector3(),
-      targetPositionSmoothness: 0.01,
+      targetPositionSmoothness: 0,
       mode: CameraMode.ThirdPerson,
       distance: cameraSettings.startCameraDistance,
       zoomLevel: 5,

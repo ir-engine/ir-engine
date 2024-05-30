@@ -83,11 +83,9 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={lightComponent.angle}
-          convertFrom={_Math.radToDeg}
-          convertTo={_Math.degToRad}
-          onChange={updateProperty(SpotLightComponent, 'angle')}
-          onRelease={commitProperty(SpotLightComponent, 'angle')}
+          value={_Math.radToDeg(lightComponent.angle)}
+          onChange={(value) => updateProperty(SpotLightComponent, 'angle')(_Math.degToRad(value))}
+          onRelease={(value) => commitProperty(SpotLightComponent, 'angle')(_Math.degToRad(value))}
           unit="°"
         />
       </InputGroup>
