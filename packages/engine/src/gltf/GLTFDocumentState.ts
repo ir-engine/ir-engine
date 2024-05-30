@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import matches, { Validator } from 'ts-matches'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
-import { defineAction, defineState } from '@etherealengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Entity, EntityUUID, UUIDComponent, getComponent, useOptionalComponent } from '@etherealengine/ecs'
+import { State, defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { SourceComponent } from '../scene/components/SourceComponent'
 
 export const GLTFDocumentState = defineState({
   name: 'ee.engine.gltf.GLTFDocumentState',
@@ -47,6 +49,31 @@ export const GLTFNodeState = defineState({
       }
     >
   >,
+
+  getMutableNode(entity: Entity): State<GLTF.INode> {
+    const source = getComponent(entity, SourceComponent)
+    const uuid = getComponent(entity, UUIDComponent)
+    if (!source || !uuid) {
+      multiLogger.error('GLTFNodeState.getMutableNode: entity does not have SourceComponent or UUIDComponent')
+    }
+    const nodeLookup = getState(GLTFNodeState)[source][uuid]
+    if (!nodeLookup) {
+      multiLogger.error('GLTFNodeState.getMutableNode: node not found in lookup')
+    }
+    const gltf = getMutableState(GLTFDocumentState)[source]
+    return gltf.nodes![nodeLookup.nodeIndex]
+  },
+
+  useMutableNode(entity: Entity): GLTF.INode | undefined {
+    const nodeState = useHookstate(getMutableState(GLTFNodeState))
+    const source = useOptionalComponent(entity, SourceComponent)?.value
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    if (!source) return
+    if (!uuid) return
+    const nodeLookup = nodeState.value[source][uuid]
+    if (!nodeLookup) return
+    return getState(GLTFDocumentState)[source].nodes?.[nodeLookup.nodeIndex]
+  },
 
   convertGltfToNodeDictionary: (gltf: GLTF.IGLTF) => {
     const nodes: Record<string, { nodeIndex: number; childIndex: number; parentUUID: EntityUUID | null }> = {}

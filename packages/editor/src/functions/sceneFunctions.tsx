@@ -27,17 +27,19 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
-import { EntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
-import { GLTFSnapshotState, GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { handleScenePaths } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { AssetParams } from '@etherealengine/server-core/src/assets/asset/asset.class'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-
+import { Paginated } from '@feathersjs/feathers'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
@@ -59,9 +61,9 @@ export const deleteScene = async (sceneID: string): Promise<any> => {
   return true
 }
 
-export const renameScene = async (id: string, newURL: string, params?: AssetParams) => {
+export const renameScene = async (id: string, newURL: string, projectName: string, params?: AssetParams) => {
   try {
-    return await Engine.instance.api.service(assetPath).patch(id, { assetURL: newURL }, params)
+    return await Engine.instance.api.service(assetPath).patch(id, { assetURL: newURL, project: projectName }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -82,12 +84,22 @@ export const saveSceneGLTF = async (
   const sourceID = `${getComponent(rootEntity, UUIDComponent)}-${getComponent(rootEntity, GLTFComponent).src}`
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
-
-  const gltfData = getState(GLTFSnapshotState)[sourceID].snapshots.at(-1)
-
-  const blob = [JSON.stringify(gltfData, null, 2)]
-  const file = new File(blob, `${sceneName}.gltf`)
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+
+  const existingScene = (await Engine.instance.api.service(assetPath).find({
+    query: { assetURL: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
+  })) as Paginated<AssetType>
+
+  if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
+
+  const gltfData = getState(GLTFDocumentState)[sourceID]
+  if (!gltfData) {
+    logger.error('Failed to save scene, no gltf data found')
+  }
+  const encodedGLTF = handleScenePaths(gltfData, 'encode')
+  const blob = [JSON.stringify(encodedGLTF, null, 2)]
+  const file = new File(blob, `${sceneName}.gltf`)
+
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
   const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
