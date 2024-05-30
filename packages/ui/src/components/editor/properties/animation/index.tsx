@@ -47,7 +47,6 @@ import NumericInput from '../../input/Numeric'
 import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
-import SpawnPointNodeEditor from '../spawnPoint'
 
 export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -114,6 +113,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SpawnPointNodeEditor.iconComponent = StreetviewIcon
+LoopAnimationNodeEditor.iconComponent = StreetviewIcon
 
-export default SpawnPointNodeEditor
+export default LoopAnimationNodeEditor

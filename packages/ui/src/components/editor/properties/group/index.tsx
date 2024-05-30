@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { Fragment, useState } from 'react'
 import { HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi'
 import { HiMiniXMark } from 'react-icons/hi2'
-import { MdDragIndicator } from 'react-icons/md'
 import { PiCursor } from 'react-icons/pi'
 import Button from '../../../../primitives/tailwind/Button'
 import Text from '../../../../primitives/tailwind/Text'
@@ -54,13 +53,13 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
         />
         {icon}
         <Text>{name}</Text>
-        <div className="ml-auto mr-0 flex items-center gap-3 text-[#444444]">
+        <div className="ml-auto mr-0 flex items-center gap-3 text-white">
           {onClose && (
             <button onPointerUp={onClose}>
               <HiMiniXMark />
             </button>
           )}
-          <MdDragIndicator className="rotate-90" />
+          {/*<MdDragIndicator className="rotate-90" />*/}
         </div>
       </div>
       {!minimized && description && (
