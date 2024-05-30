@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
@@ -44,6 +44,7 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
+import checkScopeHook from '../../hooks/check-scope'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
@@ -139,16 +140,6 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
 }
 
 /**
- * Checks if the user has scopes to create a project permission
- * @param context
- * @returns
- */
-const checkUserScopes = async (context: HookContext<ProjectPermissionService>) => {
-  if (!context.params.user) return false
-  return checkScope(context.params.user, 'projects', 'read')
-}
-
-/**
  * Checks if the user has permissions for the project
  * If they have some sort of permission, then they can see everyone else's permissions.
  * If they do not, then it will add `userId: context.params.user.id` to the query, to prevent the user seeing
@@ -221,9 +212,9 @@ export default {
     ],
     find: [
       enableClientPagination(),
-      iff(checkUserScopes, checkPermissionStatus),
       resolveProjectId(),
-      discardQuery('project')
+      discardQuery('project'),
+      iffElse(checkScopeHook('projects', 'read'), [], checkPermissionStatus)
     ],
     get: [],
     create: [
