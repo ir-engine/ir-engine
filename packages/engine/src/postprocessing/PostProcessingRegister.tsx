@@ -24,9 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  OutlineEffect: 'OutlineEffect' as const,
-  PixelationEffect: 'PixelationEffect' as const,
-  ScanlineEffect: 'ScanlineEffect' as const,
   ShockWaveEffect: 'ShockWaveEffect' as const,
   SMAAEffect: 'SMAAEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
