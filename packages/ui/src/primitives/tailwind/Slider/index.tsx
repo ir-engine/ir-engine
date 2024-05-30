@@ -42,7 +42,7 @@ export interface SliderProps {
  */
 const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, onRelease, className }: SliderProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = parseInt(event.target.value, 10)
+    let newValue = parseFloat(event.target.value)
     if (isNaN(newValue)) {
       newValue = min
     } else {
@@ -52,7 +52,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(event.target.value, 10)
+    const newValue = parseFloat(event.target.value)
     onChange(newValue)
   }
 
@@ -87,9 +87,9 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
         [&::-moz-range-track]:rounded
         [&::-moz-range-track]:bg-[#111113]
         [&::-webkit-slider-runnable-track]:h-full
-        [&::-webkit-slider-runnable-track]:w-full [&::-webkit-slider-runnable-track]:rounded [&::-webkit-slider-runnable-track]:bg-gradient-to-r via-[${
-          value - 5
-        }%] to-[${value}%]     
+        [&::-webkit-slider-runnable-track]:w-full [&::-webkit-slider-runnable-track]:rounded [&::-webkit-slider-runnable-track]:bg-gradient-to-r via-[${Math.round(
+          ((value - min) / (max - min)) * 95
+        )}%] to-[${Math.round(((value - min) / (max - min)) * 100)}%]     
         [&::-webkit-slider-thumb]:h-full
         [&::-webkit-slider-thumb]:shadow-[-${width}px_0_0_${width}px_#214AA6]
 

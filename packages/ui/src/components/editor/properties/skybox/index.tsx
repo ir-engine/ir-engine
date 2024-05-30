@@ -121,7 +121,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
         <Slider
           min={0.001}
-          max={1.189}
+          max={1}
           step={0.001}
           value={skyboxComponent.skyboxProps.luminance.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
