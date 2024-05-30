@@ -33,7 +33,9 @@ import { createFeathersKoaApp } from '../../createApp'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
-const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
+const PREFIX = 'test'
+
+const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
   `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
 
 /**prepends `projects` and appends `/` for directory paths */
@@ -261,18 +263,23 @@ describe('file-browser.test', () => {
     })
 
     it('filters entries using $like', async () => {
-      const prefix = 'test' // prefix of all the entries (files & directories)
-      const entries = await app.service(fileBrowserPath).find({
+      const totalEntries = await app.service(fileBrowserPath).find({
+        query: {
+          directory: getDirectoryPath(testDirectoryName)
+        }
+      })
+
+      const filteredEntries = await app.service(fileBrowserPath).find({
         query: {
           key: {
-            $like: `%${prefix}%`
+            $like: `%${PREFIX}%`
           },
           directory: getDirectoryPath(testDirectoryName)
         }
       })
-      assert.ok(entries.data.length === 5)
+      assert.ok(filteredEntries.data.length === totalEntries.data.length)
 
-      const invalidSubstring = prefix + '$' // this substring is not present in any of the entries
+      const invalidSubstring = PREFIX + '$' // this substring is not present in any of the entries
       const emptyEntries = await app.service(fileBrowserPath).find({
         query: {
           key: {
