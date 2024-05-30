@@ -31,9 +31,10 @@ import LocationDrawer, {
   LocationDrawerMode
 } from '@etherealengine/client-core/src/admin/common/Location/LocationDrawer'
 import { locationPath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
 import { EditorState } from '../../../services/EditorServices'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -47,6 +48,12 @@ export const PublishLocation = () => {
 
   const drawerMode = useHookstate<LocationDrawerMode>(LocationDrawerMode.Create)
 
+  const user = useHookstate(getMutableState(AuthState).user)
+  const hasLocationWriteScope = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
+  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!, 'studio')
+
+  const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
+
   const existingLocation = useFind(locationPath, {
     query: {
       $sort: { name: 1 },
@@ -57,8 +64,6 @@ export const PublishLocation = () => {
       }
     }
   })
-
-  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!, 'studio')
 
   const handleCloseLocationDrawer = () => {
     openLocationDrawer.set(false)
@@ -82,7 +87,7 @@ export const PublishLocation = () => {
           <Button
             onClick={handleOpenLocationDrawer}
             className={styles.toolButton}
-            disabled={!sceneID.value || (permission?.type !== 'owner' && permission?.type !== 'editor')}
+            disabled={!sceneID.value || !hasPublishAccess}
           >
             {t(`editor:toolbar.publishLocation.title`)}
           </Button>
@@ -94,7 +99,6 @@ export const PublishLocation = () => {
         selectedLocation={existingLocation.data[0]}
         selectedScene={sceneID.value}
         onClose={handleCloseLocationDrawer}
-        disabledEditButton={permission?.type !== 'owner' && permission?.type !== 'editor'}
       />
     </>
   )

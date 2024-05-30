@@ -62,7 +62,6 @@ interface Props {
   selectedLocation?: LocationType
   onClose: () => void
   selectedScene?: string | null
-  disabledEditButton: boolean
 }
 
 const defaultState = {
@@ -84,7 +83,7 @@ const defaultState = {
   }
 }
 
-const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose, disabledEditButton }: Props) => {
+const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }: Props) => {
   const { t } = useTranslation()
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
@@ -314,7 +313,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose, 
             </Button>
           )}
           {mode === LocationDrawerMode.ViewEdit && !editMode.value && (
-            <Button className={styles.gradientButton} disabled={disabledEditButton} onClick={() => editMode.set(true)}>
+            <Button className={styles.gradientButton} onClick={() => editMode.set(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}
