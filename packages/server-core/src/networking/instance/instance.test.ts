@@ -49,6 +49,7 @@ describe('instance.test', () => {
     testInstance = {
       id: '' as InstanceID,
       locationId: testLocation.id as LocationID,
+      projectId: testLocation.projectId,
       roomCode: '' as RoomCode,
       currentUsers: 0,
       ended: false,
