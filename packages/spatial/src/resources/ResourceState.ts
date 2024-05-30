@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Cache, CompressedTexture, Material, Mesh, Object3D, Scene, SkinnedMesh, Texture } from 'three'
+import { BufferAttribute, Cache, CompressedTexture, Material, Mesh, Object3D, Scene, SkinnedMesh, Texture } from 'three'
 
 import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@etherealengine/hyperflux'
@@ -80,6 +80,7 @@ export type ResourceAssetType =
 
 type BaseMetadata = {
   size?: number
+  onGPU?: boolean
 }
 
 type GLTFMetadata = {
@@ -89,7 +90,6 @@ type GLTFMetadata = {
 
 type TexutreMetadata = {
   textureWidth: number
-  onGPU: boolean
 } & BaseMetadata
 
 type Metadata = GLTFMetadata | TexutreMetadata | BaseMetadata
@@ -281,11 +281,32 @@ const resourceCallbacks = {
     onStart: (resource: State<Resource>) => {},
     onLoad: (response: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       // Estimated geometry size
+      const attributeKeys = Object.keys(response.attributes)
+      let needsUploaded = response.index ? attributeKeys.length + 1 : attributeKeys.length
       let size = 0
-      for (const name in response.attributes) {
-        const attr = response.getAttribute(name)
-        size += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT
+
+      const checkUploaded = () => {
+        if (needsUploaded == 0 && resource && resource.value) resource.metadata.merge({ onGPU: true })
       }
+
+      response.index?.onUpload(() => {
+        needsUploaded -= 1
+        checkUploaded()
+      })
+
+      for (const name of attributeKeys) {
+        const attr = response.getAttribute(name) as BufferAttribute
+        size += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT
+        if (typeof attr.onUpload === 'function') {
+          attr.onUpload(() => {
+            needsUploaded -= 1
+            checkUploaded()
+          })
+        } else {
+          needsUploaded -= 1
+        }
+      }
+      checkUploaded()
 
       const indices = response.getIndex()
       if (indices) {
