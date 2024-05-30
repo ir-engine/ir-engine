@@ -125,6 +125,13 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
   )
 }
 
+const NodeEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => {
+  const entity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const node = GLTFNodeState.useMutableNode(entity)
+  if (!node) return null
+  return <EntityEditor entityUUID={props.entityUUID} multiEdit={props.multiEdit} />
+}
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  */
@@ -141,7 +148,7 @@ export const PropertiesPanelContainer = () => {
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
-        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div className="flex h-full items-center justify-center text-gray-500">
           {t('editor:properties.noNodeSelected')}
