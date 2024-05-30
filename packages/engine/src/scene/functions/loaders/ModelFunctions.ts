@@ -120,7 +120,7 @@ export function getModelResources(entity: Entity, defaultParms: ModelTransformPa
         if (/normal/i.test(texture.name)) {
           descriptor = 'normalMap'
         }
-        if (/basecolor/i.test(texture.name) || /diffuse/i.test(texture.name)) {
+        if (/base[-_\s]*color/i.test(texture.name) || /diffuse/i.test(texture.name)) {
           descriptor = 'baseColorMap'
         }
         return [image, descriptor]
