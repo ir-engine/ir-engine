@@ -38,7 +38,7 @@ import { twMerge } from 'tailwind-merge'
 
 export type MaterialLibraryEntryType = {
   uuid: EntityUUID
-  path: string
+  path: string // TODO make SourceID
   selected?: boolean
 }
 
