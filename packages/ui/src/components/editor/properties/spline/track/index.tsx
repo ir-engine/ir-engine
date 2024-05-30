@@ -31,7 +31,6 @@ import { SplineTrackComponent } from '@etherealengine/engine/src/scene/component
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
-import { UUIDComponent } from '@etherealengine/ecs'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import {
   EditorComponentType,
@@ -40,6 +39,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
@@ -62,10 +62,10 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
 
   const availableSplines = useQuery([SplineComponent]).map((entity) => {
     const name = getComponent(entity, NameComponent)
-    const uuid = getComponent(entity, UUIDComponent)
+    const nodeID = getComponent(entity, NodeIDComponent)
     return {
       label: name,
-      value: uuid
+      value: nodeID
     }
   })
 
@@ -81,8 +81,8 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={availableSplines}
-          value={component.splineEntityUUID.value!}
-          onChange={commitProperty(SplineTrackComponent, 'splineEntityUUID') as any}
+          value={component.splineNodeID.value!}
+          onChange={commitProperty(SplineTrackComponent, 'splineNodeID') as any}
         />
       </InputGroup>
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>

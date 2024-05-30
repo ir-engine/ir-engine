@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
-import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -41,6 +40,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import InputGroup from '../../input/Group'
 import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
@@ -72,9 +72,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
     .map((entity) => {
-      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+      return { label: getComponent(entity, NameComponent), value: getComponent(entity, NodeIDComponent) }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
+  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {

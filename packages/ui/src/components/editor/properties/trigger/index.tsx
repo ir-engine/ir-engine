@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UUIDComponent, defineQuery, getComponent, hasComponent, useComponent } from '@etherealengine/ecs'
+import { defineQuery, getComponent, hasComponent, useComponent } from '@etherealengine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -35,6 +35,7 @@ import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackCo
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiPlus, HiTrash } from 'react-icons/hi2'
@@ -67,7 +68,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        value: getComponent(entity, NodeIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => ({ label: cb, value: cb }))
       })
     }
