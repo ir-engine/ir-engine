@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ProjectPermissionType, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
 /**
@@ -33,10 +34,11 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
  * @param options
  * @returns
  */
-export const useProjectPermissions = (project: string, action: string): ProjectPermissionType => {
+export const useProjectPermissions = (project: string): ProjectPermissionType => {
   const { data } = useFind(projectPermissionPath, {
     query: {
       project,
+      userId: Engine.instance.userID,
       paginate: false
     }
   })

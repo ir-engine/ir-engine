@@ -50,7 +50,7 @@ export const PublishLocation = () => {
 
   const user = useHookstate(getMutableState(AuthState).user)
   const hasLocationWriteScope = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
-  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!, 'studio')
+  const permission = useProjectPermissions(getMutableState(EditorState).projectName.value!)
 
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
 
