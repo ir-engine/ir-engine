@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -113,9 +113,8 @@ const defaultLayout: LayoutData = {
 }
 
 const EditorContainer = () => {
-  const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useHookstate(getMutableState(EditorState))
+  const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
   const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
-  const sceneURL = sceneQuery?.[0]?.assetURL
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -124,13 +123,14 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
   useEffect(() => {
-    if (!sceneURL) return
-    const [_, project, scene] = scenePath.value?.split('/') ?? []
-    sceneName.set(scene ?? null)
-    projectName.set(project ?? null)
+    const scene = sceneQuery[0]
+    if (!scene) return
+
+    projectName.set(scene.projectName)
+    sceneName.set(scene.assetURL.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(sceneURL, sceneQuery[0].id! as EntityUUID)
-  }, [sceneURL])
+    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.assetURL])
 
   useEffect(() => {
     return () => {
@@ -154,7 +154,6 @@ const EditorContainer = () => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <Toolbar />
-          {/*rootEntity.value && <LoadedScene key={rootEntity.value} rootEntity={rootEntity.value} />*/}
           <div className="mt-1 flex overflow-hidden">
             <AssetDropZone />
             <DockContainer>

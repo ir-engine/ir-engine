@@ -29,7 +29,7 @@ import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.mod
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,7 +43,7 @@ import RenameSceneModal from '../modals/RenameScene'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
   const scenesQuery = useFind(assetPath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 
@@ -73,20 +73,20 @@ export default function ScenesPanel() {
   useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
   return (
-    <div className="bg-theme-primary h-full">
-      <div className="bg-theme-surface-main mb-4 w-full">
+    <div className="h-full bg-theme-primary">
+      <div className="mb-4 w-full bg-theme-surface-main">
         <Button
           startIcon={<HiOutlinePlusCircle />}
           variant="transparent"
           rounded="none"
-          className="bg-theme-highlight ml-auto w-32 px-2"
+          className="ml-auto w-32 bg-theme-highlight px-2"
           size="small"
           onClick={onCreateScene}
         >
           {t('editor:newScene')}
         </Button>
       </div>
-      <div className="bg-theme-primary h-full">
+      <div className="h-full bg-theme-primary">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} className="h-5 w-5" />
         ) : (
@@ -95,7 +95,7 @@ export default function ScenesPanel() {
               {scenes.map((scene: AssetType) => (
                 <div
                   key={scene.id}
-                  className="bg-theme-surface-main my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg"
+                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
