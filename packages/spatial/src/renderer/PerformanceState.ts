@@ -139,6 +139,8 @@ export const PerformanceState = defineState({
   name: 'PerformanceState',
 
   initial: () => ({
+    enabled: true,
+
     isMobileGPU: false,
     gpuTier: 3 as PerformanceTier,
     cpuTier: 3 as PerformanceTier,
@@ -173,7 +175,7 @@ export const PerformanceState = defineState({
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)
     const engineSettings = useMutableState(RendererState)
-    const isEditing = getState(EngineState).isEditing
+    const engineState = useMutableState(EngineState)
 
     const recreateEMA = () => {
       const targetFPS = performanceState.targetFPS.value
@@ -191,7 +193,7 @@ export const PerformanceState = defineState({
     }, [performanceState.targetFPS])
 
     useEffect(() => {
-      if (isEditing) return
+      if (engineState.isEditing.value) return
 
       const performanceTier = performanceState.gpuTier.value
       const settings = tieredSettings[performanceTier]
@@ -203,6 +205,10 @@ export const PerformanceState = defineState({
       recreateEMA()
       performanceState.performanceSmoothingAccum.set(0)
     }, [performanceState.gpuPerformanceOffset, performanceState.cpuPerformanceOffset])
+
+    useEffect(() => {
+      performanceState.enabled.set(!engineState.isEditing.value && engineSettings.automatic.value)
+    }, [engineState.isEditing, engineSettings.automatic])
   }
 })
 
@@ -211,30 +217,24 @@ export const PerformanceSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
 
   execute: () => {
-    if (getState(EngineState).isEditing || !getState(RendererState).automatic) return
-
-    const {
-      averageFrameTime,
-      averageRenderTime,
-      averageSystemTime,
-      targetFPS,
-      performanceSmoothingAccum,
-      performanceSmoothingCycles
-    } = getState(PerformanceState)
+    const performanceState = getState(PerformanceState)
+    if (!performanceState.enabled) return
 
     {
-      const performanceState = getMutableState(PerformanceState)
+      const { performanceSmoothingAccum, performanceSmoothingCycles } = performanceState
+      const performanceStateMut = getMutableState(PerformanceState)
       const ecsState = getState(ECSState)
 
-      updateExponentialMovingAverage(performanceState.averageSystemTime, ecsState.lastSystemExecutionDuration)
-      updateExponentialMovingAverage(performanceState.averageFrameTime, ecsState.deltaSeconds * 1000)
+      updateExponentialMovingAverage(performanceStateMut.averageSystemTime, ecsState.lastSystemExecutionDuration)
+      updateExponentialMovingAverage(performanceStateMut.averageFrameTime, ecsState.deltaSeconds * 1000)
 
       if (performanceSmoothingAccum < performanceSmoothingCycles) {
-        performanceState.performanceSmoothingAccum.set(performanceSmoothingAccum + 1)
+        performanceStateMut.performanceSmoothingAccum.set(performanceSmoothingAccum + 1)
         return
       }
     }
 
+    const { averageFrameTime, averageRenderTime, averageSystemTime, targetFPS } = performanceState
     const maxDelta = 1000 / (targetFPS / 2 - 2)
     const minDelta = 1000 / (targetFPS - 5)
 
@@ -274,7 +274,7 @@ let checkingRenderTime = false
  * @returns Function to call after you call your render function
  */
 const profileGPURender = (): (() => void) => {
-  if (checkingRenderTime || !getState(RendererState).automatic) return () => {}
+  if (checkingRenderTime || !getState(PerformanceState).enabled) return () => {}
 
   checkingRenderTime = true
   return timeRenderFrameGPU((renderTime) => {
