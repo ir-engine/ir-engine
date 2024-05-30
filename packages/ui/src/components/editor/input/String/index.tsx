@@ -1,0 +1,111 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
+import Input, { InputProps } from '../../../../primitives/tailwind/Input'
+
+export interface StringInputProps extends Omit<InputProps, 'onChange'> {
+  value: string
+  onChange?: (value: string) => void
+  onRelease?: (value: string) => void
+}
+
+const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringInputProps) => {
+  return (
+    <Input
+      containerClassname="w-50 h-7 bg-[#1A1A1A] rounded"
+      className={twMerge(
+        'h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        className
+      )}
+      value={value}
+      onChange={(e) => {
+        onChange?.(e.target.value)
+      }}
+      onBlur={(e) => {
+        onRelease?.(e.target.value)
+      }}
+      onFocus={(e) => {
+        onRelease?.(e.target.value)
+      }}
+      {...rest}
+    />
+  )
+}
+
+StringInput.displayName = 'StringInput'
+StringInput.defaultProps = {
+  value: '',
+  onChange: () => {},
+  type: 'text',
+  required: false,
+  placeholder: ''
+}
+
+export default StringInput
+
+// do we really need a controlled string input? we could easily integrate this with string input itself
+export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
+  const { onChange, onRelease, value, placeholder, disabled, type, containerClassname, ...rest } = values
+  const [tempValue, setTempValue] = useState(value)
+
+  useEffect(() => {
+    setTempValue(value)
+  }, [value])
+
+  const onBlur = () => {
+    onRelease?.(tempValue)
+  }
+
+  const onChangeValue = (value: string) => {
+    setTempValue(value)
+    onChange?.(value)
+  }
+
+  return (
+    <Input
+      ref={ref}
+      containerClassname={twMerge('h-7 w-full rounded bg-[#1A1A1A]', containerClassname)}
+      className="h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]"
+      value={value ?? ''}
+      onChange={(e) => {
+        onChangeValue(e.target.value)
+      }}
+      onBlur={onBlur}
+      disabled={disabled}
+      placeholder={placeholder}
+      type="text"
+    />
+  )
+})
+
+ControlledStringInput.displayName = 'ControlledStringInput'
+
+ControlledStringInput.defaultProps = {
+  value: '',
+  onChange: () => {},
+  type: 'text'
+}

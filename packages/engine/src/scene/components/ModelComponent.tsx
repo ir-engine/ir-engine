@@ -53,7 +53,6 @@ import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
@@ -78,8 +77,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false,
-      // internal
-      assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null
     }
@@ -111,10 +108,7 @@ function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: modelComponent.assetTypeOverride.value,
-    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-  })
+  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
     const occlusion =

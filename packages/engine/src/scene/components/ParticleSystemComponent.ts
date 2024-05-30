@@ -833,13 +833,13 @@ export const ParticleSystemComponent = defineComponent({
     const rootGLTF = useOptionalComponent(rootEntity, GLTFComponent)
     const refreshed = useHookstate(false)
 
-    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, {}, (url) => {
+    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map = null
     })

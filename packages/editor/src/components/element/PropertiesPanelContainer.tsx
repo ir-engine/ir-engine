@@ -33,7 +33,7 @@ import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materia
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { ComponentEditorsState } from '../../functions/ComponentEditors'
+import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -140,12 +140,10 @@ export const PropertiesPanelContainer = () => {
         height: '100%'
       }}
     >
-      {entity ? (
-        materialUUID ? (
-          <MaterialEditor materialUUID={materialUUID} />
-        ) : (
-          <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
-        )
+      {materialUUID ? (
+        <MaterialEditor materialUUID={materialUUID} />
+      ) : entity ? (
+        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
           style={{

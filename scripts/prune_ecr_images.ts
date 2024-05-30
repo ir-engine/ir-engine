@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -26,10 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const { ECRClient } = require('@aws-sdk/client-ecr')
-const { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } = require('@aws-sdk/client-ecr-public')
-const k8s = require('@kubernetes/client-node')
-const cli = require('cli')
+import {
+  BatchDeleteImageCommand as BatchDeletePrivateImageCommand,
+  DescribeImagesCommand as DescribePrivateImagesCommand,
+  ECRClient
+} from '@aws-sdk/client-ecr'
+import { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import { fromIni } from '@aws-sdk/credential-providers'
+import config from '@etherealengine/server-core/src/appconfig'
+import * as k8s from '@kubernetes/client-node'
+import cli from 'cli'
+import fs from 'fs'
 
 cli.enable('status')
 
@@ -41,55 +47,68 @@ const options = cli.parse({
   releaseName: [true, 'Name of release', 'string']
 })
 
+const awsPath = './.aws/eks'
+const credentialsPath = `${awsPath}/credentials`
+
 const K8S_PAGE_LIMIT = 1
 const ECR_PAGE_LIMIT = 10
 
-const getAllPods = async(k8Client, continueValue, labelSelector, pods = []) => {
+const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => {
   const matchingPods = await k8Client.listNamespacedPod(
-      'default',
-      'false',
-      false,
-      continueValue,
-      undefined,
-      labelSelector,
-      K8S_PAGE_LIMIT
+    'default',
+    'false',
+    false,
+    continueValue,
+    undefined,
+    labelSelector,
+    K8S_PAGE_LIMIT
   )
   if (matchingPods?.body?.items) pods = pods.concat(matchingPods.body.items)
-  if (matchingPods.body.metadata?._continue) return await getAllPods(k8Client, matchingPods.body.metadata._continue, labelSelector, pods)
+  if (matchingPods.body.metadata?._continue)
+    return await getAllPods(k8Client, matchingPods.body.metadata._continue, labelSelector, pods)
   else return pods
 }
 
-const getAllImages = async(ecr, repoName, token, images=[]) => {
+const getAllImages = async (
+  ecr: any,
+  repoName: string,
+  token: string | undefined,
+  images = [] as string[],
+  publicRepo: boolean
+) => {
   const input = {
     repositoryName: repoName,
     maxResults: ECR_PAGE_LIMIT
-  }
+  } as any
   if (token) input.nextToken = token
-  const command = new DescribeImagesCommand(input)
+  const command = publicRepo ? new DescribeImagesCommand(input) : new DescribePrivateImagesCommand(input)
   const response = await ecr.send(command)
   if (response.imageDetails) images = images.concat(response.imageDetails)
-  if (response.nextToken) return await getAllImages(ecr, repoName, response.nextToken, images)
+  if (response.nextToken) return await getAllImages(ecr, repoName, response.nextToken, images, publicRepo)
   else return images
 }
 
-const deleteImages = async(ecr, toBeDeleted) => {
+const deleteImages = async (ecr, toBeDeleted, publicRepo: boolean) => {
   const thisDelete = toBeDeleted.length >= 100 ? toBeDeleted.slice(0, 100) : toBeDeleted
-  const deleteCommand = new BatchDeleteImageCommand({
+  const localOptions = {
     imageIds: thisDelete.map((image) => {
       return { imageDigest: image.imageDigest }
     }),
     repositoryName: options.repoName || 'etherealengine'
-  })
+  }
+  const deleteCommand = publicRepo
+    ? new BatchDeleteImageCommand(localOptions)
+    : new BatchDeletePrivateImageCommand(localOptions)
   await ecr.send(deleteCommand)
-  if (toBeDeleted.length >= 100) return await deleteImages(ecr, toBeDeleted.slice(100))
+  if (toBeDeleted.length >= 100) return await deleteImages(ecr, toBeDeleted.slice(100), publicRepo)
   else return Promise.resolve()
 }
 
 cli.main(async () => {
   try {
     let matchingPods,
-      excludedImageDigests = [],
-      currentImages = []
+      excludedImageDigests = [] as string[],
+      currentImages = [] as string[]
     if (options.service !== 'builder') {
       const kc = new k8s.KubeConfig()
       kc.loadFromDefault()
@@ -97,16 +116,21 @@ cli.main(async () => {
       if (options.service === 'instanceserver') {
         matchingPods = await getAllPods(k8DefaultClient, undefined, `agones.dev/role=gameserver`, [])
         const releaseAnnotation = `${options.releaseName}-instanceserver`
-        matchingPods = matchingPods.filter((item) => item.metadata.annotations['agones.dev/container'] === releaseAnnotation)
+        matchingPods = matchingPods.filter(
+          (item) => item.metadata.annotations['agones.dev/container'] === releaseAnnotation
+        )
 
         currentImages = matchingPods.map(
           (item) =>
-            item.spec.containers.find(
-              (container) => container.name === `${options.releaseName}-instanceserver`
-            ).image
+            item.spec.containers.find((container) => container.name === `${options.releaseName}-instanceserver`).image
         )
       } else if (options.repoName !== 'root') {
-        matchingPods = await getAllPods(k8DefaultClient, undefined, `app.kubernetes.io/instance=${options.releaseName},app.kubernetes.io/component=${options.service}`, [])
+        matchingPods = await getAllPods(
+          k8DefaultClient,
+          undefined,
+          `app.kubernetes.io/instance=${options.releaseName},app.kubernetes.io/component=${options.service}`,
+          []
+        )
 
         currentImages = matchingPods.map(
           (item) => item.spec.containers.find((container) => container.name === 'etherealengine').image.split(':')[1]
@@ -114,15 +138,35 @@ cli.main(async () => {
       }
       currentImages = [...new Set(currentImages)]
     }
-    const ecr = (
+
+    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+
+    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+
+    const ecr =
       options.public === true
-        ? new ECRPUBLICClient({ region: 'us-east-1' })
-        : new ECRClient({ region: options.region || 'us-east-1' })
-    )
-    const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [])
+        ? new ECRPUBLICClient({
+            credentials: fromIni({
+              profile: config.aws.eks.roleArn ? 'role' : 'default',
+              filepath: credentialsPath
+            }),
+            region: 'us-east-1'
+          })
+        : new ECRClient({
+            credentials: fromIni({
+              profile: config.aws.eks.roleArn ? 'role' : 'default',
+              filepath: credentialsPath
+            }),
+            region: options.region || 'us-east-1'
+          })
+    const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [], options.public === true)
     if (!images) return
     const latestImage = images.find(
-      (image) => image.imageTags && (image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0 || image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
+      (image) =>
+        image.imageTags &&
+        (image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0 ||
+          image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
     )
     if (latestImage) {
       const latestImageTime = latestImage.imagePushedAt.getTime()
@@ -161,7 +205,7 @@ cli.main(async () => {
     const sorted = withoutLatestOrCurrent.sort((a, b) => b.imagePushedAt.getTime() - a.imagePushedAt.getTime())
     let toBeDeleted = sorted.slice(9)
     if (toBeDeleted.length > 0) {
-      await deleteImages(ecr, toBeDeleted)
+      await deleteImages(ecr, toBeDeleted, options.public === true)
       process.exit(0)
     } else process.exit(0)
   } catch (err) {

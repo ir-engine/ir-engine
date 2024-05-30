@@ -138,7 +138,7 @@ export default function ScenesPanel() {
     setRenaming(false)
     const currentURL = loadedScene!.assetURL
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
-    const newData = await renameScene(id, newURL)
+    const newData = await renameScene(id, newURL, loadedScene!.projectName)
     if (loadedScene) getMutableState(EditorState).scenePath.set(newData.assetURL)
     setNewName('')
   }
@@ -174,7 +174,7 @@ export default function ScenesPanel() {
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
             {scenes.map((scene: AssetType) => (
-              <div className={styles.sceneContainer} key={scene.assetURL}>
+              <div className={styles.sceneContainer} key={scene.id}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
