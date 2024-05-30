@@ -104,7 +104,6 @@ import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/pro
 import DirectionalLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/directional'
 import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/hemisphere'
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
-import LightShadowProperties from '@etherealengine/ui/src/components/editor/properties/light/shadowProperties'
 import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
 import {
@@ -117,6 +116,7 @@ import PortalNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import PositionalAudioNodeEditor from '@etherealengine/ui/src/components/editor/properties/positionalAudio'
 import RigidBodyComponentEditor from '@etherealengine/ui/src/components/editor/properties/rigidBody'
 import ScenePreviewCameraNodeEditor from '@etherealengine/ui/src/components/editor/properties/scenePreviewCamera'
+import ShadowNodeEditor from '@etherealengine/ui/src/components/editor/properties/shadow'
 import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/properties/skybox'
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
@@ -148,7 +148,7 @@ export const ComponentEditorsState = defineState({
       [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
       [MeshComponent.name]: MeshNodeEditor,
       [ModelComponent.name]: ModelNodeEditor,
-      [ShadowComponent.name]: LightShadowProperties,
+      [ShadowComponent.name]: ShadowNodeEditor,
       [LoopAnimationComponent.name]: LoopAnimationNodeEditor,
       [ParticleSystemComponent.name]: ParticleSystemNodeEditor,
       [PrimitiveGeometryComponent.name]: PrimitiveGeometryNodeEditor,
