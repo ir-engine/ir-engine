@@ -73,6 +73,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.JPEG
     case 'mp3':
       return AssetType.MP3
+    case 'wav':
+      return AssetType.WAV
     case 'aac':
       return AssetType.AAC
     case 'ogg':
@@ -87,6 +89,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.M3U8
     case 'material':
       return AssetType.MAT
+    case 'json':
+      return AssetType.JSON
     default:
       return null!
   }
