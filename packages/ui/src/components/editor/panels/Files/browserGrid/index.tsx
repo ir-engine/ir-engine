@@ -146,7 +146,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`h-[${fontSize * 3}px] text-[${fontSize}px] hover:bg-theme-surfaceInput text-[#a3a3a3]`}
+      className={`h-[${fontSize * 3}px] text-[${fontSize}px] text-[#a3a3a3] hover:bg-theme-surfaceInput`}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}

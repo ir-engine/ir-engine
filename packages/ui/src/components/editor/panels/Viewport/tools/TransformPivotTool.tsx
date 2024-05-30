@@ -65,7 +65,7 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div id="transform-pivot" className="bg-theme-surfaceInput flex items-center">
+    <div id="transform-pivot" className="flex items-center bg-theme-surfaceInput">
       <Button
         startIcon={<FaRegDotCircle />}
         onClick={toggleTransformPivot}
