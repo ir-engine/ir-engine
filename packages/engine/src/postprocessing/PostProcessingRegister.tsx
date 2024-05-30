@@ -24,9 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  //GodRaysEffect: 'GodRaysEffect' as const,
-  GridEffect: 'GridEffect' as const,
-  HueSaturationEffect: 'HueSaturationEffect' as const,
   LensDistortionEffect: 'LensDistortionEffect' as const,
   LinearTosRGBEffect: 'LinearTosRGBEffect' as const,
   LUT1DEffect: 'LUT1DEffect' as const,

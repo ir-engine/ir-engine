@@ -32,6 +32,8 @@ import { depthOfFieldAddToEffectRegistry } from './DepthOfFieldEffect'
 import { dotScreenAddToEffectRegistry } from './DotScreenEffect'
 import { fxaaAddToEffectRegistry } from './FXAAEffect'
 import { glitchAddToEffectRegistry } from './GlitchEffect'
+import { gridAddToEffectRegistry } from './GridEffect'
+import { hueSaturationAddToEffectRegistry } from './HueSaturationEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -44,4 +46,7 @@ export const populateEffectRegistry = () => {
   dotScreenAddToEffectRegistry()
   fxaaAddToEffectRegistry()
   glitchAddToEffectRegistry()
+  //GodRaysEffect
+  gridAddToEffectRegistry()
+  hueSaturationAddToEffectRegistry()
 }
