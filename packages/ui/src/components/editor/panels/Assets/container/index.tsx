@@ -248,21 +248,15 @@ const AssetPanel = () => {
         </div>
       )
     }
-    if (searchedStaticResources.value)
-      if (selectedCategory.value)
-        return (
-          <>
-            {searchedStaticResources
-              .filter((resource) => {
-                const tags = [selectedCategory.value!.name, ...iterativelyListTags(selectedCategory.value!.object)]
-                return tags.some((tag) => resource.tags.value?.map((x) => x.toLowerCase()).includes(tag.toLowerCase()))
-              })
-              .map((resource) => (
-                <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
-              ))}
-          </>
-        )
-    return <div>{t('editor:layout.scene-assets.no-search-results')}</div>
+    return searchedStaticResources.value ? (
+      <>
+        {searchedStaticResources.map((resource) => (
+          <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
+        ))}
+      </>
+    ) : (
+      <div>{t('editor:layout.scene-assets.no-search-results')}</div>
+    )
   }
 
   return (
@@ -276,7 +270,7 @@ const AssetPanel = () => {
             onChange={(e) => {
               searchText.set(e.target.value)
             }}
-            className="w-full rounded bg-theme-primary"
+            className="w-full rounded bg-theme-primary text-white"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
           <CategoriesList />

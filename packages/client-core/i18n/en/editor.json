@@ -1187,7 +1187,7 @@
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
-    "lbl-deleteScene": "Delete Scene",
+    "lbl-deleteScene": "Are you sure you want to delete this scene?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",

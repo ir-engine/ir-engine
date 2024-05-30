@@ -29,7 +29,7 @@ import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.mod
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,7 +43,7 @@ import RenameSceneModal from '../modals/RenameScene'
 
 export default function ScenesPanel() {
   const { t } = useTranslation()
-  const editorState = useHookstate(getMutableState(EditorState))
+  const editorState = useMutableState(EditorState)
   const scenesQuery = useFind(assetPath, { query: { project: editorState.projectName.value } })
   const scenes = scenesQuery.data
 

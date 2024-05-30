@@ -106,10 +106,7 @@ import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
 import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
-import {
-  default as MediaNodeEditor,
-  default as MediaSettingsEditor
-} from '@etherealengine/ui/src/components/editor/properties/media'
+import { default as MediaNodeEditor } from '@etherealengine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
@@ -127,6 +124,7 @@ import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
 import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
+import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
