@@ -156,9 +156,12 @@ const checkPermissionStatus = async (context: HookContext<ProjectPermissionServi
         $limit: 1
       }
     })) as Paginated<ProjectPermissionType>
-    if (permissionStatus.data.length === 0)
-      context.params.query = { ...context.params.query, userId: context.params.user!.id }
+    if (permissionStatus.data.length > 0) return context
   }
+
+  // If user does not have permission of querying project then we should force user's id in request
+  // in order to restrict user from querying other user's permissions.
+  context.params.query = { ...context.params.query, userId: context.params.user!.id }
 }
 
 /**
@@ -214,7 +217,7 @@ export default {
       enableClientPagination(),
       resolveProjectId(),
       discardQuery('project'),
-      iffElse(checkScopeHook('projects', 'read'), [], checkPermissionStatus)
+      iff(isProvider('external'), iffElse(checkScopeHook('projects', 'read'), [], checkPermissionStatus))
     ],
     get: [],
     create: [
