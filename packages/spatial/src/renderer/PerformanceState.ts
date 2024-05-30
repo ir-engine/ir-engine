@@ -274,7 +274,7 @@ let checkingRenderTime = false
  * @returns Function to call after you call your render function
  */
 const profileGPURender = (): (() => void) => {
-  if (checkingRenderTime) return () => {}
+  if (checkingRenderTime || !getState(RendererState).automatic) return () => {}
 
   checkingRenderTime = true
   return timeRenderFrameGPU((renderTime) => {
