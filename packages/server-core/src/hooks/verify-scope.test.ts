@@ -113,7 +113,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(user, app)
 
-    const hasScope = verifyLocationReadScope(hookContext)
+    const hasScope = await verifyLocationReadScope(hookContext)
     assert.equal(hasScope, false)
 
     // cleanup
@@ -170,7 +170,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(user, app)
 
-    const hasScope = verifyLocationReadScope(hookContext)
+    const hasScope = await verifyLocationReadScope(hookContext)
     assert.notEqual(hasScope, false)
 
     // cleanup
@@ -243,7 +243,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(user, app)
 
-    const hasScope = verifyLocationReadScope(hookContext)
+    const hasScope = await verifyLocationReadScope(hookContext)
     assert.notEqual(hasScope, false)
 
     // cleanup
@@ -316,7 +316,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(user, app)
 
-    const hasScope = verifyLocationReadScope(hookContext)
+    const hasScope = await verifyLocationReadScope(hookContext)
     assert.notEqual(hasScope, false)
 
     // cleanup
@@ -331,12 +331,12 @@ describe('verify-scope', () => {
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
   })
 
-  it('should not return false if isInternal when throwError is false', () => {
+  it('should not return false if isInternal when throwError is false', async () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(null!, app)
     hookContext.params.isInternal = true
 
-    const hasScope = verifyLocationReadScope(hookContext)
+    const hasScope = await verifyLocationReadScope(hookContext)
     assert.notEqual(hasScope, false)
   })
 })
