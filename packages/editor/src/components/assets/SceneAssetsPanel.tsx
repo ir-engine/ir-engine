@@ -251,20 +251,26 @@ const SceneAssetsPanel = () => {
         </div>
       )
     }
-    if (searchedStaticResources.value)
-      if (selectedCategory.value)
-        return (
-          <>
-            {searchedStaticResources
-              .filter((resource) => {
+    if (searchedStaticResources.value) {
+      return (
+        <>
+          {searchedStaticResources
+            .filter((resource) => {
+              if (selectedCategory.value?.name && selectedCategory.value?.object) {
                 const tags = [selectedCategory.value!.name, ...iterativelyListTags(selectedCategory.value!.object)]
                 return tags.some((tag) => resource.tags.value?.map((x) => x.toLowerCase()).includes(tag.toLowerCase()))
-              })
-              .map((resource) => (
-                <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
-              ))}
-          </>
-        )
+              } else if (searchText.value === '') {
+                return false
+              } else {
+                return true
+              }
+            })
+            .map((resource) => (
+              <ResourceFile key={resource.value.id} resource={resource.get(NO_PROXY) as StaticResourceType} />
+            ))}
+        </>
+      )
+    }
     return <div>{t('editor:layout.scene-assets.no-search-results')}</div>
   }
 
