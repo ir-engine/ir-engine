@@ -88,7 +88,7 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should return false if user does not have scope', async () => {
+  it('should return false if user does not have scope when throwError is false', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
@@ -148,7 +148,7 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should not return false if guest has scope', async () => {
+  it('should not return false if guest has scope when throwError is false', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = true
 
@@ -213,7 +213,7 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should not return false if user has scope', async () => {
+  it('should not return false if user has scope when throwError is false', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
@@ -286,7 +286,7 @@ describe('verify-scope', () => {
     await app.service(userPath).remove(user.id!)
   })
 
-  it('should not return false if admin', async () => {
+  it('should not return false if admin when throwError is false', async () => {
     const name = `Test #${Math.random()}` as UserName
     const isGuest = false
 
@@ -331,7 +331,7 @@ describe('verify-scope', () => {
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
   })
 
-  it('should not return false if isInternal', () => {
+  it('should not return false if isInternal when throwError is false', () => {
     const verifyLocationReadScope = verifyScope('location', 'read', false)
     const hookContext = mockUserHookContext(null!, app)
     hookContext.params.isInternal = true
