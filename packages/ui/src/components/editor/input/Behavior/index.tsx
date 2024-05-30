@@ -352,7 +352,7 @@ export default function BehaviorInput({
     (scope: State<TextureSequencerJSON>) => {
       const thisOnChange = onChange(scope.src)
       return (src: string) => {
-        AssetLoader.load(src, {}, (texture: Texture) => {
+        AssetLoader.load(src, (texture: Texture) => {
           createReadableTexture(texture, { canvas: true, flipY: true }).then((readableTexture: Texture) => {
             const canvas = readableTexture.image as HTMLCanvasElement
             const ctx = canvas.getContext('2d')!
