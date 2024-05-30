@@ -140,12 +140,10 @@ export const PropertiesPanelContainer = () => {
         height: '100%'
       }}
     >
-      {entity ? (
-        materialUUID ? (
-          <MaterialEditor materialUUID={materialUUID} />
-        ) : (
-          <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
-        )
+      {materialUUID ? (
+        <MaterialEditor materialUUID={materialUUID} />
+      ) : entity ? (
+        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div
           style={{

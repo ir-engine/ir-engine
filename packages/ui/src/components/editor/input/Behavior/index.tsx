@@ -33,29 +33,32 @@ import {
   BehaviorJSON,
   BehaviorJSONDefaults,
   ChangeEmitDirectionBehaviorJSON,
+  ColorGeneratorJSON,
   ColorOverLifeBehaviorJSON,
   EmitSubParticleSystemBehaviorJSON,
   FrameOverLifeBehaviorJSON,
   GravityForceBehaviorJSON,
-  IntervalValueJSON,
   NoiseBehaviorJSON,
   OrbitOverLifeBehaviorJSON,
   Rotation3DOverLifeBehaviorJSON,
+  RotationGeneratorJSON,
   RotationOverLifeBehaviorJSON,
-  SequencerJSON,
   SizeOverLifeBehaviorJSON,
   SpeedOverLifeBehaviorJSON,
   TextureSequencerJSON,
   TurbulenceFieldBehaviorJSON,
+  ValueGeneratorJSON,
   WidthOverLengthBehaviorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import BooleanInput from '../Boolean'
 import ColorGenerator from '../Generator/Color'
+import RotationGenerator from '../Generator/Rotation'
 import ValueGenerator from '../Generator/Value'
 import InputGroup from '../Group'
 import NumericInput from '../Numeric'
+import SelectInput from '../Select'
 import Vector3Input from '../Vector3'
 
 export default function BehaviorInput({
@@ -93,7 +96,11 @@ export default function BehaviorInput({
             <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3(forceScope.direction)} />
           </InputGroup>
           <InputGroup name="magnitude" label="Magnitude">
-            <ValueGenerator scope={forceScope.magnitude} value={value.magnitude} onChange={onChange} />
+            <ValueGenerator
+              scope={forceScope.magnitude}
+              value={value.magnitude as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -171,7 +178,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="color" label="Color">
-            <ColorGenerator scope={colorScope.color} value={value.color} onChange={onChange} />
+            <ColorGenerator scope={colorScope.color} value={value.color as ColorGeneratorJSON} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -186,7 +193,11 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
-            <ValueGenerator scope={rotationScope.angularVelocity} value={value.angularVelocity} onChange={onChange} />
+            <ValueGenerator
+              scope={rotationScope.angularVelocity}
+              value={value.angularVelocity as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -203,7 +214,7 @@ export default function BehaviorInput({
           <InputGroup name="angularVelocity" label="Angular Velocity">
             <RotationGenerator
               scope={rotation3DScope.angularVelocity}
-              value={rotation3D.angularVelocity}
+              value={rotation3D.angularVelocity as RotationGeneratorJSON}
               onChange={onChange}
             />
           </InputGroup>
@@ -223,7 +234,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="size" label="Size">
-            <ValueGenerator scope={sizeScope.size} value={value.size} onChange={onChange} />
+            <ValueGenerator scope={sizeScope.size} value={value.size as ValueGeneratorJSON} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -238,7 +249,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="speed" label="Speed">
-            <ValueGenerator scope={speedScope.speed} value={value.speed} onChange={onChange} />
+            <ValueGenerator scope={speedScope.speed} value={value.speed as ValueGeneratorJSON} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -253,7 +264,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="frame" label="Frame">
-            <ValueGenerator scope={frameScope.frame} value={value.frame} onChange={onChange} />
+            <ValueGenerator scope={frameScope.frame} value={value.frame as ValueGeneratorJSON} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -268,7 +279,11 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="orbit" label="Orbit">
-            <ValueGenerator scope={orbitScope.orbitSpeed} value={value.orbitSpeed} onChange={onChange} />
+            <ValueGenerator
+              scope={orbitScope.orbitSpeed}
+              value={value.orbitSpeed as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
           <InputGroup name="axis" label="Axis">
             <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3(orbitScope.axis)} />
@@ -286,7 +301,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="width" label="Width">
-            <ValueGenerator scope={widthScope.width} value={value.width} onChange={onChange} />
+            <ValueGenerator scope={widthScope.width} value={value.width as ValueGeneratorJSON} onChange={onChange} />
           </InputGroup>
         </>
       )
@@ -301,7 +316,11 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="angle" label="Angle">
-            <ValueGenerator scope={changeEmitDirectionScope.angle} value={value.angle} onChange={onChange} />
+            <ValueGenerator
+              scope={changeEmitDirectionScope.angle}
+              value={value.angle as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -316,6 +335,7 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="subParticleSystem" label="Sub Particle System">
+            <></>
             {/*  @todo */}
             {/* <SceneObjectInput
               value={value.subParticleSystem}
@@ -332,7 +352,7 @@ export default function BehaviorInput({
     (scope: State<TextureSequencerJSON>) => {
       const thisOnChange = onChange(scope.src)
       return (src: string) => {
-        AssetLoader.load(src, {}, (texture: Texture) => {
+        AssetLoader.load(src, (texture: Texture) => {
           createReadableTexture(texture, { canvas: true, flipY: true }).then((readableTexture: Texture) => {
             const canvas = readableTexture.image as HTMLCanvasElement
             const ctx = canvas.getContext('2d')!
@@ -378,70 +398,70 @@ export default function BehaviorInput({
     }
   }, [scope])
 
-  const applySequencesInput = useCallback(
-    (scope: State<BehaviorJSON>) => {
-      const applySequencesScope = scope as State<ApplySequencesJSON>
-      const value = applySequencesScope.value
-      return (
-        <>
-          <NumericInputGroup
-            name="Delay"
-            label="Delay"
-            value={value.delay}
-            onChange={onChange(applySequencesScope.delay)}
-          />
-          <Button onClick={onAddTextureSequencer()}>Add Texture Sequencer</Button>
-          <PaginatedList
-            list={applySequencesScope.sequencers}
-            element={(sequencerScope: State<{ range: IntervalValueJSON; sequencer: SequencerJSON }>) => {
-              const sequencer = sequencerScope.value
-              return (
-                <>
-                  <NumericInputGroup
-                    name="Start"
-                    label="Start"
-                    value={sequencer.range.a}
-                    onChange={onChange(sequencerScope.range.a)}
-                  />
-                  <NumericInputGroup
-                    name="End"
-                    label="End"
-                    value={sequencer.range.b}
-                    onChange={onChange(sequencerScope.range.b)}
-                  />
-                  <NumericInputGroup
-                    name="Scale X"
-                    label="Scale X"
-                    value={sequencer.sequencer.scaleX}
-                    onChange={onChange(sequencerScope.sequencer.scaleX)}
-                  />
-                  <NumericInputGroup
-                    name="Scale Y"
-                    label="Scale Y"
-                    value={sequencer.sequencer.scaleY}
-                    onChange={onChange(sequencerScope.sequencer.scaleY)}
-                  />
-                  <InputGroup name="Position" label="Position">
-                    <Vector3Input
-                      value={sequencer.sequencer.position}
-                      onChange={onChangeVec3(sequencerScope.sequencer.position)}
-                    />
-                  </InputGroup>
-                  <InputGroup name="Texture" label="Texture">
-                    <TexturePreviewInput
-                      value={sequencer.sequencer.src}
-                      onRelease={onChangeSequenceTexture(sequencerScope.sequencer)}
-                    />
-                  </InputGroup>
-                </>
-              )
-            }}
-          />
-        </>
-      )
-    },
-    [scope]
-  )
+  // const applySequencesInput = useCallback(
+  //   (scope: State<BehaviorJSON>) => {
+  //     const applySequencesScope = scope as State<ApplySequencesJSON>
+  //     const value = applySequencesScope.value
+  //     return (
+  //       <>
+  //         <NumericInputGroup
+  //           name="Delay"
+  //           label="Delay"
+  //           value={value.delay}
+  //           onChange={onChange(applySequencesScope.delay)}
+  //         />
+  //         <Button onClick={onAddTextureSequencer()}>Add Texture Sequencer</Button>
+  //         <PaginatedList
+  //           list={applySequencesScope.sequencers}
+  //           element={(sequencerScope: State<{ range: IntervalValueJSON; sequencer: SequencerJSON }>) => {
+  //             const sequencer = sequencerScope.value
+  //             return (
+  //               <>
+  //                 <NumericInputGroup
+  //                   name="Start"
+  //                   label="Start"
+  //                   value={sequencer.range.a}
+  //                   onChange={onChange(sequencerScope.range.a)}
+  //                 />
+  //                 <NumericInputGroup
+  //                   name="End"
+  //                   label="End"
+  //                   value={sequencer.range.b}
+  //                   onChange={onChange(sequencerScope.range.b)}
+  //                 />
+  //                 <NumericInputGroup
+  //                   name="Scale X"
+  //                   label="Scale X"
+  //                   value={sequencer.sequencer.scaleX}
+  //                   onChange={onChange(sequencerScope.sequencer.scaleX)}
+  //                 />
+  //                 <NumericInputGroup
+  //                   name="Scale Y"
+  //                   label="Scale Y"
+  //                   value={sequencer.sequencer.scaleY}
+  //                   onChange={onChange(sequencerScope.sequencer.scaleY)}
+  //                 />
+  //                 <InputGroup name="Position" label="Position">
+  //                   <Vector3Input
+  //                     value={sequencer.sequencer.position}
+  //                     onChange={onChangeVec3(sequencerScope.sequencer.position)}
+  //                   />
+  //                 </InputGroup>
+  //                 <InputGroup name="Texture" label="Texture">
+  //                   <TexturePreviewInput
+  //                     value={sequencer.sequencer.src}
+  //                     onRelease={onChangeSequenceTexture(sequencerScope.sequencer)}
+  //                   />
+  //                 </InputGroup>
+  //               </>
+  //             )
+  //           }}
+  //         />
+  //       </>
+  //     )
+  //   },
+  //   [scope]
+  // )
 
   const inputs = {
     ApplyForce: applyForceInput,

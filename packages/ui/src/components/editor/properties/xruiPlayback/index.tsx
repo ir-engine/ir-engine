@@ -60,6 +60,7 @@ export const XRUIPlaybackNodeEditor: EditorComponentType = (props) => {
             //lightComponent.intensity
             0
           }
+          onChange={() => {}}
           //onChange={updateProperty(, '')}
           //onRelease={commitProperty(, '')}
           unit="px"

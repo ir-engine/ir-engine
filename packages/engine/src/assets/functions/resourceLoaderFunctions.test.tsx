@@ -64,7 +64,6 @@ describe('resourceLoaderFunctions', () => {
         nonExistingUrl,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(false)
         },
@@ -89,7 +88,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(response.asset)
           assert(resourceState.resources[url].status === ResourceStatus.Loaded, 'Asset not loaded')
@@ -114,7 +112,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           ResourceManager.unload(url, entity)
           assert(resourceState.resources[url] === undefined, 'Asset not removed')
@@ -140,7 +137,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -149,7 +145,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity2,
-            {},
             (response) => {
               assert(response.asset)
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
@@ -190,7 +185,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url].references.length === 1, 'References not counted')
           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -199,7 +193,6 @@ describe('resourceLoaderFunctions', () => {
             url,
             ResourceType.GLTF,
             entity,
-            {},
             (response) => {
               assert(resourceState.resources[url].references.length === 2, 'References not counted')
               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
@@ -241,7 +234,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity)
@@ -258,7 +250,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity2,
-        {},
         (response) => {
           assert(resourceState.resources[url] !== undefined, 'Asset not found')
           ResourceManager.unload(url, entity2)
@@ -283,7 +274,6 @@ describe('resourceLoaderFunctions', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {
           assert(resourceState.resources[url])
           assert(resourceState.resources[url].assetRefs?.Mesh.length === 2)

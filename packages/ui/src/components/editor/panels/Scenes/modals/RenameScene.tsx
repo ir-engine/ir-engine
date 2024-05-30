@@ -42,7 +42,7 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
   const handleSubmit = async () => {
     const currentURL = scene.assetURL
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
-    const newData = await renameScene(scene.id, newURL)
+    const newData = await renameScene(scene.id, newURL, scene.projectName)
     getMutableState(EditorState).scenePath.set(newData.assetURL)
     PopoverState.hidePopupover()
   }

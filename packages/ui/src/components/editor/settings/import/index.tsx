@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { ImportSettingsState } from '@etherealengine/editor/src/components/assets/ImportSettingsPanel'
 import { LODList, LODVariantDescriptor } from '@etherealengine/editor/src/constants/GLTFPresets'
-import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import { useHookstate } from '@hookstate/core'
 import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 import Modal from '../../../../primitives/tailwind/Modal'
@@ -168,9 +167,11 @@ export function ImportSettingsPanel() {
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
   const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    importSettingsState.selectedLODS.get(NO_PROXY)
+    importSettingsState.selectedLODS.get(NO_PROXY) as LODVariantDescriptor[]
   )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS[0].get(NO_PROXY))
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(
+    importSettingsState.selectedLODS[0].get(NO_PROXY) as LODVariantDescriptor
+  )
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
@@ -207,7 +208,7 @@ export function ImportSettingsPanel() {
       onClose={() => handleCancel()}
       className="w-[50vw] max-w-2xl"
     >
-      <div className="bg-theme-primary flex flex-col items-start gap-2 px-2">
+      <div className="flex flex-col items-start gap-2 bg-theme-primary px-2">
         <div className="mb-6">
           <p className="text-lg font-medium">Default Import Folder</p>
           <StringInput value={defaultImportFolder} onChange={(val) => setDefaultImportFolder(val)} />
