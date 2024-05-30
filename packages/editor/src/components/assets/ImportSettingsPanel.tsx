@@ -38,8 +38,11 @@ import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+import {
+  KTX2EncodeArguments,
+  KTX2EncodeDefaultArguments
+} from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, NO_PROXY, State, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
@@ -83,7 +86,7 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = ({ compressProperties }) => {
+const ImageCompressionBox = ({ compressProperties }: { compressProperties: State<KTX2EncodeArguments> }) => {
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -195,7 +198,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
 
 export default function ImportSettingsPanel() {
   const importSettingsState = useMutableState(ImportSettingsState)
-  const compressProperties = useMutableState(ImportSettingsState).imageSettings.get(NO_PROXY)
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
 
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
@@ -226,7 +229,7 @@ export default function ImportSettingsPanel() {
     importSettingsState.LODFolder.set(LODImportFolder)
     importSettingsState.LODsEnabled.set(LODGenEnabled)
     importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties)
+    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
     importSettingsState.selectedLODS.set(selectedLODS)
     handleCancel()
   }
