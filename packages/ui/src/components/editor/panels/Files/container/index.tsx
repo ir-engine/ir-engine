@@ -40,7 +40,8 @@ import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
   FilesViewModeSettings,
-  FilesViewModeState
+  FilesViewModeState,
+  availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -65,10 +66,15 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
+import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import BooleanInput from '../../../input/Boolean'
+import InputGroup from '../../../input/Group'
+import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
@@ -121,6 +127,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
   const fileProperties = useHookstate<FileType | null>(null)
+  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
@@ -131,7 +138,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useHookstate('')
 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
-  const viewModeSettingsAnchorPosition = useHookstate({ left: 0, top: 0 })
+  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
 
   const page = useHookstate(0)
 
@@ -335,36 +342,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory.value)
 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
-    /*
-    return (
-      <Breadcrumbs
-        maxItems={3}
-        classes={{ separator: styles.separator, li: styles.breadcrumb, ol: styles.breadcrumbList }}
-        separator="›"
-      >
-        {breadcrumbDirectoryFiles.map((file, index, arr) =>
-          arr.length - 1 == index ? (
-            <Typography key={file} style={{ fontSize: '0.9rem' }}>
-              {file}
-            </Typography>
-          ) : (
-            <Link
-              underline="hover"
-              key={file}
-              color="#5d646c"
-              style={{ fontSize: '0.9rem' }}
-              onClick={() => handleBreadcrumbDirectoryClick(file)}
-            >
-              {file}
-            </Link>
-          )
-        )}
-      </Breadcrumbs>
-    )*/
 
     return (
       <nav
-        className="bg-theme-primary border-theme-primary flex h-full w-full rounded-[4px] border text-xs text-[#A3A3A3]"
+        className="flex h-full w-full rounded-[4px] border border-theme-primary bg-theme-primary text-xs text-[#A3A3A3]"
         aria-label="Breadcrumb"
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
@@ -381,7 +362,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 </span>
               ) : (
                 <a
-                  className="hover:text-theme-highlight focus:text-theme-highlight cursor-pointer overflow-hidden align-middle text-xs text-[#A3A3A3] hover:underline"
+                  className="cursor-pointer overflow-hidden align-middle text-xs text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
                   <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
@@ -482,62 +463,66 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               variant="transparent"
               startIcon={<IoSettingsSharp />}
               className="p-0"
-              onClick={(event) => viewModeSettingsAnchorPosition.set({ left: event.clientX, top: event.clientY })}
+              onClick={(event) => {
+                setAnchorPosition({ left: event.clientX, top: event.clientY })
+                anchorEl.set(event.currentTarget)
+              }}
             />
           </Tooltip>
         </div>
-        {/*
         <Popover
-          anchorPosition={viewModeSettingsAnchorPosition.get(NO_PROXY)}
-          open={!!viewModeSettingsAnchorPosition.left.value}
-          onClose={() => viewModeSettingsAnchorPosition.set({ left: 0, top: 0 })} 
-          anchorEl={null}>
-          <div className={styles.viewModeSettings}>
-            <div className = "flex flex-col w-40">
-              {filesViewMode.value === 'icons' ? (
-
+          open={!!anchorEl.value}
+          anchorEl={anchorEl.value as any}
+          onClose={() => {
+            anchorEl.set(null)
+            setAnchorPosition(undefined)
+          }}
+          panelId={FilesPanelTab.id!}
+          anchorPosition={anchorPosition}
+          className="w-45 flex min-w-[300px] flex-col p-2"
+        >
+          {filesViewMode.value === 'icons' ? (
+            <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}>
+              <Slider
+                min={10}
+                max={100}
+                step={0.5}
+                value={viewModeSettings.icons.iconSize.value}
+                onChange={viewModeSettings.icons.iconSize.set}
+                onRelease={viewModeSettings.icons.iconSize.set}
+              />
+            </InputGroup>
+          ) : (
+            <>
+              <InputGroup label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}>
                 <Slider
                   min={10}
                   max={100}
-                  step={.5}
-                  value={viewModeSettings.icons.iconSize.value}
-                  onChange={viewModeSettings.icons.iconSize.set}
-                  onRelease={viewModeSettings.icons.iconSize.set}    // label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}             
-                />
-              ) : (
-                <>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={.5}
+                  step={0.5}
                   value={viewModeSettings.list.fontSize.value}
-                  onChange={viewModeSettings.list.fontSize.set} 
-                  onRelease={viewModeSettings.list.fontSize.set} //label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}             
-                  />
-                  <div>
-                    <div className="mt-1">
-                      <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-                    </div>
-                    <div className="flex-col">
-                      {availableTableColumns.map((column) => (  
-                        <Checkbox
-                          style={{ color: 'var(--textColor)' }}
-                          checked={viewModeSettings.list.selectedTableColumns[column].value}
-                          onChange={(_, checked) => viewModeSettings.list.selectedTableColumns[column].set(checked)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-          <div className = "flex flex-col w-40">
-            <Button onClick={() => makeAllThumbnails()}>
-              Generate thumbnails
-            </Button>
-          </div>
-        </Popover>*/}
+                  onChange={viewModeSettings.list.fontSize.set}
+                  onRelease={viewModeSettings.list.fontSize.set}
+                />
+              </InputGroup>
+
+              <div>
+                <div className="mt-1 flex flex-auto text-white">
+                  <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
+                </div>
+                <div className="flex-col">
+                  {availableTableColumns.map((column) => (
+                    <InputGroup label={t(`editor:layout.filebrowser.table-list.headers.${column}`)}>
+                      <BooleanInput
+                        value={viewModeSettings.list.selectedTableColumns[column].value}
+                        onChange={(value) => viewModeSettings.list.selectedTableColumns[column].set(value)}
+                      />
+                    </InputGroup>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </Popover>
       </>
     )
   }
@@ -549,7 +534,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   return (
     <>
-      <div className="bg-theme-surface-main mb-1 flex h-8 items-center gap-2">
+      <div className="mb-1 flex h-8 items-center gap-2 bg-theme-surface-main">
         <div
           id="backDir"
           className={`flex items-center ${
@@ -569,7 +554,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         <ViewModeSettings />
 
-        <div className="w-30 bg-theme-surfaceInput flex h-7 flex-row items-center gap-1 rounded px-2 py-1">
+        <div className="w-30 flex h-7 flex-row items-center gap-1 rounded bg-theme-surfaceInput px-2 py-1">
           {viewModes.map(({ mode, icon }) => (
             <Button
               key={mode}
@@ -593,7 +578,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             }}
             labelClassname="text-sm text-red-500"
             containerClassname="flex h-full bg-theme-primary rounded-[4px] w-full"
-            className="bg-theme-primary h-7 w-full rounded-[4px] py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
+            className="h-7 w-full rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
         </div>
@@ -621,7 +606,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="transparent"
           disabled={!showUploadAndDownloadButtons}
           rounded="none"
-          className="bg-theme-highlight h-full whitespace-nowrap px-2"
+          className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={async () => {
             await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })

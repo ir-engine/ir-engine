@@ -135,19 +135,19 @@ const Select = <T extends OptionValueType>({
         description={description}
         error={error}
         errorBorder={errorBorder}
-        className={`cursor-pointer ${inputClassName}`}
+        className={twMerge('cursor-pointer', inputClassName)}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
-      />
-      <MdOutlineKeyboardArrowDown
-        size="1.5em"
-        className={`absolute right-3 text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-          label ? 'top-8' : 'top-1.5'
-        }`}
-        onClick={toggleDropdown}
+        endComponent={
+          <MdOutlineKeyboardArrowDown
+            size="1.5em"
+            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            onClick={toggleDropdown}
+          />
+        }
       />
       <div
         className={`absolute z-10 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${

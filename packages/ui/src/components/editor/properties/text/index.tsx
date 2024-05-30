@@ -43,8 +43,8 @@ import {
   TextComponent,
   TroikaTextLineHeight
 } from '@etherealengine/engine/src/scene/components/TextComponent'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import { useHookstate } from '@hookstate/core'
 import { ColorInput } from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'

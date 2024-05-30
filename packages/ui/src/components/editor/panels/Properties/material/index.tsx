@@ -211,7 +211,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
-        <div className="bg-theme-surface-main border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid p-1 text-xs text-white">
+        <div className="border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid bg-theme-surface-main p-1 text-xs text-white">
           <div className="justify-cneter flex items-center align-middle">
             <label>{t('editor:properties.mesh.material.path')}</label>
           </div>
@@ -221,7 +221,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          currentValue={prototypeName.value}
+          value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
             if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
@@ -249,7 +249,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">
         <SelectInput
-          currentValue={selectedPlugin.value}
+          value={selectedPlugin.value}
           options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
           onChange={(value) => selectedPlugin.set(value as string)}
         />

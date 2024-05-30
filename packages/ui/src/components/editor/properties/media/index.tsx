@@ -143,7 +143,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         label={t('editor:properties.media.paths')}
         inputLabel={t('editor:properties.media.path')}
-        values={media.resources.value}
+        values={media.resources.value as string[]}
         onChange={updateProperty(MediaComponent, 'resources')}
       />
 

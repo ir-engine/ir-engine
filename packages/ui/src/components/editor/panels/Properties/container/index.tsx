@@ -38,6 +38,7 @@ import { GLTFNodeState } from '@etherealengine/engine/src/gltf/GLTFDocumentState
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
+import { PropertiesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Popover from '../../../layout/Popover'
 import TransformPropertyGroup from '../../../properties/transform'
@@ -105,7 +106,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           anchorEl.set(null)
           setAnchorPosition(undefined)
         }}
-        panelId="propertiesPanel"
+        panelId={PropertiesPanelTab.id!}
         anchorPosition={anchorPosition}
         className="h-[60%] w-full min-w-[300px] overflow-y-auto"
       >
