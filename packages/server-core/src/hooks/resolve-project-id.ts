@@ -40,7 +40,7 @@ export default () => {
     }
 
     const projectResult = (await context.app.service(projectPath).find({
-      query: { name: context.params.query?.project, $limit: 1 }
+      query: { name: context.params.query.project, $limit: 1 }
     })) as Paginated<ProjectType>
 
     if (projectResult.data.length === 0) {
