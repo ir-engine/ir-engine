@@ -72,7 +72,6 @@ const buildBudgetVariantMetadata = (
     src,
     ResourceType.GLTF,
     UndefinedEntity,
-    {},
     () => {
       const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
       const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
