@@ -69,7 +69,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           { label: 'ETC1S', value: 'ETC1S' },
           { label: 'UASTC', value: 'UASTC' }
         ]}
-        value={compressProperties.mode.value}
+        currentValue={compressProperties.mode.value}
         onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
       />
       <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           >
             <Select
               options={UASTCFlagOptions}
-              value={compressProperties.uastcFlags.value}
+              currentValue={compressProperties.uastcFlags.value}
               onChange={(val: number) => compressProperties.uastcFlags.set(val)}
             />
           </InputGroup>
@@ -174,9 +174,11 @@ export default function ImportSettingsPanel() {
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
   const [LODGenEnabled, setLODGenEnabled] = useState<boolean>(importSettingsState.LODsEnabled.value)
   const [selectedLODS, setSelectedLods] = useState<LODVariantDescriptor[]>(
-    importSettingsState.selectedLODS.get(NO_PROXY)
+    importSettingsState.selectedLODS.get(NO_PROXY) as LODVariantDescriptor[]
   )
-  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(importSettingsState.selectedLODS[0].get(NO_PROXY))
+  const [currentLOD, setCurrentLOD] = useState<LODVariantDescriptor>(
+    importSettingsState.selectedLODS[0].get(NO_PROXY) as LODVariantDescriptor
+  )
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [KTXEnabled, setKTXEnabled] = useState<boolean>(importSettingsState.imageCompression.value)
 
@@ -233,7 +235,7 @@ export default function ImportSettingsPanel() {
               description={presetLabels[idx]}
               key={idx}
               options={LODList.map((sLOD) => ({ label: sLOD.params.dst, value: sLOD as any }))}
-              value={LOD.params.dst}
+              currentValue={LOD.params.dst}
               onChange={(value) => {
                 setCurrentLOD(value as any)
                 setCurrentIndex(idx)

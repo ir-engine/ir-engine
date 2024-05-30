@@ -140,7 +140,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           key={props.entity}
-          options={state.portals.value}
+          options={state.portals.value as PortalOptions[]}
           value={portalComponent.linkedPortalId.value}
           onChange={commitProperty(PortalComponent, 'linkedPortalId')}
         />

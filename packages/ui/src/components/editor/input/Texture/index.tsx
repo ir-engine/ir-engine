@@ -142,7 +142,7 @@ export default function TexturePreviewInput({
           <>
             <InputGroup name="Encoding" label="Encoding">
               <SelectInput
-                currentValue={colorspace.value}
+                value={colorspace.value}
                 options={[
                   { label: 'Linear', value: LinearSRGBColorSpace },
                   { label: 'sRGB', value: SRGBColorSpace },

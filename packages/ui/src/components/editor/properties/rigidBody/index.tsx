@@ -53,7 +53,7 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
       <InputGroup name="Type" label={t('editor:properties.rigidbody.lbl-type')}>
         <Select
           options={bodyTypeOptions}
-          value={rigidbodyComponent.type.value}
+          currentValue={rigidbodyComponent.type.value}
           onChange={commitProperty(RigidBodyComponent, 'type')}
           inputClassName="text-xs p-2"
         />

@@ -30,7 +30,8 @@ import {
   AxisAngleGeneratorJSON,
   EulerGeneratorJSON,
   RotationGeneratorJSON,
-  RotationGeneratorJSONDefaults
+  RotationGeneratorJSONDefaults,
+  ValueGeneratorJSON
 } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@etherealengine/hyperflux'
 import InputGroup from '../../Group'
@@ -63,7 +64,11 @@ export default function RotationGenerator({
           <Vector3Input value={new Vector3(...axisAngle.axis)} onChange={onChangeVec3(axisAngleScope.axis)} />
         </InputGroup>
         <InputGroup name="Angle" label="Angle">
-          <ValueGenerator scope={axisAngleScope.angle} value={axisAngle.angle} onChange={onChange} />
+          <ValueGenerator
+            scope={axisAngleScope.angle}
+            value={axisAngle.angle as ValueGeneratorJSON}
+            onChange={onChange}
+          />
         </InputGroup>
       </>
     )
@@ -75,13 +80,13 @@ export default function RotationGenerator({
     return (
       <>
         <InputGroup name="Angle X" label="Angle X">
-          <ValueGenerator scope={eulerScope.angleX} value={euler.angleX} onChange={onChange} />
+          <ValueGenerator scope={eulerScope.angleX} value={euler.angleX as ValueGeneratorJSON} onChange={onChange} />
         </InputGroup>
         <InputGroup name="Angle Y" label="Angle Y">
-          <ValueGenerator scope={eulerScope.angleY} value={euler.angleY} onChange={onChange} />
+          <ValueGenerator scope={eulerScope.angleY} value={euler.angleY as ValueGeneratorJSON} onChange={onChange} />
         </InputGroup>
         <InputGroup name="Angle Z" label="Angle Z">
-          <ValueGenerator scope={eulerScope.angleZ} value={euler.angleZ} onChange={onChange} />
+          <ValueGenerator scope={eulerScope.angleZ} value={euler.angleZ as ValueGeneratorJSON} onChange={onChange} />
         </InputGroup>
       </>
     )

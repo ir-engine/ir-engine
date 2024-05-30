@@ -172,7 +172,9 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const onRemoveBurst = useCallback((burst: State<BurstParameters>) => {
     return () => {
       const data = JSON.parse(
-        JSON.stringify(particleSystem.systemParameters.emissionBursts.filter((b) => b !== burst.value))
+        JSON.stringify(
+          particleSystem.systemParameters.emissionBursts.filter((b: any) => b !== (burst.value as BurstParameters))
+        )
       )
       commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
@@ -429,8 +431,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         element={(behaviorState: State<BehaviorJSON>) => {
           return (
             <>
-              <BehaviorInput scope={behaviorState} value={behaviorState.value} onChange={onSetState} />
-              <Button onClick={onRemoveBehavior(behaviorState.value)}>Remove</Button>
+              <BehaviorInput scope={behaviorState} value={behaviorState.value as BehaviorJSON} onChange={onSetState} />
+              <Button onClick={onRemoveBehavior(behaviorState.value as BehaviorJSON)}>Remove</Button>
             </>
           )
         }}

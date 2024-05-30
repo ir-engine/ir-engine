@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import React, { useCallback, useState } from 'react'
+import { useHookstate } from '@etherealengine/hyperflux'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
@@ -41,32 +42,20 @@ export function SaveNewSceneDialog({
   onConfirm: (value: { name: string }) => void
   onCancel: () => void
 }) {
-  const [name, setName] = useState(initialName)
+  const name = useHookstate(initialName)
   const { t } = useTranslation()
-
-  const onConfirmCallback = useCallback(
-    (e) => {
-      e.preventDefault()
-      onConfirm({ name })
-    },
-    [name, onConfirm]
-  )
-
-  const onCancelCallback = useCallback(() => {
-    onCancel()
-  }, [onCancel])
 
   return (
     <Modal
       title={t('editor:dialog.saveNewScene.title')}
       className="w-[50vw] max-w-2xl"
-      onSubmit={onConfirmCallback}
+      onSubmit={() => onConfirm({ name: name.value })}
       onClose={() => {
-        onCancelCallback()
+        onCancel()
         PopoverState.hidePopupover()
       }}
     >
-      <Input value={name} onChange={(event) => setName(event.target.value)} />
+      <Input value={name.value} onChange={(event) => name.set(event.target.value)} />
     </Modal>
   )
 }
