@@ -23,38 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
+import { HookContext } from '@feathersjs/feathers'
 
-interface TooltipProps {
-  title: string
-  direction?: 'top' | 'bottom' | 'left' | 'right'
-  children: React.ReactElement
-  className?: string
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
+
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    try {
+      await verifyScope(currentType, scopeToVerify)(context)
+
+      return true
+    } catch {
+      return false
+    }
+  }
 }
-
-const TooltipDirectionClass = {
-  top: 'bottom-5',
-  bottom: 'top-5',
-  left: 'right-5',
-  right: 'left-5'
-}
-
-const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {
-  return (
-    <div className="group relative flex items-center justify-center text-center">
-      {children}
-      <span
-        className={twMerge(
-          'absolute z-10 scale-0 text-wrap rounded bg-gray-800 p-2 text-xs text-white transition-all group-hover:scale-100',
-          TooltipDirectionClass[direction],
-          className
-        )}
-      >
-        {title}
-      </span>
-    </div>
-  )
-}
-
-export default Tooltip

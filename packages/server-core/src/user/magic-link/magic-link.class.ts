@@ -164,11 +164,10 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     }
 
     if (identityProvider) {
+      await this.removePreviousLoginTokensByProvider(identityProvider.id)
       const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
-
-      await this.removePreviousLoginTokens(identityProvider.id)
 
       if (data.type === 'email') {
         await this.sendEmail(data.email, loginToken.token)
@@ -179,19 +178,12 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     return data
   }
 
-  private async removePreviousLoginTokens(identityProviderId: string) {
+  private async removePreviousLoginTokensByProvider(identityProviderId: string) {
     const loginTokenService = this.app.service(loginTokenPath)
-    const previousTokens = await loginTokenService.find({
+    await loginTokenService.remove(null, {
       query: {
-        identityProviderId: identityProviderId
+        identityProviderId
       }
     })
-    // Keep only the latest token and remove the rest
-    if (previousTokens.total > 1) {
-      const tokensToRemove = previousTokens.data.slice(1)
-      for (const token of tokensToRemove) {
-        await loginTokenService.remove(token.id)
-      }
-    }
   }
 }
