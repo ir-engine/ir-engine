@@ -126,31 +126,29 @@ const Select = <T extends OptionValueType>({
   }
 
   return (
-    <div className={`${twMerge('relative', className)}`} ref={ref}>
-      <div className="flex">
-        <Input
-          disabled={disabled}
-          label={label}
-          labelClassname={labelClassName}
-          variant={inputVariant}
-          description={description}
-          error={error}
-          errorBorder={errorBorder}
-          className={`cursor-pointer ${inputClassName}`}
-          placeholder={placeholder || t('common:select.selectOption')}
-          value={selectLabel.value}
-          onChange={handleSearch}
-          onClick={toggleDropdown}
-          onMouseDown={handleMouseDown}
-        />
-        <MdOutlineKeyboardArrowDown
-          size="1.5em"
-          className={`absolute right-3 top-1/2 -translate-y-1/2 transform text-theme-primary transition-transform ${
-            showOptions.value ? 'rotate-180' : ''
-          }`}
-          onClick={toggleDropdown}
-        />
-      </div>
+    <div className={twMerge('relative', className)} ref={ref}>
+      <Input
+        disabled={disabled}
+        label={label}
+        labelClassname={labelClassName}
+        variant={inputVariant}
+        description={description}
+        error={error}
+        errorBorder={errorBorder}
+        className={twMerge('cursor-pointer', inputClassName)}
+        placeholder={placeholder || t('common:select.selectOption')}
+        value={selectLabel.value}
+        onChange={handleSearch}
+        onClick={toggleDropdown}
+        onMouseDown={handleMouseDown}
+        endComponent={
+          <MdOutlineKeyboardArrowDown
+            size="1.5em"
+            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            onClick={toggleDropdown}
+          />
+        }
+      />
       <div
         className={`absolute z-10 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
