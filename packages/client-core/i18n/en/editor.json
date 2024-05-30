@@ -51,6 +51,7 @@
     "mediaSearchAborted": "Media search aborted",
     "methodNotImplemented": "Method not implemented.",
     "saveProjectAborted": "Save scene aborted",
+    "sceneAlreadyExists": "Scene already exists with this name.",
     "unsavedChanges": "Unsaved Changes",
     "unsavedChangesMsg": "The scene has been modified. Please save your changes.",
     "projectCreationFail": "Project creation failed. {{reason}}",
