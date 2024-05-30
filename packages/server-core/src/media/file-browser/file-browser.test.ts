@@ -259,6 +259,30 @@ describe('file-browser.test', () => {
       const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
       assert.ok(updatedFile)
     })
+
+    it('filters entries using $like', async () => {
+      const prefix = 'test' // prefix of all the entries (files & directories)
+      const entries = await app.service(fileBrowserPath).find({
+        query: {
+          key: {
+            $like: `%${prefix}%`
+          },
+          directory: getDirectoryPath(testDirectoryName)
+        }
+      })
+      assert.ok(entries.data.length === 5)
+
+      const invalidSubstring = prefix + '$' // this substring is not present in any of the entries
+      const emptyEntries = await app.service(fileBrowserPath).find({
+        query: {
+          key: {
+            $like: `%${invalidSubstring}%`
+          },
+          directory: getDirectoryPath(testDirectoryName)
+        }
+      })
+      assert.ok(emptyEntries.data.length === 0)
+    })
   })
 
   describe('remove service', () => {
