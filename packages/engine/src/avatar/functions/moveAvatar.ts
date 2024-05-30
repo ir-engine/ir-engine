@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { UUIDComponent } from '@etherealengine/ecs'
 import {
   ComponentType,
@@ -41,6 +40,7 @@ import { NetworkObjectAuthorityTag } from '@etherealengine/network'
 import { SpawnPoseState } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { ObjectDirection, Vector3_Up, Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import checkPositionIsValid from '@etherealengine/spatial/src/common/functions/checkPositionIsValid'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
@@ -429,7 +429,7 @@ export const updateLocalAvatarRotation = (entity: Entity) => {
     _updateLocalAvatarRotationAttachedMode(entity)
   } else {
     const deltaSeconds = getState(ECSState).deltaSeconds
-    const alpha = smootheLerpAlpha(3, deltaSeconds)
+    const alpha = smootheLerpAlpha(0.005, deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)
     } else {
