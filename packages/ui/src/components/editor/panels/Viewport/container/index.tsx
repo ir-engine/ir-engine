@@ -79,8 +79,6 @@ const ViewportDnD = () => {
     observer.observe(ref.current)
     return () => {
       observer.disconnect()
-      //   const canvas = document.getElementById('engine-renderer-canvas')!
-      //   parent.removeChild(canvas)
     }
   }, [ref])
 
