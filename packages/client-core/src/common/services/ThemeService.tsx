@@ -86,7 +86,7 @@ const themes = {
 export const ThemeState = defineState({
   name: 'ThemeState',
   initial: {
-    theme: 'light' as 'light' | 'dark' | 'custom'
+    theme: 'dark' as 'light' | 'dark' | 'custom'
   },
 
   setTheme: (theme: 'light' | 'dark' | 'custom') => {
