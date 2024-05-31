@@ -67,7 +67,8 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     const thumbnailBlob = await takeScreenshot(512, 320, 'jpeg')
     if (!thumbnailBlob) return
     const thumbnailURL = URL.createObjectURL(thumbnailBlob)
-    const file = new File([thumbnailBlob!], getState(EditorState).sceneName + '.thumbnail.jpg')
+    const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
+    const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
     state.merge({
       thumbnailURL,
       thumbnail: file
@@ -114,7 +115,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     if (!envmap || !loadingScreen) return null!
 
     const editorState = getState(EditorState)
-    const sceneName = editorState.sceneName!
+    const sceneName = editorState.sceneName!.split('.').slice(0, -1).join('.')
     const projectName = editorState.projectName!
     const envmapFilename = `${sceneName}.envmap.ktx2`
     const loadingScreenFilename = `${sceneName}.loadingscreen.ktx2`
