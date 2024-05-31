@@ -53,8 +53,12 @@ import { InputComponent } from '@etherealengine/spatial/src/input/components/Inp
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -292,7 +296,14 @@ const execute = () => {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
       if (hasComponent(clickedEntity, SourceComponent)) {
-        SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
+        const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
+        const ancestorModelEntity = modelComponent || clickedEntity
+        SelectionState.updateSelection([
+          getComponent(
+            SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickedEntity : ancestorModelEntity,
+            UUIDComponent
+          )
+        ])
       }
     }
   }
