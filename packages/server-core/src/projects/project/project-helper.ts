@@ -1066,10 +1066,7 @@ export async function getProjectUpdateJobBody(
               name: `${process.env.RELEASE_NAME}-${data.name}-update`,
               image,
               imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
+              command
             }
           ],
           restartPolicy: 'Never'
