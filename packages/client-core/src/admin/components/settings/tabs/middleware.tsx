@@ -54,10 +54,14 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
   // Initialize testSettings state
   const [testSettings, setTestSettings] = useState({})
 
+  console.log('### middleware mS:', mS)
+
   useEffect(() => {
     if (mS !== undefined) {
+      console.log('### useEffect mS:', typeof mS, mS)
       try {
-        const mSJson = JSON.parse(Buffer.from(mS).toString('utf8'))
+        // const mSJson = JSON.parse(Buffer.from(mS).toString('utf8'))
+        const mSJson = JSON.parse(mS.toString('utf8'))
         console.log('#### mSJson', mSJson, typeof mSJson)
         setTestSettings(mSJson)
       } catch (e) {
