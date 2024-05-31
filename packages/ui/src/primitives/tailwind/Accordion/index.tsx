@@ -59,7 +59,7 @@ const Accordion = forwardRef(
     }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
-    const twClassName = twMerge('bg-theme-surface-main w-full rounded-2xl p-6 ', className)
+    const twClassName = twMerge('w-full rounded-2xl bg-theme-surface-main p-6 ', className)
     const twClassNameTitle = twMerge('flex flex-row items-center', titleClassName)
     const openState = useHookstate(false)
 
@@ -70,7 +70,7 @@ const Accordion = forwardRef(
     return (
       <div className={twClassName} {...props} ref={ref}>
         <div
-          className="hover:bg-theme-highlight flex w-full cursor-pointer items-center justify-between"
+          className="flex w-full cursor-pointer items-center justify-between hover:bg-theme-highlight"
           onClick={() => {
             openState.set((v) => !v)
           }}

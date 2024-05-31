@@ -327,25 +327,103 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      // Update the Text content/properties
       troikaMesh.text = text.text.value
+      troikaMesh.sync()
+    }, [text.text])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.fillOpacity = text.textOpacity.value / 100
-      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.sync()
+    }, [text.textOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.textIndent = text.textIndent.value
+      troikaMesh.sync()
+    }, [text.textIndent])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.textAlign = text.textAlign.value
-      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.sync()
+    }, [text.textAlign])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.whiteSpace = text.textWrap.value ? 'normal' : 'nowrap'
+      troikaMesh.sync()
+    }, [text.textWrap])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.overflowWrap = text.textWrapKind.value
+      troikaMesh.sync()
+    }, [text.textWrapKind])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.anchorX = `${text.textAnchor.x.value}%`
       troikaMesh.anchorY = `${text.textAnchor.y.value}%`
-      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.sync()
+    }, [text.textAnchor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.curveRadius = MathUtils.degToRad(text.textCurveRadius.value)
-      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.sync()
+    }, [text.textCurveRadius])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.depthOffset = text.textDepthOffset.value
+      troikaMesh.sync()
+    }, [text.textDepthOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.maxWidth = text.textWidth.value
+      troikaMesh.sync()
+    }, [text.textWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.lineHeight = text.lineHeight.value
+      troikaMesh.sync()
+    }, [text.lineHeight])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.letterSpacing = text.letterSpacing.value
+      troikaMesh.sync()
+    }, [text.letterSpacing])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.direction = text.textDirection.value
-      // Update the font properties
+      troikaMesh.sync()
+    }, [text.textDirection])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.font = text.font.value
+      troikaMesh.sync()
+    }, [text.font])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.fontSize = text.fontSize.value
+      troikaMesh.sync()
+    }, [text.fontSize])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.color = text.fontColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.fontColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       switch (text.fontMaterial.value) {
         case FontMaterialKind.Basic:
           troikaMesh.material = new MeshBasicMaterial()
@@ -354,18 +432,67 @@ export const TextComponent = defineComponent({
           troikaMesh.material = new MeshStandardMaterial()
           break
       }
+      troikaMesh.sync()
+    }, [text.fontMaterial])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineOpacity = text.outlineOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.outlineOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineWidth = `${text.outlineWidth.value}%`
+      troikaMesh.sync()
+    }, [text.outlineWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineBlur = `${text.outlineBlur.value}%`
+      troikaMesh.sync()
+    }, [text.outlineBlur])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineOffsetX = `${text.outlineOffset.x.value}%`
       troikaMesh.outlineOffsetY = `${text.outlineOffset.y.value}%`
+      troikaMesh.sync()
+    }, [text.outlineOffset])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.outlineColor = text.outlineColor.value.getHex()
+      troikaMesh.sync()
+    }, [text.outlineColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeOpacity = text.strokeOpacity.value / 100
+      troikaMesh.sync()
+    }, [text.strokeOpacity])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeWidth = `${text.strokeWidth.value}%`
+      troikaMesh.sync()
+    }, [text.strokeWidth])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.strokeColor = text.strokeColor.value.getHex()
-      // Update the Advanced configuration propertiess
+      troikaMesh.sync()
+    }, [text.strokeColor])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.orientation = text.textOrientation.value
-      ;(troikaMesh.clipRect = text.clipActive.value
+      troikaMesh.sync()
+    }, [text.textOrientation])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.clipRect = text.clipActive.value
         ? [
             // Send as [minX, minY, maxX, maxY] :Array<number>
             text.clipRectMin.x.value,
@@ -373,45 +500,27 @@ export const TextComponent = defineComponent({
             text.clipRectMax.x.value,
             text.clipRectMax.x.value
           ]
-        : []),
-        (troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value)
-      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
-      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
-      // Order troika to synchronize the mesh
+        : []
       troikaMesh.sync()
-    }, [
-      text.text,
-      text.textOpacity,
-      text.textIndent,
-      text.textAlign,
-      text.textWrap,
-      text.textWrapKind,
-      text.textAnchor,
-      text.textCurveRadius,
-      text.textDepthOffset,
-      text.textWidth,
-      text.lineHeight,
-      text.letterSpacing,
-      text.textDirection,
-      text.fontSize,
-      text.fontColor,
-      text.fontMaterial,
-      text.outlineOpacity,
-      text.outlineWidth,
-      text.outlineBlur,
-      text.outlineOffset,
-      text.outlineColor,
-      text.strokeOpacity,
-      text.strokeWidth,
-      text.strokeColor,
-      text.textOrientation,
-      text.clipActive,
-      text.clipRectMin,
-      text.clipRectMax,
-      text.gpuAccelerated,
-      text.glyphResolution,
-      text.glyphDetail
-    ])
+    }, [text.clipActive, text.clipRectMin, text.clipRectMax])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.gpuAccelerateSDF = text.gpuAccelerated.value
+      troikaMesh.sync()
+    }, [text.gpuAccelerated])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.sdfGlyphSize = Math.pow(2, text.glyphResolution.value)
+      troikaMesh.sync()
+    }, [text.glyphResolution])
+
+    useEffect(() => {
+      const troikaMesh = text.troikaMesh.value! as TextMesh
+      troikaMesh.glyphGeometryDetail = text.glyphDetail.value
+      troikaMesh.sync()
+    }, [text.glyphDetail])
 
     return null
   }

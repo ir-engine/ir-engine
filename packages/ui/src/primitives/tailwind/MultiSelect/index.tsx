@@ -61,7 +61,7 @@ const MultiSelect = <T extends string | number>({
   menuClassName
 }: MultiSelectProps<T>) => {
   const { t } = useTranslation()
-  const twClassName = twMerge('bg-theme-surface-main relative', className)
+  const twClassName = twMerge('relative bg-theme-surface-main', className)
   const ref = useRef<HTMLDivElement>(null)
 
   const showOptions = useHookstate(false)
@@ -88,14 +88,14 @@ const MultiSelect = <T extends string | number>({
   return (
     <div className={twClassName} ref={ref}>
       <Label>{label}</Label>
-      {description && <p className="text-theme-secondary self-stretch text-xs">{description}</p>}
+      {description && <p className="self-stretch text-xs text-theme-secondary">{description}</p>}
       {error && (
-        <p className="text-theme-iconRed inline-flex items-center gap-2.5 self-start text-sm">
+        <p className="inline-flex items-center gap-2.5 self-start text-sm text-theme-iconRed">
           <HiXCircle /> {error}
         </p>
       )}
       <div
-        className="bg-theme-surface-main border-theme-primary textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border px-3.5 pr-7"
+        className="textshadow-sm mt-2 flex min-h-10 w-full flex-auto flex-wrap items-center rounded-lg border border-theme-primary bg-theme-surface-main px-3.5 pr-7"
         onClick={() => showOptions.set((value) => !value)}
       >
         {selectedOptions.length === 0 && (
@@ -106,7 +106,7 @@ const MultiSelect = <T extends string | number>({
         {selectedOptions.map((selectedOption) => (
           <div
             key={selectedOption}
-            className="border-theme-primary bg-theme-surface-main text-theme-primary m-1 flex h-7 items-center justify-center gap-1 rounded border p-1 font-medium"
+            className="m-1 flex h-7 items-center justify-center gap-1 rounded border border-theme-primary bg-theme-surface-main p-1 font-medium text-theme-primary"
           >
             <Text className="text-theme-primary">{options.find((opt) => opt.value === selectedOption)?.label}</Text>
             <HiXCircle
@@ -119,14 +119,14 @@ const MultiSelect = <T extends string | number>({
 
       <MdOutlineKeyboardArrowDown
         size="1.5em"
-        className={`text-theme-primary absolute right-3 top-10 transition-transform ${
+        className={`absolute right-3 top-10 text-theme-primary transition-transform ${
           showOptions.value ? 'rotate-180' : ''
         }`}
         onClick={() => showOptions.set((value) => !value)}
       />
 
       <div
-        className={`border-theme-primary bg-theme-secondary absolute z-[1000] mt-2 w-full rounded border ${
+        className={`absolute z-[1000] mt-2 w-full rounded border border-theme-primary bg-theme-secondary ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
@@ -136,7 +136,7 @@ const MultiSelect = <T extends string | number>({
             <li
               key={option.value}
               className={twMerge(
-                'text-theme-primary cursor-pointer px-4 py-2',
+                'cursor-pointer px-4 py-2 text-theme-primary',
                 option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-surface-main hover:text-theme-highlight'
               )}
               onClick={() => {
