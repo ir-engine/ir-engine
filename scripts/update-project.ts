@@ -30,6 +30,7 @@ import dotenv from 'dotenv-flow'
 import { projectPath, userPath } from '@etherealengine/common/src/schema.type.module'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { updateAppConfig } from '@etherealengine/server-core/src/updateAppConfig'
 
 dotenv.config({
   path: appRootPath.path,
@@ -66,6 +67,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
+    await updateAppConfig()
     const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, jobId, ...data } = options
