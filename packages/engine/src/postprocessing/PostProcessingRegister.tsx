@@ -24,8 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  SSGIEffect: 'SSGIEffect' as const,
-  TextureEffect: 'TextureEffect' as const,
   TiltShiftEffect: 'TiltShiftEffect' as const,
   ToneMappingEffect: 'ToneMappingEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,

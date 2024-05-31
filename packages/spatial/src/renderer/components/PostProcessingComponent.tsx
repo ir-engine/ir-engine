@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import { ErrorBoundary, NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Effect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { ArrayCamera, Scene, WebGLRenderer } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { RendererState } from '../RendererState'
@@ -138,13 +138,16 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
         const effect = EffectRegistry[key] // get effect registry entry
         if (!effect) return null
         return (
-          <effect.reactor
-            key={key}
-            isActive={postProcessingComponent.effects[key]?.isActive}
-            rendererEntity={rendererEntity}
-            effectData={postProcessingComponent.effects}
-            effects={effects}
-          />
+          <Suspense key={key}>
+            <ErrorBoundary>
+              <effect.reactor
+                isActive={postProcessingComponent.effects[key]?.isActive}
+                rendererEntity={rendererEntity}
+                effectData={postProcessingComponent.effects}
+                effects={effects}
+              />
+            </ErrorBoundary>
+          </Suspense>
         )
       })}
     </>

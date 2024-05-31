@@ -35,7 +35,6 @@ import { WebLayerManager } from '@etherealengine/xrui'
 
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { AssetLoaderState } from './assets/state/AssetLoaderState'
-import { populateEffectRegistry } from './postprocessing/PopulateEffectRegistry'
 
 /**
  * initializeBrowser
@@ -44,7 +43,6 @@ import { populateEffectRegistry } from './postprocessing/PopulateEffectRegistry'
  */
 export const initializeBrowser = () => {
   const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
-  populateEffectRegistry()
 
   camera.layers.disableAll()
   camera.layers.enable(ObjectLayers.Scene)

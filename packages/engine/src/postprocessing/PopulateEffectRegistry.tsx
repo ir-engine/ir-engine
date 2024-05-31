@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { useEffect } from 'react'
 import { bloomAddToEffectRegistry } from './BloomEffect'
 import { brightnessContrastAddToEffectRegistry } from './BrightnessContrastEffect'
 import { chromaticAberrationAddToEffectRegistry } from './ChromaticAberrationEffect'
@@ -43,6 +46,7 @@ import { ssaoAddToEffectRegistry } from './SSAOEffect'
 import { ssgiAddToEffectRegistry } from './SSGIEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
+import { textureAddToEffectRegistry } from './TextureEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -70,4 +74,14 @@ export const populateEffectRegistry = () => {
   ssaoAddToEffectRegistry()
   //ssrAddToEffectRegistry()
   ssgiAddToEffectRegistry()
+  textureAddToEffectRegistry()
 }
+
+export const PostProcessingRegisterSystem = defineSystem({
+  uuid: 'ee.engine.PostProcessingRegisterSystem',
+  insert: { before: PresentationSystemGroup },
+  reactor: () => {
+    useEffect(() => populateEffectRegistry(), [])
+    return null
+  }
+})
