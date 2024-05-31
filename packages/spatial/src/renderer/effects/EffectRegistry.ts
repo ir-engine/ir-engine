@@ -24,9 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Entity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
+import { EffectComposer } from 'postprocessing'
 import React from 'react'
+import { Scene } from 'three'
 
-export type EffectReactorProps = { isActive: boolean; rendererEntity: Entity; effectData; effects }
+export type EffectReactorProps = {
+  isActive: boolean
+  rendererEntity: Entity
+  effectData
+  effects
+  composer: EffectComposer
+  scene: Scene
+}
 
 /** Interface for dynamic effect Registry
  * @param reactor reactor for effect

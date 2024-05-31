@@ -24,16 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity, useComponent } from '@etherealengine/ecs'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
   EffectReactorProps,
   PostProcessingEffectState
 } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
-import { SSREffect } from 'postprocessing'
+import { EffectComposer } from 'postprocessing'
 import React, { useEffect } from 'react'
+import { SSREffect, VelocityDepthNormalPass } from 'realism-effects'
+import { Scene } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
-
 const effectKey = 'SSREffect'
 
 export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
@@ -41,9 +42,14 @@ export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   rendererEntity: Entity
   effectData
   effects
+  composer: EffectComposer
+  scene: Scene
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, composer, scene } = props
   const effectState = getState(PostProcessingEffectState)
+
+  const camera = useComponent(rendererEntity, CameraComponent)
+  const velocityDepthNormalPass = useHookstate(new VelocityDepthNormalPass(scene, camera))
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -55,8 +61,7 @@ export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const camera = useComponent(rendererEntity, CameraComponent)
-    const eff = new SSREffect(composer.value, scene.value, camera.value, {
+    const eff = new SSREffect(composer, scene, camera.value, {
       ...effectData[effectKey].value,
       velocityDepthNormalPass
     })

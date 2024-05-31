@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '@etherealengine/ecs'
-import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { Entity, useComponent } from '@etherealengine/ecs'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import {
   EffectReactorProps,
   PostProcessingEffectState
 } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
 import React, { useEffect } from 'react'
+import { TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
+import { Scene } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
 const effectKey = 'TRAAEffect'
@@ -39,9 +42,12 @@ export const TRAAEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   rendererEntity: Entity
   effectData
   effects
+  scene: Scene
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, scene } = props
   const effectState = getState(PostProcessingEffectState)
+  const camera = useComponent(rendererEntity, CameraComponent)
+  const velocityDepthNormalPass = useHookstate(new VelocityDepthNormalPass(scene, camera))
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -57,19 +63,13 @@ export const TRAAEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
     // todo support more than 1 texture
     const textureCount = 1
 
-    const eff = new TRAAEffect(
-      scene.value,
-      camera.value,
-      velocityDepthNormalPass,
-      textureCount,
-      effectData[effectKey].value
-    )
+    const eff = new TRAAEffect(scene, camera.value, velocityDepthNormalPass, textureCount, effectData[effectKey].value)
     effects[effectKey].set(eff)
 
     return () => {
       effects[effectKey].set(none)
     }
-  }, [isActive, effectData[effectKey]])
+  }, [isActive, effectData[effectKey], scene, velocityDepthNormalPass])
 
   return null
 }

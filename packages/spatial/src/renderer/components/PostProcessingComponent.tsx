@@ -85,9 +85,9 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
   const renderSettings = getState(RendererState)
   const camera = useComponent(rendererEntity, CameraComponent)
   const scene = new Scene()
+  const composer = new EffectComposer(renderer.value.renderer as WebGLRenderer)
 
   useEffect(() => {
-    const composer = new EffectComposer(renderer.value.renderer as WebGLRenderer)
     renderer.effectComposer.set(composer)
     const renderPass = new RenderPass()
     renderer.value.effectComposer.addPass(renderPass)
@@ -134,7 +134,7 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
   // for each effect specified in our postProcessingComponent, we mount a sub-reactor based on the effect registry for that effect ID
   return (
     <>
-      {Object.entries(EffectRegistry).map(([key, value]) => {
+      {Object.keys(EffectRegistry).map((key) => {
         const effect = EffectRegistry[key] // get effect registry entry
         if (!effect) return null
         return (
@@ -145,6 +145,8 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
                 rendererEntity={rendererEntity}
                 effectData={postProcessingComponent.effects}
                 effects={effects}
+                composer={composer}
+                scene={scene}
               />
             </ErrorBoundary>
           </Suspense>
