@@ -42,14 +42,20 @@ import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRen
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import {
   EntityTreeComponent,
-  removeEntityNodeRecursively
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  useAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
@@ -75,8 +81,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false,
-      // internal
-      assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null,
       dereference: false
@@ -111,10 +115,17 @@ function ModelReactor() {
   const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
   const modelSceneID = getModelSceneID(entity)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: modelComponent.assetTypeOverride.value,
-    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-  })
+  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
+
+  useEffect(() => {
+    const occlusion =
+      !!modelComponent?.cameraOcclusion?.value || hasComponent(entity, ObjectLayerComponents[ObjectLayers.Camera])
+    if (!occlusion) return
+    ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+    return () => {
+      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    }
+  }, [modelComponent?.cameraOcclusion?.value])
 
   useEffect(() => {
     if (!error) return
@@ -233,6 +244,9 @@ function ModelReactor() {
     if (!parentEntity) return
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     const parentSource = getComponent(parentEntity, SourceComponent)
+    iterateEntityNode(entity, (entity) => {
+      setComponent(entity, SourceComponent, parentSource)
+    })
     GLTFSnapshotState.injectSnapshot(modelUUID, sourceID, parentUUID, parentSource)
   }, [modelComponent.dereference, gltfDocumentState[modelSceneID]])
 
@@ -245,11 +259,10 @@ function ModelReactor() {
  * @returns
  */
 export const useMeshOrModel = (entity: Entity) => {
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
-  const modelComponent = useOptionalComponent(entity, ModelComponent)
-  const sourceComponent = useOptionalComponent(entity, SourceComponent)
-  const isEntityHierarchyOrMesh = (!sourceComponent && !!meshComponent) || !!modelComponent
-  return isEntityHierarchyOrMesh
+  const isModel = !!useOptionalComponent(entity, ModelComponent)
+  const isChildOfModel = !!useAncestorWithComponent(entity, ModelComponent)
+  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  return isModel && !isChildOfModel && hasMesh
 }
 
 export const MeshOrModelQuery = (props: { ChildReactor: FC<{ entity: Entity; rootEntity: Entity }> }) => {

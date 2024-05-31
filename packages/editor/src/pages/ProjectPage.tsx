@@ -30,12 +30,12 @@ import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/use
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
-export const ProjectPage = () => {
+export const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   useRemoveEngineCanvas()
   return (
     <>
       <EditorNavbar />
-      <Projects />
+      <Projects studioPath={studioPath} />
     </>
   )
 }
