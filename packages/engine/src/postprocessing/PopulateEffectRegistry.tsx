@@ -47,6 +47,9 @@ import { ssgiAddToEffectRegistry } from './SSGIEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
 import { textureAddToEffectRegistry } from './TextureEffect'
+import { tiltShiftAddToEffectRegistry } from './TiltShiftEffect'
+import { toneMappingAddToEffectRegistry } from './ToneMappingEffect'
+import { vignetteAddToEffectRegistry } from './VignetteEffect'
 
 export const populateEffectRegistry = () => {
   // registers the effects
@@ -75,6 +78,10 @@ export const populateEffectRegistry = () => {
   //ssrAddToEffectRegistry()
   ssgiAddToEffectRegistry()
   textureAddToEffectRegistry()
+  tiltShiftAddToEffectRegistry()
+  toneMappingAddToEffectRegistry()
+  //traaAddToEffectRegistry()
+  vignetteAddToEffectRegistry()
 }
 
 export const PostProcessingRegisterSystem = defineSystem({

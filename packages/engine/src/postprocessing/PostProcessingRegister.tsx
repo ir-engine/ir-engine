@@ -24,8 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const Effects = {
-  TiltShiftEffect: 'TiltShiftEffect' as const,
-  ToneMappingEffect: 'ToneMappingEffect' as const,
   TRAAEffect: 'TRAAEffect' as const,
   VignetteEffect: 'VignetteEffect' as const
 }
