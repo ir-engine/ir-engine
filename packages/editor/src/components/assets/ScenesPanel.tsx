@@ -174,7 +174,7 @@ export default function ScenesPanel() {
         ) : (
           <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
             {scenes.map((scene: AssetType) => (
-              <div className={styles.sceneContainer} key={scene.assetURL}>
+              <div className={styles.sceneContainer} key={scene.id}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img
