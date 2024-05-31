@@ -47,9 +47,23 @@ import {
 import matches from 'ts-matches'
 
 import { Engine, UUIDComponent } from '@etherealengine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { createEntity, generateEntityUUID, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import {
+  NO_PROXY,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
@@ -60,7 +74,11 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
+import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import getFirstMesh from '../util/meshUtils'
+import { SourceComponent } from './SourceComponent'
 
 export const ParticleState = defineState({
   name: 'ParticleState',
@@ -810,14 +828,18 @@ export const ParticleSystemComponent = defineComponent({
     const componentState = useComponent(entity, ParticleSystemComponent)
     const batchRenderer = useHookstate(getMutableState(ParticleState).batchRenderer)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
+    const sceneID = useOptionalComponent(entity, SourceComponent)?.value
+    const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
+    const rootGLTF = useOptionalComponent(rootEntity, GLTFComponent)
+    const refreshed = useHookstate(false)
 
-    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, {}, (url) => {
+    const [geoDependency] = useGLTF(componentState.value.systemParameters.instancingGeometry!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, {}, (url) => {
+    const [shapeMesh] = useGLTF(componentState.value.systemParameters.shape.mesh!, entity, (url) => {
       metadata.geometries.nested(url).set(none)
     })
-    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, {}, (url) => {
+    const [texture] = useTexture(componentState.value.systemParameters.texture!, entity, (url) => {
       metadata.textures.nested(url).set(none)
       dudMaterial.map = null
     })
@@ -827,6 +849,17 @@ export const ParticleSystemComponent = defineComponent({
       transparent: componentState.value.systemParameters.transparent ?? true,
       blending: componentState.value.systemParameters.blending as Blending
     })
+    //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
+    useEffect(() => {
+      if (rootGLTF?.value?.progress !== 100) return
+      if (refreshed.value) return
+
+      if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
+        const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
+        dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+      }
+      refreshed.set(true)
+    }, [rootGLTF?.value?.progress])
 
     useEffect(() => {
       //add dud material

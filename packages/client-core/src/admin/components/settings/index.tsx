@@ -34,6 +34,7 @@ import AuthenticationTab from './tabs/authentication'
 import AwsTab from './tabs/aws'
 import ClientTab from './tabs/client'
 import EmailTab from './tabs/email'
+import FeaturesTab from './tabs/features'
 import HelmTab from './tabs/helm'
 import InstanceServerTab from './tabs/instanceServer'
 import ProjectTab from './tabs/project'
@@ -81,6 +82,10 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.aws.header'),
     Component: AwsTab
+  },
+  {
+    label: t('admin:components.setting.features.header'),
+    Component: FeaturesTab
   }
 ]
 

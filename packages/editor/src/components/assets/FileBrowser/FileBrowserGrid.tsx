@@ -184,7 +184,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
     <div
       className={styles.fileListItemContainer}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
-      onClick={props.item.isFolder ? undefined : props.onClick}
+      onClick={props.onClick}
       style={{
         fontSize: 0.2 * iconSize,
         width: iconSize + 10,

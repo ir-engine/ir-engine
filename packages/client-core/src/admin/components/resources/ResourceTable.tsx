@@ -75,13 +75,13 @@ export default function ResourceTable({ search }: { search: string }) {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
             rounded="full"
-            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
           >
-            <HiEye className="text-theme-primary place-self-center" />
+            <HiEye className="place-self-center text-theme-primary" />
           </Button>
           <Button
             rounded="full"
-            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -93,7 +93,7 @@ export default function ResourceTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )

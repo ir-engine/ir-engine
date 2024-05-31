@@ -101,7 +101,6 @@ type Resource = {
   references: Entity[]
   asset?: ResourceAssetType
   assetRefs?: Record<ResourceType, string[]>
-  args?: Record<string, any>
   onLoads?: Record<string, (response: ResourceAssetType) => void>
   metadata: Metadata
 }

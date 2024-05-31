@@ -108,6 +108,7 @@ export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial ext
 
   const meshComponent = useComponent(entity, MeshComponent)
 
+  // todo: move this into MeshComponent reactor
   useEffect(() => {
     const mesh = meshComponent.value as Mesh
     addObjectToGroup(entity, mesh)
