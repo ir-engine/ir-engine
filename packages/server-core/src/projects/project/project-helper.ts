@@ -1087,6 +1087,10 @@ export async function getProjectUpdateJobBody(
                 {
                   name: 'MYSQL_PASSWORD',
                   value: process.env.MYSQL_PASSWORD
+                },
+                {
+                  name: 'KUBERNETES'
+                  value: 'true'
                 }
               ]
             }
