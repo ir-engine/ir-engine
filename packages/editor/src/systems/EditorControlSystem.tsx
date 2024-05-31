@@ -58,7 +58,6 @@ import {
   getAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
@@ -297,9 +296,9 @@ const execute = () => {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
       if (hasComponent(clickedEntity, SourceComponent)) {
-        const ancestorModelEntity =
-          getAncestorWithComponent(clickedEntity, ModelComponent) ??
-          getAncestorWithComponent(clickedEntity, GLTFComponent)
+        const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
+        const ancestorModelEntity = modelComponent || clickedEntity
+
         SelectionState.updateSelection([getComponent(ancestorModelEntity, UUIDComponent)])
       }
     }
