@@ -32,6 +32,7 @@ import {
   Color,
   CubeTexture,
   FogBase,
+  Object3D,
   Scene,
   SRGBColorSpace,
   Texture,
@@ -47,7 +48,6 @@ import {
   ECSState,
   Entity,
   getComponent,
-  getOptionalComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
@@ -72,6 +72,7 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
+import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
@@ -310,6 +311,31 @@ const rendererQuery = defineQuery([RendererComponent, CameraComponent, SceneComp
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
+export const getSceneParameters = (entities: Entity[]) => {
+  const vals = {
+    background: null as Color | Texture | CubeTexture | null,
+    environment: null as Texture | null,
+    fog: null as FogBase | null,
+    children: [] as Object3D[]
+  }
+
+  for (const entity of entities) {
+    if (hasComponent(entity, EnvironmentMapComponent)) {
+      vals.environment = getComponent(entity, EnvironmentMapComponent)
+    }
+    if (hasComponent(entity, BackgroundComponent)) {
+      vals.background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
+    }
+    if (hasComponent(entity, FogComponent)) {
+      vals.fog = getComponent(entity, FogComponent)
+    }
+    if (hasComponent(entity, GroupComponent)) {
+      vals.children.push(...getComponent(entity, GroupComponent)!)
+    }
+  }
+
+  return vals
+}
 
 const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
@@ -320,31 +346,15 @@ const execute = () => {
     const renderer = getComponent(entity, RendererComponent)
     const scene = getComponent(entity, SceneComponent)
 
-    let background: Color | Texture | CubeTexture | null = null
-    let environment: Texture | null = null
-    let fog: FogBase | null = null
-
     const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
-    for (const entity of entitiesToRender) {
-      if (hasComponent(entity, EnvironmentMapComponent)) {
-        environment = getComponent(entity, EnvironmentMapComponent)
-      }
-      if (hasComponent(entity, BackgroundComponent)) {
-        background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
-      }
-      if (hasComponent(entity, FogComponent)) {
-        fog = getComponent(entity, FogComponent)
-      }
-    }
-    const objects = entitiesToRender
-      .map((entity) => getOptionalComponent(entity, GroupComponent)!)
-      .flat()
-      .filter(Boolean)
+    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
+    _scene.children = children
 
-    _scene.children = objects
+    const renderMode = getState(RendererState).renderMode
 
     const sessionMode = getState(XRState).sessionMode
-    _scene.background = sessionMode === 'immersive-ar' ? null : background
+    _scene.background =
+      sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
     const lightProbe = getState(XRLightProbeState).environment
     _scene.environment = lightProbe ?? environment

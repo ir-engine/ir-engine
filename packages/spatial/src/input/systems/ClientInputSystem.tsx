@@ -43,11 +43,12 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   EntityTreeComponent,
-  getAncestorWithComponent
+  getAncestorWithComponent,
+  useAncestorWithComponent
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { UUIDComponent } from '@etherealengine/ecs'
@@ -60,12 +61,14 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
+import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRControlsState, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
@@ -130,9 +133,20 @@ const worldPosInputSourceComponent = new Vector3()
 const worldPosInputComponent = new Vector3()
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
-const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
+const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
+
+const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
+
+/**Editor InputComponent raycast query */
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
-const spatialInputObjects = defineQuery([InputComponent, VisibleComponent, TransformComponent, Not(CameraComponent)]) //TODO may be overkill if visible means it always has transform
+/**Proximity query */
+const spatialInputObjects = defineQuery([
+  InputComponent,
+  VisibleComponent,
+  TransformComponent,
+  Not(CameraComponent),
+  Not(XRScenePlacementComponent)
+])
 /** @todo abstract into heuristic api */
 const gizmoPickerObjects = defineQuery([InputComponent, GroupComponent, VisibleComponent, TransformGizmoTagComponent])
 
@@ -205,10 +219,12 @@ const execute = () => {
   for (const sourceEid of inputSourceQuery()) {
     const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
-    const intersectionData = [] as {
-      entity: Entity
-      distance: number
-    }[]
+    const intersectionData = new Set(
+      [] as {
+        entity: Entity
+        distance: number
+      }[]
+    )
 
     if (isSpatialInput) {
       const sourceRotation = TransformComponent.getWorldRotation(sourceEid, quat)
@@ -216,12 +232,14 @@ const execute = () => {
 
       TransformComponent.getWorldPosition(sourceEid, inputRaycast.origin).addScaledVector(inputRaycast.direction, -0.01)
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
+      raycaster.set(inputRaycast.origin, inputRaycast.direction)
+      raycaster.layers.enable(ObjectLayers.Default)
 
       // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditing) {
         const pickerObj = gizmoPickerObjects() // gizmo heuristic
         const inputObj = inputObjects()
-        raycaster.set(inputRaycast.origin, inputRaycast.direction)
+
         const objects = (pickerObj.length > 0 ? pickerObj : inputObj) // gizmo heuristic
           .map((eid) => getComponent(eid, GroupComponent))
           .flat()
@@ -232,7 +250,7 @@ const execute = () => {
         for (const hit of hits) {
           const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
           if (parentObject?.entity) {
-            intersectionData.push({ entity: parentObject.entity, distance: hit.distance })
+            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
           }
         }
       } else {
@@ -246,7 +264,7 @@ const execute = () => {
             (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
           )
             continue
-          intersectionData.push({ entity, distance: layerHit.intersection.distance })
+          intersectionData.add({ entity, distance: layerHit.intersection.distance })
         }
 
         const physicsWorld = getState(PhysicsState).physicsWorld
@@ -255,23 +273,37 @@ const execute = () => {
         if (physicsWorld) {
           const hits = Physics.castRay(physicsWorld, inputRaycast)
           for (const hit of hits) {
-            if (!hit.entity || !hasComponent(hit.entity, InputComponent)) continue
-            intersectionData.push({ entity: hit.entity, distance: hit.distance })
+            if (!hit.entity) continue
+            intersectionData.add({ entity: hit.entity, distance: hit.distance })
           }
         }
-
+        const inputState = getState(InputState)
         // 3rd heuristic is bboxes
-        for (const entity of inputBoundingBoxes()) {
+        for (const entity of inputState.inputBoundingBoxes) {
           const boundingBox = getComponent(entity, BoundingBoxComponent)
           const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
           if (hit) {
-            intersectionData.push({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+            intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
+          }
+        }
+
+        // 4th heuristic is meshes
+        const objects = Array.from(inputState.inputMeshes) // gizmo heuristic
+          .filter((eid) => hasComponent(eid, GroupComponent))
+          .map((eid) => getComponent(eid, GroupComponent))
+          .flat()
+
+        const hits = raycaster.intersectObjects<Object3D>(objects, true)
+        for (const hit of hits) {
+          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+          if (parentObject) {
+            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
           }
         }
       }
     }
 
-    const sortedIntersections = intersectionData.sort((a, b) => a.distance - b.distance)
+    const sortedIntersections = Array.from(intersectionData).sort((a, b) => a.distance - b.distance)
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
 
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
@@ -343,16 +375,12 @@ const execute = () => {
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
-    const inputComponent = getMutableComponent(inputEntity, InputComponent)
-    if (!inputComponent.inputSinks.value || inputComponent.inputSinks.value.length === 0) {
-      inputComponent.inputSources.merge(inputSources)
-    } else {
-      for (const sinkEntityUUID of inputComponent.inputSinks.value) {
-        const sinkEntity = UUIDComponent.getEntityByUUID(sinkEntityUUID)
+    const inputComponent = getComponent(inputEntity, InputComponent)
 
-        const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
-        sinkInputComponent.inputSources.merge(inputSources)
-      }
+    for (const sinkEntityUUID of inputComponent.inputSinks) {
+      const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
+      const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
+      sinkInputComponent.inputSources.merge(inputSources)
     }
   }
 }
@@ -445,7 +473,7 @@ const useGamepadInputSources = () => {
   }, [])
 }
 
-const usePointerInputSources = () => {
+const CanvasInputReactor = () => {
   const canvasEntity = useEntityContext()
   const xrState = useMutableState(XRState)
   useEffect(() => {
@@ -520,8 +548,8 @@ const usePointerInputSources = () => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
       pointerComponent.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
+        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -530,8 +558,8 @@ const usePointerInputSources = () => {
       if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
+        ((touch.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((touch.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -632,7 +660,35 @@ const reactor = () => {
   useGamepadInputSources()
   useXRInputSources()
 
-  return <QueryReactor Components={[RendererComponent]} ChildEntityReactor={usePointerInputSources} />
+  return (
+    <>
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={CanvasInputReactor} />
+      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshInputReactor} />
+      <QueryReactor Components={[BoundingBoxComponent]} ChildEntityReactor={BoundingBoxInputReactor} />
+    </>
+  )
+}
+
+const MeshInputReactor = () => {
+  const entity = useEntityContext()
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputMeshes.add(entity)
+    else inputState.inputMeshes.delete(entity)
+  }, [shouldReceiveInput])
+  return null
+}
+
+const BoundingBoxInputReactor = () => {
+  const entity = useEntityContext()
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)
+    else inputState.inputBoundingBoxes.delete(entity)
+  }, [shouldReceiveInput])
+  return null
 }
 
 export const ClientInputSystem = defineSystem({

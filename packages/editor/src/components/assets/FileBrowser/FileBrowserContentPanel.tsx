@@ -610,7 +610,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )}
         {showUploadAndDownloadButtons && (
           <ToolButton
-            tooltip={t('editor:layout.filebrowser.uploadAsset')}
+            tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
               await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
                 .then(refreshDirectory)
@@ -619,7 +619,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 })
             }}
             icon={AddIcon}
-            id="uploadAsset"
+            id="uploadAssets"
           />
         )}
       </span>

@@ -34,6 +34,7 @@ import {
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
 
 export enum PlacementMode {
   DRAG,
@@ -43,9 +44,10 @@ export enum PlacementMode {
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
   initial: () => ({
+    editorMode: EditorMode.Simple as EditorModeType,
     transformMode: TransformMode.translate as TransformModeType,
     transformModeOnCancel: TransformMode.translate as TransformModeType,
-    transformSpace: TransformSpace.world as TransformSpaceType,
+    transformSpace: TransformSpace.local as TransformSpaceType,
     transformPivot: TransformPivot.Selection as TransformPivotType,
     gridSnap: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,

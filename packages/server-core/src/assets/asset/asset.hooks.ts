@@ -135,7 +135,7 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
  * @returns
  */
 export const ensureUniqueName = async (context: HookContext<AssetService>) => {
-  if (!context.data || context.method !== 'create') {
+  if (!context.data) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -335,6 +335,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
+        ensureUniqueName,
         renameAsset,
         removeFieldsForAssetData
       ],
