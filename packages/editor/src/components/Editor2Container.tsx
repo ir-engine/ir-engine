@@ -27,7 +27,7 @@ import { PopoverState } from '@etherealengine/client-core/src/common/services/Po
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { AssetsPanelTab } from '@etherealengine/ui/src/components/editor/panels/Assets'
 import { FilesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Files'
@@ -53,6 +53,8 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
 import '@etherealengine/ui/src/fonts/font.css'
 import 'rc-dock/dist/rc-dock.css'
 import './Editor2Container.css'
@@ -123,6 +125,11 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
+  const user = useHookstate(getMutableState(AuthState).user)
+  const hasLocationWriteScope = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
+  const permission = useProjectPermissions(projectName.value!)
+  const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
+
   useEffect(() => {
     const scene = sceneQuery[0]
     if (!scene) return
@@ -156,7 +163,7 @@ const EditorContainer = () => {
       >
         <DndWrapper id="editor-container">
           <DragLayer />
-          <Toolbar />
+          <Toolbar publishSceneDisabled={!hasPublishAccess} />
           <div className="mt-1 flex overflow-hidden">
             <AssetDropZone />
             <DockContainer>

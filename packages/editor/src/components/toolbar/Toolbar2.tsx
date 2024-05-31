@@ -105,7 +105,11 @@ const generateToolbarMenu = () => {
 
 const toolbarMenu = generateToolbarMenu()
 
-export default function Toolbar() {
+interface Props {
+  publishSceneDisabled: boolean
+}
+
+export default function Toolbar({ publishSceneDisabled }: Props) {
   const { t } = useTranslation()
   const anchorEl = useHookstate<HTMLElement | null>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
@@ -130,7 +134,9 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <Button rounded="none">{t('editor:toolbar.lbl-publish')}</Button>
+        <Button rounded="none" disabled={publishSceneDisabled}>
+          {t('editor:toolbar.lbl-publish')}
+        </Button>
       </div>
       <ContextMenu
         anchorEl={anchorEl.value as HTMLElement}
