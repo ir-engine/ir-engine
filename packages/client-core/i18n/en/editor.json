@@ -6,7 +6,7 @@
   "error": "Error",
   "errorMsg": "There was an unknown error.",
   "generateScreenshot": "Generating Project Screenshot",
-  "newScene": "Create Scene",
+  "newScene": "Add Scene",
   "saving": "Saving Project",
   "savingError": "Error Saving Project",
   "savingErrorMsg": "There was an error when saving the project.",
@@ -100,6 +100,8 @@
   "toolbar": {
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "lbl-simple": "Simple",
+    "lbl-advanced": "Advanced",
     "gizmo": {
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
@@ -190,7 +192,7 @@
   },
   "properties": {
     "title": "Properties",
-    "info": "Propeties let you access and edit detailed information about objects in the scene.",
+    "info": "Properties let you access and edit detailed information about objects in the scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -206,7 +208,13 @@
     },
     "envmap": {
       "name": "Environment Map",
-      "description": "environment map properties"
+      "description": "environment map properties",
+      "lbl-source": "Envmap Source",
+      "lbl-color": "Envmap Color",
+      "lbl-bake": "Envmap Bake",
+      "lbl-textureType": "Texture Type",
+      "lbl-textureUrl": "Texture URL",
+      "lbl-intensity": "Envmap Intensity"
     },
     "trigger": {
       "name": "Trigger",
@@ -268,6 +276,7 @@
     "media": {
       "name": "Media",
       "description": "Audio and video playback",
+      "path": "Path",
       "paths": "Source Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",
@@ -293,6 +302,12 @@
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
       "geometryEditor": "Geometry Editor",
       "materialEditor": "Material Editor",
+      "geometry": {
+        "name": "Name:",
+        "count": "Count:",
+        "itemSize": "Item Size:",
+        "recalculateNormals": "Recalculate Normals"
+      },
       "material": {
         "name": "Name",
         "source": "Source",
@@ -341,7 +356,8 @@
       "lbl-friction":"Friction",
       "lbl-restitution":"Restitution",
       "lbl-collisionLayer":"Collision Layer",
-      "lbl-collisionMask":"Collision Mask"
+      "lbl-collisionMask":"Collision Mask",
+      "lbl-removeMesh": "Remove Mesh"
     },
     "camera": {
       "name": "Camera",
@@ -382,7 +398,8 @@
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-timeScale": "Time Scale"
+      "lbl-timeScale": "Time Scale",
+      "lbl-animationPack": "Animation Pack (via Mixamo Rig)"
     },
     "variant": {
       "name": "Variant",
@@ -820,7 +837,10 @@
       "lbl-useGlobalTransform": "Use Global Transform"
     },
     "triggerVolume": {
+      "name": "Trigger",
       "description": "Sets a property on the target object on enter and leave.",
+      "lbl-addTrigger": "Add Trigger",
+      "lbl-removeTrigger": "Remove Trigger",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
       "lbl-onexit": "On Exit",
@@ -958,7 +978,30 @@
       "clippingMax": "clip.max",
       "glyphResolution": "glyph.resolution",
       "glyphDetail": "glyph.detail",
-      "gpuAccelerated": "GPU Accelerated"
+      "gpuAccelerated": "GPU Accelerated" 
+    },
+    "textBox": {
+      "name": "Textbox Component",
+      "description": "An XRUI text box component",
+      "lbl-text": "Text",
+      "lbl-family": "Family",
+      "lbl-size": "Size",
+      "lbl-fontStroke": "Font Stroke",
+      "lbl-fontColor": "Font Color",
+      "lbl-cornerRadius": "Corner Radius",
+      "lbl-backgroundColor": "Background Color",
+      "lbl-opacity": "Opacity",
+      "lbl-padding": "Padding"
+    },
+    "gallery": {
+      "name": "Gallery Component",
+      "description": "XRUI Gallery Component",
+      "lbl-imageGrid": "ImageGrid Component",
+      "lbl-thumbnail": "Thumbnail",
+      "lbl-outfitURL": "Outfit URL",
+      "lbl-performerURL": "Performer URL",
+      "lbl-asset": "Asset",
+      "assets": "Assets"
     }
   },
   "projects": {
@@ -1095,8 +1138,8 @@
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
-      "uploadAsset": "Upload Asset",
-      "search-placeholder": "Search files and folders ...",
+      "uploadAssets": "Upload Assets",
+      "search-placeholder": "Search folders",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1138,11 +1181,13 @@
     "lbl": "Hierarchy",
     "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
+    "lbl-renameScene": "Rename Scene",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
     "lbl-copy": "Copy",
     "lbl-paste": "Paste",
     "lbl-delete": "Delete",
+    "lbl-deleteScene": "Are you sure you want to delete this scene?",
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
@@ -1214,7 +1259,8 @@
     "saveScene": {
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
-      "lbl-confirm": "Save Scene"
+      "lbl-confirm": "Save Scene",
+      "info-confirm": "Are you sure you want to save the scene?"
     },
     "saveNewScene": {
       "title": "Save As",

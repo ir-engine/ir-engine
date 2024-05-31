@@ -58,6 +58,10 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         project: 'default-project',
+        route: '/studio-old'
+      },
+      {
+        project: 'default-project',
         route: '/capture'
       },
       {
