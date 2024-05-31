@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
@@ -143,6 +144,8 @@ const EditorContainer = () => {
       onEditorError(errorState.value)
     }
   }, [errorState])
+
+  useRemoveEngineCanvas()
 
   return (
     <main className="pointer-events-auto">
