@@ -328,7 +328,6 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
-        ensureUniqueName,
         renameAsset,
         removeFieldsForAssetData
       ],

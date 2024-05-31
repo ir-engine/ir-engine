@@ -442,7 +442,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={scenePath.value ? { background: 'transparent' } : {}}
+        style={scenePath.value ? { background: 'transparent', pointerEvents: 'auto' } : {}}
       >
         <DndWrapper id="editor-container">
           <DragLayer />
