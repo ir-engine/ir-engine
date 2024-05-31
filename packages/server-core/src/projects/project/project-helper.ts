@@ -1081,8 +1081,8 @@ export async function getProjectUpdateJobBody(
                   value: process.env.MYSQL_DATABASE
                 },
                 {
-                  name: 'MYSQL_PORT',
-                  value: process.env.MYSQL_PORT
+                  name: 'MYSQL_USER',
+                  value: process.env.MYSQL_USER
                 },
                 {
                   name: 'MYSQL_PASSWORD',
