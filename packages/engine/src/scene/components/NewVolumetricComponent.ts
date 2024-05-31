@@ -147,15 +147,44 @@ const initialState = {
   preTrackBufferingCallback: undefined as undefined | Pretrackbufferingcallback
 }
 
+const resetState = {
+  useVideoTextureForBaseColor: false, // legacy for UVOL1
+
+  checkForEnoughBuffers: true,
+  notEnoughBuffers: true,
+  time: {
+    start: 0,
+    checkpointAbsolute: -1,
+    checkpointRelative: 0,
+    currentTime: 0,
+    bufferedUntil: 0,
+    duration: 0
+  },
+  geometry: {
+    targets: [],
+    initialBufferLoaded: false,
+    firstFrameLoaded: false,
+    currentTarget: 0,
+    userTarget: -1
+  } as FrameTargetInfo,
+  geometryType: undefined as unknown as GeometryType,
+  textureBuffer: undefined as unknown as Map<string, Map<string, CompressedTexture[]>>,
+  setIntervalId: -1,
+  texture: {} as Partial<Record<TextureType, FrameTargetInfo>>,
+  textureInfo: {
+    textureTypes: [] as TextureType[],
+    initialBufferLoaded: {} as Partial<Record<TextureType, boolean>>,
+    firstFrameLoaded: {} as Partial<Record<TextureType, boolean>>
+  },
+  paused: true
+}
+
 export const NewVolumetricComponent = defineComponent({
   name: 'NewVolumetricComponent',
   jsonID: 'EE_NewVolumetric',
   onInit: (entity) => structuredClone(initialState),
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.useVideoTextureForBaseColor === 'boolean') {
-      component.useVideoTextureForBaseColor.set(json.useVideoTextureForBaseColor)
-    }
     if (typeof json.useLoadingEffect === 'boolean') {
       component.useLoadingEffect.set(json.useLoadingEffect)
     }
@@ -164,7 +193,6 @@ export const NewVolumetricComponent = defineComponent({
     }
   },
   toJSON: (entity, component) => ({
-    useVideoTexture: component.useVideoTextureForBaseColor.value,
     useLoadingEffect: component.useLoadingEffect.value,
     volume: component.volume.value
   }),
@@ -380,7 +408,7 @@ export const NewVolumetricComponent = defineComponent({
 
     console.log('Setting track to initial state: ', initialState)
 
-    component.set(structuredClone(initialState))
+    component.merge(structuredClone(resetState))
 
     volumeticMutables[entity].geometryBufferData = new BufferDataContainer()
 
@@ -695,10 +723,11 @@ function NewVolumetricComponentReactor() {
   }
 
   useEffect(() => {
-    NewVolumetricComponent.cleanupTrack(entity)
     if (!playlistComponent?.currentTrackUUID.value) {
       return
     }
+
+    NewVolumetricComponent.cleanupTrack(entity)
     const track = playlistComponent.tracks.value.find(
       (track) => track.uuid === playlistComponent.currentTrackUUID.value
     )

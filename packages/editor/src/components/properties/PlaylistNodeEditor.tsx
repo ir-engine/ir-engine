@@ -142,12 +142,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
           }}
         >
           <InputGroup name="Autoplay" label="Autoplay">
-            <BooleanInput
-              onChange={() => {
-                component.autoplay.set((v) => !v)
-              }}
-              value={component.autoplay.value}
-            />
+            <BooleanInput onChange={commitProperty(PlaylistComponent, 'autoplay')} value={component.autoplay.value} />
           </InputGroup>
           {component.tracks.length > 0 ? (
             <>

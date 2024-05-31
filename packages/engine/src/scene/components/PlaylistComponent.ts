@@ -27,7 +27,6 @@ import { useEntityContext } from '@etherealengine/ecs'
 import { defineComponent, getMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { PlayMode } from '../constants/PlayMode'
 
 export const PlaylistComponent = defineComponent({
@@ -56,10 +55,7 @@ export const PlaylistComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       tracks: component.tracks.value,
-      currentTrackUUID: component.currentTrackUUID.value,
-      currentTrackIndex: component.currentTrackIndex.value,
       playMode: component.playMode.value,
-      paused: component.paused.value,
       autoplay: component.autoplay.value
     }
   },
@@ -71,9 +67,9 @@ export const PlaylistComponent = defineComponent({
     if (tracksCount === 0) return
 
     if (tracksCount === 1 || component.playMode.value === PlayMode.singleloop) {
-      const newUUID = uuidv4()
-      component.tracks[component.currentTrackIndex.value].uuid.set(newUUID)
-      component.currentTrackUUID.set(newUUID)
+      const currentTrackUUID = component.currentTrackUUID.value
+      component.currentTrackUUID.set('')
+      component.currentTrackUUID.set(currentTrackUUID)
 
       return
     }
