@@ -51,7 +51,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -96,6 +96,13 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
         src: ''
       }
     ])
+    commitProperties(
+      PlaylistComponent,
+      {
+        tracks: component.tracks.value
+      },
+      [props.entity]
+    )
   }
 
   const findTrack = (trackUUID: string) => {
@@ -121,6 +128,13 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
         arr.splice(atIndex, 0, track)
         return arr
       })
+      commitProperties(
+        PlaylistComponent,
+        {
+          tracks: component.tracks.value
+        },
+        [props.entity]
+      )
     }
   }
 
@@ -158,6 +172,13 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
                       if (track.uuid === component.currentTrackUUID.value) {
                         const newUUID = uuidv4()
                         component.tracks[index].uuid.set(newUUID)
+                        commitProperties(
+                          PlaylistComponent,
+                          {
+                            tracks: component.tracks.value
+                          },
+                          [props.entity]
+                        )
                         component.currentTrackUUID.set(newUUID)
                       }
                     }}
