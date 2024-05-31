@@ -268,7 +268,7 @@ export const BudgetVariantNodeEditor = (props: {
     lastSrc.set(src)
 
     const assetType = AssetLoader.getAssetType(src)
-    if (assetType !== AssetExt.glB && assetType !== AssetExt.glTF) return
+    if (assetType !== AssetExt.GLB && assetType !== AssetExt.GLTF) return
 
     const controller = new AbortController()
     buildBudgetVariantMetadata(level.value, controller.signal, (maxTextureSize: number, vertexCount: number) => {

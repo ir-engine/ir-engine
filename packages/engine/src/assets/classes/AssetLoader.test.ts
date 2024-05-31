@@ -51,7 +51,7 @@ describe('AssetLoader', async () => {
     it('should work for gltf asset', async () => {
       const url = 'www.test.com/file.gltf'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetExt.glTF)
+      assert.equal(type, AssetExt.GLTF)
     })
 
     it('should work for fbx asset', async () => {

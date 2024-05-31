@@ -68,8 +68,8 @@ export const MimeTypeToAssetType = {
   'image/png': AssetExt.PNG,
   'image/jpeg': AssetExt.JPEG,
   'image/ktx2': AssetExt.KTX2,
-  'model/gltf-binary': AssetExt.glB,
-  'model/gltf+json': AssetExt.glTF,
+  'model/gltf-binary': AssetExt.GLB,
+  'model/gltf+json': AssetExt.GLTF,
   'model/vrm': AssetExt.VRM,
   'model/vrml': AssetExt.VRM
 } as Record<string, AssetExt>
@@ -80,13 +80,13 @@ export const AssetTypeToMimeType = {
   [AssetExt.PNG]: 'image/png',
   [AssetExt.JPEG]: 'image/jpeg',
   [AssetExt.KTX2]: 'image/ktx2',
-  [AssetExt.glB]: 'model/gltf-binary',
-  [AssetExt.glTF]: 'model/gltf+json'
+  [AssetExt.GLB]: 'model/gltf-binary',
+  [AssetExt.GLTF]: 'model/gltf+json'
 } as Record<AssetExt, string>
 
 export const ExtensionToAssetType = {
-  gltf: AssetExt.glTF,
-  glb: AssetExt.glB,
+  gltf: AssetExt.GLTF,
+  glb: AssetExt.GLB,
   usdz: AssetExt.USDZ,
   fbx: AssetExt.FBX,
   vrm: AssetExt.VRM,

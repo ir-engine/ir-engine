@@ -30,7 +30,7 @@ import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isA
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
-import { AssetExt, AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { AssetExt, AssetType, FileExtToAssetExt, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
@@ -46,53 +46,9 @@ import { AssetLoaderState } from '../state/AssetLoaderState'
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetExt => {
-  assetFileName = assetFileName.toLowerCase()
-  const suffix = assetFileName.split('.').pop()
-  switch (suffix) {
-    case 'gltf':
-      return AssetExt.glTF
-    case 'glb':
-      return AssetExt.glB
-    case 'usdz':
-      return AssetExt.USDZ
-    case 'fbx':
-      return AssetExt.FBX
-    case 'vrm':
-      return AssetExt.VRM
-    case 'tga':
-      return AssetExt.TGA
-    case 'ktx2':
-      return AssetExt.KTX2
-    case 'ddx':
-      return AssetExt.DDS
-    case 'png':
-      return AssetExt.PNG
-    case 'jpg':
-    case 'jpeg':
-      return AssetExt.JPEG
-    case 'mp3':
-      return AssetExt.MP3
-    case 'wav':
-      return AssetExt.WAV
-    case 'aac':
-      return AssetExt.AAC
-    case 'ogg':
-      return AssetExt.OGG
-    case 'm4a':
-      return AssetExt.M4A
-    case 'mp4':
-      return AssetExt.MP4
-    case 'mkv':
-      return AssetExt.MKV
-    case 'm3u8':
-      return AssetExt.M3U8
-    case 'material':
-      return AssetExt.MAT
-    case 'json':
-      return AssetExt.JSON
-    default:
-      return null!
-  }
+  const ext = assetFileName.split('.').pop()
+  if (!ext) return undefined!
+  return FileExtToAssetExt(ext)!
 }
 
 /**
@@ -101,31 +57,7 @@ const getAssetType = (assetFileName: string): AssetExt => {
  * @returns Asset class of the file.
  */
 const getAssetClass = (assetFileName: string): AssetType => {
-  assetFileName = assetFileName.toLowerCase()
-  if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
-    if (/\.(material.gltf)$/.test(assetFileName)) {
-      console.log('Material asset')
-      return AssetType.Material
-    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
-      console.log('Lookdev asset')
-      return AssetType.Lookdev
-    }
-    if (/\.(prefab.gltf)$/.test(assetFileName)) {
-      console.log('prefab asset')
-      return AssetType.Prefab
-    }
-    return AssetType.Model
-  } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
-    return AssetType.Image
-  } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
-    return AssetType.Video
-  } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
-    return AssetType.Audio
-  } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
-    return AssetType.Volumetric
-  } else {
-    return AssetType.Unknown
-  }
+  return FileToAssetType(assetFileName)
 }
 
 //@ts-ignore
@@ -159,8 +91,8 @@ export const getLoader = (assetType: AssetExt) => {
       return ktx2Loader()
     case AssetExt.DDS:
       return ddsLoader()
-    case AssetExt.glTF:
-    case AssetExt.glB:
+    case AssetExt.GLTF:
+    case AssetExt.GLB:
     case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
     case AssetExt.USDZ:

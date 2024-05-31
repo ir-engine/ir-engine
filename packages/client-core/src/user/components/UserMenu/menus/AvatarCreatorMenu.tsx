@@ -94,7 +94,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
 
       try {
-        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetExt.glB : null
+        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetExt.GLB : null
         if (assetType) {
           const res = await fetch(url)
           const data = await res.blob()
