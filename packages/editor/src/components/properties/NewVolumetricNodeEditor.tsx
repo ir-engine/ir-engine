@@ -102,7 +102,6 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       {component.geometry.targets.length > 0 && (
         <InputGroup name="Geometry Target" label="Geometry Target">
           <SelectInput
-            key={props.entity}
             options={geometryTargets.value}
             value={
               component.geometry.userTarget.value === -1
@@ -123,9 +122,8 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
           const value = userTarget === -1 ? currentTarget : userTarget
 
           return (
-            <InputGroup name={`${textureType} targets`} label={`${textureType} targets`}>
+            <InputGroup key={props.entity} name={`${textureType} targets`} label={`${textureType} targets`}>
               <SelectInput
-                key={props.entity}
                 options={textureTargets.value[textureType]}
                 value={value}
                 onChange={(value: number) => {
