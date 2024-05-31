@@ -30,9 +30,8 @@ import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isA
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
+import { AssetExt, AssetType } from '@etherealengine/common/src/constants/AssetType'
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
-import { AssetClass } from '../enum/AssetClass'
-import { AssetType } from '../enum/AssetType'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
@@ -46,51 +45,51 @@ import { AssetLoaderState } from '../state/AssetLoaderState'
  * @param assetFileName Name of the Asset file.
  * @returns Asset type of the file.
  */
-const getAssetType = (assetFileName: string): AssetType => {
+const getAssetType = (assetFileName: string): AssetExt => {
   assetFileName = assetFileName.toLowerCase()
   const suffix = assetFileName.split('.').pop()
   switch (suffix) {
     case 'gltf':
-      return AssetType.glTF
+      return AssetExt.glTF
     case 'glb':
-      return AssetType.glB
+      return AssetExt.glB
     case 'usdz':
-      return AssetType.USDZ
+      return AssetExt.USDZ
     case 'fbx':
-      return AssetType.FBX
+      return AssetExt.FBX
     case 'vrm':
-      return AssetType.VRM
+      return AssetExt.VRM
     case 'tga':
-      return AssetType.TGA
+      return AssetExt.TGA
     case 'ktx2':
-      return AssetType.KTX2
+      return AssetExt.KTX2
     case 'ddx':
-      return AssetType.DDS
+      return AssetExt.DDS
     case 'png':
-      return AssetType.PNG
+      return AssetExt.PNG
     case 'jpg':
     case 'jpeg':
-      return AssetType.JPEG
+      return AssetExt.JPEG
     case 'mp3':
-      return AssetType.MP3
+      return AssetExt.MP3
     case 'wav':
-      return AssetType.WAV
+      return AssetExt.WAV
     case 'aac':
-      return AssetType.AAC
+      return AssetExt.AAC
     case 'ogg':
-      return AssetType.OGG
+      return AssetExt.OGG
     case 'm4a':
-      return AssetType.M4A
+      return AssetExt.M4A
     case 'mp4':
-      return AssetType.MP4
+      return AssetExt.MP4
     case 'mkv':
-      return AssetType.MKV
+      return AssetExt.MKV
     case 'm3u8':
-      return AssetType.M3U8
+      return AssetExt.M3U8
     case 'material':
-      return AssetType.MAT
+      return AssetExt.MAT
     case 'json':
-      return AssetType.JSON
+      return AssetExt.JSON
     default:
       return null!
   }
@@ -101,31 +100,31 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @param assetFileName Name of the Asset file.
  * @returns Asset class of the file.
  */
-const getAssetClass = (assetFileName: string): AssetClass => {
+const getAssetClass = (assetFileName: string): AssetType => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     if (/\.(material.gltf)$/.test(assetFileName)) {
       console.log('Material asset')
-      return AssetClass.Material
+      return AssetType.Material
     } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
       console.log('Lookdev asset')
-      return AssetClass.Lookdev
+      return AssetType.Lookdev
     }
     if (/\.(prefab.gltf)$/.test(assetFileName)) {
       console.log('prefab asset')
-      return AssetClass.Prefab
+      return AssetType.Prefab
     }
-    return AssetClass.Model
+    return AssetType.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
-    return AssetClass.Image
+    return AssetType.Image
   } else if (/\.(mp4|avi|webm|mkv|mov|m3u8|mpd)$/.test(assetFileName)) {
-    return AssetClass.Video
+    return AssetType.Video
   } else if (/\.(mp3|ogg|m4a|flac|wav)$/.test(assetFileName)) {
-    return AssetClass.Audio
+    return AssetType.Audio
   } else if (/\.(drcs|uvol|manifest)$/.test(assetFileName)) {
-    return AssetClass.Volumetric
+    return AssetType.Volumetric
   } else {
-    return AssetClass.Unknown
+    return AssetType.Unknown
   }
 }
 
@@ -154,46 +153,46 @@ const ktx2Loader = () => ({
 })
 const usdzLoader = () => new USDZLoader()
 
-export const getLoader = (assetType: AssetType) => {
+export const getLoader = (assetType: AssetExt) => {
   switch (assetType) {
-    case AssetType.KTX2:
+    case AssetExt.KTX2:
       return ktx2Loader()
-    case AssetType.DDS:
+    case AssetExt.DDS:
       return ddsLoader()
-    case AssetType.glTF:
-    case AssetType.glB:
-    case AssetType.VRM:
+    case AssetExt.glTF:
+    case AssetExt.glB:
+    case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
-    case AssetType.USDZ:
+    case AssetExt.USDZ:
       return usdzLoader()
-    case AssetType.FBX:
+    case AssetExt.FBX:
       return fbxLoader()
-    case AssetType.TGA:
+    case AssetExt.TGA:
       return tgaLoader()
-    case AssetType.PNG:
-    case AssetType.JPEG:
+    case AssetExt.PNG:
+    case AssetExt.JPEG:
       return textureLoader()
-    case AssetType.AAC:
-    case AssetType.MP3:
-    case AssetType.OGG:
-    case AssetType.M4A:
+    case AssetExt.AAC:
+    case AssetExt.MP3:
+    case AssetExt.OGG:
+    case AssetExt.M4A:
       return audioLoader()
-    case AssetType.MP4:
-    case AssetType.MKV:
-    case AssetType.M3U8:
+    case AssetExt.MP4:
+    case AssetExt.MKV:
+    case AssetExt.M3U8:
       return videoLoader()
     default:
       return fileLoader()
   }
 }
 
-const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+const assetLoadCallback = (url: string, assetType: AssetExt, onLoad: (response: any) => void) => async (asset) => {
   const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
+  if (assetClass === AssetType.Model) {
+    const notGLTF = [AssetExt.FBX, AssetExt.USDZ].includes(assetType)
     if (notGLTF) {
       asset = { scene: asset }
-    } else if (assetType === AssetType.VRM) {
+    } else if (assetType === AssetExt.VRM) {
       asset = asset.userData.vrm
     }
 
@@ -202,11 +201,11 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
     if (asset.userData) asset.userData.type = assetType
     else asset.userData = { type: assetType }
   }
-  if (assetClass === AssetClass.Material) {
+  if (assetClass === AssetType.Material) {
     const material = asset as Material
     material.userData.type = assetType
   }
-  if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
+  if ([AssetType.Image, AssetType.Video].includes(assetClass)) {
     const texture = asset as Texture
     texture.wrapS = RepeatWrapping
     texture.wrapT = RepeatWrapping
@@ -235,7 +234,7 @@ const load = async (
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
+  if (iOS && (assetType === AssetExt.PNG || assetType === AssetExt.JPEG)) {
     const img = new Image()
     img.crossOrigin = 'anonymous' //browser will yell without this
     img.src = url

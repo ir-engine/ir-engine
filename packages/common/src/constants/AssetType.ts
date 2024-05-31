@@ -23,8 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Types. */
+/** List of Asset Extensions. */
 export enum AssetType {
+  Model = 'Model',
+  Material = 'Material',
+  Image = 'Image',
+  Video = 'Video',
+  Audio = 'Audio',
+  Prefab = 'Prefab',
+  Lookdev = 'Lookdev',
+  Volumetric = 'Volumetric',
+  Unknown = 'unknown'
+}
+
+/** List of Asset Extensions. */
+export enum AssetExt {
   glB = 'glb',
   glTF = 'gltf',
   FBX = 'fbx',

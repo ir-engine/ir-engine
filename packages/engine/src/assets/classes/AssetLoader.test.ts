@@ -32,8 +32,7 @@ import '../../EngineModule'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { AssetClass } from '../enum/AssetClass'
-import { AssetType } from '../enum/AssetType'
+import { AssetExt, AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from './AssetLoader'
 
 /**
@@ -52,31 +51,31 @@ describe('AssetLoader', async () => {
     it('should work for gltf asset', async () => {
       const url = 'www.test.com/file.gltf'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetType.glTF)
+      assert.equal(type, AssetExt.glTF)
     })
 
     it('should work for fbx asset', async () => {
       const url = 'www.test.com/file.fbx'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetType.FBX)
+      assert.equal(type, AssetExt.FBX)
     })
 
     it('should work for vrm asset', async () => {
       const url = 'www.test.com/file.vrm'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetType.VRM)
+      assert.equal(type, AssetExt.VRM)
     })
 
     it('should work for png asset', async () => {
       const url = 'www.test.com/file.png'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetType.PNG)
+      assert.equal(type, AssetExt.PNG)
     })
 
     it('should work for jpeg asset', async () => {
       const url = 'www.test.com/file.jpeg'
       const type = AssetLoader.getAssetType(url)
-      assert.equal(type, AssetType.JPEG)
+      assert.equal(type, AssetExt.JPEG)
     })
   })
 
@@ -84,19 +83,19 @@ describe('AssetLoader', async () => {
     it('should work for model asset', async () => {
       const url = 'www.test.com/file.gltf'
       const type = AssetLoader.getAssetClass(url)
-      assert.equal(type, AssetClass.Model)
+      assert.equal(type, AssetType.Model)
     })
 
     it('should work for image asset', async () => {
       const url = 'www.test.com/file.png'
       const type = AssetLoader.getAssetClass(url)
-      assert.equal(type, AssetClass.Image)
+      assert.equal(type, AssetType.Image)
     })
 
     it('should work for unsupported asset', async () => {
       const url = 'www.test.com/file.pdf'
       const type = AssetLoader.getAssetClass(url)
-      assert.equal(type, AssetClass.Unknown)
+      assert.equal(type, AssetType.Unknown)
     })
   })
 

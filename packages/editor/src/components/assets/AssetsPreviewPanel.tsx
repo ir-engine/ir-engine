@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 */
 import React, { useImperativeHandle } from 'react'
 
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
@@ -90,13 +90,13 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
-      case AssetType.VRM:
+      case AssetExt.VRM:
       case 'model/vrm':
-      case AssetType.glB:
-      case AssetType.glTF:
+      case AssetExt.glB:
+      case AssetExt.glTF:
       case 'gltf-binary':
-      case AssetType.USDZ:
-      case AssetType.FBX:
+      case AssetExt.USDZ:
+      case AssetExt.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }

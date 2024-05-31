@@ -31,9 +31,9 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import config from '@etherealengine/common/src/config'
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { isAvaturn } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -94,7 +94,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       setAvatarName(avatarIdRegexExec ? avatarIdRegexExec[1] : generateAvatarId())
 
       try {
-        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetType.glB : null
+        const assetType = AssetLoader.getAssetType(url) ?? isAvaturn(url) ? AssetExt.glB : null
         if (assetType) {
           const res = await fetch(url)
           const data = await res.blob()
