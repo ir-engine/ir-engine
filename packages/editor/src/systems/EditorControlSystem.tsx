@@ -298,8 +298,12 @@ const execute = () => {
       if (hasComponent(clickedEntity, SourceComponent)) {
         const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
         const ancestorModelEntity = modelComponent || clickedEntity
-
-        SelectionState.updateSelection([getComponent(ancestorModelEntity, UUIDComponent)])
+        SelectionState.updateSelection([
+          getComponent(
+            SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickedEntity : ancestorModelEntity,
+            UUIDComponent
+          )
+        ])
       }
     }
   }
