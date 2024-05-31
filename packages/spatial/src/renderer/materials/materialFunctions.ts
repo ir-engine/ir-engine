@@ -176,7 +176,7 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
     newMaterial.customProgramCacheKey = () =>
       newMaterial.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
   }
-
+  newMaterial.uuid = material.uuid
   if (material.defines?.['USE_COLOR']) {
     newMaterial.defines = newMaterial.defines ?? {}
     newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
