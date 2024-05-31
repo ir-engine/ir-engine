@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { ReactNode } from 'react'
 import Text from '../../../primitives/tailwind/Text'
 
-export const PanelIcon = ({ as: IconComponent, size = 12 }) => {
+const PanelIcon = ({ as: IconComponent, size = 12 }) => {
   return <IconComponent className="mr-[6px] w-[18px] text-[var(--textColor)]" size={size} />
 }
 
@@ -38,32 +38,8 @@ export const PanelTitle = ({ children }) => {
   )
 }
 
-export const PanelCheckbox = ({ children }) => {
-  return <div className="cursor-pointer rounded-t-md bg-theme-surface-main px-4 py-1">{children}</div>
-}
-
 export const PanelDragContainer = ({ children }) => {
-  // .dock-tab styled in Editor2Container.css
-  return <div className={`flex h-[30px] cursor-pointer rounded-t-md px-4 py-2`}>{children}</div>
-}
-
-export const PanelContainer = ({ children, ...rest }) => {
-  return (
-    <div
-      className="relative flex flex-1 select-none flex-col overflow-hidden rounded bg-[var(--dockBackground)]"
-      {...rest}
-    >
-      {children}
-    </div>
-  )
-}
-
-export const PanelToolbar = ({ children }) => {
-  return <div className="toolbar flex h-6 items-center border-b border-black border-opacity-20 p-1">{children}</div>
-}
-
-export const PanelContent = ({ children }) => {
-  return <div className="relative flex flex-1 flex-col overflow-hidden">{children}</div>
+  return <div className="flex h-[30px] cursor-pointer rounded-t-md px-4 py-2">{children}</div>
 }
 
 interface PanelProps {
@@ -71,19 +47,21 @@ interface PanelProps {
   title: string
   toolbarContent?: React.ReactNode
   children?: ReactNode
-  // Add any other props you want to accept
 }
 
 const Panel: React.FC<PanelProps> = ({ icon, title, children, toolbarContent, ...rest }) => {
   return (
-    <PanelContainer {...rest}>
-      <PanelToolbar>
+    <div
+      className="relative flex flex-1 select-none flex-col overflow-hidden rounded bg-[var(--dockBackground)]"
+      {...rest}
+    >
+      <div className="toolbar flex h-6 items-center border-b border-black border-opacity-20 p-1">
         {icon && <PanelIcon as={icon} size={12} />}
         <PanelTitle>{title}</PanelTitle>
         {toolbarContent}
-      </PanelToolbar>
-      <PanelContent>{children}</PanelContent>
-    </PanelContainer>
+      </div>
+      <div className="relative flex flex-1 flex-col overflow-hidden">{children}</div>
+    </div>
   )
 }
 
