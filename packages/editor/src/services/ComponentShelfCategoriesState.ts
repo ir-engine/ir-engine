@@ -39,6 +39,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
@@ -80,6 +81,7 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [
         ModelComponent,
         VolumetricComponent,
+        NewVolumetricComponent,
         PositionalAudioComponent,
         AudioAnalysisComponent,
         VideoComponent,
