@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+
 import { useDidMount } from '@etherealengine/common/src/utils/useDidMount'
 import {
   defineComponent,
@@ -36,9 +39,9 @@ import {
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, useState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugComponentUtils'
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -46,8 +49,6 @@ import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { useEffect } from 'react'
-import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []

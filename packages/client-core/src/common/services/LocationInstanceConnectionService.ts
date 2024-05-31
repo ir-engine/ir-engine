@@ -24,13 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import { State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import logger from '@etherealengine/common/src/logger'
-import { defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
-import { NetworkState } from '@etherealengine/network'
-
 import {
   InstanceID,
   instancePath,
@@ -40,6 +36,9 @@ import {
   RoomCode
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { defineState, getMutableState, getState, Identifiable, State, useState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/network'
+
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -62,7 +61,9 @@ export const LocationInstanceState = defineState({
 export function useWorldNetwork() {
   const worldNetworkState = useState(getMutableState(NetworkState).networks)
   const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
-  return worldHostId.value ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork>) : null
+  return worldHostId.value
+    ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork, Identifiable>)
+    : null
 }
 
 export function useWorldInstance() {

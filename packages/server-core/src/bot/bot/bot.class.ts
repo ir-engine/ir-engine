@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/common/src/schemas/bot/bot.schema'
-
-import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface BotParams extends KnexAdapterParams<BotQuery> {}
 

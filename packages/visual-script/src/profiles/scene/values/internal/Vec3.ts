@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
+
 import { EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../VisualScriptModule'
 import { Mat3, mat4ToMat3, quatToMat3 } from './Mat3'
 import { Mat4 } from './Mat4'

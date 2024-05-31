@@ -18,13 +18,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { BuilderInfoType } from '@etherealengine/common/src/schemas/projects/builder-info.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { ServiceInterface } from '@feathersjs/feathers'
-import { ServerState } from '../../ServerState'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { ServerState } from '../../ServerState'
 import { dockerHubRegex, engineVersion, privateECRTagRegex, publicECRTagRegex } from '../project/project-helper'
 
 export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {

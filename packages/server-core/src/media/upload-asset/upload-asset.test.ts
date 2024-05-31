@@ -29,9 +29,9 @@ import fs from 'fs'
 import path from 'path'
 
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
-import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'

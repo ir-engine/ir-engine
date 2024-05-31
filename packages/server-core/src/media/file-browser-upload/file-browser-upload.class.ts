@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
-import { KnexAdapterParams } from '@feathersjs/knex'
+
 import { Application } from '../../../declarations'
 
 export interface FileBrowserUploadParams extends KnexAdapterParams {

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
 
+import { PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -34,30 +35,30 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
-import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-
-import { PresentationSystemGroup, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
-import { SceneSnapshotAction, SceneSnapshotState } from '@etherealengine/engine/src/scene/SceneState'
+import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
+import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
+import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
 import {
   setTransformMode,
@@ -142,16 +143,16 @@ const onKeyX = () => {
 }
 
 const onKeyZ = (control: boolean, shift: boolean) => {
-  const sceneID = getState(EditorState).scenePath
-  if (!sceneID) return
+  const source = getState(EditorState).scenePath
+  if (!source) return
   if (control) {
-    const state = getState(SceneSnapshotState)[sceneID]
+    const state = getState(GLTFSnapshotState)[source]
     if (shift) {
       if (state.index >= state.snapshots.length - 1) return
-      dispatchAction(SceneSnapshotAction.redo({ count: 1, sceneID }))
+      dispatchAction(GLTFSnapshotAction.redo({ count: 1, source }))
     } else {
       if (state.index <= 0) return
-      dispatchAction(SceneSnapshotAction.undo({ count: 1, sceneID }))
+      dispatchAction(GLTFSnapshotAction.undo({ count: 1, source }))
     }
   } else {
     toggleTransformSpace()
@@ -159,12 +160,12 @@ const onKeyZ = (control: boolean, shift: boolean) => {
 }
 
 const onEqual = () => {
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 
 const onMinus = () => {
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value - 1)
 }
 
@@ -246,7 +247,7 @@ const execute = () => {
 
   const inputSources = inputQuery()
 
-  const buttons = InputSourceComponent.getMergedButtons(inputSources)
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
 
   if (buttons.KeyB?.down) onKeyB()
 
@@ -298,8 +299,8 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const rendererState = useHookstate(getMutableState(RendererState))
+  const editorHelperState = useMutableState(EditorHelperState)
+  const rendererState = useMutableState(RendererState)
 
   useEffect(() => {
     // todo figure out how to do these with our input system

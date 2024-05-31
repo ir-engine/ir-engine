@@ -29,7 +29,7 @@ import { IoFolderOutline, IoPeopleOutline, IoTerminalOutline } from 'react-icons
 import { RiDeleteBinLine } from 'react-icons/ri'
 
 import Button from '../Button'
-import Table, { TableBody, TableCell, TableHeadRow, TableHeaderCell, TablePagination, TableRow } from './index'
+import Table, { TableBody, TableCell, TableHeaderCell, TableHeadRow, TablePagination, TableRow } from './index'
 
 const argTypes = {}
 

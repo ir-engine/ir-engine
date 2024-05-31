@@ -25,12 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import '@etherealengine/engine/src/EngineModule'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+
+import { getMutableState, useMutableState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import '../EditorModule'
+
 import EditorContainer from '../components/EditorContainer'
 import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
@@ -51,7 +55,7 @@ export const useStudioEditor = () => {
 
 export const EditorPage = () => {
   const [params] = useSearchParams()
-  const { scenePath, projectName } = useHookstate(getMutableState(EditorState))
+  const { scenePath, projectName } = useMutableState(EditorState)
 
   useEffect(() => {
     const sceneInParams = params.get('scenePath')
@@ -74,7 +78,7 @@ export const EditorPage = () => {
     }
   }, [scenePath])
 
-  if (!scenePath.value && !projectName.value) return <ProjectPage />
+  if (!scenePath.value && !projectName.value) return <ProjectPage studioPath="/studio-old" />
 
   return <EditorContainer />
 }

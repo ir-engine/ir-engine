@@ -26,9 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BackSide, Euler, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-
 import { spawnPointPath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import {
@@ -41,22 +38,24 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, matches, useHookstate } from '@etherealengine/hyperflux'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { Vector3_Right } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { ArrowHelperComponent } from '@etherealengine/spatial/src/common/debug/ArrowHelperComponent'
+import { useGet } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@etherealengine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { enableObjectLayer } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
@@ -208,8 +207,9 @@ export const PortalComponent = defineComponent({
     useEffect(() => {
       if (!texture || !portalComponent.mesh.value) return
 
-      portalComponent.mesh.value.material.map = texture
-      portalComponent.mesh.value.material.needsUpdate = true
+      const material = portalComponent.mesh.value.material as MeshBasicMaterial
+      material.map = texture
+      material.needsUpdate = true
     }, [texture, portalComponent.mesh])
 
     useEffect(() => {

@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { TableRow as MuiTableRow, TableRowProps } from '@mui/material'
 import React from 'react'
 
 import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
-
-import { TableRow as MuiTableRow, TableRowProps } from '@mui/material'
 
 const TableRow = ({ children, ...props }: TableRowProps) => <MuiTableRow {...props}>{children}</MuiTableRow>
 

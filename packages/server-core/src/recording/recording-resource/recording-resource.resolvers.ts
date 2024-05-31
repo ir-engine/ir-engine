@@ -27,14 +27,13 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import {
   RecordingResourceQuery,
   RecordingResourceType
 } from '@etherealengine/common/src/schemas/recording/recording-resource.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {

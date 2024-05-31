@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
@@ -38,8 +41,7 @@ import { PhysicsSystem } from '@etherealengine/spatial'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-import { useEffect } from 'react'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()

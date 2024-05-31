@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSState, Engine, defineQuery, useEntityContext } from '@etherealengine/ecs'
+import { useEffect } from 'react'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
+
+import { defineQuery, ECSState, Engine, useEntityContext } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -33,15 +36,14 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-import { TransformComponent } from '../../SpatialModule'
+
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { smoothDamp, smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { TransformComponent } from '../../SpatialModule'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraMode } from '../types/CameraMode'
@@ -94,6 +96,8 @@ export const FollowCameraComponent = defineComponent({
     return {
       offset: new Vector3(),
       targetEntity: UndefinedEntity,
+      currentTargetPosition: new Vector3(),
+      targetPositionSmoothness: 0,
       mode: CameraMode.ThirdPerson,
       distance: cameraSettings.startCameraDistance,
       zoomLevel: 5,
@@ -174,9 +178,12 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
     .applyQuaternion(TransformComponent.getWorldRotation(referenceEntity, targetTransform.rotation))
     .add(TransformComponent.getWorldPosition(referenceEntity, new Vector3()))
 
+  const alpha = smootheLerpAlpha(followCamera.targetPositionSmoothness, getState(ECSState).deltaSeconds)
+  followCamera.currentTargetPosition.lerp(targetPosition, alpha)
+
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
-    const distanceResults = getMaxCamDistance(cameraEntity, targetPosition)
+    const distanceResults = getMaxCamDistance(cameraEntity, followCamera.currentTargetPosition)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
   }
@@ -200,14 +207,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
   cameraTransform.position.set(
-    targetPosition.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    targetPosition.y + followCamera.distance * Math.sin(phiRad),
-    targetPosition.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
+    followCamera.currentTargetPosition.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
+    followCamera.currentTargetPosition.y + followCamera.distance * Math.sin(phiRad),
+    followCamera.currentTargetPosition.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
-  direction.copy(cameraTransform.position).sub(targetPosition).normalize()
-
+  direction.copy(cameraTransform.position).sub(followCamera.currentTargetPosition).normalize()
   mx.lookAt(direction, empty, upVector)
+
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
   updateCameraTargetRotation(cameraEntity)

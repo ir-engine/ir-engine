@@ -23,21 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
-import { HookContext } from '../../../declarations'
-import { createSkippableHooks } from '../../hooks/createSkippableHooks'
-import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
-import setResponseStatusCode from '../../hooks/set-response-status-code'
-import verifyScope from '../../hooks/verify-scope'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { assetPath, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
+import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+
+import { HookContext } from '../../../declarations'
+import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
+import setResponseStatusCode from '../../hooks/set-response-status-code'
+import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { AssetService } from './asset.class'
 import { assetDataResolver, assetExternalResolver, assetResolver } from './asset.resolvers'
@@ -134,7 +135,7 @@ const resolveProjectIdForAssetQuery = async (context: HookContext<AssetService>)
  * @returns
  */
 export const ensureUniqueName = async (context: HookContext<AssetService>) => {
-  if (!context.data || context.method !== 'create') {
+  if (!context.data) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -334,6 +335,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
+        ensureUniqueName,
         renameAsset,
         removeFieldsForAssetData
       ],

@@ -28,6 +28,7 @@ import { FaCaretRight } from 'react-icons/fa6'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { OutputSocketSpecJSON } from '@etherealengine/visual-script'
+
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'

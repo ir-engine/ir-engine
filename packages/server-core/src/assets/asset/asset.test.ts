@@ -18,14 +18,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
+
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { createFeathersKoaApp } from '../../createApp'
@@ -140,7 +142,7 @@ describe('asset.test', () => {
     const data = queryResult.data[0]
     const updatedData = await app
       .service(assetPath)
-      .patch(data.id, { assetURL: directory + '/Updated-Scene.gltf' }, params)
+      .patch(data.id, { assetURL: directory + '/Updated-Scene.gltf', project: projectName }, params)
     assert.equal(updatedData.assetURL, directory + '/Updated-Scene.gltf')
     const storageProvider = getStorageProvider()
     assert(storageProvider.doesExist('Updated-Scene.gltf', directory))

@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineActionQueue } from '@etherealengine/hyperflux'
-
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { defineActionQueue } from '@etherealengine/hyperflux'
+
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { XRAction } from './XRState'
 

@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, defineComponent, defineQuery, getComponent } from '@etherealengine/ecs'
 import { Vector2 } from 'three'
+
+import { defineComponent, defineQuery, Entity, getComponent, UndefinedEntity } from '@etherealengine/ecs'
 
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',

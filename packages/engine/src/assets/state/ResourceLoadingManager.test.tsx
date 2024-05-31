@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { LoadingManager } from 'three'
 
 import { createEntity, destroyEngine } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { ResourceState, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
-import { LoadingManager } from 'three'
+
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { loadResource } from '../functions/resourceLoaderFunctions'
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
@@ -66,7 +67,6 @@ describe('ResourceLoadingManager', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {},
         (resquest) => {},
         (error) => {

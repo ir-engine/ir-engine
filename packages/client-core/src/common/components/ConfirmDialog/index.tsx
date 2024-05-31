@@ -32,8 +32,8 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
 import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
-
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+
 import styles from './index.module.scss'
 
 interface Props {

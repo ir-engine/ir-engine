@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { acceptInviteMethods, acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
+
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import logger from '../../ServerLogger'
 import { AcceptInviteService } from './accept-invite.class'
 import acceptInviteDocs from './accept-invite.docs'
 import hooks from './accept-invite.hooks'

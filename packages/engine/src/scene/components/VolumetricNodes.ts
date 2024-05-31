@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Tween } from '@tweenjs/tween.js'
+
 import { getMutableComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { TweenComponent } from '@etherealengine/spatial/src/transform/components/TweenComponent'
 import { NodeCategory, makeFlowNodeDefinition } from '@etherealengine/visual-script'
-import { Tween } from '@tweenjs/tween.js'
 
 /**
  * playVolumetric: Play / pause volumetric video

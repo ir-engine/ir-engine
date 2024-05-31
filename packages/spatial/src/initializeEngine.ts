@@ -23,30 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
+
 import {
-  ECSState,
-  UUIDComponent,
   createEntity,
+  ECSState,
   executeSystems,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  setComponent
+  setComponent,
+  UUIDComponent
 } from '@etherealengine/ecs'
 import { Engine, startEngine } from '@etherealengine/ecs/src/Engine'
 import { EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { Timer } from '@etherealengine/ecs/src/Timer'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
+
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { InputComponent } from './input/components/InputComponent'
-import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './renderer/components/GroupComponent'
 import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
+import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 import { XRState } from './xr/XRState'

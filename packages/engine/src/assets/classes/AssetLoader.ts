@@ -23,151 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AnimationClip,
-  AudioLoader,
-  BufferAttribute,
-  BufferGeometry,
-  Group,
-  LOD,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  MeshMatcapMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  RepeatWrapping,
-  ShaderMaterial,
-  Texture,
-  TextureLoader
-} from 'three'
-
-import { FileLoader } from '../loaders/base/FileLoader'
+import { AudioLoader, Material, RepeatWrapping, Texture, TextureLoader } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
-
-import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { Entity } from '@etherealengine/ecs/src/Entity'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
-import iterateObject3D from '@etherealengine/spatial/src/common/functions/iterateObject3D'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+
 import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
-import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-
-// import { instanceGLTF } from '../functions/transformGLTF'
-
-/**
- * Interface for result of the GLTF Asset load.
- */
-export interface LoadGLTFResultInterface {
-  animations: AnimationClip[]
-  scene: Object3D | Group | Mesh
-  json: any
-  stats: any
-}
-
-export function disposeDracoLoaderWorkers(): void {
-  getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
-}
-
-const onUploadDropBuffer = () =>
-  function (this: BufferAttribute) {
-    // @ts-ignore
-    this.array = new this.array.constructor(1)
-  }
-
-export const cleanupAllMeshData = (child: Mesh, args: LoadingArgs) => {
-  if (getState(EngineState).isEditor || !child.isMesh) return
-  const geo = child.geometry as BufferGeometry
-  const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
-  const attributes = geo.attributes
-  if (!args.ignoreDisposeGeometry) {
-    for (const name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer()
-    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer()
-  }
-}
-
-const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
-  const replacedMaterials = new Map()
-  const loddables = new Array<Object3D>()
-
-  iterateObject3D(asset, (child: Mesh<any, Material>) => {
-    //test for LODs within this traversal
-    if (haveAnyLODs(child)) loddables.push(child)
-
-    if (!child.isMesh) return
-
-    if (replacedMaterials.has(child.material)) {
-      child.material = replacedMaterials.get(child.material)
-    } else {
-      if (child.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
-        const newMaterial = new MeshPhysicalMaterial({})
-        newMaterial.setValues(child.material as any) // to copy properties of original material
-        newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor
-        newMaterial.clearcoatRoughness =
-          child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor
-        newMaterial.defines = { STANDARD: '', PHYSICAL: '' } // override if it's replaced by non PHYSICAL defines of child.material
-
-        replacedMaterials.set(child.material, newMaterial)
-        child.material = newMaterial
-      }
-    }
-    cleanupAllMeshData(child, args)
-  })
-  replacedMaterials.clear()
-
-  for (const loddable of loddables) handleLODs(loddable)
-}
-
-const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
-
-/**
- * Handles Level of Detail for asset.
- * @param asset Asset on which LOD will apply.
- * @returns LOD handled asset.
- */
-const handleLODs = (asset: Object3D): Object3D => {
-  const LODs = new Map<string, { object: Object3D; level: string }[]>()
-  const LODState = DEFAULT_LOD_DISTANCES
-  asset.children.forEach((child) => {
-    const childMatch = child.name.match(LODS_REGEXP)
-    if (!childMatch) {
-      return
-    }
-    const [_, name, level]: string[] = childMatch
-    if (!name || !level) {
-      return
-    }
-
-    if (!LODs.has(name)) {
-      LODs.set(name, [])
-    }
-
-    LODs.get(name)?.push({ object: child, level })
-  })
-
-  LODs.forEach((value, key) => {
-    const lod = new LOD()
-    lod.name = key
-    value[0].object.parent?.add(lod)
-
-    value.forEach(({ level, object }) => {
-      lod.addLevel(object, LODState[level])
-    })
-  })
-
-  return asset
-}
 
 /**
  * Get asset type from the asset file extension.
@@ -201,6 +73,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.JPEG
     case 'mp3':
       return AssetType.MP3
+    case 'wav':
+      return AssetType.WAV
     case 'aac':
       return AssetType.AAC
     case 'ogg':
@@ -215,6 +89,8 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.M3U8
     case 'material':
       return AssetType.MAT
+    case 'json':
+      return AssetType.JSON
     default:
       return null!
   }
@@ -231,6 +107,13 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     if (/\.(material.gltf)$/.test(assetFileName)) {
       console.log('Material asset')
       return AssetClass.Material
+    } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
+      console.log('Lookdev asset')
+      return AssetClass.Lookdev
+    }
+    if (/\.(prefab.gltf)$/.test(assetFileName)) {
+      console.log('prefab asset')
+      return AssetClass.Prefab
     }
     return AssetClass.Model
   } else if (/\.(png|jpg|jpeg|tga|ktx2|dds)$/.test(assetFileName)) {
@@ -244,18 +127,6 @@ const getAssetClass = (assetFileName: string): AssetClass => {
   } else {
     return AssetClass.Unknown
   }
-}
-
-/**
- * Returns true if the given file type is supported
- * Note: images are not supported on node
- * @param assetFileName
- * @returns
- */
-const isSupported = (assetFileName: string) => {
-  const assetClass = getAssetClass(assetFileName)
-  if (isClient) return !!assetClass
-  return assetClass === AssetClass.Model || assetClass === AssetClass.Asset
 }
 
 //@ts-ignore
@@ -316,52 +187,41 @@ export const getLoader = (assetType: AssetType) => {
   }
 }
 
-const assetLoadCallback =
-  (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-    const assetClass = AssetLoader.getAssetClass(url)
-    if (assetClass === AssetClass.Model) {
-      const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
-      if (notGLTF) {
-        asset = { scene: asset }
-      } else if (assetType === AssetType.VRM) {
-        asset = asset.userData.vrm
-        asset.userData = { flipped: true }
-      }
-
-      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-      if (asset.scene.userData) asset.scene.userData.type = assetType
-      if (asset.userData) asset.userData.type = assetType
-      else asset.userData = { type: assetType }
-
-      AssetLoader.processModelAsset(asset.scene, args)
-    }
-    if (assetClass === AssetClass.Material) {
-      const material = asset as Material
-      material.userData.type = assetType
-    }
-    if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
-      const texture = asset as Texture
-      texture.wrapS = RepeatWrapping
-      texture.wrapT = RepeatWrapping
+const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+  const assetClass = AssetLoader.getAssetClass(url)
+  if (assetClass === AssetClass.Model) {
+    const notGLTF = [AssetType.FBX, AssetType.USDZ].includes(assetType)
+    if (notGLTF) {
+      asset = { scene: asset }
+    } else if (assetType === AssetType.VRM) {
+      asset = asset.userData.vrm
     }
 
-    const gltf = asset as GLTF
-    if (gltf.parser) delete asset.parser
-
-    onLoad(asset)
+    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+    if (asset.scene.userData) asset.scene.userData.type = assetType
+    if (asset.userData) asset.userData.type = assetType
+    else asset.userData = { type: assetType }
   }
+  if (assetClass === AssetClass.Material) {
+    const material = asset as Material
+    material.userData.type = assetType
+  }
+  if ([AssetClass.Image, AssetClass.Video].includes(assetClass)) {
+    const texture = asset as Texture
+    texture.wrapS = RepeatWrapping
+    texture.wrapT = RepeatWrapping
+  }
+
+  const gltf = asset as GLTF
+  if (gltf.parser) delete asset.parser
+
+  onLoad(asset)
+}
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-export type LoadingArgs = {
-  ignoreDisposeGeometry?: boolean
-  forceAssetType?: AssetType | null
-  assetRoot?: Entity
-}
-
 const load = async (
   _url: string,
-  args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {},
@@ -373,7 +233,7 @@ const load = async (
   }
   let url = getAbsolutePath(_url)
 
-  const assetType = args.forceAssetType ? args.forceAssetType : AssetLoader.getAssetType(url)
+  const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   if (iOS && (assetType === AssetType.PNG || assetType === AssetType.JPEG)) {
     const img = new Image()
@@ -413,7 +273,7 @@ const load = async (
     url = dataURI
   }
 
-  const callback = assetLoadCallback(url, args, assetType, onLoad)
+  const callback = assetLoadCallback(url, assetType, onLoad)
 
   try {
     return loader.load(url, callback, onProgress, onError, signal)
@@ -422,22 +282,17 @@ const load = async (
   }
 }
 
-const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, args, resolve, onProgress, reject)
+    load(url, resolve, onProgress, reject)
   })
 }
 
 export const AssetLoader = {
   loaders: new Map<number, any>(),
-  processModelAsset,
-  handleLODs,
   getAbsolutePath,
   getAssetType,
   getAssetClass,
-  isSupported,
-  getLoader,
-  assetLoadCallback,
   /** @deprecated Use hooks from resourceHooks.ts instead **/
   load,
   /** @deprecated Use hooks from resourceHooks.ts instead **/

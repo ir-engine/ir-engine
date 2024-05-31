@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { equals } from 'rambdax'
+
 import { ValueType } from '../../../VisualScriptModule'
 
 export const ListValue: ValueType = {

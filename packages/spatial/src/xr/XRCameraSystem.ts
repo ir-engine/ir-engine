@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three'
 
-import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
-
 import { AnimationSystemGroup } from '@etherealengine/ecs'
 import { getComponent, getOptionalComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'

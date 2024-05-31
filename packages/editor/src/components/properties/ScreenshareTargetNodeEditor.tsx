@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { ScreenshareTargetComponent } from '@etherealengine/engine/src/scene/components/ScreenshareTargetComponent'
-
-import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import BooleanInput from '../inputs/BooleanInput'

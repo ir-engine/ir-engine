@@ -19,9 +19,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { projectInvalidatePatchValidator } from '@etherealengine/common/src/schemas/projects/project-invalidate.schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import verifyScope from '../../hooks/verify-scope'
 import { projectInvalidatePatchResolver } from './project-invalidate.resolvers'
 

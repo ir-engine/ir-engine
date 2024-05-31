@@ -39,6 +39,7 @@ import {
   writeVector3,
   writeVector4
 } from '@etherealengine/network'
+
 import { Physics } from './classes/Physics'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 

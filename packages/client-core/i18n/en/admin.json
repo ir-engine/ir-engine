@@ -395,6 +395,10 @@
         "header": "AWS",
         "subtitle": "Edit AWS Settings"
       },
+      "features": {
+        "header": "Features",
+        "subtitle": "Edit Feature Flag Settings"
+      },
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
@@ -650,6 +654,7 @@
     },
     "server": {
       "servers": "Servers",
+      "migrations": "Migrations",
       "loading": "Fetching Server Info",
       "loadingLogs": "Fetching Server Logs",
       "name": "Name",
@@ -680,7 +685,13 @@
       "downloadLogs": "Download Logs",
       "removePod": "Remove Pod",
       "confirmPodDelete": "Do you want to delete pod",
-      "viewLogs": "View Logs"
+      "viewLogs": "View Logs",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "batch": "Batch",
+        "migration_time": "Migration Time"
+      }
     },
     "recording": {
       "columns": {

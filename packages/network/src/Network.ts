@@ -23,12 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/hyperflux'
-
 import { InstanceID, UserID } from '@etherealengine/common/src/schema.type.module'
-import { Topic } from '@etherealengine/hyperflux'
-
 import { Engine } from '@etherealengine/ecs'
+import { PeerID, Topic } from '@etherealengine/hyperflux'
+
 import { DataChannelType } from './DataChannelRegistry'
 import { NetworkPeer } from './NetworkState'
 

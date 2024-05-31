@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Matrix4, Quaternion, Vector3 } from 'three'
+
 import {
-  Entity,
   defineQuery,
   defineSystem,
+  Entity,
   getComponent,
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/ecs'
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { getState } from '@etherealengine/hyperflux'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { TransformSystem, computeTransformMatrix, isDirty } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix, isDirty, TransformSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'

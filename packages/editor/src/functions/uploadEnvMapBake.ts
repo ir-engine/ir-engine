@@ -28,6 +28,7 @@ import { Scene, Vector3 } from 'three'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -40,7 +41,6 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
-import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 

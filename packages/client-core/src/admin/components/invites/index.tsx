@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { InviteType } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
-import React, { useEffect, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
+
 import AddEditInviteModal from './AddEditInviteModal'
 import InviteTable from './InviteTable'
 import RemoveInviteModal from './RemoveInviteModal'
@@ -78,7 +80,7 @@ export default function Invites() {
                   size="small"
                   fullWidth
                   onClick={() => {
-                    PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value} />)
+                    PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
                   }}
                 >
                   {t('admin:components.invite.removeInvites')}

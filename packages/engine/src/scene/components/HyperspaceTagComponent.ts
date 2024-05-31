@@ -23,32 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
-import { PresentationSystemGroup } from '@etherealengine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent, destroyEntityTree } from '@etherealengine/spatial/src/transform/components/EntityTree'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import {
   AmbientLight,
@@ -66,6 +40,34 @@ import {
   TubeGeometry,
   Vector3
 } from 'three'
+
+import config from '@etherealengine/common/src/config'
+import { PresentationSystemGroup } from '@etherealengine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
+import { ECSState } from '@etherealengine/ecs/src/ECSState'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { ObjectDirection } from '@etherealengine/spatial/src/common/constants/MathConstants'
+import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup, GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { setObjectLayers } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { destroyEntityTree, EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
+
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'

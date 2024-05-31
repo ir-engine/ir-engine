@@ -18,7 +18,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, querySyntax } from '@feathersjs/typebox'
+import { querySyntax, Static, Type } from '@feathersjs/typebox'
+
 import { assetSchema } from '../assets/asset.schema'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html

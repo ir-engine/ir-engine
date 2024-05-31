@@ -29,8 +29,8 @@ import { createRoot } from 'react-dom/client'
 import { Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
 // tslint:disable:ordered-imports
@@ -64,17 +64,6 @@ const App = () => {
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
                   <AppPage route={'location'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="studio"
-            path="/studio/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
                 </Engine>
               </Suspense>
             }

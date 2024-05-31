@@ -23,29 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
-import verifyProjectOwner from '../../hooks/verify-project-owner'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
   ProjectPermissionData,
-  ProjectPermissionPatch,
-  ProjectPermissionType,
   projectPermissionDataValidator,
+  ProjectPermissionPatch,
   projectPermissionPatchValidator,
   projectPermissionPath,
-  projectPermissionQueryValidator
+  projectPermissionQueryValidator,
+  ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { InviteCode, UserID, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
+
 import { HookContext } from '../../../declarations'
-import logger from '../../ServerLogger'
 import enableClientPagination from '../../hooks/enable-client-pagination'
+import verifyProjectOwner from '../../hooks/verify-project-owner'
+import logger from '../../ServerLogger'
 import { ProjectPermissionService } from './project-permission.class'
 import {
   projectPermissionDataResolver,
@@ -129,7 +129,7 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
         existingPermissionsCount.length === 0 ||
         ((await checkScope(selfUser, 'projects', 'write')) && selfUser.id === users.data[0].id)
           ? 'owner'
-          : 'user'
+          : 'editor'
     }
   } catch (err) {
     logger.error(err)
@@ -192,7 +192,7 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
   }
 
   const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
-  context.data = { type: data.type === 'owner' ? 'owner' : 'user' }
+  context.data = { type: data.type === 'owner' ? 'owner' : 'editor' }
 }
 
 /**

@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BufferGeometry, Material, Mesh, Scene } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Entity, getComponent } from '@etherealengine/ecs'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { v4 as uuidv4 } from 'uuid'
+
 import { GLTFExporterOptions } from '../exporters/gltf/GLTFExporter'
 import createGLTFExporter from './createGLTFExporter'
 

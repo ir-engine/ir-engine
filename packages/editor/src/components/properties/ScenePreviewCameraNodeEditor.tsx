@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Scene } from 'three'
 
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
-
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
-
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@etherealengine/hyperflux'
-import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { getNestedVisibleChildren } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
-import { Scene } from 'three'
+
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { EditorState } from '../../services/EditorServices'

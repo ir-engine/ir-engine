@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState } from '@hookstate/core'
 import React from 'react'
 
+import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { Entity } from '@etherealengine/ecs/src/Entity'
+import { hookstate } from '@etherealengine/hyperflux'
 import { createXRUI } from '@etherealengine/spatial/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/spatial/src/xrui/functions/useXRUIState'
 
@@ -37,7 +38,7 @@ export interface InteractiveModalState {
 export const createModalView = (entity: Entity, interactMessage: string, isInteractable = true) => {
   const ui = createXRUI(
     InteractiveModalView,
-    createState({
+    hookstate({
       interactMessage
     } as InteractiveModalState),
     { interactable: isInteractable }
@@ -47,27 +48,29 @@ export const createModalView = (entity: Entity, interactMessage: string, isInter
 
 export const InteractiveModalView = () => {
   const modalState = useXRUIState<InteractiveModalState>()
+  if (!isClient) return <></>
   return (
     <div className={'modal'}>
-      <div className="hint" xr-layer="true" xr-pixel-ratio="1">
-        <div>{modalState.interactMessage.value}</div>
-      </div>
+      E
       <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css" />
       <style>
         {`
         .modal {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           font-size: 60px;
-          background-color: #000d;
-          color: white;
+          color: #e7e7e7;
           font-family: 'Lato', sans-serif;
           font-weight: 400;
-          border: 10px solid white;
-          border-radius: 50px;
-          padding: 20px;
+          border: 4px solid #e7e7e7;
+          border-radius: 10px;
+          padding: 10px;
           margin: 60px;
-          box-shadow: #fff2 0 0 30px;
-          width: 400px;
+          width: 50px;
+          height: 50px;
           text-align: center;
+          vertical-align: center;
         }
       `}
       </style>

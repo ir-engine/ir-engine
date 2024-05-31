@@ -1,0 +1,35 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "THREE.GLTFExporter"
+  },
+  "scenes": [
+    {
+      "name": "New Object",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "Hemisphere Light",
+      "extensions": {
+        "EE_uuid": "ec27fd9e-6ab9-46dd-a49e-9c0edff54cd4",
+        "EE_visible": true,
+        "EE_hemisphere_light": {
+          "skyColor": 16777215,
+          "groundColor": 16777215,
+          "intensity": 1
+        }
+      }
+    }
+  ],
+  "extensionsUsed": [
+    "EE_uuid",
+    "EE_visible",
+    "EE_hemisphere_light",
+    "EE_ecs"
+  ]
+}

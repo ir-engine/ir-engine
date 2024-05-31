@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -34,16 +35,16 @@ import { locationPath } from '@etherealengine/common/src/schemas/social/location
 import { acceptInvitePath } from '@etherealengine/common/src/schemas/user/accept-invite.schema'
 import { EmailData, emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
 import {
-  IdentityProviderType,
-  identityProviderPath
+  identityProviderPath,
+  IdentityProviderType
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { SmsData, smsPath } from '@etherealengine/common/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/common/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+
 import { Application, HookContext } from '../../declarations'
-import logger from '../ServerLogger'
 import config from '../appconfig'
+import logger from '../ServerLogger'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 

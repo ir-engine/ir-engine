@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
+import Person from '@mui/icons-material/Person'
+import { IconButton } from '@mui/material'
 import React from 'react'
 
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
-import { getMutableState } from '@etherealengine/hyperflux'
-
-import Person from '@mui/icons-material/Person'
-import { IconButton } from '@mui/material'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from './styles.module.scss'
 

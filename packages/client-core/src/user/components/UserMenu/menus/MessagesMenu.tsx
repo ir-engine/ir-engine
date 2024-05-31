@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useTranslation } from 'react-i18next'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { ChannelID, messagePath } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import { useTranslation } from 'react-i18next'
+
 import InputText from '../../../../common/components/InputText'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
@@ -62,7 +62,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
     }
   })
 
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
   const inChannelCall = channelState.targetChannelId.value === props.channelID
 
   const startMediaCall = () => {

@@ -25,21 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import '../threejsPatches'
 
-import {
-  ECSState,
-  Entity,
-  PresentationSystemGroup,
-  QueryReactor,
-  defineComponent,
-  defineQuery,
-  defineSystem,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { EffectComposer, NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -47,23 +32,37 @@ import {
   Color,
   CubeTexture,
   FogBase,
-  SRGBColorSpace,
   Scene,
+  SRGBColorSpace,
   Texture,
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters
 } from 'three'
-import { EngineState } from '../EngineState'
+
+import {
+  defineComponent,
+  defineQuery,
+  defineSystem,
+  ECSState,
+  Entity,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  PresentationSystemGroup,
+  QueryReactor,
+  useComponent,
+  useEntityContext
+} from '@etherealengine/ecs'
+import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { EngineState } from '../EngineState'
 import { getNestedChildren } from '../transform/components/EntityTree'
-import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
+import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
-import { PerformanceManager } from './PerformanceState'
-import { RendererState } from './RendererState'
-import WebGL from './THREE.WebGL'
 import { GroupComponent } from './components/GroupComponent'
 import {
   BackgroundComponent,
@@ -73,9 +72,13 @@ import {
 } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
+import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
+import { PerformanceManager } from './PerformanceState'
+import { RendererState } from './RendererState'
+import WebGL from './THREE.WebGL'
 
 export const RendererComponent = defineComponent({
   name: 'RendererComponent',
@@ -85,7 +88,7 @@ export const RendererComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
-    if (json?.canvas) component.value.canvas = json.canvas
+    if (json?.canvas) component.canvas.set(json.canvas)
   }
 })
 
@@ -341,6 +344,9 @@ const execute = () => {
 
     _scene.children = objects
 
+    const renderMode = getState(RendererState).renderMode
+    background = renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
+
     const sessionMode = getState(XRState).sessionMode
     _scene.background = sessionMode === 'immersive-ar' ? null : background
 
@@ -356,13 +362,13 @@ const execute = () => {
 
 const rendererReactor = () => {
   const entity = useEntityContext()
-  const renderer = useComponent(entity, RendererComponent).value
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const renderer = useComponent(entity, RendererComponent)
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.scaleFactor = engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel
-    renderer.renderer.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor)
-    renderer.needsResize = true
+    renderer.scaleFactor.set(engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel.value)
+    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
+    renderer.needsResize.set(true)
   }, [engineRendererSettings.qualityLevel])
 
   useEffect(() => {
@@ -375,7 +381,7 @@ const rendererReactor = () => {
 const cameraReactor = () => {
   const entity = useEntityContext()
   const camera = useComponent(entity, CameraComponent).value
-  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+  const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
     if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)

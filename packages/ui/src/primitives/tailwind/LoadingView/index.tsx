@@ -23,15 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
 const LoadingView = ({
   title,
   description,
   className,
   fullScreen,
+  fullSpace,
   containerClassname,
   titleClassname,
   spinnerOnly
@@ -40,6 +42,7 @@ const LoadingView = ({
   description?: string
   className?: string
   fullScreen?: boolean
+  fullSpace?: boolean
   containerClassname?: string
   titleClassname?: string
   spinnerOnly?: boolean
@@ -72,6 +75,7 @@ const LoadingView = ({
       className={twMerge(
         'flex flex-col items-center justify-center',
         fullScreen && 'h-screen w-screen',
+        fullSpace && 'h-full w-full',
         containerClassname
       )}
     >

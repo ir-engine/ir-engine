@@ -25,37 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+
 import Label from '../Label'
 
-export interface CheckboxProps {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: boolean
   label?: string
   className?: string
+  containerClassName?: string
   onChange: (value: boolean) => void
   disabled?: boolean
 }
 
-const Checkbox = ({ className, label, value, onChange, disabled }: CheckboxProps) => {
+const Checkbox = ({ className, containerClassName, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
   const twClassName = twMerge(
-    'h-4 w-4 rounded',
-    'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600',
+    'disabled:border-steel-400 disabled:bg-steel-400 peer',
+    'relative h-4 w-4 shrink-0 appearance-none rounded-sm',
+    'border-2 border-blue-500 bg-white',
+    'checked:border-0 checked:bg-blue-800 focus:outline-none focus:ring-2',
+    'focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-blue-600',
     className
   )
 
   return (
-    <div className="flex w-full items-center gap-4">
-      <input
-        type="checkbox"
-        className={twClassName}
-        checked={value}
-        onChange={() => onChange(!value)}
-        disabled={disabled}
-      />
+    <div className={twMerge('flex w-full items-center gap-4', containerClassName)}>
+      <input type="checkbox" onChange={(e) => onChange(e.target.value as any)} className={twClassName} {...rest} />
       {label && (
         <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
           {label}
         </Label>
       )}
+      <svg
+        className="pointer-events-none absolute hidden h-4 w-4 scale-75 text-white peer-checked:block"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
     </div>
   )
 }

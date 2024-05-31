@@ -28,9 +28,8 @@ import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
 import { RedisSettingQuery, RedisSettingType } from '@etherealengine/common/src/schemas/setting/redis-setting.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const redisSettingResolver = resolve<RedisSettingType, HookContext>({
   createdAt: virtual(async (redisSetting) => fromDateTimeSql(redisSetting.createdAt)),

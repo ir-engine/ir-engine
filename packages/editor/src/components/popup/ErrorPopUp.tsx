@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
 import ErrorSharp from '@mui/icons-material/ErrorSharp'
+import React from 'react'
 
 import PopUp from './PopUp'
 

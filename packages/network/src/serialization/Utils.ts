@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { ViewCursor } from './ViewCursor'
 
 export type Vector3SoA = {

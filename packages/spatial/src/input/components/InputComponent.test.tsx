@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine, destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { ReactorReconciler } from '@etherealengine/hyperflux'
+
 import { createEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { InputComponent } from './InputComponent'

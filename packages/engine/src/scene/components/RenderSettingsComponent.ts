@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
+import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { defineComponent, getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useScene } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',

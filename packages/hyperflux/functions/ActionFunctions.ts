@@ -29,9 +29,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { InstanceID } from '@etherealengine/common/src/schema.type.module'
+import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { deepEqual } from '@etherealengine/common/src/utils/deepEqual'
 
-import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
 import { HyperFlux } from './StoreFunctions'
@@ -413,7 +413,9 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
   for (const definition of StateDefinitions.values()) {
     if (!definition.receptors || HyperFlux.store.receptors[definition.name]) continue
 
-    const matchedActions = Object.values(definition.receptors).map((r) => r.matchesAction)
+    const matchedActions = Object.values(definition.receptors).map(
+      (r: ActionReceptor<ResolvedActionType>) => r.matchesAction
+    )
     if (!matchedActions.some((m) => m.test(action))) continue
 
     const receptorActionQueue = defineActionQueue(matchedActions)
@@ -437,8 +439,9 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
 
       // apply each action to each matching receptor, in order
       for (const action of receptorActionQueue()) {
-        for (const receptor of Object.values(definition.receptors!)) {
+        for (const definitionReceptor of Object.values(definition.receptors!)) {
           try {
+            const receptor = definitionReceptor as ActionReceptor<ResolvedActionType>
             if (receptor.matchesAction.test(action)) {
               receptor(action)
               hasNewActions = true

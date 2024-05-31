@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, PointLight } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import {
   defineComponent,
   removeComponent,
@@ -37,7 +35,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { matches } from '@etherealengine/hyperflux'
+import { matches, useMutableState } from '@etherealengine/hyperflux'
+
 import { LightHelperComponent } from '../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../resources/resourceHooks'
 import { isMobileXRHeadset } from '../../xr/XRState'
@@ -88,7 +87,7 @@ export const PointLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useHookstate(getMutableState(RendererState))
+    const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const [light] = useDisposable(PointLight, entity)

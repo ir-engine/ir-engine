@@ -52,10 +52,11 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AvatarService } from '../../../services/AvatarService'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 interface Props {
   selectedAvatar?: AvatarType
@@ -83,6 +84,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const [isSaving, setIsSaving] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
+  const avaturnEnabled = FeatureFlagsState.useEnabled('ir.client.menu.avaturn')
+  const rpmEnabled = FeatureFlagsState.useEnabled('ir.client.menu.readyPlayerMe')
 
   let thumbnailSrc = state.thumbnailUrl
   if (state.thumbnailFile) {
@@ -346,23 +349,27 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
           </Grid>
 
           <Grid item md={5} sx={{ width: '100%' }}>
-            <Button
-              fullWidth
-              type="gradientRounded"
-              sx={{ mt: 1 }}
-              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
-            >
-              {t('user:usermenu.profile.useReadyPlayerMe')}
-            </Button>
+            {rpmEnabled && (
+              <Button
+                fullWidth
+                type="gradientRounded"
+                sx={{ mt: 1 }}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+              >
+                {t('user:usermenu.profile.useReadyPlayerMe')}
+              </Button>
+            )}
 
-            <Button
-              fullWidth
-              type="gradientRounded"
-              sx={{ mt: 1 }}
-              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Avaturn)}
-            >
-              {t('user:usermenu.profile.useAvaturn')}
-            </Button>
+            {avaturnEnabled && (
+              <Button
+                fullWidth
+                type="gradientRounded"
+                sx={{ mt: 1 }}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Avaturn)}
+              >
+                {t('user:usermenu.profile.useAvaturn')}
+              </Button>
+            )}
 
             <InputText
               name="name"

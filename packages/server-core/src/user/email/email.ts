@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
 import Mailer from 'feathers-mailer'
 import smtpTransport from 'nodemailer-smtp-transport'
+
+import { emailPath } from '@etherealengine/common/src/schemas/user/email.schema'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import hooks from './email.hooks'

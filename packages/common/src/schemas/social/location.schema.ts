@@ -28,6 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+
 import { TypedString } from '../../types/TypeboxUtils'
 import { assetSchema } from '../assets/asset.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -51,6 +52,9 @@ export const locationSchema = Type.Object(
     }),
     name: Type.String(),
     sceneId: Type.String(),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     slugifiedName: Type.String(),
     /** @todo review */
     isLobby: Type.Boolean(),
@@ -93,6 +97,7 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
   'id',
   'name',
   'sceneId',
+  'projectId',
   'slugifiedName',
   'isLobby',
   'isFeatured',

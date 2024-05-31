@@ -55,12 +55,12 @@ import {
   UploadPartCommand
 } from '@aws-sdk/client-s3'
 import { fromIni } from '@aws-sdk/credential-providers'
-
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { reject } from 'lodash'
+import { Client } from 'minio'
 import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
@@ -72,14 +72,10 @@ import {
   assetsRegex,
   projectPublicRegex,
   projectRegex,
-  projectThumbnailsRegex,
-  rootGLTFRegex,
-  rootImageRegex,
-  rootSceneJsonRegex
+  projectThumbnailsRegex
 } from '@etherealengine/common/src/constants/ProjectKeyConstants'
-import { Client } from 'minio'
-
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
+
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
@@ -116,13 +112,7 @@ const awsPath = './.aws/s3'
 const credentialsPath = `${awsPath}/credentials`
 
 export const getACL = (key: string) =>
-  projectRegex.test(key) &&
-  !projectPublicRegex.test(key) &&
-  !projectThumbnailsRegex.test(key) &&
-  !assetsRegex.test(key) &&
-  !rootImageRegex.test(key) &&
-  !rootSceneJsonRegex.test(key) &&
-  !rootGLTFRegex.test(key)
+  projectRegex.test(key) && !projectPublicRegex.test(key) && !projectThumbnailsRegex.test(key) && !assetsRegex.test(key)
     ? ObjectCannedACL.private
     : ObjectCannedACL.public_read
 

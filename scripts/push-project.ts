@@ -28,9 +28,9 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { projectPath, userPath } from '@etherealengine/common/src/schema.type.module'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { pushProjectToGithub } from '@etherealengine/server-core/src/projects/project/github-helper'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM } from '@pixiv/three-vrm'
 import { AnimationClip, KeyframeTrack, Object3D, Quaternion, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
+
 import { mixamoVRMRigMap, recursiveHipsLookup } from '../AvatarBoneMatching'
 
 const restRotationInverse = new Quaternion()

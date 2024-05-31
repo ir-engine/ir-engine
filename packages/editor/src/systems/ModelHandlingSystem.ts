@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import BufferHandlerExtension from '@etherealengine/engine/src/assets/exporters/gltf/extensions/BufferHandlerExtension'
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { ImportSettingsState } from '../components/assets/ImportSettingsPanel'
 import { clearModelResources, uploadProjectFiles } from '../functions/assetFunctions'
 

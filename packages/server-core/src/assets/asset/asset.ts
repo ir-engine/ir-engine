@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { AssetUpdate, assetMethods, assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
+import { assetMethods, assetPath, AssetUpdate } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
 import {
-  InstanceAttendanceType,
-  instanceAttendancePath
+  instanceAttendancePath,
+  InstanceAttendanceType
 } from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
+import { getState } from '@etherealengine/hyperflux'
+
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
 import { AssetService } from './asset.class'

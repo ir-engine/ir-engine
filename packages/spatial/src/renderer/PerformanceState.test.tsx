@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { destroyEngine } from '@etherealengine/ecs'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
+
+import { destroyEngine } from '@etherealengine/ecs'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { createEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'

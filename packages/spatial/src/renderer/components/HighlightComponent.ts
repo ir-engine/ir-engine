@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine, defineQuery, defineSystem } from '@etherealengine/ecs'
+import { defineQuery, defineSystem, Engine } from '@etherealengine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'

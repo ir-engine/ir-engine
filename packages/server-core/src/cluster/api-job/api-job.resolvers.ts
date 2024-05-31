@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
+import { v4 as uuidv4 } from 'uuid'
 
 import { ApiJobQuery, ApiJobType } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { v4 as uuidv4 } from 'uuid'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const apiJobResolver = resolve<ApiJobType, HookContext>({
   startTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.startTime)),

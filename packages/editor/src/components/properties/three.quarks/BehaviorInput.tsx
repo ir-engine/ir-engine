@@ -92,7 +92,7 @@ export default function BehaviorInput({
   const applyForceInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const forceScope = scope as State<ApplyForceBehaviorJSON>
-      const value = forceScope.value
+      const value = forceScope.value as ApplyForceBehaviorJSON
       return (
         <>
           <InputGroup name="force" label="Force">
@@ -179,7 +179,7 @@ export default function BehaviorInput({
   const colorOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const colorScope = scope as State<ColorOverLifeBehaviorJSON>
-      const value = colorScope.value
+      const value = colorScope.value as ColorOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="color" label="Color">
@@ -194,7 +194,7 @@ export default function BehaviorInput({
   const rotationOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const rotationScope = scope as State<RotationOverLifeBehaviorJSON>
-      const value = rotationScope.value
+      const value = rotationScope.value as RotationOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
@@ -209,7 +209,7 @@ export default function BehaviorInput({
   const rotation3DOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const rotation3DScope = scope as State<Rotation3DOverLifeBehaviorJSON>
-      const rotation3D = rotation3DScope.value
+      const rotation3D = rotation3DScope.value as Rotation3DOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
@@ -231,7 +231,7 @@ export default function BehaviorInput({
   const sizeOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const sizeScope = scope as State<SizeOverLifeBehaviorJSON>
-      const value = sizeScope.value
+      const value = sizeScope.value as SizeOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="size" label="Size">
@@ -246,7 +246,7 @@ export default function BehaviorInput({
   const speedOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const speedScope = scope as State<SpeedOverLifeBehaviorJSON>
-      const value = speedScope.value
+      const value = speedScope.value as SpeedOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="speed" label="Speed">
@@ -261,7 +261,7 @@ export default function BehaviorInput({
   const frameOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const frameScope = scope as State<FrameOverLifeBehaviorJSON>
-      const value = frameScope.value
+      const value = frameScope.value as FrameOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="frame" label="Frame">
@@ -276,7 +276,7 @@ export default function BehaviorInput({
   const orbitOverLifeInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const orbitScope = scope as State<OrbitOverLifeBehaviorJSON>
-      const value = orbitScope.value
+      const value = orbitScope.value as OrbitOverLifeBehaviorJSON
       return (
         <>
           <InputGroup name="orbit" label="Orbit">
@@ -294,7 +294,7 @@ export default function BehaviorInput({
   const widthOverLength = useCallback(
     (scope: State<BehaviorJSON>) => {
       const widthScope = scope as State<WidthOverLengthBehaviorJSON>
-      const value = widthScope.value
+      const value = widthScope.value as WidthOverLengthBehaviorJSON
       return (
         <>
           <InputGroup name="width" label="Width">
@@ -309,7 +309,7 @@ export default function BehaviorInput({
   const changeEmitDirectionInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const changeEmitDirectionScope = scope as State<ChangeEmitDirectionBehaviorJSON>
-      const value = changeEmitDirectionScope.value
+      const value = changeEmitDirectionScope.value as ChangeEmitDirectionBehaviorJSON
       return (
         <>
           <InputGroup name="angle" label="Angle">
@@ -324,7 +324,7 @@ export default function BehaviorInput({
   const emitSubParticleSystemInput = useCallback(
     (scope: State<BehaviorJSON>) => {
       const emitSubParticleSystemScope = scope as State<EmitSubParticleSystemBehaviorJSON>
-      const value = emitSubParticleSystemScope.value
+      const value = emitSubParticleSystemScope.value as EmitSubParticleSystemBehaviorJSON
       return (
         <>
           <InputGroup name="subParticleSystem" label="Sub Particle System">
@@ -344,7 +344,7 @@ export default function BehaviorInput({
     (scope: State<TextureSequencerJSON>) => {
       const thisOnChange = onChange(scope.src)
       return (src: string) => {
-        AssetLoader.load(src, {}, (texture: Texture) => {
+        AssetLoader.load(src, (texture: Texture) => {
           createReadableTexture(texture, { canvas: true, flipY: true }).then((readableTexture: Texture) => {
             const canvas = readableTexture.image as HTMLCanvasElement
             const ctx = canvas.getContext('2d')!

@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import {
-  ECSState,
-  Entity,
-  InputSystemGroup,
   defineQuery,
   defineSystem,
+  ECSState,
+  Entity,
   getComponent,
+  getOptionalComponent,
   hasComponent,
+  InputSystemGroup,
   removeComponent,
   setComponent
 } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
-import { MathUtils, Quaternion, Vector3 } from 'three'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
@@ -76,11 +79,11 @@ const onSecondaryReleased = (viewerEntity: Entity) => {
 
 const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
 const cameraQuery = defineQuery([CameraComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent, InputPointerComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const inputSourceEntities = inputSourceQuery()
-  const buttons = InputSourceComponent.getMergedButtons()
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
   /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
   for (const entity of cameraQuery()) {
@@ -100,8 +103,8 @@ const execute = () => {
     movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
       const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-      const pointer = getComponent(inputSourceEntity, InputPointerComponent)
-      if (inputSource.buttons.SecondaryClick?.pressed) {
+      const pointer = getOptionalComponent(inputSourceEntity, InputPointerComponent)
+      if (pointer && inputSource.buttons.SecondaryClick?.pressed) {
         movement.x += pointer.movement.x
         movement.y += pointer.movement.y
       }

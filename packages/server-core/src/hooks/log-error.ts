@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { NextFunction } from '@feathersjs/feathers'
+
+import multiLogger from '@etherealengine/common/src/logger'
+
 import type { HookContext } from '../../declarations'
 
 const logger = multiLogger.child({ component: 'server-core:log-error' })

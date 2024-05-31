@@ -23,23 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/ecs'
-import { SceneState } from '../../src/scene/SceneState'
+import { GLTF } from '@gltf-transform/core'
+import { Cache } from 'three'
+
+import { GLTFSourceState } from '../../src/gltf/GLTFState'
 
 export const loadEmptyScene = () => {
-  return SceneState.loadScene('test', {
-    name: '',
-    thumbnailUrl: '',
-    project: '',
-    scene: {
-      entities: {
-        ['root' as EntityUUID]: {
-          name: 'Root',
-          components: []
-        }
-      },
-      version: 0,
-      root: 'root' as EntityUUID
-    }
-  })
+  const gltf: GLTF.IGLTF = {
+    asset: {
+      version: '2.0'
+    },
+    scenes: [{ nodes: [] }],
+    scene: 0,
+    nodes: []
+  }
+  Cache.add('/test.gltf', gltf)
+  return GLTFSourceState.load('/test.gltf')
 }

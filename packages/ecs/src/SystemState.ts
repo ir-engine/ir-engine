@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isDev } from '@etherealengine/common/src/config'
-import { ReactorRoot, State, defineState } from '@etherealengine/hyperflux'
-import { Entity } from './Entity'
+import { defineState, ReactorRoot } from '@etherealengine/hyperflux'
+
 import { Query, QueryComponents } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'
 
@@ -35,6 +35,6 @@ export const SystemState = defineState({
     performanceProfilingEnabled: isDev,
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,
-    reactiveQueryStates: new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
+    reactiveQueryStates: new Set<{ query: Query; forceUpdate: () => void; components: QueryComponents }>()
   })
 })

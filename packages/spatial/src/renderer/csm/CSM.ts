@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Box3,
+  ColorRepresentation,
   DirectionalLight,
   Material,
   MathUtils,
@@ -41,7 +42,7 @@ import { getComponent, setComponent } from '@etherealengine/ecs/src/ComponentFun
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { getState } from '@etherealengine/hyperflux'
+
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -50,7 +51,6 @@ import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RendererState } from '../RendererState'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -84,6 +84,7 @@ type CSMParams = {
   lightDirection?: Vector3
   lightDirectionUp?: Vector3
   lightIntensity?: number
+  lightColor?: ColorRepresentation
   lightNear?: number
   lightFar?: number
   lightMargin?: number
@@ -97,8 +98,10 @@ export class CSM {
   mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowBias: number
   shadowNormalBias: number
+  shadowMapSize: number
   lightDirection: Vector3
   lightDirectionUp: Vector3
+  lightColor: ColorRepresentation
   lightIntensity: number
   lightMargin: number
   customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
@@ -118,10 +121,12 @@ export class CSM {
     this.cascades = data.cascades ?? 5
     this.maxFar = data.maxFar ?? 100
     this.mode = data.mode ?? CSMModes.PRACTICAL
+    this.shadowMapSize = data.shadowMapSize ?? 1024
     this.shadowBias = data.shadowBias ?? 0
     this.shadowNormalBias = 0
     this.lightDirection = data.lightDirection ?? new Vector3(1, -1, 1).normalize()
     this.lightDirectionUp = data.lightDirectionUp ?? Object3D.DEFAULT_UP
+    this.lightColor = data.lightColor ?? 0xffffff
     this.lightIntensity = data.lightIntensity ?? 1
     this.lightMargin = data.lightMargin ?? 200
     this.customSplitsCallback = data.customSplitsCallback
@@ -163,6 +168,30 @@ export class CSM {
     })
   }
 
+  createLight(light: DirectionalLight, i: number): void {
+    light.castShadow = true
+    light.frustumCulled = false
+
+    light.shadow.mapSize.width = this.shadowMapSize
+    light.shadow.mapSize.height = this.shadowMapSize
+
+    light.shadow.camera.near = 0
+    light.shadow.camera.far = 1
+
+    light.intensity = this.lightIntensity
+
+    const entity = createEntity()
+    addObjectToGroup(entity, light)
+    setComponent(entity, NameComponent, 'CSM light ' + i)
+    setComponent(entity, VisibleComponent)
+    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+
+    this.lightEntities.push(entity)
+    this.lights.push(light)
+    light.name = 'CSM_' + light.name
+    light.target.name = 'CSM_' + light.target.name
+  }
+
   createLights(sourceLight?: DirectionalLight): void {
     if (sourceLight) {
       this.sourceLight = sourceLight
@@ -171,47 +200,15 @@ export class CSM {
 
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
-        light.castShadow = true
-        light.frustumCulled = false
-
-        light.intensity = this.lightIntensity
-
-        const entity = createEntity()
-        addObjectToGroup(entity, light)
-        setComponent(entity, NameComponent, 'CSM light ' + i)
-        setComponent(entity, VisibleComponent)
-        setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-        this.lightEntities.push(entity)
-        this.lights.push(light)
-        light.name = 'CSM_' + sourceLight.name
-        light.target.name = 'CSM_' + sourceLight.target.name
+        this.createLight(light, i)
       }
       return
     }
 
     // if no lights are provided, create default ones
-
     for (let i = 0; i < this.cascades; i++) {
-      const light = new DirectionalLight(0xffffff, this.lightIntensity)
-
-      light.castShadow = true
-
-      light.shadow.camera.near = 0
-      light.shadow.camera.far = 1
-
-      light.frustumCulled = false
-
-      const entity = createEntity()
-      addObjectToGroup(entity, light)
-      setComponent(entity, NameComponent, 'CSM light ' + i)
-      setComponent(entity, VisibleComponent)
-      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-
-      this.lightEntities.push(entity)
-      this.lights.push(light)
-      light.name = 'CSM_' + light.name
-      light.target.name = 'CSM_' + light.target.name
+      const light = new DirectionalLight(this.lightColor, this.lightIntensity)
+      this.createLight(light, i)
     }
   }
 
@@ -321,6 +318,7 @@ export class CSM {
   update(): void {
     if (this.sourceLight) this.lightDirection.subVectors(this.sourceLight.target.position, this.sourceLight.position)
     if (this.needsUpdate) {
+      this.injectInclude()
       this.updateFrustums()
       for (const light of this.lights) {
         light.shadow.map?.dispose()
@@ -337,10 +335,8 @@ export class CSM {
       const frustum = frustums[i]
       const shadowCam = light.shadow.camera
 
-      const shadowMapSize = getState(RendererState).shadowMapResolution
-
-      const texelWidth = (shadowCam.right - shadowCam.left) / shadowMapSize
-      const texelHeight = (shadowCam.top - shadowCam.bottom) / shadowMapSize
+      const texelWidth = (shadowCam.right - shadowCam.left) / this.shadowMapSize
+      const texelHeight = (shadowCam.top - shadowCam.bottom) / this.shadowMapSize
 
       // This matrix only represents sun orientation, origin is zero
       _lightOrientationMatrix.lookAt(Vector3_Zero, this.lightDirection, this.lightDirectionUp)
@@ -489,6 +485,10 @@ export class CSM {
     this.lightEntities.forEach((entity) => {
       removeEntity(entity)
     })
+    this.lights.forEach((light) => {
+      light.dispose()
+    })
+    this.lightEntities = []
     this.lights = []
   }
 

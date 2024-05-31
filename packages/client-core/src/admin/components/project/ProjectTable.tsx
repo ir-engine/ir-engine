@@ -23,23 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType, projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
 import React from 'react'
-import DataTable from '../../common/Table'
-import { ProjectRowType, projectsColumns } from '../../common/constants/project'
-
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
-import config from '@etherealengine/common/src/config'
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
-import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
-import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { GrGithub } from 'react-icons/gr'
 import {
@@ -50,6 +34,24 @@ import {
   HiOutlineTrash,
   HiOutlineUsers
 } from 'react-icons/hi2'
+
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { ProjectService } from '@etherealengine/client-core/src/common/services/ProjectService'
+import config from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
+import { projectPath, projectPermissionPath, ProjectType } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
+import CopyText from '@etherealengine/ui/src/primitives/tailwind/CopyText'
+import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+
+import { toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
+import { ProjectRowType, projectsColumns } from '../../common/constants/project'
+import DataTable from '../../common/Table'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import ManageUserPermissionModal from './ManageUserPermissionModal'
@@ -105,7 +107,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineArrowPath />}
           size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() =>
             PopoverState.showPopupover(
@@ -118,7 +120,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -139,7 +141,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineUsers />}
           size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(
@@ -152,7 +154,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineCommandLine />}
           size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             PopoverState.showPopupover(
@@ -170,14 +172,14 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineFolder />}
           size="small"
-          className="bg-theme-blue-secondary mr-2 h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<HiOutlineTrash />}
           size="small"
-          className="bg-theme-blue-secondary h-min whitespace-pre text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -232,15 +234,7 @@ export default function ProjectTable() {
             <CopyText text={row.commitSHA || ''} className="ml-1" />
           </span>
         ),
-        commitDate: row.commitDate
-          ? new Date(row.commitDate).toLocaleString('en-us', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric'
-            })
-          : '-',
+        commitDate: toDisplayDateTime(row.commitDate),
         actions: <RowActions project={row} />
       }
     })

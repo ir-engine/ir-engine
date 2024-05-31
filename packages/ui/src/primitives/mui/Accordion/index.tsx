@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AccordionProps, Accordion as MuiAccordion } from '@mui/material'
 import React from 'react'
 
 import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
 import AccordionSummary from '@etherealengine/ui/src/primitives/mui/AccordionSummary'
-
-import { AccordionProps, Accordion as MuiAccordion } from '@mui/material'
 
 const Accordion = (props: AccordionProps) => <MuiAccordion {...props} />
 

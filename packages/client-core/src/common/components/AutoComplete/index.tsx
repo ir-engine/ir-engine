@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material'
 import * as React from 'react'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-
-import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material'
 
 import styles from './index.module.scss'
 

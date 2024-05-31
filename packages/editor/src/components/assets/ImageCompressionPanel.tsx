@@ -28,7 +28,9 @@ import React from 'react'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
@@ -38,8 +40,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { fileBrowserUploadPath } from '@etherealengine/common/src/schema.type.module'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'

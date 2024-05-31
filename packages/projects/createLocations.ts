@@ -23,6 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers/lib'
+import { v4 as uuidv4 } from 'uuid'
+
 import {
   LocationData,
   LocationID,
@@ -33,8 +36,6 @@ import {
 import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 import logger from '@etherealengine/server-core/src/ServerLogger'
-import { Paginated } from '@feathersjs/feathers/lib'
-import { v4 as uuidv4 } from 'uuid'
 
 export const createLocations = async (app: Application, projectName: string, sceneFiles: Record<string, string>) => {
   return Promise.all(

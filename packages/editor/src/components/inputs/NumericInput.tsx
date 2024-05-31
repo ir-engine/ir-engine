@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import PropTypes from 'prop-types'
 import React, { useEffect, useRef } from 'react'
 
+import { useHookstate } from '@etherealengine/hyperflux'
 import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
 
-import { useHookstate } from '@hookstate/core'
 import './NumericInput.css'
 
 // Import the CSS file

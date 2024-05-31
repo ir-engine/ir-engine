@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 import Sinon from 'sinon'
-import { Mesh } from 'three'
+
 // hack to make tests happy
 import '../../EngineModule'
 
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 import { AssetLoader } from './AssetLoader'
@@ -46,13 +46,6 @@ describe('AssetLoader', async () => {
 
   afterEach(() => {
     return destroyEngine()
-  })
-
-  describe('processModelAsset', () => {
-    it('should work for gltf asset', async () => {
-      const asset = new Mesh()
-      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset, {}))
-    })
   })
 
   describe('getAssetType', () => {
@@ -119,7 +112,7 @@ describe('AssetLoader', async () => {
     })
 
     it('should give error for empty url', async () => {
-      AssetLoader.load('', {}, undefined, undefined, (err) => {
+      AssetLoader.load('', undefined, undefined, (err) => {
         assert.notEqual(err, null)
       })
     })

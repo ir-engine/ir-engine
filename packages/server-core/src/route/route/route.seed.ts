@@ -27,9 +27,8 @@ import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import { RouteID, routePath, RouteType } from '@etherealengine/common/src/schemas/route/route.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -56,6 +55,10 @@ export async function seed(knex: Knex): Promise<void> {
       {
         project: 'default-project',
         route: '/studio'
+      },
+      {
+        project: 'default-project',
+        route: '/studio-old'
       },
       {
         project: 'default-project',

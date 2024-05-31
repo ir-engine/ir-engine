@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeConfigurationJSON } from '@etherealengine/visual-script'
+
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 
 export const getSocketsByNodeTypeAndHandleType = (

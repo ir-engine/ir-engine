@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React from 'react'
+
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@etherealengine/hyperflux'
-import React from 'react'
 
 // todo move this to core engine
 const ClickawayListener = (props: { children: JSX.Element }) => {

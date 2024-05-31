@@ -57,7 +57,7 @@
           "bakeType": "Baked",
           "resolution": 2048,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/apartment.envmap.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/apartment.envmap.ktx2",
           "boxProjection": false
         },
         "EE_camera_settings": {
@@ -227,8 +227,8 @@
         },
         "EE_visible": true,
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/apartment.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/apartment.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/default-project/public/scenes/apartment.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/default-project/public/scenes/apartment.loadingscreen.ktx2",
           "primaryColor": "#A8B6C6",
           "backgroundColor": "rgb(64, 70, 71)",
           "alternativeColor": "#8EBBAE",
@@ -898,7 +898,7 @@
           "redirect": false,
           "effectType": "Hyperspace",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/apartment-Portal.ktx2",
+          "previewImageURL": "__$project$__/default-project/public/scenes/apartment-Portal.ktx2",
           "spawnPosition": {
             "x": -12,
             "y": 1,
@@ -1206,7 +1206,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
+          "envMapOrigin": "__$project$__/default-project/public/scenes/apartment-New-EnvMap%20Bake.ktx2",
           "boxProjection": true
         },
         "EE_visible": true

@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { useEffect } from 'react'
+
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/gizmoHelper'

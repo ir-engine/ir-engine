@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Popover from '@mui/material/Popover'
 import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
 import React, { useEffect, useState } from 'react'
 import { Color } from 'three'
-
-import Popover from '@mui/material/Popover'
 
 // kept to show style inheritance
 import './ColorInput.css'

@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { avatarMethods, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { Paginated } from '@feathersjs/feathers'
 
+import { avatarMethods, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { userAvatarPath, UserAvatarType } from '@etherealengine/common/src/schemas/user/user-avatar.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { AvatarService } from './avatar.class'

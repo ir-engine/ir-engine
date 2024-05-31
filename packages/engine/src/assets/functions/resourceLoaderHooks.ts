@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
-import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 import { GLTF } from '@gltf-transform/core'
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
+
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
+import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
+
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
-import { LoadingArgs } from '../classes/AssetLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { loadResource } from './resourceLoaderFunctions'
 
@@ -39,7 +40,6 @@ function useLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
-  params: LoadingArgs = {},
   //Called when the asset url is changed, mostly useful for editor functions when changing an asset
   onUnload: (url: string) => void = (url: string) => {}
 ): [T | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
@@ -57,7 +57,7 @@ function useLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     const controller = new AbortController()
     if (url !== urlState.value) {
       if (urlState.value) {
@@ -82,7 +82,6 @@ function useLoader<T extends ResourceAssetType>(
       url,
       resourceType,
       entity,
-      params,
       (response) => {
         completed = true
         value.set(response)
@@ -117,14 +116,13 @@ function useLoader<T extends ResourceAssetType>(
     }
   }, [url])
 
-  return [value.get(NO_PROXY), error.get(NO_PROXY), progress.get(NO_PROXY), unload]
+  return [value.get(NO_PROXY) as T | null, error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
 function useBatchLoader<T extends ResourceAssetType>(
   urls: string[],
   resourceType: ResourceType,
-  entity: Entity = UndefinedEntity,
-  params: LoadingArgs = {}
+  entity: Entity = UndefinedEntity
 ): [
   State<(T | null)[]>,
   State<(ErrorEvent | Error | null)[]>,
@@ -143,7 +141,7 @@ function useBatchLoader<T extends ResourceAssetType>(
     return unload
   }, [])
 
-  useEffect(() => {
+  useImmediateEffect(() => {
     const completedArr = new Array(urls.length).fill(false) as boolean[]
     const controller = new AbortController()
 
@@ -154,7 +152,6 @@ function useBatchLoader<T extends ResourceAssetType>(
         url,
         resourceType,
         entity,
-        params,
         (response) => {
           completedArr[i] = true
           values[i].set(response)
@@ -188,8 +185,7 @@ function useBatchLoader<T extends ResourceAssetType>(
 async function getLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
-  entity: Entity = UndefinedEntity,
-  params: LoadingArgs = {}
+  entity: Entity = UndefinedEntity
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
   const unload = () => {
     ResourceManager.unload(url, entity)
@@ -201,7 +197,6 @@ async function getLoader<T extends ResourceAssetType>(
       url,
       resourceType,
       entity,
-      params,
       (response) => {
         resolve([response, unload, null])
       },
@@ -229,19 +224,17 @@ async function getLoader<T extends ResourceAssetType>(
 export function useGLTF(
   url: string,
   entity?: Entity,
-  params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [GLTFAsset | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, params, onUnload)
+  return useLoader<GLTFAsset>(url, ResourceType.GLTF, entity, onUnload)
 }
 
 export function useGLTFDocument(
   url: string,
   entity?: Entity,
-  params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [GLTF.IGLTF | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<any>(url, ResourceType.Unknown, entity, params, onUnload)
+  return useLoader<any>(url, ResourceType.Unknown, entity, onUnload)
 }
 
 /**
@@ -258,15 +251,14 @@ export function useGLTFDocument(
  */
 export function useBatchGLTF(
   urls: string[],
-  entity?: Entity,
-  params?: LoadingArgs
+  entity?: Entity
 ): [
   State<(GLTFAsset | null)[]>,
   State<(ErrorEvent | Error | null)[]>,
   State<(ProgressEvent<EventTarget> | null)[]>,
   () => void
 ] {
-  return useBatchLoader<GLTFAsset>(urls, ResourceType.GLTF, entity, params)
+  return useBatchLoader<GLTFAsset>(urls, ResourceType.GLTF, entity)
 }
 
 /**
@@ -282,10 +274,9 @@ export function useBatchGLTF(
  */
 export async function getGLTFAsync(
   url: string,
-  entity?: Entity,
-  params?: LoadingArgs
+  entity?: Entity
 ): Promise<[GLTFAsset | null, () => void, ErrorEvent | Error | null]> {
-  return getLoader<GLTFAsset>(url, ResourceType.GLTF, entity, params)
+  return getLoader<GLTFAsset>(url, ResourceType.GLTF, entity)
 }
 
 /**
@@ -303,10 +294,9 @@ export async function getGLTFAsync(
 export function useTexture(
   url: string,
   entity?: Entity,
-  params?: LoadingArgs,
   onUnload?: (url: string) => void
 ): [Texture | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  return useLoader<Texture>(url, ResourceType.Texture, entity, params, onUnload)
+  return useLoader<Texture>(url, ResourceType.Texture, entity, onUnload)
 }
 
 /**
@@ -322,8 +312,7 @@ export function useTexture(
  */
 export async function getTextureAsync(
   url: string,
-  entity?: Entity,
-  params?: LoadingArgs
+  entity?: Entity
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
-  return getLoader<Texture>(url, ResourceType.Texture, entity, params)
+  return getLoader<Texture>(url, ResourceType.Texture, entity)
 }

@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { State } from '@hookstate/core'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
-
-import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
-import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 import { setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, EntityContext } from '@etherealengine/ecs/src/EntityFunctions'
+import { State } from '@etherealengine/hyperflux'
+import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
+import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
+
 import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'

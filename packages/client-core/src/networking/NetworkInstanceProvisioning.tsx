@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Groups from '@mui/icons-material/Groups'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   LocationInstanceConnectionService,
@@ -38,13 +40,11 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { NetworkState } from '@etherealengine/network'
 
-import Groups from '@mui/icons-material/Groups'
-
-import { InstanceID, LocationID, RoomCode } from '@etherealengine/common/src/schema.type.module'
-import { useTranslation } from 'react-i18next'
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -52,7 +52,7 @@ import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 
 export const WorldInstanceProvisioning = () => {
-  const locationState = useHookstate(getMutableState(LocationState))
+  const locationState = useMutableState(LocationState)
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
 
   const worldNetwork = NetworkState.worldNetwork
@@ -176,7 +176,7 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const channelState = useHookstate(getMutableState(ChannelState))
+  const channelState = useMutableState(ChannelState)
 
   const worldNetworkId = NetworkState.worldNetwork?.id
   const worldNetwork = useWorldNetwork()
@@ -246,31 +246,41 @@ export const SocialMenus = {
 
 export const FriendMenus = () => {
   const { t } = useTranslation()
-  FriendService.useAPIListeners()
+
+  const socialsEnabled = FeatureFlagsState.useEnabled('ir.client.menu.social')
 
   useEffect(() => {
-    const menuState = getMutableState(PopupMenuState)
-    menuState.menus.merge({
+    if (!socialsEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+    popupMenuState.menus.merge({
       [SocialMenus.Friends]: FriendsMenu,
       [SocialMenus.Messages]: MessagesMenu
     })
-    menuState.hotbar.merge({
+
+    popupMenuState.hotbar.merge({
       [SocialMenus.Friends]: { icon: <Groups />, tooltip: t('user:menu.friends') }
     })
 
     return () => {
-      menuState.menus.merge({
+      popupMenuState.menus.merge({
         [SocialMenus.Friends]: none,
         [SocialMenus.Messages]: none
       })
 
-      menuState.hotbar.merge({
+      popupMenuState.hotbar.merge({
         [SocialMenus.Friends]: none
       })
     }
-  }, [])
+  }, [socialsEnabled])
 
-  return null
+  if (!socialsEnabled) return null
+
+  const UseFriendsListeners = () => {
+    FriendService.useAPIListeners()
+    return null
+  }
+  return <UseFriendsListeners />
 }
 
 export const InstanceProvisioning = () => {

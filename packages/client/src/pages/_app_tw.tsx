@@ -27,32 +27,32 @@ Ethereal Engine. All Rights Reserved.
 
 import { SnackbarProvider } from 'notistack'
 import React, { useEffect, useRef, useState } from 'react'
-
-import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
-import Debug from '@etherealengine/client-core/src/components/Debug'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
-
-import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
-import PublicRouter from '../route/public_tw'
+import { useTranslation } from 'react-i18next'
 
 import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
+import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
+import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
+import Debug from '@etherealengine/client-core/src/components/Debug'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/ecs/src/Engine'
+import { useMutableState } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import { useTranslation } from 'react-i18next'
+
+import PublicRouter from '../route/public_tw'
+
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
 
 const AppPage = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
+  const authState = useMutableState(AuthState)
+  const isLoggedIn = useMutableState(AuthState).isLoggedIn
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const { t } = useTranslation()
@@ -75,7 +75,7 @@ const AppPage = () => {
   }, [selfUser.id])
 
   if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
-    return <LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingRoutes')} />
   }
 
   return (
@@ -88,8 +88,8 @@ const AppPage = () => {
 
 const TailwindPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
-  const notificationstate = useHookstate(getMutableState(NotificationState))
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const notificationstate = useMutableState(NotificationState)
+  const clientSettingState = useMutableState(AdminClientSettingsState)
 
   useEffect(() => {
     notificationstate.snackbar.set(notistackRef.current)

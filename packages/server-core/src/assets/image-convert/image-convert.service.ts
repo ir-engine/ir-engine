@@ -28,9 +28,9 @@ import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 
-import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {
