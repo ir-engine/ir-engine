@@ -37,6 +37,8 @@ import { fxaaAddToEffectRegistry } from './FXAAEffect'
 import { glitchAddToEffectRegistry } from './GlitchEffect'
 import { gridAddToEffectRegistry } from './GridEffect'
 import { hueSaturationAddToEffectRegistry } from './HueSaturationEffect'
+import { lut1DAddToEffectRegistry } from './LUT1DEffect'
+import { lut3DAddToEffectRegistry } from './LUT3DEffect'
 import { lensDistortionAddToEffectRegistry } from './LensDistortionEffect'
 import { linearTosRGBAddToEffectRegistry } from './LinearTosRGBEffect'
 import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
@@ -67,8 +69,8 @@ export const populateEffectRegistry = () => {
   hueSaturationAddToEffectRegistry()
   lensDistortionAddToEffectRegistry()
   linearTosRGBAddToEffectRegistry()
-  //lut1DAddToEffectRegistry()
-  //lut3DAddToEffectRegistry()
+  lut1DAddToEffectRegistry()
+  lut3DAddToEffectRegistry()
   motionBlurAddToEffectRegistry()
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()

@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const Effects = {
-  TRAAEffect: 'TRAAEffect' as const,
-  VignetteEffect: 'VignetteEffect' as const
-}
-
 export enum PropertyTypes {
   BlendFunction,
   Number,

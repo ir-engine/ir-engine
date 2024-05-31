@@ -45,11 +45,7 @@ export const LUT3DEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   const { isActive, rendererEntity, effectData, effects } = props
   const effectState = getState(PostProcessingEffectState)
 
-  let lut3DEffectTexturePath: string | undefined
-  if (effectData[effectKey].value.lutPath && effectData[effectKey].value.isActive) {
-    lut3DEffectTexturePath = effectData[effectKey].value.lutPath
-  }
-  const [lut3DEffectTexture, lut3DEffectTextureError] = useTexture(lut3DEffectTexturePath!)
+  const [lut3DEffectTexture, lut3DEffectTextureError] = useTexture(effectData[effectKey].value?.lutPath!)
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -69,7 +65,7 @@ export const LUT3DEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
     return () => {
       effects[effectKey].set(none)
     }
-  }, [isActive, effectData[effectKey]])
+  }, [isActive, effectData[effectKey], lut3DEffectTexture])
 
   return null
 }
