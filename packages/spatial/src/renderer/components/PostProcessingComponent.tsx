@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { ErrorBoundary, NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
-import { Effect, EffectComposer, EffectPass, RenderPass } from 'postprocessing'
+import { Effect, EffectComposer, EffectPass, OutlineEffect, RenderPass } from 'postprocessing'
 import React, { Suspense, useEffect } from 'react'
 import { ArrayCamera, Scene, WebGLRenderer } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
 import { useScene } from './SceneComponents'
 
@@ -117,10 +119,10 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
     // renderer.effectComposer["SMAAEffect"].set(smaaEffect)
 
     // //always have the outline effect for the highlight selection
-    // const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))
-    // outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-    // effectsVal["OutlineEffect"].effect = outlineEffect
-    // renderer.effectComposer["OutlineEffect"].set(outlineEffect)
+    const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))
+    outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+    effectsVal['OutlineEffect'] = outlineEffect
+    renderer.effectComposer['OutlineEffect'].set(outlineEffect)
 
     if (renderer.value.effectComposer.EffectPass) {
       renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass as EffectPass)
