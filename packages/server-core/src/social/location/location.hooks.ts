@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { locationAdminPath } from '@etherealengine/common/src/schemas/social/location-admin.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
@@ -43,8 +43,10 @@ import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { HookContext } from '../../../declarations'
+import checkScope from '../../hooks/check-scope'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import logger from '../../ServerLogger'
 import { LocationService } from './location.class'
 import {
@@ -210,23 +212,44 @@ export default {
     find: [discardQuery('action'), discardQuery('studio'), sortByLocationSetting],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationDataValidator),
       schemaHooks.resolveData(locationDataResolver),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('location', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       persistData,
       discard('locationSetting', 'locationAdmin')
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),
       schemaHooks.resolveData(locationPatchResolver),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('location', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       disallowNonId,
       persistData,
       discard('locationSetting')
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('location', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       checkIsLobby,
       removeLocationSetting,
       removeLocationAdmin
