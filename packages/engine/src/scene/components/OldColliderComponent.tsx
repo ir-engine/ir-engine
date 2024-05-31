@@ -56,7 +56,7 @@ import {
 } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode, useTreeQuery } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import {
   computeTransformMatrix,
@@ -162,6 +162,7 @@ export const OldColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
+    const tree = useTreeQuery(entity)
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
@@ -259,7 +260,7 @@ export const OldColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, tree])
 
     return null
   }

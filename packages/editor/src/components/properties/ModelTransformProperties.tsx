@@ -140,7 +140,7 @@ export default function ModelTransformProperties({ entity, onChangeModel }: { en
 
       for (const variant of variants) {
         if (clientside) {
-          await clientSideTransformModel(variant as ModelTransformParameters)
+          nuPath = await clientSideTransformModel(variant as ModelTransformParameters)
         } else {
           await Engine.instance.api.service(modelTransformPath).create(variant)
         }
