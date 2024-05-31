@@ -32,7 +32,6 @@ import { LoadingCircle } from '@etherealengine/client-core/src/components/Loadin
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
-const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
 const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
 const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
 

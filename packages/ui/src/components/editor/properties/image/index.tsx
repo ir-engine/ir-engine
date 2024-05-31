@@ -51,7 +51,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       icon={<LuImage />}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput value={imageComponent.source.value ?? ''} onRelease={commitProperty(ImageComponent, 'source')} />
+        <ImageInput value={imageComponent.source.value} onRelease={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (
