@@ -103,12 +103,12 @@ describe('CameraSystem', async () => {
       )
       applyIncomingActions()
 
-      assert.ok(
-        hasComponent(viewerEntity, CameraComponent),
-        "The spawnCamera Action didn't apply the CameraComponent to the entity"
-      )
       const cameraEntity = UUIDComponent.getEntityByUUID(CameraUUID)
       assert.ok(cameraEntity, "The spawnCamera Action didn't create an entity.")
+      assert.ok(
+        hasComponent(cameraEntity, CameraComponent),
+        "The spawnCamera Action didn't apply the CameraComponent to the entity"
+      )
 
       unmount()
     })
