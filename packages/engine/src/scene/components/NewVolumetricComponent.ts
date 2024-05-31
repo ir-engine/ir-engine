@@ -187,8 +187,15 @@ export const NewVolumetricComponent = defineComponent({
       const frameCount = (manifest as OldManifestSchema).frameData.length
       const frameRate = (manifest as OldManifestSchema).frameRate
       durationInMS = (frameCount * 1000) / frameRate
-    } else {
+    } else if (geometryType === GeometryType.Unify || geometryType === GeometryType.Draco) {
       durationInMS = (manifest as ManifestSchema).duration * 1000
+    } else {
+      console.error('Invalid geometry type')
+      return false
+    }
+
+    if (!component.geometry.initialBufferLoaded.value) {
+      return false
     }
 
     const startTime = (currentTimeInMS * TIME_UNIT_MULTIPLIER) / 1000
@@ -210,8 +217,14 @@ export const NewVolumetricComponent = defineComponent({
     const textureTypes = component.textureInfo.textureTypes.value
     for (const textureType of textureTypes) {
       const textureInfo = component.texture[textureType].get(NO_PROXY)
+
       const textureBufferInfo = volumeticMutables[entity].texture[textureType]
+
       if (!textureInfo || !textureBufferInfo) {
+        return false
+      }
+
+      if (!component.textureInfo.initialBufferLoaded.value[textureType]) {
         return false
       }
       const textureBufferDataContainer = textureBufferInfo.bufferData
@@ -1112,6 +1125,10 @@ function NewVolumetricComponentReactor() {
       }
 
       if (playlistComponent.paused) {
+        return
+      }
+
+      if (!playlistComponent.currentTrackUUID) {
         return
       }
 
