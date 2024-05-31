@@ -23,12 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * Create a lerp alpha value that is exponentially smoothed.
- * @param lerpMultiplier
- * @param deltaSeconds
- * @returns
- */
-export function smootheLerpAlpha(lerpMultiplier: number, deltaSeconds: number) {
-  return 1 - Math.exp(-lerpMultiplier * deltaSeconds)
+import Component from './index'
+
+const argTypes = {}
+
+export default {
+  title: 'Editor/Properties/PositionalAudio',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'PositionalAudioNodeEditor',
+    jest: 'positionalAudioNodeEditor.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
+export const Default = { args: {} }

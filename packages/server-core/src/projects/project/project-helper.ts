@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DescribeImagesCommand as DescribePrivateImagesCommand, ECRClient } from '@aws-sdk/client-ecr'
+import {
+  DescribeImagesCommand as DescribePrivateImagesCommand,
+  ECRClient,
+  TagStatus as TagStatusPrivate
+} from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
@@ -835,9 +839,6 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
       const response = await ecr.send(result)
       if (!response || !response.imageDetails) return []
       return response.imageDetails
-        .filter(
-          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-        )
         .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
         .map((imageDetails) => {
           const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
@@ -869,7 +870,10 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
       region: privateECRExec[1]
     })
     const command = {
-      repositoryName: privateECRExec[2]
+      repositoryName: privateECRExec[2],
+      filter: {
+        tagStatus: TagStatusPrivate.TAGGED
+      }
     }
     const result = new DescribePrivateImagesCommand(command)
     try {

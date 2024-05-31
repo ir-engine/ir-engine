@@ -69,17 +69,6 @@ const App = () => {
             }
           />
           <Route
-            key="studio"
-            path="/studio/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
             key="offline"
             path="/offline/*"
             element={
