@@ -1066,7 +1066,29 @@ export async function getProjectUpdateJobBody(
               name: `${process.env.RELEASE_NAME}-${data.name}-update`,
               image,
               imagePullPolicy: 'IfNotPresent',
-              command
+              command,
+              env: [
+                {
+                  name: 'MYSQL_HOST',
+                  value: process.env.MYSQL_HOST
+                },
+                {
+                  name: 'MYSQL_PORT',
+                  value: process.env.MYSQL_PORT
+                },
+                {
+                  name: 'MYSQL_DATABASE',
+                  value: process.env.MYSQL_DATABASE
+                },
+                {
+                  name: 'MYSQL_PORT',
+                  value: process.env.MYSQL_PORT
+                },
+                {
+                  name: 'MYSQL_PASSWORD',
+                  value: process.env.MYSQL_PASSWORD
+                }
+              ]
             }
           ],
           restartPolicy: 'Never'
