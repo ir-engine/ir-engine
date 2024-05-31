@@ -30,6 +30,7 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { usePrevious } from '@etherealengine/common/src/utils/usePrevious'
+import { Entity } from '@etherealengine/ecs'
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { NO_PROXY, State, none } from '@etherealengine/hyperflux'
 import AddIcon from '@mui/icons-material/Add'
@@ -163,6 +164,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
               {component.tracks.value.map((track, index) => {
                 return (
                   <Track
+                    entity={props.entity}
                     track={component.tracks[index]}
                     moveTrack={moveTrack}
                     findTrack={findTrack}
@@ -282,6 +284,7 @@ export const PlaylistNodeEditor: EditorComponentType = (props) => {
 }
 
 const Track = ({
+  entity,
   track,
   active,
   playing,
@@ -290,6 +293,7 @@ const Track = ({
   onChange,
   togglePlay
 }: {
+  entity: Entity
   track: State<Track>
   active: boolean
   playing: boolean
@@ -376,6 +380,7 @@ const Track = ({
       <IconButton
         onClick={() => {
           track.set(none)
+          PlaylistComponent.playNextTrack(entity, 0)
         }}
       >
         <DeleteIcon
