@@ -102,7 +102,7 @@ export const NewVolumetricNodeEditor: EditorComponentType = (props) => {
       {component.geometry.targets.length > 0 && (
         <InputGroup name="Geometry Target" label="Geometry Target">
           <SelectInput
-            options={geometryTargets.value}
+            options={geometryTargets.value as Array<OptionsType>}
             value={
               component.geometry.userTarget.value === -1
                 ? component.geometry.currentTarget.value
