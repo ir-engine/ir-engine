@@ -74,7 +74,7 @@ describe('CameraSystem', async () => {
     const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
     const tag = <NetworkWorldUserStateSystemReactor />
 
-    it('WIP', async () => {
+    it('should create a camera entity and apply a CameraComponent to that entity', async () => {
       const hostUserId = 'world' as UserID
       const userId = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
