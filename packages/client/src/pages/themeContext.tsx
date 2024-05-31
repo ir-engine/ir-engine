@@ -42,7 +42,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/common/src/schema.type.module'
-import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string
