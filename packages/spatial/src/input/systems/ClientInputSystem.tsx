@@ -235,8 +235,10 @@ const execute = () => {
       raycaster.set(inputRaycast.origin, inputRaycast.direction)
       raycaster.layers.enable(ObjectLayers.Default)
 
+      const inputState = getState(InputState)
+      const isEditing = getState(EngineState).isEditing
       // only heuristic is scene objects when in the editor
-      if (getState(EngineState).isEditing) {
+      if (isEditing) {
         const pickerObj = gizmoPickerObjects() // gizmo heuristic
         const inputObj = inputObjects()
 
@@ -277,7 +279,7 @@ const execute = () => {
             intersectionData.add({ entity: hit.entity, distance: hit.distance })
           }
         }
-        const inputState = getState(InputState)
+
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {
           const boundingBox = getComponent(entity, BoundingBoxComponent)
@@ -286,19 +288,19 @@ const execute = () => {
             intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
           }
         }
+      }
 
-        // 4th heuristic is meshes
-        const objects = Array.from(inputState.inputMeshes) // gizmo heuristic
-          .filter((eid) => hasComponent(eid, GroupComponent))
-          .map((eid) => getComponent(eid, GroupComponent))
-          .flat()
+      // 4th heuristic is meshes
+      const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
+        .filter((eid) => hasComponent(eid, GroupComponent))
+        .map((eid) => getComponent(eid, GroupComponent))
+        .flat()
 
-        const hits = raycaster.intersectObjects<Object3D>(objects, true)
-        for (const hit of hits) {
-          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-          if (parentObject) {
-            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-          }
+      const hits = raycaster.intersectObjects<Object3D>(objects, true)
+      for (const hit of hits) {
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+        if (parentObject) {
+          intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
         }
       }
     }
@@ -672,6 +674,7 @@ const reactor = () => {
 const MeshInputReactor = () => {
   const entity = useEntityContext()
   const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputMeshes.add(entity)
