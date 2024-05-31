@@ -93,7 +93,7 @@ const ViewportDnD = () => {
         isDragging && isOver ? 'border-4' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
-    ></div>
+    />
   )
 }
 
