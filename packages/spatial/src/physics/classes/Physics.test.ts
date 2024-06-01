@@ -52,6 +52,14 @@ import { UndefinedEntity, removeEntity } from '@etherealengine/ecs'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
+function assertFloatApproxEq(A: number, B: number, epsilon = 0.001) {
+  assert.ok(Math.abs(A - B) < epsilon, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
+}
+
+function assertFloatApproxNotEq(A: number, B: number, epsilon = 0.001) {
+  assert.ok(Math.abs(A - B) > epsilon, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+}
+
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
   bodyType: RigidBodyType.Fixed,
@@ -75,13 +83,6 @@ describe('Physics', () => {
 
   afterEach(() => {
     return destroyEngine()
-  })
-
-  it('should create rapier world & event queue', async () => {
-    const world = Physics.createWorld()
-    const eventQueue = Physics.createCollisionEventQueue()
-    assert(world)
-    assert(eventQueue)
   })
 
   it('should create & remove rigidBody', async () => {
@@ -205,36 +206,6 @@ describe('Physics', () => {
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     assert.deepEqual(interactionGroups, 65539)
-  })
-
-  it('should cast ray and hit rigidbody', async () => {
-    const physicsWorld = getState(PhysicsState).physicsWorld
-
-    const entity = createEntity()
-    setComponent(entity, TransformComponent, { position: new Vector3(10, 0, 0), scale: new Vector3(10, 10, 10) })
-    computeTransformMatrix(entity)
-    setComponent(entity, RigidBodyComponent, { type: BodyTypes.Fixed })
-    setComponent(entity, ColliderComponent, {
-      shape: Shapes.Box,
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask
-    })
-
-    physicsWorld.step()
-
-    const raycastComponentData = {
-      type: SceneQueryType.Closest,
-      origin: new Vector3().set(0, 0, 0),
-      direction: ObjectDirection.Right,
-      maxDistance: 20,
-      groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
-    }
-    const hits = Physics.castRay(physicsWorld, raycastComponentData)
-
-    assert.deepEqual(hits.length, 1)
-    assert.deepEqual(hits[0].normal.x, -1)
-    assert.deepEqual(hits[0].distance, 5)
-    assert.deepEqual((hits[0].body.userData as any)['entity'], entity)
   })
 
   it('should generate a collision event', async () => {
@@ -395,7 +366,7 @@ describe('PhysicsAPI', () => {
   describe('Rigidbodies', () => {
     describe('createRigidBody', () => {
       const position = new Vector3(1, 2, 3)
-      const rotation = new Quaternion(4, 5, 6, 1)
+      const rotation = new Quaternion(0.4, 0.5, 0.6, 0.0)
 
       const scale = new Vector3(10, 10, 10)
       let testEntity = UndefinedEntity
@@ -443,19 +414,19 @@ describe('PhysicsAPI', () => {
         assert.deepEqual(body.translation(), position)
       })
 
-      /*
-    // @todo How to check rotations?
-    it("should assign the entity's rotation to the rigidBody.rotation property", () => {
-      Physics.createRigidBody(testEntity, physicsWorld!)
-      const body = Physics._Rigidbodies.get(testEntity)
-      assert.deepEqual(body!.rotation(), {
-        w: 0.06706728786230087,
-        x: 0.3365011513233185,
-        y: 0.4241691827774048,
-        z: 0.8380629420280457
+      /**
+      // @todo How to check rotations?
+      it("should assign the entity's rotation to the rigidBody.rotation property", () => {
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.deepEqual(body!.rotation(), {
+          w: 0.0,
+          x: 0.4,
+          y: 0.5,
+          z: 0.6
+        })
       })
-    })
-    */
+      */
 
       it('should create a body with no Linear Velocity', () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
@@ -598,7 +569,7 @@ describe('PhysicsAPI', () => {
 
     describe('setRigidbodyPose', () => {
       const position = new Vector3(1, 2, 3)
-      const rotation = new Quaternion(4, 5, 6, 1)
+      const rotation = new Quaternion(0.4, 0.5, 0.6, 0.0)
       const linVel = new Vector3(7, 8, 9)
       const angVel = new Vector3(0, 1, 2)
       let testEntity = UndefinedEntity
@@ -692,39 +663,52 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    /**
-  // @todo How to check for the impulse of an entity?
-  describe("applyImpulse", () => {
-    let testEntity = UndefinedEntity
-    let physicsWorld :World | undefined= undefined
+    // @todo How to check for the impulse of an entity?
+    describe('applyImpulse', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
 
-    beforeEach(async () => {
-      createEngine()
-      await Physics.load()
-      physicsWorld  = Physics.createWorld()
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
-      physicsWorld!.timestep = 1 / 60
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
 
-      // Create the entity
-      testEntity = createEntity()
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      Physics.createRigidBody(testEntity, physicsWorld!)
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      /**
+      // @todo Why is the system failing?
+      const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
+      // @todo
+      //  Existing tests above use physicsWorld.step().
+      //  Is that how the physics are run for applyImpulse, instead of the system's execute?
+
+      it("should apply the impulse to the RigidBody of the entity", () => {
+        const testImpulse = new Vector3(1,2,3)
+        const body = Physics._Rigidbodies.get(testEntity)
+        assert.ok(body)
+        console.log(JSON.stringify(body.linvel()))
+        console.log(JSON.stringify(body.angvel()))
+        Physics.applyImpulse(testEntity, testImpulse)
+        // physicsWorld!.step()
+        // physicsSystemExecute()
+        console.log(JSON.stringify(body.linvel()))
+        console.log(JSON.stringify(body.angvel()))
+      })
+      */
     })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      physicsWorld = undefined
-      return destroyEngine()
-    })
-
-    it("should apply the impulse to the RigidBody of the entity", () => {
-      const testImpulse = new Vector3(1,2,3)
-      const body = Physics._Rigidbodies.get(testEntity)!
-      Physics.applyImpulse(testEntity, testImpulse)
-    })
-  })
-  */
 
     /**
   // @todo How to check rotations?
@@ -753,7 +737,7 @@ describe('PhysicsAPI', () => {
     })
 
     it("should lock rotations on the entity", () => {
-      const ExpectedValue = {x: 4, y: 3, z: 2, w: 1} as Rotation
+      const ExpectedValue = {x: 0.4, y: 0.3, z: 0.2, w: 0.0} as Rotation
       const body = Physics._Rigidbodies.get(testEntity)!
       assert.notDeepEqual(body.rotation(), ExpectedValue)
       Physics.lockRotations(testEntity, true)
@@ -762,7 +746,7 @@ describe('PhysicsAPI', () => {
     })
 
     it("should disable locked rotations on the entity", () => {
-      const ExpectedValue = {x: 4, y: 3, z: 2, w: 1} as Rotation
+      const ExpectedValue = {x: 0.4, y: 0.3, z: 0.2, w: 0.0} as Rotation
       const body = Physics._Rigidbodies.get(testEntity)!
       assert.notDeepEqual(body.rotation(), ExpectedValue)
       Physics.lockRotations(testEntity, true)
@@ -1042,6 +1026,391 @@ describe('PhysicsAPI', () => {
       */
     }) // << removeCollider
   }) // << Colliders
+
+  describe('CharacterControllers', () => {
+    describe('createCharacterController', () => {
+      const Default = {
+        offset: 0.01,
+        maxSlopeClimbAngle: (60 * Math.PI) / 180,
+        minSlopeSlideAngle: (30 * Math.PI) / 180,
+        autoStep: { maxHeight: 0.5, minWidth: 0.01, stepOverDynamic: true },
+        enableSnapToGround: 0.1 as number | false
+      }
+
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should store a character controller in the Controllers map', () => {
+        const before = Physics._Controllers.get(testEntity)
+        assert.equal(before, undefined)
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        const after = Physics._Controllers.get(testEntity)
+        assert.ok(after)
+      })
+
+      it('should create a the character controller with the expected defaults when they are omitted', () => {
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        const controller = Physics._Controllers.get(testEntity)
+        assert.ok(controller)
+        assertFloatApproxEq(controller.offset(), Default.offset)
+        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloatApproxEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloatApproxEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloatApproxEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
+        assert.equal(controller.autostepEnabled(), Default.autoStep.stepOverDynamic)
+        assert.equal(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
+      })
+
+      it('should create a the character controller with values different than the defaults when they are specified', () => {
+        const Expected = {
+          offset: 0.05,
+          maxSlopeClimbAngle: (20 * Math.PI) / 180,
+          minSlopeSlideAngle: (60 * Math.PI) / 180,
+          autoStep: { maxHeight: 0.1, minWidth: 0.05, stepOverDynamic: false },
+          enableSnapToGround: false as number | false
+        }
+        Physics.createCharacterController(testEntity, physicsWorld!, Expected)
+        const controller = Physics._Controllers.get(testEntity)
+        assert.ok(controller)
+        // Compare against the specified values
+        assertFloatApproxEq(controller.offset(), Expected.offset)
+        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Expected.maxSlopeClimbAngle)
+        assertFloatApproxEq(controller.minSlopeSlideAngle(), Expected.minSlopeSlideAngle)
+        assertFloatApproxEq(controller.autostepMaxHeight()!, Expected.autoStep.maxHeight)
+        assertFloatApproxEq(controller.autostepMinWidth()!, Expected.autoStep.minWidth)
+        assert.equal(controller.autostepIncludesDynamicBodies(), Expected.autoStep.stepOverDynamic)
+        assert.equal(controller.snapToGroundEnabled(), !!Expected.enableSnapToGround)
+        // Compare against the defaults
+        assertFloatApproxNotEq(controller.offset(), Default.offset)
+        assertFloatApproxNotEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloatApproxNotEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloatApproxNotEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloatApproxNotEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
+        assert.notEqual(controller.autostepIncludesDynamicBodies(), Default.autoStep.stepOverDynamic)
+        assert.notEqual(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
+      })
+    })
+
+    describe('removeCharacterController', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should remove the character controller from the Controllers map', () => {
+        const before = Physics._Controllers.get(testEntity)
+        assert.equal(before, undefined)
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        const created = Physics._Controllers.get(testEntity)
+        assert.ok(created)
+        Physics.removeCharacterController(testEntity, physicsWorld!)
+        const after = Physics._Controllers.get(testEntity)
+        assert.equal(after, undefined)
+      })
+    })
+
+    describe('computeColliderMovement', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      /**
+      // @todo Why is the system failing?
+      const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
+
+      it("dummy", () => {
+        const movement = new Vector3(1,2,3)
+        // const collider = Physics._Colliders.get(testEntity)
+        const controller = Physics._Controllers.get(testEntity)!
+        const before = controller.computedMovement()
+        Physics.computeColliderMovement(
+           testEntity,  // entity: Entity,
+           testEntity,  // colliderEntity: Entity,
+           movement,    // desiredTranslation: Vector3,
+           // filterGroups?: InteractionGroups,
+           // filterPredicate?: (collider: Collider) => boolean
+        )
+        physicsSystemExecute()
+        const after = controller.computedMovement()
+        assert.notDeepEqual(before, after)
+      })
+      */
+    }) // << computeColliderMovement
+
+    /**
+    // @todo After test for Physics.computeColliderMovement is done
+    describe("getComputedMovement", () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should return (0,0,0) when the entity does not have a CharacterController", () => {
+        const result = new Vector3(1,2,3)
+        Physics.getComputedMovement(testEntity, result)
+        assert.deepEqual(result, Vector3_Zero)
+      })
+
+      it("should not return (0,0,0) when the entity has a moving CharacterController", () => {
+        const result = new Vector3(1,2,3)
+        const Expected = { x: 4, y: 5, z: 6 }
+        const Vector_Zero = { x: 0, y: 0, z: 0 }
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        Physics.getComputedMovement(testEntity, result)
+        const controller = Physics._Controllers.get(testEntity)!
+        assert.notDeepEqual(controller.computedMovement(), Vector_Zero)
+      })
+    })
+    */
+  }) // << CharacterControllers
+
+  describe('Raycasts', () => {
+    describe('castRay', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should cast a ray and hit a rigidbody', async () => {
+        const testEntity = createEntity()
+        setComponent(testEntity, TransformComponent, {
+          position: new Vector3(10, 0, 0),
+          scale: new Vector3(10, 10, 10)
+        })
+        computeTransformMatrix(testEntity)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+        setComponent(testEntity, ColliderComponent, {
+          shape: Shapes.Box,
+          collisionLayer: CollisionGroups.Default,
+          collisionMask: DefaultCollisionMask
+        })
+
+        physicsWorld!.step()
+
+        const raycastComponentData = {
+          type: SceneQueryType.Closest,
+          origin: new Vector3().set(0, 0, 0),
+          direction: ObjectDirection.Right,
+          maxDistance: 20,
+          groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default)
+        }
+        const hits = Physics.castRay(physicsWorld!, raycastComponentData)
+
+        assert.deepEqual(hits.length, 1)
+        assert.deepEqual(hits[0].normal.x, -1)
+        assert.deepEqual(hits[0].distance, 5)
+        assert.deepEqual((hits[0].body.userData as any)['entity'], testEntity)
+      })
+    })
+
+    describe('castRayFromCamera', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('dummy', () => {
+        assert.ok(1)
+      })
+    }) // << castRayFromCamera
+
+    describe('castShape', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('dummy', () => {
+        assert.ok(1)
+      })
+    }) // << castShape
+  }) // << Raycasts
+
+  describe('Collisions', () => {
+    describe('createCollisionEventQueue', () => {
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+      })
+
+      afterEach(() => {
+        return destroyEngine()
+      })
+
+      it('should create a collision event queue successfully', () => {
+        const queue = Physics.createCollisionEventQueue()
+        assert(queue)
+      })
+    })
+
+    describe('drainCollisionEventQueue', () => {
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+      })
+
+      afterEach(() => {
+        return destroyEngine()
+      })
+
+      it('dummy', () => {
+        assert.ok(1)
+      })
+    }) // << drainCollisionEventQueue
+
+    describe('drainContactEventQueue', () => {
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+      })
+
+      afterEach(() => {
+        return destroyEngine()
+      })
+
+      it('dummy', () => {
+        assert.ok(1)
+      })
+    }) // << drainContactEventQueue
+  }) // << Collisions
 })
 
 /** TODO:
@@ -1053,23 +1422,8 @@ describe('PhysicsAPI', () => {
     describe("setMassCenter", () => {})  // @todo The function is not implemented. It is annotated with a todo tag
     describe("setCollisionLayer", () => {})  // @todo How to check for `CollisionGroups` behavior?
     describe("setCollisionMask", () => {})  // @todo How to check for `CollisionGroups` behavior?
-    describe("removeCollidersFromRigidBody", () => {})
-    // Character Controller
-    describe("createCharacterController", () => {})
-    describe("removeCharacterController", () => {})
-    describe("computeColliderMovement", () => {})
-    describe("getComputedMovement", () => {})
-    describe("getControllerOffset", () => {})
-    // Raycasts
-    describe("castRay", () => {})
-    describe("castRayFromCamera", () => {})
-    describe("castShape", () => {})
-    // Collisions
-    describe("createCollisionEventQueue", () => {})
-    describe("drainCollisionEventQueue", () => {})
-    describe("drainContactEventQueue", () => {})
-  // Internals
-  _Colliders: Colliders,
-  _Rigidbodies: Rigidbodies,
-  _Controllers: Controllers
+    describe("removeCollidersFromRigidBody", () => {})  // @todo How to check that the colliders were removed? Is it possible without calling Rapier directly?
+  // Character Controller
+    describe("getControllerOffset", () => {})  // @deprecated
+  // Collisions
   */
