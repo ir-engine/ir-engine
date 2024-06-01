@@ -1258,21 +1258,6 @@ describe('PhysicsAPI', () => {
 
         // Create the entity
         testEntity = createEntity()
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
-      })
-
-      afterEach(() => {
-        removeEntity(testEntity)
-        physicsWorld = undefined
-        return destroyEngine()
-      })
-
-      it('should cast a ray and hit a rigidbody', async () => {
-        const testEntity = createEntity()
         setComponent(testEntity, TransformComponent, {
           position: new Vector3(10, 0, 0),
           scale: new Vector3(10, 10, 10)
@@ -1284,7 +1269,15 @@ describe('PhysicsAPI', () => {
           collisionLayer: CollisionGroups.Default,
           collisionMask: DefaultCollisionMask
         })
+      })
 
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should cast a ray and hit a rigidbody', async () => {
         physicsWorld!.step()
 
         const raycastComponentData = {
@@ -1316,10 +1309,17 @@ describe('PhysicsAPI', () => {
 
         // Create the entity
         testEntity = createEntity()
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        setComponent(testEntity, TransformComponent, {
+          position: new Vector3(10, 0, 0),
+          scale: new Vector3(10, 10, 10)
+        })
+        computeTransformMatrix(testEntity)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+        setComponent(testEntity, ColliderComponent, {
+          shape: Shapes.Box,
+          collisionLayer: CollisionGroups.Default,
+          collisionMask: DefaultCollisionMask
+        })
       })
 
       afterEach(() => {
@@ -1328,9 +1328,12 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      it('dummy', () => {
+      /*
+      it('should cast a ray from a camera and hit a rigidbody', async () => {
+        physicsWorld!.step()
         assert.ok(1)
       })
+      */
     }) // << castRayFromCamera
 
     describe('castShape', () => {
@@ -1346,10 +1349,17 @@ describe('PhysicsAPI', () => {
 
         // Create the entity
         testEntity = createEntity()
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        setComponent(testEntity, TransformComponent, {
+          position: new Vector3(10, 0, 0),
+          scale: new Vector3(10, 10, 10)
+        })
+        computeTransformMatrix(testEntity)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+        setComponent(testEntity, ColliderComponent, {
+          shape: Shapes.Box,
+          collisionLayer: CollisionGroups.Default,
+          collisionMask: DefaultCollisionMask
+        })
       })
 
       afterEach(() => {
@@ -1358,9 +1368,29 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      it('dummy', () => {
-        assert.ok(1)
+      /**
+      // @todo Why is it not hitting
+      it('should cast a shape and hit a rigidbody', () => {
+        physicsWorld!.step()
+
+        const collider = Physics._Colliders.get(testEntity)!
+        const hits = [] as RaycastHit[]
+        const shapecastComponentData :ShapecastArgs= {
+          type: SceneQueryType.Closest,  // type: SceneQueryType
+          hits: hits, // hits: RaycastHit[]
+          collider: collider, // collider: Collider
+          direction: ObjectDirection.Right,  // direction: Vector3
+          maxDistance: 20,  // maxDistance: number
+          collisionGroups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),  // collisionGroups: InteractionGroups
+        }
+        Physics.castShape(physicsWorld!, shapecastComponentData)
+
+        assert.deepEqual(hits.length, 1, "The length of the hits array is incorrect.")
+        assert.deepEqual(hits[0].normal.x, -1)
+        assert.deepEqual(hits[0].distance, 5)
+        assert.deepEqual((hits[0].body.userData as any)['entity'], testEntity)
       })
+      */
     }) // << castShape
   }) // << Raycasts
 
