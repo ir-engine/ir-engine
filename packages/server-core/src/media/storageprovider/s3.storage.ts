@@ -92,17 +92,21 @@ const MAX_ITEMS = 1
 const CFFunctionTemplate = `
 function handler(event) {
     var request = event.request;
-    var routeRegexRoot = __$routeRegex$__
-    var routeRegex = new RegExp(routeRegexRoot)
+    var projectsRegexRoot = __$projectsRegex$__
+    var projectsRegex = new RegExp(projectsRegexRoot)
+    var recordingsRegexRoot = __$recordingsRegex$__
+    var recordingsRegex = new RegExp(recordingsRegexRoot)
     var publicRegexRoot = __$publicRegex$__
     var publicRegex = new RegExp(publicRegexRoot)
-
-    if (routeRegex.test(request.uri)) {
-        request.uri = '/client/index.html'
-    }
     
     if (publicRegex.test(request.uri)) {
         request.uri = '/client' + request.uri
+    } else if (projectsRegex.test(request.uri) || recordingsRegex.test(request.uri)) {
+        // Projects and recordings paths should be passed as-is
+    } else {
+      // Anything that is not a static/public file, or a project or recording file, is assumed to be some sort
+      // of engine route and passed to index.html to be handled by the router
+      request.uri = '/client/index.html'
     }
     return request;
 }
@@ -484,26 +488,8 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   getFunctionCode(routes: string[]) {
-    let routeRegex = ''
-    for (const route of routes)
-      if (route !== '/')
-        switch (route) {
-          case '/admin':
-          case '/editor':
-          case '/studio':
-            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
-            routeRegex += `^${route}/|`
-            break
-          case '/location':
-          case '/auth':
-          case '/capture':
-            routeRegex += `^${route}/|`
-            break
-          default:
-            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
-            break
-        }
-    if (routes.length > 0) routeRegex = routeRegex.slice(0, routeRegex.length - 1)
+    const projectsRegex = '^/projects/'
+    const recordingsRegex = '^/recordings/'
     let publicRegex = ''
     fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
       (dirent) => {
@@ -520,10 +506,9 @@ export class S3Provider implements StorageProviderInterface {
       }
     )
     if (publicRegex.length > 0) publicRegex = publicRegex.slice(0, publicRegex.length - 1)
-    return CFFunctionTemplate.replace('__$routeRegex$__', `'${routeRegex}'`).replace(
-      '__$publicRegex$__',
-      `'${publicRegex}'`
-    )
+    return CFFunctionTemplate.replace('__$projectsRegex$__', `'${projectsRegex}'`)
+      .replace('__$recordingsRegex$__', `'${recordingsRegex}'`)
+      .replace('__$publicRegex$__', `'${publicRegex}'`)
   }
 
   async createFunction(functionName: string, routes: string[]) {
