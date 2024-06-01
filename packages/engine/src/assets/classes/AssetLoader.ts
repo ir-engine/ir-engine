@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AudioLoader, Material, RepeatWrapping, Texture, TextureLoader } from 'three'
+import { AudioLoader, TextureLoader } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
@@ -35,7 +35,6 @@ import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
@@ -60,10 +59,57 @@ const getAssetClass = (assetFileName: string): AssetType => {
   return FileToAssetType(assetFileName)
 }
 
-//@ts-ignore
+const setupTextureForIOS = async (src: string): Promise<string> => {
+  return new Promise(async (resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = src
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
+
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > 1024) {
+        resizingFactor = 1024 / originalWidth
+      }
+    } else {
+      if (originalHeight > 1024) {
+        resizingFactor = 1024 / originalHeight
+      }
+    }
+
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
+
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
+
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    resolve(dataURI)
+  })
+}
+
 const ddsLoader = () => new DDSLoader()
 const fbxLoader = () => new FBXLoader()
-const textureLoader = () => new TextureLoader()
+const textureLoader = () => ({
+  load: async (src, onLoad, onProgress, onError, signal?) => {
+    if (iOS) {
+      src = await setupTextureForIOS(src)
+    }
+    const loader = new TextureLoader()
+    loader.load(src, onLoad, onProgress, onError)
+  }
+})
 const fileLoader = () => new FileLoader()
 const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
@@ -118,114 +164,34 @@ export const getLoader = (assetType: AssetExt) => {
   }
 }
 
-const assetLoadCallback = (url: string, assetType: AssetExt, onLoad: (response: any) => void) => async (asset) => {
-  const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetType.Model) {
-    const notGLTF = [AssetExt.FBX, AssetExt.USDZ].includes(assetType)
-    if (notGLTF) {
-      asset = { scene: asset }
-    } else if (assetType === AssetExt.VRM) {
-      asset = asset.userData.vrm
-    }
-
-    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-    if (asset.scene.userData) asset.scene.userData.type = assetType
-    if (asset.userData) asset.userData.type = assetType
-    else asset.userData = { type: assetType }
-  }
-  if (assetClass === AssetType.Material) {
-    const material = asset as Material
-    material.userData.type = assetType
-  }
-  if ([AssetType.Image, AssetType.Video].includes(assetClass)) {
-    const texture = asset as Texture
-    texture.wrapS = RepeatWrapping
-    texture.wrapT = RepeatWrapping
-  }
-
-  const gltf = asset as GLTF
-  if (gltf.parser) delete asset.parser
-
-  onLoad(asset)
-}
-
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(EngineState).publicPath + url)
 
-const load = async (
-  _url: string,
-  onLoad = (response: any) => {},
-  onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
+const loadAsset = async <T>(
+  url: string,
+  onLoad: (response: T) => void = () => {},
+  onProgress: (request: ProgressEvent) => void = () => {},
+  onError: (event: ErrorEvent | Error) => void = () => {},
   signal?: AbortSignal
 ) => {
-  if (!_url) {
+  if (!url) {
     onError(new Error('URL is empty'))
     return
   }
-  let url = getAbsolutePath(_url)
-
-  const assetType = AssetLoader.getAssetType(url)
-  const loader = getLoader(assetType)
-  if (iOS && (assetType === AssetExt.PNG || assetType === AssetExt.JPEG)) {
-    const img = new Image()
-    img.crossOrigin = 'anonymous' //browser will yell without this
-    img.src = url
-    await img.decode() //new way to wait for image to load
-    // Initialize the canvas and it's size
-    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
-    const ctx = canvas.getContext('2d')
-
-    // Set width and height
-    const originalWidth = img.width
-    const originalHeight = img.height
-
-    let resizingFactor = 1
-    if (originalWidth >= originalHeight) {
-      if (originalWidth > 1024) {
-        resizingFactor = 1024 / originalWidth
-      }
-    } else {
-      if (originalHeight > 1024) {
-        resizingFactor = 1024 / originalHeight
-      }
-    }
-
-    const canvasWidth = originalWidth * resizingFactor
-    const canvasHeight = originalHeight * resizingFactor
-
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
-
-    // Draw image and export to a data-uri
-    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
-    const dataURI = canvas.toDataURL()
-
-    // Do something with the result, like overwrite original
-    url = dataURI
-  }
-
-  const callback = assetLoadCallback(url, assetType, onLoad)
+  url = getAbsolutePath(url)
+  const assetExt = AssetLoader.getAssetType(url)
+  const loader = getLoader(assetExt)
 
   try {
-    return loader.load(url, callback, onProgress, onError, signal)
+    return loader.load(url, onLoad, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }
 }
 
-const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
-  return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, reject)
-  })
-}
-
 export const AssetLoader = {
-  loaders: new Map<number, any>(),
   getAbsolutePath,
   getAssetType,
   getAssetClass,
-  /** @deprecated Use hooks from resourceHooks.ts instead **/
-  load,
-  /** @deprecated Use hooks from resourceHooks.ts instead **/
-  loadAsync
+  /** @deprecated Use resourceLoaderHooks instead */
+  loadAsset
 }

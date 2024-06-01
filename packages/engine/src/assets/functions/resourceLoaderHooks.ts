@@ -316,3 +316,10 @@ export async function getTextureAsync(
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<Texture>(url, ResourceType.Texture, entity)
 }
+
+export async function getAudioAsync(
+  url: string,
+  entity?: Entity
+): Promise<[AudioBuffer | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<AudioBuffer>(url, ResourceType.Audio, entity)
+}

@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useImperativeHandle } from 'react'
 
 import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
@@ -75,9 +75,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
   const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
     if (/ktx2$/.test(props.resourceUrl)) {
-      const texture = await AssetLoader.loadAsync(props.resourceUrl)
-      thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
-      texture.dispose()
+      const [texture, unload] = await getTextureAsync(props.resourceUrl)
+      if (texture) {
+        thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
+        unload()
+      }
     } else {
       thumbnail.set('')
     }

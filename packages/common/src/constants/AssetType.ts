@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Extensions. */
+/** List of Asset Types. */
 export enum AssetType {
   Model = 'Model',
   Material = 'Material',
