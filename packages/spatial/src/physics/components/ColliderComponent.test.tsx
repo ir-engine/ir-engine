@@ -236,7 +236,7 @@ describe('ColliderComponent', () => {
       createEngine()
       await Physics.load()
       testEntity = createEntity()
-      setComponent(testEntity, RigidBodyComponent)
+      setComponent(testEntity, ColliderComponent)
     })
 
     afterEach(() => {
