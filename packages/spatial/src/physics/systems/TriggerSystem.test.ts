@@ -23,35 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-import { getMutableState } from '@etherealengine/hyperflux'
+import assert from 'assert'
 
 import { SystemUUID } from '@etherealengine/ecs'
-import assert from 'assert'
-import { createEngine } from '../../initializeEngine'
-import { Physics } from '../classes/Physics'
-import { PhysicsState } from '../state/PhysicsState'
-import { PhysicsSystem } from './PhysicsSystem'
+import { TriggerSystem } from './TriggerSystem'
 
-/**
- * @todo
- */
-describe.skip('PhysicsSystem', () => {
-  beforeEach(async () => {
-    createEngine()
-    await Physics.load()
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-})
-
-describe('PhysicsSystem', () => {
+describe('TriggerSystem', () => {
   describe('IDs', () => {
-    it("should define the PhysicsSystem's UUID with the expected value", () => {
-      assert.equal(PhysicsSystem, 'ee.engine.PhysicsSystem' as SystemUUID)
+    it("should define the TriggerSystem's UUID with the expected value", () => {
+      assert.equal(TriggerSystem, 'ee.engine.TriggerSystem' as SystemUUID)
     })
   })
 
