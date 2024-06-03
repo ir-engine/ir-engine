@@ -64,7 +64,8 @@ export class ModelTransformService implements ServiceInterface<void> {
     const createParams: ModelTransformParameters = data
     console.log('config', config)
     if (!config.kubernetes?.enabled) {
-      return transformModel(createParams)
+      await transformModel(createParams)
+      return
     }
     try {
       const transformParms = createParams

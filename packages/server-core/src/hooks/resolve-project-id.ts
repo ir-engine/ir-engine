@@ -23,12 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { HookContext } from '../../declarations'
+import { ProjectPermissionService } from '../projects/project-permission/project-permission.class'
 /**
- * Create a lerp alpha value that is exponentially smoothed.
- * @param lerpMultiplier
- * @param deltaSeconds
+ * resolve project id from name in query
+ * @param context
  * @returns
  */
-export function smootheLerpAlpha(lerpMultiplier: number, deltaSeconds: number) {
-  return 1 - Math.exp(-lerpMultiplier * deltaSeconds)
+export default () => {
+  return async (context: HookContext<ProjectPermissionService>) => {
+    if (!context.params.query?.project) {
+      return context
+    }
+
+    const projectResult = (await context.app.service(projectPath).find({
+      query: { name: context.params.query.project, $limit: 1 }
+    })) as Paginated<ProjectType>
+
+    if (projectResult.data.length === 0) {
+      throw new BadRequest(`No project named ${context.params.query.project} exists`)
+    }
+    context.params.query.projectId = projectResult.data[0].id
+    return context
+  }
 }
