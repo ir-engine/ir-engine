@@ -51,7 +51,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
-import { GizmoMaterial, materialProperties } from '../constants/GizmoPresets'
+import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -344,7 +344,7 @@ export function gizmoUpdate(gizmoEntity) {
     handle.material._color = handle.material._color || handle.material.color.clone()
     handle.material._opacity = handle.material._opacity || handle.material.opacity
 
-    //setGizmoMaterialProperties(handle.material , handle.material._color , handle.material._opacity, true)
+    //setGizmogizmoMaterialProperties(handle.material , handle.material._color , handle.material._opacity, true)
 
     handle.material.color.copy(handle.material._color)
     handle.material.opacity = handle.material._opacity
@@ -352,16 +352,16 @@ export function gizmoUpdate(gizmoEntity) {
     if (gizmoControl.enabled && gizmoControl.axis) {
       if (handle.name === gizmoControl.axis) {
         //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(materialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = materialProperties[GizmoMaterial.YELLOW].opacity
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       } else if (
         gizmoControl.axis.split('').some(function (a) {
           return handle.name === a
         })
       ) {
         //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
-        handle.material.color.set(materialProperties[GizmoMaterial.YELLOW].color)
-        handle.material.opacity = materialProperties[GizmoMaterial.YELLOW].opacity
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       }
     }
   }
