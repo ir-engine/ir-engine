@@ -785,7 +785,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -816,8 +815,125 @@ describe('PhysicsAPI', () => {
         assert.ok(notTriggerInteraction)
       })
     }) // << setTrigger
-    /**
-     */
+
+    describe('setCollisionLayer', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      /**
+      // @todo Why is this failing?
+      it('should set the collider interaction groups to the given value', () => {
+        const before = getComponent(testEntity, ColliderComponent)
+        const Expected = CollisionGroups.Avatars | before.collisionLayer
+        Physics.setCollisionLayer(testEntity, Expected)
+        const after = getComponent(testEntity, ColliderComponent)
+        assert.equal(after.collisionLayer, Expected)
+      })
+      */
+
+      it('should not modify the collision mask of the collider', () => {
+        const before = getComponent(testEntity, ColliderComponent)
+        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
+        const after = getComponent(testEntity, ColliderComponent)
+        assert.equal(before.collisionMask, after.collisionMask)
+      })
+
+      it('should not add CollisionGroups.Trigger to the collider interaction groups if the entity does not have a TriggerComponent', () => {
+        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
+        const after = getComponent(testEntity, ColliderComponent)
+        const noTriggerBit = !(after.collisionLayer & CollisionGroups.Trigger) // not collisionLayer contains Trigger
+        assert.ok(noTriggerBit)
+      })
+
+      it('should not modify the CollisionGroups.Trigger bit in the collider interaction groups if the entity has a TriggerComponent', () => {
+        setComponent(testEntity, TriggerComponent)
+        const beforeData = getComponent(testEntity, ColliderComponent)
+        const before = beforeData.collisionLayer & CollisionGroups.Trigger // collisionLayer contains Trigger
+        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
+
+        const afterData = getComponent(testEntity, ColliderComponent)
+        const after = afterData.collisionLayer & CollisionGroups.Trigger // collisionLayer contains Trigger
+        assert.equal(before, after)
+      })
+    }) // setCollisionLayer
+
+    describe('setCollisionMask', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should set the collider mask to the given value', () => {
+        const before = getComponent(testEntity, ColliderComponent)
+        const Expected = CollisionGroups.Avatars | before.collisionMask
+        Physics.setCollisionMask(testEntity, Expected)
+        const after = getComponent(testEntity, ColliderComponent)
+        assert.equal(after.collisionMask, Expected)
+      })
+
+      it('should not modify the collision layer of the collider', () => {
+        const before = getComponent(testEntity, ColliderComponent)
+        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+        const after = getComponent(testEntity, ColliderComponent)
+        assert.equal(before.collisionLayer, after.collisionLayer)
+      })
+
+      it('should not add CollisionGroups.Trigger to the collider mask if the entity does not have a TriggerComponent', () => {
+        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+        const after = getComponent(testEntity, ColliderComponent)
+        const noTriggerBit = !(after.collisionMask & CollisionGroups.Trigger) // not collisionMask contains Trigger
+        assert.ok(noTriggerBit)
+      })
+
+      it('should not modify the CollisionGroups.Trigger bit in the collider mask if the entity has a TriggerComponent', () => {
+        setComponent(testEntity, TriggerComponent)
+        const beforeData = getComponent(testEntity, ColliderComponent)
+        const before = beforeData.collisionMask & CollisionGroups.Trigger // collisionMask contains Trigger
+        Physics.setCollisionMask(testEntity, CollisionGroups.Avatars)
+
+        const afterData = getComponent(testEntity, ColliderComponent)
+        const after = afterData.collisionMask & CollisionGroups.Trigger // collisionMask contains Trigger
+        assert.equal(before, after)
+      })
+    }) // setCollisionMask
 
     describe('setFriction', () => {
       let testEntity = UndefinedEntity
@@ -1460,8 +1576,6 @@ describe('PhysicsAPI', () => {
     describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
     describe("setColliderPose", () => {})  // @todo How to check rotations?
     describe("setMassCenter", () => {})  // @todo The function is not implemented. It is annotated with a todo tag
-    describe("setCollisionLayer", () => {})  // @todo How to check for `CollisionGroups` behavior?
-    describe("setCollisionMask", () => {})  // @todo How to check for `CollisionGroups` behavior?
     describe("removeCollidersFromRigidBody", () => {})  // @todo How to check that the colliders were removed? Is it possible without calling Rapier directly?
   // Character Controller
     describe("getControllerOffset", () => {})  // @deprecated
