@@ -114,8 +114,6 @@ export class EngineRenderer {
   canvas: HTMLCanvasElement
 
   renderer: WebGLRenderer = null!
-  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
-  rendering = false
   effectComposer: EffectComposer = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
