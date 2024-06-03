@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
@@ -58,7 +57,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../../../layout/Panel'
+import { PanelDragContainer, PanelTitle } from '../../../layout/Panel'
 import { InfoTooltip } from '../../../layout/Tooltip'
 import ParameterInput from '../../../properties/parameter'
 
@@ -304,7 +303,6 @@ export const MaterialPropertyTitle = () => {
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
-        <PanelIcon as={MaterialLibraryIcon} size={12} />
         <PanelTitle>
           <InfoTooltip title={t('editor:properties.mesh.materialProperties.info')}>
             <span>{t('editor:properties.mesh.materialProperties.title')}</span>
