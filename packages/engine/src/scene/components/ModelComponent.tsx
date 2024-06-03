@@ -41,10 +41,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
@@ -118,14 +115,10 @@ function ModelReactor() {
   const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
-    const occlusion =
-      !!modelComponent?.cameraOcclusion?.value || hasComponent(entity, ObjectLayerComponents[ObjectLayers.Camera])
-    if (!occlusion) return
-    ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
-    return () => {
-      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
-    }
-  }, [modelComponent?.cameraOcclusion?.value])
+    const occlusion = modelComponent.cameraOcclusion.value
+    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+  }, [modelComponent.cameraOcclusion])
 
   useEffect(() => {
     if (!error) return
