@@ -48,7 +48,8 @@ import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enum
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
-import { UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { PhysicsSystem } from '../PhysicsModule'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -688,15 +689,14 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      /**
       // @todo Why is the system failing?
       const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
       // @todo
       //  Existing tests above use physicsWorld.step().
       //  Is that how the physics are run for applyImpulse, instead of the system's execute?
 
-      it("should apply the impulse to the RigidBody of the entity", () => {
-        const testImpulse = new Vector3(1,2,3)
+      it('should apply the impulse to the RigidBody of the entity', () => {
+        const testImpulse = new Vector3(1, 2, 3)
         const body = Physics._Rigidbodies.get(testEntity)
         assert.ok(body)
         console.log(JSON.stringify(body.linvel()))
@@ -707,7 +707,8 @@ describe('PhysicsAPI', () => {
         console.log(JSON.stringify(body.linvel()))
         console.log(JSON.stringify(body.angvel()))
       })
-      */
+      /**
+       */
     })
 
     /**
@@ -768,17 +769,14 @@ describe('PhysicsAPI', () => {
   }) // << Rigidbodies
 
   describe('Colliders', () => {
-    /**
-    // @todo How to check for `CollisionGroups` behavior?
-    // @todo How to check for `setSensor` behavior?
-    describe("setTrigger", () => {
+    describe('setTrigger', () => {
       let testEntity = UndefinedEntity
-      let physicsWorld :World | undefined= undefined
+      let physicsWorld: World | undefined = undefined
 
       beforeEach(async () => {
         createEngine()
         await Physics.load()
-        physicsWorld  = Physics.createWorld()
+        physicsWorld = Physics.createWorld()
         getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
         physicsWorld!.timestep = 1 / 60
 
@@ -788,7 +786,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
         Physics.createRigidBody(testEntity, physicsWorld!)
-
       })
 
       afterEach(() => {
@@ -797,17 +794,30 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      it('should ... on the entity', () => {
+      it('should mark the collider of the entity as a sensor', () => {
         const collider = Physics._Colliders.get(testEntity)!
         Physics.setTrigger(testEntity, true)
+        assert.ok(collider.isSensor())
       })
 
-      it('should ... when `isTrigger` is passed as true', () => {
+      it('should add CollisionGroup.trigger to the interaction groups of the collider when `isTrigger` is passed as true', () => {
         const collider = Physics._Colliders.get(testEntity)!
         Physics.setTrigger(testEntity, true)
+        const triggerInteraction = getInteractionGroups(CollisionGroups.Trigger, 0) // Shift the Trigger bits into the interaction bits, so they don't match with the mask
+        const hasTriggerInteraction = Boolean(collider.collisionGroups() & triggerInteraction) // If interactionGroups contains the triggerInteraction bits
+        assert.ok(hasTriggerInteraction)
+      })
+
+      it('should not add CollisionGroup.trigger to the interaction groups of the collider when `isTrigger` is passed as false', () => {
+        const collider = Physics._Colliders.get(testEntity)!
+        Physics.setTrigger(testEntity, false)
+        const triggerInteraction = getInteractionGroups(CollisionGroups.Trigger, 0) // Shift the Trigger bits into the interaction bits, so they don't match with the mask
+        const notTriggerInteraction = !(collider.collisionGroups() & triggerInteraction) // If interactionGroups does not contain the triggerInteraction bits
+        assert.ok(notTriggerInteraction)
       })
     }) // << setTrigger
-    */
+    /**
+     */
 
     describe('setFriction', () => {
       let testEntity = UndefinedEntity

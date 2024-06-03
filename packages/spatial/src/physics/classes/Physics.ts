@@ -439,7 +439,7 @@ function setTrigger(entity: Entity, isTrigger: boolean) {
   if (!collider) return
   collider.setSensor(isTrigger)
   const colliderComponent = getComponent(entity, ColliderComponent)
-  // if we are a trigger, we need to update the collision groups to include the trigger group
+  // if we are a trigger, we need to update the interaction bits of the collision groups to include the trigger group
   const collisionLayer = isTrigger ? CollisionGroups.Trigger : colliderComponent.collisionLayer
   collider.setCollisionGroups(getInteractionGroups(collisionLayer, colliderComponent.collisionMask))
 }
