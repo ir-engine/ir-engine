@@ -61,7 +61,6 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { reject } from 'lodash'
 import { Client } from 'minio'
-import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
@@ -77,8 +76,6 @@ import {
 import { FileBrowserContentType } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 
 import config from '../../appconfig'
-import { getCacheDomain } from './getCacheDomain'
-import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -181,6 +178,16 @@ export class S3Provider implements StorageProviderInterface {
         })
       : undefined
 
+  getCacheDomain(internal?: boolean): string {
+    if (config.server.storageProviderExternalEndpoint && config.kubernetes.enabled && internal)
+      return config.aws.s3.staticResourceBucket
+        ? `${config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')}/${
+            config.aws.s3.staticResourceBucket
+          }`
+        : config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')
+    return this.cacheDomain
+  }
+
   /**
    * Domain address of S3 cache.
    */
@@ -274,10 +281,14 @@ export class S3Provider implements StorageProviderInterface {
    * Get the object from cache.
    * @param key Key of object.
    */
-  async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const cacheDomain = getCacheDomain(this, true)
-    const data = await fetch(getCachedURL(key, cacheDomain))
-    return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
+  getCachedURL(key: string, internal?: boolean): string {
+    const cacheDomain = this.getCacheDomain(internal)
+
+    if (config.server.storageProvider === 's3' && config.aws.s3.s3DevMode === 'local') {
+      return `https://${cacheDomain}${key.startsWith('/') ? '' : '/'}${key}`
+    }
+
+    return new URL(key, 'https://' + cacheDomain).href
   }
 
   /**

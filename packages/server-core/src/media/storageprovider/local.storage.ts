@@ -61,6 +61,10 @@ export class LocalStorage implements StorageProviderInterface {
    */
   PATH_PREFIX: string
 
+  getCacheDomain(): string {
+    return this.cacheDomain
+  }
+
   /**
    * Domain address of local storage cache.
    */
@@ -125,11 +129,12 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * Get the object from cache, otherwise returns getObject.
+   * Get the object from cache.
    * @param key Key of object.
    */
-  getCachedObject = async (key: string): Promise<StorageObjectInterface> => {
-    return this.getObject(key)
+  getCachedURL(key: string): string {
+    const cacheDomain = this.getCacheDomain()
+    return new URL(key, 'https://' + cacheDomain).href
   }
 
   /**

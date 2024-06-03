@@ -30,7 +30,6 @@ import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const PREFIX = 'test'
@@ -109,7 +108,7 @@ describe('file-browser.test', () => {
     assert.ok(foundFile)
     assert.equal(foundFile.name, testFileName)
     assert.equal(foundFile.size, testFileSize)
-    assert.equal(foundFile.url, getCachedURL(foundFile.key, getStorageProvider().cacheDomain))
+    assert.equal(foundFile.url, getStorageProvider().getCachedURL(foundFile.key))
   })
 
   describe('update service', () => {

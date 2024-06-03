@@ -163,10 +163,6 @@ export interface BlobStore {
  */
 export interface StorageProviderInterface {
   provider?: any
-  /**
-   * Domain address of cache.
-   */
-  cacheDomain: string
 
   originURLs: string[]
 
@@ -202,12 +198,14 @@ export interface StorageProviderInterface {
    */
   doesExist(fileName: string, directoryPath: string): Promise<boolean>
 
+  getCacheDomain(internal?: boolean): string
+
   /**
-   * Get the object from edge cache, otherwise returns getObject.
+   * Get the object's URL on the edge cache.
    * @param key Key of object.
-   * @returns {StorageObjectInterface}
+   * @returns {string}
    */
-  getCachedObject(key: string): Promise<StorageObjectInterface>
+  getCachedURL(key: string, internal?: boolean): string
 
   /**
    * Get the storage object.

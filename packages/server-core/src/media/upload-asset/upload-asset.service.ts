@@ -47,7 +47,6 @@ import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
 import { getStats } from '../static-resource/static-resource-helper'
-import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
 
@@ -78,6 +77,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   const { name, file } = data
 
   const storageProvider = getStorageProvider()
+  const cacheDomain = storageProvider.getCacheDomain()
   const originURLs = storageProvider.originURLs
 
   let contentLength = 0
@@ -90,7 +90,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
     if (/http(s)?:\/\//.test(url)) {
       //If the file URL points to the cache domain, fetch it from the origin (S3) domain instead, to avoid cached
       //information that might not be up-to-date
-      const fileHead = await fetch(url.replace(storageProvider.cacheDomain, originURLs[0]), { method: 'HEAD' })
+      const fileHead = await fetch(url.replace(cacheDomain, originURLs[0]), { method: 'HEAD' })
       if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
       contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
@@ -246,11 +246,11 @@ export const addAssetAsStaticResource = async (
     primaryKey = processFileName(args.path)
     url = args.path
     for (const originURL of provider.originURLs) {
-      url = url.replace(originURL, provider.cacheDomain)
+      url = url.replace(originURL, provider.getCacheDomain())
     }
   } else {
     primaryKey = processFileName(path.join(args.path, file.originalname))
-    url = getCachedURL(primaryKey, provider.cacheDomain)
+    url = provider.getCachedURL(primaryKey)
   }
 
   const query = {

@@ -112,12 +112,16 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
+  getCacheDomain(): string {
+    return this.cacheDomain
+  }
+
   /**
    * Get the object from cache, otherwise returns getObject.
    * @param key Key of object.
    */
-  async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    return this.getObject(key)
+  getCachedURL(key: string) {
+    return key
   }
 
   /**

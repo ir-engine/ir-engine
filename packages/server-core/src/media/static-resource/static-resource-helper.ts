@@ -100,7 +100,8 @@ const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/proj
 export const isAssetFromDomain = (url: string) => {
   const storageProvider = getStorageProvider()
   return (
-    url.includes(storageProvider.cacheDomain) || !!storageProvider.originURLs.find((origin) => url.includes(origin))
+    url.includes(storageProvider.getCacheDomain()) ||
+    !!storageProvider.originURLs.find((origin) => url.includes(origin))
   )
 }
 
@@ -111,7 +112,7 @@ export const isAssetFromDomain = (url: string) => {
  */
 export const getKeyForAsset = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
-  const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
+  const storageProviderPath = 'https://' + path.join(storageProvider.getCacheDomain(), 'projects/', project)
   const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
   const projectPath = url
     .replace(originPath, '')

@@ -40,6 +40,12 @@ export async function up(knex: Knex): Promise<void> {
       table.dropColumn('sid')
     })
   }
+  const urlColumnExists = await knex.schema.hasColumn(staticResourcePath, 'url')
+  if (urlColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('url')
+    })
+  }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')
   await trx.commit()
@@ -57,6 +63,12 @@ export async function down(knex: Knex): Promise<void> {
   if (!sidColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
       table.string('sid', 255).notNullable()
+    })
+  }
+  const urlColumnExists = await knex.schema.hasColumn(staticResourcePath, 'url')
+  if (!urlColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('url', 255).defaultTo(null)
     })
   }
 

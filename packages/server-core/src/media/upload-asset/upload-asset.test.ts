@@ -36,7 +36,6 @@ import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
 import { downloadResourceAndMetadata } from '../static-resource/static-resource-helper'
-import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import {
   addAssetAsStaticResource,
@@ -54,8 +53,8 @@ describe('upload-asset', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
-    const url2 = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+    const url = storageProvider.getCachedURL('/projects/default-project/public/scenes/default.gltf')
+    const url2 = storageProvider.getCachedURL('/projects/default-project/assets/SampleAudio.mp3')
     mockFetch({
       [url]: {
         contentType: 'application/json',
@@ -150,7 +149,7 @@ describe('upload-asset', () => {
 
     it('should add asset as a new static resource from url', async () => {
       const storageProvider = getStorageProvider()
-      const url = getCachedURL('/projects/default-project/public/scenes/default.gltf', storageProvider.cacheDomain)
+      const url = storageProvider.getCachedURL('/projects/default-project/public/scenes/default.gltf')
       const name = 'default.gltf'
       const hash = createStaticResourceHash(url)
 
@@ -203,7 +202,7 @@ describe('upload-asset', () => {
         })
 
         assert(response.id)
-        assert.equal(response.url, getCachedURL(response.key, storageProvider.cacheDomain))
+        assert.equal(response.url, storageProvider.getCachedURL(response.key))
         assert.equal(response.key, `/temp/${hash}/SampleAudio.mp3`)
         assert.equal(response.mimeType, 'audio/mpeg')
         assert.equal(response.project, testProject)

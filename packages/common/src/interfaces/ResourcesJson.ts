@@ -23,20 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '../../appconfig'
-
-/**
- * Constructs the full URL for a cached asset
- * @param path the full key/path for the storage provider
- * @param cacheDomain the cache domain of the storage provider
- * @returns {string}
- */
-export const getCachedURL = (path: string, cacheDomain: string) => {
-  if (!cacheDomain) throw new Error('No cache domain found - please check the storage provider configuration')
-
-  if (config.server.storageProvider === 's3' && config.aws.s3.s3DevMode === 'local') {
-    return `https://${cacheDomain}${path.startsWith('/') ? '' : '/'}${path}`
+// key = /path/to/file.ext
+export type ResourcesJson = Record<
+  string,
+  {
+    hash: string
+    type: string // (scene | asset | file)
+    tags: string[]
   }
-
-  return new URL(path ?? '', 'https://' + cacheDomain).href
-}
+>

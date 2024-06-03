@@ -34,6 +34,7 @@ import {
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
   let metadata = JSON.parse(rawData.metadata) as any
@@ -71,7 +72,11 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
 export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
   {
     createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
-    updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt))
+    updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt)),
+    url: virtual(async (staticResource) => {
+      const storageProvider = getStorageProvider()
+      return storageProvider.getCachedURL(staticResource.key)
+    })
   },
   {
     // Convert the raw data into a new structure before running property resolvers

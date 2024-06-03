@@ -48,8 +48,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getIncrementalName } from '../FileUtil'
-import { getCacheDomain } from '../storageprovider/getCacheDomain'
-import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
@@ -137,7 +135,7 @@ export class FileBrowserService
 
     result = result.slice(skip, skip + limit)
     result.forEach((file) => {
-      file.url = getCachedURL(file.key, storageProvider.cacheDomain)
+      file.url = storageProvider.getCachedURL(file.key, params && params.provider == null)
     })
 
     if (params.provider && !isAdmin) {
@@ -300,8 +298,7 @@ export class FileBrowserService
     }
 
     const hash = createStaticResourceHash(data.body)
-    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
-    const url = getCachedURL(key, cacheDomain)
+    const url = storageProvider.getCachedURL(key, params && params.provider == null)
 
     const query = {
       hash,
@@ -346,7 +343,7 @@ export class FileBrowserService
         })
     }
 
-    return getCachedURL(key, storageProvider.cacheDomain)
+    return storageProvider.getCachedURL(key, params && params.provider == null)
   }
 
   /**

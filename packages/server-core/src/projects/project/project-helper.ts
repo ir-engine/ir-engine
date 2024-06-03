@@ -83,8 +83,6 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
-import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
@@ -1738,7 +1736,6 @@ export const uploadLocalProjectToProvider = async (
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
-  const cacheDomain = getCacheDomain(storageProvider, true)
 
   // remove exiting storage provider files
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
@@ -1776,7 +1773,7 @@ export const uploadLocalProjectToProvider = async (
         // logger.info(`Skipping upload of static resource: "${item.key}"`)
         continue
       }
-      const url = getCachedURL(item.key, cacheDomain)
+      const url = storageProvider.getCachedURL(item.key, true)
       //remove userId if exists
       if (item.userId) delete (item as any).userId
 
@@ -1816,7 +1813,7 @@ export const uploadLocalProjectToProvider = async (
       console.log(filePathRelative)
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
-      const url = getCachedURL(key, getCacheDomain(storageProvider))
+      const url = storageProvider.getCachedURL(key, true)
       if (filePathRelative === '/xrengine.config.ts') assetsOnly = false
 
       await storageProvider.putObject(
@@ -1879,7 +1876,7 @@ export const uploadLocalProjectToProvider = async (
           }
         }
       }
-      results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+      results.push(storageProvider.getCachedURL(`projects/${projectName}${filePathRelative}`, true))
     } catch (e) {
       logger.error(e)
       results.push(null)

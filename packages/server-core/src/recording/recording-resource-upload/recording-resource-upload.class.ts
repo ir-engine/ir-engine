@@ -31,7 +31,6 @@ import { recordingResourcePath } from '@etherealengine/common/src/schemas/record
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 import { Application } from '../../../declarations'
-import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 
@@ -58,7 +57,7 @@ export class RecordingResourceUploadService implements ServiceInterface<void, Re
       ContentType: mimeType
     })
 
-    const url = getCachedURL(key, storageProvider.cacheDomain)
+    const url = storageProvider.getCachedURL(key)
     const localHash = hash || createStaticResourceHash(body)
 
     const staticResource = await this.app.service(staticResourcePath).create(
