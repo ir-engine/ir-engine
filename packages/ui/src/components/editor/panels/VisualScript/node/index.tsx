@@ -97,14 +97,15 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
   return (
     <div
       className={twMerge(
-        'min-w-[120px] cursor-pointer rounded bg-zinc-900 text-sm text-neutral-400',
-        selected ? 'border-2 border-gray-600' : ''
+        'min-w-[120px] cursor-pointer bg-zinc-900 text-sm text-neutral-400',
+        selected ? 'border-2 border-gray-600 ' : '',
+        collapsed ? 'rounded-full' : 'rounded'
       )}
     >
       <div
         className={twMerge(
           'flex-between flex items-center gap-3 bg-zinc-900 px-2 py-1 align-middle text-white',
-          collapsed ? 'rounded' : 'rounded-tl rounded-tr',
+          collapsed ? 'rounded-full' : 'rounded-tl rounded-tr',
           backgroundColor,
           textColor
         )}
