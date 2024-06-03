@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
+import { MdLink, MdLinkOff } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
-import Icon from '../../../../primitives/mui/Icon'
+import Button from '../../../../primitives/tailwind/Button'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -64,7 +65,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   )
 }
 
-export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
+export const UniformButtonContainer: React.FC<{ children?: JSX.Element }> = ({ children }) => {
   return (
     <div className="flex w-6 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
       {children}
@@ -83,8 +84,6 @@ interface Vector3InputProp {
   onRelease?: (v: Vector3) => void
 }
 
-let uniqueId = 0
-
 export const Vector3Input = ({
   uniformScaling,
   smallStep,
@@ -96,7 +95,6 @@ export const Vector3Input = ({
   onRelease,
   ...rest
 }: Vector3InputProp) => {
-  const id = uniqueId++
   const uniformEnabled = useHookstate(false)
 
   const onToggleUniform = () => {
@@ -124,25 +122,11 @@ export const Vector3Input = ({
   const vx = value.x
   const vy = value.y
   const vz = value.z
-  const checkboxId = 'uniform-button-' + id
 
   return (
-    <div className="flex flex-row justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-start gap-1.5">
       {uniformScaling && (
-        <UniformButtonContainer>
-          <>
-            <input
-              className="hidden"
-              id={checkboxId}
-              type="checkbox"
-              checked={uniformEnabled.value}
-              onChange={onToggleUniform}
-            />
-            <label title="Uniform Scale" htmlFor={checkboxId}>
-              <Icon type={uniformEnabled.value ? 'Link' : 'LinkOff'} />
-            </label>
-          </>
-        </UniformButtonContainer>
+        <Button startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />} onClick={onToggleUniform} />
       )}
       <NumericInput
         {...rest}
