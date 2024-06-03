@@ -222,7 +222,6 @@ export const createStaticResourceHash = (file: Buffer | string) => {
 /**
  * Uploads a file to the storage provider and adds a "static-resource" entry
  * - if a main file is a buffer, upload it and all variants to storage provider and create a new static resource entry
- * - if the asset is coming from an external URL, create a new static resource entry
  * - if the asset is already in the static resource table, update the entry with the new file
  */
 export const addAssetAsStaticResource = async (
@@ -231,31 +230,13 @@ export const addAssetAsStaticResource = async (
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceType> => {
   logger.info('addAssetAsStaticResource %o', args)
-  // console.log(file)
+  console.log(file)
 
-  const provider = getStorageProvider()
-
-  const isFromOrigin = isFromOriginURL(args.path)
-  const isExternalURL = args.path.startsWith('http')
-
-  let primaryKey, url
-  if (isExternalURL && !isFromOrigin) {
-    primaryKey = args.path
-    url = args.path
-  } else if (isExternalURL && isFromOrigin) {
-    primaryKey = processFileName(args.path)
-    url = args.path
-    for (const originURL of provider.originURLs) {
-      url = url.replace(originURL, provider.getCacheDomain())
-    }
-  } else {
-    primaryKey = processFileName(path.join(args.path, file.originalname))
-    url = provider.getCachedURL(primaryKey)
-  }
+  const key = processFileName(path.join(args.path, file.originalname))
 
   const query = {
     $limit: 1,
-    $or: [{ url: url }, { id: args.id || '' }]
+    $or: [{ key: key }, { id: args.id || '' }]
   } as any
   if (args.project) query.project = args.project
   const existingAsset = (await app.service(staticResourcePath).find({
@@ -267,8 +248,7 @@ export const addAssetAsStaticResource = async (
   const hash = args.hash || createStaticResourceHash(file.buffer)
   const body: Partial<StaticResourceType> = {
     hash,
-    url,
-    key: primaryKey,
+    key,
     mimeType: file.mimetype,
     project: args.project
   }
@@ -276,7 +256,7 @@ export const addAssetAsStaticResource = async (
   // if (args.userId) body.userId = args.userId
 
   if (typeof file.buffer !== 'string') {
-    await addFileToStorageProvider(app, file.buffer, file.mimetype, primaryKey)
+    await addFileToStorageProvider(app, file.buffer, file.mimetype, key)
   }
 
   let resourceId = ''

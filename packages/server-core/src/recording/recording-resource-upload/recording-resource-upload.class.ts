@@ -57,14 +57,12 @@ export class RecordingResourceUploadService implements ServiceInterface<void, Re
       ContentType: mimeType
     })
 
-    const url = storageProvider.getCachedURL(key)
     const localHash = hash || createStaticResourceHash(body)
 
     const staticResource = await this.app.service(staticResourcePath).create(
       {
         hash: localHash,
-        key: key,
-        url,
+        key,
         mimeType: mimeType
       },
       { isInternal: true }

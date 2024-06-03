@@ -46,6 +46,12 @@ export async function up(knex: Knex): Promise<void> {
       table.dropColumn('url')
     })
   }
+  const thumbnailTypeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailType')
+  if (thumbnailTypeColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('thumbnailType')
+    })
+  }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')
   await trx.commit()
@@ -69,6 +75,12 @@ export async function down(knex: Knex): Promise<void> {
   if (!urlColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
       table.string('url', 255).defaultTo(null)
+    })
+  }
+  const thumbnailTypeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailType')
+  if (!thumbnailTypeColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('thumbnailType', 255).nullable()
     })
   }
 

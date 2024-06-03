@@ -1808,10 +1808,8 @@ export const uploadLocalProjectToProvider = async (
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
-      console.log(filePathRelative)
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
-      const url = storageProvider.getCachedURL(key, true)
       if (filePathRelative === '/xrengine.config.ts') assetsOnly = false
 
       await storageProvider.putObject(

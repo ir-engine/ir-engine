@@ -57,8 +57,7 @@ export const staticResourceSchema = Type.Object(
     stats: Type.Record(Type.String(), Type.Any()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
-    thumbnailURL: Type.String(),
-    thumbnailType: Type.String()
+    thumbnailURL: Type.String()
   },
   { $id: 'StaticResource', additionalProperties: false }
 )
@@ -83,7 +82,8 @@ export const staticResourceDataSchema = Type.Partial(
     'driver',
     'attribution',
     'licensing',
-    'tags'
+    'tags',
+    'thumbnailURL'
     // 'url'
     // 'stats'
   ]),
@@ -104,7 +104,8 @@ export const staticResourcePatchSchema = Type.Partial(
     'driver',
     'attribution',
     'licensing',
-    'tags'
+    'tags',
+    'thumbnailURL'
     // 'url'
     // 'stats'
   ]),
@@ -126,7 +127,8 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'driver',
   'attribution',
   'licensing',
-  'tags'
+  'tags',
+  'thumbnailURL'
   // 'url'
   // 'stats'
 ])
