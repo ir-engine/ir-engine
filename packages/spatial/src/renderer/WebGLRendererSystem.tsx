@@ -57,7 +57,6 @@ import {
 import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
@@ -113,10 +112,6 @@ export class EngineRenderer {
 
   supportWebGL2: boolean
   canvas: HTMLCanvasElement
-
-  averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
-  /** init ExponentialMovingAverage */
-  movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   renderer: WebGLRenderer = null!
   /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
