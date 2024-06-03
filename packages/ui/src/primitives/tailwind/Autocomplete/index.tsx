@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Input from '../Input'
 
 export interface AutoCompleteProps {
@@ -40,26 +40,35 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
   const filteredOptions = useHookstate(options)
   const showDropdown = useHookstate(false)
   const inputValue = useHookstate(value)
+  const isSelectingOption = useRef(false)
 
   useEffect(() => {
     inputValue.set(value)
   }, [value])
 
   useEffect(() => {
-    const match = options.filter((option) => option.search.toLowerCase().includes(inputValue.value.toLowerCase()))
-    filteredOptions.set(match)
-    showDropdown.set(match.length > 0 && inputValue.value !== '')
+    // Only filter and show dropdown if not currently selecting an option
+    if (!isSelectingOption.current) {
+      const match = options.filter((option) => option.search.toLowerCase().includes(inputValue.value.toLowerCase()))
+      filteredOptions.set(match)
+      showDropdown.set(match.length > 0 && inputValue.value !== '')
+    }
   }, [inputValue.value, options])
 
   const handleClick = (option) => {
-    inputValue.set(option.name)
-    onSelect(option.name)
+    isSelectingOption.current = true
+    inputValue.set(option.label)
+    onSelect(option.label)
     showDropdown.set(false)
+    setTimeout(() => {
+      isSelectingOption.current = false
+    }, 1)
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     inputValue.set(event.target.value)
     onChange(event)
+    showDropdown.set(true)
   }
 
   return (
