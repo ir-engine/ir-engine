@@ -49,12 +49,16 @@ import { createTransitionState } from '@etherealengine/spatial/src/common/functi
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import { BoundingBoxComponent } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
+import {
+  BoundingBoxComponent,
+  updateBoundingBox
+} from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import {
@@ -91,6 +95,9 @@ const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
   xrDistVec3.y += avatar.avatarHeight
 }
 
+const _center = new Vector3()
+const _size = new Vector3()
+
 export const updateInteractableUI = (entity: Entity) => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   const interactable = getComponent(entity, InteractableComponent)
@@ -106,22 +113,25 @@ export const updateInteractableUI = (entity: Entity) => {
   updateXrDistVec3(selfAvatarEntity)
 
   const hasVisibleComponent = hasComponent(interactable.uiEntity, VisibleComponent)
-  if (hasVisibleComponent) {
-    TransformComponent.getWorldPosition(entity, xruiTransform.position)
+  if (hasVisibleComponent && boundingBox) {
+    updateBoundingBox(entity)
 
-    //open to changing default height, 0.5 seems too small an offset (on default geo cube the xrui is half inside the cube if offset it just 0.5 from position)
-    xruiTransform.position.y += boundingBox ? 0.5 + boundingBox.box.max.y : 1
+    const center = boundingBox.box.getCenter(_center)
+    const size = boundingBox.box.getSize(_size)
+    const alpha = smootheLerpAlpha(0.01, getState(ECSState).deltaSeconds)
+    xruiTransform.position.x = center.x
+    xruiTransform.position.z = center.z
+    xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
     const cameraTransform = getComponent(Engine.instance.viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
-    xruiTransform.scale.set(1, 1, 1)
   }
 
   const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
 
   //slightly annoying to check this condition twice, but keeps distance calc on same frame
   if (hasVisibleComponent) {
-    xruiTransform.scale.addScalar(MathUtils.clamp(distance * 0.01, 1, 5))
+    xruiTransform.scale.setScalar(MathUtils.clamp(distance * 0.01, 1, 5))
   }
 
   const transition = InteractableTransitions.get(entity)!
@@ -296,6 +306,7 @@ export const InteractableComponent = defineComponent({
     useEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
+      setComponent(entity, BoundingBoxComponent)
 
       if (!isEditing.value) {
         addInteractableUI(entity)

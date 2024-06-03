@@ -54,8 +54,6 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
@@ -72,7 +70,7 @@ import {
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
 import { EnvmapComponent } from '../components/EnvmapComponent'
-import { ModelComponent, useMeshOrModel } from '../components/ModelComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
@@ -204,22 +202,6 @@ const execute = () => {
   }
 }
 
-const SceneObjectEntityReactor = () => {
-  const entity = useEntityContext()
-  const isMeshOrModel = useMeshOrModel(entity)
-
-  useEffect(() => {
-    if (!isMeshOrModel) return
-
-    setComponent(entity, InputComponent, { highlight: getState(EngineState).isEditing })
-    return () => {
-      removeComponent(entity, InputComponent)
-    }
-  }, [isMeshOrModel])
-
-  return null
-}
-
 const ModelEntityReactor = () => {
   const entity = useEntityContext()
   const modelSceneID = useModelSceneID(entity)
@@ -285,13 +267,12 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
       <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
       <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
     </>
   )
 }
-
+//<QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
 export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
   insert: { after: AnimationSystemGroup },

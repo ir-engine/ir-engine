@@ -33,13 +33,12 @@ import {
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
 
-import { AssetLoader, LoadingArgs } from '../classes/AssetLoader'
+import { AssetLoader } from '../classes/AssetLoader'
 
 export const loadResource = <T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity,
-  args: LoadingArgs,
   onLoad: (response: T) => void,
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void,
@@ -57,7 +56,6 @@ export const loadResource = <T extends ResourceAssetType>(
         type: resourceType,
         references: [entity],
         metadata: {},
-        args: args,
         onLoads: {}
       }
     })
@@ -73,7 +71,6 @@ export const loadResource = <T extends ResourceAssetType>(
   ResourceState.debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
   AssetLoader.load(
     url,
-    args,
     (response: T) => {
       if (!resource || !resource.value) {
         console.warn('ResourceManager:load Resource removed before load finished: ' + url + ' for entity: ' + entity)
@@ -121,7 +118,6 @@ export const updateResource = (id: string) => {
   for (const [_, onLoad] of Object.entries(onLoads)) {
     AssetLoader.load(
       id,
-      resource.args.value || {},
       (response: ResourceAssetType) => {
         resource.asset.set(response)
         onLoad(response)

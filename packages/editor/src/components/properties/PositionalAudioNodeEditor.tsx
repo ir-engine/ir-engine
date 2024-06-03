@@ -33,6 +33,7 @@ import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -54,7 +55,11 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   const audioComponent = useComponent(props.entity, PositionalAudioComponent)
 
   useEffect(() => {
-    if (!hasComponent(props.entity, MediaComponent) && !hasComponent(props.entity, VolumetricComponent)) {
+    if (
+      !hasComponent(props.entity, MediaComponent) &&
+      !hasComponent(props.entity, VolumetricComponent) &&
+      !hasComponent(props.entity, NewVolumetricComponent)
+    ) {
       const nodes = SelectionState.getSelectedEntities()
       EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
     }

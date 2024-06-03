@@ -41,6 +41,7 @@ interface StyledStringInputProps {
   onBlur?: (e: FocusEvent<HTMLInputElement>) => void
   onKeyUp?: any
   value?: string
+  style?: React.CSSProperties
 }
 
 const StyledStringInput = React.forwardRef<any, StyledStringInputProps>(
@@ -73,6 +74,7 @@ export interface StringInputProps {
   type?: string
   placeholder?: string
   disabled?: boolean
+  style?: React.CSSProperties
 }
 
 const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, onRelease, ...rest }, ref) => {
