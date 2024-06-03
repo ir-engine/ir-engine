@@ -55,8 +55,6 @@ const getPairs = <T, U>(arr1: T[], arr2: U[]) => {
   return pairs
 }
 
-const nodeContentClassName = 'flex gap-4 p-1.5 border-grey-800'
-
 export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGenerator }: NodeUIProps) => {
   const [collapsed, setCollapsed] = React.useState(false)
   const edges = useEdges()
@@ -138,7 +136,7 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
         )}
       </div>
       {!collapsed && (
-        <div className={twMerge('flex-col', nodeContentClassName, borderColor)}>
+        <div className={twMerge('flex-col', 'border-grey-800 flex gap-4 p-1.5', borderColor)}>
           {pairs.map(([input, output], ix) => (
             <div key={ix} className="node-container-row flex flex-row justify-between gap-0.5 p-0">
               {input && (
