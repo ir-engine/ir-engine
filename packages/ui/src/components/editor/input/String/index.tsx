@@ -31,9 +31,10 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
   value: string
   onChange?: (value: string) => void
   onRelease?: (value: string) => void
+  inputRef?: React.Ref<any>
 }
 
-const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringInputProps) => {
+const StringInput = ({ value, onChange, onRelease, className, inputRef, ...rest }: StringInputProps) => {
   return (
     <Input
       containerClassname="w-50 h-7 bg-[#1A1A1A] rounded"
@@ -51,6 +52,7 @@ const StringInput = ({ value, onChange, onRelease, className, ...rest }: StringI
       onFocus={(e) => {
         onRelease?.(e.target.value)
       }}
+      ref={inputRef}
       {...rest}
     />
   )
