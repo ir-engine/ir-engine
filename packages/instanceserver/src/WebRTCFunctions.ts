@@ -354,6 +354,7 @@ export async function handleWebRtcTransportCreate(
       direction,
       peerID
     ) as WebRTCTransportExtension
+    logger.info('[IR-NET] Creating transport for network: ' + network.id)
     if (existingTransport) throw new Error('Transport already exists for ' + peerID) //MediasoupTransportState.removeTransport(network.id, existingTransport.id)
 
     const newTransport = await createWebRtcTransport(network, {
@@ -395,6 +396,10 @@ export async function handleWebRtcTransportCreate(
       )
 
       for (const [index, candidate] of iceCandidates.entries()) {
+        logger.info(`[IR-NET] Index is : ${index} and candidate's IP is ${candidate.ip}` + network.id)
+        iceCandidates[index].address = thisGs.status?.address
+          ? thisGs.status.address
+          : mediaConfig.mediasoup.webRtcServerOptions.listenInfos[0].ip
         iceCandidates[index].port = thisGs.spec?.ports?.find(
           (portMapping) => portMapping.containerPort === candidate.port
         ).hostPort
