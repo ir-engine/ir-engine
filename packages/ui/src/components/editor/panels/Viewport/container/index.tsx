@@ -79,8 +79,6 @@ const ViewportDnD = () => {
     observer.observe(ref.current)
     return () => {
       observer.disconnect()
-      //   const canvas = document.getElementById('engine-renderer-canvas')!
-      //   parent.removeChild(canvas)
     }
   }, [ref])
 
@@ -93,7 +91,7 @@ const ViewportDnD = () => {
         isDragging && isOver ? 'border-4' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
-    ></div>
+    />
   )
 }
 
