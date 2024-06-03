@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import MaterialLibraryIcon from '@mui/icons-material/Yard'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
@@ -44,6 +43,7 @@ import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/c
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import {
@@ -57,7 +57,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../../../layout/Panel'
+import { PanelDragContainer, PanelTitle } from '../../../layout/Panel'
 import { InfoTooltip } from '../../../layout/Tooltip'
 import ParameterInput from '../../../properties/parameter'
 
@@ -139,8 +139,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialComponent, materialComponent.prototypeEntity])
 
   const prototypeName = useHookstate('')
-  const materialName = useHookstate('')
-  materialName.set(material.name)
+  const materialName = useComponent(entity, NameComponent)
   prototypeName.set(material.type)
 
   useEffect(() => {
@@ -205,10 +204,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   return (
     <div className="relative flex flex-col gap-2">
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
-        <StringInput
-          value={materialComponent.material.value!.name}
-          onChange={(name) => setMaterialName(entity, name)}
-        />
+        <StringInput value={materialName.value} onChange={(name) => setMaterialName(entity, name)} />
       </InputGroup>
       <InputGroup name="Source" label={t('editor:properties.mesh.material.source')}>
         <div className="border-grey-500 flex flex-row gap-2 rounded-lg border-2 border-solid bg-theme-surface-main p-1 text-xs text-white">
@@ -307,7 +303,6 @@ export const MaterialPropertyTitle = () => {
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
-        <PanelIcon as={MaterialLibraryIcon} size={12} />
         <PanelTitle>
           <InfoTooltip title={t('editor:properties.mesh.materialProperties.info')}>
             <span>{t('editor:properties.mesh.materialProperties.title')}</span>
