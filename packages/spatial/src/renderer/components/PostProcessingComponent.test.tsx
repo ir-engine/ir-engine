@@ -23,288 +23,179 @@
 // Ethereal Engine. All Rights Reserved.
 // */
 
-// import assert from 'assert'
-// import { LinearSRGBColorSpace, MathUtils, Vector2, Vector3 } from 'three'
+import assert from 'assert'
+import { MathUtils } from 'three'
 
-// import {
-//   Entity,
-//   EntityUUID,
-//   UUIDComponent,
-//   getComponent,
-//   getMutableComponent,
-//   hasComponent,
-//   setComponent,
-//   useOptionalComponent
-// } from '@etherealengine/ecs'
-// import { destroyEngine } from '@etherealengine/ecs/src/Engine'
-// import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-// import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
-// import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
-// import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-// import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
-// import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
-// import { act, render } from '@testing-library/react'
-// import {
-//   BlendFunction,
-//   EdgeDetectionMode,
-//   EffectComposer,
-//   KernelSize,
-//   PredicationMode,
-//   SMAAPreset,
-//   ToneMappingMode,
-//   VignetteTechnique
-// } from 'postprocessing'
-// import React, { useEffect } from 'react'
-// import { Effects, defaultPostProcessingSchema } from '../PostProcessing'
-// import { PostProcessingComponent } from './PostProcessingComponent'
+import {
+  Entity,
+  EntityUUID,
+  UUIDComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/ecs'
+import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import { createEntity, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
+import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
+import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { act, render } from '@testing-library/react'
+import { BlendFunction, EffectComposer, NoiseEffect } from 'postprocessing'
+import React, { useEffect } from 'react'
+import { RendererState } from '../RendererState'
+import { EffectReactorProps, PostProcessingEffectState } from '../effects/EffectRegistry'
+import { PostProcessingComponent } from './PostProcessingComponent'
 
-// describe('PostProcessingComponent', () => {
-//   let rootEntity: Entity
-//   let entity: Entity
+describe('PostProcessingComponent', () => {
+  let rootEntity: Entity
+  let entity: Entity
 
-//   const mockCanvas = () => {
-//     return {
-//       getDrawingBufferSize: () => 0
-//     } as any as HTMLCanvasElement
-//   }
+  const mockCanvas = () => {
+    return {
+      getDrawingBufferSize: () => 0
+    } as any as HTMLCanvasElement
+  }
 
-//   beforeEach(() => {
-//     createEngine()
+  beforeEach(() => {
+    createEngine()
 
-//     rootEntity = createEntity()
-//     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-//     setComponent(rootEntity, EntityTreeComponent)
-//     setComponent(rootEntity, CameraComponent)
-//     setComponent(rootEntity, SceneComponent)
-//     setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
+    rootEntity = createEntity()
+    setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(rootEntity, EntityTreeComponent)
+    setComponent(rootEntity, CameraComponent)
+    setComponent(rootEntity, SceneComponent)
+    setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
 
-//     entity = createEntity()
-//     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-//     setComponent(entity, PostProcessingComponent)
-//   })
+    entity = createEntity()
+    setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    getMutableState(RendererState).usePostProcessing.set(true)
+    setComponent(entity, PostProcessingComponent, { enabled: true })
+    setComponent(entity, EntityTreeComponent)
 
-//   afterEach(() => {
-//     return destroyEngine()
-//   })
+    //set data to test
+    setComponent(rootEntity, SceneComponent, { children: [entity] })
 
-//   it('Create default post processing component', () => {
-//     entity = createEntity()
-//     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-//     setComponent(entity, PostProcessingComponent)
-//     const postProcessingComponent = getComponent(entity, PostProcessingComponent)
-//     assert(postProcessingComponent.effects == defaultPostProcessingSchema, 'post processing matches default parameters')
-//   })
+    //override addpass to test data without dependency on Browser
+    let addPassCount = 0
+    EffectComposer.prototype.addPass = () => {
+      addPassCount++
+    }
+  })
 
-//   it('Test Effect Composure', async () => {
-//     const effectKey = Effects.BloomEffect
-//     const entity = createEntity()
-//     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-//     setComponent(entity, EntityTreeComponent)
+  afterEach(() => {
+    return destroyEngine()
+  })
 
-//     //retain ref to original add Pass
-//     const originalAddPass = EffectComposer.prototype.addPass
+  it('Create default post processing component', () => {
+    const postProcessingComponent = getComponent(entity, PostProcessingComponent)
+    assert(postProcessingComponent, 'post processing component exists')
+  })
 
-//     //override addpass to test data without dependency on Browser
-//     let addPassCount = 0
-//     EffectComposer.prototype.addPass = () => {
-//       addPassCount++
-//     }
+  it('Test Effect Composure amd Highlight Effect', async () => {
+    const effectKey = 'OutlineEffect'
 
-//     //set data to test
-//     setComponent(rootEntity, SceneComponent, { children: [entity] })
+    //force nested reactors to run
+    const { rerender, unmount } = render(<></>)
 
-//     //force nested reactors to run
-//     const { rerender, unmount } = render(<></>)
+    const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
+    await act(() => rerender(<></>))
 
-//     setComponent(entity, PostProcessingComponent)
-//     const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
+    const effectComposer = getComponent(rootEntity, RendererComponent).effectComposer
+    //test that the effect composer is setup
+    assert(getComponent(rootEntity, RendererComponent).effectComposer, 'effect composer is setup')
 
-//     await act(() => rerender(<></>))
+    //test that the effect pass has the the effect set
+    // @ts-ignore
+    const effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    assert(effects.find((el) => el.name == effectKey))
 
-//     //test that the effect composer is setup
-//     assert(getComponent(rootEntity, RendererComponent).effectComposer, 'effect composer is setup')
+    unmount()
+  })
 
-//     //test that the effect pass has the the effect set
-//     // @ts-ignore
-//     const effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
-//     assert(effects.find((el) => el.name == effectKey))
+  it('Test Effect Add and Remove', async () => {
+    const effectKey = 'NoiseEffect'
+    getMutableState(PostProcessingEffectState).merge({
+      [effectKey]: {
+        reactor: NoiseEffectProcessReactor,
+        defaultValues: {
+          isActive: true,
+          blendFunction: BlendFunction.SCREEN,
+          premultiply: false
+        },
+        schema: {
+          blendFunction: { propertyType: 0, name: 'Blend Function' },
+          premultiply: { propertyType: 2, name: 'Premultiply' }
+        }
+      }
+    })
 
-//     EffectComposer.prototype.addPass = originalAddPass
+    const { rerender, unmount } = render(<></>)
 
-//     unmount()
-//   })
+    await act(() => {
+      rerender(<></>)
+    })
 
-//   it('Test Effects', (done) => {
-//     const entity = createEntity()
-//     setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-//     setComponent(entity, EntityTreeComponent)
+    assert(hasComponent(entity, PostProcessingComponent))
 
-//     const effectKeys = Object.keys(Effects)
-//     const masterProps = {
-//       isActive: true,
-//       preset: SMAAPreset.HIGH,
-//       edgeDetectionMode: EdgeDetectionMode.DEPTH,
-//       predicationMode: PredicationMode.DEPTH,
-//       blendFunction: BlendFunction.INVERT,
-//       distanceScaling: false,
-//       depthAwareUpsampling: false,
-//       normalDepthBuffer: undefined,
-//       samples: 18,
-//       rings: 14,
-//       distanceThreshold: 1.94,
-//       distanceFalloff: 0.06,
-//       rangeThreshold: 0.001,
-//       rangeFalloff: 0.002,
-//       minRadiusScale: 0.2,
-//       luminanceInfluence: 1.4,
-//       bias: 0.5,
-//       radius: 0.5,
-//       intensity: 2.0,
-//       fade: 0.02,
-//       color: undefined,
-//       resolutionScale: 2.0,
-//       resolutionX: 100,
-//       resolutionY: 100,
-//       width: 100,
-//       height: 100,
-//       distance: 5,
-//       thickness: 5,
-//       denoiseIterations: 2,
-//       denoiseKernel: 1,
-//       denoiseDiffuse: 5,
-//       denoiseSpecular: 5,
-//       phi: 1.0,
-//       lumaPhi: 10,
-//       depthPhi: 4,
-//       normalPhi: 25,
-//       roughnessPhi: 25,
-//       specularPhi: 25,
-//       envBlur: 1.0,
-//       importanceSampling: false,
-//       steps: 40,
-//       refineSteps: 10,
-//       missedRays: true,
-//       focusDistance: 1.0,
-//       focalLength: new Vector2(2, 2),
-//       focusRange: 0.2,
-//       bokehScale: 2.0,
-//       kernelSize: KernelSize.SMALL,
-//       luminanceThreshold: 1.8,
-//       luminanceSmoothing: 0.5,
-//       mipmapBlur: true,
-//       levels: 10,
-//       adaptive: true,
-//       mode: ToneMappingMode.OPTIMIZED_CINEON,
-//       resolution: 1.5,
-//       maxLuminance: 8.0,
-//       whitePoint: 8.0,
-//       middleGrey: 1.2,
-//       minLuminance: 1.05,
-//       averageLuminance: 2.0,
-//       adaptationRate: 2.0,
-//       brightness: 1.1,
-//       contrast: 1.1,
-//       hue: 1,
-//       saturation: 1.1,
-//       bits: 32,
-//       blend: 1.6,
-//       constantBlend: false,
-//       dilation: false,
-//       blockySampling: true,
-//       logTransform: true,
-//       depthDistance: 20,
-//       worldDistance: 10,
-//       neighborhoodClamping: false,
-//       offset: new Vector2(1, 1),
-//       radialModulation: true,
-//       modulationOffset: 0.3,
-//       jitter: 2,
-//       angle: Math.PI * 1.0,
-//       scale: 2.0,
-//       rotation: 1.0,
-//       focusArea: 0.8,
-//       feather: 0.6,
-//       chromaticAberrationOffset: new Vector2(1, 1),
-//       delay: new Vector2(3.0, 7.0),
-//       duration: new Vector2(1.2, 2.0),
-//       strength: new Vector2(0.6, 2.0),
-//       perturbationMap: undefined,
-//       dtSize: 32,
-//       columns: 0.1,
-//       ratio: 0.95,
-//       lineWidth: 1.0,
-//       lutPath: undefined,
-//       tetrahedralInterpolation: true,
-//       inputColorSpace: LinearSRGBColorSpace,
-//       premultiply: true,
-//       granularity: 15,
-//       density: 2.5,
-//       scrollSpeed: 0.1,
-//       position: new Vector3(1, 1, 1),
-//       speed: 4.0,
-//       maxRadius: 2.0,
-//       waveSize: 0.4,
-//       amplitude: 0.1,
-//       texturePath: undefined,
-//       aspectCorrection: true,
-//       technique: VignetteTechnique.ESKIL,
-//       eskil: true,
-//       darkness: 1,
-//       distortion: new Vector2(1, 1),
-//       principalPoint: new Vector2(1, 1),
-//       skew: 1
-//     }
-//     const masterKeys = Object.keys(masterProps)
+    const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
+    postProcessingComponent.effects[effectKey]['isActive'].set(true)
 
-//     const Reactor = () => {
-//       const postProcessingComponent = useOptionalComponent(entity, PostProcessingComponent)
-//       useEffect(() => {
-//         setComponent(entity, PostProcessingComponent)
-//       }, [])
+    await act(() => {
+      rerender(<></>)
+    })
 
-//       return <></>
-//     }
+    // @ts-ignore
+    let effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    assert(
+      effects.find((el) => el.name == effectKey),
+      ' Effect turned on'
+    )
 
-//     const { rerender, unmount } = render(<Reactor />)
+    postProcessingComponent.effects[effectKey]['isActive'].set(false)
 
-//     act(async () => {
-//       assert(hasComponent(entity, PostProcessingComponent))
+    await act(() => {
+      rerender(<></>)
+    })
 
-//       const postProcessingComponent = getMutableComponent(entity, PostProcessingComponent)
+    // @ts-ignore
+    effects = getComponent(rootEntity, RendererComponent).effectComposer.EffectPass.effects
+    assert(!effects.find((el) => el.name == effectKey), ' Effect turned off')
 
-//       effectKeys.forEach((effectKey) => {
-//         if (postProcessingComponent.effects[effectKey]) {
-//           const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
-//           propKeys.forEach((propKey) => {
-//             if (masterKeys.includes(propKey)) {
-//               postProcessingComponent.effects[effectKey][propKey].set(masterProps[propKey])
-//             }
-//           })
-//         }
-//       })
+    removeEntity(entity)
+    unmount()
+  })
+})
 
-//       rerender(<Reactor />)
-//     }).then(() => {
-//       const postProcessingComponent = getComponent(entity, PostProcessingComponent)
+const effectKey = 'NoiseEffect'
+export const NoiseEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
+  isActive
+  rendererEntity: Entity
+  effectData
+  effects
+}) => {
+  const { isActive, rendererEntity, effectData, effects } = props
+  const effectState = getState(PostProcessingEffectState)
 
-//       effectKeys.forEach((effectKey) => {
-//         if (postProcessingComponent.effects[effectKey]) {
-//           const propKeys = Object.keys(postProcessingComponent.effects[effectKey])
-//           propKeys.forEach((propKey) => {
-//             if (masterKeys.includes(propKey)) {
-//               console.log('Key = ' + effectKey + ' - ' + propKey + ' = ' + masterProps[propKey])
-//               assert(
-//                 postProcessingComponent.effects[effectKey][propKey] == masterProps[propKey],
-//                 effectKey + ' - ' + propKey + 'was set'
-//               )
-//             }
-//           })
-//         }
-//       })
+  useEffect(() => {
+    if (effectData[effectKey].value) return
+    effectData[effectKey].set(effectState[effectKey].defaultValues)
+  }, [])
 
-//       removeEntity(entity)
-//       unmount()
-//       done()
-//     })
-//   })
-// })
+  useEffect(() => {
+    if (!isActive?.value) {
+      if (effects[effectKey].value) effects[effectKey].set(none)
+      return
+    }
+    const eff = new NoiseEffect(effectData[effectKey].value)
+    effects[effectKey].set(eff)
+    return () => {
+      effects[effectKey].set(none)
+    }
+  }, [isActive])
+
+  return null
+}
