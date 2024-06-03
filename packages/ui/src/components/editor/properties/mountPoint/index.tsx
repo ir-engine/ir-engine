@@ -75,7 +75,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.mountPoint.description')}
       icon={<LuUsers2 />}
     >
-      <InputGroup name="Mount Type" label={t('editor:properties.mountpoint.lbl-mountType')}>
+      <InputGroup name="Mount Type" label={t('editor:properties.mountPoint.lbl-type')}>
         <SelectInput // we dont know the options and the component for this
           key={props.entity}
           value={mountComponent.type.value}
@@ -83,7 +83,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(MountPointComponent, 'type')}
         />
       </InputGroup>
-      <InputGroup name="Dismount Offset" label={t('editor:properties.mountpoint.lbl-dismountOffset')}>
+      <InputGroup name="Dismount Offset" label={t('editor:properties.mountPoint.lbl-dismount')}>
         <Vector3Input
           value={mountComponent.dismountOffset.value}
           onChange={updateProperty(MountPointComponent, 'dismountOffset')}
