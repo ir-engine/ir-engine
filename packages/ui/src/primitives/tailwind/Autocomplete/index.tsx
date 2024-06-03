@@ -29,7 +29,7 @@ import Input from '../Input'
 
 export interface AutoCompleteProps {
   className?: string
-  options: { name: string }[]
+  options: { label: string; search: string }[]
   placeholder?: string
   onSelect: (value: string) => void
   value: string
@@ -46,7 +46,7 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
   }, [value])
 
   useEffect(() => {
-    const match = options.filter((option) => option.name.toLowerCase().includes(inputValue.value.toLowerCase()))
+    const match = options.filter((option) => option.search.toLowerCase().includes(inputValue.value.toLowerCase()))
     filteredOptions.set(match)
     showDropdown.set(match.length > 0 && inputValue.value !== '')
   }, [inputValue.value, options])
@@ -74,7 +74,7 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
                 className="cursor-pointer px-4 py-2 text-theme-secondary"
                 onClick={() => handleClick(option)}
               >
-                {option.name}
+                {option.label}
               </li>
             ))}
           </ul>
