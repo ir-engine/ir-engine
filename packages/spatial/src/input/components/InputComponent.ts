@@ -25,14 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import {
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  InputSystemGroup,
-  UndefinedEntity,
-  useExecute
-} from '@etherealengine/ecs'
+import { getComponent, getOptionalComponent, InputSystemGroup, UndefinedEntity, useExecute } from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -70,8 +63,7 @@ export const InputComponent = defineComponent({
 
       //internal
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[],
-      hasFocus: false
+      inputSources: [] as Entity[]
     }
   },
 
@@ -96,8 +88,7 @@ export const InputComponent = defineComponent({
       () => {
         const capturingEntity = getState(InputState).capturingEntity
         if (
-          !executeWhenEditing ||
-          getState(EngineState).isEditing ||
+          (!executeWhenEditing && getState(EngineState).isEditing) ||
           (capturingEntity && !isAncestor(capturingEntity, entity, true))
         )
           return
@@ -191,11 +182,18 @@ export const InputComponent = defineComponent({
 
   useHasFocus() {
     const entity = useEntityContext()
-    const hasFocus = useHookstate(false)
-    InputComponent.useExecuteWithInput(() => {
-      const inputSources = InputComponent.getInputSourceEntities(entity)
-      hasFocus.set(inputSources.length > 0)
-    }, true)
+    const hasFocus = useHookstate(() => {
+      return InputComponent.getInputSourceEntities(entity).length > 0
+    })
+    useExecute(
+      () => {
+        const inputSources = InputComponent.getInputSourceEntities(entity)
+        hasFocus.set(inputSources.length > 0)
+      },
+      // we want to evaluate input sources after the input system group has run, after all input systems
+      // have had a chance to respond to input and/or capture input sources
+      { after: InputSystemGroup }
+    )
     return hasFocus
   },
 
@@ -238,14 +236,6 @@ export const InputComponent = defineComponent({
     //   // collider.collisionLayer.set(collider.collisionLayer.value | CollisionGroups.Input)
     // }, [])
 
-    useExecute(
-      () => {
-        const inputComponent = getMutableComponent(entity, InputComponent)
-        if (!inputComponent) return
-        inputComponent.hasFocus.set(inputComponent.inputSources.value.length > 0)
-      },
-      { with: InputSystemGroup }
-    )
     /** @todo - fix */
     // useLayoutEffect(() => {
     //   if (!input.inputSources.length || !input.grow.value) return
