@@ -33,10 +33,11 @@ export interface AutoCompleteProps {
   placeholder?: string
   onSelect: (value: string) => void
   value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const AutoComplete = ({ options, onSelect, placeholder, className, value }: AutoCompleteProps) => {
-  const filteredOptions = useHookstate<typeof options>([])
+const AutoComplete = ({ options, onSelect, placeholder, className, value, onChange }: AutoCompleteProps) => {
+  const filteredOptions = useHookstate(options)
   const showDropdown = useHookstate(false)
   const inputValue = useHookstate(value)
 
@@ -44,38 +45,33 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value }: Auto
     inputValue.set(value)
   }, [value])
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const keyword = e.currentTarget.value
-    inputValue.set(keyword)
-
-    if (keyword.trim() === '') {
-      filteredOptions.set([])
-      showDropdown.set(false)
-      return
-    }
-
-    const filtered = options.filter((option) => option.name.toLowerCase().includes(keyword.toLowerCase()))
-
-    filteredOptions.set(filtered)
-    showDropdown.set(true)
-  }
+  useEffect(() => {
+    const match = options.filter((option) => option.name.toLowerCase().includes(inputValue.value.toLowerCase()))
+    filteredOptions.set(match)
+    showDropdown.set(match.length > 0 && inputValue.value !== '')
+  }, [inputValue.value, options])
 
   const handleClick = (option) => {
     inputValue.set(option.name)
-    showDropdown.set(false)
     onSelect(option.name)
+    showDropdown.set(false)
+  }
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    inputValue.set(event.target.value)
+    onChange(event)
   }
 
   return (
     <div className={`relative ${className}`}>
-      <Input value={inputValue.value} placeholder={placeholder} className="w-full" onChange={onChange} />
+      <Input value={inputValue.value} placeholder={placeholder} className="w-full" onChange={handleInputChange} />
       {showDropdown.value && filteredOptions.value.length > 0 && (
-        <div className="border-theme-primary bg-theme-surface-main fixed left-10 right-0 z-[60] mt-2 w-1/2 rounded border">
+        <div className="fixed left-10 right-0 z-[60] mt-2 w-1/2 rounded border border-theme-primary bg-theme-surface-main">
           <ul className="max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2">
             {filteredOptions.value.map((option, index) => (
               <li
                 key={index}
-                className="text-theme-secondary cursor-pointer px-4 py-2"
+                className="cursor-pointer px-4 py-2 text-theme-secondary"
                 onClick={() => handleClick(option)}
               >
                 {option.name}
