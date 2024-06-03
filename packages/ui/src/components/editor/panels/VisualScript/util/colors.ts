@@ -23,30 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { NodeTypes } from 'reactflow'
+import { NodeSpecJSON } from '@etherealengine/visual-script'
 
-import { Node } from '@etherealengine/ui/src/components/editor/panels/VisualScript/node'
-import { NodeSpecGenerator } from './useNodeSpecGenerator'
+export type color = 'red' | 'green' | 'lime' | 'purple' | 'blue' | 'gray' | 'white'
 
-const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
-  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
-    nodes[nodeType] = (props) => {
-      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
-    }
-    return nodes
-  }, {})
+export const colors: Record<color, [string, string, string]> = {
+  red: ['bg-[#dd6b20]', 'border-[#dd6b20]', 'text-[#fff]'],
+  green: ['bg-[#38a169]', 'border-[#38a169]', 'text-[#fff]'],
+  lime: ['bg-[#84cc16]', 'border-[#84cc16]', 'text-[#2d3748]'],
+  purple: ['bg-[#9f7aea]', 'border-[#9f7aea]', 'text-[#fff]'],
+  blue: ['bg-[#22d3ee]', 'border-[#22d3ee]', 'text-[#fff]'],
+  gray: ['bg-[#718096]', 'border-[#718096]', 'text-[#fff]'],
+  white: ['bg-[#fff]', 'border-[#fff]', 'text-[#4a5568]']
 }
 
-export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
-  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
-  useEffect(() => {
-    if (!specGenerator) return
-    const customNodeTypes = getCustomNodeTypes(specGenerator)
+export const valueTypeColorMap: Record<string, string> = {
+  flow: 'white',
+  number: 'green',
+  float: 'green',
+  integer: 'lime',
+  boolean: 'red',
+  string: 'purple'
+}
 
-    setCustomNodeTypes(customNodeTypes)
-  }, [specGenerator])
-
-  return customNodeTypes
+export const categoryColorMap: Record<NodeSpecJSON['category'], color> = {
+  Event: 'red',
+  Logic: 'green',
+  Variable: 'purple',
+  Query: 'purple',
+  Action: 'blue',
+  Flow: 'gray',
+  Effect: 'lime',
+  Time: 'gray',
+  None: 'gray'
 }

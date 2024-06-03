@@ -23,30 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { NodeTypes } from 'reactflow'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Modal } from '..'
 
-import { Node } from '@etherealengine/ui/src/components/editor/panels/VisualScript/node'
-import { NodeSpecGenerator } from './useNodeSpecGenerator'
-
-const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
-  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
-    nodes[nodeType] = (props) => {
-      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
-    }
-    return nodes
-  }, {})
+export type HelpModalProps = {
+  open?: boolean
+  onClose: () => void
 }
 
-export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
-  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
-  useEffect(() => {
-    if (!specGenerator) return
-    const customNodeTypes = getCustomNodeTypes(specGenerator)
+export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
+  const { t } = useTranslation()
 
-    setCustomNodeTypes(customNodeTypes)
-  }, [specGenerator])
-
-  return customNodeTypes
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.help.title')}
+      actions={[{ label: t('editor:visualScript.modal.buttons.close'), onClick: onClose }]}
+      open={open}
+      onClose={onClose}
+    >
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addNodeHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addConnectionHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.deleteNodeHelp')}</p>
+    </Modal>
+  )
 }

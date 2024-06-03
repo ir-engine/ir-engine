@@ -23,30 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
-import { NodeTypes } from 'reactflow'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { useReactFlow } from 'reactflow'
+import { Modal } from '..'
 
-import { Node } from '@etherealengine/ui/src/components/editor/panels/VisualScript/node'
-import { NodeSpecGenerator } from './useNodeSpecGenerator'
-
-const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
-  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
-    nodes[nodeType] = (props) => {
-      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
-      return <Node spec={spec} specGenerator={specGenerator} {...props} />
-    }
-    return nodes
-  }, {})
+export type ClearModalProps = {
+  open?: boolean
+  onClose: () => void
 }
 
-export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
-  const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
-  useEffect(() => {
-    if (!specGenerator) return
-    const customNodeTypes = getCustomNodeTypes(specGenerator)
+export const ClearModal: React.FC<ClearModalProps> = ({ open = false, onClose }) => {
+  const instance = useReactFlow()
+  const { t } = useTranslation()
 
-    setCustomNodeTypes(customNodeTypes)
-  }, [specGenerator])
+  const handleClear = () => {
+    instance.setNodes([])
+    instance.setEdges([])
+    // TODO better way to call fit vew after edges render
+    setTimeout(() => {
+      instance.fitView()
+    }, 100)
+    onClose()
+  }
 
-  return customNodeTypes
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.clear.title')}
+      actions={[
+        { label: t('editor:visualScript.modal.buttons.cancel'), onClick: onClose },
+        { label: t('editor:visualScript.modal.buttons.clear'), onClick: handleClear }
+      ]}
+      open={open}
+      onClose={onClose}
+    >
+      <p>{t('editor:visualScript.modal.clear.confirm')}</p>
+    </Modal>
+  )
 }
