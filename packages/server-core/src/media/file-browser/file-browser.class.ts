@@ -298,7 +298,6 @@ export class FileBrowserService
     }
 
     const hash = createStaticResourceHash(data.body)
-    const url = storageProvider.getCachedURL(key, params && params.provider == null)
 
     const query = {
       hash,
@@ -315,8 +314,7 @@ export class FileBrowserService
       await this.app.service(staticResourcePath).patch(
         resource.id,
         {
-          key,
-          url
+          key
         },
         { isInternal: true }
       )
@@ -330,7 +328,6 @@ export class FileBrowserService
         {
           hash,
           key,
-          url,
           project,
           mimeType: data.contentType
         },

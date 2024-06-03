@@ -1773,7 +1773,6 @@ export const uploadLocalProjectToProvider = async (
         // logger.info(`Skipping upload of static resource: "${item.key}"`)
         continue
       }
-      const url = storageProvider.getCachedURL(item.key, true)
       //remove userId if exists
       if (item.userId) delete (item as any).userId
 
@@ -1798,8 +1797,7 @@ export const uploadLocalProjectToProvider = async (
       }
 
       await app.service(staticResourcePath).create({
-        ...newResource,
-        url
+        ...newResource
       })
       // logger.info(`Uploaded static resource ${item.key} from resources.json`)
     }
@@ -1850,7 +1848,6 @@ export const uploadLocalProjectToProvider = async (
                 null,
                 {
                   hash,
-                  url,
                   mimeType: contentType,
                   tags: [thisFileClass]
                 },
@@ -1867,7 +1864,6 @@ export const uploadLocalProjectToProvider = async (
                 key: `projects/${projectName}${filePathRelative}`,
                 project: projectName,
                 hash,
-                url,
                 mimeType: contentType,
                 tags: [thisFileClass]
               })

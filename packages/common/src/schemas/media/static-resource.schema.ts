@@ -71,13 +71,47 @@ export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'me
 }
 
 // Schema for creating new entries
-export const staticResourceDataSchema = Type.Partial(staticResourceSchema, { $id: 'StaticResourceData' })
+export const staticResourceDataSchema = Type.Partial(
+  Type.Pick(staticResourceSchema, [
+    'id',
+    'key',
+    // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+    'mimeType',
+    'userId',
+    'hash',
+    'project',
+    'driver',
+    'attribution',
+    'licensing',
+    'tags'
+    // 'url'
+    // 'stats'
+  ]),
+  { $id: 'StaticResourceData' }
+)
 export interface StaticResourceData extends Static<typeof staticResourceDataSchema> {}
 
 // Schema for updating existing entries
-export const staticResourcePatchSchema = Type.Partial(staticResourceSchema, {
-  $id: 'StaticResourcePatch'
-})
+export const staticResourcePatchSchema = Type.Partial(
+  Type.Pick(staticResourceSchema, [
+    'id',
+    'key',
+    // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+    'mimeType',
+    'userId',
+    'hash',
+    'project',
+    'driver',
+    'attribution',
+    'licensing',
+    'tags'
+    // 'url'
+    // 'stats'
+  ]),
+  {
+    $id: 'StaticResourcePatch'
+  }
+)
 export interface StaticResourcePatch extends Static<typeof staticResourcePatchSchema> {}
 
 // Schema for allowed query properties
@@ -92,8 +126,8 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'driver',
   'attribution',
   'licensing',
-  'tags',
-  'url'
+  'tags'
+  // 'url'
   // 'stats'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
