@@ -1791,7 +1791,6 @@ export const uploadLocalProjectToProvider = async (
         'metadata',
         'mimeType',
         'project',
-        'sid',
         'stats',
         'tags',
         'updatedAt'
@@ -1814,6 +1813,7 @@ export const uploadLocalProjectToProvider = async (
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
+      console.log(filePathRelative)
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
       const url = getCachedURL(key, getCacheDomain(storageProvider))
@@ -1839,7 +1839,10 @@ export const uploadLocalProjectToProvider = async (
           AssetClass.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
-        if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
+        if (
+          (filePathRelative.startsWith('/assets/') || filePathRelative.startsWith('/public/')) &&
+          staticResourceClasses.includes(thisFileClass)
+        ) {
           const hash = createStaticResourceHash(fileResult)
           if (existingContentSet.has(resourceKey(key, hash))) {
             // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
