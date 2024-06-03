@@ -156,7 +156,9 @@ const getTotalVertexCount = () => {
 }
 
 const getRendererInfo = () => {
-  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+  const viewer = Engine?.instance?.viewerEntity as Entity | undefined
+  if (!viewer) return {}
+  const renderer = getOptionalComponent(viewer, RendererComponent)?.renderer
   if (!renderer) return {}
   return {
     memory: renderer.info.memory,
