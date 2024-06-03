@@ -499,7 +499,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     id: action.transportID,
     sctpParameters: sctpParameters as any,
     iceParameters: iceParameters as any,
-    iceCandidates: iceCandidates as any,
+    iceCandidates: mapIceCandidatesToLoadBalancer(iceCandidates),
     dtlsParameters: dtlsParameters as any,
     iceServers
   }
@@ -600,7 +600,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             paused = mediaStreamState.screenShareAudioPaused.value
             break
           default:
-            return logger.error('Unkown media type on transport produce', appData.mediaTag)
+            return logger.error('Unknown media type on transport produce', appData.mediaTag)
         }
 
         // tell the server what it needs to know from us in order to set
@@ -766,6 +766,23 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   })
 
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
+}
+
+function mapIceCandidatesToLoadBalancer(iceCandidates: any[]) {
+  const loadBalancerAddress = config.client.instanceserverUrl
+  return iceCandidates.map((candidate) => ({
+    ...candidate,
+    ip: loadBalancerAddress,
+    port: getLoadBalancerPort(candidate.port)
+  }))
+}
+
+function getLoadBalancerPort(containerPort: number): number {
+  const portMappings = {
+    3000: 4000,
+    3001: 4001
+  }
+  return portMappings[containerPort] || containerPort
 }
 
 export async function configureMediaTransports(mediaTypes: string[]): Promise<boolean> {

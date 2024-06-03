@@ -210,7 +210,7 @@ export const LocationInstanceConnectionService = {
         if (params.locationId != null)
           getMutableState(LocationInstanceState).instances.merge({
             [params.instanceId]: {
-              ipAddress: params.ipAddress,
+              ipAddress: params.rawData.ipAddress,
               port: params.port,
               locationId: params.locationId,
               sceneId: params.sceneId,
