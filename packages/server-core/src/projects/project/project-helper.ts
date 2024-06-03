@@ -47,9 +47,9 @@ import { v4 as uuidv4 } from 'uuid'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { ResourcesJson } from '@etherealengine/common/src/interfaces/ResourcesJson'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
 import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/common/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/src/schemas/projects/project-check-source-destination-match.schema'
@@ -1722,6 +1722,21 @@ export const deleteProjectFilesInStorageProvider = async (
   }
 }
 
+//otherwise, upload the files into static resources individually
+const staticResourceClasses = [
+  AssetClass.Audio,
+  AssetClass.Image,
+  AssetClass.Model,
+  AssetClass.Video,
+  AssetClass.Volumetric,
+  AssetClass.Material,
+  AssetClass.Prefab
+]
+
+export const isStaticResourceAsset = (key: string) =>
+  (key.startsWith('/public/') || key.includes('/assets/')) &&
+  staticResourceClasses.includes(AssetLoader.getAssetClass(key))
+
 /**
  * Updates the local storage provider with the project's current files
  * @param app Application object
@@ -1748,8 +1763,32 @@ export const uploadLocalProjectToProvider = async (
   const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
+  // migrate resources.json if needed
+
+  if (hasResourceDB) {
+    //if we have a resources.sql file, use it to populate static-resource table
+    const manifest: StaticResourceType[] | ResourcesJson = JSON.parse(fs.readFileSync(resourceDBPath).toString())
+    if (Array.isArray(manifest)) {
+      const newManifest = Object.fromEntries(
+        manifest.map((item) => {
+          return [
+            item.key,
+            {
+              hash: item.hash,
+              type: 'asset',
+              tags: item.tags,
+              licensing: item.licensing,
+              attribution: item.attribution
+            }
+          ]
+        })
+      ) as ResourcesJson
+      fs.writeFileSync(resourceDBPath, JSON.stringify(newManifest, null, 2))
+    }
+  }
+
   const files = getFilesRecursive(projectRootPath)
-  const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const filteredFilesInProjectFolder = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
   const existingResources = await app.service(staticResourcePath).find({
@@ -1766,51 +1805,41 @@ export const uploadLocalProjectToProvider = async (
   }
   if (hasResourceDB) {
     //if we have a resources.sql file, use it to populate static-resource table
-    const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
+    const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
-    for (const item of manifest) {
-      if (existingKeySet.has(item.key)) {
-        // logger.info(`Skipping upload of static resource: "${item.key}"`)
+    for (const [key, item] of Object.entries(manifest)) {
+      if (existingKeySet.has(key)) {
+        // logger.info(`Skipping upload of static resource: "${key}"`)
         continue
       }
-      //remove userId if exists
-      if (item.userId) delete (item as any).userId
 
-      const newResource: Partial<StaticResourceType> = {}
-
-      const validFields: (keyof StaticResourceType)[] = [
-        'attribution',
-        'createdAt',
-        'hash',
-        'key',
-        'licensing',
-        'metadata',
-        'mimeType',
-        'project',
-        'stats',
-        'tags',
-        'updatedAt'
-      ]
-
-      for (const field of validFields) {
-        if (item[field]) newResource[field] = item[field]
-      }
+      const contentType = getContentType(key)
 
       await app.service(staticResourcePath).create({
-        ...newResource
+        key,
+        mimeType: contentType,
+        // type: item.type,
+        hash: item.hash,
+        tags: item.tags,
+        licensing: item.licensing,
+        attribution: item.attribution
       })
-      // logger.info(`Uploaded static resource ${item.key} from resources.json`)
+      // logger.info(`Uploaded static resource ${key} from resources.json`)
     }
   }
 
-  let assetsOnly = true
-  for (const file of filtered) {
+  for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
       const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
-      if (filePathRelative === '/xrengine.config.ts') assetsOnly = false
+
+      const hash = createStaticResourceHash(fileResult)
+
+      if (existingContentSet.has(resourceKey(key, hash))) {
+        continue
+      }
 
       await storageProvider.putObject(
         {
@@ -1821,53 +1850,37 @@ export const uploadLocalProjectToProvider = async (
         { isDirectory: false }
       )
       if (!hasResourceDB) {
-        //otherwise, upload the files into static resources individually
-        const staticResourceClasses = [
-          AssetClass.Audio,
-          AssetClass.Image,
-          AssetClass.Model,
-          AssetClass.Video,
-          AssetClass.Volumetric,
-          AssetClass.Material,
-          AssetClass.Prefab
-        ]
-        const thisFileClass = AssetLoader.getAssetClass(file)
-        if (
-          (filePathRelative.startsWith('/assets/') || filePathRelative.startsWith('/public/')) &&
-          staticResourceClasses.includes(thisFileClass)
-        ) {
-          const hash = createStaticResourceHash(fileResult)
-          if (existingContentSet.has(resourceKey(key, hash))) {
-            // logger.info(`Skipping upload of static resource of class ${thisFileClass}: "${key}"`)
-          } else {
-            if (existingKeySet.has(key)) {
-              logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-              await app.service(staticResourcePath).patch(
-                null,
-                {
-                  hash,
-                  mimeType: contentType,
-                  tags: [thisFileClass]
-                },
-                {
-                  query: {
-                    key,
-                    project: projectName
-                  }
-                }
-              )
-            } else {
-              logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
-              await app.service(staticResourcePath).create({
-                key: `projects/${projectName}${filePathRelative}`,
-                project: projectName,
+        if (isStaticResourceAsset(filePathRelative)) {
+          const thisFileClass = AssetLoader.getAssetClass(file)
+          if (existingKeySet.has(key)) {
+            logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+            await app.service(staticResourcePath).patch(
+              null,
+              {
                 hash,
                 mimeType: contentType,
+                // type: 'asset',
                 tags: [thisFileClass]
-              })
-            }
-            // logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
+              },
+              {
+                query: {
+                  key,
+                  project: projectName
+                }
+              }
+            )
+          } else {
+            logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+            await app.service(staticResourcePath).create({
+              key: `projects/${projectName}${filePathRelative}`,
+              project: projectName,
+              hash,
+              // type: 'asset',
+              mimeType: contentType,
+              tags: [thisFileClass]
+            })
           }
+          logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
         }
       }
       results.push(storageProvider.getCachedURL(`projects/${projectName}${filePathRelative}`, true))
@@ -1877,8 +1890,44 @@ export const uploadLocalProjectToProvider = async (
     }
   }
   if (!hasResourceDB) {
-    await app.service(projectResourcesPath).create({ project: projectName })
+    await updateProjectResourcesJson(app, projectName)
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
+  const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
+}
+
+const updateProjectResourcesJson = async (app: Application, projectName: string) => {
+  const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
+    query: { project: projectName },
+    paginate: false
+  })
+  if (resources.length === 0) {
+    return
+  }
+  const resourcesJson = Object.fromEntries(
+    resources.map((resource) => [
+      resource.key,
+      {
+        hash: resource.hash,
+        type: 'asset',
+        tags: resource.tags,
+        licensing: resource.licensing,
+        attribution: resource.attribution
+      }
+    ])
+  )
+  const storageProvider = getStorageProvider()
+  const key = `projects/${projectName}/resources.json`
+  await storageProvider.putObject({
+    Body: Buffer.from(JSON.stringify(resourcesJson)),
+    ContentType: 'application/json',
+    Key: key
+  })
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.resolve(projectsRootFolder, key)
+    const dirName = path.dirname(filePath)
+    fs.mkdirSync(dirName, { recursive: true })
+    fs.writeFileSync(filePath, JSON.stringify(resourcesJson, null, 2))
+  }
 }

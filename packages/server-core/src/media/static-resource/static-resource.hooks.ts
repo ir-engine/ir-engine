@@ -22,17 +22,11 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  staticResourceDataValidator,
-  staticResourcePatchValidator,
-  staticResourcePath,
-  staticResourceQueryValidator
-} from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
+import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
@@ -66,6 +60,16 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
   }
 }
 
+const resourcesJsonCreate = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  const data = context.data
+}
+
 export default {
   around: {
     all: [
@@ -76,25 +80,22 @@ export default {
 
   before: {
     all: [
-      () => schemaHooks.validateQuery(staticResourceQueryValidator),
+      // schemaHooks.validateQuery(staticResourceQueryValidator),
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
-    find: [
-      iff(isProvider('external'), verifyScope('static_resource', 'read')),
-      discardQuery('action'),
-      collectAnalytics()
-    ],
+    find: [iff(isProvider('external'), verifyScope('static_resource', 'read')), discardQuery('action')],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
       setLoggedinUserInBody('userId'),
-      () => schemaHooks.validateData(staticResourceDataValidator),
-      schemaHooks.resolveData(staticResourceDataResolver)
+      // schemaHooks.validateData(staticResourceDataValidator),
+      schemaHooks.resolveData(staticResourceDataResolver),
+      resourcesJsonCreate
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
-      () => schemaHooks.validateData(staticResourcePatchValidator),
+      // schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]

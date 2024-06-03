@@ -29,6 +29,8 @@ export type ResourcesJson = Record<
   {
     hash: string
     type: string // (scene | asset | file)
-    tags: string[]
+    tags?: string[]
+    licensing?: string
+    attribution?: string
   }
 >
