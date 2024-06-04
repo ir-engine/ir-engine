@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { CanvasTexture, Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Vector3 } from 'three'
+import { CanvasTexture, Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
 
 import {
   FileBrowserContentType,
@@ -180,7 +180,7 @@ export const FileThumbnailJobState = defineState({
       needThumbnails = needThumbnails.concat(theseThumbnails)
     }
 
-    needThumbnails = needThumbnails.slice(10, 15) // for testing
+    //needThumbnails = needThumbnails.slice(10, 15) // for testing
 
     Promise.all(
       needThumbnails.map(async (file) => {
@@ -382,34 +382,38 @@ const ThumbnailJobReactor = () => {
     setComponent(cameraEntity, VisibleComponent, true)
     setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
 
-    // Compute the bounding box size and center
+    // Assuming bbox is already defined
     const size = bbox.getSize(new Vector3())
     const center = bbox.getCenter(new Vector3())
 
-    // Calculate the distance required to frame the bounding box
-    const maxDim = Math.max(size.x, size.y, size.z)
-    const camera = getComponent(cameraEntity, CameraComponent).cameras[0]
+    // Calculate the bounding sphere radius
+    const boundingSphere = bbox.getBoundingSphere(new Sphere())
+    const radius = boundingSphere.radius
 
+    const camera = getComponent(cameraEntity, CameraComponent).cameras[0]
     const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
 
-    let distance = maxDim / (2 * Math.tan(fov / 2))
+    // Calculate the camera direction vector with the desired angle offsets
+    const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
+    const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
 
-    // Adjust the distance to account for the camera aspect ratio
-    if (camera.aspect > 1) {
-      distance = distance / camera.aspect
-    }
+    const direction = new Vector3(
+      Math.sin(angleY) * Math.cos(angleX),
+      Math.sin(angleX),
+      Math.cos(angleY) * Math.cos(angleX)
+    ).normalize()
+
+    // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
+    const distance = radius / Math.sin(fov / 2)
 
     // Calculate the camera position
-    const direction = new Vector3(1, 0.5, 1) // Assuming the camera is initially looking along the positive z-axis
-    //const direction = new Vector3(0, 0, 1)
     const cameraPosition = direction.multiplyScalar(distance).add(center)
 
     // Set the camera transform component
     setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
     computeTransformMatrix(cameraEntity)
 
-    // Ensure the camera looks at the center of the bounding box
-    //camera.lookAt(center)
+    // Calculate the quaternion rotation to look at the center
     const lookAtMatrix = new Matrix4()
     lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
     const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
@@ -431,7 +435,7 @@ const ThumbnailJobReactor = () => {
 
     const scene = new Scene()
     scene.children = getComponent(cameraEntity, SceneComponent)
-      .children// .map(getNestedVisibleChildren)
+      .children // .map(getNestedVisibleChildren)
       // .flat()
       .map((entity) => getComponent(entity, GroupComponent))
       .flat()
