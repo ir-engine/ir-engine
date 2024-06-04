@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
+import { MdLink, MdLinkOff } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
+import Button from '../../../../primitives/tailwind/Button'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -63,9 +65,9 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   )
 }
 
-export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
+export const UniformButtonContainer: React.FC<{ children?: JSX.Element }> = ({ children }) => {
   return (
-    <div className="flex w-4 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
+    <div className="flex w-6 items-center hover:text-[color:var(--blueHover)] [&>*:where(label)]:text-[color:var(--textColor)] [&>*:where(ul)]:w-full">
       {children}
     </div>
   )
@@ -93,7 +95,12 @@ export const Vector3Input = ({
   onRelease,
   ...rest
 }: Vector3InputProp) => {
-  const uniformEnabled = useHookstate(uniformScaling)
+  const uniformEnabled = useHookstate(false)
+
+  const onToggleUniform = () => {
+    uniformEnabled.set((v) => !v)
+  }
+
   const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled.value) {
       value.set(fieldValue, fieldValue, fieldValue)
@@ -117,7 +124,10 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row justify-start gap-1.5">
+    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+      {uniformScaling && (
+        <Button startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />} onClick={onToggleUniform} />
+      )}
       <NumericInput
         {...rest}
         value={vx}

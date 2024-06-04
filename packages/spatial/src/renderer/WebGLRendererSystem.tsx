@@ -57,8 +57,6 @@ import {
 import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { EngineState } from '../EngineState'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRLightProbeState } from '../xr/XRLightProbeSystem'
@@ -76,7 +74,7 @@ import { RenderModes } from './constants/RenderModes'
 import { CSM } from './csm/CSM'
 import CSMHelper from './csm/CSMHelper'
 import { changeRenderMode } from './functions/changeRenderMode'
-import { PerformanceManager } from './PerformanceState'
+import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import WebGL from './THREE.WebGL'
 
@@ -108,15 +106,6 @@ export class EngineRenderer {
   /** Is resize needed? */
   needsResize: boolean
 
-  /** Maximum Quality level of the rendered. **Default** value is 5. */
-  maxQualityLevel = 5
-  /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 28 // 28 fps = 35 ms  (on some devices, rAF updates at 30fps, e.g., Low Power Mode)
-  /** point at which we upgrade quality level (small delta) */
-  minRenderDelta = 1000 / 55 // 55 fps = 18 ms
-  /** Resoulion scale. **Default** value is 1. */
-  scaleFactor = 1
-
   renderPass: RenderPass
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
@@ -124,13 +113,7 @@ export class EngineRenderer {
   supportWebGL2: boolean
   canvas: HTMLCanvasElement
 
-  averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
-  /** init ExponentialMovingAverage */
-  movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
-
   renderer: WebGLRenderer = null!
-  /** used to optimize proxified threejs objects during render time, see loadGLTFModel and https://github.com/EtherealEngine/etherealengine/issues/9308 */
-  rendering = false
   effectComposer: EffectComposer = null!
   /** @todo deprecate and replace with engine implementation */
   xrManager: WebXRManager = null!
@@ -214,31 +197,6 @@ export class EngineRenderer {
 }
 
 /**
- * Change the quality of the renderer.
- */
-const changeQualityLevel = (renderer: EngineRenderer) => {
-  const time = Date.now()
-  const delta = time - lastRenderTime
-  lastRenderTime = time
-
-  const { qualityLevel } = getState(RendererState)
-  let newQualityLevel = qualityLevel
-
-  renderer.movingAverage.update(Math.min(delta, 50))
-  const averageDelta = renderer.movingAverage.mean
-
-  if (averageDelta > renderer.maxRenderDelta && newQualityLevel > 1) {
-    newQualityLevel--
-  } else if (averageDelta < renderer.minRenderDelta && newQualityLevel < renderer.maxQualityLevel) {
-    newQualityLevel++
-  }
-
-  if (newQualityLevel !== qualityLevel) {
-    getMutableState(RendererState).qualityLevel.set(newQualityLevel)
-  }
-}
-
-/**
  * Executes the system. Called each frame by default from the Engine.instance.
  * @param delta Time since last frame.
  */
@@ -256,12 +214,9 @@ export const render = (
 
   const state = getState(RendererState)
 
-  const engineState = getState(EngineState)
-  if (!engineState.isEditor && state.automatic) changeQualityLevel(renderer)
-
   if (renderer.needsResize) {
     const curPixelRatio = renderer.renderer.getPixelRatio()
-    const scaledPixelRatio = window.devicePixelRatio * renderer.scaleFactor
+    const scaledPixelRatio = window.devicePixelRatio * state.renderScale
 
     if (curPixelRatio !== scaledPixelRatio) renderer.renderer.setPixelRatio(scaledPixelRatio)
 
@@ -273,7 +228,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.qualityLevel > 0 && renderer.csm?.updateFrustums()
+    state.updateCSMFrustums && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -340,7 +295,7 @@ export const getSceneParameters = (entities: Entity[]) => {
 const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
 
-  const onRenderEnd = PerformanceManager.profileGPURender(deltaSeconds)
+  const onRenderEnd = PerformanceManager.profileGPURender()
   for (const entity of rendererQuery()) {
     const camera = getComponent(entity, CameraComponent)
     const renderer = getComponent(entity, RendererComponent)
@@ -372,10 +327,19 @@ const rendererReactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
-    renderer.scaleFactor.set(engineRendererSettings.qualityLevel.value / renderer.maxQualityLevel.value)
-    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * renderer.scaleFactor.value)
+    if (engineRendererSettings.automatic.value) return
+
+    const qualityLevel = engineRendererSettings.qualityLevel.value
+    getMutableState(PerformanceState).merge({
+      gpuTier: qualityLevel,
+      cpuTier: qualityLevel
+    } as any)
+  }, [engineRendererSettings.qualityLevel, engineRendererSettings.automatic])
+
+  useEffect(() => {
+    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
     renderer.needsResize.set(true)
-  }, [engineRendererSettings.qualityLevel])
+  }, [engineRendererSettings.renderScale])
 
   useEffect(() => {
     changeRenderMode()
