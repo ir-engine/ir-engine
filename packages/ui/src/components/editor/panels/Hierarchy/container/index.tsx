@@ -445,7 +445,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           onChange={(event) => {
             searchHierarchy.set(event.target.value)
           }}
-          className="m-1 rounded bg-theme-primary text-white"
+          className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
           startComponent={<HiMagnifyingGlass className="text-white" />}
         />
         <Button
