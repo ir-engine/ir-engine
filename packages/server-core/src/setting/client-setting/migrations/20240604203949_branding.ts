@@ -32,12 +32,33 @@ import { clientSettingPath } from '@etherealengine/common/src/schemas/setting/cl
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
+  const siteManifest = await knex.schema.hasColumn(clientSettingPath, 'siteManifest')
+  if (!siteManifest) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('siteManifest', 255).nullable()
+    })
+  }
+  const safariPinnedTab = await knex.schema.hasColumn(clientSettingPath, 'safariPinnedTab')
+  if (!safariPinnedTab) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('safariPinnedTab', 255).nullable()
+    })
+  }
+  const favicon = await knex.schema.hasColumn(clientSettingPath, 'favicon')
+  if (!favicon) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('favicon', 255).nullable()
+    })
+  }
   const clientSetting = await knex.table(clientSettingPath).first()
   if (clientSetting) {
     await knex.table(clientSettingPath).update({
       siteDescription: 'IR Engine',
       appTitle: 'static/ir-logo.svg',
-      appSubtitle: 'IR Engine'
+      appSubtitle: 'IR Engine',
+      siteManifest: '/site.webmanifest',
+      safariPinnedTab: '/safari-pinned-tab.svg',
+      favicon: '/favicon.ico'
     })
   }
 }
@@ -47,6 +68,24 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
+  const siteManifest = await knex.schema.hasColumn(clientSettingPath, 'siteManifest')
+  if (siteManifest) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('siteManifest')
+    })
+  }
+  const safariPinnedTab = await knex.schema.hasColumn(clientSettingPath, 'safariPinnedTab')
+  if (safariPinnedTab) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('safariPinnedTab')
+    })
+  }
+  const favicon = await knex.schema.hasColumn(clientSettingPath, 'favicon')
+  if (favicon) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('favicon')
+    })
+  }
   const clientSetting = await knex.table(clientSettingPath).first()
   if (clientSetting)
     await knex.table(clientSettingPath).update({
