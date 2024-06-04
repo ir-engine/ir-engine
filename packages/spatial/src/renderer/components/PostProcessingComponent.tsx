@@ -106,7 +106,6 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
       }
     } else {
       renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass as EffectPass)
-      return
     }
 
     //always have the smaa effect
