@@ -101,7 +101,7 @@ export default function ScenesPanel() {
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
                     alt={scene.assetURL}
                     onError={(e) => {
-                      e.currentTarget.src = 'static/etherealengine_logo.png'
+                      e.currentTarget.src = 'static/ir-dark.svg'
                     }}
                     crossOrigin="anonymous"
                     className="block h-auto w-full grow cursor-pointer rounded-t-lg object-cover"
