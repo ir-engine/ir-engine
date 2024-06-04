@@ -1177,6 +1177,8 @@ describe('PhysicsAPI', () => {
         assert.equal(before.numColliders(), 0)
       })
     }) // << removeCollidersFromRigidBody
+
+    describe('setMassCenter', () => {}) /** @todo The function is not implemented. It is annotated with a todo tag */
   }) // << Colliders
 
   describe('CharacterControllers', () => {
@@ -1602,8 +1604,6 @@ describe('PhysicsAPI', () => {
     describe("createColliderDesc", () => {})  // @todo How does ColliderDesc work?
     describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
     describe("setColliderPose", () => {})  // @todo How to check rotations?
-    describe("setMassCenter", () => {})  // @todo The function is not implemented. It is annotated with a todo tag
   // Character Controller
     describe("getControllerOffset", () => {})  // @deprecated
-  // Collisions
   */
