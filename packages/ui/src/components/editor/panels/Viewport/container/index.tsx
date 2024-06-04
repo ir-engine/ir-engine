@@ -110,7 +110,7 @@ const ViewPortPanelContainer = () => {
         <RenderModeTool />
         <PlayModeTool />
       </div>
-      <GizmoTool />
+      {sceneName ? <GizmoTool /> : null}
       {sceneName ? (
         <ViewportDnD />
       ) : (
