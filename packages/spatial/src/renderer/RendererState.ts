@@ -37,6 +37,9 @@ export const RendererState = defineState({
     // usePBR: true,
     usePostProcessing: isIPhone ? false : true,
     useShadows: isIPhone ? false : true,
+    updateCSMFrustums: true,
+    /** Resoulion scale. **Default** value is 1. */
+    renderScale: 1,
     physicsDebug: false,
     bvhDebug: false,
     avatarDebug: false,
