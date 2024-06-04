@@ -37,14 +37,6 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
-  let metadata = JSON.parse(rawData.metadata) as any
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof metadata === 'string') {
-    metadata = JSON.parse(metadata)
-  }
-
   let tags = JSON.parse(rawData.tags) as string[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
@@ -61,9 +53,11 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
     stats = JSON.parse(stats)
   }
 
+  const dependencies = JSON.parse(rawData.dependencies) as string[]
+
   return {
     ...rawData,
-    metadata,
+    dependencies,
     tags,
     stats
   }
@@ -101,8 +95,8 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
+        dependencies: JSON.stringify(rawData.dependencies),
         stats: JSON.stringify(rawData.stats)
       }
     }
@@ -118,8 +112,8 @@ export const staticResourcePatchResolver = resolve<StaticResourceType, HookConte
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
+        dependencies: JSON.stringify(rawData.dependencies),
         stats: JSON.stringify(rawData.stats)
       }
     }

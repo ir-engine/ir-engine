@@ -42,29 +42,31 @@ export const staticResourceSchema = Type.Object(
       format: 'uuid'
     }),
     key: Type.String(),
-    metadata: Type.Any(),
     mimeType: Type.String(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
     hash: Type.String(),
+    type: Type.String(), // 'scene' | 'asset' | 'file' | 'avatar' | 'recording'
     project: Type.String(),
-    driver: Type.String(),
+    tags: Type.Array(Type.String()),
+    dependencies: Type.Array(Type.String()),
     attribution: Type.String(),
     licensing: Type.String(),
-    tags: Type.Array(Type.String()),
+    description: Type.String(),
     url: Type.String(),
     stats: Type.Record(Type.String(), Type.Any()),
+    thumbnailURL: Type.String(),
+    thumbnailMode: Type.String(), // 'automatic' | 'manual'
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
-    thumbnailURL: Type.String()
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'StaticResource', additionalProperties: false }
 )
 export interface StaticResourceType extends Static<typeof staticResourceSchema> {}
 
-export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'metadata' | 'tags' | 'stats'> {
-  metadata: string
+export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'dependencies' | 'tags' | 'stats'> {
+  dependencies: string
   tags: string
   stats: string
 }
@@ -74,18 +76,19 @@ export const staticResourceDataSchema = Type.Partial(
   Type.Pick(staticResourceSchema, [
     'id',
     'key',
-    // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
     'mimeType',
     'userId',
     'hash',
+    'type',
     'project',
-    'driver',
+    'tags',
+    'dependencies',
     'attribution',
     'licensing',
-    'tags',
-    'thumbnailURL'
-    // 'url'
-    // 'stats'
+    'description',
+    // 'stats' Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+    'thumbnailURL',
+    'thumbnailMode'
   ]),
   { $id: 'StaticResourceData' }
 )
@@ -96,18 +99,19 @@ export const staticResourcePatchSchema = Type.Partial(
   Type.Pick(staticResourceSchema, [
     'id',
     'key',
-    // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
     'mimeType',
     'userId',
     'hash',
+    'type',
     'project',
-    'driver',
+    'tags',
+    'dependencies',
     'attribution',
     'licensing',
-    'tags',
-    'thumbnailURL'
-    // 'url'
+    'description',
     // 'stats'
+    'thumbnailURL',
+    'thumbnailMode'
   ]),
   {
     $id: 'StaticResourcePatch'
@@ -119,18 +123,19 @@ export interface StaticResourcePatch extends Static<typeof staticResourcePatchSc
 export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'id',
   'key',
-  // 'metadata', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   'mimeType',
   'userId',
   'hash',
+  'type',
   'project',
-  'driver',
+  'tags',
+  'dependencies',
   'attribution',
   'licensing',
-  'tags',
-  'thumbnailURL'
-  // 'url'
+  'description',
   // 'stats'
+  'thumbnailURL',
+  'thumbnailMode'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

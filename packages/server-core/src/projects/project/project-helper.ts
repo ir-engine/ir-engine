@@ -1722,6 +1722,32 @@ export const deleteProjectFilesInStorageProvider = async (
   }
 }
 
+const migrateResourcesJson = (resourceJsonPath: string) => {
+  //if we have a resources.sql file, use it to populate static-resource table
+  const manifest: StaticResourceType[] | ResourcesJson = JSON.parse(fs.readFileSync(resourceJsonPath).toString())
+  if (Array.isArray(manifest)) {
+    const newManifest = Object.fromEntries(
+      manifest.map((item) => {
+        return [
+          item.key,
+          {
+            hash: item.hash,
+            type: 'asset',
+            thumbnailURL: item.thumbnailURL,
+            thumbnailMode: item.thumbnailMode,
+            tags: item.tags,
+            dependencies: item.dependencies,
+            licensing: item.licensing,
+            description: item.description,
+            attribution: item.attribution
+          }
+        ]
+      })
+    ) as ResourcesJson
+    fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
+  }
+}
+
 //otherwise, upload the files into static resources individually
 const staticResourceClasses = [
   AssetClass.Audio,
@@ -1760,31 +1786,13 @@ export const uploadLocalProjectToProvider = async (
 
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
-  const resourceDBPath = path.join(projectRootPath, 'resources.json')
-  const hasResourceDB = fs.existsSync(resourceDBPath)
+  const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
+  const hasResourceJson = fs.existsSync(resourcesJsonPath)
 
   // migrate resources.json if needed
 
-  if (hasResourceDB) {
-    //if we have a resources.sql file, use it to populate static-resource table
-    const manifest: StaticResourceType[] | ResourcesJson = JSON.parse(fs.readFileSync(resourceDBPath).toString())
-    if (Array.isArray(manifest)) {
-      const newManifest = Object.fromEntries(
-        manifest.map((item) => {
-          return [
-            item.key,
-            {
-              hash: item.hash,
-              type: 'asset',
-              tags: item.tags,
-              licensing: item.licensing,
-              attribution: item.attribution
-            }
-          ]
-        })
-      ) as ResourcesJson
-      fs.writeFileSync(resourceDBPath, JSON.stringify(newManifest, null, 2))
-    }
+  if (hasResourceJson) {
+    migrateResourcesJson(resourcesJsonPath)
   }
 
   const files = getFilesRecursive(projectRootPath)
@@ -1803,9 +1811,9 @@ export const uploadLocalProjectToProvider = async (
     existingContentSet.add(resourceKey(item.key, item.hash))
     existingKeySet.add(item.key)
   }
-  if (hasResourceDB) {
+  if (hasResourceJson) {
     //if we have a resources.sql file, use it to populate static-resource table
-    const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourceDBPath).toString())
+    const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
 
     for (const [key, item] of Object.entries(manifest)) {
       if (existingKeySet.has(key)) {
@@ -1818,11 +1826,15 @@ export const uploadLocalProjectToProvider = async (
       await app.service(staticResourcePath).create({
         key,
         mimeType: contentType,
-        // type: item.type,
         hash: item.hash,
+        type: item.type,
         tags: item.tags,
+        dependencies: item.dependencies,
         licensing: item.licensing,
-        attribution: item.attribution
+        description: item.description,
+        attribution: item.attribution,
+        thumbnailURL: item.thumbnailURL,
+        thumbnailMode: item.thumbnailMode
       })
       // logger.info(`Uploaded static resource ${key} from resources.json`)
     }
@@ -1849,7 +1861,7 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!hasResourceDB) {
+      if (!hasResourceJson) {
         if (isStaticResourceAsset(filePathRelative)) {
           const thisFileClass = AssetLoader.getAssetClass(file)
           if (existingKeySet.has(key)) {
@@ -1889,7 +1901,7 @@ export const uploadLocalProjectToProvider = async (
       results.push(null)
     }
   }
-  if (!hasResourceDB) {
+  if (!hasResourceJson) {
     await updateProjectResourcesJson(app, projectName)
   }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)

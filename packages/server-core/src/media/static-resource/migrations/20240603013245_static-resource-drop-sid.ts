@@ -34,6 +34,7 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
+  // drop unused columns
   const sidColumnExists = await knex.schema.hasColumn(staticResourcePath, 'sid')
   if (sidColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
@@ -46,10 +47,45 @@ export async function up(knex: Knex): Promise<void> {
       table.dropColumn('url')
     })
   }
+  const driverColumnExists = await knex.schema.hasColumn(staticResourcePath, 'driver')
+  if (driverColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('driver')
+    })
+  }
+  const metdataColumnExists = await knex.schema.hasColumn(staticResourcePath, 'metadata')
+  if (metdataColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('metadata')
+    })
+  }
+
+  // rename column
   const thumbnailTypeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailType')
   if (thumbnailTypeColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.dropColumn('thumbnailType')
+      table.renameColumn('thumbnailType', 'thumbnailMode')
+    })
+  }
+
+  // add new columns
+  const typeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'type')
+  if (!typeColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.string('type', 255).notNullable()
+    })
+  }
+  // TODO auto populate "type" field for all static resources
+  const dependenciesColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dependencies')
+  if (!dependenciesColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.text('dependencies').nullable()
+    })
+  }
+  const descriptionColumnExists = await knex.schema.hasColumn(staticResourcePath, 'description')
+  if (!descriptionColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.text('description').nullable()
     })
   }
 
@@ -65,6 +101,7 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
+  // add back old columns
   const sidColumnExists = await knex.schema.hasColumn(staticResourcePath, 'sid')
   if (!sidColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
@@ -77,10 +114,44 @@ export async function down(knex: Knex): Promise<void> {
       table.string('url', 255).defaultTo(null)
     })
   }
-  const thumbnailTypeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailType')
-  if (!thumbnailTypeColumnExists) {
+  const driverColumnExists = await knex.schema.hasColumn(staticResourcePath, 'driver')
+  if (!driverColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.string('thumbnailType', 255).nullable()
+      table.string('driver', 255).nullable()
+    })
+  }
+  const metdataColumnExists = await knex.schema.hasColumn(staticResourcePath, 'metadata')
+  if (!metdataColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.json('metadata').defaultTo(null)
+    })
+  }
+
+  // rename column
+  const thumbnailModeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailMode')
+  if (thumbnailModeColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.renameColumn('thumbnailMode', 'thumbnailType')
+    })
+  }
+
+  // drop new columns
+  const typeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'type')
+  if (typeColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('type')
+    })
+  }
+  const dependenciesColumnExists = await knex.schema.hasColumn(staticResourcePath, 'dependencies')
+  if (dependenciesColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('dependencies')
+    })
+  }
+  const descriptionColumnExists = await knex.schema.hasColumn(staticResourcePath, 'description')
+  if (descriptionColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.dropColumn('description')
     })
   }
 
