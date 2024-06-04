@@ -240,7 +240,7 @@ const ThumbnailJobReactor = () => {
   const state = useHookstate({
     modelEntity: UndefinedEntity,
     lightEntity: UndefinedEntity,
-    thumbnailCanvas: undefined as HTMLCanvasElement | undefined
+    thumbnailCanvas: null as HTMLCanvasElement | null
   })
   const loadPromiseState = useHookstate(null as Promise<any> | null) // for asset loading
   const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
@@ -446,6 +446,8 @@ const ThumbnailJobReactor = () => {
           removeEntity(entity)
           removeEntity(cameraEntity)
           removeEntity(lightEntity)
+          state.thumbnailCanvas.get(NO_PROXY)?.remove()
+          state.thumbnailCanvas.set(null)
           jobState.set(jobState.get(NO_PROXY).slice(1))
         })
       })

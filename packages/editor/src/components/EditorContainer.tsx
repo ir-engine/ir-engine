@@ -71,7 +71,6 @@ import DragLayer from './dnd/DragLayer'
 import { PropertiesPanelTab } from './element/PropertiesPanel'
 import { HierarchyPanelTab } from './hierarchy/HierarchyPanel'
 import { MaterialLibraryPanelTab } from './materials/MaterialLibraryPanel'
-import { PreviewPanelTab } from './panels/PreviewPanelTab'
 import { ViewportPanelTab } from './panels/ViewportPanel'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
@@ -346,7 +345,7 @@ const defaultLayout: LayoutData = {
         size: 2,
         children: [
           {
-            tabs: [HierarchyPanelTab, MaterialLibraryPanelTab, PreviewPanelTab]
+            tabs: [HierarchyPanelTab, MaterialLibraryPanelTab]
           },
           {
             tabs: [PropertiesPanelTab, VisualScriptPanelTab]
