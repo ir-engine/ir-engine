@@ -82,7 +82,6 @@ import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/proje
 import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
@@ -1660,12 +1659,6 @@ export const updateProject = async (
   if (projectConfig.onEvent) {
     await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
-
-  // sync assets with latest query data
-
-  const latestProjectResult = getProjectManifest(projectName)
-
-  if (latestProjectResult?.scenes) await seedSceneAssets(app, returned.name, latestProjectResult.scenes)
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 

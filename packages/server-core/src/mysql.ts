@@ -121,7 +121,24 @@ export default (app: Application): void => {
           await checkLock(knexClient, 0)
 
           logger.info('Knex migration rollback started')
-          await knexClient.migrate.rollback(config.migrations, true)
+
+          const allTables = (
+            await db.raw(
+              `select table_name from information_schema.tables where table_schema = '${appConfig.db.database}'`
+            )
+          )[0].map((table) => table.table_name)
+
+          const trx = await knexClient.transaction()
+          await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+          for (const table of allTables) {
+            await trx.schema.dropTableIfExists(table)
+          }
+
+          await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+          await trx.commit()
+
+          // await knexClient.migrate.rollback(config.migrations, true)
           logger.info('Knex migration rollback ended')
         }
 

@@ -23,8 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import {
+  StaticResourceDatabaseType,
+  assetPath,
+  locationPath,
+  projectPath,
+  staticResourcePath
+} from '@etherealengine/common/src/schema.type.module'
+import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
+import { getStorageProvider } from '../../storageprovider/storageprovider'
+import { createStaticResourceHash } from '../../upload-asset/upload-asset.service'
 
 /**
  * @param { import("knex").Knex } knex
@@ -88,6 +97,51 @@ export async function up(knex: Knex): Promise<void> {
       table.text('description').nullable()
     })
   }
+
+  const tableExists = await trx.schema.hasTable(locationPath)
+
+  const now = await getDateTimeSql()
+
+  if (tableExists) {
+    const storageProvider = getStorageProvider()
+    const projects = await trx.select().from(projectPath)
+    for (const project of projects) {
+      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      const staticResources = [] as StaticResourceDatabaseType[]
+      for (const asset of assets) {
+        const staticResource = await trx.select().from(staticResourcePath).where({ key: asset.assetURL })
+        if (staticResource.length) continue
+        staticResources.push({
+          id: asset.id,
+          key: asset.assetURL,
+          mimeType: asset.assetURL.endsWith('.scene.json') ? 'application/json' : 'model/gltf+json',
+          userId: null!,
+          hash: createStaticResourceHash((await storageProvider.getObject(asset.assetURL)).Body),
+          type: 'scene',
+          project: project.name,
+          tags: null!,
+          dependencies: null!,
+          attribution: null!,
+          licensing: null!,
+          description: null!,
+          stats: null!,
+          thumbnailURL: null!,
+          thumbnailMode: null!,
+          createdAt: now,
+          updatedAt: now
+        })
+      }
+      await trx.from(staticResourcePath).insert(staticResources)
+    }
+  }
+
+  /** Change location table from storing sceneId as string to ref the scenetable */
+  await trx.schema.alterTable(locationPath, (table) => {
+    table.dropForeign('sceneId')
+    table.foreign('sceneId').references('id').inTable(staticResourcePath).onDelete('CASCADE').onUpdate('CASCADE')
+  })
+
+  await trx.schema.dropTable(assetPath)
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')
   await trx.commit()

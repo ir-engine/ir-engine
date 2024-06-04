@@ -30,6 +30,7 @@ import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core
 import { createDefaultStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { download } from '@etherealengine/server-core/src/projects/project/downloadProjects'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
+import { seedDefaultProject } from '@etherealengine/server-core/src/seeder'
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
@@ -55,7 +56,6 @@ async function installAllProjects() {
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
-
     const projects = await app.service(projectPath).find({ paginate: false, assetsOnly: false })
     logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))

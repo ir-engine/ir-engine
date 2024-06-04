@@ -57,6 +57,7 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
 
   return {
     ...rawData,
+    url: '', // TODO to make typescript happy...
     dependencies,
     tags,
     stats

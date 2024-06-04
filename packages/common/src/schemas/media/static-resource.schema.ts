@@ -65,7 +65,8 @@ export const staticResourceSchema = Type.Object(
 )
 export interface StaticResourceType extends Static<typeof staticResourceSchema> {}
 
-export interface StaticResourceDatabaseType extends Omit<StaticResourceType, 'dependencies' | 'tags' | 'stats'> {
+export interface StaticResourceDatabaseType
+  extends Omit<StaticResourceType, 'url' | 'dependencies' | 'tags' | 'stats'> {
   dependencies: string
   tags: string
   stats: string
