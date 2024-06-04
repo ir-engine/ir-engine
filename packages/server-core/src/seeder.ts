@@ -47,6 +47,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     }
   }
 
+  if (prepareDb) return
+
   if (forceRefresh) {
     logger.info('Refreshing default project')
     // for local dev clear the storage provider
