@@ -1127,7 +1127,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -1137,17 +1137,46 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      /**
-      // @todo Why is before undefined?
       it("should remove the entity's collider", () => {
         const before = Physics._Colliders.get(testEntity)
-        assert.ok(before !== undefined)
+        assert.notEqual(before, undefined)
         Physics.removeCollider(physicsWorld!, testEntity)
         const after = Physics._Colliders.get(testEntity)
         assert.equal(after, undefined)
       })
-      */
     }) // << removeCollider
+
+    describe('removeCollidersFromRigidBody', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should remove all Colliders from the RigidBody when called', () => {
+        const before = Physics._Rigidbodies.get(testEntity)!
+        assert.notEqual(before.numColliders(), 0)
+        Physics.removeCollidersFromRigidBody(testEntity, physicsWorld!)
+        assert.equal(before.numColliders(), 0)
+      })
+    }) // << removeCollidersFromRigidBody
   }) // << Colliders
 
   describe('CharacterControllers', () => {
@@ -1574,7 +1603,6 @@ describe('PhysicsAPI', () => {
     describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
     describe("setColliderPose", () => {})  // @todo How to check rotations?
     describe("setMassCenter", () => {})  // @todo The function is not implemented. It is annotated with a todo tag
-    describe("removeCollidersFromRigidBody", () => {})  // @todo How to check that the colliders were removed? Is it possible without calling Rapier directly?
   // Character Controller
     describe("getControllerOffset", () => {})  // @deprecated
   // Collisions
