@@ -39,13 +39,10 @@ import { useTemplateHandler } from '@etherealengine/editor/src/components/visual
 import { useVariableHandler } from '@etherealengine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { NodetoEnginetype } from '@etherealengine/engine'
 import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
-import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
 import Button from '../../../../../primitives/tailwind/Button'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
-
-import { MdKeyboardArrowDown, MdKeyboardArrowLeft } from 'react-icons/md'
 import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/nodeEditor'
 import ParameterInput from '../../../properties/parameter'
@@ -182,23 +179,19 @@ export const SidePanel = ({
           list={variables}
           element={(variable: VariableJSON, index) => {
             return (
-              <Accordion
-                className="p-0.5 text-white"
-                title={variable.name}
-                style={{ overflow: 'hidden' }}
-                expandIcon={<MdKeyboardArrowDown />}
-                shrinkIcon={<MdKeyboardArrowLeft />}
-              >
+              <NodeEditor entity={UndefinedEntity} name={variable.name}>
                 <div className="flex w-full flex-col">
                   <div className="flex w-full flex-row overflow-hidden">
                     <StringInput
                       value={variable.name}
+                      className="h-7"
                       onChange={(e) => {
                         handleEditVariable({ ...variable, name: e })
                       }}
                     ></StringInput>
                     <Button
-                      className="w-[20%]"
+                      variant="outline"
+                      className="h-7 w-[10%] "
                       onClick={() => {
                         handleDeleteVariable(variable)
                       }}
@@ -206,45 +199,43 @@ export const SidePanel = ({
                       <CancelOutlined />
                     </Button>
                   </div>
-                  <div className="flex w-full flex-row overflow-hidden">
-                    <div className="w-[40%]">
-                      <SelectInput
-                        options={Object.keys(graphTypes).map((valueType) => {
-                          return { label: valueType, value: valueType }
-                        })}
-                        value={variable.valueTypeName}
-                        onChange={(value) => {
-                          handleEditVariable({
-                            ...variable,
-                            valueTypeName: value as string,
-                            initialValue: graphTypes[value].creator()
-                          })
-                        }}
-                      />
-                    </div>
-                    <ParameterInput
-                      entity={`${UndefinedEntity}`}
-                      values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
-                      onChange={(key) => (e) => {
-                        let value = e
-                        if (variable.valueTypeName !== 'object' && typeof e === 'object') value = e.target.value
-                        handleEditVariable({ ...variable, initialValue: value })
-                      }}
-                    />
-                  </div>
+                  <SelectInput
+                    options={Object.keys(graphTypes).map((valueType) => {
+                      return { label: valueType, value: valueType }
+                    })}
+                    value={variable.valueTypeName}
+                    onChange={(value) => {
+                      handleEditVariable({
+                        ...variable,
+                        valueTypeName: value as string,
+                        initialValue: graphTypes[value].creator()
+                      })
+                    }}
+                  />
+                  <ParameterInput
+                    entity={`${UndefinedEntity}`}
+                    values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
+                    onChange={(key) => (e) => {
+                      let value = e
+                      if (variable.valueTypeName !== 'object' && typeof e === 'object') value = e.target.value
+                      handleEditVariable({ ...variable, initialValue: value })
+                    }}
+                  />
                 </div>
-              </Accordion>
+              </NodeEditor>
             )
           }}
         ></PaginatedList>
-        <Button
-          variant="outline"
-          onClick={() => {
-            handleAddVariable()
-          }}
-        >
-          {t('editor:visualScript.sidePanel.variables.add')}
-        </Button>
+        <div className="flex w-full flex-row justify-center">
+          <Button
+            variant="outline"
+            onClick={() => {
+              handleAddVariable()
+            }}
+          >
+            {t('editor:visualScript.sidePanel.variables.add')}
+          </Button>
+        </div>
       </NodeEditor>
     </NodeEditor>
   )

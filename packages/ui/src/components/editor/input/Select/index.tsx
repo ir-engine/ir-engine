@@ -35,8 +35,9 @@ const SelectInput = ({
   return (
     <Select
       currentValue={value}
-      className="h-10 w-72 bg-[#212226] text-theme-primary"
+      className="h-full max-h-10 w-full max-w-72 bg-[#212226] text-theme-primary"
       inputClassName="rounded-none text-xs p-1"
+      disabled={true}
       {...rest}
     />
   )
