@@ -59,60 +59,36 @@ const getAssetClass = (assetFileName: string): AssetType => {
   return FileToAssetType(assetFileName)
 }
 
-const ddsLoader = () => new DDSLoader()
-const fbxLoader = () => new FBXLoader()
-const textureLoader = () => new TextureLoader()
-const fileLoader = () => new FileLoader()
-const audioLoader = () => new AudioLoader()
-const tgaLoader = () => new TGALoader()
-const videoLoader = () => ({ load: loadVideoTexture })
-const ktx2Loader = () => ({
-  load: (src, onLoad, onProgress, onError, signal?) => {
-    const gltfLoader = getState(AssetLoaderState).gltfLoader
-    gltfLoader.ktx2Loader!.load(
-      src,
-      (texture) => {
-        // console.log('KTX2Loader loaded texture', texture)
-        texture.source.data.src = src
-        onLoad(texture)
-      },
-      onProgress,
-      onError
-    )
-  }
-})
-const usdzLoader = () => new USDZLoader()
-
 export const getLoader = (assetType: AssetExt) => {
   switch (assetType) {
     case AssetExt.KTX2:
-      return ktx2Loader()
+      return getState(AssetLoaderState).gltfLoader.ktx2Loader!
     case AssetExt.DDS:
-      return ddsLoader()
+      return new DDSLoader()
     case AssetExt.GLTF:
     case AssetExt.GLB:
     case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
     case AssetExt.USDZ:
-      return usdzLoader()
+      return new USDZLoader()
     case AssetExt.FBX:
-      return fbxLoader()
+      return new FBXLoader()
     case AssetExt.TGA:
-      return tgaLoader()
+      return new TGALoader()
     case AssetExt.PNG:
     case AssetExt.JPEG:
-      return textureLoader()
+      return new TextureLoader()
     case AssetExt.AAC:
     case AssetExt.MP3:
     case AssetExt.OGG:
     case AssetExt.M4A:
-      return audioLoader()
+      return new AudioLoader()
     case AssetExt.MP4:
     case AssetExt.MKV:
     case AssetExt.M3U8:
-      return videoLoader()
+      return { load: loadVideoTexture }
     default:
-      return fileLoader()
+      return new FileLoader()
   }
 }
 
