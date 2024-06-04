@@ -36,7 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { DockContainer } from '../EditorContainer'
 import StringInput from '../inputs/StringInput'
@@ -46,6 +46,7 @@ import { FileIcon } from './FileBrowser/FileIcon'
 
 import { AssetsPanelCategories } from './AssetsPanelCategories'
 
+import { EditorState } from '../../services/EditorServices'
 import styles from './styles.module.scss'
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
@@ -190,7 +191,8 @@ const SceneAssetsPanel = () => {
       const query = {
         key: { $like: `%${searchText.value}%` || undefined },
         $sort: { mimeType: 1 },
-        $limit: 10000
+        $limit: 10000,
+        project: getMutableState(EditorState).projectName.value!
       }
 
       if (selectedCategory.value) {

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   staticResourceDataValidator,
@@ -35,7 +35,10 @@ import {
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 
 import { HookContext } from '../../../declarations'
+import checkScope from '../../hooks/check-scope'
+import resolveProjectId from '../../hooks/resolve-project-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StaticResourceService } from './static-resource.class'
@@ -80,20 +83,42 @@ export default {
       schemaHooks.resolveQuery(staticResourceQueryResolver)
     ],
     find: [
-      iff(isProvider('external'), verifyScope('static_resource', 'read')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'read'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+        )
+      ),
       discardQuery('action'),
+      discardQuery('projectId'),
       collectAnalytics()
     ],
     get: [disallow('external')],
     create: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       setLoggedinUserInBody('userId'),
       () => schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver)
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       () => schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],

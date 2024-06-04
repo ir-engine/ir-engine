@@ -33,6 +33,7 @@ import { FileDataType } from '@etherealengine/editor/src/components/assets/FileB
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -108,7 +109,8 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const projectName = useHookstate(getMutableState(EditorState).projectName).value
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
@@ -151,7 +153,8 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const projectName = useHookstate(getMutableState(EditorState).projectName).value
+  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div

@@ -42,6 +42,7 @@ import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
+import { EditorState } from '../../../services/EditorServices'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
 import { availableTableColumns, FilesViewModeSettings } from './FileBrowserState'
@@ -133,7 +134,12 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const staticResource = useFind(staticResourcePath, {
+    query: {
+      key: file.key,
+      project: getMutableState(EditorState).projectName.value!
+    }
+  })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
@@ -178,7 +184,12 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const staticResource = useFind(staticResourcePath, {
+    query: {
+      key: props.item.key,
+      project: getMutableState(EditorState).projectName.value!
+    }
+  })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div

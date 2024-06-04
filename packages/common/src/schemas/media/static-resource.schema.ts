@@ -114,7 +114,8 @@ export const staticResourceQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        action: Type.Optional(Type.String())
+        action: Type.Optional(Type.String()),
+        projectId: Type.Optional(Type.String())
       },
       { additionalProperties: false }
     )
