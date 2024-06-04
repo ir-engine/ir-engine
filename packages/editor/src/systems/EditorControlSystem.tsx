@@ -253,7 +253,6 @@ const execute = () => {
 
   if (buttons.KeyB?.down) onKeyB()
 
-  if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyW?.down) onKeyW()
