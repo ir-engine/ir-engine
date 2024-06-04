@@ -141,7 +141,8 @@ export const SidePanel = ({
             return (
               <div className="flex w-full">
                 <Button
-                  style={{ width: '20%' }}
+                  variant="outline"
+                  className="h-7 w-[20%]"
                   onClick={() => {
                     handleApplyTemplate(template)
                   }}
@@ -149,6 +150,7 @@ export const SidePanel = ({
                   <AddOutlined />
                 </Button>
                 <StringInput
+                  className="h-7"
                   value={template.name}
                   onChange={(e) => {
                     template.name = e
@@ -157,6 +159,8 @@ export const SidePanel = ({
                 ></StringInput>
 
                 <Button
+                  variant="outline"
+                  className="h-7 w-[20%]"
                   style={{ width: '20%' }}
                   onClick={() => {
                     handleDeleteTemplate(template)
