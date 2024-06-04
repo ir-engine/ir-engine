@@ -27,6 +27,7 @@ import { Entity, defineComponent, useComponent, useEntityContext } from '@ethere
 import { ErrorBoundary, NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Effect, EffectComposer, EffectPass, OutlineEffect, RenderPass } from 'postprocessing'
 import React, { Suspense, useEffect } from 'react'
+import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { ArrayCamera, Scene, WebGLRenderer } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { HighlightState } from '../HighlightState'
@@ -34,12 +35,47 @@ import { RendererState } from '../RendererState'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
+import { LinearTosRGBEffect } from '../effects/LinearTosRGBEffect'
 import { useScene } from './SceneComponents'
 
 declare module 'postprocessing' {
   interface EffectComposer {
     // passes
     EffectPass: EffectPass
+    // effects
+
+    BloomEffect: BloomEffect
+    BrightnessContrastEffect: BrightnessContrastEffect
+    ChromaticAberrationEffect: ChromaticAberrationEffect
+    ColorAverageEffect: ColorAverageEffect
+    ColorDepthEffect: ColorDepthEffect
+    DepthOfFieldEffect: DepthOfFieldEffect
+    DotScreenEffect: DotScreenEffect
+    FXAAEffect: FXAAEffect
+    GlitchEffect: GlitchEffect
+    //GodRaysEffect: GodRaysEffect
+    GridEffect: GridEffect
+    HueSaturationEffect: HueSaturationEffect
+    LensDistortionEffect: LensDistortionEffect
+    LinearTosRGBEffect: LinearTosRGBEffect
+    LUT1DEffect: LUT1DEffect
+    LUT3DEffect: LUT3DEffect
+    MotionBlurEffect: MotionBlurEffect
+    NoiseEffect: NoiseEffect
+    PixelationEffect: PixelationEffect
+    ScanlineEffect: ScanlineEffect
+    ShockWaveEffect: ShockWaveEffect
+    SSAOEffect: SSAOEffect
+    SSREffect: SSREffect
+    SSGIEffect: SSGIEffect
+    TextureEffect: TextureEffect
+    TiltShiftEffect: TiltShiftEffect
+    ToneMappingEffect: ToneMappingEffect
+    TRAAEffect: TRAAEffect
+    VignetteEffect: VignetteEffect
+
+    SMAAEffect: SMAAEffect
+    OutlineEffect: OutlineEffect
   }
 }
 

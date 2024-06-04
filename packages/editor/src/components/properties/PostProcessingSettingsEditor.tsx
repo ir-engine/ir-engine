@@ -36,7 +36,6 @@ import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
-import { Effects } from '@etherealengine/engine/src/postprocessing/PostProcessingRegister'
 import { getState } from '@etherealengine/hyperflux'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@etherealengine/spatial/src/renderer/effects/EffectRegistry'
@@ -117,7 +116,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const postprocessing = useComponent(props.entity, PostProcessingComponent)
 
   const renderProperty = (effectName: keyof typeof Effects, property: string, index: number) => {
-    const effectSettingState = effects[effectName].schema[property]
+    const effectNameString = effectName as string
+    const effectSettingState = effects[effectNameString].schema[property]
     const effectSettingValue = postprocessing.effects[effectName][property].value
 
     let renderVal = <></>
@@ -130,8 +130,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             max={effectSettingState.max}
             step={effectSettingState.step}
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
-            onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={updateProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
+            onRelease={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
           />
         )
         break
@@ -139,7 +139,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       case PropertyTypes.Boolean:
         renderVal = (
           <BooleanInput
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -149,7 +149,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={SMAAPresetSelect}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -159,7 +159,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={BlendFunctionSelect}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -169,7 +169,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={VignetteTechniqueSelect}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -179,7 +179,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <Vector2Input
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={updateProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
           />
         )
         break
@@ -188,7 +188,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <Vector3Input
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={updateProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
           />
         )
         break
@@ -197,7 +197,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <TexturePreviewInput
             value={effectSettingValue}
-            onRelease={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onRelease={updateProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
           />
         )
         break
@@ -206,10 +206,10 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           <ColorInput
             value={new Color(effectSettingState.value)}
             onSelect={(value) =>
-              updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
+              updateProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)('#' + value)
             }
             onRelease={(value) =>
-              commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)('#' + value)
+              commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)('#' + value)
             }
           />
         )
@@ -219,7 +219,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={KernelSizeSelect}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -229,7 +229,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={ColorSpaceSelect}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -239,7 +239,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={EdgeDetectionMode}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
@@ -249,7 +249,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={PredicationMode}
-            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectNameString}.${property}` as any)}
             value={effectSettingValue}
           />
         )
