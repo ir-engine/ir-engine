@@ -79,11 +79,11 @@ const Button = ({
   ...props
 }: ButtonProps): JSX.Element => {
   const twClassName = twMerge(
-    'flex items-center justify-between',
+    'flex items-center',
     'font-medium text-white',
     'transition ease-in-out',
     'disabled:cursor-not-allowed',
-    StartIcon || EndIcon ? 'justify-between' : 'justify-center',
+    (StartIcon || EndIcon) && 'justify-center',
     sizes[size],
     fullWidth ? 'w-full' : 'w-fit',
     roundedTypes[rounded],
