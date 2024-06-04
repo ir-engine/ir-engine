@@ -43,7 +43,7 @@ const GridTool = () => {
   }
 
   return (
-    <div id="transform-space" className="flex items-center bg-theme-surfaceInput">
+    <div className="flex items-center bg-theme-surfaceInput">
       <Button
         startIcon={<MdBorderClear />}
         onClick={onToggleGridVisible}
