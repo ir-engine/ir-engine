@@ -107,34 +107,34 @@ const onKeyQ = () => {
   )
 }
 
-const onKeyE = () => {
-  const nodes = SelectionState.getSelectedEntities()
-  const gizmo = gizmoControlledQuery()
-  if (gizmo.length === 0) return
-  const gizmoEntity = gizmo[gizmo.length - 1]
-  const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-  const editorHelperState = getState(EditorHelperState)
-  EditorControlFunctions.rotateAround(
-    nodes,
-    Vector3_Up,
-    -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    gizmoTransform.position
-  )
-}
+// const onKeyE = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
 
 const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
 }
 
-const onKeyT = () => {
+const onKeyW = () => {
   setTransformMode(TransformMode.translate)
 }
 
-const onKeyR = () => {
+const onKeyE = () => {
   setTransformMode(TransformMode.rotate)
 }
 
-const onKeyY = () => {
+const onKeyR = () => {
   setTransformMode(TransformMode.scale)
 }
 
@@ -257,9 +257,8 @@ const execute = () => {
 
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
-  if (buttons.KeyT?.down) onKeyT()
   if (buttons.KeyR?.down) onKeyR()
-  if (buttons.KeyY?.down) onKeyY()
+  if (buttons.KeyW?.down) onKeyW()
   if (buttons.KeyC?.down) onKeyC()
   if (buttons.KeyX?.down) onKeyX()
   if (buttons.KeyF?.down) onKeyF()
