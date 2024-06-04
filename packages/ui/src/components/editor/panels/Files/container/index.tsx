@@ -585,18 +585,19 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
         <div id="downloadProject" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.downloadProject')} direction="bottom">
-            <Button variant="transparent" startIcon={<FiDownload />} className="p-0" onClick={createNewFolder} />
+            <Button
+              variant="transparent"
+              startIcon={<FiDownload />}
+              className="p-0"
+              onClick={handleDownloadProject}
+              disabled={!showUploadAndDownloadButtons}
+            />
           </Tooltip>
         </div>
 
         <div id="newFolder" className="flex items-center">
           <Tooltip title={t('editor:layout.filebrowser.addNewFolder')} direction="bottom">
-            <Button
-              variant="transparent"
-              startIcon={<PiFolderPlusBold />}
-              className="p-0"
-              onClick={handleDownloadProject}
-            />
+            <Button variant="transparent" startIcon={<PiFolderPlusBold />} className="p-0" onClick={createNewFolder} />
           </Tooltip>
         </div>
 
