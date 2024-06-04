@@ -30,6 +30,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import {
   ScopeData,
   scopeDataValidator,
+  ScopeID,
   scopePath,
   scopeQueryValidator,
   ScopeTypeInterface
@@ -60,37 +61,21 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
     paginate: false
   })) as any as ScopeTypeInterface[]
 
-  const existingData: ScopeData[] = []
-  const createData: ScopeData[] = []
+  const existingData: ScopeID[] = []
 
   for (const item of data) {
     const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
-    if (existingScope) {
-      existingData.push(existingScope)
-    } else {
-      createData.push(item)
+    if (existingScope) existingData.push(existingScope.id)
+  }
+
+  await context.app.service(scopePath).remove(null, {
+    query: {
+      id: {
+        $in: existingData
+      },
+      userId: data[0].userId
     }
-  }
-
-  if (createData.length > 0) {
-    context.data = createData
-    context.existingData = existingData
-  } else {
-    context.result = existingData
-  }
-}
-
-/**
- * Append existing scopes with the newly created scopes
- * @param context
- * @returns
- */
-const addExistingScopes = async (context: HookContext<ScopeService>) => {
-  if (context.existingData?.length > 0) {
-    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeTypeInterface[]
-    result = [...result, ...context.existingData]
-    context.result = result
-  }
+  })
 }
 
 export default {
@@ -116,7 +101,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addExistingScopes],
+    create: [],
     update: [],
     patch: [],
     remove: []
