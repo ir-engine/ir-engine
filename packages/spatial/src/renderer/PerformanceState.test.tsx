@@ -83,12 +83,11 @@ describe('PerformanceState', () => {
       mockRenderer,
       () => {
         const performanceState = getState(PerformanceState)
-        const budgets = performanceState.budgets
-        assert(budgets.max3DTextureSize === 1000)
-        assert(budgets.maxBufferSize === 54000000000)
-        assert(budgets.maxIndices === 8000)
-        assert(budgets.maxTextureSize === 2000)
-        assert(budgets.maxVerticies === 10000)
+        assert(performanceState.max3DTextureSize === 1000)
+        assert(performanceState.maxBufferSize === 54000000000)
+        assert(performanceState.maxIndices === 8000)
+        assert(performanceState.maxTextureSize === 2000)
+        assert(performanceState.maxVerticies === 10000)
         done()
       },
       { renderer: 'nvidia corporation, nvidia geforce rtx 3070/pcie/sse2, ' }
@@ -176,8 +175,9 @@ describe('PerformanceState', () => {
     const { rerender, unmount } = render(<Reactor />)
     const clock = sinon.useFakeTimers()
     act(async () => {
+      // Decrementing performance state twice consecutively should only have one reactive change with the value off by 1 instead of 2
       PerformanceManager.decrementGPUPerformance()
-      PerformanceManager.incrementGPUPerformance()
+      PerformanceManager.decrementGPUPerformance()
       clock.tick(3000)
       rerender(<Reactor />)
       clock.restore()
