@@ -42,7 +42,7 @@ const TooltipDirectionClass = {
 
 const Tooltip = ({ title, direction = 'top', children, className }: TooltipProps) => {
   return (
-    <div className="group relative flex items-center justify-center">
+    <div className="group relative flex items-center justify-center text-center">
       {children}
       <span
         className={twMerge(

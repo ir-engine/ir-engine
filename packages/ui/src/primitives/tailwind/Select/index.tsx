@@ -135,22 +135,22 @@ const Select = <T extends OptionValueType>({
         description={description}
         error={error}
         errorBorder={errorBorder}
-        className={`cursor-pointer ${inputClassName}`}
+        className={twMerge('cursor-pointer', inputClassName)}
         placeholder={placeholder || t('common:select.selectOption')}
         value={selectLabel.value}
         onChange={handleSearch}
         onClick={toggleDropdown}
         onMouseDown={handleMouseDown}
-      />
-      <MdOutlineKeyboardArrowDown
-        size="1.5em"
-        className={`text-theme-primary absolute right-3 transition-transform ${showOptions.value ? 'rotate-180' : ''} ${
-          label ? 'top-8' : 'top-2'
-        }`}
-        onClick={toggleDropdown}
+        endComponent={
+          <MdOutlineKeyboardArrowDown
+            size="1.5em"
+            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            onClick={toggleDropdown}
+          />
+        }
       />
       <div
-        className={`border-theme-primary bg-theme-surface-main absolute z-10 mt-2 w-full rounded border ${
+        className={`absolute z-10 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >
@@ -160,8 +160,8 @@ const Select = <T extends OptionValueType>({
               key={option.value}
               value={option.value}
               className={twMerge(
-                'text-theme-secondary cursor-pointer px-4 py-2',
-                option.disabled ? 'cursor-not-allowed' : 'hover:text-theme-highlight hover:bg-theme-highlight',
+                'cursor-pointer px-4 py-2 text-theme-secondary',
+                option.disabled ? 'cursor-not-allowed' : 'hover:bg-theme-highlight hover:text-theme-highlight',
                 menuItemClassName
               )}
               onClick={() => handleOptionItem(option)}

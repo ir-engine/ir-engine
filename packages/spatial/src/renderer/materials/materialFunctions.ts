@@ -119,7 +119,7 @@ export const getPluginObject = (pluginId: string) => {
 
 export const applyMaterialPlugins = (materialEntity: Entity) => {
   const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-  if (!materialComponent.pluginEntities || !materialComponent.material) return
+  if (!materialComponent.pluginEntities?.length || !materialComponent.material) return
   const material = materialComponent.material as Material
   material.plugins = []
   for (const pluginEntity of materialComponent.pluginEntities) {
@@ -171,21 +171,13 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
   if (!prototypeConstructor || !prototypeComponent.prototypeArguments) return
   const material = materialComponent.material
   if (!material || material.type === prototypeName) return
-  const matKeys = Object.keys(material)
-  const commonParameters = Object.fromEntries(
-    Object.keys(prototypeComponent.prototypeArguments)
-      .filter((key) => matKeys.includes(key))
-      .map((key) => [key, material[key]])
-  )
-  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments), ...commonParameters }
+  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }
   const newMaterial = new prototypeConstructor(fullParameters)
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
       newMaterial.plugins!.map((plugin) => plugin.toString()).reduce((x, y) => x + y, '')
   }
   newMaterial.uuid = material.uuid
-  newMaterial.name = material.name
-  newMaterial.type = prototypeName
   if (material.defines?.['USE_COLOR']) {
     newMaterial.defines = newMaterial.defines ?? {}
     newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
@@ -198,5 +190,6 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
     material: newMaterial,
     parameters: fullParameters
   })
+
   return newMaterial
 }
