@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
+import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -45,10 +45,8 @@ import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
-import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
@@ -92,20 +90,20 @@ const onKeyF = () => {
   )
 }
 
-const onKeyQ = () => {
-  const nodes = SelectionState.getSelectedEntities()
-  const gizmo = gizmoControlledQuery()
-  if (gizmo.length === 0) return
-  const gizmoEntity = gizmo[gizmo.length - 1]
-  const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-  const editorHelperState = getState(EditorHelperState)
-  EditorControlFunctions.rotateAround(
-    nodes,
-    Vector3_Up,
-    editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    gizmoTransform.position
-  )
-}
+// const onKeyQ = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
 
 // const onKeyE = () => {
 //   const nodes = SelectionState.getSelectedEntities()
