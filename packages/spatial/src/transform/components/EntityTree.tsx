@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect } from 'react'
-
 import {
   ComponentType,
   defineComponent,
@@ -39,7 +37,8 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { entityExists, removeEntity } from '@etherealengine/ecs/src/EntityFunctions'
-import { NO_PROXY, none, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, none, startReactor, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from './TransformComponent'
@@ -270,19 +269,20 @@ export function traverseEntityNodeParent(entity: Entity, cb: (parent: Entity) =>
 }
 
 /**
- * @todo rename to getAncestorWithComponent
- * @param entity
- * @param component
- * @param closest
+ * Returns the closest ancestor of an entity that has the given component by walking up the entity tree
+ * @param entity Entity to start from
+ * @param component Component to search for
+ * @param closest (default true) - whether to return the closest ancestor or the furthest ancestor
+ * @param includeSelf (default true) - whether to include the entity itself in the search
  * @returns
  */
-export function findAncestorWithComponent(
+export function getAncestorWithComponent(
   entity: Entity,
   component: ComponentType<any>,
   closest = true,
   includeSelf = true
-): Entity | undefined {
-  let result: Entity | undefined
+): Entity {
+  let result = UndefinedEntity
   if (includeSelf && closest && hasComponent(entity, component)) return entity
   traverseEntityNodeParent(entity, (parent) => {
     if (closest && result) return
@@ -381,7 +381,7 @@ export function useTreeQuery(entity: Entity) {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.keys.map(Number) as Entity[]
 }
@@ -398,7 +398,7 @@ export function useTreeQuery(entity: Entity) {
 export function useAncestorWithComponent(entity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ParentSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
@@ -426,12 +426,16 @@ export function useAncestorWithComponent(entity: Entity, component: ComponentTyp
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity, component])
 
   return result.value
 }
 
-export function useChildWithComponent(entity: Entity, component: ComponentType<any>) {
+/**
+ * @todo - return an array of entities that have the component
+ *
+ */
+export function useChildWithComponent(rootEntity: Entity, component: ComponentType<any>) {
   const result = useHookstate(UndefinedEntity)
 
   useLayoutEffect(() => {
@@ -462,13 +466,23 @@ export function useChildWithComponent(entity: Entity, component: ComponentType<a
     }
 
     const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={entity} key={entity} />
+      const isScene = useOptionalComponent(rootEntity, SceneComponent)
+      if (isScene) {
+        return (
+          <>
+            {isScene.children.value.map((entity) => (
+              <ChildSubReactor entity={entity} key={entity} />
+            ))}
+          </>
+        )
+      }
+      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
     })
     return () => {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [rootEntity, component])
 
   return result.value
 }
@@ -526,9 +540,9 @@ export function findCommonAncestors(objects: Entity[], target: Entity[] = []): E
   return target
 }
 
-export function isAncestor(parent: Entity, potentialChild: Entity) {
-  if (!potentialChild) return false
-  if (parent === potentialChild) return false
+export function isAncestor(parent: Entity, potentialChild: Entity, includeSelf = false) {
+  if (!potentialChild || !parent) return false
+  if (!includeSelf && parent === potentialChild) return false
   return traverseEarlyOut(parent, (child) => child === potentialChild)
 }
 

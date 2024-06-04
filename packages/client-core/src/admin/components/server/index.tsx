@@ -20,16 +20,20 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
+import Tabs from '@etherealengine/ui/src/primitives/tailwind/Tabs'
+
 import { HiOutlineRefresh } from 'react-icons/hi'
 
 import { useHookstate } from '@etherealengine/hyperflux'
-import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
+import MigrationsTable from './MigrationsTable'
 import ServerTable from './ServerTable'
 
 export default function Servers() {
@@ -50,12 +54,9 @@ export default function Servers() {
     }
   }, [autoRefresh])
 
-  return (
-    <>
+  const ServersTopBar = () => {
+    return (
       <div className="flex justify-between">
-        <Text fontSize="xl" className="mb-6">
-          {t('admin:components.server.servers')}
-        </Text>
         <div className="flex items-center gap-2">
           <Text theme="secondary" fontSize="sm">
             {t('admin:components.server.autoRefresh')}
@@ -76,24 +77,54 @@ export default function Servers() {
           </div>
         </div>
       </div>
+    )
+  }
+
+  const ServerTypeTiles = () => {
+    return (
       <div className="mb-4 flex flex-wrap gap-2">
         {serverInfoQuery.data.map((info) => (
           <div
             key={info.id}
-            className={`bg-theme-surface-main flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl p-4 ${
-              serverType.value === info.id && 'border-b-blue-primary border-b-2'
+            className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-theme-surface-main p-4 ${
+              serverType.value === info.id && 'border-b-2 border-b-blue-primary'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="bg-blue-primary h-6 rounded-[90px] text-white"
+              className="h-6 rounded-[90px] bg-blue-primary text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>
         ))}
       </div>
-      <ServerTable serverType={serverType.value} serverInfoQuery={serverInfoQuery} />
+    )
+  }
+
+  return (
+    <>
+      <Tabs
+        tabsData={[
+          {
+            title: t('admin:components.server.servers'),
+            tabLabel: t('admin:components.server.servers'),
+            rightComponent: <ServersTopBar />,
+            bottomComponent: (
+              <>
+                <ServerTypeTiles />
+                <ServerTable serverType={serverType.value} serverInfoQuery={serverInfoQuery} />
+              </>
+            )
+          },
+          {
+            title: t('admin:components.server.migrations'),
+            tabLabel: t('admin:components.server.migrations'),
+            bottomComponent: <MigrationsTable />
+          }
+        ]}
+        tabcontainerClassName="bg-theme-primary"
+      />
     </>
   )
 }

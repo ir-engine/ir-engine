@@ -53,6 +53,7 @@ import { NetworkObjectAuthorityTag, NetworkState, WorldNetworkAction } from '@et
 import { ClientInputSystem } from '@etherealengine/spatial'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { Physics } from '@etherealengine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
@@ -202,7 +203,8 @@ const execute = () => {
 }
 
 const executeInput = () => {
-  const buttons = InputSourceComponent.getMergedButtons()
+  const inputSources = InputSourceComponent.nonCapturedInputSources()
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
   if (buttons.KeyU?.down) onDrop()
 }
 

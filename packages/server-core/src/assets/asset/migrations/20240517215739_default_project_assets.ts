@@ -43,7 +43,10 @@ export async function up(knex: Knex): Promise<void> {
     if (project) {
       const assets = await trx.select().from(assetPath).where({ projectId: project.id })
       for (const asset of assets) {
-        if (asset.assetURL.startsWith('projects/default-project')) {
+        if (
+          asset.assetURL.startsWith('projects/default-project') &&
+          !asset.assetURL.startsWith('projects/default-project/public/scenes')
+        ) {
           await trx(assetPath)
             .where({ id: asset.id })
             .update({
@@ -76,7 +79,7 @@ export async function down(knex: Knex): Promise<void> {
     if (project) {
       const assets = await trx.select().from(assetPath).where({ projectId: project.id })
       for (const asset of assets) {
-        if (asset.assetURL.startsWith('projects/default-project')) {
+        if (asset.assetURL.startsWith('projects/default-project/public/scenes')) {
           await trx(assetPath)
             .where({ id: asset.id })
             .update({

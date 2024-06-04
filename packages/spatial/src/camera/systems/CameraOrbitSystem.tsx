@@ -41,7 +41,6 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
 import { EngineState } from '../../EngineState'
@@ -76,18 +75,17 @@ const execute = () => {
 
   // TODO: handle multi-touch pinch/zoom
 
-  const buttons = InputSourceComponent.getMergedButtons()
-  const axes = InputSourceComponent.getMergedAxes()
-
   /**
    * assign active orbit camera based on which input source registers input
    */
   for (const cameraEid of orbitCameraQuery()) {
     const inputPointerEntity = InputPointerComponent.getPointerForCanvas(cameraEid)
-    if (!inputPointerEntity) continue
-    const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
 
+    const buttons = InputComponent.getMergedButtons(cameraEid)
+    const axes = InputComponent.getMergedAxes(cameraEid)
     const cameraOrbit = getMutableComponent(cameraEid, CameraOrbitComponent)
+
+    if (!inputPointerEntity && !cameraOrbit.refocus.value) continue
 
     // TODO: replace w/ EnabledComponent or DisabledComponent in query
     if (cameraOrbit.disabled.value || (cameraEid == Engine.instance.viewerEntity && !getState(EngineState).isEditing))
@@ -109,19 +107,22 @@ const execute = () => {
     if (buttons.KeyF?.down || distance < cameraOrbit.minimumZoom.value) {
       cameraOrbit.refocus.set(true)
     }
-    if (selecting) {
-      cameraOrbit.isOrbiting.set(true)
-      const mouseMovement = inputPointer.movement
-      if (mouseMovement) {
-        cameraOrbit.cursorDeltaX.set(mouseMovement.x)
-        cameraOrbit.cursorDeltaY.set(mouseMovement.y)
-      }
-    } else if (panning) {
-      cameraOrbit.isPanning.set(true)
-      const mouseMovement = inputPointer.movement
-      if (mouseMovement) {
-        cameraOrbit.cursorDeltaX.set(mouseMovement.x)
-        cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+    if (inputPointerEntity) {
+      const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+      if (selecting) {
+        cameraOrbit.isOrbiting.set(true)
+        const mouseMovement = inputPointer.movement
+        if (mouseMovement) {
+          cameraOrbit.cursorDeltaX.set(mouseMovement.x)
+          cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+        }
+      } else if (panning) {
+        cameraOrbit.isPanning.set(true)
+        const mouseMovement = inputPointer.movement
+        if (mouseMovement) {
+          cameraOrbit.cursorDeltaX.set(mouseMovement.x)
+          cameraOrbit.cursorDeltaY.set(mouseMovement.y)
+        }
       }
     }
 

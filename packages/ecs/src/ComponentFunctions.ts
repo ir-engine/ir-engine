@@ -87,7 +87,7 @@ type StringLiteral<T> = string extends T ? SomeStringLiteral : string
  */
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -161,7 +161,7 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  reactor?: HookableFunction<React.FC>
+  reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]
@@ -213,22 +213,23 @@ export type ComponentErrorsType<C extends Component> =
  */
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = Record<string, any>,
+  Schema extends bitECS.ISchema = Record<string, never>,
   JSON = ComponentType,
-  ComponentExtras = unknown,
+  ComponentExtras = Record<string, any>,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   Error extends StringLiteral<Error> = ''
 >(
   def: ComponentPartial<ComponentType, Schema, JSON, SetJSON, Error> & ComponentExtras
 ) => {
-  const Component = (def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}) as ComponentExtras &
-    SoAComponentType<Schema> &
-    Component<ComponentType, Schema, JSON, SetJSON, Error>
+  const Component = (
+    def.schema ? bitECS.defineComponent(def.schema, INITIAL_COMPONENT_SIZE) : {}
+  ) as SoAComponentType<Schema> & Component<ComponentType, Schema, JSON, SetJSON, Error>
   Component.isComponent = true
   Component.onInit = (entity) => true as any
   Component.onSet = (entity, component, json) => {}
   Component.onRemove = () => {}
   Component.toJSON = (entity, component) => null!
+
   Component.errors = []
   Object.assign(Component, def)
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -240,10 +241,14 @@ export const defineComponent = <
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  } else if (def.toJSON) {
+    console.warn(
+      `Component ${Component.name} has toJson defined, but no jsonID defined. This will cause serialization issues.`
+    )
   }
   ComponentMap.set(Component.name, Component)
 
-  return Component as typeof Component & { _TYPE: ComponentType }
+  return Component as typeof Component & { _TYPE: ComponentType } & ComponentExtras
 
   // const ExternalComponentReactor = (props: SetJSON) => {
   //   const entity = useEntityContext()
@@ -298,13 +303,13 @@ export const getComponent = <ComponentType>(
   entity: Entity,
   component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
-  const componentState = component.stateMap[entity]!
-  if (!componentState || componentState.promised) {
+  if (!bitECS.hasComponent(HyperFlux.store, component, entity)) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
     return undefined as any
   }
+  const componentState = component.stateMap[entity]!
   return componentState.get(NO_PROXY_STEALTH) as ComponentType
 }
 
@@ -353,11 +358,12 @@ export const setComponent = <C extends Component>(
     root['entity'] = entity
     root['component'] = Component.name
     Component.reactorMap.set(entity, root)
-    return
+    return getComponent(entity, Component) as ComponentType<C>
   }
 
   const root = Component.reactorMap.get(entity)
   root?.run()
+  return getComponent(entity, Component) as ComponentType<C>
 }
 
 /**
@@ -444,21 +450,6 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
 export const getAllComponents = (entity: Entity): Component[] => {
   if (!bitECS.entityExists(HyperFlux.store, entity)) return []
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
-}
-
-export const useAllComponents = (entity: Entity) => {
-  const result = useHookstate([] as Component[])
-
-  useExecute(
-    () => {
-      const components = getAllComponents(entity)
-      /** @todo we need a better strategy than relying on lengths */
-      if (components.length !== result.length) result.set(components)
-    },
-    { after: PresentationSystemGroup }
-  )
-
-  return result.get(NO_PROXY) // for some reason .value does not work
 }
 
 /**

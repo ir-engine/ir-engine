@@ -36,7 +36,6 @@ import {
   Vector3
 } from 'three'
 
-import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import {
   ComponentType,
   getComponent,
@@ -53,6 +52,7 @@ import { defineQuery, useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_Up } from '../common/constants/MathConstants'
@@ -66,6 +66,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
+import { XRScenePlacementComponent } from './XRScenePlacementComponent'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
@@ -160,7 +161,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (!transform || !xrFrame || !xrSession) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
-  const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
+  const lerpAlpha = smootheLerpAlpha(0.1, deltaSeconds)
 
   const sceneScaleAutoMode = xrState.sceneScaleAutoMode
 
@@ -192,6 +193,7 @@ export const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, XRScenePlacementComponent)
     setComponent(scenePlacementEntity, TransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)

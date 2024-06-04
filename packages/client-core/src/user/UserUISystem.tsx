@@ -30,7 +30,9 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
+import { FeatureFlagsState } from '@etherealengine/engine/src/FeatureFlagsState'
 import { InviteService } from '../social/services/InviteService'
+import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
@@ -38,7 +40,6 @@ import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
-import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
@@ -68,6 +69,10 @@ const reactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
+  const emotesEnabled = FeatureFlagsState.useEnabled('ir.client.menu.emote')
+  const avaturnEnabled = FeatureFlagsState.useEnabled('ir.client.menu.avaturn')
+  const rpmEnabled = FeatureFlagsState.useEnabled('ir.client.menu.readyPlayerMe')
+
   useEffect(() => {
     const FaceRetouchingNatural = lazy(() => import('@mui/icons-material/FaceRetouchingNatural'))
     const Send = lazy(() => import('@mui/icons-material/Send'))
@@ -78,16 +83,12 @@ const reactor = () => {
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
-      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe),
-      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn),
-      [UserMenus.Share]: ShareMenu,
-      [UserMenus.Emote]: EmoteMenu
+      [UserMenus.Share]: ShareMenu
     })
 
     popupMenuState.hotbar.merge({
       [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.settings') },
-      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') },
-      [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
+      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') }
     })
 
     return () => {
@@ -96,19 +97,70 @@ const reactor = () => {
         [UserMenus.Settings]: none,
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
-        [UserMenus.ReadyPlayer]: none,
-        [UserMenus.Avaturn]: none,
-        [UserMenus.Share]: none,
-        [UserMenus.Emote]: none
+        [UserMenus.Share]: none
       })
 
       popupMenuState.hotbar.merge({
         [UserMenus.Profile]: none,
-        [UserMenus.Share]: none,
-        [UserMenus.Emote]: none
+        [UserMenus.Share]: none
       })
     }
   }, [])
+
+  useEffect(() => {
+    if (!emotesEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.Emote]: EmoteMenu
+    })
+
+    popupMenuState.hotbar.merge({
+      [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
+    })
+
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.Emote]: none
+      })
+
+      popupMenuState.hotbar.merge({
+        [UserMenus.Emote]: none
+      })
+    }
+  }, [emotesEnabled])
+
+  useEffect(() => {
+    if (!avaturnEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.ReadyPlayer]: AvatarCreatorMenu(SupportedSdks.ReadyPlayerMe)
+    })
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.ReadyPlayer]: none
+      })
+    }
+  }, [avaturnEnabled])
+
+  useEffect(() => {
+    if (!rpmEnabled) return
+
+    const popupMenuState = getMutableState(PopupMenuState)
+
+    popupMenuState.menus.merge({
+      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn)
+    })
+    return () => {
+      popupMenuState.menus.merge({
+        [UserMenus.Avaturn]: none
+      })
+    }
+  }, [rpmEnabled])
+
   return null
 }
 

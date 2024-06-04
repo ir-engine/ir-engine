@@ -174,7 +174,7 @@ export function useScene(entity: Entity) {
       unmounted = true
       root.stop()
     }
-  }, [])
+  }, [entity])
 
   return result.value
 }

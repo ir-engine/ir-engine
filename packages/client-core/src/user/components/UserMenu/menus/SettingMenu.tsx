@@ -455,9 +455,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
           <>
             <InputSlider
               icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
-              label={t('user:usermenu.setting.lbl-resolution')}
+              label={t('user:usermenu.setting.lbl-quality')}
               max={5}
-              min={1}
+              min={0}
               step={1}
               value={rendererState.qualityLevel.value}
               sx={{ mt: 4 }}

@@ -34,7 +34,7 @@ import InputSwitch from '@etherealengine/client-core/src/common/components/Input
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType, ProjectCommitType, ProjectType } from '@etherealengine/common/src/schema.type.module'
-import { toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { toDateTimeSql, toDisplayDateTime } from '@etherealengine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -273,13 +273,8 @@ const ProjectFields = ({
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
     if (el.datetime) {
-      const datetime = new Date(el.datetime).toLocaleString('en-us', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
+      const datetime = toDisplayDateTime(el.datetime)
+
       label += ` -- Pushed ${datetime}`
     }
     return {

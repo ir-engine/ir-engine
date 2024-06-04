@@ -78,7 +78,7 @@ export const FeathersState = defineState({
           fetch: () => void
           response: unknown
           status: 'pending' | 'success' | 'error'
-          error: ''
+          error: string
         }
       >
     >,
@@ -125,7 +125,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   })}` as QueryHash
 
   const fetch = () => {
-    if (method === 'get' && !args[0]) return
+    if (method === 'get' && !args) {
+      state[serviceName][queryId].merge({
+        status: 'error',
+        error: 'Get method requires an id or query object'
+      })
+      return
+    }
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -148,7 +154,6 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   }
 
   useLayoutEffect(() => {
-    if (method === 'get' && !args[0]) return
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({

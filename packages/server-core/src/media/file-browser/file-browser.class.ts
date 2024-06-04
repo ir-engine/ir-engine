@@ -60,8 +60,6 @@ export interface FileBrowserParams extends KnexAdapterParams {
   nestingDirectory?: string
 }
 
-const PROJECT_FILE_REGEX = /^projects/
-
 const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
   if (!nestingDirectory) {
     if (/recordings/.test(directory)) nestingDirectory = 'recordings'
@@ -128,6 +126,13 @@ export class FileBrowserService
     checkDirectoryInsideNesting(directory, params.nestingDirectory)
 
     let result = await storageProvider.listFolderContent(directory)
+    Object.entries(params.query).forEach(([key, value]) => {
+      if (value['$like']) {
+        const searchString = value['$like'].replace(/%/g, '')
+        result = result.filter((item) => item[key].includes(searchString))
+      }
+    })
+
     let total = result.length
 
     result = result.slice(skip, skip + limit)

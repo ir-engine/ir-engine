@@ -30,7 +30,6 @@ import { Group, LoaderUtils } from 'three'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { modelTransformPath } from '@etherealengine/common/src/schema.type.module'
 import { createEntity, Entity, generateEntityUUID, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -214,9 +213,6 @@ export default function ModelCompressionPanel({
 
     const heuristic = Heuristic.BUDGET
     await createLODVariants(lods.value as LODVariantDescriptor[], clientside, heuristic, exportCombined)
-
-    const [_, directoryToRefresh, __] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(modelSrc)!
-    await FileBrowserService.fetchFiles(directoryToRefresh)
   }
 
   const deletePreset = (idx: number) => {

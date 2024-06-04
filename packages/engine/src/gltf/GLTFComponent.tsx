@@ -174,7 +174,7 @@ const useGLTFDocument = (url: string, entity: Entity) => {
       dispatchAction(
         GLTFSnapshotAction.createSnapshot({
           source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(json)
+          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
         })
       )
     }

@@ -96,7 +96,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           maxWidth={780}
         >
           <div className="my-5 flex justify-end gap-1">
-            <div className="w-max-[780px] ml-[58px] mr-5 h-[100%] min-w-0 justify-end">
+            <div className="w-max-[780px] ml-[58px] mr-5 h-full min-w-0 justify-end">
               <p className="rounded-xl border-2 border-[#E1E1E1] bg-[#E1E1E1] p-[3px] text-black">
                 {props.message.text}
               </p>

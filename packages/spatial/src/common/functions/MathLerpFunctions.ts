@@ -201,3 +201,19 @@ export const smoothDamp = (
 
   return output
 }
+
+/**
+ * Create a lerp alpha value that is exponentially smoothed.
+ *
+ * Smoothing rate dictates the proportion of source remaining after one second.
+ *
+ * A smoothing rate of zero will give you back the target value (i.e. no smoothing),
+ * and a rate of 1 is technically not allowed, but will just give you back the source value (i.e. infinite smoothing)
+ *
+ * @param smoothness the proportion of source value remaining after one second
+ * @param deltaSeconds
+ * @returns
+ */
+export function smootheLerpAlpha(smoothness: number, deltaSeconds: number) {
+  return 1 - Math.pow(smoothness, deltaSeconds)
+}

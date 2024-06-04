@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { useLayoutEffect } from 'react'
 
 import { useEntityContext } from '@etherealengine/ecs'
 import {
@@ -34,8 +33,11 @@ import {
   useComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 
+import { World } from '@dimforge/rapier3d-compat'
+import { useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
+import { PhysicsState } from '../state/PhysicsState'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 const { f64 } = Types
@@ -106,8 +108,18 @@ export const RigidBodyComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, RigidBodyComponent)
+    const physicsWorld = useMutableState(PhysicsState).physicsWorld
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
+      const world = physicsWorld.value as World
+      if (!world) return
+      Physics.createRigidBody(entity, world)
+      return () => {
+        Physics.removeRigidbody(entity, world)
+      }
+    }, [physicsWorld])
+
+    useImmediateEffect(() => {
       const type = component.type.value
       setComponent(entity, getTagComponentForRigidBody(type))
       Physics.setRigidBodyType(entity, type)
@@ -116,15 +128,15 @@ export const RigidBodyComponent = defineComponent({
       }
     }, [component.type])
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
       Physics.enabledCcd(entity, component.ccd.value)
     }, [component.ccd])
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
       Physics.lockRotations(entity, !component.allowRolling.value)
     }, [component.allowRolling])
 
-    useLayoutEffect(() => {
+    useImmediateEffect(() => {
       Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
     }, [component.enabledRotations])
 

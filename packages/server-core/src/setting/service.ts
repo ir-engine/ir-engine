@@ -29,6 +29,7 @@ import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting'
 import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
+import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import RedisSetting from './redis-setting/redis-setting'
@@ -40,6 +41,7 @@ export default [
   ClientSetting,
   InstanceServer,
   Email,
+  FeatureFlagSetting,
   Authentication,
   Aws,
   Chargebee,
