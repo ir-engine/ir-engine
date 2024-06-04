@@ -30,8 +30,6 @@ import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
-import { PropertiesPanelButton } from '@etherealengine/editor/src/components/inputs/Button'
-import CollapsibleBlock from '@etherealengine/editor/src/components/layout/CollapsibleBlock'
 import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
 import {
   useVisualScriptFlow,
@@ -41,10 +39,13 @@ import { useTemplateHandler } from '@etherealengine/editor/src/components/visual
 import { useVariableHandler } from '@etherealengine/editor/src/components/visualScript/hooks/useVariableHandler'
 import { NodetoEnginetype } from '@etherealengine/engine'
 import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@etherealengine/visual-script'
 import Button from '../../../../../primitives/tailwind/Button'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
+
+import { MdKeyboardArrowDown, MdKeyboardArrowLeft } from 'react-icons/md'
 import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/nodeEditor'
 import ParameterInput from '../../../properties/parameter'
@@ -89,163 +90,163 @@ export const SidePanel = ({
   }, [examples, handleAddTemplate])
 
   return (
-    <CollapsibleBlock
-      label={t('editor:visualScript.sidePanel.title')}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minWidth: '150px',
-        backgroundColor: 'var(--panelBackground)',
-        paddingRight: '10px',
-        paddingTop: '5px',
-        paddingBottom: '5px'
-      }}
-    >
-      <CollapsibleBlock label={t('editor:visualScript.sidePanel.node.name')}>
-        <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.node.description')}>
-          <PaginatedList
-            options={{ countPerPage: 10 }}
-            list={Object.keys(visualScriptState.registries[VisualScriptDomain.ECS].nodes)}
-            element={(nodeName: string, index) => {
-              return (
-                <div>
-                  <Button
-                    style={{ width: '100%', textTransform: 'lowercase', padding: '0px' }}
-                    onClick={() => {
-                      const bounds = (flowref.current! as any).getBoundingClientRect()
-                      const centerX = bounds.left + bounds.width / 2
-                      const centerY = bounds.top + bounds.height / 2
-                      const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
-                      const position = viewportCenter // need a way to get viewport
-                      const newNode = {
-                        id: uuidv4(),
-                        type: nodeName,
-                        position,
-                        data: { configuration: {}, values: {} } //fill with default values here
+    <NodeEditor entity={UndefinedEntity} name={t('editor:visualScript.sidePanel.title')}>
+      <NodeEditor
+        entity={UndefinedEntity}
+        name={t('editor:visualScript.sidePanel.node.name')}
+        description={t('editor:visualScript.sidePanel.node.description')}
+      >
+        <PaginatedList
+          options={{ countPerPage: 10 }}
+          list={Object.keys(visualScriptState.registries[VisualScriptDomain.ECS].nodes)}
+          element={(nodeName: string, index) => {
+            return (
+              <div>
+                <Button
+                  variant="outline"
+                  className="w-full p-0 lowercase"
+                  onClick={() => {
+                    const bounds = (flowref.current! as any).getBoundingClientRect()
+                    const centerX = bounds.left + bounds.width / 2
+                    const centerY = bounds.top + bounds.height / 2
+                    const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
+                    const position = viewportCenter // need a way to get viewport
+                    const newNode = {
+                      id: uuidv4(),
+                      type: nodeName,
+                      position,
+                      data: { configuration: {}, values: {} } //fill with default values here
+                    }
+                    onNodesChange([
+                      {
+                        type: 'add',
+                        item: newNode
                       }
-                      onNodesChange([
-                        {
-                          type: 'add',
-                          item: newNode
-                        }
-                      ])
-                    }}
-                  >
-                    <Panel title={nodeName}></Panel>
-                  </Button>
-                </div>
-              )
-            }}
-          ></PaginatedList>
-        </NodeEditor>
-      </CollapsibleBlock>
+                    ])
+                  }}
+                >
+                  <Panel title={nodeName}></Panel>
+                </Button>
+              </div>
+            )
+          }}
+        ></PaginatedList>
+      </NodeEditor>
+      <NodeEditor
+        entity={UndefinedEntity}
+        name={t('editor:visualScript.sidePanel.template.name')}
+        description={t('editor:visualScript.sidePanel.template.description')}
+      >
+        <PaginatedList
+          options={{ countPerPage: 5 }}
+          list={visualScriptState.templates.get(NO_PROXY) as GraphTemplate[]}
+          element={(template: any, index) => {
+            return (
+              <div className="flex w-full">
+                <Button
+                  style={{ width: '20%' }}
+                  onClick={() => {
+                    handleApplyTemplate(template)
+                  }}
+                >
+                  <AddOutlined />
+                </Button>
+                <StringInput
+                  value={template.name}
+                  onChange={(e) => {
+                    template.name = e
+                    handleEditTemplate(template)
+                  }}
+                ></StringInput>
 
-      <CollapsibleBlock label={t('editor:visualScript.sidePanel.template.name')}>
-        <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.template.description')}>
-          <PaginatedList
-            options={{ countPerPage: 5 }}
-            list={visualScriptState.templates.get(NO_PROXY) as GraphTemplate[]}
-            element={(template: any, index) => {
-              return (
-                <div style={{ display: 'flex', width: '100%' }}>
-                  <Button
-                    style={{ width: '20%' }}
-                    onClick={() => {
-                      handleApplyTemplate(template)
-                    }}
-                  >
-                    <AddOutlined />
-                  </Button>
-                  <StringInput
-                    value={template.name}
-                    onChange={(e) => {
-                      template.name = e
-                      handleEditTemplate(template)
-                    }}
-                  ></StringInput>
-
-                  <Button
-                    style={{ width: '20%' }}
-                    onClick={() => {
-                      handleDeleteTemplate(template)
-                    }}
-                  >
-                    <CancelOutlined />
-                  </Button>
-                </div>
-              )
-            }}
-          ></PaginatedList>
-        </NodeEditor>
-      </CollapsibleBlock>
-
-      <CollapsibleBlock label={t('editor:visualScript.sidePanel.variables.name')}>
-        <NodeEditor entity={UndefinedEntity} description={t('editor:visualScript.sidePanel.variables.description')}>
-          <PaginatedList
-            options={{ countPerPage: 5 }}
-            list={variables}
-            element={(variable: VariableJSON, index) => {
-              return (
-                <CollapsibleBlock label={variable.name} style={{ overflow: 'hidden' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'row', width: '100%', overflow: 'hidden' }}>
-                      <StringInput
-                        value={variable.name}
-                        onChange={(e) => {
-                          handleEditVariable({ ...variable, name: e })
-                        }}
-                      ></StringInput>
-                      <Button
-                        style={{ width: '20%' }}
-                        onClick={() => {
-                          handleDeleteVariable(variable)
-                        }}
-                      >
-                        <CancelOutlined />
-                      </Button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'row', width: '100%', overflow: 'hidden' }}>
-                      <div style={{ width: '40%' }}>
-                        <SelectInput
-                          options={Object.keys(graphTypes).map((valueType) => {
-                            return { label: valueType, value: valueType }
-                          })}
-                          value={variable.valueTypeName}
-                          onChange={(value) => {
-                            handleEditVariable({
-                              ...variable,
-                              valueTypeName: value as string,
-                              initialValue: graphTypes[value].creator()
-                            })
-                          }}
-                        />
-                      </div>
-                      <ParameterInput
-                        entity={`${UndefinedEntity}`}
-                        values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
-                        onChange={(key) => (e) => {
-                          let value = e
-                          if (variable.valueTypeName !== 'object' && typeof e === 'object') value = e.target.value
-                          handleEditVariable({ ...variable, initialValue: value })
+                <Button
+                  style={{ width: '20%' }}
+                  onClick={() => {
+                    handleDeleteTemplate(template)
+                  }}
+                >
+                  <CancelOutlined />
+                </Button>
+              </div>
+            )
+          }}
+        ></PaginatedList>
+      </NodeEditor>
+      <NodeEditor
+        entity={UndefinedEntity}
+        name={t('editor:visualScript.sidePanel.variables.name')}
+        description={t('editor:visualScript.sidePanel.variables.description')}
+      >
+        <PaginatedList
+          options={{ countPerPage: 5 }}
+          list={variables}
+          element={(variable: VariableJSON, index) => {
+            return (
+              <Accordion
+                className="p-0.5 text-white"
+                title={variable.name}
+                style={{ overflow: 'hidden' }}
+                expandIcon={<MdKeyboardArrowDown />}
+                shrinkIcon={<MdKeyboardArrowLeft />}
+              >
+                <div className="flex w-full flex-col">
+                  <div className="flex w-full flex-row overflow-hidden">
+                    <StringInput
+                      value={variable.name}
+                      onChange={(e) => {
+                        handleEditVariable({ ...variable, name: e })
+                      }}
+                    ></StringInput>
+                    <Button
+                      className="w-[20%]"
+                      onClick={() => {
+                        handleDeleteVariable(variable)
+                      }}
+                    >
+                      <CancelOutlined />
+                    </Button>
+                  </div>
+                  <div className="flex w-full flex-row overflow-hidden">
+                    <div className="w-[40%]">
+                      <SelectInput
+                        options={Object.keys(graphTypes).map((valueType) => {
+                          return { label: valueType, value: valueType }
+                        })}
+                        value={variable.valueTypeName}
+                        onChange={(value) => {
+                          handleEditVariable({
+                            ...variable,
+                            valueTypeName: value as string,
+                            initialValue: graphTypes[value].creator()
+                          })
                         }}
                       />
                     </div>
+                    <ParameterInput
+                      entity={`${UndefinedEntity}`}
+                      values={[NodetoEnginetype(variable.initialValue, variable.valueTypeName)]}
+                      onChange={(key) => (e) => {
+                        let value = e
+                        if (variable.valueTypeName !== 'object' && typeof e === 'object') value = e.target.value
+                        handleEditVariable({ ...variable, initialValue: value })
+                      }}
+                    />
                   </div>
-                </CollapsibleBlock>
-              )
-            }}
-          ></PaginatedList>
-          <PropertiesPanelButton
-            style={{ width: '80%' }}
-            onClick={() => {
-              handleAddVariable()
-            }}
-          >
-            {t('editor:visualScript.sidePanel.variables.add')}
-          </PropertiesPanelButton>
-        </NodeEditor>
-      </CollapsibleBlock>
-    </CollapsibleBlock>
+                </div>
+              </Accordion>
+            )
+          }}
+        ></PaginatedList>
+        <Button
+          variant="outline"
+          onClick={() => {
+            handleAddVariable()
+          }}
+        >
+          {t('editor:visualScript.sidePanel.variables.add')}
+        </Button>
+      </NodeEditor>
+    </NodeEditor>
   )
 }
 
