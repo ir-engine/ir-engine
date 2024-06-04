@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AudioLoader, TextureLoader } from 'three'
+import { AudioLoader } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
-import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 
 import { AssetExt, AssetType, FileExtToAssetExt, FileToAssetType } from '@etherealengine/common/src/constants/AssetType'
@@ -35,6 +34,7 @@ import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
+import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
@@ -59,57 +59,9 @@ const getAssetClass = (assetFileName: string): AssetType => {
   return FileToAssetType(assetFileName)
 }
 
-const setupTextureForIOS = async (src: string): Promise<string> => {
-  return new Promise(async (resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous' //browser will yell without this
-    img.src = src
-    await img.decode() //new way to wait for image to load
-    // Initialize the canvas and it's size
-    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
-    const ctx = canvas.getContext('2d')
-
-    // Set width and height
-    const originalWidth = img.width
-    const originalHeight = img.height
-
-    let resizingFactor = 1
-    if (originalWidth >= originalHeight) {
-      if (originalWidth > 1024) {
-        resizingFactor = 1024 / originalWidth
-      }
-    } else {
-      if (originalHeight > 1024) {
-        resizingFactor = 1024 / originalHeight
-      }
-    }
-
-    const canvasWidth = originalWidth * resizingFactor
-    const canvasHeight = originalHeight * resizingFactor
-
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
-
-    // Draw image and export to a data-uri
-    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
-    const dataURI = canvas.toDataURL()
-
-    // Do something with the result, like overwrite original
-    resolve(dataURI)
-  })
-}
-
 const ddsLoader = () => new DDSLoader()
 const fbxLoader = () => new FBXLoader()
-const textureLoader = () => ({
-  load: async (src, onLoad, onProgress, onError, signal?) => {
-    if (iOS) {
-      src = await setupTextureForIOS(src)
-    }
-    const loader = new TextureLoader()
-    loader.load(src, onLoad, onProgress, onError)
-  }
-})
+const textureLoader = () => new TextureLoader()
 const fileLoader = () => new FileLoader()
 const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
