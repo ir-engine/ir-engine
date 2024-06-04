@@ -40,7 +40,7 @@ import {
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
   typeName: 'engine/variable/get',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'Get',
   configuration: {
     variableName: {
@@ -88,7 +88,7 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
 
 export const EngineVariableSet = makeFlowNodeDefinition({
   typeName: 'engine/variable/set',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Set',
   configuration: {
     variableName: {
@@ -153,7 +153,7 @@ export const getUseVariableSystemUUID = (variableName) =>
 
 export const EngineVariableUse = makeEventNodeDefinition({
   typeName: 'engine/variable/use',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'Use',
   configuration: {
     variableName: {

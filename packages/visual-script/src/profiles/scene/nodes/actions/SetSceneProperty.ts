@@ -30,7 +30,7 @@ export const SetSceneProperty = (valueTypeNames: string[]) =>
   valueTypeNames.map((valueTypeName) =>
     makeFlowNodeDefinition({
       typeName: `scene/set/${valueTypeName}`,
-      category: NodeCategory.Effect,
+      category: NodeCategory.None,
       label: `Set scene ${valueTypeName}`,
       in: {
         jsonPath: (_, graphApi) => {

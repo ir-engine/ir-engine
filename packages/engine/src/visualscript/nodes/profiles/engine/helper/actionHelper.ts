@@ -154,7 +154,7 @@ export function registerActionConsumers() {
 
     const node = makeEventNodeDefinition({
       typeName: `action/${namePath}/${dispatchName}/consume`,
-      category: NodeCategory.Event,
+      category: NodeCategory.Action,
       label: `on ${namePath} ${dispatchName}`,
       in: {
         system: (_, graph) => {
