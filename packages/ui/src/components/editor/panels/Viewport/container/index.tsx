@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
@@ -99,6 +100,8 @@ const ViewportDnD = () => {
 const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
   const sceneName = useMutableState(EditorState).sceneName.value
+  const clientSettingState = useMutableState(AdminClientSettingsState)
+  const [clientSetting] = clientSettingState?.client?.value || []
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
       <div className="flex gap-1 p-1">
@@ -115,7 +118,7 @@ const ViewPortPanelContainer = () => {
         <ViewportDnD />
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src="/static/etherealengine.png" className="block" />
+          <img src={clientSetting.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
