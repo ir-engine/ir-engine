@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useOnPressKey } from '@etherealengine/editor/src/components/visualScript/VisualScriptUIModule'
 import React, { PropsWithChildren } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 /* Styles for the modal backdrop */
 const modalBackdrop: any = {
@@ -117,23 +118,20 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({ open = false, o
 
   return (
     <>
-      <div style={modalBackdrop} onClick={onClose}></div>
-      <div style={modalContainer}>
-        <div style={modalHeader}>
-          <h2 style={modalTitle}>{title}</h2>
+      <div className="fixed inset-0 z-20 h-full w-full overflow-y-auto bg-transparent" onClick={onClose}></div>
+      <div className="border-borderStyle relative top-[2px] z-20 mx-auto w-96 rounded-md border bg-theme-primary text-sm text-gray-800 shadow-[0_2px_4px_var(--background2)]">
+        <div className="border-b border-gray-600 p-3">
+          <h2 className="text-center text-lg font-bold text-white">{title}</h2>
         </div>
-        <div style={modalContent}>{children}</div>
-        <div style={modalActions}>
+        <div className="p-3 text-white">{children}</div>
+        <div className="border-grey-600 flex gap-3 border-t p-3">
           {actions.map((action, ix) => (
             <button
               key={ix}
-              style={{ ...modalActionBtn, ...(ix === actions.length - 1 ? modalPrimaryAction : modalSecondaryAction) }}
-              onMouseOver={(event) => {
-                ;(event.target as any).style.backgroundColor = 'var(--iconButtonSelectedBackground)'
-              }}
-              onMouseOut={(event) => {
-                ;(event.target as any).style.backgroundColor = 'var(--iconButtonBackground)'
-              }}
+              className={twMerge(
+                'w-full cursor-pointer p-2 text-white',
+                ix === actions.length - 1 ? 'bg-zinc-700' : 'bg-gray-400'
+              )}
               onClick={action.onClick}
             >
               {action.label}

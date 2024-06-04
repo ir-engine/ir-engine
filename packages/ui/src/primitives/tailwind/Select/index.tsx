@@ -89,9 +89,11 @@ const Select = <T extends OptionValueType>({
 
   useEffect(() => {
     filteredOptions.set(options)
+    disabled = options.length === 0
   }, [options])
 
   const toggleDropdown = () => {
+    if (options.length === 0) return
     showOptions.set((v) => !v)
   }
 

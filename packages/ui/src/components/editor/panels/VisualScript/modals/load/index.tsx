@@ -29,6 +29,7 @@ import { useReactFlow } from 'reactflow'
 
 import { GraphJSON } from '@etherealengine/visual-script'
 import { Modal } from '..'
+import SelectInput from '../../../../input/Select'
 
 export type Examples = {
   [key: string]: GraphJSON
@@ -92,43 +93,26 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
     >
       <textarea
         autoFocus
-        style={{
-          border: '1px solid var(--borderStyle)',
-          width: '100%',
-          padding: '0.5rem',
-          height: '8rem',
-          verticalAlign: 'top',
-          margin: 0
-        }}
+        className="m-0 h-32 w-full border border-neutral-700 bg-neutral-800 p-2 text-neutral-100"
         placeholder="Paste JSON here"
         value={value}
         onChange={(e) => setValue(e.currentTarget.value)}
       ></textarea>
-      <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--textColor)' }}>or</div>
-      <select
-        style={{
-          backgroundColor: 'var(--popupBackground)',
-          border: '1px solid var(--borderStyle)',
-          color: 'var(--textColor)',
-          fontSize: '14px',
-          borderRadius: '0.25rem',
-          display: 'block',
-          width: '100%',
-          padding: '0.75rem',
-          margin: 0
-        }}
-        onChange={(e) => setSelected(e.target.value)}
-        value={selected}
-      >
-        <option disabled value="">
-          {t('editor:visualScript.modal.load.examples')}
-        </option>
-        {Object.keys(examples).map((key) => (
-          <option key={key} value={key}>
-            {key}
-          </option>
-        ))}
-      </select>
+      <div className="p-4 text-center text-neutral-100">or</div>
+      <div className="flex items-center justify-center">
+        <SelectInput
+          className="w-full"
+          options={Object.keys(examples).map((key) => {
+            return {
+              label: key,
+              value: key
+            }
+          })}
+          value={selected}
+          onChange={(val) => setSelected(val as string)}
+          placeholder={t('editor:visualScript.modal.load.examples')}
+        />
+      </div>
     </Modal>
   )
 }
