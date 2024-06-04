@@ -87,6 +87,7 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
     id: async () => {
       return uuidv4()
     },
+    type: async () => 'file',
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
   },

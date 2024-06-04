@@ -79,6 +79,7 @@ import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
@@ -1922,24 +1923,22 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
       resource.key,
       {
         hash: resource.hash,
-        type: 'asset',
-        tags: resource.tags,
-        licensing: resource.licensing,
-        attribution: resource.attribution
+        type: resource.tags ? 'asset' : 'file',
+        tags: resource.tags ?? undefined,
+        dependencies: resource.dependencies ?? undefined,
+        licensing: resource.licensing ?? undefined,
+        description: resource.description ?? undefined,
+        attribution: resource.attribution ?? undefined,
+        thumbnailURL: resource.thumbnailURL ?? undefined,
+        thumbnailMode: resource.thumbnailMode ?? undefined
       }
     ])
   )
-  const storageProvider = getStorageProvider()
   const key = `projects/${projectName}/resources.json`
-  await storageProvider.putObject({
-    Body: Buffer.from(JSON.stringify(resourcesJson)),
-    ContentType: 'application/json',
-    Key: key
+  await app.service(fileBrowserPath).patch(null, {
+    fileName: 'resources.json',
+    path: `projects/${projectName}`,
+    body: Buffer.from(JSON.stringify(resourcesJson, null, 2)),
+    contentType: 'application/json'
   })
-  if (config.fsProjectSyncEnabled) {
-    const filePath = path.resolve(projectsRootFolder, key)
-    const dirName = path.dirname(filePath)
-    fs.mkdirSync(dirName, { recursive: true })
-    fs.writeFileSync(filePath, JSON.stringify(resourcesJson, null, 2))
-  }
 }
