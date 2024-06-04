@@ -29,7 +29,7 @@ import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import React, { useEffect, useRef } from 'react'
@@ -38,6 +38,7 @@ import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
 import Text from '../../../../../primitives/tailwind/Text'
+import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import RenderModeTool from '../tools/RenderTool'
@@ -97,9 +98,9 @@ const ViewportDnD = () => {
 
 const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
-  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  const sceneName = useMutableState(EditorState).sceneName.value
   return (
-    <div className="z-30 flex h-full w-full flex-col bg-theme-surface-main">
+    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
       <div className="flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
@@ -109,6 +110,7 @@ const ViewPortPanelContainer = () => {
         <RenderModeTool />
         <PlayModeTool />
       </div>
+      <GizmoTool />
       {sceneName ? (
         <ViewportDnD />
       ) : (
