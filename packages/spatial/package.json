@@ -29,7 +29,8 @@
     "three": "0.158.0",
     "three-mesh-bvh": "^0.7.1",
     "ts-matches": "5.3.0",
-    "web-worker": "1.2.0"
+    "web-worker": "1.2.0",
+    "postprocessing": "6.34.1"
   },
   "devDependencies": {
     "@types/mocha": "10.0.1",
