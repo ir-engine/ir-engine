@@ -127,8 +127,6 @@ export const AssetExtToAssetType = (assetExt: AssetExt | undefined): AssetType =
 export const FileExtToAssetExt = (fileExt: string): AssetExt | undefined => {
   fileExt = fileExt.toLowerCase()
   if (fileExt === 'jpg') return AssetExt.JPEG
-  /** @todo verify what file extensions uvol can have */
-  // else if (fileExt === 'drcs' || fileExt === 'manifest') return AssetExt.UVOL
   return <AssetExt>fileExt
 }
 
