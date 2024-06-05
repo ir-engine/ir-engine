@@ -110,31 +110,43 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
           textColor
         )}
       >
-        {collapsed && pairs[0][0] && (
-          <InputSocket
-            {...pairs[0][0]}
-            name=""
-            specGenerator={specGenerator}
-            onChange={handleChange}
-            connected={isHandleConnected(edges, id, pairs[0][0].name, 'target')}
-            collapsed={collapsed}
-          />
-        )}
+        <div className="relative">
+          {collapsed &&
+            pairs.map(
+              ([input, output], ix) =>
+                input && (
+                  <InputSocket
+                    {...input}
+                    specGenerator={specGenerator}
+                    value={data.values?.[input.name] ?? input.defaultValue}
+                    onChange={handleChange}
+                    connected={isHandleConnected(edges, id, input.name, 'target')}
+                    collapsed={collapsed}
+                  />
+                )
+            )}
+        </div>
         {collapsed ? (
           <MdKeyboardArrowRight onClick={() => setCollapsed(false)} />
         ) : (
           <MdKeyboardArrowDown onClick={() => setCollapsed(true)} />
         )}
         {label}
-        {collapsed && pairs[0][1] && (
-          <OutputSocket
-            {...pairs[0][1]}
-            name=""
-            specGenerator={specGenerator}
-            connected={isHandleConnected(edges, id, pairs[0][1].name, 'source')}
-            collapsed={collapsed}
-          />
-        )}
+
+        <div className="relative">
+          {collapsed &&
+            pairs.map(
+              ([input, output], ix) =>
+                output && (
+                  <OutputSocket
+                    {...output}
+                    specGenerator={specGenerator}
+                    connected={isHandleConnected(edges, id, output.name, 'source')}
+                    collapsed={collapsed}
+                  />
+                )
+            )}
+        </div>
       </div>
       {!collapsed && (
         <div className={twMerge('flex-col', 'border-grey-800 flex gap-4 p-1.5', borderColor)}>
@@ -147,6 +159,7 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
                   value={data.values?.[input.name] ?? input.defaultValue}
                   onChange={handleChange}
                   connected={isHandleConnected(edges, id, input.name, 'target')}
+                  collapsed={collapsed}
                 />
               )}
               {output && (
@@ -154,6 +167,7 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
                   {...output}
                   specGenerator={specGenerator}
                   connected={isHandleConnected(edges, id, output.name, 'source')}
+                  collapsed={collapsed}
                 />
               )}
             </div>

@@ -147,7 +147,7 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...
   return (
     <div className="flex-start relative flex h-4 grow items-center justify-start">
       {isFlowSocket && <FaCaretRight color="#ffffff" size="1.25rem" />}
-      {showName && <div className="ml-2 mr-4 capitalize">{name}</div>}
+      {showName && !collapsed && <div className="ml-2 mr-4 capitalize">{name}</div>}
       {!isFlowSocket && !connected && !collapsed && <InputFieldForValue {...rest} />}
 
       <Handle

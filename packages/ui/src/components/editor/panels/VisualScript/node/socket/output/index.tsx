@@ -38,9 +38,10 @@ import { colors, valueTypeColorMap } from '../../../util/colors'
 export type OutputSocketProps = {
   connected: boolean
   specGenerator: NodeSpecGenerator
+  collapsed: boolean
 } & OutputSocketSpecJSON
 
-export default function OutputSocket({ specGenerator, connected, valueType, name }: OutputSocketProps) {
+export default function OutputSocket({ specGenerator, connected, collapsed, valueType, name }: OutputSocketProps) {
   const instance = useReactFlow()
   const isFlowSocket = valueType === 'flow'
   let colorName = valueTypeColorMap[valueType]
@@ -53,7 +54,7 @@ export default function OutputSocket({ specGenerator, connected, valueType, name
 
   return (
     <div className="flex-end relative flex h-4 grow items-center justify-end">
-      {showName && <div className="ml-2 mr-4 capitalize">{name}</div>}
+      {showName && !collapsed && <div className="ml-2 mr-4 capitalize">{name}</div>}
       {isFlowSocket && (
         <FaCaretRight
           color="#ffffff"

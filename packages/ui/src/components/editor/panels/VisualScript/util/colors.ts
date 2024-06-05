@@ -32,7 +32,7 @@ export const colors: Record<color, [string, string, string]> = {
   green: ['bg-green-900', 'border-[#38a169]', 'text-[#fff]'],
   lime: ['bg-[#84cc16]', 'border-[#84cc16]', 'text-[#2d3748]'],
   purple: ['bg-purple-900', 'border-[#9f7aea]', 'text-[#fff]'],
-  blue: ['bg-primary-600', 'border-[#22d3ee]', 'text-[#fff]'],
+  blue: ['bg-blue-900', 'border-[#22d3ee]', 'text-[#fff]'],
   gray: ['bg-[#718096]', 'border-[#718096]', 'text-[#fff]'],
   white: ['bg-[#fff]', 'border-[#fff]', 'text-[#4a5568]'],
   orange: ['bg-orange-900', 'border-[#f59e0b]', 'text-[#fff]'],
