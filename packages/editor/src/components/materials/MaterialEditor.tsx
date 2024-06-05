@@ -32,7 +32,6 @@ import { Texture, Uniform } from 'three'
 import {
   EntityUUID,
   getComponent,
-  setComponent,
   UndefinedEntity,
   useComponent,
   useOptionalComponent,
@@ -40,7 +39,6 @@ import {
 } from '@etherealengine/ecs'
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY } from '@etherealengine/hyperflux'
@@ -49,7 +47,6 @@ import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/c
 import {
   MaterialComponent,
   MaterialComponents,
-  pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -88,7 +85,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
-  const selectedPlugin = useHookstate(TransparencyDitheringPlugin.id)
+  //const selectedPlugin = useHookstate()
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {
@@ -202,7 +199,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     for (const key in pluginState.parameters[materialName.value].value) {
       pluginValues[key].set(pluginState.parameters[materialName.value].value[key].value)
     }
-  }, [materialName, selectedPlugin, pluginState?.parameters[materialName.value]])
+  }, [materialName, pluginState?.parameters[materialName.value]])
 
   return (
     <div style={{ position: 'relative' }}>
@@ -266,17 +263,9 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           padding: '4px'
         }}
       >
-        <SelectInput
-          value={selectedPlugin.value}
-          options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
-          onChange={selectedPlugin.set}
-        />
         <Button
           onClick={() => {
-            setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]]
-            })
-            pluginEntity.set(pluginByName[selectedPlugin.value])
+            // set plugin
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}

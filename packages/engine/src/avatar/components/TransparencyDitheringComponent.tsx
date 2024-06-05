@@ -25,22 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Uniform, Vector3 } from 'three'
 
-import {
-  defineComponent,
-  Entity,
-  getComponent,
-  getOptionalMutableComponent,
-  useEntityContext
-} from '@etherealengine/ecs'
-import { defineState, matches } from '@etherealengine/hyperflux'
-import { matchesVector3 } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
-import {
-  MaterialComponent,
-  MaterialComponents,
-  pluginByName
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@etherealengine/ecs'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { useEffect } from 'react'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -53,43 +42,28 @@ export enum ditherCalculationType {
   localPosition = 0
 }
 
-export const transparencyDitheringState = defineState({
-  name: 'transparencyDitheringState',
-  initial: { materialIds: {} as Record<Entity, string[]> }
-})
+export const MAX_DITHER_POINTS = 4 //should be equal to the length of the vec3 array in the shader
 
-export const maxDitherPoints = 4 //should be equal to the length of the vec3 array in the shader
-export const TransparencyDitheringComponent = Array.from({ length: maxDitherPoints }, (_, i) => {
-  return defineComponent({
-    name: `TransparencyDitheringComponent${i}`,
-    onInit: (entity) => {
-      return {
-        center: new Vector3(),
-        distance: 2,
-        exponent: 2,
-        calculationType: ditherCalculationType.worldTransformed,
-        shaders: [] as string[]
-      }
-    },
-
-    onSet: (entity, component, json) => {
-      if (!json) return
-      if (matchesVector3.test(json.center)) component.center.set(new Vector3().copy(json.center))
-      if (matches.number.test(json.distance)) component.distance.set(json.distance)
-      if (matches.number.test(json.exponent)) component.exponent.set(json.exponent)
-      if (matches.number.test(json.calculationType)) component.calculationType.set(json.calculationType)
-    }
-  })
+export const TransparencyDitheringRoot = defineComponent({
+  name: 'TransparencyDitheringRoot',
+  onInit: (entity) => {
+    return { materials: [] as EntityUUID[] }
+  },
+  onSet: (entity, component, json) => {
+    if (json?.materials) component.materials.set(json.materials)
+  }
 })
 
 export const TransparencyDitheringPlugin = defineComponent({
   name: 'TransparencyDithering',
   onInit: (entity) => {
     return {
-      centers: new Uniform(Array.from({ length: maxDitherPoints }, () => new Vector3())),
-      exponents: new Uniform(Array.from({ length: maxDitherPoints }, () => 2)),
-      distances: new Uniform(Array.from({ length: maxDitherPoints }, () => 3)),
-      useWorldCalculation: new Uniform(Array.from({ length: maxDitherPoints }, () => false))
+      centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
+      exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 2)),
+      distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 3)),
+      useWorldCalculation: new Uniform(
+        Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
+      )
     }
   },
 
@@ -97,35 +71,32 @@ export const TransparencyDitheringPlugin = defineComponent({
     const entity = useEntityContext()
     const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
     const material = materialComponent.material as Material
-    addOBCPlugin(material, (shader) => {
-      const pluginEntity = pluginByName[TransparencyDitheringPlugin.id]
-      const plugin = getOptionalMutableComponent(pluginEntity, TransparencyDitheringPlugin)
+    useEffect(() => {
+      addOBCPlugin(material, (shader) => {
+        const plugin = getComponent(entity, TransparencyDitheringPlugin)
 
-      if (!plugin) return
-
-      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+        if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
+          shader.vertexShader = shader.vertexShader.replace(
+            /#include <common>/,
+            '#include <common>\n' + ditheringVertexUniform
+          )
+        }
         shader.vertexShader = shader.vertexShader.replace(
-          /#include <common>/,
-          '#include <common>\n' + ditheringVertexUniform
+          /#include <worldpos_vertex>/,
+          '	#include <worldpos_vertex>\n' + ditheringVertex
         )
-      }
-      shader.vertexShader = shader.vertexShader.replace(
-        /#include <worldpos_vertex>/,
-        '	#include <worldpos_vertex>\n' + ditheringVertex
-      )
-      if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
-        shader.fragmentShader = shader.fragmentShader.replace(
-          /#include <common>/,
-          '#include <common>\n' + ditheringFragUniform
-        )
-      shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
-
-      shader.uniforms.centers = plugin.centers
-      shader.uniforms.exponents = plugin.exponents
-      shader.uniforms.distances = plugin.distances
-      shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
+        if (!shader.fragmentShader.startsWith('varying vec3 vWorldPosition'))
+          shader.fragmentShader = shader.fragmentShader.replace(
+            /#include <common>/,
+            '#include <common>\n' + ditheringFragUniform
+          )
+        shader.fragmentShader = shader.fragmentShader.replace(/#include <alphatest_fragment>/, ditheringAlphatestChunk)
+        shader.uniforms.centers = plugin.centers
+        shader.uniforms.exponents = plugin.exponents
+        shader.uniforms.distances = plugin.distances
+        shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
+      })
     })
-
     return null
   }
 })

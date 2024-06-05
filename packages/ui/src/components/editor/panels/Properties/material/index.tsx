@@ -30,7 +30,6 @@ import { Texture, Uniform } from 'three'
 import {
   EntityUUID,
   getComponent,
-  setComponent,
   UndefinedEntity,
   useComponent,
   useOptionalComponent,
@@ -49,7 +48,6 @@ import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/c
 import {
   MaterialComponent,
   MaterialComponents,
-  pluginByName,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -244,7 +242,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
       <br />
       <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">
-        <SelectInput
+        {/* <SelectInput
           value={selectedPlugin.value}
           options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
           onChange={(value) => selectedPlugin.set(value as string)}
@@ -260,7 +258,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}
-        </Button>
+        </Button> */}
       </div>
       {!!materialComponent.pluginEntities.value?.length && (
         <div className={styles.contentContainer}>
