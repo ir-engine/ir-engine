@@ -59,11 +59,12 @@ export const TransparencyDitheringPlugin = defineComponent({
   onInit: (entity) => {
     return {
       centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
-      exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 2)),
+      exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
       distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 3)),
       useWorldCalculation: new Uniform(
         Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
-      )
+      ),
+      maxDitherPoints: new Uniform(MAX_DITHER_POINTS)
     }
   },
 
@@ -95,6 +96,7 @@ export const TransparencyDitheringPlugin = defineComponent({
         shader.uniforms.exponents = plugin.exponents
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
+        shader.uniforms.maxDitherPoints = plugin.maxDitherPoints
       })
     })
     return null

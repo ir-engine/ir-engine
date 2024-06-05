@@ -73,17 +73,14 @@ const execute = () => {
       UUIDComponent.getEntityByUUID(materialUUID),
       TransparencyDitheringPlugin
     )
-    console.log('execute', pluginComponent, materialUUID, materials)
     if (!pluginComponent) continue
     pluginComponent.centers.value[headDithering].setY(avatarComponent.eyeHeight)
     pluginComponent.distances.value[headDithering] =
       cameraComponent && !cameraAttached ? Math.max(Math.pow(cameraComponent.distance * 5, 2.5), 3) : 3.25
     pluginComponent.exponents.value[headDithering] = cameraAttached ? 12 : 8
     pluginComponent.useWorldCalculation.value[headDithering] = ditherCalculationType.localPosition
-
-    pluginComponent.centers.value[cameraDithering].copy(
-      getComponent(Engine.instance.viewerEntity, TransformComponent).position
-    )
+    const viewerPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
+    pluginComponent.centers.value[cameraDithering].set(viewerPosition.x, viewerPosition.y, viewerPosition.z)
     pluginComponent.distances.value[cameraDithering] = cameraAttached ? 8 : 3
     pluginComponent.exponents.value[cameraDithering] = cameraAttached ? 10 : 2
     pluginComponent.useWorldCalculation.value[cameraDithering] = ditherCalculationType.worldTransformed
@@ -114,7 +111,6 @@ export const AvatarTransparencySystem = defineSystem({
     // if(selfEid) setComponent(selfEid, TransparencyDitheringRoot, { materials: [] })
     const sceneInstanceID = useModelSceneID(selfEid)
     const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
-    console.log('AvatarTransparencySystem', childEntities.value?.length, selfEid)
     return (
       <>
         {childEntities.value?.map((childEntity) => (
@@ -129,7 +125,6 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
   const materialComponentUUID = useOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
   useEffect(() => {
-    console.log('DitherChildReactor', materialComponentUUID?.value, entity)
     if (!materialComponentUUID?.value) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
