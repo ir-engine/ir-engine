@@ -47,7 +47,7 @@ const GridTool = () => {
       <Button
         startIcon={<MdBorderClear />}
         onClick={onToggleGridVisible}
-        variant="transparent"
+        variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
         title={t('editor:toolbar.grid.info-toggleGridVisibility')}
         className="px-0"
       />
@@ -60,6 +60,7 @@ const GridTool = () => {
         smallStep={0.5}
         mediumStep={1}
         largeStep={5}
+        min={0.0}
         unit="m"
       />
     </div>
