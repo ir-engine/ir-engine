@@ -408,7 +408,11 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
     }
   })) as Paginated<ProjectType>
 
-  let projectSetting = project.data[0].settings || []
+  let projectSetting = [] as ProjectSettingType[]
+
+  if (project.data.length > 0 && project.data[0].settings) {
+    projectSetting = project.data[0].settings
+  }
 
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
