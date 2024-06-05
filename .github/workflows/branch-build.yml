@@ -97,6 +97,24 @@ jobs:
   test:
     needs: install-modules
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - client
+          - client-core
+          - common
+          - ecs
+          - editor
+          - engine
+          - hyperflux
+          - instanceserver
+          - matchmaking
+          - network
+          - server
+          - spatial
+          - taskserver
+          - visual-script
+          - xrui
     defaults:
       run:
         shell: bash
@@ -105,7 +123,9 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: ${{ matrix.package }}
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
+      - run: cd packages/${{ matrix.package }}
       - run: npm run test
