@@ -1780,6 +1780,11 @@ export const uploadLocalProjectToProvider = async (
       //remove userId if exists
       if (item.userId) delete (item as any).userId
 
+      //resolve thumbnail URL
+      if (item.thumbnailURL) {
+        item.thumbnailURL = getCachedURL(item.thumbnailURL, cacheDomain)
+      }
+
       const newResource: Partial<StaticResourceType> = {}
 
       const validFields: (keyof StaticResourceType)[] = [
@@ -1794,7 +1799,9 @@ export const uploadLocalProjectToProvider = async (
         'sid',
         'stats',
         'tags',
-        'updatedAt'
+        'updatedAt',
+        'thumbnailType',
+        'thumbnailURL'
       ]
 
       for (const field of validFields) {

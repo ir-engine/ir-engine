@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { CanvasTexture, Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
-
 import {
   FileBrowserContentType,
   fileBrowserPath,
@@ -48,7 +45,7 @@ import { useTexture } from '@etherealengine/engine/src/assets/functions/resource
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { NO_PROXY, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -57,20 +54,23 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
-import createReadableTexture, {
-  blitTexture
-} from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
+import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
+import React, { useEffect } from 'react'
+import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
 
+import config from '@etherealengine/common/src/config'
+import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Paginated } from '@feathersjs/feathers'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
+import { ProgressBarState } from './ProgressBarState'
 
 type ThumbnailJob = {
   key: string
@@ -116,9 +116,35 @@ const uploadThumbnail = async (key: string, projectName: string, staticResourceI
   }).promise
   const thumbnailURL = (await upload)[0]
   await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailType })
+  const urlPrefixRegex = new RegExp(`^${config.client.fileServer}\/`)
+  const resourceKey = key.replace(urlPrefixRegex, '')
+  await Engine.instance.api.service(projectResourcesPath).patch(staticResourceId, { project: projectName })
 }
 
 const seenThumbnails = new Set<string>()
+
+const ProgressBar = () => {
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  return (
+    <div
+      key="thumbnail-generation-progress-bar"
+      style={{
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1em'
+      }}
+    >
+      <div>Generating Thumbnails</div>
+      <div>{thumbnailJobState.length} remaining</div>
+    </div>
+  )
+}
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
@@ -144,11 +170,13 @@ export const FileThumbnailJobState = defineState({
           if (resource.thumbnailURL != null) {
             return
           }
-          getMutableState(FileThumbnailJobState)[url].set({
-            key: url,
-            project: resource.project,
-            id: resource.id
-          })
+          getMutableState(FileThumbnailJobState).merge([
+            {
+              key: url,
+              project: resource.project,
+              id: resource.id
+            }
+          ])
 
           // TODO: cache pending thumbnail promises by static resource key
         })
@@ -238,6 +266,7 @@ const ThumbnailJobReactor = () => {
   const fileType = extensionThumbnailTypeMap.get(extension)
 
   const state = useHookstate({
+    cameraEntity: UndefinedEntity,
     modelEntity: UndefinedEntity,
     lightEntity: UndefinedEntity,
     thumbnailCanvas: null as HTMLCanvasElement | null
@@ -247,10 +276,36 @@ const ThumbnailJobReactor = () => {
   const [tex] = useTexture(fileType === 'texture' ? src : '') // for texture loading
   const lightComponent = useOptionalComponent(state.lightEntity.value, DirectionalLightComponent)
 
+  const rendering = useHookstate(false)
+
+  function cleanupState() {
+    if (state.cameraEntity.value) {
+      removeEntity(state.cameraEntity.value)
+      state.cameraEntity.set(UndefinedEntity)
+    }
+    if (state.modelEntity.value) {
+      removeEntity(state.modelEntity.value)
+      state.modelEntity.set(UndefinedEntity)
+    }
+    if (state.lightEntity.value) {
+      removeEntity(state.lightEntity.value)
+      state.lightEntity.set(UndefinedEntity)
+    }
+    if (state.thumbnailCanvas.get(NO_PROXY)) {
+      state.thumbnailCanvas.get(NO_PROXY)?.remove()
+      state.thumbnailCanvas.set(null)
+    }
+  }
+
   useEffect(() => {
-    if (jobState.value.length === 0) return
-    const newJob = jobState[0].get(NO_PROXY)
-    currentJob.set(JSON.parse(JSON.stringify(newJob)))
+    if (jobState.length > 0) {
+      const newJob = jobState[0].get(NO_PROXY)
+      currentJob.set(JSON.parse(JSON.stringify(newJob)))
+      getMutableState(ProgressBarState)['thumbnail-generation'].set(<ProgressBar />)
+    } else {
+      getMutableState(ProgressBarState)['thumbnail-generation'].set(none)
+      cleanupState()
+    }
   }, [jobState.length])
 
   // Load and render image
@@ -315,8 +370,10 @@ const ThumbnailJobReactor = () => {
 
   // Load models
   useEffect(() => {
-    if (src === '') return
-    if (fileType !== 'model') return
+    if (src === '' || fileType !== 'model') {
+      cleanupState()
+      return
+    }
 
     const entity = createEntity()
     setComponent(entity, NameComponent, 'thumbnail job asset ' + src)
@@ -332,22 +389,31 @@ const ThumbnailJobReactor = () => {
     setComponent(lightEntity, NameComponent, 'thumbnail job light for ' + src)
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, DirectionalLightComponent, { intensity: 1, color: new Color(0xffffff) })
-    let canvasContainer = document.getElementById('thumbnail-camera-container')
-    if (!canvasContainer) {
-      canvasContainer = document.createElement('div')
-      canvasContainer.id = 'thumbnail-camera-container'
-      canvasContainer.style.width = '100px'
-      canvasContainer.style.height = '100px'
-      canvasContainer.style.position = 'absolute'
-      document.body.append(canvasContainer)
+
+    if (!state.cameraEntity.value) {
+      let canvasContainer = document.getElementById('thumbnail-camera-container')
+      if (!canvasContainer) {
+        canvasContainer = document.createElement('div')
+        canvasContainer.id = 'thumbnail-camera-container'
+        canvasContainer.style.width = '256px'
+        canvasContainer.style.height = '256px'
+        document.body.append(canvasContainer)
+      }
       const thumbnailCanvas = document.createElement('canvas')
-      thumbnailCanvas.width = 100
-      thumbnailCanvas.height = 100
-      thumbnailCanvas.style.width = '100px !important'
-      thumbnailCanvas.style.height = '100px !important'
+      thumbnailCanvas.width = 256
+      thumbnailCanvas.height = 256
       canvasContainer.appendChild(thumbnailCanvas)
       state.thumbnailCanvas.set(thumbnailCanvas)
+
+      const cameraEntity = createEntity()
+      setComponent(cameraEntity, CameraComponent)
+      setComponent(cameraEntity, RendererComponent, { canvas: thumbnailCanvas })
+      //setComponent(cameraEntity, RendererComponent)
+      getComponent(cameraEntity, RendererComponent).initialize()
+      setComponent(cameraEntity, VisibleComponent, true)
+      state.cameraEntity.set(cameraEntity)
     }
+
     state.modelEntity.set(entity)
     state.lightEntity.set(lightEntity)
   }, [fileType, id])
@@ -355,31 +421,30 @@ const ThumbnailJobReactor = () => {
   // Render model to canvas
   useEffect(() => {
     if (src === '') return
-    if (fileType !== 'model' || !state.modelEntity.value || !lightComponent?.light.value) return
+    if (rendering.value) return
+    if (fileType !== 'model' || !state.cameraEntity.value || !state.modelEntity.value || !lightComponent?.light.value)
+      return
 
-    const entity = state.modelEntity.value
+    const modelEntity = state.modelEntity.value
     const lightEntity = state.lightEntity.value
 
-    const sceneIDs = iterateEntityNode(entity, getModelSceneID, (entity) => hasComponent(entity, ModelComponent))
+    const sceneIDs = iterateEntityNode(modelEntity, getModelSceneID, (entity) => hasComponent(entity, ModelComponent))
 
     for (const sceneID of sceneIDs) {
       if (!sceneState[sceneID].value) return
     }
-    0
-    updateBoundingBox(entity)
 
-    const bbox = getComponent(entity, BoundingBoxComponent).box
+    rendering.set(true)
+
+    updateBoundingBox(modelEntity)
+
+    const bbox = getComponent(modelEntity, BoundingBoxComponent).box
     const length = bbox.getSize(new Vector3(0, 0, 0)).length()
     const normalizedSize = new Vector3().setScalar(length / 2)
-    const canvas = state.thumbnailCanvas.value as HTMLCanvasElement
 
     //const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement
     // Create the camera entity
-    const cameraEntity = createEntity()
-    setComponent(cameraEntity, CameraComponent)
-    setComponent(cameraEntity, RendererComponent, { canvas })
-    getComponent(cameraEntity, RendererComponent).initialize()
-    setComponent(cameraEntity, VisibleComponent, true)
+    const cameraEntity = state.cameraEntity.value
     setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
 
     // Assuming bbox is already defined
@@ -431,28 +496,38 @@ const ThumbnailJobReactor = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
     viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-    setComponent(cameraEntity, SceneComponent, { children: [entity, lightEntity] })
+    setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
 
     const scene = new Scene()
     scene.children = getComponent(cameraEntity, SceneComponent)
-      .children // .map(getNestedVisibleChildren)
-      // .flat()
-      .map((entity) => getComponent(entity, GroupComponent))
+      .children.map((entity) => getComponent(entity, GroupComponent))
       .flat()
-    setTimeout(() => {
-      //canvas.toBlob((blob: Blob) => {
-      blitTexture(new CanvasTexture(canvas)).then((blob: Blob) => {
+    const canvas = getComponent(cameraEntity, RendererComponent).canvas
+    // canvas.width = 256
+    // canvas.height = 256
+    const renderer = getComponent(cameraEntity, RendererComponent).renderer
+    //renderer.setSize(256, 256)
+
+    //renderer.render(scene, viewCamera)
+    requestAnimationFrame(() => {
+      //setTimeout(() => {
+      //previewScreenshot(256, 256, 0.9, 'png', scene, camera).then((blob) => {
+      const tmpCanvas = document.createElement('canvas')
+      tmpCanvas.width = 256
+      tmpCanvas.height = 256
+      const ctx = tmpCanvas.getContext('2d')!
+      ctx.drawImage(canvas, 0, 0, 256, 256)
+      tmpCanvas.toBlob((blob: Blob) => {
+        //blitTexture(new CanvasTexture(canvas)).then((blob: Blob) => {
         uploadThumbnail(src, project, id, blob).then(() => {
-          removeEntity(entity)
-          removeEntity(cameraEntity)
-          removeEntity(lightEntity)
-          state.thumbnailCanvas.get(NO_PROXY)?.remove()
-          state.thumbnailCanvas.set(null)
+          tmpCanvas.remove()
           jobState.set(jobState.get(NO_PROXY).slice(1))
+          rendering.set(false)
         })
       })
-    }, 5000)
-  }, [state.modelEntity.value, lightComponent?.light, sceneState.keys])
+      //}, 5000)
+    })
+  }, [state.cameraEntity, state.modelEntity, lightComponent?.light, sceneState.keys])
 
   return null
 }
