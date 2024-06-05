@@ -48,7 +48,7 @@ const GridTool = () => {
         startIcon={<MdBorderClear />}
         onClick={onToggleGridVisible}
         variant="transparent"
-        title={t('editor:toolbar.transformPivot.info-toggleGridVisibility')}
+        title={t('editor:toolbar.grid.info-toggleGridVisibility')}
         className="px-0"
       />
       <NumericInput
