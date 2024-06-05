@@ -126,7 +126,7 @@ jobs:
           key: dir-${{github.sha}}
       - run: cd packages/${{ matrix.package }} && npm run test
 
-  test (server-core):
+  test_(server-core):
     needs: install-modules
     runs-on: ubuntu-latest
     defaults:
