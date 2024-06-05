@@ -33,6 +33,7 @@ const LoadingView = ({
   description,
   className,
   fullScreen,
+  fullSpace,
   containerClassname,
   titleClassname,
   spinnerOnly
@@ -41,6 +42,7 @@ const LoadingView = ({
   description?: string
   className?: string
   fullScreen?: boolean
+  fullSpace?: boolean
   containerClassname?: string
   titleClassname?: string
   spinnerOnly?: boolean
@@ -73,6 +75,7 @@ const LoadingView = ({
       className={twMerge(
         'flex flex-col items-center justify-center',
         fullScreen && 'h-screen w-screen',
+        fullSpace && 'h-full w-full',
         containerClassname
       )}
     >

@@ -79,7 +79,7 @@ export default function RecordingsTable({ search }: { search: string }) {
             <HiEye className="place-self-center" />
           </Button> */}
           <Button
-            className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0"
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             rounded="full"
             onClick={() => {
               PopoverState.showPopupover(

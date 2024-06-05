@@ -26,26 +26,28 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
   ProjectPermissionData,
-  projectPermissionDataValidator,
   ProjectPermissionPatch,
+  ProjectPermissionType,
+  projectPermissionDataValidator,
   projectPermissionPatchValidator,
   projectPermissionPath,
-  projectPermissionQueryValidator,
-  ProjectPermissionType
+  projectPermissionQueryValidator
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
-import { InviteCode, UserID, userPath, UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
 import { HookContext } from '../../../declarations'
-import enableClientPagination from '../../hooks/enable-client-pagination'
-import verifyProjectOwner from '../../hooks/verify-project-owner'
 import logger from '../../ServerLogger'
+import checkScopeHook from '../../hooks/check-scope'
+import enableClientPagination from '../../hooks/enable-client-pagination'
+import resolveProjectId from '../../hooks/resolve-project-id'
+import verifyProjectOwner from '../../hooks/verify-project-owner'
 import { ProjectPermissionService } from './project-permission.class'
 import {
   projectPermissionDataResolver,
@@ -138,16 +140,6 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
 }
 
 /**
- * Checks if the user has scopes to create a project permission
- * @param context
- * @returns
- */
-const checkUserScopes = async (context: HookContext<ProjectPermissionService>) => {
-  if (!context.params.user) return false
-  return checkScope(context.params.user, 'projects', 'read')
-}
-
-/**
  * Checks if the user has permissions for the project
  * If they have some sort of permission, then they can see everyone else's permissions.
  * If they do not, then it will add `userId: context.params.user.id` to the query, to prevent the user seeing
@@ -164,9 +156,12 @@ const checkPermissionStatus = async (context: HookContext<ProjectPermissionServi
         $limit: 1
       }
     })) as Paginated<ProjectPermissionType>
-    if (permissionStatus.data.length === 0)
-      context.params.query = { ...context.params.query, userId: context.params.user!.id }
+    if (permissionStatus.data.length > 0) return context
   }
+
+  // If user does not have permission of querying project then we should force user's id in request
+  // in order to restrict user from querying other user's permissions.
+  context.params.query = { ...context.params.query, userId: context.params.user!.id }
 }
 
 /**
@@ -218,7 +213,12 @@ export default {
       () => schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],
-    find: [enableClientPagination(), iff(checkUserScopes, checkPermissionStatus)],
+    find: [
+      enableClientPagination(),
+      resolveProjectId(),
+      discardQuery('project'),
+      iff(isProvider('external'), iffElse(checkScopeHook('projects', 'read'), [], checkPermissionStatus))
+    ],
     get: [],
     create: [
       iff(isProvider('external'), verifyProjectOwner()),

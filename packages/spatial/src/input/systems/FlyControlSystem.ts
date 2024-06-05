@@ -31,6 +31,7 @@ import {
   ECSState,
   Entity,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   InputSystemGroup,
   removeComponent,
@@ -102,8 +103,8 @@ const execute = () => {
     movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
       const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
-      const pointer = getComponent(inputSourceEntity, InputPointerComponent)
-      if (inputSource.buttons.SecondaryClick?.pressed) {
+      const pointer = getOptionalComponent(inputSourceEntity, InputPointerComponent)
+      if (pointer && inputSource.buttons.SecondaryClick?.pressed) {
         movement.x += pointer.movement.x
         movement.y += pointer.movement.y
       }

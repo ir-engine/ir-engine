@@ -67,7 +67,6 @@ describe('ResourceLoadingManager', () => {
         url,
         ResourceType.GLTF,
         entity,
-        {},
         (response) => {},
         (resquest) => {},
         (error) => {

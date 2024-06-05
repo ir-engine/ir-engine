@@ -142,7 +142,7 @@ describe('asset.test', () => {
     const data = queryResult.data[0]
     const updatedData = await app
       .service(assetPath)
-      .patch(data.id, { assetURL: directory + '/Updated-Scene.gltf' }, params)
+      .patch(data.id, { assetURL: directory + '/Updated-Scene.gltf', project: projectName }, params)
     assert.equal(updatedData.assetURL, directory + '/Updated-Scene.gltf')
     const storageProvider = getStorageProvider()
     assert(storageProvider.doesExist('Updated-Scene.gltf', directory))
