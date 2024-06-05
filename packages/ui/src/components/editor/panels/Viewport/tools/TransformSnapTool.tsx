@@ -28,9 +28,11 @@ import React from 'react'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { toggleSnapMode } from '@etherealengine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@etherealengine/editor/src/systems/ObjectGridSnapSystem'
 import { useTranslation } from 'react-i18next'
+import { LuUtilityPole } from 'react-icons/lu'
 import { MdOutlineCenterFocusWeak } from 'react-icons/md'
 import Button from '../../../../../primitives/tailwind/Button'
 import Select from '../../../../../primitives/tailwind/Select'
@@ -78,19 +80,19 @@ const TransformSnapTool = () => {
     objectSnapState.enabled.set(!objectSnapState.enabled.value)
   }
 
-  // const onChangeScaleSnap = (snapValue: number) => {
-  //   getMutableState(EditorHelperState).scaleSnap.set(snapValue)
-  //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-  //     getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
-  //   }
-  // }
-
   return (
     <div id="transform-snap" className="flex items-center bg-theme-surfaceInput">
       <Button
-        startIcon={<MdOutlineCenterFocusWeak />}
+        startIcon={<LuUtilityPole />}
         onClick={toggleAttachmentPointSnap}
-        variant="transparent"
+        variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
+        title={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}
+        className="px-0"
+      />
+      <Button
+        startIcon={<MdOutlineCenterFocusWeak />}
+        onClick={toggleSnapMode}
+        variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
         title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}
         className="px-0"
       />
