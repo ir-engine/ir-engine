@@ -44,6 +44,7 @@ export enum AssetExt {
   FBX = 'fbx',
   OBJ = 'obj',
   USDZ = 'usdz',
+  BIN = 'bin',
 
   PNG = 'png',
   JPEG = 'jpeg',
