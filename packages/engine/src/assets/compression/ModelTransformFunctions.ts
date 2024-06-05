@@ -345,7 +345,7 @@ function hashBuffer(buffer: Uint8Array): string {
 export async function transformModel(
   args: ModelTransformParameters,
   onMetadata: (key: string, data: any) => void = (key, data) => {}
-) {
+): Promise<string> {
   const parms = args
 
   /**
@@ -758,6 +758,7 @@ export async function transformModel(
         }
       })
     )*/
+    result = finalPath
     console.log('Handled glb file')
   } else if (parms.modelFormat === 'gltf') {
     await Promise.all(
@@ -842,7 +843,7 @@ export async function transformModel(
       finalPath += '.gltf'
     }
     await doUpload(new Blob([JSON.stringify(json)], { type: 'application/json' }), finalPath)
-
+    result = finalPath
     console.log('Handled gltf file')
   }
 
@@ -856,6 +857,6 @@ export async function transformModel(
     }
   }
   onMetadata('vertexCount', totalVertexCount)
-
+  result = pathJoin(LoaderUtils.extractUrlBase(args.src), result)
   return result
 }

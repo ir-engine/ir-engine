@@ -81,7 +81,7 @@ export const ColliderComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, ColliderComponent)
-    useComponent(entity, TransformComponent)
+    const transform = useComponent(entity, TransformComponent)
     const rigidbodyEntity = useAncestorWithComponent(entity, RigidBodyComponent)
 
     useEffect(() => {
@@ -97,7 +97,7 @@ export const ColliderComponent = defineComponent({
       return () => {
         Physics.removeCollider(physicsWorld, entity)
       }
-    }, [component.shape, rigidbodyEntity])
+    }, [component.shape, rigidbodyEntity, transform.scale])
 
     useLayoutEffect(() => {
       Physics.setMass(entity, component.mass.value)
