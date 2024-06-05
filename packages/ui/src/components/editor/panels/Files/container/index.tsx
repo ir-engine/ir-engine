@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -626,6 +627,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
+      <ConfirmDialog
+        open={openConfirm.value}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
+        onClose={handleConfirmClose}
+        onSubmit={deleteContent}
+      />
     </>
   )
 }
