@@ -77,10 +77,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 
-import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
-import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
-
-// everythign above still needs to be built
+// everything above still needs to be built
 import PersistentAnchorNodeEditor from '@etherealengine/ui/src/components/editor/properties/anchor'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@etherealengine/ui/src/components/editor/properties/audio/analysis'
@@ -107,6 +104,7 @@ import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/proper
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import ModelNodeEditor from '@etherealengine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
+import ParticleSystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/particle'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@etherealengine/ui/src/components/editor/properties/postProcessing'
 import RenderSettingsEditor from '@etherealengine/ui/src/components/editor/properties/render'
@@ -123,6 +121,7 @@ import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/prop
 import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
 import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/properties/trigger'
+import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properties/variant'
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'

@@ -29,29 +29,32 @@ import { useTranslation } from 'react-i18next'
 
 import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
+import Center from '@etherealengine/editor/src/components/layout/Center'
+import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
+import {
+  EditorComponentType,
+  commitProperties,
+  commitProperty
+} from '@etherealengine/editor/src/components/properties/Util'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { loadResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
-import { getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { State, getState, useHookstate } from '@etherealengine/hyperflux'
 import {
   ResourceManager,
   ResourceState,
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
-
-import BooleanInput from '../inputs/BooleanInput'
-import { Button } from '../inputs/Button'
-import InputGroup from '../inputs/InputGroup'
-import ModelInput from '../inputs/ModelInput'
-import NumericInput from '../inputs/NumericInput'
-import SelectInput from '../inputs/SelectInput'
-import Center from '../layout/Center'
-import PaginatedList from '../layout/PaginatedList'
-import NodeEditor from './NodeEditor'
-import { commitProperties, commitProperty, EditorComponentType } from './Util'
+import { Button } from '@mui/material'
+import BooleanInput from '../../input/Boolean'
+import InputGroup from '../../input/Group'
+import ModelInput from '../../input/Model'
+import NumericInput from '../../input/Numeric'
+import SelectInput from '../../input/Select'
+import NodeEditor from '../nodeEditor'
 
 const buildBudgetVariantMetadata = (
   level: VariantLevel,

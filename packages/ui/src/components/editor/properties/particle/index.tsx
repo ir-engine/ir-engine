@@ -63,9 +63,9 @@ import {
   commitProperties,
   commitProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import { Button } from '@mui/material'
+import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
+import BooleanInput from '../../input/Boolean'
 import ColorGenerator from '../../input/Generator/Color'
 import ValueGenerator from '../../input/Generator/Value'
 import InputGroup from '../../input/Group'
