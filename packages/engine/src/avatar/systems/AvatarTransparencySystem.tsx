@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FrontSide, Material } from 'three'
-
 import {
   Engine,
   Entity,
@@ -128,10 +126,6 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!materialComponentUUID?.value) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
-      const materialComponent = getMutableComponent(material, MaterialComponent[MaterialComponents.State])
-      const materialValue = materialComponent.material.value as Material
-      materialValue.alphaTest = 0.5
-      materialValue.side = FrontSide
       const rootDitheringComponent = getMutableComponent(props.rootEntity, TransparencyDitheringRoot)
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])

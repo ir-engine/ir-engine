@@ -45,7 +45,7 @@ import {
   materialByHash,
   MaterialComponent,
   MaterialComponents,
-  pluginByName,
+  MaterialPlugins,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -91,7 +91,6 @@ export const createMaterialInstance = (path: string, sourceEntity: Entity, mater
   >
   const uuids = materialComponent.uuid.value
   if (!uuids) return
-  const t = typeof materialComponent
 
   if (entityFromHash) {
     materialComponent.uuid.set([...uuids, entityFromHash])
@@ -127,23 +126,12 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
         )
       ).map((k) => [k, material[k]])
     ),
-    instances: user != undefined ? [user] : [],
-    pluginEntities: material.userData.plugins
-      ? material.userData.plugins.map((plugin: MaterialExtensionPluginType) => pluginByName[plugin.id])
-      : []
+    instances: user != undefined ? [user] : []
   })
-  if (material.userData?.plugins) {
-    for (const pluginEntity of getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-      .pluginEntities!) {
-      getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
-        getComponent(materialEntity, NameComponent)
-      ].set(
-        material.userData.plugins.find(
-          (plugin: MaterialExtensionPluginType) => plugin.id === getComponent(pluginEntity, NameComponent)
-        ).parameters
-      )
-    }
-  }
+  if (material.userData?.plugins)
+    material.userData.plugins.map((plugin: MaterialExtensionPluginType) =>
+      setComponent(materialEntity, MaterialPlugins[plugin.id])
+    )
   setMaterialName(materialEntity, material.name)
   return materialEntity
 }

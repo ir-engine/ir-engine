@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Uniform, Vector3 } from 'three'
+import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
 import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@etherealengine/ecs'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
@@ -60,7 +60,7 @@ export const TransparencyDitheringPlugin = defineComponent({
     return {
       centers: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3())),
       exponents: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
-      distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 3)),
+      distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
       useWorldCalculation: new Uniform(
         Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
       ),
@@ -72,6 +72,9 @@ export const TransparencyDitheringPlugin = defineComponent({
     const entity = useEntityContext()
     const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
     const material = materialComponent.material as Material
+    material.alphaTest = 0.5
+    material.side = FrontSide
+
     useEffect(() => {
       addOBCPlugin(material, (shader) => {
         const plugin = getComponent(entity, TransparencyDitheringPlugin)

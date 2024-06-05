@@ -30,6 +30,7 @@ import { Texture, Uniform } from 'three'
 import {
   EntityUUID,
   getComponent,
+  setComponent,
   UndefinedEntity,
   useComponent,
   useOptionalComponent,
@@ -38,7 +39,6 @@ import {
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
-import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
 import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
@@ -48,6 +48,7 @@ import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/c
 import {
   MaterialComponent,
   MaterialComponents,
+  MaterialPlugins,
   prototypeByName
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
@@ -84,7 +85,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
-  const selectedPlugin = useHookstate(TransparencyDitheringPlugin.id)
+  const selectedPlugin = useHookstate(Object.keys(MaterialPlugins)[0])
 
   const createThumbnail = async (field: string, texture: Texture) => {
     if (texture?.isTexture) {
@@ -242,23 +243,20 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
       <br />
       <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">
-        {/* <SelectInput
+        <SelectInput
           value={selectedPlugin.value}
-          options={Object.keys(pluginByName).map((key) => ({ label: key, value: key }))}
+          options={Object.keys(MaterialPlugins).map((key) => ({ label: key, value: key }))}
           onChange={(value) => selectedPlugin.set(value as string)}
         />
         <Button
           variant="outline"
           size="small"
           onClick={() => {
-            setComponent(entity, MaterialComponent[MaterialComponents.State], {
-              pluginEntities: [...(materialComponent.pluginEntities.value ?? []), pluginByName[selectedPlugin.value]]
-            })
-            pluginEntity.set(pluginByName[selectedPlugin.value])
+            setComponent(entity, MaterialPlugins[selectedPlugin.value])
           }}
         >
           {t('editor:properties.mesh.material.addPlugin')}
-        </Button> */}
+        </Button>
       </div>
       {!!materialComponent.pluginEntities.value?.length && (
         <div className={styles.contentContainer}>
