@@ -1180,6 +1180,73 @@ describe('PhysicsAPI', () => {
       })
     }) // << removeCollidersFromRigidBody
 
+    describe('createColliderDesc', () => {
+      const Default = {
+        // Default values returned by `createColliderDesc` when the default values of the components are not changed
+        enabled: true,
+        shape: { type: 1, halfExtents: { x: 0.5, y: 0.5, z: 0.5 } },
+        massPropsMode: 0,
+        density: 1,
+        friction: 0.5,
+        restitution: 0.5,
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+        translation: { x: 0, y: 0, z: 0 },
+        isSensor: false,
+        collisionGroups: 65543,
+        solverGroups: 4294967295,
+        frictionCombineRule: 0,
+        restitutionCombineRule: 0,
+        activeCollisionTypes: 60943,
+        activeEvents: 1,
+        activeHooks: 0,
+        mass: 0,
+        centerOfMass: { x: 0, y: 0, z: 0 },
+        contactForceEventThreshold: 0,
+        principalAngularInertia: { x: 0, y: 0, z: 0 },
+        angularInertiaLocalFrame: { x: 0, y: 0, z: 0, w: 1 }
+      }
+
+      let physicsWorld: World | undefined = undefined
+      let testEntity = UndefinedEntity
+      let rootEntity = UndefinedEntity
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent)
+        setComponent(testEntity, ColliderComponent)
+        rootEntity = createEntity()
+        setComponent(rootEntity, TransformComponent)
+        setComponent(rootEntity, RigidBodyComponent)
+        setComponent(rootEntity, ColliderComponent)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        removeEntity(rootEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should return early if the given `rootEntity` does not have a RigidBody', () => {
+        removeComponent(rootEntity, RigidBodyComponent)
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result, undefined)
+      })
+
+      it('should return a descriptor with the expected default values', () => {
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.deepEqual(result, Default)
+      })
+    })
+
     describe('setMassCenter', () => {}) /** @todo The function is not implemented. It is annotated with a todo tag */
   }) // << Colliders
 
@@ -1603,7 +1670,6 @@ describe('PhysicsAPI', () => {
 /** TODO:
     describe("load", () => {})
   // Colliders
-    describe("createColliderDesc", () => {})  // @todo How does ColliderDesc work?
     describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
     describe("setColliderPose", () => {})  // @todo How to check rotations?
   // Character Controller
