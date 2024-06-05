@@ -90,7 +90,12 @@ export const Node: React.FC<NodeUIProps> = ({ id, data, spec, selected, specGene
   const pairs = getPairs(spec.inputs, spec.outputs)
   const label = spec.label === '' ? data.label : spec.label
   return (
-    <NodeContainer title={label} category={spec.category} selected={selected} isGroup={spec.type === 'group'}>
+    <NodeContainer
+      title={label}
+      category={spec.category}
+      selected={selected}
+      isGroup={spec.type ? spec.type === 'group' : false}
+    >
       {pairs.map(([input, output], ix) => (
         <div key={ix} className="node-container-row" style={containerRowStyle}>
           {input && (

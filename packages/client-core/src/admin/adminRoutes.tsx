@@ -55,8 +55,8 @@ const AdminTopBar = () => {
   }
 
   return (
-    <div className="bg-theme-surface-main flex h-16 w-full items-center justify-between px-8 py-4">
-      <img src="static/etherealengine_logo.png" alt="iR Engine Logo" className="h-7 w-7" />
+    <div className="flex h-16 w-full items-center justify-between bg-theme-surface-main px-8 py-4">
+      <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
       <div className="">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
           {theme.value === 'light' ? (
@@ -80,7 +80,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="bg-theme-surface-main mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4">
+    <aside className="mx-8 h-fit max-h-[calc(100vh_-_88px_-_4rem)] overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -89,9 +89,9 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`text-theme-secondary hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium ${
+                    className={`hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium text-theme-secondary ${
                       relativePath === path
-                        ? 'text-theme-primary bg-theme-highlight font-semibold '
+                        ? 'bg-theme-highlight font-semibold text-theme-primary '
                         : 'bg-theme-surface-main'
                     }`}
                     startIcon={sidebarItem.icon}

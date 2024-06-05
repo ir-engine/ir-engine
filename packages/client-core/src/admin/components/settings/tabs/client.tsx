@@ -76,6 +76,9 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         appleTouchIcon: clientSetting?.appleTouchIcon,
         icon192px: clientSetting?.icon192px,
         icon512px: clientSetting?.icon512px,
+        siteManifest: clientSetting?.siteManifest,
+        safariPinnedTab: clientSetting?.safariPinnedTab,
+        favicon: clientSetting?.favicon,
         webmanifestLink: clientSetting?.webmanifestLink,
         swScriptLink: clientSetting?.swScriptLink,
         favicon16px: clientSetting?.favicon16px,
@@ -407,7 +410,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
         <Button

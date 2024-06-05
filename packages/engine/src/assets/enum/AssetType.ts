@@ -38,11 +38,13 @@ export enum AssetType {
   MKV = 'mkv',
   AVI = 'avi',
   MP3 = 'mp3',
+  WAV = 'wav',
   OGG = 'ogg',
   M4A = 'm4a',
   AAC = 'acc',
   CSV = 'csv',
   PlainText = 'text',
+  JSON = 'json',
   DOC = 'doc',
   XLS = 'xls',
   Script = 'script',
@@ -50,5 +52,7 @@ export enum AssetType {
   KTX2 = 'ktx2',
   USDZ = 'usdz',
   M3U8 = 'm3u8',
-  MAT = 'material'
+  MAT = 'material',
+  BIN = 'binary',
+  UNKNOWN = 'unknown'
 }

@@ -125,7 +125,7 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">
-          <Button size="small" className="bg-theme-highlight text-primary col-span-1" onClick={handleCancel} fullWidth>
+          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
             {t('admin:components.common.reset')}
           </Button>
 

@@ -98,7 +98,7 @@ export default function LocationTable({ search }: { search: string }) {
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal location={row} />)}
           >
-            <HiPencil className="text-theme-iconGreen place-self-center" />
+            <HiPencil className="place-self-center text-theme-iconGreen" />
           </Button>
           <Button
             rounded="full"
@@ -116,7 +116,7 @@ export default function LocationTable({ search }: { search: string }) {
               )
             }
           >
-            <HiTrash className="text-theme-iconRed place-self-center" />
+            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )
