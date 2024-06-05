@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+import { useProjectPermissions } from '@etherealengine/client-core/src/user/useUserProjectPermission'
+import { useUserHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
@@ -105,15 +107,16 @@ const generateToolbarMenu = () => {
 
 const toolbarMenu = generateToolbarMenu()
 
-interface Props {
-  publishSceneDisabled: boolean
-}
-
-export default function Toolbar({ publishSceneDisabled }: Props) {
+export default function Toolbar() {
   const { t } = useTranslation()
   const anchorEl = useHookstate<HTMLElement | null>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
   const anchorOpen = useHookstate(false)
+
+  const { projectName } = useMutableState(EditorState)
+  const hasLocationWriteScope = useUserHasAccessHook('location:write')
+  const permission = useProjectPermissions(projectName.value!)
+  const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
 
   return (
     <>
@@ -134,7 +137,7 @@ export default function Toolbar({ publishSceneDisabled }: Props) {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <Button rounded="none" disabled={publishSceneDisabled}>
+        <Button rounded="none" disabled={!hasPublishAccess}>
           {t('editor:toolbar.lbl-publish')}
         </Button>
       </div>
