@@ -111,6 +111,7 @@ jobs:
           - matchmaking
           - network
           - server
+          - server-core
           - spatial
           - taskserver
           - visual-script
