@@ -43,6 +43,10 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
 
   useEffect(() => {
     inputValue.set(value)
+
+    if (!value) {
+      showDropdown.set(false)
+    }
   }, [value])
 
   const handleClick = (option) => {
@@ -56,9 +60,10 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    inputValue.set(event.target.value)
+    const value = event.target.value
+    inputValue.set(value)
     onChange(event)
-    showDropdown.set(true)
+    showDropdown.set(value !== '')
   }
 
   return (
