@@ -29,7 +29,7 @@ import Input from '../Input'
 
 export interface AutoCompleteProps {
   className?: string
-  options: { label: string; search: string }[]
+  options: { label: string }[]
   placeholder?: string
   onSelect: (value: string) => void
   value: string
@@ -37,7 +37,6 @@ export interface AutoCompleteProps {
 }
 
 const AutoComplete = ({ options, onSelect, placeholder, className, value, onChange }: AutoCompleteProps) => {
-  const filteredOptions = useHookstate(options)
   const showDropdown = useHookstate(false)
   const inputValue = useHookstate(value)
   const isSelectingOption = useRef(false)
@@ -45,15 +44,6 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
   useEffect(() => {
     inputValue.set(value)
   }, [value])
-
-  useEffect(() => {
-    // Only filter and show dropdown if not currently selecting an option
-    if (!isSelectingOption.current) {
-      const match = options.filter((option) => option.search.toLowerCase().includes(inputValue.value.toLowerCase()))
-      filteredOptions.set(match)
-      showDropdown.set(match.length > 0 && inputValue.value !== '')
-    }
-  }, [inputValue.value, options])
 
   const handleClick = (option) => {
     isSelectingOption.current = true
@@ -74,10 +64,10 @@ const AutoComplete = ({ options, onSelect, placeholder, className, value, onChan
   return (
     <div className={`relative ${className}`}>
       <Input value={inputValue.value} placeholder={placeholder} className="w-full" onChange={handleInputChange} />
-      {showDropdown.value && filteredOptions.value.length > 0 && (
+      {showDropdown.value && options.length > 0 && (
         <div className="fixed left-10 right-0 z-[60] mt-2 w-1/2 rounded border border-theme-primary bg-theme-surface-main">
           <ul className="max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2">
-            {filteredOptions.value.map((option, index) => (
+            {options.map((option, index) => (
               <li
                 key={index}
                 className="cursor-pointer px-4 py-2 text-theme-secondary"
