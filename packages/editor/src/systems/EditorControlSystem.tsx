@@ -74,6 +74,7 @@ import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
 const raycaster = new Raycaster()
@@ -302,7 +303,7 @@ const execute = () => {
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
+      if (hasComponent(clickedEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
         const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
         const ancestorModelEntity = modelComponent || clickedEntity
         SelectionState.updateSelection([

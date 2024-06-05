@@ -41,7 +41,6 @@ import { useHelperEntity } from '@etherealengine/spatial/src/common/debug/DebugC
 import { matchesColor } from '@etherealengine/spatial/src/common/functions/MatchesUtils'
 import { LineSegmentComponent } from '@etherealengine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
@@ -138,15 +137,11 @@ export const BoundingBoxHelperComponent = defineComponent({
       const bbox = component.bbox.value
       const density = component.density.value
       setComponent(helper, LineSegmentComponent, {
-        name: 'bbox-line-segment',
+        name: 'bbox-line-segment-' + entity,
         geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
         material: new LineBasicMaterial({ color: component.color.value }),
         layerMask: component.layerMask.value
       })
-
-      return () => {
-        removeComponent(helper, LineSegmentComponent)
-      }
     }, [])
 
     useDidMount(() => {
@@ -162,8 +157,9 @@ export const BoundingBoxHelperComponent = defineComponent({
     }, [component.color, lineSegment])
 
     useEffect(() => {
-      setComponent(helper, ObjectLayerMaskComponent, component.layerMask.value)
-    }, [component.layerMask])
+      if (!lineSegment) return
+      lineSegment.layerMask.set(component.layerMask.value)
+    }, [component.layerMask, lineSegment])
 
     return null
   }

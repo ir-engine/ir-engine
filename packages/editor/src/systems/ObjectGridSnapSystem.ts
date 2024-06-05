@@ -47,12 +47,12 @@ import {
   ObjectGridSnapComponent
 } from '@etherealengine/engine/src/scene/components/ObjectGridSnapComponent'
 import { defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -200,7 +200,21 @@ export const ObjectGridSnapState = defineState({
   initial: {
     enabled: false,
     apply: false,
+    locked: false,
     entitiesToSnap: [] as Entity[]
+  },
+  lock: () => {
+    if (getState(ObjectGridSnapState).enabled) getMutableState(ObjectGridSnapState).locked.set(true)
+  },
+  unlockAndApply: () => {
+    if (getState(ObjectGridSnapState).enabled)
+      getMutableState(ObjectGridSnapState).merge({
+        locked: false,
+        apply: true
+      })
+  },
+  unlock: () => {
+    if (getState(ObjectGridSnapState).enabled) getMutableState(ObjectGridSnapState).locked.set(false)
   }
 })
 
@@ -239,19 +253,12 @@ export const ObjectGridSnapSystem = defineSystem({
     const models = useQuery([ModelComponent, Not(AvatarRigComponent)])
 
     useEffect(() => {
-      const modelEntities = models as Entity[]
       if (snapState.enabled.value) {
-        for (const entity of modelEntities) setComponent(entity, ObjectGridSnapComponent)
-      } else {
-        for (const entity of objectGridQuery()) {
-          setHelperColor(entity, new Color(1, 0, 0))
-          setHelperLayer(entity, ObjectLayers.NodeHelper)
-          resetHelperTransform(entity)
-        }
+        for (const entity of models) setComponent(entity, ObjectGridSnapComponent)
       }
 
       return () => {
-        for (const entity of modelEntities) removeComponent(entity, ObjectGridSnapComponent)
+        for (const entity of models) removeComponent(entity, ObjectGridSnapComponent)
       }
     }, [snapState.enabled, models])
 
@@ -273,7 +280,7 @@ export const ObjectGridSnapSystem = defineSystem({
     const engineState = getState(EngineState)
     if (!engineState.isEditing) return
     const snapState = getState(ObjectGridSnapState)
-    if (!snapState.enabled) return
+    if (!snapState.enabled || snapState.locked) return
     const entities = objectGridQuery()
     const selectedEntities: Entity[] = []
     const selectedParents: Entity[] = []
@@ -295,7 +302,6 @@ export const ObjectGridSnapSystem = defineSystem({
     for (let i = 0; i < selectedEntities.length; i++) {
       const selectedEntity = selectedEntities[i]
       const selectedParent = selectedParents[i]
-
       const selectedBBox = getComponent(selectedEntity, ObjectGridSnapComponent).bbox
       const selectedMatrixWorld = getComponent(selectedEntity, TransformComponent).matrixWorld
       const closestEntities: Entity[] = []
@@ -309,7 +315,6 @@ export const ObjectGridSnapSystem = defineSystem({
           setHelperLayer(candidateEntity, ObjectLayers.Scene)
         }
       }
-
       const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
       const resetHelper = () => {
         if (helperEntity) {

@@ -73,6 +73,7 @@ import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
+let placedCount = 0
 export const ClickPlacementState = defineState({
   name: 'ClickPlacementState',
   initial: {
@@ -134,7 +135,9 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
     if (sceneState[sceneID].value) {
       if (getState(ObjectGridSnapState).enabled) {
         getMutableState(ObjectGridSnapState).entitiesToSnap.set((prev) => [...prev, placedEntity])
-        getMutableState(ObjectGridSnapState).apply.set(true)
+        ObjectGridSnapState.unlockAndApply()
+      } else {
+        ObjectGridSnapState.unlock()
       }
     }
     clickState.placedEntity.set(UndefinedEntity)
@@ -173,7 +176,8 @@ const getParentEntity = () => {
 }
 
 const createPlacementEntity = (parentEntity: Entity) => {
-  const placementEntity = createSceneEntity('Placement', parentEntity)
+  placedCount += 1
+  const placementEntity = createSceneEntity('Placement-' + placedCount, parentEntity)
   //removeComponent(placementEntity, SourceComponent)
   return placementEntity
 }
@@ -194,6 +198,7 @@ const clickListener = () => {
   snapshot.data.nodes!.push(entityGLTFNode)
   dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 
+  ObjectGridSnapState.lock()
   clickState.placedEntity.set(placementEntity)
   clickState.placementEntity.set(createPlacementEntity(parentEntity))
   for (const [mesh, material] of clickState.materialCache.value as [Mesh, Material][]) {
