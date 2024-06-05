@@ -76,7 +76,6 @@ import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnch
 import { GrabbableComponentNodeEditor } from '../components/properties/GrabbableComponentNodeEditor'
 import { InstancingNodeEditor } from '../components/properties/InstancingNodeEditor'
 import InteractableComponentNodeEditor from '../components/properties/InteractableComponentNodeEditor'
-import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import ParticleSystemNodeEditor from '../components/properties/ParticleSystemNodeEditor'
 import PersistentAnchorNodeEditor from '../components/properties/PersistentAnchorNodeEditor'
 import ScreenshareTargetNodeEditor from '../components/properties/ScreenshareTargetNodeEditor'
@@ -109,6 +108,7 @@ import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/
 import { default as MediaNodeEditor } from '@etherealengine/ui/src/components/editor/properties/media'
 import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/properties/media/settings'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
+import ModelNodeEditor from '@etherealengine/ui/src/components/editor/properties/model'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
 import PortalNodeEditor from '@etherealengine/ui/src/components/editor/properties/portal'
 import PostProcessingSettingsEditor from '@etherealengine/ui/src/components/editor/properties/postProcessing'
@@ -126,6 +126,7 @@ import TriggerComponentEditor from '@etherealengine/ui/src/components/editor/pro
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
+
 import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 
 import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'

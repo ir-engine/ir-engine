@@ -44,7 +44,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { bakeEnvmapTexture, uploadCubemapBakeToServer } from '@etherealengine/editor/src/functions/uploadEnvMapBake'
 import { imageDataToBlob } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
@@ -79,7 +79,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const portalComponent = useComponent(props.entity, PortalComponent)
 
   useEffect(() => {
-    loadPortals()
+    //loadPortals()
   }, [])
 
   const updateCubeMapBake = async () => {
@@ -129,7 +129,12 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor description={t('editor:properties.portal.description')} icon={<CiSpeaker />} {...props}>
+    <NodeEditor
+      name={t('editor:properties.portal.name')}
+      description={t('editor:properties.portal.description')}
+      icon={<CiSpeaker />}
+      {...props}
+    >
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
         <StringInput
           value={portalComponent.location.value}
@@ -140,7 +145,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           key={props.entity}
-          options={state.portals.value as PortalOptions[]}
+          options={state.portals.get(NO_PROXY) as PortalOptions[]}
           value={portalComponent.linkedPortalId.value}
           onChange={commitProperty(PortalComponent, 'linkedPortalId')}
         />
