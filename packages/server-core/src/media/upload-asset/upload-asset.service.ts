@@ -108,7 +108,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
     mimeType = file.mimetype
   }
 
-  const hash = createHash('sha3-256').update(contentLength.toString()).update(assetName).update(mimeType).digest('hex')
+  const hash = createStaticResourceHash(typeof file === 'string' ? file : file.buffer)
 
   return {
     assetName,
