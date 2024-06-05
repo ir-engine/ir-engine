@@ -36,7 +36,6 @@ import {
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
 
 import {
@@ -51,6 +50,8 @@ import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHel
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@etherealengine/spatial'
+
+import BooleanInput from '../../input/Boolean'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -76,7 +77,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     : transformComponent.matrix.value.decompose(position, rotation, scale)
 
   scale.copy(transformComponent.scale.value)
-
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
     if (bboxSnapState.enabled.value) {
