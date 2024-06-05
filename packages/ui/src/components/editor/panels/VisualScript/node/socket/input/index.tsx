@@ -42,6 +42,7 @@ export type InputSocketProps = {
   onChange: (key: string, value: any) => void
   specGenerator: NodeSpecGenerator
   collapsed: boolean
+  offset: any
 } & InputSocketSpecJSON
 
 const InputFieldForValue = ({
@@ -131,7 +132,7 @@ const InputFieldForValue = ({
 }
 
 const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...rest }) => {
-  const { name, valueType, collapsed } = rest
+  const { name, valueType, collapsed, offset } = rest
   const instance = useReactFlow()
   const isFlowSocket = valueType === 'flow'
 
@@ -144,8 +145,15 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...
   const [backgroundColor, borderColor] = colors[colorName]
   const showName = isFlowSocket === false || name !== 'flow'
 
+  const position = {} as any
+  if (offset?.x !== undefined) position['left'] = `${offset.x}%`
+  if (offset?.y !== undefined) position['top'] = `${offset.y}%`
+
   return (
-    <div className="flex-start relative flex h-4 grow items-center justify-start">
+    <div
+      className={twMerge('flex-start relative flex h-4 grow items-center justify-start', collapsed ? 'absolute' : '')}
+      style={position as any}
+    >
       {isFlowSocket && <FaCaretRight color="#ffffff" size="1.25rem" />}
       {showName && !collapsed && <div className="ml-2 mr-4 capitalize">{name}</div>}
       {!isFlowSocket && !connected && !collapsed && <InputFieldForValue {...rest} />}
@@ -160,7 +168,7 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...
           connected ? backgroundColor : 'bg-white',
           borderColor,
           'h-2.5 w-2.5',
-          'left-[-12px]'
+          collapsed ? '' : 'left-[-12px]'
         )}
         isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specGenerator)}
       />

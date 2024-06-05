@@ -39,9 +39,12 @@ export type OutputSocketProps = {
   connected: boolean
   specGenerator: NodeSpecGenerator
   collapsed: boolean
+  offset: any
 } & OutputSocketSpecJSON
 
-export default function OutputSocket({ specGenerator, connected, collapsed, valueType, name }: OutputSocketProps) {
+export default function OutputSocket({ specGenerator, connected, ...rest }: OutputSocketProps) {
+  const { name, valueType, collapsed, offset } = rest
+
   const instance = useReactFlow()
   const isFlowSocket = valueType === 'flow'
   let colorName = valueTypeColorMap[valueType]
@@ -51,9 +54,16 @@ export default function OutputSocket({ specGenerator, connected, collapsed, valu
   // @ts-ignore
   const [backgroundColor, borderColor] = colors[colorName]
   const showName = isFlowSocket === false || name !== 'flow'
+  const position = {} as any
+  if (offset?.x !== undefined) position['right'] = `${offset.x}%`
+  if (offset?.y !== undefined) position['top'] = `${offset.y}%`
 
+  console.log('output', position, offset)
   return (
-    <div className="flex-end relative flex h-4 grow items-center justify-end">
+    <div
+      className={twMerge('flex-end relative flex h-4 grow items-center justify-end', collapsed ? 'absolute' : '')}
+      style={position as any}
+    >
       {showName && !collapsed && <div className="ml-2 mr-4 capitalize">{name}</div>}
       {isFlowSocket && (
         <FaCaretRight
@@ -75,7 +85,7 @@ export default function OutputSocket({ specGenerator, connected, collapsed, valu
           connected ? backgroundColor : 'bg-white',
           borderColor,
           'h-2.5 w-2.5',
-          'right-[-12px]'
+          collapsed ? '' : 'right-[-12px]'
         )}
         isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specGenerator)}
       />
