@@ -157,3 +157,5 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+export default FogSettingsEditor
