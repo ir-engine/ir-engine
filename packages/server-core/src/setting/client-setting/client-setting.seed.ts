@@ -41,7 +41,7 @@ export const clientSettingSeedData = {
   shortTitle: process.env.APP_TITLE || '',
   startPath: '/',
   releaseName: process.env.RELEASE_NAME || 'local',
-  siteDescription: process.env.SITE_DESC || 'Ethereal Engine',
+  siteDescription: process.env.SITE_DESC || 'IR Engine',
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
@@ -52,9 +52,12 @@ export const clientSettingSeedData = {
   favicon16px: '/favicon-16x16.png',
   icon192px: '/android-chrome-192x192.png',
   icon512px: '/android-chrome-512x512.png',
+  siteManifest: '/site.webmanifest',
+  safariPinnedTab: '/safari-pinned-tab.svg',
+  favicon: '/favicon.ico',
   appBackground: 'static/main-background.png',
-  appTitle: 'static/ethereal_watermark_small.png',
-  appSubtitle: 'EtherealEngine.org',
+  appTitle: 'static/ir-logo.svg',
+  appSubtitle: 'IR Engine',
   appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
   appSocialLinks: JSON.stringify([
     { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
