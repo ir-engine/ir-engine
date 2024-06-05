@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
@@ -54,12 +54,17 @@ import {
   updateBoundingBox
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
+import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
@@ -86,6 +91,8 @@ export enum XRUIActivationType {
 }
 
 const xrDistVec3 = new Vector3()
+const inputPointerPosition = new Vector2()
+let inputPointerEntity = UndefinedEntity
 
 const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
   //TODO change from using rigidbody to use the transform position (+ height of avatar)
@@ -288,18 +295,54 @@ export const InteractableComponent = defineComponent({
   reactor: () => {
     if (!isClient) return null
     const entity = useEntityContext()
-    // const interactable = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
-    // const hasFocus = useMutableState(EngineState).hasFocus
 
     InputComponent.useExecuteWithInput(() => {
       const buttons = InputComponent.getMergedButtons(entity)
 
-      if (buttons.Interact?.pressed) {
-        InputState.setCapturingEntity(entity)
+      //interact for E key, independent of clicks
+      if (buttons.NonSpatialInteract?.pressed) {
+        if (buttons.NonSpatialInteract?.up) {
+          callInteractCallbacks(entity)
+        }
       }
-      if (buttons.Interact?.down) {
-        callInteractCallbacks(entity)
+
+      //SpatialInteract click is still down
+      if (buttons.SpatialInteract?.pressed) {
+        InputState.setCapturingEntity(entity)
+
+        //on releasing continued SpatialInteract click
+        if (buttons.SpatialInteract?.up) {
+          if (inputPointerEntity !== UndefinedEntity) {
+            const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
+
+            //TODO store this threshold of 0.001 somewhere (drag threshold)
+            if (inputPointer && inputPointerPosition.distanceToSquared(inputPointer.position) < 0.001) {
+              console.log('distanceSquared = ' + inputPointerPosition.distanceToSquared(inputPointer.position))
+              callInteractCallbacks(entity)
+            } else {
+              console.log('not firing interact')
+            }
+          }
+          inputPointerEntity = UndefinedEntity
+        }
+      }
+      if (buttons.SpatialInteract?.down) {
+        //get position of pointer when click begins
+        const intersectingPointer = getComponent(entity, InputComponent).inputSources.find((inputSourceEntity) => {
+          if (!hasComponent(inputSourceEntity, InputPointerComponent)) return
+          const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+          return inputSource?.intersections.find((e) => {
+            const matchEntity = getAncestorWithComponent(e.entity, InputComponent)
+            if (!matchEntity || matchEntity === UndefinedEntity) return
+            return matchEntity === entity
+          })
+        })
+        if (intersectingPointer && intersectingPointer !== UndefinedEntity) {
+          inputPointerEntity = intersectingPointer
+          const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
+          inputPointerPosition.copy(inputPointer.position)
+        }
       }
     }, true)
 

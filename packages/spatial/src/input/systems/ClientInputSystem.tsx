@@ -168,6 +168,7 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
 
   for (const eid of inputs())
@@ -212,8 +213,6 @@ const execute = () => {
       TransformComponent.dirtyTransforms[eid] = true
     }
   }
-
-  const capturedEntity = getMutableState(InputState).capturingEntity
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
@@ -311,7 +310,7 @@ const execute = () => {
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
     //Proximity check ONLY if we have no raycast results, as it is always lower priority
     if (
-      capturedEntity.value === UndefinedEntity &&
+      capturedEntity === UndefinedEntity &&
       sortedIntersections.length === 0 &&
       !hasComponent(sourceEid, InputPointerComponent)
     ) {
@@ -360,8 +359,8 @@ const execute = () => {
     const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
 
     //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
-    if (capturedEntity.value !== UndefinedEntity) {
-      setInputSources(capturedEntity.value, finalInputSources)
+    if (capturedEntity !== UndefinedEntity) {
+      setInputSources(capturedEntity, finalInputSources)
     } else {
       for (const intersection of sortedIntersections) {
         setInputSources(intersection.entity, finalInputSources)
