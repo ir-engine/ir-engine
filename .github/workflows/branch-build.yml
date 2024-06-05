@@ -107,7 +107,6 @@ jobs:
           - editor
           - engine
           - hyperflux
-          - instanceserver
           - matchmaking
           - network
           - server
@@ -125,9 +124,14 @@ jobs:
           key: dir-${{github.sha}}
       - run: cd packages/${{ matrix.package }} && npm run test
 
-  test_servercore:
+  test_docker:
     needs: install-modules
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - server-core
+          - instanceserver
     defaults:
       run:
         shell: bash
@@ -139,4 +143,4 @@ jobs:
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
-      - run: cd packages/server-core && npm run test
+      - run: cd packages/${{ matrix.package }} && npm run test
