@@ -1132,6 +1132,7 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
+      "renameFile": "Rename File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
