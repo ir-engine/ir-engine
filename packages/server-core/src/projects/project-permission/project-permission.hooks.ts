@@ -131,7 +131,7 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
         existingPermissionsCount.length === 0 ||
         ((await checkScope(selfUser, 'projects', 'write')) && selfUser.id === users.data[0].id)
           ? 'owner'
-          : 'editor'
+          : data[0].type
     }
   } catch (err) {
     logger.error(err)
