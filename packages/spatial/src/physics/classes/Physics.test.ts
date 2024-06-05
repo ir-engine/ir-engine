@@ -840,39 +840,41 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      /**
-      // @todo Why is this failing?
       it('should set the collider interaction groups to the given value', () => {
-        const before = getComponent(testEntity, ColliderComponent)
-        const Expected = CollisionGroups.Avatars | before.collisionLayer
-        Physics.setCollisionLayer(testEntity, Expected)
-        const after = getComponent(testEntity, ColliderComponent)
-        assert.equal(after.collisionLayer, Expected)
+        const data = getComponent(testEntity, ColliderComponent)
+        const ExpectedLayer = CollisionGroups.Avatars | data.collisionLayer
+        const Expected = getInteractionGroups(ExpectedLayer, data.collisionMask)
+        const before = Physics._Colliders.get(testEntity)!.collisionGroups()
+        Physics.setCollisionLayer(testEntity, ExpectedLayer)
+        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        assert.notEqual(before, Expected)
+        assert.equal(after, Expected)
       })
-      */
 
       it('should not modify the collision mask of the collider', () => {
-        const before = getComponent(testEntity, ColliderComponent)
-        Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
-        const after = getComponent(testEntity, ColliderComponent)
-        assert.equal(before.collisionMask, after.collisionMask)
+        const data = getComponent(testEntity, ColliderComponent)
+        const newLayer = CollisionGroups.Avatars
+        const Expected = getInteractionGroups(newLayer, data.collisionMask)
+        Physics.setCollisionLayer(testEntity, newLayer)
+        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        assert.equal(after, Expected)
       })
 
       it('should not add CollisionGroups.Trigger to the collider interaction groups if the entity does not have a TriggerComponent', () => {
         Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
-        const after = getComponent(testEntity, ColliderComponent)
-        const noTriggerBit = !(after.collisionLayer & CollisionGroups.Trigger) // not collisionLayer contains Trigger
+        const after = Physics._Colliders.get(testEntity)!.collisionGroups()
+        const noTriggerBit = !(after & getInteractionGroups(CollisionGroups.Trigger, 0)) // not collisionLayer contains Trigger
         assert.ok(noTriggerBit)
       })
 
       it('should not modify the CollisionGroups.Trigger bit in the collider interaction groups if the entity has a TriggerComponent', () => {
+        const triggerLayer = getInteractionGroups(CollisionGroups.Trigger, 0) // Create the triggerLayer groups bitmask
         setComponent(testEntity, TriggerComponent)
-        const beforeData = getComponent(testEntity, ColliderComponent)
-        const before = beforeData.collisionLayer & CollisionGroups.Trigger // collisionLayer contains Trigger
+        const beforeGroups = Physics._Colliders.get(testEntity)!.collisionGroups()
+        const before = getInteractionGroups(beforeGroups & triggerLayer, 0) === triggerLayer // beforeGroups.collisionLayer contains Trigger
         Physics.setCollisionLayer(testEntity, CollisionGroups.Avatars)
-
-        const afterData = getComponent(testEntity, ColliderComponent)
-        const after = afterData.collisionLayer & CollisionGroups.Trigger // collisionLayer contains Trigger
+        const afterGroups = Physics._Colliders.get(testEntity)!.collisionGroups()
+        const after = getInteractionGroups(afterGroups & triggerLayer, 0) === triggerLayer // afterGroups.collisionLayer contains Trigger
         assert.equal(before, after)
       })
     }) // setCollisionLayer
