@@ -95,7 +95,7 @@ export default function ScenesPanel() {
               {scenes.map((scene: AssetType) => (
                 <div
                   key={scene.id}
-                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end overflow-hidden rounded-lg bg-theme-surface-main"
+                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
