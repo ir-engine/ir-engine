@@ -40,12 +40,12 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import Slider from '../../../../primitives/tailwind/Slider'
-import InputGroup from '../../input/Group'
-import NumericInput from '../../input/Numeric'
-import ProgressBar from '../../input/Progress'
-import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
+import Slider from '../../../../../primitives/tailwind/Slider'
+import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
+import ProgressBar from '../../../input/Progress'
+import SelectInput from '../../../input/Select'
+import NodeEditor from '../../nodeEditor'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.

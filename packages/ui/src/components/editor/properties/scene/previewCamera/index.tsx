@@ -43,8 +43,8 @@ import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/
 import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 import { Scene } from 'three'
-import ImagePreviewInput from '../../input/Image/Preview'
-import NodeEditor from '../nodeEditor'
+import ImagePreviewInput from '../../../input/Image/Preview'
+import NodeEditor from '../../nodeEditor'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
