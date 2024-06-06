@@ -52,6 +52,9 @@ declare module 'postprocessing' {
     SMAAEffect: SMAAEffect
     OutlineEffect: OutlineEffect
   }
+  interface Effect {
+    isActive: boolean
+  }
 }
 
 export const PostProcessingComponent = defineComponent({
@@ -153,7 +156,7 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
           <Suspense key={key}>
             <ErrorBoundary>
               <effect.reactor
-                isActive={postProcessingComponent.effects[key]?.isActive}
+                isActive={postProcessingComponent.effects[key]?.isActive.value}
                 rendererEntity={rendererEntity}
                 effectData={postProcessingComponent.effects}
                 effects={effects}
