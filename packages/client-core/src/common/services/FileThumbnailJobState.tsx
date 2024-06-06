@@ -324,7 +324,7 @@ const ThumbnailJobReactor = () => {
         .then((blob) => uploadThumbnail(src, project, id, blob))
         .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
     )
-  }, [fileType])
+  }, [fileType, id])
 
   // Load and render video
   useEffect(() => {
@@ -342,7 +342,7 @@ const ThumbnailJobReactor = () => {
         .then(() => video.remove())
         .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
     )
-  }, [fileType])
+  }, [fileType, id])
 
   // Load and render texture
   useEffect(() => {
@@ -366,7 +366,7 @@ const ThumbnailJobReactor = () => {
         .then(() => image.remove())
         .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
     )
-  }, [fileType, tex])
+  }, [fileType, tex, id])
 
   // Load models
   useEffect(() => {
