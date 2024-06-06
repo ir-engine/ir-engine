@@ -27,14 +27,14 @@ import type { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UserID } from '@etherealengine/common/src/schema.type.module'
-import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectDatabaseType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   ProjectSettingType,
   projectSettingPath
 } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
-const getConvertedProjectSettings = async (projects: ProjectType[]) => {
+const getConvertedProjectSettings = async (projects: ProjectDatabaseType[]) => {
   const projectSettings: ProjectSettingType[] = []
 
   for (const project of projects) {
