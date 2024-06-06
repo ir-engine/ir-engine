@@ -75,7 +75,6 @@ import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
-import { ProjectSettingType } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
@@ -407,9 +406,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  const settings: ProjectSettingType[] = []
-  Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
-  return settings
+  return projectSetting
 }
 
 export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: string, params: ProjectParams) => {
