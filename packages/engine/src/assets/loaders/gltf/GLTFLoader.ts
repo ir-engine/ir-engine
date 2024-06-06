@@ -360,7 +360,7 @@ export interface GLTF {
     extensions?: any
     extras?: any
   }
-  parser: GLTFParser
+  parser?: GLTFParser
   userData: any
 }
 

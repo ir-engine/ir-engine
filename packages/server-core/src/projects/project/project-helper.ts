@@ -44,6 +44,7 @@ import semver from 'semver'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
@@ -75,7 +76,6 @@ import {
 } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -406,7 +406,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
     }
   })) as Paginated<ProjectType>
 
-  let projectSetting = project.data[0].settings || []
+  const projectSetting = project.data?.[0]?.settings || []
 
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
@@ -1743,13 +1743,13 @@ const migrateResourcesJson = (resourceJsonPath: string) => {
 
 //otherwise, upload the files into static resources individually
 const staticResourceClasses = [
-  AssetClass.Audio,
-  AssetClass.Image,
-  AssetClass.Model,
-  AssetClass.Video,
-  AssetClass.Volumetric,
-  AssetClass.Material,
-  AssetClass.Prefab
+  AssetType.Audio,
+  AssetType.Image,
+  AssetType.Model,
+  AssetType.Video,
+  AssetType.Volumetric,
+  AssetType.Material,
+  AssetType.Prefab
 ]
 
 export const isStaticResourceAsset = (key: string) =>
@@ -1788,8 +1788,10 @@ export const uploadLocalProjectToProvider = async (
     migrateResourcesJson(resourcesJsonPath)
   }
 
-  const files = getFilesRecursive(projectRootPath)
-  const filteredFilesInProjectFolder = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const filteredFilesInProjectFolder = getFilesRecursive(projectRootPath).filter(
+    (file) => !file.includes(`projects/${projectName}/.git/`) && !file.includes(`projects/${projectName}/thumbnails/`)
+  )
+
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
   const existingResources = await app.service(staticResourcePath).find({

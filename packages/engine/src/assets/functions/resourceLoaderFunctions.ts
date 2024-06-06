@@ -69,7 +69,7 @@ export const loadResource = <T extends ResourceAssetType>(
   const resource = resources[url]
   callbacks.onStart(resource)
   ResourceState.debugLog('ResourceManager:load Loading resource: ' + url + ' for entity: ' + entity)
-  AssetLoader.load(
+  AssetLoader.loadAsset<T>(
     url,
     (response: T) => {
       if (!resource || !resource.value) {
@@ -100,30 +100,54 @@ export const loadResource = <T extends ResourceAssetType>(
   )
 }
 
-export const updateResource = (id: string) => {
+/**
+ *
+ * Updates a model's resource without the url changing
+ * Removes the model from the resource state and reloads
+ *
+ * @param url the url of the asset to update
+ * @returns
+ */
+export const updateModelResource = (url: string) => {
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
-  const resource = resources[id]
+  const resource = resources[url]
   if (!resource.value) {
-    console.warn('ResourceManager:update No resource found to update for id: ' + id)
+    console.warn('resourceLoaderFunctions:updateResource No resource found to update for url: ' + url)
     return
   }
   const onLoads = resource.onLoads.get(NO_PROXY)
   if (!onLoads) {
-    console.warn('ResourceManager:update No callbacks found to update for id: ' + id)
+    console.warn('resourceLoaderFunctions:updateResource No callbacks found to update for url: ' + url)
     return
   }
 
-  ResourceState.debugLog('ResourceManager:update Updating asset for id: ' + id)
-  for (const [_, onLoad] of Object.entries(onLoads)) {
-    AssetLoader.load(
-      id,
+  const onLoadArr = Object.values(onLoads)
+  const entities = resource.references.get(NO_PROXY) as Entity[]
+  if (onLoadArr.length !== entities.length) {
+    console.warn(
+      'resourceLoaderFunctions:updateResource There should be one loaded callback for every reference, url: ' + url
+    )
+    return
+  }
+
+  ResourceState.debugLog('resourceLoaderFunctions:updateResource Updating asset for url: ' + url)
+  const resourceType = resource.type.value
+  ResourceManager.__unsafeRemoveResource(url)
+  for (let i = 0; i < onLoadArr.length; i++) {
+    const onLoad = onLoadArr[i]
+    loadResource(
+      url,
+      resourceType,
+      entities[i],
       (response: ResourceAssetType) => {
-        resource.asset.set(response)
         onLoad(response)
       },
-      (request) => {},
-      (error) => {}
+      () => {},
+      (error) => {
+        console.error('resourceLoaderFunctions:updateResource error updating resource for url: ' + url, error)
+      },
+      new AbortController().signal
     )
   }
 }
