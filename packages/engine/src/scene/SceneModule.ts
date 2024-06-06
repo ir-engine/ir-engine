@@ -42,6 +42,7 @@ import { LinkComponent } from './components/LinkComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MediaSettingsComponent } from './components/MediaSettingsComponent'
 import { MountPointComponent } from './components/MountPointComponent'
+import { NewVolumetricComponent } from './components/NewVolumetricComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
@@ -105,6 +106,7 @@ export const SceneComponents = [
   VariantComponent,
   VideoComponent,
   VolumetricComponent,
+  NewVolumetricComponent,
   // WaterComponent,
   LinkComponent,
   TextComponent,

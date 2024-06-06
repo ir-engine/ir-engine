@@ -91,8 +91,10 @@ const getAssetType = (assetFileName: string): AssetType => {
       return AssetType.MAT
     case 'json':
       return AssetType.JSON
+    case 'bin':
+      return AssetType.BIN
     default:
-      return null!
+      return AssetType.UNKNOWN
   }
 }
 

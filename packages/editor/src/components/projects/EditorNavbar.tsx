@@ -27,10 +27,14 @@ import React from 'react'
 
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { EditorNavbarProfile } from './EditorNavbarProfile'
 import styles from './styles.module.scss'
 
 export const EditorNavbar = () => {
+  const clientSettingState = useMutableState(AdminClientSettingsState)
+  const [clientSetting] = clientSettingState?.client?.value || []
   const routeHome = () => {
     RouterState.navigate('/')
   }
@@ -40,7 +44,7 @@ export const EditorNavbar = () => {
       <div className={styles.navContainer}>
         <div
           className={styles.logoBlock}
-          style={{ backgroundImage: 'url(/static/etherealengine.png)' }}
+          style={{ backgroundImage: `url(${clientSetting.appTitle})` }}
           onClick={routeHome}
         ></div>
         <EditorNavbarProfile />

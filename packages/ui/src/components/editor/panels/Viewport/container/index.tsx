@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import React, { useEffect, useRef } from 'react'
@@ -38,6 +39,7 @@ import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
 import Text from '../../../../../primitives/tailwind/Text'
+import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
 import RenderModeTool from '../tools/RenderTool'
@@ -79,8 +81,6 @@ const ViewportDnD = () => {
     observer.observe(ref.current)
     return () => {
       observer.disconnect()
-      //   const canvas = document.getElementById('engine-renderer-canvas')!
-      //   parent.removeChild(canvas)
     }
   }, [ref])
 
@@ -93,15 +93,17 @@ const ViewportDnD = () => {
         isDragging && isOver ? 'border-4' : 'border-none',
         isDragging ? 'pointer-events-auto' : 'pointer-events-none'
       )}
-    ></div>
+    />
   )
 }
 
 const ViewPortPanelContainer = () => {
   const { t } = useTranslation()
-  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  const sceneName = useMutableState(EditorState).sceneName.value
+  const clientSettingState = useMutableState(AdminClientSettingsState)
+  const [clientSetting] = clientSettingState?.client?.value || []
   return (
-    <div className="z-30 flex h-full w-full flex-col bg-theme-surface-main">
+    <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
       <div className="flex gap-1 p-1">
         <TransformSpaceTool />
         <TransformPivotTool />
@@ -111,11 +113,12 @@ const ViewPortPanelContainer = () => {
         <RenderModeTool />
         <PlayModeTool />
       </div>
+      {sceneName ? <GizmoTool /> : null}
       {sceneName ? (
         <ViewportDnD />
       ) : (
         <div className="flex h-full w-full flex-col justify-center gap-2">
-          <img src="/static/etherealengine.png" className="block" />
+          <img src={clientSetting.appTitle} className="block scale-[.8]" />
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
