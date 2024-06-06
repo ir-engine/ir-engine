@@ -95,7 +95,7 @@ const OFFICIAL_PROJECTS_DATA = [
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'ee-productivity',
     repositoryPath: 'https://github.com/etherealengine/ee-productivity',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'Utility and productivity tools for Virtual and Augmented Reality',
     needsRebuild: true
   },
@@ -103,7 +103,7 @@ const OFFICIAL_PROJECTS_DATA = [
     id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
@@ -111,7 +111,7 @@ const OFFICIAL_PROJECTS_DATA = [
     id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
@@ -119,7 +119,7 @@ const OFFICIAL_PROJECTS_DATA = [
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'A test bot using puppeteer',
     needsRebuild: true
   },
@@ -127,7 +127,7 @@ const OFFICIAL_PROJECTS_DATA = [
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
-    thumbnail: '/static/etherealengine_thumbnail.jpg',
+    thumbnail: '/static/IR_thumbnail.jpg',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
   }
@@ -135,7 +135,7 @@ const OFFICIAL_PROJECTS_DATA = [
   //   id: '1570ae12-889a-11ec-886e-b126f7590685',
   //   name: 'Inventory',
   //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-  //   thumbnail: '/static/etherealengine_thumbnail.jpg',
+  //   thumbnail: '/static/IR_thumbnail.jpg',
   //   description:
   //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
   //   needsRebuild: true
@@ -360,7 +360,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
             >
               <div
                 className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/etherealengine_thumbnail.jpg'})` }}
+                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/IR_thumbnail.jpg'})` }}
                 id={'open-' + project.name}
               />
             </a>

@@ -95,16 +95,16 @@ export default function ScenesPanel() {
               {scenes.map((scene: AssetType) => (
                 <div
                   key={scene.id}
-                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end overflow-hidden rounded-lg bg-theme-surface-main"
+                  className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
                     alt={scene.assetURL}
                     onError={(e) => {
-                      e.currentTarget.src = 'static/etherealengine_logo.png'
+                      e.currentTarget.src = 'static/ir.svg'
                     }}
                     crossOrigin="anonymous"
-                    className="block h-auto w-full grow cursor-pointer rounded-t-lg object-cover"
+                    className="block h-full grow cursor-pointer self-center rounded-t-lg object-cover"
                     onClick={() => onClickScene(scene)}
                   />
                   <div className="flex items-center justify-between px-4 py-1">
