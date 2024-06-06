@@ -50,6 +50,7 @@ import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/compone
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
+import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
 import PropertyGroup from '../../group'
@@ -191,7 +192,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           <ImagePreviewInput value={state.loadingScreenURL.value ?? sceneSettingsComponent.loadingScreenURL.value} />
           <Button onClick={createLoadingScreen}>{t('editor:properties.sceneSettings.generate')}</Button>
           {state.uploadingLoadingScreen.value ? (
-            <LoadingCircle />
+            <LoadingView spinnerOnly />
           ) : (
             <Button onClick={uploadLoadingScreen} disabled={!state.loadingScreenImageData.value}>
               {t('editor:properties.sceneSettings.save')}
