@@ -48,8 +48,8 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { useMeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
@@ -163,7 +163,7 @@ export function ImageReactor() {
     }
 
     const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetClass.Image) {
+    if (assetType !== AssetType.Image) {
       addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
     }
   }, [image.source])
