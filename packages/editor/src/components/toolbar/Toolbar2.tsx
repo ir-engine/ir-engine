@@ -40,7 +40,6 @@ import { PiSquaresFourThin } from 'react-icons/pi'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
-import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
@@ -85,7 +84,7 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.saveScene'),
-      hotkey: `${cmdOrCtrlString}+s`,
+      // hotkey: `${cmdOrCtrlString}+s`,
       action: () => PopoverState.showPopupover(<SaveSceneDialog />)
     },
     {
@@ -183,8 +182,16 @@ export default function Toolbar() {
         onClose={() => anchorOpen.set(false)}
       >
         {toolbarMenu.map(({ name, action, hotkey }, index) => (
-          <div key={index} className="m-1">
-            <Button size="small" variant="outline" fullWidth onClick={action} endIcon={hotkey}>
+          <div key={index}>
+            <Button
+              className="px-4 py-[10px] text-left font-light text-[#9CA0AA]"
+              textContainerClassName="text-xs"
+              variant="sidebar"
+              size="small"
+              fullWidth
+              onClick={action}
+              endIcon={hotkey}
+            >
               {name}
             </Button>
           </div>
