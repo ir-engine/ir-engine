@@ -31,13 +31,11 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await addProjectColumn(trx, locationPath)
+  await addProjectColumn(knex, locationPath)
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -45,20 +43,18 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await dropProjectColumn(trx, locationPath)
+  await dropProjectColumn(knex, locationPath)
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export async function addProjectColumn(trx: Knex.Transaction, tableName: string) {
-  const projectColumnExists = await trx.schema.hasColumn(tableName, 'projectId')
+export async function addProjectColumn(knex: Knex, tableName: string) {
+  const projectColumnExists = await knex.schema.hasColumn(tableName, 'projectId')
 
   if (projectColumnExists === false) {
-    await trx.schema.alterTable(tableName, async (table) => {
+    await knex.schema.alterTable(tableName, async (table) => {
       //@ts-ignore
       table.uuid('projectId', 36).collate('utf8mb4_bin').nullable().index()
       table.foreign('projectId').references('id').inTable('project').onDelete('CASCADE').onUpdate('CASCADE')
@@ -66,11 +62,11 @@ export async function addProjectColumn(trx: Knex.Transaction, tableName: string)
   }
 }
 
-export async function dropProjectColumn(trx: Knex.Transaction, tableName: string) {
-  const projectColumnExists = await trx.schema.hasColumn(tableName, 'projectId')
+export async function dropProjectColumn(knex: Knex, tableName: string) {
+  const projectColumnExists = await knex.schema.hasColumn(tableName, 'projectId')
 
   if (projectColumnExists === true) {
-    await trx.schema.alterTable(tableName, async (table) => {
+    await knex.schema.alterTable(tableName, async (table) => {
       table.dropForeign('projectId')
       table.dropColumn('projectId')
     })
