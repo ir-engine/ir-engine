@@ -142,10 +142,7 @@ export default (app: Application): void => {
           logger.info('Knex migration rollback ended')
         }
 
-        const tableCount = await db.raw(
-          `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
-        )
-        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+        const prepareDb = process.env.PREPARE_DATABASE === 'true'
 
         if (forceRefresh || appConfig.testEnabled || prepareDb) {
           // We are running our migrations here, so that tables above in db tree are create 1st using sequelize.

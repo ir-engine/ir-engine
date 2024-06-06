@@ -23,22 +23,86 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
 import path from 'path'
 
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
-import { AvatarID, avatarPath, AvatarType } from '@etherealengine/common/src/schemas/user/avatar.schema'
+import { AvatarID, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
-import { getContentType } from '../../util/fileUtils'
 import { AvatarParams } from './avatar.class'
+
+const getAvatarDependencies = async (resourceKey: string) => {
+  const fileExtension = resourceKey.split('.').pop()!
+  if (fileExtension !== 'gltf') return [] // only gltf files have dependencies
+
+  const resourceFolder = resourceKey.split('/').slice(0, -1).join('/')
+  const avatarName = resourceKey.split('/').pop()!.split('.')[0]
+  const storageProvider = getStorageProvider()
+  const hasRelativePath = await storageProvider.isDirectory(avatarName, resourceFolder)
+  if (!hasRelativePath) return [] // no dependencies by folder name convention - TODO support other conventions
+
+  const dependencies = await storageProvider.listObjects(resourceFolder + '/' + avatarName)
+  console.log('getAvatarDependencies', dependencies)
+  return dependencies.Contents.map((dependency) => dependency.Key)
+}
+
+export const patchStaticResourceAsAvatar = async (app: Application, projectName: string, resourceKey: string) => {
+  const staticResourceQuery = await app.service(staticResourcePath).find({
+    query: {
+      key: resourceKey
+    }
+  })
+  if (!staticResourceQuery.data || staticResourceQuery.data.length === 0)
+    throw new Error('Static resource not found for key ' + resourceKey)
+
+  const staticResource = staticResourceQuery.data[0]
+
+  const thumbnailPath = resourceKey.split('.').slice(0, -1).join('.') + '.png'
+  const thumbnailResourceQuery = await app.service(staticResourcePath).find({
+    query: {
+      key: thumbnailPath
+    }
+  })
+
+  const thumbnailStaticResource = thumbnailResourceQuery.data[0] as StaticResourceType | undefined
+
+  const existingAvatar = await app.service(avatarPath).find({
+    query: {
+      modelResourceId: staticResourceQuery.data[0].id
+    }
+  })
+
+  if (existingAvatar.data.length > 0) {
+    await app.service(avatarPath).patch(existingAvatar.data[0].id, {
+      modelResourceId: staticResource.id,
+      thumbnailResourceId: thumbnailStaticResource?.id || undefined
+    })
+  } else {
+    await app.service(avatarPath).create({
+      name: resourceKey.split('/').pop()!.split('.')[0],
+      modelResourceId: staticResource.id,
+      thumbnailResourceId: thumbnailStaticResource?.id || undefined,
+      isPublic: true,
+      project: projectName || undefined
+    })
+  }
+
+  const dependencies = await getAvatarDependencies(resourceKey)
+  await app.service(staticResourcePath).patch(staticResource.id, {
+    type: 'avatar',
+    dependencies: [...dependencies, ...(thumbnailStaticResource ? [thumbnailStaticResource.key] : [])]
+  })
+  if (thumbnailStaticResource) {
+    await app.service(staticResourcePath).patch(thumbnailStaticResource.id, {
+      type: 'thumbnail'
+    })
+  }
+}
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -52,120 +116,17 @@ export type AvatarUploadArguments = {
 }
 
 // todo: move this somewhere else
-const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
+export const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
 const projectsPath = path.join(appRootPath.path, '/packages/projects/projects/')
 
 /**
  * @todo - reference dependency files in static resources?
  * @param app
  * @param avatarsFolder
+ * @deprecated
  */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
-  const projectName = avatarsFolder.replace(projectsPath, '').split('/')[0]!
-
-  // get all avatars files in the folder
-  const avatarsToInstall = fs
-    .readdirSync(avatarsFolder, { withFileTypes: true })
-    .filter((dirent) => supportedAvatars.includes(dirent.name.split('.').pop()!))
-    .map((dirent) => {
-      const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.')) // remove extension
-      const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
-      const pngPath = path.join(avatarsFolder, avatarName + '.png')
-      const thumbnail = fs.existsSync(pngPath) ? fs.readFileSync(pngPath) : Buffer.from([])
-      const pathExists = fs.existsSync(path.join(avatarsFolder, avatarName))
-      const dependencies = pathExists
-        ? fs.readdirSync(path.join(avatarsFolder, avatarName), { withFileTypes: true }).map((dependencyDirent) => {
-            return path.join(avatarsFolder, avatarName, dependencyDirent.name)
-          })
-        : []
-      return {
-        avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
-        thumbnail,
-        avatarName,
-        avatarFileType,
-        dependencies,
-        avatarsFolder: avatarsFolder.replace(path.join(appRootPath.path, 'packages/projects/'), '')
-      }
-    })
-
-  const provider = getStorageProvider()
-
-  const uploadDependencies = (filePaths: string[]) => {
-    return Promise.all([
-      ...filePaths.map(async (filePath) => {
-        const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
-        const file = fs.readFileSync(filePath)
-        const mimeType = getContentType(filePath)
-        if (config.server.edgeCachingEnabled)
-          await app.service(invalidationPath).create({
-            path: filePath
-          })
-        return provider.putObject(
-          {
-            Key: key,
-            Body: file,
-            ContentType: mimeType
-          },
-          {
-            isDirectory: false
-          }
-        )
-      })
-    ])
-  }
-
-  /**
-   * @todo
-   * - check if avatar already exists by getting avatar with same key & hash in static resources
-   * -
-   */
-  await Promise.all(
-    avatarsToInstall.map(async (avatar) => {
-      try {
-        const existingAvatar = (await app.service(avatarPath).find({
-          query: {
-            name: avatar.avatarName,
-            isPublic: true,
-            $or: [
-              {
-                project: projectName
-              },
-              {
-                project: ''
-              }
-            ]
-          }
-        })) as Paginated<AvatarType>
-
-        let selectedAvatar: AvatarType
-        if (existingAvatar && existingAvatar.data.length > 0) {
-          // todo - clean up old avatar files
-          selectedAvatar = existingAvatar.data[0]
-        } else {
-          selectedAvatar = await app.service(avatarPath).create({
-            name: avatar.avatarName,
-            isPublic: true,
-            project: projectName || undefined
-          })
-        }
-
-        await uploadDependencies(avatar.dependencies)
-
-        await uploadAvatarStaticResource(app, {
-          avatar: avatar.avatar,
-          thumbnail: avatar.thumbnail,
-          avatarName: avatar.avatarName,
-          isPublic: true,
-          avatarFileType: avatar.avatarFileType,
-          avatarId: selectedAvatar.id,
-          project: projectName,
-          path: avatar.avatarsFolder
-        })
-      } catch (err) {
-        logger.error(err)
-      }
-    })
-  )
+  // TODO backcompat
 }
 
 export const uploadAvatarStaticResource = async (

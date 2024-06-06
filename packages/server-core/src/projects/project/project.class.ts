@@ -222,7 +222,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         { query: { name: projectName } }
       )
 
-      if (!seeded) await uploadLocalProjectToProvider(this.app, projectName)
+      if (!seeded) promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)

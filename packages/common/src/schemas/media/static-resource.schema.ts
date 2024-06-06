@@ -47,7 +47,7 @@ export const staticResourceSchema = Type.Object(
       format: 'uuid'
     }),
     hash: Type.String(),
-    type: Type.String(), // 'scene' | 'asset' | 'file' | 'avatar' | 'recording'
+    type: Type.String(), // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
     project: Type.String(),
     tags: Type.Array(Type.String()),
     dependencies: Type.Array(Type.String()),

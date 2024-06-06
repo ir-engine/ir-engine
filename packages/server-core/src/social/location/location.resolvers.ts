@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   LocationAuthorizedUserType,
   locationAuthorizedUserPath
@@ -91,7 +91,10 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
   projectId: async (value, location, context: HookContext<LocationService>) => {
     try {
       const asset = await context.app.service(staticResourcePath).get(location.sceneId)
-      return asset.project
+      if (!asset.project) throw new BadRequest('Error populating projectId into location')
+      const project = await context.app.service(projectPath).find({ query: { name: asset.project } })
+      if (!project || project.total === 0) throw new BadRequest('Error populating projectId into location')
+      return project.data[0].id
     } catch (error) {
       throw new BadRequest('Error populating projectId into location')
     }

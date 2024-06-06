@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
+import fs from 'fs'
 import path from 'path'
 
 import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
@@ -31,10 +32,15 @@ import { createLocations } from '@etherealengine/projects/createLocations'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
+import {
+  patchStaticResourceAsAvatar,
+  supportedAvatars
+} from '@etherealengine/server-core/src/user/avatar/avatar-helper'
+import appRootPath from 'app-root-path'
 import manifestJson from './manifest.json'
 
+const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
 const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OembedType) => {
@@ -109,11 +115,23 @@ const config = {
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf'
     })
-    return installAvatarsFromProject(app, avatarsFolder)
+    await Promise.all(
+      fs
+        .readdirSync(avatarsFolder)
+        .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
+        .map((file) => {
+          console.log('installing avatar', file)
+          return patchStaticResourceAsAvatar(
+            app,
+            manifestJson.name,
+            path.resolve(avatarsFolder, file).replace(projectRelativeFolder + '/', '')
+          )
+        })
+    )
   },
-  onUpdate: (app: Application) => {
-    return installAvatarsFromProject(app, avatarsFolder)
-  },
+  // onUpdate: (app: Application) => {
+  //   return installAvatarsFromProject(app, avatarsFolder)
+  // },
   onOEmbedRequest: handleOEmbedRequest
   // TODO: remove avatars
   // onUninstall: (app: Application) => {

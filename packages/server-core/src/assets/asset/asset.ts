@@ -23,19 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { assetMethods, assetPath, AssetUpdate } from '@etherealengine/common/src/schemas/assets/asset.schema'
-import { instanceActivePath } from '@etherealengine/common/src/schemas/networking/instance-active.schema'
-import {
-  instanceAttendancePath,
-  InstanceAttendanceType
-} from '@etherealengine/common/src/schemas/networking/instance-attendance.schema'
-import { getState } from '@etherealengine/hyperflux'
+import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
 
 import { Application } from '../../../declarations'
-import { ServerMode, ServerState } from '../../ServerState'
 import { AssetService } from './asset.class'
-import sceneDocs from './asset.docs'
-import hooks from './asset.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -44,45 +35,40 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: assetPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(assetPath, new AssetService(options), {
-    // A list of all methods this service exposes externally
-    methods: assetMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: sceneDocs
-  })
-
-  const service = app.service(assetPath)
-  service.hooks(hooks)
-
-  if (getState(ServerState).serverMode === ServerMode.API)
-    service.publish('updated', async (data) => {
-      const updatedScene = data as AssetUpdate
-      const instanceActive = await app.service(instanceActivePath).find({
-        query: { sceneId: updatedScene.id }
-      })
-
-      const instanceAttendances = (await app.service(instanceAttendancePath).find({
-        query: {
-          instanceId: {
-            $in: instanceActive.map((item) => item.id)
-          },
-          ended: false
-        },
-        paginate: false
-      })) as InstanceAttendanceType[]
-
-      return Promise.all(
-        instanceAttendances.map((instanceAttendance) => {
-          return app.channel(`userIds/${instanceAttendance.userId}`).send({})
-        })
-      )
-    })
+  // const options = {
+  //   name: assetPath,
+  //   paginate: app.get('paginate'),
+  //   Model: app.get('knexClient'),
+  //   multi: true
+  // }
+  // app.use(assetPath, new AssetService(options), {
+  //   // A list of all methods this service exposes externally
+  //   methods: assetMethods,
+  //   // You can add additional custom events to be sent to clients here
+  //   events: [],
+  //   docs: sceneDocs
+  // })
+  // const service = app.service(assetPath)
+  // service.hooks(hooks)
+  // if (getState(ServerState).serverMode === ServerMode.API)
+  //   service.publish('updated', async (data) => {
+  //     const updatedScene = data as AssetUpdate
+  //     const instanceActive = await app.service(instanceActivePath).find({
+  //       query: { sceneId: updatedScene.id }
+  //     })
+  //     const instanceAttendances = (await app.service(instanceAttendancePath).find({
+  //       query: {
+  //         instanceId: {
+  //           $in: instanceActive.map((item) => item.id)
+  //         },
+  //         ended: false
+  //       },
+  //       paginate: false
+  //     })) as InstanceAttendanceType[]
+  //     return Promise.all(
+  //       instanceAttendances.map((instanceAttendance) => {
+  //         return app.channel(`userIds/${instanceAttendance.userId}`).send({})
+  //       })
+  //     )
+  //   })
 }
