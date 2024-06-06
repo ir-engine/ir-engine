@@ -27,7 +27,7 @@ import { Application } from '@feathersjs/koa'
 import fs from 'fs'
 import path from 'path'
 
-import { isDev } from '@etherealengine/common/src/config'
+import config, { isDev } from '@etherealengine/common/src/config'
 import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
@@ -35,6 +35,10 @@ import { projectsRootFolder } from '../file-browser/file-browser.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateProjectResourceParams = {
+  project: string
+}
+
+export type PatchProjectResourceParams = {
   project: string
 }
 
@@ -66,6 +70,11 @@ const createProjectResource =
         }
       }
       resource.url = ''
+      //make thumbnail URLs relative
+      if (resource.thumbnailURL) {
+        const cacheRe = new RegExp(`^${config.client.fileServer}`)
+        resource.thumbnailURL = resource.thumbnailURL.replace(cacheRe, '')
+      }
     }
     const storageProvider = getStorageProvider()
     const key = `projects/${project}/resources.json`
@@ -82,8 +91,46 @@ const createProjectResource =
     }
   }
 
+const patchProjectResource =
+  (app: Application) =>
+  async (id, { project }: PatchProjectResourceParams) => {
+    const storageProvider = getStorageProvider()
+    const resourceJSONPath = `projects/${project}/resources.json`
+    const resourceJSONFile = await storageProvider.getObject(resourceJSONPath)
+    const resourceJSON = JSON.parse(resourceJSONFile.Body.toString())
+    const updatedResource = (await app.service(staticResourcePath).get(id)) as StaticResourceType
+
+    const resource = resourceJSON.find((resource: StaticResourceType) => resource.key === updatedResource.key)
+    for (const field of Object.keys(updatedResource)) {
+      if (updatedResource[field] === null) {
+        delete updatedResource[field]
+      }
+      if (field === 'userId') {
+        delete (updatedResource as any)[field]
+      }
+      if (field === 'thumbnailURL') {
+        const cacheRe = new RegExp(`^${config.client.fileServer}\/`)
+        updatedResource.thumbnailURL = updatedResource.thumbnailURL.replace(cacheRe, '')
+      }
+    }
+    Object.assign(resource, updatedResource)
+
+    await storageProvider.putObject({
+      Body: Buffer.from(JSON.stringify(resourceJSON)),
+      ContentType: 'application/json',
+      Key: `projects/${project}/resources.json`
+    })
+    if (isDev !== false) {
+      const filePath = path.resolve(projectsRootFolder, resourceJSONPath)
+      const dirName = path.dirname(filePath)
+      fs.mkdirSync(dirName, { recursive: true })
+      fs.writeFileSync(filePath, JSON.stringify(resourceJSON))
+    }
+  }
+
 export default (app: Application): void => {
   app.use(projectResourcesPath, {
-    create: createProjectResource(app)
+    create: createProjectResource(app),
+    patch: patchProjectResource(app)
   })
 }
