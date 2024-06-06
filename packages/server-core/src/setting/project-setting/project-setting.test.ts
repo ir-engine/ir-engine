@@ -23,73 +23,144 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AccountProjectType,
-  accountProjectPath
-} from '@etherealengine/common/src/schemas/setting/account-project.schema'
+import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectSettingType } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Application } from '@etherealengine/server-core/declarations'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import assert from 'assert'
-import { createAccountProject, getAccountProject, patchAccountProject } from '../../../tests/testUtils'
+import {
+  createProject,
+  createProjectSetting,
+  findProjectSetting,
+  getProjectSetting,
+  patchProjectSetting,
+  removeProjectSetting
+} from '../../test-utils/project-test-utils'
 
-describe('account-project.test', () => {
+describe('project-setting.test', () => {
   let app: Application
 
-  let accountProject: AccountProjectType
+  const key1 = 'MyKey1'
+  const value1 = 'abc1'
+  const key2 = 'MyKey2'
+  const value2 = 'abc2'
+  let user: UserType
+  let project: ProjectType
 
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
 
-    const response = await createAccountProject(app)
-    accountProject = response.accountProject
+    const response = await createProject(app)
+    project = response.project
+    user = response.user
   })
 
   after(() => destroyEngine())
 
-  it('should get account project details', async () => {
-    const _accountProject = await getAccountProject(app, accountProject.id)
+  it('should create project-setting', async () => {
+    const response = await createProjectSetting(app, key1, value1, user, project)
+    const _projectSetting = response.projectSetting
 
-    assert.ok(_accountProject)
-    assert.equal(_accountProject.id, accountProject.id)
-    assert.equal(_accountProject.displayName, accountProject.displayName)
-    assert.equal(_accountProject.slug, accountProject.slug)
-    assert.equal(_accountProject.projectName, accountProject.projectName)
-    assert.equal(_accountProject.projectId, accountProject.projectId)
-    assert.equal(_accountProject.accountId, accountProject.accountId)
-    assert.equal(_accountProject.userId, accountProject.userId)
-    assert.equal(_accountProject.scenes, accountProject.scenes)
-    assert.equal(_accountProject.user?.id, accountProject.user?.id)
-    assert.equal(_accountProject.createdAt, accountProject.createdAt)
-    assert.equal(_accountProject.updatedAt, accountProject.updatedAt)
+    assert.ok(_projectSetting)
+    assert.equal(_projectSetting.key, key1)
+    assert.equal(_projectSetting.value, value1)
+    assert.equal(_projectSetting.userId, user.id)
+    assert.equal(_projectSetting.projectId, project.id)
   })
 
-  it('should find the account project', async () => {
-    const foundAccountProjects = await app.service(accountProjectPath).find()
-    assert.notEqual(foundAccountProjects.total, 0)
-    assert.ok(foundAccountProjects.data.find((d) => d.id === accountProject.id))
+  it('should get project-setting', async () => {
+    const createdResponse = await createProjectSetting(app, key1, value1, user, project)
+    const _createdProjectSetting = createdResponse.projectSetting
+    const _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
+
+    assert.ok(_projectSetting)
+    assert.equal(_projectSetting.key, key1)
+    assert.equal(_projectSetting.key, _createdProjectSetting.key)
+    assert.equal(_projectSetting.value, value1)
+    assert.equal(_projectSetting.value, _createdProjectSetting.value)
+    assert.equal(_projectSetting.userId, user.id)
+    assert.equal(_projectSetting.userId, _createdProjectSetting.userId)
+    assert.equal(_projectSetting.projectId, project.id)
+    assert.equal(_projectSetting.projectId, _createdProjectSetting.projectId)
+    assert.equal(_projectSetting.createdAt, _createdProjectSetting.createdAt)
+    assert.equal(_projectSetting.updatedAt, _createdProjectSetting.updatedAt)
   })
 
-  it('should patch account project', async () => {
-    const _accountProject = await patchAccountProject(app, accountProject.id, {
-      displayName: 'new name'
-    })
+  it('should find the project-setting', async () => {
+    await createProjectSetting(app, key1, value1, user, project)
+    const { user: user2, project: project2 } = await createProjectSetting(app, key1, value2)
 
-    assert.ok(_accountProject)
+    const _projectSetting1 = await findProjectSetting(app, { projectId: project.id, key: key1 })
+    const _projectSetting2 = await findProjectSetting(app, { projectId: project2.id, key: key1 })
 
-    assert.notEqual(_accountProject.displayName, accountProject.displayName)
-    assert.equal(_accountProject.displayName, 'new name')
+    assert.notEqual(_projectSetting1.total, 0)
+    assert.equal(_projectSetting1.data[0].key, key1)
+    assert.equal(_projectSetting1.data[0].value, value1)
+    assert.equal(_projectSetting1.data[0].userId, user.id)
+    assert.equal(_projectSetting1.data[0].projectId, project.id)
+
+    assert.notEqual(_projectSetting2.total, 0)
+    assert.equal(_projectSetting2.data[0].key, key1)
+    assert.equal(_projectSetting2.data[0].value, value2)
+    assert.equal(_projectSetting2.data[0].userId, user2.id)
+    assert.equal(_projectSetting2.data[0].projectId, project2.id)
   })
 
-  it('should remove the account project', async () => {
-    await app.service(accountProjectPath).remove(accountProject.id)
+  it('should patch project-setting by id', async () => {
+    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const _createdProjectSetting = createdResponse.projectSetting
 
-    const foundAccountProjects = await app.service(accountProjectPath).find({
-      query: {
-        id: accountProject.id
-      }
-    })
-    assert.equal(foundAccountProjects.total, 0)
+    // Testing patch using id:
+    const updatedValue = 'xyz'
+    const _patchedProjectSetting = (await patchProjectSetting(
+      app,
+      updatedValue,
+      _createdProjectSetting.id
+    )) as ProjectSettingType
+
+    assert.ok(_patchedProjectSetting)
+
+    assert.notEqual(_patchedProjectSetting.value, _createdProjectSetting.value)
+    assert.equal(_patchedProjectSetting.value, updatedValue)
+  })
+
+  it('should patch project-setting by query', async () => {
+    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const _createdProjectSetting = createdResponse.projectSetting
+
+    // Testing patch using query params:
+    const updatedValue = 'rst'
+    const patchedResponse = await patchProjectSetting(app, updatedValue, undefined, project.id, key2)
+    const _patchedProjectSetting = Array.isArray(patchedResponse) ? patchedResponse[0] : patchedResponse
+
+    assert.ok(_patchedProjectSetting)
+
+    assert.notEqual(_patchedProjectSetting.value, _createdProjectSetting.value)
+    assert.equal(_patchedProjectSetting.value, updatedValue)
+  })
+
+  it('should remove the project-setting by id', async () => {
+    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const _createdProjectSetting = createdResponse.projectSetting
+
+    // Testing remove using id:
+    let _projectSetting = await removeProjectSetting(app, _createdProjectSetting.id)
+    assert.ok(_projectSetting)
+    _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
+    assert.equal(_projectSetting, null)
+  })
+
+  it('should remove the project-setting by query', async () => {
+    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const _createdProjectSetting = createdResponse.projectSetting
+
+    // Testing patch using query params:
+    let _projectSetting = await removeProjectSetting(app, undefined, { key: key2, projectId: project.id })
+    assert.ok(_projectSetting)
+    _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
+    assert.equal(_projectSetting, null)
   })
 })
