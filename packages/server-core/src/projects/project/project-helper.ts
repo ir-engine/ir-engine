@@ -44,6 +44,7 @@ import semver from 'semver'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
@@ -75,7 +76,6 @@ import {
 } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -1830,13 +1830,13 @@ export const uploadLocalProjectToProvider = async (
       if (!hasResourceDB) {
         //otherwise, upload the files into static resources individually
         const staticResourceClasses = [
-          AssetClass.Audio,
-          AssetClass.Image,
-          AssetClass.Model,
-          AssetClass.Video,
-          AssetClass.Volumetric,
-          AssetClass.Material,
-          AssetClass.Prefab
+          AssetType.Audio,
+          AssetType.Image,
+          AssetType.Model,
+          AssetType.Video,
+          AssetType.Volumetric,
+          AssetType.Material,
+          AssetType.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {
