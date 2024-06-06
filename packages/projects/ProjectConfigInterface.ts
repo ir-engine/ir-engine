@@ -78,8 +78,6 @@ export interface ProjectConfigInterface {
    * @returns {Array<KnexSeed>}
    */
   databaseSeed?: string
-
-  settings?: Array<ProjectSettingSchema>
 }
 
 type InstallFunctionType = (app: Application) => Promise<any>
@@ -107,12 +105,6 @@ export interface ProjectEventHooks {
    * if null, return default
    */
   onOEmbedRequest?: OEmbedFunctionType
-}
-
-export interface ProjectSettingSchema {
-  key: string
-  type: string
-  scopes: Array<string>
 }
 
 export type ProjectEventHookType = keyof ProjectEventHooks
