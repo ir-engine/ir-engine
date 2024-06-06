@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import { MdOutlineHelpOutline } from 'react-icons/md'
+
 import { CiCircleInfo } from 'react-icons/ci'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../../primitives/tailwind/Label'
@@ -92,7 +93,7 @@ export const InputGroupVerticalContent = ({ children }) => <div className="flex 
 // change later
 // .info  text-[color:var(--textColor)] h-4 w-auto ml-[5px]
 export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
-  <HelpOutlineIcon
+  <MdOutlineHelpOutline
     className="ml-[5px] flex w-[18px] cursor-pointer self-center text-[color:var(--iconButtonColor)]"
     onClick={onClick}
   />

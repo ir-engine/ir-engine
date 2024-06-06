@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InterestsIcon from '@mui/icons-material/Interests'
+import { MdInterests } from 'react-icons/md'
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -144,6 +145,6 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-PrimitiveGeometryNodeEditor.iconComponent = InterestsIcon
+PrimitiveGeometryNodeEditor.iconComponent = MdInterests
 
 export default PrimitiveGeometryNodeEditor

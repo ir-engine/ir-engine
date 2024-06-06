@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 
-import TimelineIcon from '@mui/icons-material/Timeline'
+import { MdOutlineTimeline } from 'react-icons/md'
 
 import { useComponent } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
@@ -126,6 +126,6 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SplineNodeEditor.iconComponent = TimelineIcon
+SplineNodeEditor.iconComponent = MdOutlineTimeline
 
 export default SplineNodeEditor

@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import PanToolIcon from '@mui/icons-material/PanTool'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MdOutlinePanTool } from 'react-icons/md'
 
 import { getOptionalComponent, UUIDComponent } from '@etherealengine/ecs'
 import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -211,6 +211,6 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-InteractableComponentNodeEditor.iconComponent = PanToolIcon
+InteractableComponentNodeEditor.iconComponent = MdOutlinePanTool
 
 export default InteractableComponentNodeEditor

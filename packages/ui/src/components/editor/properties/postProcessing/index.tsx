@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { MdAutoFixHigh } from 'react-icons/md'
+
 import { BlendFunction, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -418,8 +418,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             onClick={() => setOpenSettings(!openSettings)}
             title={'Post Processing Effects'}
             prefixIcon={<GiMagickTrick />}
-            expandIcon={<KeyboardArrowDownIcon />}
-            shrinkIcon={<KeyboardArrowUpIcon />}
+            expandIcon={<FaChevronDown />}
+            shrinkIcon={<FaChevronUp />}
           >
             {renderEffects()}
           </Accordion>
@@ -429,6 +429,6 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   )
 }
 
-PostProcessingSettingsEditor.iconComponent = AutoFixHighIcon
+PostProcessingSettingsEditor.iconComponent = MdAutoFixHigh
 
 export default PostProcessingSettingsEditor

@@ -36,7 +36,8 @@ import { getEntityErrors } from '@etherealengine/engine/src/scene/components/Err
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
 import { getCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
-import StreetviewIcon from '@mui/icons-material/Streetview'
+import { FaStreetView } from 'react-icons/fa'
+
 import { VRM } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -113,6 +114,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-LoopAnimationNodeEditor.iconComponent = StreetviewIcon
+LoopAnimationNodeEditor.iconComponent = FaStreetView
 
 export default LoopAnimationNodeEditor

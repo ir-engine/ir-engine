@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 
-import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
+import { MdIntegrationInstructions } from 'react-icons/md'
 
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { VisualScriptComponent } from '@etherealengine/engine'
@@ -63,6 +63,6 @@ export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-VisualScriptNodeEditor.iconComponent = IntegrationInstructionsIcon
+VisualScriptNodeEditor.iconComponent = MdIntegrationInstructions
 
 export default VisualScriptNodeEditor

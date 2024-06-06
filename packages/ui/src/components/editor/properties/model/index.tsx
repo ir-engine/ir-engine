@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import { VRM } from '@pixiv/three-vrm'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MdOutlineViewInAr } from 'react-icons/md'
 import { Object3D, Scene } from 'three'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
@@ -196,6 +196,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-ModelNodeEditor.iconComponent = ViewInArIcon
+ModelNodeEditor.iconComponent = MdOutlineViewInAr
 
 export default ModelNodeEditor

@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ScreenShareIcon from '@mui/icons-material/ScreenShare'
+import { TbScreenShare } from 'react-icons/tb'
+
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -63,6 +64,6 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-ScreenshareTargetNodeEditor.iconComponent = ScreenShareIcon
+ScreenshareTargetNodeEditor.iconComponent = TbScreenShare
 
 export default ScreenshareTargetNodeEditor

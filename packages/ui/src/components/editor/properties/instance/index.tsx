@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ScatterPlot from '@mui/icons-material/ScatterPlot'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { MdScatterPlot } from 'react-icons/md'
 
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
@@ -48,6 +48,6 @@ export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entit
   )
 }
 
-InstancingNodeEditor.iconComponent = ScatterPlot
+InstancingNodeEditor.iconComponent = MdScatterPlot
 
 export default InstancingNodeEditor

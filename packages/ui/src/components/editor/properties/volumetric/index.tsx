@@ -47,7 +47,8 @@ import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import VideocamIcon from '@mui/icons-material/Videocam'
+import { MdVideocam } from 'react-icons/md'
+
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
@@ -383,6 +384,6 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = VideocamIcon
+VolumetricNodeEditor.iconComponent = MdVideocam
 
 export default VolumetricNodeEditor

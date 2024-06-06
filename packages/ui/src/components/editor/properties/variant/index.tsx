@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import DeblurIcon from '@mui/icons-material/Deblur'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MdDeblur } from 'react-icons/md'
 
 import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
@@ -319,6 +319,6 @@ export const BudgetVariantNodeEditor = (props: {
   )
 }
 
-VariantNodeEditor.iconComponent = DeblurIcon
+VariantNodeEditor.iconComponent = MdDeblur
 
 export default VariantNodeEditor

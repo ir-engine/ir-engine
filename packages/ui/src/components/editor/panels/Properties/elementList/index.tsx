@@ -29,8 +29,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
+import { PiPlaceholder } from 'react-icons/pi'
 
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -51,7 +50,7 @@ export type SceneElementType = {
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
   useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
-  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PlaceHolderIcon
+  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PiPlaceholder
   const handleClosePopover = usePopoverContextClose()
 
   return (

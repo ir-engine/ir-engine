@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ExtensionIcon from '@mui/icons-material/Extension'
+import { MdExtension } from 'react-icons/md'
+
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -64,6 +65,6 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SystemNodeEditor.iconComponent = ExtensionIcon
+SystemNodeEditor.iconComponent = MdExtension
 
 export default SystemNodeEditor

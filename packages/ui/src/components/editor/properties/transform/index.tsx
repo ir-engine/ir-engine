@@ -36,7 +36,7 @@ import {
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
+import { Md3DRotation } from 'react-icons/md'
 
 import {
   EditorComponentType,
@@ -150,6 +150,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   )
 }
 
-TransformPropertyGroup.iconComponent = ThreeDRotationIcon
+TransformPropertyGroup.iconComponent = Md3DRotation
 
 export default TransformPropertyGroup
