@@ -820,6 +820,7 @@
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
+      "name": "Spot Light Component",
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
