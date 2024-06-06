@@ -56,7 +56,7 @@ const AdminTopBar = () => {
 
   return (
     <div className="flex h-16 w-full items-center justify-between bg-theme-surface-main px-8 py-4">
-      <img src="static/etherealengine_logo.png" alt="iR Engine Logo" className="h-7 w-7" />
+      <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
       <div className="">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
           {theme.value === 'light' ? (
