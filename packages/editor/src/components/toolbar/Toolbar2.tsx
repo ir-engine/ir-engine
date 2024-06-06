@@ -36,7 +36,6 @@ import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { PiSquaresFourThin } from 'react-icons/pi'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
@@ -144,7 +143,8 @@ export default function Toolbar() {
               anchorEl.set(event.currentTarget)
             }}
           />
-          <Button
+          {/* Hiding the Panel Menu until we know what it does */}
+          {/* <Button
             endIcon={
               <MdOutlineKeyboardArrowDown
                 size="1em"
@@ -161,7 +161,7 @@ export default function Toolbar() {
               // anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
               // anchorEl.set(event.currentTarget)
             }}
-          />
+          /> */}
         </div>
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
