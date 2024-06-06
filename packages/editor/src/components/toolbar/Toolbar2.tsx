@@ -114,7 +114,8 @@ export default function Toolbar() {
   const anchorPosition = useHookstate({ left: 0, top: 0 })
   const anchorOpen = useHookstate(false)
 
-  const { projectName } = useMutableState(EditorState)
+  const { projectName, sceneName } = useMutableState(EditorState)
+
   const hasLocationWriteScope = useUserHasAccessHook('location:write')
   const permission = useProjectPermissions(projectName.value!)
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
@@ -168,7 +169,7 @@ export default function Toolbar() {
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
-          Project Name / Scene Name
+          <span className="text-[#B2B5BD]">{projectName.value}</span> / {sceneName.value}
         </div>
         <Button rounded="none" disabled={!hasPublishAccess}>
           {t('editor:toolbar.lbl-publish')}
