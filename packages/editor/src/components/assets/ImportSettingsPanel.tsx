@@ -82,7 +82,9 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = ({ compressProperties }) => {
+const ImageCompressionBox = () => {
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
+
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -194,7 +196,7 @@ const ImageCompressionBox = ({ compressProperties }) => {
 
 export default function ImportSettingsPanel() {
   const importSettingsState = useMutableState(ImportSettingsState)
-  const compressProperties = useMutableState(ImportSettingsState).imageSettings.get(NO_PROXY)
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
 
   const [defaultImportFolder, setDefaultImportFolder] = useState<string>(importSettingsState.importFolder.value)
   const [LODImportFolder, setLODImportFolder] = useState<string>(importSettingsState.LODFolder.value)
@@ -225,7 +227,7 @@ export default function ImportSettingsPanel() {
     importSettingsState.LODFolder.set(LODImportFolder)
     importSettingsState.LODsEnabled.set(LODGenEnabled)
     importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties)
+    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
     importSettingsState.selectedLODS.set(selectedLODS)
     handleCancel()
   }
@@ -290,7 +292,7 @@ export default function ImportSettingsPanel() {
             control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
-          {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
+          {KTXEnabled && <ImageCompressionBox />}
         </Box>
       </Box>
       <Box>

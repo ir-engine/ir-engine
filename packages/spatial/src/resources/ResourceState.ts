@@ -23,12 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BufferAttribute, Cache, CompressedTexture, Material, Mesh, Object3D, Scene, SkinnedMesh, Texture } from 'three'
+import {
+  BufferAttribute,
+  Cache,
+  CompressedTexture,
+  Material,
+  Mesh,
+  Object3D,
+  RepeatWrapping,
+  SkinnedMesh,
+  Texture
+} from 'three'
 
 import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@etherealengine/hyperflux'
 import { removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 
+import { GLTF } from '@etherealengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
@@ -58,14 +69,9 @@ export enum ResourceType {
   Geometry = 'Geometry',
   Material = 'Material',
   Object3D = 'Object3D',
+  Audio = 'Audio',
   Unknown = 'Unknown'
   // ECSData = 'ECSData',
-  // Audio = 'Audio',
-}
-
-type GLTF = {
-  scene: Scene
-  scenes: Scene[]
 }
 
 export type ResourceAssetType =
@@ -77,6 +83,7 @@ export type ResourceAssetType =
   | Material[]
   | Mesh
   | DisposableObject
+  | AudioBuffer
 
 type BaseMetadata = {
   size?: number
@@ -159,7 +166,9 @@ const getTotalVertexCount = () => {
 }
 
 const getRendererInfo = () => {
-  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+  const viewer = Engine?.instance?.viewerEntity as Entity | undefined
+  if (!viewer) return {}
+  const renderer = getOptionalComponent(viewer, RendererComponent)?.renderer
   if (!renderer) return {}
   return {
     memory: renderer.info.memory,
@@ -185,7 +194,7 @@ const checkBudgets = () => {
 const resourceCallbacks = {
   [ResourceType.GLTF]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: GLTF, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+    onLoad: (asset: GLTF, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       const resources = getMutableState(ResourceState).nested('resources')
       const geometryIDs = resource.assetRefs[ResourceType.Geometry]
       const metadata = resource.metadata as State<GLTFMetadata>
@@ -209,6 +218,8 @@ const resourceCallbacks = {
         }
         metadata.textureWidths.set(textureWidths)
       }
+
+      if (asset.parser) delete asset.parser
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {
       resource.metadata.size.set(request.total)
@@ -225,31 +236,38 @@ const resourceCallbacks = {
       resource.metadata.merge({ onGPU: false })
     },
     onLoad: (
-      response: Texture | CompressedTexture,
+      asset: Texture | CompressedTexture,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => {
-      response.onUpdate = () => {
+      asset.wrapS = RepeatWrapping
+      asset.wrapT = RepeatWrapping
+      asset.onUpdate = () => {
         if (resource && resource.value) resource.metadata.merge({ onGPU: true })
         //@ts-ignore
-        response.onUpdate = null
+        asset.onUpdate = null
       }
       //Compressed texture size
-      if (response.mipmaps[0]) {
+      if (asset.mipmaps[0]) {
         let size = 0
-        for (const mip of response.mipmaps) {
+        for (const mip of asset.mipmaps) {
           size += mip.data.byteLength
         }
         resource.metadata.size.set(size)
         // Non compressed texture size
       } else {
-        const height = response.image.height
-        const width = response.image.width
+        const height = asset.image.height
+        const width = asset.image.width
         const size = width * height * 4
         resource.metadata.size.set(size)
       }
 
-      resource.metadata.merge({ textureWidth: response.image.width })
+      if ((asset as CompressedTexture).isCompressedTexture) {
+        const id = resource.id.value
+        if (id.endsWith('ktx2')) asset.source.data.src = id
+      }
+
+      resource.metadata.merge({ textureWidth: asset.image.width })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
@@ -266,7 +284,7 @@ const resourceCallbacks = {
   },
   [ResourceType.Material]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onLoad: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (
@@ -279,23 +297,23 @@ const resourceCallbacks = {
   },
   [ResourceType.Geometry]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
+    onLoad: (asset: Geometry, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
       // Estimated geometry size
-      const attributeKeys = Object.keys(response.attributes)
-      let needsUploaded = response.index ? attributeKeys.length + 1 : attributeKeys.length
+      const attributeKeys = Object.keys(asset.attributes)
+      let needsUploaded = asset.index ? attributeKeys.length + 1 : attributeKeys.length
       let size = 0
 
       const checkUploaded = () => {
         if (needsUploaded == 0 && resource && resource.value) resource.metadata.merge({ onGPU: true })
       }
 
-      response.index?.onUpload(() => {
+      asset.index?.onUpload(() => {
         needsUploaded -= 1
         checkUploaded()
       })
 
       for (const name of attributeKeys) {
-        const attr = response.getAttribute(name) as BufferAttribute
+        const attr = asset.getAttribute(name) as BufferAttribute
         size += attr.count * attr.itemSize * attr.array.BYTES_PER_ELEMENT
         if (typeof attr.onUpload === 'function') {
           attr.onUpload(() => {
@@ -308,7 +326,7 @@ const resourceCallbacks = {
       }
       checkUploaded()
 
-      const indices = response.getIndex()
+      const indices = asset.getIndex()
       if (indices) {
         resource.metadata.merge({ vertexCount: indices.count })
         size += indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT
@@ -323,7 +341,7 @@ const resourceCallbacks = {
   },
   [ResourceType.Mesh]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onLoad: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (asset: Mesh, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {
@@ -332,7 +350,7 @@ const resourceCallbacks = {
   },
   [ResourceType.Object3D]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onLoad: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (
@@ -343,9 +361,16 @@ const resourceCallbacks = {
       tryUnloadObj(asset)
     }
   },
+  [ResourceType.Audio]: {
+    onStart: (resource: State<Resource>) => {},
+    onLoad: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
+    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
+    onUnload: (asset: AudioBuffer, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {}
+  },
   [ResourceType.Unknown]: {
     onStart: (resource: State<Resource>) => {},
-    onLoad: (response: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
+    onLoad: (asset: Material, resource: State<Resource>, resourceState: State<typeof ResourceState._TYPE>) => {},
     onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
     onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (
@@ -360,7 +385,7 @@ const resourceCallbacks = {
   [key in ResourceType]: {
     onStart: (resource: State<Resource>) => void
     onLoad: (
-      response: ResourceAssetType,
+      asset: ResourceAssetType,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
     ) => void
@@ -675,5 +700,7 @@ export const ResourceManager = {
     getTotalSizeOfResources,
     getTotalBufferSize,
     getTotalVertexCount
-  }
+  },
+  /** Removes a resource even if it is still being referenced, needed for updating assets in the studio */
+  __unsafeRemoveResource: removeResource
 }

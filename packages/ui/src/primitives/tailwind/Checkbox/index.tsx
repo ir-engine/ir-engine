@@ -24,6 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { HiCheck } from 'react-icons/hi'
+
 import { twMerge } from 'tailwind-merge'
 
 import Label from '../Label'
@@ -37,42 +39,27 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   disabled?: boolean
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
-  const twClassName = twMerge(
-    'disabled:border-steel-400 disabled:bg-steel-400 peer',
-    'relative h-4 w-4 shrink-0 appearance-none rounded-sm',
-    'border-2 border-blue-500 bg-white',
-    'checked:border-0 checked:bg-blue-800 focus:outline-none focus:ring-2',
-    'focus:ring-blue-500 focus:ring-offset-0 dark:focus:ring-blue-600',
-    className
-  )
-
+const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
   return (
-    <div className={twMerge('relative flex w-full items-center gap-4', containerClassName)}>
-      <input
-        type="checkbox"
-        checked={value}
-        onChange={(e) => onChange(e.target.checked as any)}
-        className={twClassName}
-        {...rest}
-      ></input>
-      {label && (
-        <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
-          {label}
-        </Label>
-      )}
-      <svg
-        className="pointer-events-none absolute hidden h-4 w-4 scale-75 text-white peer-checked:block"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <div
+      onClick={() => {
+        if (!disabled) {
+          onChange(!value)
+        }
+      }}
+      className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
+    >
+      <div
+        className={twMerge(
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
+          disabled ? 'cursor-not-allowed opacity-50' : ''
+        )}
       >
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
+        {value && <HiCheck className="h-3 w-3 text-white" />}
+      </div>
+
+      {label && <Label className="cursor-pointer self-stretch leading-[1.15]">{label}</Label>}
     </div>
   )
 }

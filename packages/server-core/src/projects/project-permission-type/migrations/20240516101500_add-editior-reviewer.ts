@@ -32,33 +32,31 @@ import { projectPermissionTypePath } from '@etherealengine/common/src/schemas/pr
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(projectPermissionTypePath)
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
 
   if (tableExists) {
-    const currentTypes = await trx.select().from(projectPermissionTypePath)
+    const currentTypes = await knex.select().from(projectPermissionTypePath)
     if (currentTypes.length > 0) {
       const hasUserType = currentTypes.find((item) => item.type === 'user')
       if (hasUserType) {
-        await trx.from(projectPermissionTypePath).where({ type: 'user' }).del()
+        await knex.from(projectPermissionTypePath).where({ type: 'user' }).del()
       }
 
       const hasEditorType = currentTypes.find((item) => item.type === 'editor')
       if (!hasEditorType) {
-        await trx.from(projectPermissionTypePath).insert({ type: 'editor' })
+        await knex.from(projectPermissionTypePath).insert({ type: 'editor' })
       }
 
       const hasReviewerType = currentTypes.find((item) => item.type === 'reviewer')
       if (!hasReviewerType) {
-        await trx.from(projectPermissionTypePath).insert({ type: 'reviewer' })
+        await knex.from(projectPermissionTypePath).insert({ type: 'reviewer' })
       }
     }
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -66,31 +64,29 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(projectPermissionTypePath)
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
 
   if (tableExists) {
-    const currentTypes = await trx.select().from(projectPermissionTypePath)
+    const currentTypes = await knex.select().from(projectPermissionTypePath)
     if (currentTypes.length > 0) {
       const hasUserType = currentTypes.find((item) => item.type === 'user')
       if (!hasUserType) {
-        await trx.from(projectPermissionTypePath).insert({ type: 'user' })
+        await knex.from(projectPermissionTypePath).insert({ type: 'user' })
       }
 
       const hasEditorType = currentTypes.find((item) => item.type === 'editor')
       if (hasEditorType) {
-        await trx.from(projectPermissionTypePath).where({ type: 'editor' }).del()
+        await knex.from(projectPermissionTypePath).where({ type: 'editor' }).del()
       }
 
       const hasReviewerType = currentTypes.find((item) => item.type === 'reviewer')
       if (hasReviewerType) {
-        await trx.from(projectPermissionTypePath).where({ type: 'reviewer' }).del()
+        await knex.from(projectPermissionTypePath).where({ type: 'reviewer' }).del()
       }
     }
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
