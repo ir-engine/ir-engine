@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
-import fs from 'fs'
+import fs, { promises as fsp } from 'fs'
 import nock from 'nock'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -37,16 +37,16 @@ import { avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schem
 import { identityProviderPath } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
 import { UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { copyFolderRecursiveSync, deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
+import { cpAsync, existsAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { useGit } from '../../util/gitHelperFunctions'
 
 const cleanup = async (app: Application, projectName: string) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
-  deleteFolderRecursive(projectDir)
+  if (await existsAsync(projectDir)) await fsp.rm(projectDir, { recursive: true })
   const removingProjects = await app.service(projectPath).find({ query: { name: projectName } })
   if (removingProjects.data.length) await app.service(projectPath).remove(removingProjects.data[0].id)
 }
@@ -131,9 +131,9 @@ describe('project.test', () => {
     let sourceDirectory: string
     let testUpdateProjectName: string
 
-    before(() => {
+    before(async () => {
       sourceDirectory = path.resolve(appRootPath.path, `packages/projects/projects/test-cloning-directory`)
-      copyFolderRecursiveSync(
+      await cpAsync(
         path.resolve(appRootPath.path, `packages/projects/template-project`),
         path.resolve(appRootPath.path, `packages/projects/projects`)
       )

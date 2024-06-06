@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { existsAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
+import { promises as fsp } from 'fs'
 import path from 'path'
 
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
@@ -52,9 +53,9 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     // for local dev clear the storage provider
     if (!config.kubernetes.enabled && !config.testEnabled) {
       const uploadPath = path.resolve(appRootPath.path, 'packages/server/upload/')
-      if (fs.existsSync(uploadPath)) fs.rmSync(uploadPath, { recursive: true })
+      if (await existsAsync(uploadPath)) await fsp.rm(uploadPath, { recursive: true })
     }
-    copyDefaultProject()
+    await copyDefaultProject()
     await app.service(projectPath)._seedProject('default-project')
   }
 

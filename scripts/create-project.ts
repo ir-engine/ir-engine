@@ -30,7 +30,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
-import { copyFolderRecursiveSync } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { cpAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { engineVersion } from '@etherealengine/server-core/src/projects/project/project-helper'
 import { execPromise } from '@etherealengine/server-core/src/util/execPromise'
 
@@ -78,7 +78,7 @@ cli.main(async () => {
     }
 
     /** we used to use the project service create method here, but we shouldn't need to */
-    copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
+    await cpAsync(templateFolderDirectory, projectsRootFolder)
     fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
     const projectFolder = path.resolve(appRootPath.path, 'packages/projects/projects', name)

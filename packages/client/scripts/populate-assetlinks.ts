@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
-import fs from 'fs'
 import fetch from 'node-fetch'
+import path from 'path'
 
-import { writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import { writeFileAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 
-const envPath = appRootPath.path + `/packages/client/public/.wellknown/assetlinks.json`
+const envPath = path.join(appRootPath.path, 'packages', 'client', 'public', '.wellknown', 'assetlinks.json')
 
 cli.main(async () => {
   function readStreamFirstData(stream: NodeJS.ReadableStream): Promise<string> {
@@ -44,10 +44,10 @@ cli.main(async () => {
   }
 
   const response = await fetch(process.env.TWA_LINK!)
-  if (fs.existsSync(envPath)) fs.rmSync(envPath)
 
   const data = await readStreamFirstData(response.body!)
-  writeFileSyncRecursive(envPath, data)
+
+  await writeFileAsync(envPath, data)
 
   process.exit(0)
 })

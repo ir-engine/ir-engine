@@ -27,20 +27,11 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { Octokit } from '@octokit/rest'
 import appRootPath from 'app-root-path'
-import fs from 'fs'
+import fs, { promises as fsp } from 'fs'
 import fetch from 'node-fetch'
 import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
-import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
-import { deleteFolderRecursive, writeFileSyncRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import {
   AudioFileTypes,
   BinaryFileTypes,
@@ -50,11 +41,20 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/common/src/schemas/user/identity-provider.schema'
+import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { existsAsync, writeFileAsync } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
@@ -177,9 +177,9 @@ export const pushProject = async (
     logger.info('[ProjectPush]: Found files:' + files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', project.name)
-    if (fs.existsSync(localProjectDirectory)) {
+    if (await existsAsync(localProjectDirectory)) {
       logger.info('[Project temp debug]: fs exists, deleting')
-      deleteFolderRecursive(localProjectDirectory)
+      await fsp.rm(localProjectDirectory, { recursive: true })
     }
 
     await Promise.all(
@@ -187,7 +187,9 @@ export const pushProject = async (
         logger.info(`[ProjectLoader]: - downloading "${filePath}"`)
         const fileResult = await storageProvider.getObject(filePath)
         if (fileResult.Body.length === 0) logger.info(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-        writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
+        await writeFileAsync(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body, {
+          recursive: true
+        })
       })
     )
     const repoPath = project.repositoryPath.toLowerCase()
@@ -362,7 +364,7 @@ const uploadToRepo = async (
   if (lfsFiles.length > 0) {
     for (let lfsFile of lfsFiles)
       gitattributesContent += `${lfsFile.replace(/ /g, '[[:space:]]')} filter=lfs diff=lfs merge=lfs -text\n`
-    await fs.writeFileSync(gitattributesPath, gitattributesContent)
+    await writeFileAsync(gitattributesPath, gitattributesContent)
   }
   if (lfsFiles.length > 0) {
     const blob = await createBlobForFile(
