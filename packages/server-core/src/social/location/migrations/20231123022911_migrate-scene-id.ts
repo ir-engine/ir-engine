@@ -32,20 +32,18 @@ import { locationPath } from '@etherealengine/common/src/schemas/social/location
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const sceneIdColumnExists = await trx.schema.hasColumn(locationPath, 'sceneId')
+  const sceneIdColumnExists = await knex.schema.hasColumn(locationPath, 'sceneId')
 
   if (sceneIdColumnExists === true) {
-    await trx
+    await knex
       .from(locationPath)
-      .update({ sceneId: trx.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
+      .update({ sceneId: knex.raw("CONCAT('projects/', ??, '.scene.json')", ['sceneId']) })
       .where('sceneId', 'not like', '%projects/%')
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
