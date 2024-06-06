@@ -31,7 +31,7 @@ import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDia
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -106,6 +106,13 @@ export const SaveNewSceneDialog = () => {
     }
     modalProcessing.set(false)
   }
+
+  useEffect(() => {
+    const { sceneName } = getState(EditorState)
+    if (sceneName) {
+      inputSceneName.set(sceneName)
+    }
+  }, [])
 
   return (
     <Modal
