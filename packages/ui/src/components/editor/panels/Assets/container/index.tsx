@@ -358,7 +358,7 @@ const AssetPanel = () => {
   return (
     <>
       <div className="mb-1 flex h-8 items-center bg-theme-surface-main">
-        <div className="flex w-[200px] gap-2">
+        <div className="mr-20 flex gap-2">
           <div id="back" className="pointer-events-auto flex items-center">
             <Tooltip title={t('editor:layout.filebrowser.back')} direction="bottom" className="left-1">
               <Button variant="transparent" startIcon={<HiMiniArrowLeft />} className="p-0" onClick={handleBack} />
@@ -394,7 +394,7 @@ const AssetPanel = () => {
               searchText.set(e.target.value)
             }}
             labelClassname="text-sm text-red-500"
-            containerClassname="flex h-full bg-theme-primary rounded-[4px] w-auto"
+            containerClassname="flex h-full bg-theme-primary rounded w-auto"
             className="h-7 rounded-[4px] bg-theme-primary py-0 text-xs text-[#A3A3A3] placeholder:text-[#A3A3A3] focus-visible:ring-0"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
           />
@@ -417,7 +417,7 @@ const AssetPanel = () => {
         <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
           <ResourceItems />
         </div>
-        <div className="w-[200px] bg-[#222222] p-2">{/* TODO: add preview functionality */}</div>
+        {/* <div className="w-[200px] bg-[#222222] p-2">TODO: add preview functionality</div> */}
       </div>
     </>
   )
