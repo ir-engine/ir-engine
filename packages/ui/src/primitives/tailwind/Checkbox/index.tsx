@@ -39,7 +39,7 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
   disabled?: boolean
 }
 
-const Checkbox = ({ className, containerClassName, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
+const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
   return (
     <div
       onClick={() => {
