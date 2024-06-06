@@ -30,13 +30,13 @@ import { invalidationPath } from '@etherealengine/common/src/schemas/media/inval
 export async function up(knex: Knex): Promise<void> {
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  let tableExists = await trx.schema.hasTable(invalidationPath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  let tableExists = await knex.schema.hasTable(invalidationPath)
 
   if (!tableExists) {
-    await trx.schema.createTable(invalidationPath, (table) => {
+    await knex.schema.createTable(invalidationPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('path', 255).notNullable()
@@ -45,20 +45,17 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(invalidationPath)
+  const tableExists = await knex.schema.hasTable(invalidationPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(invalidationPath)
+    await knex.schema.dropTable(invalidationPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
