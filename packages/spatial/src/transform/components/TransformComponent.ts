@@ -39,9 +39,6 @@ export type TransformComponentType = {
   scale: Vector3
   matrix: Matrix4
   matrixWorld: Matrix4
-  forward: () => Vector3
-  right: () => Vector3
-  up: () => Vector3
 }
 
 const { f64 } = Types
@@ -74,10 +71,7 @@ export const TransformComponent = defineComponent({
         new Vector3(1, 1, 1)
       ) as Vector3,
       matrix: new Matrix4(),
-      matrixWorld: new Matrix4(),
-      forward: () => TransformComponent.forward(entity),
-      right: () => TransformComponent.right(entity),
-      up: () => TransformComponent.up(entity)
+      matrixWorld: new Matrix4()
     } as TransformComponentType
     return component
   },
@@ -233,18 +227,21 @@ export const TransformComponent = defineComponent({
     transform.matrixWorld.compose(vec3, quat, scale)
   },
 
+  /**Transforms forward vector*/
   forward: (entity: Entity) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
     vec3_forward.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
     return vec3_forward
   },
 
+  /**Transforms up vector*/
   up: (entity: Entity) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
     vec3_up.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
     return vec3_up
   },
 
+  /**Transforms right vector*/
   right: (entity: Entity) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
     vec3_right.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
