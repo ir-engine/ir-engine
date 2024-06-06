@@ -28,22 +28,22 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 
-import { AssetType } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
-export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: AssetType }) {
+export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: StaticResourceType }) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
 
   const handleSubmit = async () => {
-    const currentURL = scene.assetURL
+    const currentURL = scene.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
-    const newData = await renameScene(scene.id, newURL, scene.projectName)
-    getMutableState(EditorState).scenePath.set(newData.assetURL)
+    const newData = await renameScene(scene.id, newURL, scene.project)
+    getMutableState(EditorState).scenePath.set(newData.key)
     PopoverState.hidePopupover()
   }
 

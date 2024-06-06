@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import config from '@etherealengine/common/src/config'
-import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
@@ -44,19 +44,19 @@ import RenameSceneModal from '../modals/RenameScene'
 export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useMutableState(EditorState)
-  const scenesQuery = useFind(assetPath, { query: { project: editorState.projectName.value } })
+  const scenesQuery = useFind(staticResourcePath, { query: { project: editorState.projectName.value, type: 'scene' } })
   const scenes = scenesQuery.data
 
   const contextMenuRef = useRef(null)
-  const isContextMenuOpen = useHookstate<AssetType['id']>('')
+  const isContextMenuOpen = useHookstate<StaticResourceType['id']>('')
   const scenesLoading = scenesQuery.status === 'pending'
   const onCreateScene = async () => onNewScene()
 
-  const onClickScene = (scene: AssetType) => {
-    getMutableState(EditorState).scenePath.set(scene.assetURL)
+  const onClickScene = (scene: StaticResourceType) => {
+    getMutableState(EditorState).scenePath.set(scene.key)
   }
 
-  const deleteSelectedScene = async (scene: AssetType) => {
+  const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
       await deleteScene(scene.id)
       if (editorState.sceneAssetID.value === scene.id) {
@@ -67,8 +67,8 @@ export default function ScenesPanel() {
     PopoverState.hidePopupover()
   }
 
-  const getSceneName = (scene: AssetType) =>
-    scene.assetURL.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
+  const getSceneName = (scene: StaticResourceType) =>
+    scene.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', '')
 
   useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
@@ -92,14 +92,14 @@ export default function ScenesPanel() {
         ) : (
           <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
             <div className="flex flex-wrap gap-4 pb-8">
-              {scenes.map((scene: AssetType) => (
+              {scenes.map((scene) => (
                 <div
                   key={scene.id}
                   className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
-                    alt={scene.assetURL}
+                    alt={scene.key}
                     onError={(e) => {
                       e.currentTarget.src = 'static/ir.svg'
                     }}
