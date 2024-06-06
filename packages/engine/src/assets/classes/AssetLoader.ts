@@ -107,14 +107,11 @@ const getAssetClass = (assetFileName: string): AssetClass => {
   assetFileName = assetFileName.toLowerCase()
   if (/\.(gltf|glb|vrm|fbx|obj|usdz)$/.test(assetFileName)) {
     if (/\.(material.gltf)$/.test(assetFileName)) {
-      console.log('Material asset')
       return AssetClass.Material
     } else if (/\.(lookdev.gltf)$/.test(assetFileName)) {
-      console.log('Lookdev asset')
       return AssetClass.Lookdev
     }
     if (/\.(prefab.gltf)$/.test(assetFileName)) {
-      console.log('prefab asset')
       return AssetClass.Prefab
     }
     return AssetClass.Model
