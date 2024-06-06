@@ -133,7 +133,7 @@ export const FileTableListBody = ({
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]">
+      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {isRenaming ? <RenameInput fileName={file.name} onNameChanged={onNameChanged} /> : file.fullName}
@@ -146,7 +146,8 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`h-[${fontSize * 3}px] text-[${fontSize}px] text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      className={`text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      style={{ height: `${fontSize * 3}px` }}
       onContextMenu={onContextMenu}
       onClick={isRenaming ? () => {} : onClick}
       onDoubleClick={isRenaming ? () => {} : onDoubleClick}
@@ -155,7 +156,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base" style={{ fontSize }}>
+          <td key={idx} className="text-base" style={{ fontSize: `${fontSize}px` }}>
             {tableColumns[header]}
           </td>
         ))}
