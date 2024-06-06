@@ -125,19 +125,19 @@ export default function Toolbar() {
       <div className="flex items-center justify-between bg-theme-primary">
         <div className="flex items-center">
           <div
-            className="rounded-md bg-[#212226] p-1"
+            className="ml-3 mr-6 rounded-md bg-[#212226] p-1"
             onClick={() => {
               // todo: redirect to studio
             }}
           >
             <img src="static/ir.svg" alt="iR Engine Logo" className={`h-5 w-5 opacity-50`} />
           </div>
-
           <Button
-            endIcon={<MdOutlineKeyboardArrowDown size="1.5em" className="text-[#A3A3A3]" />}
+            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
+            iconContainerClassName="ml-2 mr-1"
             rounded="none"
-            startIcon={<RxHamburgerMenu size={24} />}
-            className="border-0 bg-transparent py-1 pl-2 pr-0"
+            startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
+            className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorOpen.set(true)
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
@@ -147,14 +147,15 @@ export default function Toolbar() {
           <Button
             endIcon={
               <MdOutlineKeyboardArrowDown
-                size="1.5em"
-                className={`m-0 text-[#A3A3A3]`}
+                size="1em"
+                className={`-ml-3 text-[#A3A3A3] `}
                 // onClick={toggleDropdown}
               />
             }
             rounded="none"
-            startIcon={<PiSquaresFourThin size={24} />}
-            className="border-0 bg-transparent px-1 py-1"
+            startIcon={<PiSquaresFourThin size={24} className="text-[#9CA0AA]" />}
+            iconContainerClassName="ml-2 mr-1"
+            className="-ml-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               // anchorOpen.set(true)
               // anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
