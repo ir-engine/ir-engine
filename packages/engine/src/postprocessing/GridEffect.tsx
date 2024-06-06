@@ -33,6 +33,12 @@ import { BlendFunction, GridEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    GridEffect: GridEffect
+  }
+}
+
 const effectKey = 'GridEffect'
 
 export const GridEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

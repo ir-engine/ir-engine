@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    TextureEffect: TextureEffect
+  }
+}
+
 const effectKey = 'TextureEffect'
 
 export const TextureEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

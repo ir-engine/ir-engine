@@ -33,6 +33,12 @@ import { BlendFunction, KernelSize, Resolution, TiltShiftEffect } from 'postproc
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    TiltShiftEffect: TiltShiftEffect
+  }
+}
+
 const effectKey = 'TiltShiftEffect'
 
 export const TiltShiftEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

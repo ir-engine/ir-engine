@@ -33,6 +33,12 @@ import React, { useEffect } from 'react'
 import { SSGIEffect } from 'realism-effects'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    SSGIEffect: SSGIEffect
+  }
+}
+
 const effectKey = 'SSGIEffect'
 
 export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

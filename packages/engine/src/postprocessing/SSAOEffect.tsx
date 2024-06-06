@@ -35,6 +35,12 @@ import React, { useEffect } from 'react'
 import { ArrayCamera } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    SSAOEffect: SSAOEffect
+  }
+}
+
 const effectKey = 'SSAOEffect'
 
 export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

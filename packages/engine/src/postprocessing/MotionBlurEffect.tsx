@@ -35,6 +35,12 @@ import { MotionBlurEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    MotionBlurEffect: MotionBlurEffect
+  }
+}
+
 const effectKey = 'MotionBlurEffect'
 
 export const MotionBlurEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

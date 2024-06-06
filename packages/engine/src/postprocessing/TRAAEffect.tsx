@@ -35,6 +35,12 @@ import { TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    TRAAEffect: TRAAEffect
+  }
+}
+
 const effectKey = 'TRAAEffect'
 
 export const TRAAEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

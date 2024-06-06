@@ -33,6 +33,12 @@ import { BlendFunction, VignetteEffect, VignetteTechnique } from 'postprocessing
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    VignetteEffect: VignetteEffect
+  }
+}
+
 const effectKey = 'VignetteEffect'
 
 export const VignetteEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

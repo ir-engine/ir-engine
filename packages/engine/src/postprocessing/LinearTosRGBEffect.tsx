@@ -32,6 +32,12 @@ import {
 import { LinearTosRGBEffect } from '@etherealengine/spatial/src/renderer/effects/LinearTosRGBEffect'
 import React, { useEffect } from 'react'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    LinearTosRGBEffect: LinearTosRGBEffect
+  }
+}
+
 const effectKey = 'LinearTosRGBEffect'
 
 export const LinearTosRGBEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

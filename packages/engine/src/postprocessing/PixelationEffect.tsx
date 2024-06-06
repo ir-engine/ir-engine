@@ -33,6 +33,12 @@ import { PixelationEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    PixelationEffect: PixelationEffect
+  }
+}
+
 const effectKey = 'PixelationEffect'
 
 export const PixelationEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

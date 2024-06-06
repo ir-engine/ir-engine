@@ -31,8 +31,8 @@ import { Scene } from 'three'
 export type EffectReactorProps = {
   isActive: boolean
   rendererEntity: Entity
-  effectData
-  effects
+  effectData: any
+  effects: any
   composer: EffectComposer
   scene: Scene
 }

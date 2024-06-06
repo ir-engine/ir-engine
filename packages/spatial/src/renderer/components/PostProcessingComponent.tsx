@@ -25,17 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
 import { ErrorBoundary, NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
-import { Effect, EffectComposer, EffectPass, OutlineEffect, RenderPass } from 'postprocessing'
+import {
+  EdgeDetectionMode,
+  Effect,
+  EffectComposer,
+  EffectPass,
+  OutlineEffect,
+  RenderPass,
+  SMAAEffect
+} from 'postprocessing'
 import React, { Suspense, useEffect } from 'react'
-import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { ArrayCamera, Scene, WebGLRenderer } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
-import { RendererComponent } from '../WebGLRendererSystem'
+import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PostProcessingEffectState } from '../effects/EffectRegistry'
-import { LinearTosRGBEffect } from '../effects/LinearTosRGBEffect'
 import { useScene } from './SceneComponents'
 
 declare module 'postprocessing' {
@@ -43,37 +49,6 @@ declare module 'postprocessing' {
     // passes
     EffectPass: EffectPass
     // effects
-
-    BloomEffect: BloomEffect
-    BrightnessContrastEffect: BrightnessContrastEffect
-    ChromaticAberrationEffect: ChromaticAberrationEffect
-    ColorAverageEffect: ColorAverageEffect
-    ColorDepthEffect: ColorDepthEffect
-    DepthOfFieldEffect: DepthOfFieldEffect
-    DotScreenEffect: DotScreenEffect
-    FXAAEffect: FXAAEffect
-    GlitchEffect: GlitchEffect
-    //GodRaysEffect: GodRaysEffect
-    GridEffect: GridEffect
-    HueSaturationEffect: HueSaturationEffect
-    LensDistortionEffect: LensDistortionEffect
-    LinearTosRGBEffect: LinearTosRGBEffect
-    LUT1DEffect: LUT1DEffect
-    LUT3DEffect: LUT3DEffect
-    MotionBlurEffect: MotionBlurEffect
-    NoiseEffect: NoiseEffect
-    PixelationEffect: PixelationEffect
-    ScanlineEffect: ScanlineEffect
-    ShockWaveEffect: ShockWaveEffect
-    SSAOEffect: SSAOEffect
-    SSREffect: SSREffect
-    SSGIEffect: SSGIEffect
-    TextureEffect: TextureEffect
-    TiltShiftEffect: TiltShiftEffect
-    ToneMappingEffect: ToneMappingEffect
-    TRAAEffect: TRAAEffect
-    VignetteEffect: VignetteEffect
-
     SMAAEffect: SMAAEffect
     OutlineEffect: OutlineEffect
   }
@@ -86,7 +61,7 @@ export const PostProcessingComponent = defineComponent({
   onInit(entity) {
     return {
       enabled: false,
-      effects: {} as Record<string, any> // effect name, parameters
+      effects: {} as Record<string, Effect> // effect name, parameters
     }
   },
 
@@ -145,13 +120,13 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
     }
 
     //always have the smaa effect
-    // const smaaPreset = getState(RenderSettingsState).smaaPreset
-    // const smaaEffect = new SMAAEffect({
-    //   preset: smaaPreset,
-    //   edgeDetectionMode: EdgeDetectionMode.COLOR
-    // })
-    // effectsVal["SMAAEffect"].effect = smaaEffect
-    // renderer.effectComposer["SMAAEffect"].set(smaaEffect)
+    const smaaPreset = getState(RenderSettingsState).smaaPreset
+    const smaaEffect = new SMAAEffect({
+      preset: smaaPreset,
+      edgeDetectionMode: EdgeDetectionMode.COLOR
+    })
+    effectsVal['SMAAEffect'] = smaaEffect
+    renderer.effectComposer['SMAAEffect'].set(smaaEffect)
 
     // //always have the outline effect for the highlight selection
     const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))

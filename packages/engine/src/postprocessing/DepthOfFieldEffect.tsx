@@ -35,6 +35,12 @@ import React, { useEffect } from 'react'
 import { ArrayCamera } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    DepthOfFieldEffect: DepthOfFieldEffect
+  }
+}
+
 const effectKey = 'DepthOfFieldEffect'
 
 export const DepthOfFieldEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

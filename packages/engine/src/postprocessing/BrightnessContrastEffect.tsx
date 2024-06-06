@@ -33,6 +33,12 @@ import { BlendFunction, BrightnessContrastEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    BrightnessContrastEffect: BrightnessContrastEffect
+  }
+}
+
 const effectKey = 'BrightnessContrastEffect'
 
 export const BrightnessContrastEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

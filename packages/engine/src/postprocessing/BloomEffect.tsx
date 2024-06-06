@@ -33,6 +33,12 @@ import { BlendFunction, BloomEffect, KernelSize } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    BloomEffect: BloomEffect
+  }
+}
+
 const effectKey = 'BloomEffect'
 
 export const BloomEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

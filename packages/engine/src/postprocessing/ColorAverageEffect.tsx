@@ -33,6 +33,12 @@ import { BlendFunction, ColorAverageEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ColorAverageEffect: ColorAverageEffect
+  }
+}
+
 const effectKey = 'ColorAverageEffect'
 
 export const ColorAverageEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

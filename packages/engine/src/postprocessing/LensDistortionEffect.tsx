@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    LensDistortionEffect: LensDistortionEffect
+  }
+}
+
 const effectKey = 'LensDistortionEffect'
 
 export const LensDistortionEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

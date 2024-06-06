@@ -33,6 +33,12 @@ import { BlendFunction, ScanlineEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ScanlineEffect: ScanlineEffect
+  }
+}
+
 const effectKey = 'ScanlineEffect'
 
 export const ScanlineEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

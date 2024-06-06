@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    GlitchEffect: GlitchEffect
+  }
+}
+
 const effectKey = 'GlitchEffect'
 
 export const GlitchEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

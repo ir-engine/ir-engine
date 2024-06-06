@@ -33,6 +33,12 @@ import { BlendFunction, NoiseEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    NoiseEffect: NoiseEffect
+  }
+}
+
 const effectKey = 'NoiseEffect'
 
 export const NoiseEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

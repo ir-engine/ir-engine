@@ -33,6 +33,12 @@ import { BlendFunction, ColorDepthEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ColorDepthEffect: ColorDepthEffect
+  }
+}
+
 const effectKey = 'ColorDepthEffect'
 
 export const ColorDepthEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

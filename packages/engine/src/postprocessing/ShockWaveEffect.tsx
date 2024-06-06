@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ShockWaveEffect: ShockWaveEffect
+  }
+}
+
 const effectKey = 'ShockWaveEffect'
 
 export const ShockWaveEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

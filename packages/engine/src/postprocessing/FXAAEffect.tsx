@@ -33,6 +33,12 @@ import { BlendFunction, FXAAEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    FXAAEffect: FXAAEffect
+  }
+}
+
 const effectKey = 'FXAAEffect'
 
 export const FXAAEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

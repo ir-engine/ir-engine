@@ -33,6 +33,12 @@ import { BlendFunction, ToneMappingEffect, ToneMappingMode } from 'postprocessin
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ToneMappingEffect: ToneMappingEffect
+  }
+}
+
 const effectKey = 'ToneMappingEffect'
 
 export const ToneMappingEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

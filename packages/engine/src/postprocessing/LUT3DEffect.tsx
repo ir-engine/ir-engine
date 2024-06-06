@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    LUT3DEffect: LUT3DEffect
+  }
+}
+
 const effectKey = 'LUT3DEffect'
 
 export const LUT3DEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

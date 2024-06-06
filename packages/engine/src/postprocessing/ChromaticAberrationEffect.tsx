@@ -34,6 +34,12 @@ import React, { useEffect } from 'react'
 import { Vector2 } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    ChromaticAberrationEffect: ChromaticAberrationEffect
+  }
+}
+
 const effectKey = 'ChromaticAberrationEffect'
 
 export const ChromaticAberrationEffectProcessReactor: React.FC<EffectReactorProps> = (props: {

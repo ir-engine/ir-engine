@@ -35,6 +35,13 @@ import React, { useEffect } from 'react'
 import { SSREffect, VelocityDepthNormalPass } from 'realism-effects'
 import { Scene } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
+
+declare module 'postprocessing' {
+  interface EffectComposer {
+    SSREffect: SSREffect
+  }
+}
+
 const effectKey = 'SSREffect'
 
 export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {

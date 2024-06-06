@@ -33,6 +33,12 @@ import { BlendFunction, DotScreenEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { PropertyTypes } from './PostProcessingRegister'
 
+declare module 'postprocessing' {
+  interface EffectComposer {
+    DotScreenEffect: DotScreenEffect
+  }
+}
+
 const effectKey = 'DotScreenEffect'
 
 export const DotScreenEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
