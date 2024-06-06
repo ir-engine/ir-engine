@@ -156,7 +156,7 @@ const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }
           <Suspense key={key}>
             <ErrorBoundary>
               <effect.reactor
-                isActive={postProcessingComponent.effects[key]?.isActive.value}
+                isActive={postProcessingComponent.effects[key]?.isActive}
                 rendererEntity={rendererEntity}
                 effectData={postProcessingComponent.effects}
                 effects={effects}

@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { Entity } from '@etherealengine/ecs'
-import { defineState } from '@etherealengine/hyperflux'
+import { State, defineState } from '@etherealengine/hyperflux'
 import { EffectComposer } from 'postprocessing'
 import React from 'react'
 import { Scene } from 'three'
 
 export type EffectReactorProps = {
-  isActive: boolean
+  isActive: State<boolean, any>
   rendererEntity: Entity
   effectData: any
   effects: any
