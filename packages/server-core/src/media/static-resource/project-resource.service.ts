@@ -108,6 +108,9 @@ const patchProjectResource =
       if (field === 'userId') {
         delete (updatedResource as any)[field]
       }
+      if (field === 'url') {
+        updatedResource.url = ''
+      }
       if (field === 'thumbnailURL') {
         const cacheRe = new RegExp(`^${config.client.fileServer}\/`)
         updatedResource.thumbnailURL = updatedResource.thumbnailURL.replace(cacheRe, '')
