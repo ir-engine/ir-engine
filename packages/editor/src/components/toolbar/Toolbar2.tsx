@@ -168,8 +168,10 @@ export default function Toolbar() {
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
           <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
-        <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
-          <span className="text-[#B2B5BD]">{projectName.value}</span> / {sceneName.value}
+        <div className="flex items-center gap-2.5">
+          <span className="text-[#B2B5BD]">{projectName.value}</span>
+          <span>/</span>
+          <span>{sceneName.value}</span>
         </div>
         <Button rounded="none" disabled={!hasPublishAccess}>
           {t('editor:toolbar.lbl-publish')}
