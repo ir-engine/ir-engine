@@ -1,29 +1,29 @@
 .menu {
-  background: var(--popupBackground);
-  border-radius: 20px;
-  color: var(--textColor);
-  pointer-events: all;
+  background: var(--popupBackground) !important;
+  border-radius: 20px !important;
+  color: var(--textColor) !important;
+  pointer-events: all !important;
 
   :global {
     .MuiDialogContentText-root {
-      color: var(--textColor);
+      color: var(--textColor) !important;
     }
 
     .MuiDialogContent-root {
-      padding-bottom: 10px;
-      overflow-x: hidden;
-      pointer-events: all;
+      padding-bottom: 10px !important;
+      overflow-x: hidden !important;
+      pointer-events: all !important;
     }
   }
 }
 
 .dialogTitle {
-  display: flex;
-  align-items: center;
-  padding: 16px 12px;
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 12px !important;
 }
 
 .dialogActions {
-  gap: 16px;
-  padding: 8px 24px;
+  gap: 16px !important;
+  padding: 8px 24px !important;
 }
