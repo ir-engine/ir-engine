@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
-import { MdLink, MdLinkOff } from 'react-icons/md'
+import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../primitives/tailwind/Button'
@@ -124,9 +124,14 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+    <div className="flex flex-row flex-nowrap justify-start gap-1.5">
       {uniformScaling && (
-        <Button startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />} onClick={onToggleUniform} />
+        <Button
+          variant="transparent"
+          startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
+          onClick={onToggleUniform}
+          className="p-0"
+        />
       )}
       <NumericInput
         {...rest}

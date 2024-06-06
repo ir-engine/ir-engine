@@ -107,8 +107,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup name={t('editor:properties.transform.title')} description="change transform of an entity">
-      <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
+    <PropertyGroup name={t('editor:properties.transform.title')}>
+      <InputGroup
+        name="Dynamically Load Children"
+        label={t('editor:properties.lbl-dynamicLoad')}
+        className="flex justify-start"
+      >
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
           <NumericInput
@@ -122,7 +126,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')} labelClassName="mr-auto">
         <Vector3Input
           value={position}
           smallStep={0.01}
@@ -132,10 +136,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
+      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')} labelClassName="mr-auto">
         <EulerInput quaternion={rotation} onChange={onChangeRotation} unit="°" onRelease={onRelease} />
       </InputGroup>
-      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
+      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')} labelClassName="mr-auto">
         <Vector3Input
           uniformScaling
           smallStep={0.01}
