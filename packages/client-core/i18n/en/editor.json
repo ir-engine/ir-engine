@@ -294,7 +294,8 @@
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
-      "seektime": "Start Time"
+      "seektime": "Start Time",
+      "lbl-mediaControls": "Media Controls"
     },
     "mesh": {
       "name": "Mesh",
