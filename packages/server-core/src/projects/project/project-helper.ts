@@ -56,11 +56,7 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import {
-  projectPath,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
@@ -79,6 +75,7 @@ import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { ProjectSettingType } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
