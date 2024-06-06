@@ -37,7 +37,7 @@ class HttpError extends Error {
   }
 }
 
-class FileLoader<TData = unknown> extends Loader {
+class FileLoader<TData = unknown> extends Loader<TData> {
   mimeType: undefined | any
   responseType: undefined | string
 
@@ -45,7 +45,7 @@ class FileLoader<TData = unknown> extends Loader {
     super(manager)
   }
 
-  load(
+  override load(
     url: string,
     onLoad: (data: TData) => void,
     onProgress?: (event: ProgressEvent) => void,

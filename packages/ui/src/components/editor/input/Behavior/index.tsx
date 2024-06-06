@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { Texture, Vector2, Vector3 } from 'three'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
@@ -352,7 +352,8 @@ export default function BehaviorInput({
     (scope: State<TextureSequencerJSON>) => {
       const thisOnChange = onChange(scope.src)
       return (src: string) => {
-        AssetLoader.load(src, (texture: Texture) => {
+        getTextureAsync(src).then(([texture]) => {
+          if (!texture) return
           createReadableTexture(texture, { canvas: true, flipY: true }).then((readableTexture: Texture) => {
             const canvas = readableTexture.image as HTMLCanvasElement
             const ctx = canvas.getContext('2d')!
