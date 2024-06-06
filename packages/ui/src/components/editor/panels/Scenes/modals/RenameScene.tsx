@@ -28,10 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { AssetType } from '@etherealengine/common/src/schema.type.module'
 import { renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { BadRequest } from '@feathersjs/errors'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
@@ -40,11 +42,20 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
   const newSceneName = useHookstate(sceneName)
 
   const handleSubmit = async () => {
-    const currentURL = scene.assetURL
-    const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
-    const newData = await renameScene(scene.id, newURL, scene.projectName)
-    getMutableState(EditorState).scenePath.set(newData.assetURL)
-    PopoverState.hidePopupover()
+    try {
+      if (!newSceneName.value) {
+        throw new BadRequest('Scene must have a name')
+      }
+      const currentURL = scene.assetURL
+      const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
+      const newData = await renameScene(scene.id, newURL, scene.projectName)
+      getMutableState(EditorState).scenePath.set(newData.assetURL)
+      PopoverState.hidePopupover()
+    } catch (error) {
+      NotificationService.dispatchNotify(error, {
+        variant: 'error'
+      })
+    }
   }
 
   return (
