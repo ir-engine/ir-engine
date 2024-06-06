@@ -37,11 +37,8 @@ import { t } from 'i18next'
 import React, { useEffect, useState } from 'react'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import {
-  KTX2EncodeArguments,
-  KTX2EncodeDefaultArguments
-} from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { defineState, NO_PROXY, State, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
+import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { defineState, NO_PROXY, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import { DialogState } from '../dialogs/DialogState'
@@ -85,7 +82,9 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
-const ImageCompressionBox = ({ compressProperties }: { compressProperties: State<KTX2EncodeArguments> }) => {
+const ImageCompressionBox = () => {
+  const compressProperties = useMutableState(ImportSettingsState).imageSettings
+
   return (
     <>
       <InputGroup name="fileType" label={'File'}>
@@ -293,7 +292,7 @@ export default function ImportSettingsPanel() {
             control={<Checkbox checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />}
             label={'Compress to KTX2'}
           />
-          {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
+          {KTXEnabled && <ImageCompressionBox />}
         </Box>
       </Box>
       <Box>
