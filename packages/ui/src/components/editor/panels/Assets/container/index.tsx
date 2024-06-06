@@ -31,10 +31,11 @@ import { staticResourcePath, StaticResourceType } from '@etherealengine/common/s
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { AssetsPanelCategories } from '@etherealengine/editor/src/components/assets/AssetsPanelCategories'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { getState, State, useHookstate } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   HiChevronDown,
   HiChevronRight,
@@ -217,6 +218,7 @@ const AssetPanel = () => {
   const searchedStaticResources = useHookstate<StaticResourceType[]>([])
   const searchText = useHookstate('')
   const breadcrumbPath = useHookstate('')
+  const { projectName } = useMutableState(EditorState)
 
   const CategoriesList = () => {
     return (
@@ -274,7 +276,10 @@ const AssetPanel = () => {
   useEffect(() => {
     const staticResourcesFindApi = () => {
       const query = {
-        key: { $like: `%${searchText.value}%` || undefined },
+        key: {
+          $like: `%${searchText.value}%` || undefined
+        },
+        project: projectName.value!,
         $sort: { mimeType: 1 },
         $limit: 10000
       }

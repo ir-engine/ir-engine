@@ -34,7 +34,7 @@ import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
@@ -133,11 +133,11 @@ export const FileTableListBody = ({
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
-
+  const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, {
     query: {
       key: file.key,
-      project: getMutableState(EditorState).projectName.value!
+      project: projectName.value!
     }
   })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
@@ -184,10 +184,11 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
+  const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, {
     query: {
       key: props.item.key,
-      project: getMutableState(EditorState).projectName.value!
+      project: projectName.value!
     }
   })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL

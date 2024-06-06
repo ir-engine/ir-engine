@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
@@ -67,6 +67,26 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
     const storageProvider = getStorageProvider()
     await storageProvider.deleteResources([resource.key])
   }
+}
+
+/**
+ * Gets the name of the project to which the resource belongs
+ * @param context
+ * @returns
+ */
+const getProjectName = async (context: HookContext<StaticResourceService>) => {
+  if (!context.id) {
+    throw new BadRequest('Static Resource id missing in the request')
+  }
+  const resource = await context.app.service(staticResourcePath).get(context.id)
+  if (!resource) {
+    throw new NotFound('resource not found.')
+  }
+  context.params.query = {
+    ...context.params.query,
+    project: resource.project
+  }
+  return context
 }
 
 export default {
@@ -122,7 +142,24 @@ export default {
       () => schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]
+    remove: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [
+            verifyScope('editor', 'write'),
+            getProjectName,
+            resolveProjectId(),
+            verifyProjectPermission(['owner', 'editor'])
+          ]
+        )
+      ),
+      discardQuery('project'),
+      discardQuery('projectId'),
+      ensureResource
+    ]
   },
 
   after: {
