@@ -112,6 +112,7 @@ export default {
         )
       ),
       discardQuery('action'),
+      discardQuery('project'),
       discardQuery('projectId'),
       collectAnalytics()
     ],
