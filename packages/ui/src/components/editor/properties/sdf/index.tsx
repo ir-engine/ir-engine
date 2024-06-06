@@ -35,12 +35,6 @@ import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 import NodeEditor from '../nodeEditor'
 
-/**
- *
- *
- *
- * @type {[component class]}
- */
 export const SDFEditor: EditorComponentType = (props) => {
   const sdfComponent = useComponent(props.entity, SDFComponent)
 

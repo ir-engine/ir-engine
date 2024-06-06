@@ -53,11 +53,6 @@ import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import PropertyGroup from '../group'
 
-/**
- * ToneMappingOptions array containing tone mapping type options.
- *
- * @type {Array}
- */
 const ToneMappingOptions = [
   {
     label: 'No Tone Mapping',
