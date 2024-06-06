@@ -1,6 +1,6 @@
 services:
   minio:
-    image: docker.io/bitnami/minio:2024.5.28
+    image: docker.io/bitnami/minio:latest
     container_name: etherealengine_minio_s3
     ports:
       - '9000:9000'
