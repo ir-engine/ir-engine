@@ -42,21 +42,24 @@ export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputE
 const Checkbox = ({ className, containerClassName, label, value, onChange, disabled, ...rest }: CheckboxProps) => {
   return (
     <div
-      className={twMerge(
-        'grid h-[16px] w-[16px] cursor-pointer place-items-center rounded border border-theme-primary',
-        value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
-        disabled ? 'cursor-not-allowed opacity-50' : '',
-        containerClassName
-      )}
       onClick={() => {
         if (!disabled) {
           onChange(!value)
         }
       }}
+      className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
     >
-      {value && <HiCheck className="h-[12px] w-[12px] text-white" />}
+      <div
+        className={twMerge(
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
+          disabled ? 'cursor-not-allowed opacity-50' : ''
+        )}
+      >
+        {value && <HiCheck className="h-3 w-3 text-white" />}
+      </div>
 
-      {label && <Label className="cursor-pointer self-stretch">{label}</Label>}
+      {label && <Label className="cursor-pointer self-stretch leading-[1.15]">{label}</Label>}
     </div>
   )
 }
