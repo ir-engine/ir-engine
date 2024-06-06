@@ -30,7 +30,7 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
+import { useProjectSettingsSchemas } from '@etherealengine/projects/useProjectSettingsSchema'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -45,6 +45,8 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     loading: false,
     errorMessage: ''
   })
+
+  const settingsSchemas = useProjectSettingsSchemas().value
   const projectState = useMutableState(ProjectState)
   const projects = projectState.projects
 
@@ -67,34 +69,14 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   useEffect(() => {
     if (!project.data?.settings || !project.data?.settings.length) {
-      return
+      resetSettingsFromSchema()
+    } else {
+      settings.set(project.data.settings)
     }
-
-    const tempSettings = JSON.parse(JSON.stringify(settings.value))
-    for (const [index, setting] of tempSettings.entries()) {
-      const savedSetting = project.data.settings.filter((item) => item.key === setting.key)
-      if (savedSetting.length > 0) {
-        tempSettings[index].value = savedSetting[0].value
-      }
-    }
-    settings.set(tempSettings)
   }, [project.data?.settings])
 
   const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProjectId.value)
-    const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
-
-    if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSettingType[]
-
-      for (const setting of projectConfig.settings) {
-        tempSetting.push({ key: setting.key, value: '' })
-      }
-
-      settings.set(tempSetting)
-    } else {
-      settings.set([])
-    }
+    settings.set(settingsSchemas.map((setting) => ({ key: setting.key, value: '' })))
   }
 
   const handleCancel = () => {
@@ -174,9 +156,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
           </div>
         </>
       ) : (
-        <Text component="h3" className="text-red-700">
-          {t('admin:components.setting.project.noSettingsMessage')}
-        </Text>
+        <></>
       )}
 
       {state.errorMessage.value && (
