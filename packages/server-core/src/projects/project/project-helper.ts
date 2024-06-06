@@ -56,11 +56,7 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import {
-  projectPath,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
@@ -410,8 +406,12 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  const settings: ProjectSettingType[] = []
-  Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
+  const settings = {}
+
+  projectSetting.map(({ key, value }) => {
+    settings[key] = value
+  })
+
   return settings
 }
 
