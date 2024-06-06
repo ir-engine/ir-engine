@@ -33,6 +33,8 @@ import { AssetsPanelCategories } from '@etherealengine/editor/src/components/ass
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import {
   HiChevronDown,
   HiChevronRight,
@@ -96,9 +98,22 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const assetType = AssetLoader.getAssetType(resource.key)
   const name = resource.key.split('/').at(-1)!
 
+  const [_, drag, preview] = useDrag(() => ({
+    type: assetType,
+    item: {
+      url: resource.url
+    },
+    multiple: false
+  }))
+
+  useEffect(() => {
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
+
   return (
     <div
       key={resource.id}
+      ref={drag}
       onClick={() =>
         onAssetSelectionChanged?.({
           contentType: assetType,

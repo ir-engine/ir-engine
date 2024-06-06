@@ -49,7 +49,6 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import AssetDropZone from './assets/AssetDropZone'
 import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -165,7 +164,6 @@ const EditorContainer = () => {
           <DragLayer />
           <Toolbar />
           <div className="mt-1 flex overflow-hidden">
-            <AssetDropZone />
             <DockContainer>
               <DockLayout
                 ref={dockPanelRef}
