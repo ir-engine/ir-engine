@@ -22,11 +22,10 @@ import { PrefabShelfItem, PrefabShelfState } from '@etherealengine/editor/src/co
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { startCase } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { IoIosArrowDown, IoIosArrowUp, IoMdAddCircle } from 'react-icons/io'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
 
@@ -50,7 +49,7 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
         handleClosePopover()
       }}
     >
-      <Icon className="h-6 w-6 text-white" />
+      <IoMdAddCircle className="h-6 w-6 text-white" />
 
       <div className="ml-4 w-full">
         <h3 className="text-subtitle1 text-center text-white">
@@ -144,6 +143,7 @@ export function PrefabList() {
             placeholder={t('editor:layout.assetGrid.prefab-search')}
             value={search.local.value}
             onChange={(val) => onSearch(val)}
+            inputRef={inputReference}
           />
         </div>
       </div>
@@ -153,31 +153,6 @@ export function PrefabList() {
       ))}
     </>
   )
-  {
-    /*<List
-      sx={{ width: 300, height: 500, bgcolor: 'var(--dockBackground)' }}
-      subheader={
-        <div style={{ padding: '0.5rem' }}>
-          <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
-            {t('editor:layout.assetGrid.prefab')}
-          </Typography>
-          <InputText
-            placeholder={t('editor:layout.assetGrid.prefab-search')}
-            value={search.local.value}
-            sx={{ mt: 1 }}
-            onChange={(e) => onSearch(e.target.value)}
-            inputRef={inputReference}
-          />
-        </div>
-      }
-    >
-      <PrefabListItem item={{ name: 'Empty', url: 'empty', category: '', detail: 'Basic scene entity' }} />
-      {Object.entries(shelves).map(([category, items]) => (
-        <ScenePrefabListItem categoryTitle={category} categoryItems={items} isCollapsed={!!search.query.value} />
-      ))}
-    </List>
-    */
-  }
 }
 
 export default PrefabList
