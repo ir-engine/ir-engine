@@ -47,6 +47,9 @@ export const projectPermissionSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    createdBy: TypedString<UserID>({
+      format: 'uuid'
+    }),
     type: Type.String(),
     user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
@@ -86,6 +89,7 @@ export const projectPermissionQueryProperties = Type.Pick(projectPermissionSchem
   'id',
   'projectId',
   'userId',
+  'createdBy',
   'type'
 ])
 export const projectPermissionQuerySchema = Type.Intersect(
