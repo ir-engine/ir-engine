@@ -64,7 +64,7 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <input
         min={min}
         max={max}
