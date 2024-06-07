@@ -77,26 +77,23 @@ export async function seed(knex: Knex): Promise<void> {
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await trx(locationSettingPath).del()
+    await knex(locationSettingPath).del()
 
     // Inserts seed entries
-    await trx(locationSettingPath).insert(seedData)
+    await knex(locationSettingPath).insert(seedData)
   } else {
-    const existingData = await trx(locationSettingPath).count({ count: '*' })
+    const existingData = await knex(locationSettingPath).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
-        await trx(locationSettingPath).insert(item)
+        await knex(locationSettingPath).insert(item)
       }
     }
   }
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

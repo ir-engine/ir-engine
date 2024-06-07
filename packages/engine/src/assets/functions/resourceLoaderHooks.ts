@@ -43,7 +43,6 @@ function useLoader<T extends ResourceAssetType>(
   //Called when the asset url is changed, mostly useful for editor functions when changing an asset
   onUnload: (url: string) => void = (url: string) => {}
 ): [T | null, ErrorEvent | Error | null, ProgressEvent<EventTarget> | null, () => void] {
-  const urlState = useHookstate<string>(url)
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
@@ -58,41 +57,30 @@ function useLoader<T extends ResourceAssetType>(
   }, [])
 
   useImmediateEffect(() => {
-    const controller = new AbortController()
-    if (url !== urlState.value) {
-      if (urlState.value) {
-        const oldUrl = urlState.value
-        ResourceManager.unload(oldUrl, entity, uuid.value)
-        value.set(null)
-        progress.set(null)
-        error.set(null)
-        onUnload(oldUrl)
-      }
-      urlState.set(url)
-    }
-
-    if (!url) return
+    const _url = url
+    if (!_url) return
     let completed = false
 
     if (entity) {
-      ResourcePendingComponent.setResource(entity, url, 0, 0)
+      ResourcePendingComponent.setResource(entity, _url, 0, 0)
     }
 
+    const controller = new AbortController()
     loadResource<T>(
-      url,
+      _url,
       resourceType,
       entity,
       (response) => {
         completed = true
         value.set(response)
         if (entity) {
-          ResourcePendingComponent.removeResource(entity, url)
+          ResourcePendingComponent.removeResource(entity, _url)
         }
       },
       (request) => {
         progress.set(request)
         if (entity) {
-          ResourcePendingComponent.setResource(entity, url, request.loaded, request.total)
+          ResourcePendingComponent.setResource(entity, _url, request.loaded, request.total)
         }
       },
       (err) => {
@@ -101,7 +89,7 @@ function useLoader<T extends ResourceAssetType>(
         completed = true
         error.set(err)
         if (entity) {
-          ResourcePendingComponent.removeResource(entity, url)
+          ResourcePendingComponent.removeResource(entity, _url)
         }
       },
       controller.signal,
@@ -113,6 +101,12 @@ function useLoader<T extends ResourceAssetType>(
         controller.abort(
           `resourceHooks:useLoader Component loading ${resourceType} at url ${url} for entity ${entity} was unmounted`
         )
+
+      ResourceManager.unload(_url, entity, uuid.value)
+      value.set(null)
+      progress.set(null)
+      error.set(null)
+      onUnload(_url)
     }
   }, [url])
 
@@ -315,4 +309,11 @@ export async function getTextureAsync(
   entity?: Entity
 ): Promise<[Texture | null, () => void, ErrorEvent | Error | null]> {
   return getLoader<Texture>(url, ResourceType.Texture, entity)
+}
+
+export async function getAudioAsync(
+  url: string,
+  entity?: Entity
+): Promise<[AudioBuffer | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<AudioBuffer>(url, ResourceType.Audio, entity)
 }
