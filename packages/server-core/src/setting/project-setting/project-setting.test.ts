@@ -39,7 +39,7 @@ import {
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
 
-describe('project-setting.test', () => {
+describe.only('project-setting.test', () => {
   let app: Application
 
   const key1 = 'MyKey1'
@@ -147,10 +147,10 @@ describe('project-setting.test', () => {
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing remove using id:
-    let _projectSetting = await removeProjectSetting(app, _createdProjectSetting.id)
+    const _projectSetting = await removeProjectSetting(app, _createdProjectSetting.id)
     assert.ok(_projectSetting)
-    _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
-    assert.equal(_projectSetting, null)
+    const findResponse = await findProjectSetting(app, { id: _createdProjectSetting.id })
+    assert.equal(findResponse.total, 0)
   })
 
   it('should remove the project-setting by query', async () => {
@@ -158,9 +158,9 @@ describe('project-setting.test', () => {
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using query params:
-    let _projectSetting = await removeProjectSetting(app, undefined, { key: key2, projectId: project.id })
+    const _projectSetting = await removeProjectSetting(app, undefined, { key: key2, projectId: project.id })
     assert.ok(_projectSetting)
-    _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
-    assert.equal(_projectSetting, null)
+    const findResponse = await findProjectSetting(app, { id: _createdProjectSetting.id })
+    assert.equal(findResponse.total, 0)
   })
 })

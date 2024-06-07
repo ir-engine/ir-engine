@@ -137,18 +137,26 @@ export const patchProjectSetting = async (
   projectId?: string,
   key?: string
 ) => {
+  const query = {} as ProjectSettingQuery
+
+  if (projectId) {
+    query.projectId = projectId
+  }
+
+  if (key) {
+    query.key = key
+  }
+
   const projectSetting = await app.service(projectSettingPath).patch(
     projectSettingId ?? null,
     {
       value
     },
     {
-      query: {
-        projectId,
-        key
-      }
+      query
     }
   )
+
   return projectSetting
 }
 
