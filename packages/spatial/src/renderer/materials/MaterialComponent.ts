@@ -37,6 +37,7 @@ import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Ent
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
+import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -82,7 +83,10 @@ export const MaterialPrototypeDefinitions = [
   ShadowMaterial
 ] as MaterialPrototypeDefinition[]
 
-export const MaterialPlugins = { TransparencyDitheringPlugin } as Record<string, Component<any, any, any>>
+export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin } as Record<
+  string,
+  Component<any, any, any>
+>
 
 export enum MaterialComponents {
   Instance,
