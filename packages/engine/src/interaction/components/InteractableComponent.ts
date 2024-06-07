@@ -308,7 +308,7 @@ export const InteractableComponent = defineComponent({
       }
 
       //SpatialInteract click is still down
-      if (buttons.SpatialInteract?.pressed) {
+      if (buttons.SpatialInteract?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
         InputState.setCapturingEntity(entity)
 
         //on releasing continued SpatialInteract click
