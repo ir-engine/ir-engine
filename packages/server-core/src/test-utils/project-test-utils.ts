@@ -86,7 +86,7 @@ export const createProjectSetting = async (
       key,
       value,
       type,
-      projectId: project.id
+      projectId: project!.id
     },
     {
       user
@@ -110,15 +110,16 @@ export const getProjectSetting = async (app: Application, projectSettingId: stri
 /**
  * Helper method used to find project setting.
  * @param app
- * @param projectSettingId
- * @param projectSetting
+ * @param query
+ * @param user
  * @returns
  */
-export const findProjectSetting = async (app: Application, query: ProjectSettingQuery) => {
+export const findProjectSetting = async (app: Application, query: ProjectSettingQuery, user?: UserType) => {
   const projectSetting = await app.service(projectSettingPath).find({
     query: {
       ...query
-    }
+    },
+    user
   })
   return projectSetting
 }

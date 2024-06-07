@@ -38,6 +38,7 @@ import {
   patchProjectSetting,
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
+import { createUser } from '../../test-utils/user-test-utils'
 
 describe('project-setting.test', () => {
   let app: Application
@@ -107,6 +108,23 @@ describe('project-setting.test', () => {
     assert.equal(_projectSetting2.data[0].value, value2)
     assert.equal(_projectSetting2.data[0].userId, user2.id)
     assert.equal(_projectSetting2.data[0].projectId, project2.id)
+  })
+
+  it('should only find public project-setting for guests', async () => {
+    await createProjectSetting(app, key1, value1, 'private', user, project)
+    await createProjectSetting(app, key2, value2, 'public', user, project)
+
+    const guestUser = await createUser(app)
+
+    const _projectSetting = await findProjectSetting(app, { projectId: project.id }, guestUser)
+
+    assert.notEqual(_projectSetting.total, 0)
+
+    const privateSettings = _projectSetting.data.find((item) => item.type === 'private')
+    const publicSettings = _projectSetting.data.find((item) => item.type === 'public')
+
+    assert.ok(privateSettings)
+    assert.equal(publicSettings, undefined)
   })
 
   it('should patch project-setting by id', async () => {
