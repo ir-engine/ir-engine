@@ -33,21 +33,20 @@ import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schem
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(assetPath)
+  const tableExists = await knex.schema.hasTable(assetPath)
 
   if (tableExists) {
-    const project = await trx.select().from(projectPath).where({ name: 'default-project' }).first()
+    const project = await knex.select().from(projectPath).where({ name: 'default-project' }).first()
     if (project) {
-      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      const assets = await knex.select().from(assetPath).where({ projectId: project.id })
       for (const asset of assets) {
         if (
           asset.assetURL.startsWith('projects/default-project') &&
           !asset.assetURL.startsWith('projects/default-project/public/scenes')
         ) {
-          await trx(assetPath)
+          await knex(assetPath)
             .where({ id: asset.id })
             .update({
               assetURL: asset.assetURL.replace('projects/default-project', 'projects/default-project/public/scenes'),
@@ -60,8 +59,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -69,18 +67,17 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(assetPath)
+  const tableExists = await knex.schema.hasTable(assetPath)
 
   if (tableExists) {
-    const project = await trx.select().from(projectPath).where({ name: 'default-project' }).first()
+    const project = await knex.select().from(projectPath).where({ name: 'default-project' }).first()
     if (project) {
-      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      const assets = await knex.select().from(assetPath).where({ projectId: project.id })
       for (const asset of assets) {
         if (asset.assetURL.startsWith('projects/default-project/public/scenes')) {
-          await trx(assetPath)
+          await knex(assetPath)
             .where({ id: asset.id })
             .update({
               assetURL: asset.assetURL.replace('projects/default-project/public/scenes', 'projects/default-project'),
@@ -93,6 +90,5 @@ export async function down(knex: Knex): Promise<void> {
     }
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

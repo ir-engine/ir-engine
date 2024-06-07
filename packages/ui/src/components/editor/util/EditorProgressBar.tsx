@@ -23,19 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Classes. */
-export enum AssetClass {
-  Material = 'Material',
-  Lookdev = 'Lookdev',
-  Asset = 'Asset',
-  Model = 'Model',
-  Image = 'Image',
-  Video = 'Video',
-  Audio = 'Audio',
-  Document = 'Document',
-  Text = 'Text',
-  Script = 'Script',
-  Prefab = 'Prefab',
-  Unknown = 'unknown',
-  Volumetric = 'Volumetric'
+import { ProgressBarState } from '@etherealengine/client-core/src/common/services/ProgressBarState'
+import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import React from 'react'
+
+export const EditorProgressBar = () => {
+  const progressBarState = useMutableState(ProgressBarState)
+  return <>{Object.values(progressBarState.get(NO_PROXY)).map((element) => element)}</>
 }
