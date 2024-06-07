@@ -85,7 +85,7 @@ type FileBrowserContentPanelProps = {
   nestingDirectory?: string
 }
 
-type DnDFileType = {
+export type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
