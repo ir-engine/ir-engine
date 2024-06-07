@@ -34,7 +34,7 @@ import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { getGLTFAsync } from '../../assets/functions/resourceLoaderHooks'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AvatarControllerType, AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { XRHandMeshModel } from './XRHandMeshModel'
@@ -44,7 +44,7 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
-  const gltf = await AssetLoader.loadAsync(
+  const [gltf] = await getGLTFAsync(
     `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}_controller.glb`
   )
   let handMesh = gltf?.scene?.children[0]
@@ -84,10 +84,10 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
   if (avatarInputControllerType === AvatarControllerType.None) return
 
-  const gltf = await AssetLoader.loadAsync(
+  const [gltf] = await getGLTFAsync(
     `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}.glb`
   )
-  let handMesh = gltf?.scene?.children[0]
+  const handMesh = gltf?.scene?.children[0]
 
   const controller = new Group()
   controller.name = `controller-hand-model-${entity}`
@@ -100,7 +100,7 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
     removeObjectFromGroup(controllerEntity, controller.userData.mesh)
   }
 
-  controller.userData.mesh = new XRHandMeshModel(entity, controller, handMesh, handedness)
+  controller.userData.mesh = new XRHandMeshModel(entity, controller, handMesh!, handedness)
   addObjectToGroup(controllerEntity, controller.userData.mesh)
   controller.userData.handedness = handedness
 

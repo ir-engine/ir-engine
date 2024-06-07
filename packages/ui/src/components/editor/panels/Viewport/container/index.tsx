@@ -26,19 +26,21 @@ Ethereal Engine. All Rights Reserved.
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { Engine, getComponent } from '@etherealengine/ecs'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
-import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
+import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector2, Vector3 } from 'three'
 import Text from '../../../../../primitives/tailwind/Text'
+import { DnDFileType, FileType } from '../../Files/container'
 import GizmoTool from '../tools/GizmoTool'
 import GridTool from '../tools/GridTool'
 import PlayModeTool from '../tools/PlayModeTool'
@@ -48,29 +50,31 @@ import TransformSnapTool from '../tools/TransformSnapTool'
 import TransformSpaceTool from '../tools/TransformSpaceTool'
 
 const ViewportDnD = () => {
-  const ref = useRef(null as null | HTMLDivElement)
-
-  const [{ isDragging, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Component],
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Component, ...SupportedFileTypes],
     collect: (monitor) => ({
-      isDragging: monitor.getItem() !== null && monitor.canDrop(),
-      isOver: monitor.isOver()
+      isDragging: monitor.getItem() !== null && monitor.canDrop() && monitor.isOver()
     }),
-    drop(item: SceneElementType, monitor) {
+    drop(item: SceneElementType | FileType | DnDFileType, monitor) {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
-      EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentJsonID },
-        { name: TransformComponent.jsonID, props: { position: vec3 } }
-      ])
+      if ('componentJsonID' in item) {
+        EditorControlFunctions.createObjectFromSceneElement([
+          { name: item.componentJsonID },
+          { name: TransformComponent.jsonID, props: { position: vec3 } }
+        ])
+      } else if ('url' in item) {
+        addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+      }
     }
   })
 
   useEffect(() => {
-    if (!ref?.current) return
+    const viewportPanelNode = document.getElementById('viewport-panel')
+    if (!viewportPanelNode) return
 
     const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    ref.current.appendChild(canvas)
+    viewportPanelNode.appendChild(canvas)
 
     getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
 
@@ -78,20 +82,19 @@ const ViewportDnD = () => {
       getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
     })
 
-    observer.observe(ref.current)
+    observer.observe(viewportPanelNode)
     return () => {
       observer.disconnect()
     }
-  }, [ref])
+  }, [])
 
   return (
     <div
       id="viewport-panel"
-      ref={((el: HTMLDivElement) => dropRef(el)) && ref}
+      ref={dropRef}
       className={twMerge(
         'h-full w-full border border-white',
-        isDragging && isOver ? 'border-4' : 'border-none',
-        isDragging ? 'pointer-events-auto' : 'pointer-events-none'
+        isDragging ? 'pointer-events-auto border-4' : 'pointer-events-none border-none'
       )}
     />
   )

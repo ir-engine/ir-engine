@@ -47,6 +47,7 @@ import { ComputedTransformComponent } from '@etherealengine/spatial/src/transfor
 
 import { TransformGizmoControlledComponent } from '../../../classes/TransformGizmoControlledComponent'
 import { EditorState } from '../../../services/EditorServices'
+import { SelectionState } from '../../../services/SelectionServices'
 import { transformGizmoControlledQuery } from '../../../systems/GizmoSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -91,6 +92,9 @@ const PlayModeTool = () => {
       visualScriptQuery().forEach((entity) => dispatchAction(VisualScriptActions.execute({ entity })))
       transformGizmoControlledQuery().forEach((entity) => removeComponent(entity, TransformGizmoControlledComponent))
       //just remove all gizmo in the scene
+
+      //just clear selection to remove all higlights in the scene
+      SelectionState.updateSelection([])
     }
   }
 
