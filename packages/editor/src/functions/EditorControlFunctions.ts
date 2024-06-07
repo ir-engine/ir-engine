@@ -49,7 +49,6 @@ import { ComponentJsonType } from '@etherealengine/engine/src/scene/types/SceneT
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
@@ -61,6 +60,7 @@ import {
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
