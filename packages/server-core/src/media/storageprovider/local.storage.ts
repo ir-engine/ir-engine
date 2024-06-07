@@ -165,7 +165,7 @@ export class LocalStorage implements StorageProviderInterface {
       Contents: globResult.map((result) => {
         return {
           Key: result.replace(path.join(this.PATH_PREFIX), ''),
-          Size: fs.lstatSync(path.join(this.PATH_PREFIX)).size
+          Size: fs.lstatSync(result).size
         }
       })
     }

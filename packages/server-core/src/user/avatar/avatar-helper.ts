@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
+import fs from 'fs'
 import path from 'path'
 
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
@@ -117,7 +118,7 @@ export type AvatarUploadArguments = {
 
 // todo: move this somewhere else
 export const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
-const projectsPath = path.join(appRootPath.path, '/packages/projects/projects/')
+const projectsPath = path.join(appRootPath.path, '/packages/projects/')
 
 /**
  * @todo - reference dependency files in static resources?
@@ -127,6 +128,22 @@ const projectsPath = path.join(appRootPath.path, '/packages/projects/projects/')
  */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   // TODO backcompat
+  const projectName = avatarsFolder
+    .replace(projectsPath + '/projects/', '')
+    .split('/')
+    .pop()!
+  return Promise.all(
+    fs
+      .readdirSync(avatarsFolder)
+      .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
+      .map((file) => {
+        return patchStaticResourceAsAvatar(
+          app,
+          projectName,
+          path.resolve(avatarsFolder, file).replace(projectsPath, '')
+        )
+      })
+  )
 }
 
 export const uploadAvatarStaticResource = async (
