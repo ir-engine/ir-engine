@@ -38,9 +38,9 @@
     "social": {
       "gitHub": "Login with GitHub",
       "google": "Login with Google",
-      "facebook": "Login with Facebook",
+      "facebook": "Login with Meta",
       "linkedin": "Login with Linkedin",
-      "twitter": "Login with Twitter"
+      "twitter": "Login with X"
     },
     "register": {
       "header": "Sign Up",

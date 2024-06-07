@@ -257,21 +257,20 @@
     "interactable": {
       "name": "Interactable",
       "description": "An interactable component with an optional XRUI with text of Label that can trigger callbacks",
-      "lbl-label" : "Label",
+      "lbl-label": "Label",
       "lbl-activationDistance": "Activation Distance",
-      "lbl-addcallback" : "Add Callback",
+      "lbl-addcallback": "Add Callback",
       "lbl-removecallback": "Remove Callback",
       "lbl-clickInteract": "Click to Interact",
       "info-clickInteract": "Enables clicking to interact with the object",
-      "callbacks" :
-      {
-        "lbl-target" : "Target",
-        "lbl-callbackID" : "Callback ID"
+      "callbacks": {
+        "lbl-target": "Target",
+        "lbl-callbackID": "Callback ID"
       }
     },
     "grabbable": {
       "name": "Grabbable",
-        "description": "A grabbable component that can be picked up and manipulated by the user"
+      "description": "A grabbable component that can be picked up and manipulated by the user"
     },
     "media": {
       "name": "Media",
@@ -295,7 +294,8 @@
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
-      "seektime": "Start Time"
+      "seektime": "Start Time",
+      "lbl-mediaControls": "Media Controls"
     },
     "mesh": {
       "name": "Mesh",
@@ -352,11 +352,11 @@
       "lbl-shape": "Shape",
       "lbl-type": "Body Type",
       "lbl-mass": "Mass",
-      "lbl-massCenter":"Mass Center",
-      "lbl-friction":"Friction",
-      "lbl-restitution":"Restitution",
-      "lbl-collisionLayer":"Collision Layer",
-      "lbl-collisionMask":"Collision Mask",
+      "lbl-massCenter": "Mass Center",
+      "lbl-friction": "Friction",
+      "lbl-restitution": "Restitution",
+      "lbl-collisionLayer": "Collision Layer",
+      "lbl-collisionMask": "Collision Mask",
       "lbl-removeMesh": "Remove Mesh"
     },
     "camera": {
@@ -978,7 +978,7 @@
       "clippingMax": "clip.max",
       "glyphResolution": "glyph.resolution",
       "glyphDetail": "glyph.detail",
-      "gpuAccelerated": "GPU Accelerated" 
+      "gpuAccelerated": "GPU Accelerated"
     },
     "textBox": {
       "name": "Textbox Component",
@@ -1024,31 +1024,30 @@
       "lbl-newProject": "New Project"
     }
   },
-  "visualScript":{
+  "visualScript": {
     "panel": {
       "title": "Visual Script",
-      "addVisualScript" : "Add Visual Script"
-    
+      "addVisualScript": "Add Visual Script"
     },
-    "picker":{
-      "title" : "Add Node"
+    "picker": {
+      "title": "Add Node"
     },
     "modal": {
-      "clear": {  
-        "title":"Clear Visual Script",
+      "clear": {
+        "title": "Clear Visual Script",
         "confirm": "Are you sure?"
       },
       "help": {
-        "title":"Help",
-        "addNodeHelp":" Right click anywhere to add a new node.",
-        "addConnectionHelp":"Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
-        "deleteNodeHelp":"Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
+        "title": "Help",
+        "addNodeHelp": " Right click anywhere to add a new node.",
+        "addConnectionHelp": "Drag from the output of one node to the input of another to create a connection or into empty space to add a new node and connect it",
+        "deleteNodeHelp": "Left click to select individual or use Shift+Left click to box select nodes or connections, backspace to delete selected nodes or connections."
       },
       "load": {
-        "title":"Load Visual Script",
-        "examples":  "Select an example"
+        "title": "Load Visual Script",
+        "examples": "Select an example"
       },
-      "save":"Save Visual Script",
+      "save": "Save Visual Script",
       "buttons": {
         "clear": "Clear",
         "cancel": "Cancel",
@@ -1060,23 +1059,23 @@
         }
       }
     },
-    "sidePanel":{
+    "sidePanel": {
       "title": "Graph Utilities",
-      "node":{
+      "node": {
         "name": "Nodes",
         "description": "Individual logic units connected together to create a graph"
-        },
-      "template":{
+      },
+      "template": {
         "name": "Templates",
         "description": "Reusable graphs that can be added to other graphs."
-        },
-      "variables":{
+      },
+      "variables": {
         "name": "Variables",
         "description": "Variables that can be used in the graph.",
         "add": "Add Variable"
-        }
-      },
-    "editorPanel":{
+      }
+    },
+    "editorPanel": {
       "makeTemplate": "Make into template"
     }
   },
@@ -1087,7 +1086,7 @@
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
       "prefab": "Prefab",
-      "prefab-search" : "Search Prefabs ...",
+      "prefab-search": "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
@@ -1173,8 +1172,10 @@
     "scene-assets": {
       "no-category": "No category selected",
       "search-placeholder": "Search for an asset ...",
-      "preview" : "Preview",
-      "info-drag-drop": "Drag and Drop these items into the scene"
+      "preview": "Preview",
+      "info-drag-drop": "Drag and Drop these items into the scene",
+      "settings": "Settings",
+      "no-search-results": "No results found"
     }
   },
   "hierarchy": {

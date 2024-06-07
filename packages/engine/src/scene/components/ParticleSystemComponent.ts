@@ -71,8 +71,8 @@ import { useDisposable } from '@etherealengine/spatial/src/resources/resourceHoo
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { useGLTF, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
@@ -941,15 +941,15 @@ export const ParticleSystemComponent = defineComponent({
 
       const doLoadEmissionGeo =
         component.systemParameters.shape.type === 'mesh_surface' &&
-        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
 
       const doLoadInstancingGeo =
         component.systemParameters.instancingGeometry &&
-        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetClass.Model
+        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
 
       const doLoadTexture =
         component.systemParameters.texture &&
-        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
+        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
 
       const loadedEmissionGeo = (doLoadEmissionGeo && shapeMesh) || !doLoadEmissionGeo
       const loadedInstanceGeo = (doLoadInstancingGeo && geoDependency) || !doLoadInstancingGeo
