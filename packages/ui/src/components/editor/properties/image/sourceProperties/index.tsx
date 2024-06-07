@@ -56,7 +56,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
 
   return (
     <>
-      <InputGroup name="Transparency Mode" label={t('editor:properties.image.lbl-transparency')}>
+      <InputGroup name="Transparency" label={t('editor:properties.image.lbl-transparency')}>
         <SelectInput
           key={props.entity}
           options={imageTransparencyOptions}
