@@ -71,11 +71,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  transformSpace.value === TransformSpace.world
-    ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-    : transformComponent.matrix.value.decompose(position, rotation, scale)
-
+  position.copy(transformComponent.position.value)
+  rotation.copy(transformComponent.rotation.value)
   scale.copy(transformComponent.scale.value)
+
+  if (transformSpace.value === TransformSpace.world)
+    transformComponent.matrixWorld.value.decompose(position, rotation, scale)
 
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
@@ -112,10 +113,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
           <NumericInput
-            //style={{ paddingLeft: `12px`, paddingRight: `3px` }}
             min={1}
             max={100}
-            //step={1}
             value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
             onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
             onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
@@ -124,10 +123,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
-          value={position}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
+          value={position}
           onChange={onChangePosition}
           onRelease={onRelease}
         />
