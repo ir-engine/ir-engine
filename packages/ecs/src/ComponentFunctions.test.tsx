@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Types } from 'bitecs'
+import React, { useEffect } from 'react'
 
 import {
   ComponentMap,
@@ -33,10 +35,14 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent,
+  useOptionalComponent
 } from './ComponentFunctions'
 import { destroyEngine, startEngine } from './Engine'
-import { createEntity } from './EntityFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+import { createEntity, removeEntity } from './EntityFunctions'
+import { UUIDComponent } from './UUIDComponent'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -219,7 +225,7 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('removeComponent', () => {
-    it('should have component', () => {
+    it('should remove component', () => {
       const TestComponent = defineComponent({ name: 'TestComponent', onInit: () => true })
 
       const entity = createEntity()
@@ -233,7 +239,7 @@ describe('ComponentFunctions', async () => {
       assert.ok(TestComponent.stateMap[entity]!.promised === true)
     })
 
-    it('should have component with AoS values', () => {
+    it('should remove component with AoS values', () => {
       const TestComponent = defineComponent({
         name: 'TestComponent',
 
@@ -257,7 +263,7 @@ describe('ComponentFunctions', async () => {
       assert.ok(!hasComponent(entity, TestComponent))
     })
 
-    it('should have component with SoA values', () => {
+    it('should remove component with SoA values', () => {
       const { f32 } = Types
       const ValueSchema = { value: f32 }
       const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
@@ -291,6 +297,190 @@ describe('ComponentFunctions', async () => {
       assert.ok(component3)
     })
   })
+})
+
+describe('ComponentFunctions Hooks', async () => {
+  describe('useComponent', async () => {
+    type ResultType = undefined | string
+    const ResultValue: ResultType = 'ReturnValue'
+    const component = defineComponent({ name: 'TestComponent', onInit: () => ResultValue })
+    let testEntity = UndefinedEntity
+    let result = undefined as ResultType
+    let counter = 0
+
+    beforeEach(() => {
+      startEngine()
+      ComponentMap.clear()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      counter = 0
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    // Define the Reactor that will run the tested hook
+    const Reactor = () => {
+      const data = useComponent(testEntity, component)
+      useEffect(() => {
+        result = data.value as ResultType
+        ++counter
+      }, [data])
+      return null
+    }
+
+    it('assigns the correct value with onInit', async () => {
+      setComponent(testEntity, component)
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+      const tag = <Reactor />
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, "The result data didn't get assigned.")
+      assert.equal(result, ResultValue, `Did not return the correct data. result = ${result}`)
+      unmount()
+    })
+  }) // useComponent
+
+  describe('useOptionalComponent : Simple cases', async () => {
+    type ResultType = string | undefined
+    const ResultValue: ResultType = 'ReturnValue'
+    const component = defineComponent({ name: 'TestComponent', onInit: () => ResultValue })
+    let testEntity = UndefinedEntity
+    let result: ResultType = undefined
+    let counter = 0
+
+    beforeEach(() => {
+      startEngine()
+      ComponentMap.clear()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      counter = 0
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    // Define the Reactor that will run the tested hook
+    const Reactor = () => {
+      const data = useOptionalComponent(testEntity, component)
+      useEffect(() => {
+        result = data?.value
+        ++counter
+      }, [data])
+      return null
+    }
+
+    it("returns undefined when the component wasn't set yet", async () => {
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+      const tag = <Reactor />
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.equal(result, undefined, `Should have returned undefined.`)
+      unmount()
+    })
+
+    it('returns the correct data when the component has been set', async () => {
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+      const tag = <Reactor />
+      const { rerender, unmount } = render(tag)
+      setComponent(testEntity, component)
+      await act(() => rerender(tag))
+      assert.equal(true, hasComponent(testEntity, component), 'The test entity did not get its component set correctly')
+      assert.notEqual(result, undefined, "The result data didn't get assigned.")
+      assert.equal(counter, 2, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.equal(result, ResultValue, `Did not return the correct data.`)
+      unmount()
+    })
+  }) // useOptionalComponent : Simple Cases
+
+  describe('useOptionalComponent : Isolated Test Cases', async () => {
+    /** @note These test cases are isolated from each other, by defining everything without using any common code (like beforeEach/afterEach/etc) */
+
+    it('returns different data when the entity is changed', async () => {
+      // Initialize the isolated case
+      startEngine()
+      ComponentMap.clear()
+
+      // Initialize the dummy data
+      type ResultType = EntityUUID | undefined
+      const component = UUIDComponent
+      const TestUUID1 = 'TestUUID1' as EntityUUID
+      const TestUUID2 = 'TestUUID2' as EntityUUID
+      const oneEntity = createEntity()
+      const twoEntity = createEntity()
+      let result: ResultType = undefined
+      let counter = 0
+
+      setComponent(oneEntity, UUIDComponent, TestUUID1)
+      setComponent(twoEntity, UUIDComponent, TestUUID2)
+
+      // Define the Reactor that will run the tested hook
+      const Reactor = (props: { entity: Entity }) => {
+        // Call the hook to set the data
+        const data = useComponent(props.entity, component)
+        useEffect(() => {
+          result = data.value
+          ++counter
+        }, [data])
+        return null
+      }
+
+      // Run the test case
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+      const tag = <Reactor entity={oneEntity} />
+      const { rerender, unmount } = render(tag)
+      await act(() => rerender(tag))
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, "The result data didn't get initialized")
+      assert.equal(result, TestUUID1)
+      await act(() => rerender(<Reactor entity={twoEntity} />))
+      assert.equal(result, TestUUID2)
+
+      // Terminate the Reactor and Isolated Test
+      unmount()
+      return destroyEngine()
+    })
+
+    it('suspense should work', async () => {
+      // Initialize the isolated case
+      startEngine()
+      ComponentMap.clear()
+
+      // Initialize the dummy data
+      const entity = createEntity()
+      const TestComponent = defineComponent({ name: 'TestComponent' })
+      let result = 0
+
+      // Define the Reactor that will run the tested hook
+      const Reactor = () => {
+        result++
+        const data = useComponent(entity, TestComponent)
+        result++
+        useEffect(() => {
+          result++
+        }, [data])
+        return null
+      }
+
+      // Run the test case
+      const tag = <Reactor />
+      assert.equal(TestComponent.stateMap[entity]!, undefined)
+      const { rerender, unmount } = render(tag)
+      assert.equal(result, 1)
+
+      setComponent(entity, TestComponent)
+      await act(() => rerender(tag))
+      assert.equal(result, 4)
+
+      // Terminate the Reactor and Isolated Test
+      unmount()
+      return destroyEngine()
+    })
+  }) // useOptionalComponent : Isolated Test Cases
 
   // TODO
   describe('defineQuery', () => {})

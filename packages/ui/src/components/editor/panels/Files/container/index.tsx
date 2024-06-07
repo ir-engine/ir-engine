@@ -85,7 +85,7 @@ type FileBrowserContentPanelProps = {
   nestingDirectory?: string
 }
 
-type DnDFileType = {
+export type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
@@ -420,7 +420,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
-                  moveContent={moveContent}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}

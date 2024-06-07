@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { assetPath } from '@etherealengine/common/src/schema.type.module'
@@ -36,8 +37,7 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
-
+import { EditorProgressBar } from '@etherealengine/ui/src/components/editor/util/EditorProgressBar'
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -50,12 +50,10 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import AssetDropZone from './assets/AssetDropZone'
 import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
-import '@etherealengine/ui/src/fonts/font.css'
 import 'rc-dock/dist/rc-dock.css'
 import './Editor2Container.css'
 
@@ -151,16 +149,23 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
+      <MetaTags>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
+          rel="stylesheet"
+          type="text/css"
+        />
+      </MetaTags>
       <div
         id="editor-container"
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
+        <EditorProgressBar />
         <DndWrapper id="editor-container">
           <DragLayer />
           <Toolbar />
           <div className="mt-1 flex overflow-hidden">
-            <AssetDropZone />
             <DockContainer>
               <DockLayout
                 ref={dockPanelRef}

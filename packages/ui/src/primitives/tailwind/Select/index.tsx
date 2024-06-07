@@ -151,7 +151,7 @@ const Select = <T extends OptionValueType>({
         }
       />
       <div
-        className={`absolute z-10 w-full rounded border border-theme-primary bg-theme-surface-main ${
+        className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >

@@ -36,28 +36,27 @@ export async function up(knex: Knex): Promise<void> {
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(userRelationshipTypePath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  let tableExists = await knex.schema.hasTable(userRelationshipTypePath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(userRelationshipTypePath)
-    await trx.schema.renameTable(oldTableName, userRelationshipTypePath)
+    if (tableExists) await knex.schema.dropTable(userRelationshipTypePath)
+    await knex.schema.renameTable(oldTableName, userRelationshipTypePath)
   }
 
-  tableExists = await trx.schema.hasTable(userRelationshipTypePath)
+  tableExists = await knex.schema.hasTable(userRelationshipTypePath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(userRelationshipTypePath, (table) => {
+    await knex.schema.createTable(userRelationshipTypePath, (table) => {
       //@ts-ignore
       table.string('type', 255).notNullable().unique().primary()
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -65,15 +64,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(userRelationshipTypePath)
+  const tableExists = await knex.schema.hasTable(userRelationshipTypePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(userRelationshipTypePath)
+    await knex.schema.dropTable(userRelationshipTypePath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
