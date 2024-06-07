@@ -23,19 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Classes. */
-export enum AssetClass {
-  Material = 'Material',
-  Lookdev = 'Lookdev',
-  Asset = 'Asset',
-  Model = 'Model',
-  Image = 'Image',
-  Video = 'Video',
-  Audio = 'Audio',
-  Document = 'Document',
-  Text = 'Text',
-  Script = 'Script',
-  Prefab = 'Prefab',
-  Unknown = 'unknown',
-  Volumetric = 'Volumetric'
-}
+import { defineState } from '@etherealengine/hyperflux'
+
+export const ProgressBarState = defineState({
+  name: 'ProgressBarState',
+  initial: {} as Record<string, JSX.Element>
+})

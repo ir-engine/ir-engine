@@ -23,34 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** List of Asset Types. */
-export enum AssetType {
-  glB = 'glb',
-  glTF = 'gltf',
-  FBX = 'fbx',
-  OBJ = 'obj',
-  VRM = 'vrm',
-  PNG = 'png',
-  JPEG = 'jpeg',
-  TGA = 'tga',
-  MP4 = 'mp4',
-  TS = 'ts',
-  MKV = 'mkv',
-  AVI = 'avi',
-  MP3 = 'mp3',
-  WAV = 'wav',
-  OGG = 'ogg',
-  M4A = 'm4a',
-  AAC = 'acc',
-  CSV = 'csv',
-  PlainText = 'text',
-  JSON = 'json',
-  DOC = 'doc',
-  XLS = 'xls',
-  Script = 'script',
-  DDS = 'dds',
-  KTX2 = 'ktx2',
-  USDZ = 'usdz',
-  M3U8 = 'm3u8',
-  MAT = 'material'
+import { ProgressBarState } from '@etherealengine/client-core/src/common/services/ProgressBarState'
+import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
+import React from 'react'
+
+export const EditorProgressBar = () => {
+  const progressBarState = useMutableState(ProgressBarState)
+  return <>{Object.values(progressBarState.get(NO_PROXY)).map((element) => element)}</>
 }
