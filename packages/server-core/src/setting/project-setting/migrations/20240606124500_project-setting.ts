@@ -49,6 +49,8 @@ export async function up(knex: Knex): Promise<void> {
 
       table.foreign('projectId').references('id').inTable('project').onDelete('CASCADE').onUpdate('CASCADE')
       table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+
+      table.unique(['projectId', 'key'])
     })
   }
 }

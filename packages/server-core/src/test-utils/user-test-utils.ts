@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarType, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/common/src/schemas/user/user-api-key.schema'
+import { InviteCode, UserName, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import { Paginated } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { random } from 'lodash'
 import { v1 } from 'uuid'
@@ -42,6 +43,33 @@ const getAvatarId = async (app: Application) => {
     .find({ isInternal: true, query: { isPublic: true, $limit: 10 } })) as Paginated<AvatarType>
 
   return avatars.data[random(avatars.data.length - 1)].id
+}
+
+/**
+ * Method to get client params with user api key in headers
+ * @param app
+ * @returns
+ */
+export const getAuthParams = (userApiKey: UserApiKeyType) => {
+  const params = {
+    provider: 'rest',
+    headers: {
+      authorization: `Bearer ${userApiKey.token}`
+    }
+  } as Params
+
+  return params
+}
+
+/**
+ * Method to create user api key
+ * @param app
+ * @param user
+ * @returns
+ */
+export const createUserApiKey = async (app: Application, user: UserType) => {
+  const userApiKey = await app.service(userApiKeyPath).create({ userId: user.id })
+  return userApiKey
 }
 
 /**

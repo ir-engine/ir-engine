@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserApiKeyType } from '@etherealengine/common/src/schema.type.module'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   ProjectSettingQuery,
@@ -31,7 +32,8 @@ import {
 } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { Application } from '@etherealengine/server-core/declarations'
-import { createUser } from './user-test-utils'
+import { Params } from '@feathersjs/feathers'
+import { createUser, getAuthParams } from './user-test-utils'
 
 export const createProject = async (app: Application, projectName?: string, user?: UserType) => {
   if (!projectName) {
@@ -114,12 +116,18 @@ export const getProjectSetting = async (app: Application, projectSettingId: stri
  * @param user
  * @returns
  */
-export const findProjectSetting = async (app: Application, query: ProjectSettingQuery, user?: UserType) => {
+export const findProjectSetting = async (app: Application, query: ProjectSettingQuery, userApiKey?: UserApiKeyType) => {
+  let params: Params = {}
+
+  if (userApiKey) {
+    params = getAuthParams(userApiKey)
+  }
+
   const projectSetting = await app.service(projectSettingPath).find({
     query: {
       ...query
     },
-    user
+    ...params
   })
   return projectSetting
 }

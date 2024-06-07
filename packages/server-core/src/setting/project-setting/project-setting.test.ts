@@ -38,7 +38,7 @@ import {
   patchProjectSetting,
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
-import { createUser } from '../../test-utils/user-test-utils'
+import { createUser, createUserApiKey } from '../../test-utils/user-test-utils'
 
 describe('project-setting.test', () => {
   let app: Application
@@ -49,49 +49,52 @@ describe('project-setting.test', () => {
   const value2 = 'abc2'
   let user: UserType
   let project: ProjectType
+  let projectSetting: ProjectSettingType
 
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
 
-    const response = await createProject(app)
-    project = response.project
-    user = response.user
+    const projectResponse = await createProject(app)
+    project = projectResponse.project
+    user = projectResponse.user
+
+    const projectSettingResponse = await createProjectSetting(app, key1, value1, 'private', user, project)
+    projectSetting = projectSettingResponse.projectSetting
   })
 
   after(() => destroyEngine())
 
   it('should create project-setting', async () => {
-    const response = await createProjectSetting(app, key1, value1, 'private', user, project)
+    const response = await createProjectSetting(app, key1, value1, 'private')
+    const _user = response.user
+    const _project = response.project
     const _projectSetting = response.projectSetting
 
     assert.ok(_projectSetting)
     assert.equal(_projectSetting.key, key1)
     assert.equal(_projectSetting.value, value1)
-    assert.equal(_projectSetting.userId, user.id)
-    assert.equal(_projectSetting.projectId, project.id)
+    assert.equal(_projectSetting.userId, _user.id)
+    assert.equal(_projectSetting.projectId, _project.id)
   })
 
   it('should get project-setting', async () => {
-    const createdResponse = await createProjectSetting(app, key1, value1, 'private', user, project)
-    const _createdProjectSetting = createdResponse.projectSetting
-    const _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
+    const _projectSetting = await getProjectSetting(app, projectSetting.id)
 
     assert.ok(_projectSetting)
     assert.equal(_projectSetting.key, key1)
-    assert.equal(_projectSetting.key, _createdProjectSetting.key)
+    assert.equal(_projectSetting.key, projectSetting.key)
     assert.equal(_projectSetting.value, value1)
-    assert.equal(_projectSetting.value, _createdProjectSetting.value)
+    assert.equal(_projectSetting.value, projectSetting.value)
     assert.equal(_projectSetting.userId, user.id)
-    assert.equal(_projectSetting.userId, _createdProjectSetting.userId)
+    assert.equal(_projectSetting.userId, projectSetting.userId)
     assert.equal(_projectSetting.projectId, project.id)
-    assert.equal(_projectSetting.projectId, _createdProjectSetting.projectId)
-    assert.equal(_projectSetting.createdAt, _createdProjectSetting.createdAt)
-    assert.equal(_projectSetting.updatedAt, _createdProjectSetting.updatedAt)
+    assert.equal(_projectSetting.projectId, projectSetting.projectId)
+    assert.equal(_projectSetting.createdAt, projectSetting.createdAt)
+    assert.equal(_projectSetting.updatedAt, projectSetting.updatedAt)
   })
 
   it('should find the project-setting', async () => {
-    await createProjectSetting(app, key1, value1, 'private', user, project)
     const { user: user2, project: project2 } = await createProjectSetting(app, key1, value2, 'private')
 
     const _projectSetting1 = await findProjectSetting(app, { projectId: project.id, key: key1 })
@@ -111,12 +114,12 @@ describe('project-setting.test', () => {
   })
 
   it('should only find public project-setting for guests', async () => {
-    await createProjectSetting(app, key1, value1, 'private', user, project)
     await createProjectSetting(app, key2, value2, 'public', user, project)
 
     const guestUser = await createUser(app)
+    const guestApiKey = await createUserApiKey(app, guestUser)
 
-    const _projectSetting = await findProjectSetting(app, { projectId: project.id }, guestUser)
+    const _projectSetting = await findProjectSetting(app, { projectId: project.id }, guestApiKey)
 
     assert.notEqual(_projectSetting.total, 0)
 
@@ -128,7 +131,7 @@ describe('project-setting.test', () => {
   })
 
   it('should patch project-setting by id', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private')
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using id:
@@ -146,12 +149,13 @@ describe('project-setting.test', () => {
   })
 
   it('should patch project-setting by query', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private')
+    const _createdProject = createdResponse.project
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using query params:
     const updatedValue = 'rst'
-    const patchedResponse = await patchProjectSetting(app, updatedValue, undefined, project.id, key2)
+    const patchedResponse = await patchProjectSetting(app, updatedValue, undefined, _createdProject.id, key2)
     const _patchedProjectSetting = Array.isArray(patchedResponse) ? patchedResponse[0] : patchedResponse
 
     assert.ok(_patchedProjectSetting)
@@ -161,7 +165,7 @@ describe('project-setting.test', () => {
   })
 
   it('should remove the project-setting by id', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private')
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing remove using id:
@@ -172,11 +176,12 @@ describe('project-setting.test', () => {
   })
 
   it('should remove the project-setting by query', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private')
+    const _createdProject = createdResponse.project
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using query params:
-    const _projectSetting = await removeProjectSetting(app, undefined, { key: key2, projectId: project.id })
+    const _projectSetting = await removeProjectSetting(app, undefined, { key: key2, projectId: _createdProject.id })
     assert.ok(_projectSetting)
     const findResponse = await findProjectSetting(app, { id: _createdProjectSetting.id })
     assert.equal(findResponse.total, 0)
