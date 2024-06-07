@@ -39,7 +39,7 @@ import {
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
 
-describe.only('project-setting.test', () => {
+describe('project-setting.test', () => {
   let app: Application
 
   const key1 = 'MyKey1'
