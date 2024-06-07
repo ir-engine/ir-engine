@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 export type ResourcesJson = Record<
   string,
   {
-    hash: string
     type: 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
     tags?: string[]
     dependencies?: string[] // other keys

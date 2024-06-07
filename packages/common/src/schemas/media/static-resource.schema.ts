@@ -87,7 +87,7 @@ export const staticResourceDataSchema = Type.Partial(
     'attribution',
     'licensing',
     'description',
-    // 'stats' Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+    'stats',
     'thumbnailURL',
     'thumbnailMode'
   ]),
@@ -110,7 +110,7 @@ export const staticResourcePatchSchema = Type.Partial(
     'attribution',
     'licensing',
     'description',
-    // 'stats'
+    'stats',
     'thumbnailURL',
     'thumbnailMode'
   ]),
@@ -134,7 +134,7 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'attribution',
   'licensing',
   'description',
-  // 'stats'
+  'stats',
   'thumbnailURL',
   'thumbnailMode'
 ])

@@ -24,18 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as ffprobe from '@ffprobe-installer/ffprobe'
-import appRootPath from 'app-root-path'
 import execa from 'execa'
-import fs from 'fs'
 import mp3Duration from 'mp3-duration'
-import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
-
-import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-
-import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type MediaUploadArguments = {
   media: Buffer
@@ -48,80 +40,6 @@ export type MediaUploadArguments = {
   parentId?: string
   LODNumber?: string
   stats?: any
-}
-
-/**
- * Get the files to upload for a given resource
- * @param url
- * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
- * @returns
- */
-export const downloadResourceAndMetadata = async (url: string, download = false): Promise<UploadFile> => {
-  // console.log('getResourceFiles', url, download)
-  if (/http(s)?:\/\//.test(url)) {
-    // if configured to clone project static resources, we need to fetch the file and upload it
-    if (download) {
-      const file = await fetch(url)
-      return {
-        buffer: Buffer.from(await file.arrayBuffer()),
-        originalname: url.split('/').pop()!,
-        mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
-          CommonKnownContentTypes[url.split('.').pop()!],
-        size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
-      }
-    } else {
-      // otherwise we just return the url and let the client download it as needed
-      const file = await fetch(url, { method: 'HEAD' })
-      return {
-        buffer: url,
-        originalname: url.split('/').pop()!,
-        mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
-          CommonKnownContentTypes[url.split('.').pop()!],
-        size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
-      }
-    }
-  } else {
-    const file = fs.readFileSync(url)
-    return {
-      buffer: download ? file : url,
-      originalname: url.split('/').pop()!,
-      mimetype: CommonKnownContentTypes[url.split('.').pop()!],
-      size: file.length
-    }
-  }
-}
-
-const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
-
-export const isAssetFromDomain = (url: string) => {
-  const storageProvider = getStorageProvider()
-  return (
-    url.includes(storageProvider.getCacheDomain()) ||
-    !!storageProvider.originURLs.find((origin) => url.includes(origin))
-  )
-}
-
-/**
- * Get the key for a given asset
- * - if from project, will return the path relative to the project
- * - if from external url, will return the path relative to the static-resources folder
- */
-export const getKeyForAsset = (url: string, project: string) => {
-  const storageProvider = getStorageProvider()
-  const storageProviderPath = 'https://' + path.join(storageProvider.getCacheDomain(), 'projects/', project)
-  const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
-  const projectPath = url
-    .replace(originPath, '')
-    .replace(storageProviderPath, '')
-    .replace(path.join(absoluteProjectPath, project), '')
-    .split('/')
-    .slice(0, -1)
-    .join('/')
-  return `projects/${project}${projectPath}`
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {

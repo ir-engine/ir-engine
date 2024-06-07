@@ -30,12 +30,11 @@ import path from 'path'
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath, staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
+import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
-import { AvatarParams } from './avatar.class'
 
 const getAvatarDependencies = async (resourceKey: string) => {
   const fileExtension = resourceKey.split('.').pop()!
@@ -48,7 +47,6 @@ const getAvatarDependencies = async (resourceKey: string) => {
   if (!hasRelativePath) return [] // no dependencies by folder name convention - TODO support other conventions
 
   const dependencies = await storageProvider.listObjects(resourceFolder + '/' + avatarName)
-  console.log('getAvatarDependencies', dependencies)
   return dependencies.Contents.map((dependency) => dependency.Key)
 }
 
@@ -149,47 +147,87 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 export const uploadAvatarStaticResource = async (
   app: Application,
   data: AvatarUploadArguments,
-  params?: AvatarParams
+  params?: UploadParams
 ) => {
+  if (!data.avatar) throw new Error('No avatar model found')
+  if (!data.thumbnail) throw new Error('No thumbnail found')
+
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
   const staticResourceKey = `avatars/${data.isPublic ? 'public' : params?.user!.id}/`
   const isFromDomain = !!data.path
-  const path = isFromDomain ? data.path! : staticResourceKey
+  const folderName = isFromDomain ? data.path! : staticResourceKey
 
-  // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
-  // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
-
-  const [modelResource, thumbnailResource] = await Promise.all([
-    addAssetAsStaticResource(
-      app,
+  await Promise.all([
+    app.service(fileBrowserPath).patch(
+      null,
       {
-        buffer: data.avatar,
-        originalname: `${name}.${data.avatarFileType ?? 'glb'}`,
-        mimetype: CommonKnownContentTypes[data.avatarFileType ?? 'glb'],
-        size: data.avatar.byteLength
+        body: data.avatar,
+        path: folderName,
+        fileName: `${name}.${data.avatarFileType ?? 'glb'}`,
+        contentType: CommonKnownContentTypes[data.avatarFileType ?? 'glb']
       },
-      {
-        userId: params?.user!.id,
-        path,
-        project: data.project
-      }
+      params
     ),
-    addAssetAsStaticResource(
-      app,
+    app.service(fileBrowserPath).patch(
+      null,
       {
-        buffer: data.thumbnail,
-        originalname: `${name}.png`,
-        mimetype: CommonKnownContentTypes.png,
-        size: data.thumbnail.byteLength
+        body: data.thumbnail,
+        path: folderName,
+        fileName: `${name}.png`,
+        contentType: CommonKnownContentTypes.png
       },
-      {
-        userId: params?.user!.id,
-        path,
-        project: data.project
-      }
+      params
     )
   ])
+
+  // const [modelResource, thumbnailResource] = await Promise.all([
+  //   addAssetAsStaticResource(
+  //     app,
+  //     {
+  //       buffer: data.avatar,
+  //       originalname: `${name}.${data.avatarFileType ?? 'glb'}`,
+  //       mimetype: CommonKnownContentTypes[data.avatarFileType ?? 'glb'],
+  //       size: data.avatar.byteLength
+  //     },
+  //     {
+  //       userId: params?.user!.id,
+  //       path,
+  //       project: data.project
+  //     }
+  //   ),
+  //   addAssetAsStaticResource(
+  //     app,
+  //     {
+  //       buffer: data.thumbnail,
+  //       originalname: `${name}.png`,
+  //       mimetype: CommonKnownContentTypes.png,
+  //       size: data.thumbnail.byteLength
+  //     },
+  //     {
+  //       userId: params?.user!.id,
+  //       path,
+  //       project: data.project
+  //     }
+  //   )
+  // ])
+
+  const modelKey = path.join(folderName, `${name}.${data.avatarFileType ?? 'glb'}`)
+  const thumbnailKey = path.join(folderName, `${name}.png`)
+
+  const modelResourceQuery = await app.service(staticResourcePath).find({
+    query: {
+      key: modelKey
+    }
+  })
+  const modelResource = modelResourceQuery.data[0] as StaticResourceType
+
+  const thumbnailResourceQuery = await app.service(staticResourcePath).find({
+    query: {
+      key: thumbnailKey
+    }
+  })
+  const thumbnailResource = thumbnailResourceQuery.data[0] as StaticResourceType
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)
 
@@ -206,5 +244,3 @@ export const uploadAvatarStaticResource = async (
 
   return [modelResource, thumbnailResource]
 }
-
-export const removeAvatarFromDatabase = async (app: Application, name: string) => {}

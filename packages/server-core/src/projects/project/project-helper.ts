@@ -83,6 +83,7 @@ import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { getStats } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
@@ -1717,27 +1718,33 @@ export const deleteProjectFilesInStorageProvider = async (
 }
 
 const migrateResourcesJson = (resourceJsonPath: string) => {
-  //if we have a resources.sql file, use it to populate static-resource table
-  const manifest: StaticResourceType[] | ResourcesJson = JSON.parse(fs.readFileSync(resourceJsonPath).toString())
-  if (!Array.isArray(manifest)) return
-  const newManifest = Object.fromEntries(
-    manifest.map((item) => {
-      return [
-        item.key,
-        {
-          hash: item.hash,
-          type: item.type ?? item.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
-          thumbnailURL: item.thumbnailURL,
-          thumbnailMode: item.thumbnailMode,
-          tags: item.tags,
-          dependencies: item.dependencies,
-          licensing: item.licensing,
-          description: item.description,
-          attribution: item.attribution
-        }
-      ]
-    })
-  ) as ResourcesJson
+  const hasResourceJson = fs.existsSync(resourceJsonPath)
+
+  const manifest: StaticResourceType[] | ResourcesJson | undefined = hasResourceJson
+    ? JSON.parse(fs.readFileSync(resourceJsonPath).toString())
+    : undefined
+
+  let newManifest: ResourcesJson = (manifest as ResourcesJson) ?? {}
+  if (Array.isArray(manifest)) {
+    newManifest = Object.fromEntries(
+      manifest.map((item) => {
+        return [
+          item.key,
+          {
+            hash: item.hash,
+            type: item.type ?? item.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
+            thumbnailURL: item.thumbnailURL,
+            thumbnailMode: item.thumbnailMode,
+            tags: item.tags,
+            dependencies: item.dependencies,
+            licensing: item.licensing,
+            description: item.description,
+            attribution: item.attribution
+          }
+        ]
+      })
+    ) as ResourcesJson
+  }
   fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
 }
 
@@ -1751,10 +1758,6 @@ const staticResourceClasses = [
   AssetType.Material,
   AssetType.Prefab
 ]
-
-export const isStaticResourceAsset = (key: string) =>
-  (key.startsWith('/public/') || key.includes('/assets/')) &&
-  staticResourceClasses.includes(AssetLoader.getAssetClass(key))
 
 /**
  * Updates the local storage provider with the project's current files
@@ -1780,67 +1783,40 @@ export const uploadLocalProjectToProvider = async (
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
-  const hasResourceJson = fs.existsSync(resourcesJsonPath)
 
   // migrate resources.json if needed
-
-  if (hasResourceJson) {
-    migrateResourcesJson(resourcesJsonPath)
-  }
+  migrateResourcesJson(resourcesJsonPath)
 
   const filteredFilesInProjectFolder = getFilesRecursive(projectRootPath).filter(
     (file) => !file.includes(`projects/${projectName}/.git/`) && !file.includes(`projects/${projectName}/thumbnails/`)
   )
 
   const results = [] as (string | null)[]
-  const resourceKey = (key, hash) => `${key}#${hash}`
   const existingResources = await app.service(staticResourcePath).find({
     query: {
       project: projectName
     },
     paginate: false
   })
-  const existingContentSet = new Set<string>()
   const existingKeySet = new Set<string>()
   for (const item of existingResources) {
-    existingContentSet.add(resourceKey(item.key, item.hash))
     existingKeySet.add(item.key)
   }
-  if (hasResourceJson) {
-    const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
+  const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
 
-    for (const [key, item] of Object.entries(manifest)) {
-      if (existingKeySet.has(key)) {
-        // logger.info(`Skipping upload of static resource: "${key}"`)
-        continue
-      }
-
-      const contentType = getContentType(key)
-
-      await app.service(staticResourcePath).create({
-        key,
-        mimeType: contentType,
-        hash: item.hash,
-        type: item.type,
-        tags: item.tags,
-        dependencies: item.dependencies,
-        licensing: item.licensing,
-        description: item.description,
-        attribution: item.attribution,
-        thumbnailURL: item.thumbnailURL,
-        thumbnailMode: item.thumbnailMode
-      })
-      // logger.info(`Uploaded static resource ${key} from resources.json`)
-    }
-  }
+  /**
+   * @todo replace all this verbosity with fileBrowser patch
+   * - check that we are only adding static resources fro /public & /assets folders
+   * - pass in all manifest metadata
+   */
 
   for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))
-      const contentType = getContentType(file)
       const key = `projects/${projectName}${filePathRelative}`
 
+      const contentType = getContentType(key)
       await storageProvider.putObject(
         {
           Body: fileResult,
@@ -1849,37 +1825,53 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!hasResourceJson && isStaticResourceAsset(filePathRelative)) {
-        const thisFileClass = AssetLoader.getAssetClass(file)
-        const hash = createStaticResourceHash(fileResult)
-        if (existingKeySet.has(key)) {
-          // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-          await app.service(staticResourcePath).patch(
-            null,
-            {
-              hash,
-              mimeType: contentType,
-              // type: 'asset',
-              tags: [thisFileClass]
-            },
-            {
-              query: {
-                key,
-                project: projectName
-              }
-            }
-          )
-        } else {
-          // logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
-          await app.service(staticResourcePath).create({
-            key: `projects/${projectName}${filePathRelative}`,
-            project: projectName,
+      if (!filePathRelative.startsWith(`/assets/`) && !filePathRelative.startsWith(`/public/`)) continue
+
+      const thisFileClass = AssetLoader.getAssetClass(key)
+      const hash = createStaticResourceHash(fileResult)
+      const stats = await getStats(fileResult, contentType)
+      const resourceInfo = manifest[key]
+      if (existingKeySet.has(key)) {
+        // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
+        await app.service(staticResourcePath).patch(
+          null,
+          {
             hash,
-            // type: 'asset',
             mimeType: contentType,
-            tags: [thisFileClass]
-          })
-        }
+            stats,
+            type: resourceInfo?.type,
+            tags: resourceInfo?.tags ?? [thisFileClass],
+            dependencies: resourceInfo?.dependencies ?? undefined,
+            licensing: resourceInfo?.licensing ?? undefined,
+            description: resourceInfo?.description ?? undefined,
+            attribution: resourceInfo?.attribution ?? undefined,
+            thumbnailURL: resourceInfo?.thumbnailURL ?? undefined,
+            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+          },
+          {
+            query: {
+              key,
+              project: projectName
+            }
+          }
+        )
+      } else {
+        // logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
+        await app.service(staticResourcePath).create({
+          key,
+          project: projectName,
+          hash,
+          mimeType: contentType,
+          stats,
+          type: resourceInfo?.type,
+          tags: resourceInfo?.tags ?? [thisFileClass],
+          dependencies: resourceInfo?.dependencies ?? undefined,
+          licensing: resourceInfo?.licensing ?? undefined,
+          description: resourceInfo?.description ?? undefined,
+          attribution: resourceInfo?.attribution ?? undefined,
+          thumbnailURL: resourceInfo?.thumbnailURL ?? undefined,
+          thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+        })
         logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
       }
 
@@ -1889,9 +1881,7 @@ export const uploadLocalProjectToProvider = async (
       results.push(null)
     }
   }
-  if (!hasResourceJson) {
-    await updateProjectResourcesJson(app, projectName)
-  }
+  await updateProjectResourcesJson(app, projectName)
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
@@ -1902,9 +1892,7 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
     query: { project: projectName },
     paginate: false
   })
-  if (resources.length === 0) {
-    return
-  }
+  if (resources.length === 0) return
   const resourcesJson = Object.fromEntries(
     resources.map((resource) => [
       resource.key,
@@ -1921,7 +1909,6 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
       }
     ])
   )
-  const key = `projects/${projectName}/resources.json`
   await app.service(fileBrowserPath).patch(null, {
     fileName: 'resources.json',
     path: `projects/${projectName}`,

@@ -26,28 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated, Params } from '@feathersjs/feathers'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
-import fs from 'fs'
-import path from 'path'
 
 import {
-  AdminAssetUploadArgumentsType,
   AssetUploadType,
   AvatarUploadArgsType,
   UploadFile
 } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { uploadAssetPath } from '@etherealengine/common/src/schema.type.module'
-import { invalidationPath } from '@etherealengine/common/src/schemas/media/invalidation.schema'
+import { fileBrowserPath, uploadAssetPath, UserType } from '@etherealengine/common/src/schema.type.module'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schemas/media/static-resource.schema'
-import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
-import { getStats } from '../static-resource/static-resource-helper'
-import { getStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
@@ -62,84 +53,7 @@ declare module '@etherealengine/common/declarations' {
 
 export interface UploadParams extends Params {
   files: UploadFile[]
-}
-
-export interface ResourcePatchCreateInterface {
-  hash: string
-  key: string
-  mimeType: string
-  url?: string
-  project?: string
-  userId?: string
-}
-
-export const getFileMetadata = async (data: { name?: string; file: UploadFile | string }) => {
-  const { name, file } = data
-
-  const storageProvider = getStorageProvider()
-  const cacheDomain = storageProvider.getCacheDomain()
-  const originURLs = storageProvider.originURLs
-
-  let contentLength = 0
-  let extension = ''
-  let assetName = name!
-  let mimeType = ''
-
-  if (typeof file === 'string') {
-    const url = file
-    if (/http(s)?:\/\//.test(url)) {
-      //If the file URL points to the cache domain, fetch it from the origin (S3) domain instead, to avoid cached
-      //information that might not be up-to-date
-      const fileHead = await fetch(url.replace(cacheDomain, originURLs[0]), { method: 'HEAD' })
-      if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
-      contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
-      mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
-    } else {
-      const fileHead = await fs.statSync(url)
-      contentLength = fileHead.size
-      mimeType = CommonKnownContentTypes[url.split('.').pop()!] ?? 'application/octet-stream'
-    }
-    if (!name) assetName = url.split('/').pop()!
-    extension = url.split('.').pop()!
-  } else {
-    extension = MimeTypeToExtension[file.mimetype] ?? file.originalname.split('.').pop()
-    contentLength = file.size
-    assetName = name ?? file.originalname
-    mimeType = file.mimetype
-  }
-
-  const hash = createStaticResourceHash(typeof file === 'string' ? file : file.buffer)
-
-  return {
-    assetName,
-    extension,
-    hash,
-    mimeType
-  }
-}
-
-const addFileToStorageProvider = async (app: Application, file: Buffer, mimeType: string, key: string) => {
-  logger.info(`Uploading ${key} to storage provider`)
-  const provider = getStorageProvider()
-  try {
-    if (config.server.edgeCachingEnabled)
-      await app.service(invalidationPath).create({
-        path: key
-      })
-  } catch (e) {
-    logger.info(`[ERROR lod-upload while invalidating ${key}]:`, e)
-  }
-
-  await provider.putObject(
-    {
-      Key: key,
-      Body: file,
-      ContentType: mimeType
-    },
-    {
-      isDirectory: false
-    }
-  )
+  user: UserType
 }
 
 export type UploadAssetArgs = {
@@ -155,10 +69,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
     name: args.name,
     path: args.path
   })
-  const { hash } = await getFileMetadata({
-    file: args.file,
-    name: args.file.originalname
-  })
+  const hash = createStaticResourceHash(args.file.buffer)
 
   const query = {
     hash,
@@ -174,11 +85,20 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   if (existingResource.data.length > 0) return existingResource.data[0]
 
   const key = args.path ?? `/temp/${hash}`
-  return await addAssetAsStaticResource(app, args.file, {
-    hash: hash,
+  await app.service(fileBrowserPath).patch(null, {
+    body: args.file,
     path: key,
-    project: args.project
+    fileName: args.name ?? args.file.originalname
   })
+
+  return (
+    await app.service(staticResourcePath).find({
+      query: {
+        key,
+        $limit: 1
+      }
+    })
+  ).data[0]
 }
 
 const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
@@ -219,59 +139,6 @@ export const createStaticResourceHash = (file: Buffer | string) => {
   return createHash('sha3-256').update(file).digest('hex')
 }
 
-/**
- * Uploads a file to the storage provider and adds a "static-resource" entry
- * - if a main file is a buffer, upload it and all variants to storage provider and create a new static resource entry
- * - if the asset is already in the static resource table, update the entry with the new file
- */
-export const addAssetAsStaticResource = async (
-  app: Application,
-  file: UploadFile,
-  args: AdminAssetUploadArgumentsType
-): Promise<StaticResourceType> => {
-  logger.info('addAssetAsStaticResource %o', args)
-  console.log(file)
-
-  const key = processFileName(path.join(args.path, file.originalname))
-
-  const query = {
-    $limit: 1,
-    $or: [{ key: key }, { id: args.id || '' }]
-  } as any
-  if (args.project) query.project = args.project
-  const existingAsset = (await app.service(staticResourcePath).find({
-    query
-  })) as Paginated<StaticResourceType>
-
-  const stats = await getStats(file.buffer, file.mimetype)
-
-  const hash = args.hash || createStaticResourceHash(file.buffer)
-  const body: Partial<StaticResourceType> = {
-    hash,
-    key,
-    mimeType: file.mimetype,
-    project: args.project
-  }
-  if (stats) body.stats = stats
-  // if (args.userId) body.userId = args.userId
-
-  if (typeof file.buffer !== 'string') {
-    await addFileToStorageProvider(app, file.buffer, file.mimetype, key)
-  }
-
-  let resourceId = ''
-
-  if (existingAsset.data.length > 0) {
-    resourceId = existingAsset.data[0].id
-    await app.service(staticResourcePath).patch(resourceId, body, { isInternal: true })
-  } else {
-    const resource = await app.service(staticResourcePath).create(body, { isInternal: true })
-    resourceId = resource.id
-  }
-
-  return app.service(staticResourcePath).get(resourceId)
-}
-
 export default (app: Application): void => {
   app.use(
     uploadAssetPath,
@@ -300,13 +167,4 @@ export default (app: Application): void => {
   const service = app.service(uploadAssetPath)
 
   service.hooks(hooks)
-}
-
-const isFromOriginURL = (inputURL: string): boolean => {
-  const provider = getStorageProvider()
-  let returned = false
-  provider.originURLs.forEach((url) => {
-    if (new RegExp(url).exec(inputURL)) returned = true
-  })
-  return returned
 }

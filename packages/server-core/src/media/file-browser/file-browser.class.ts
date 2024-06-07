@@ -47,7 +47,9 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
+import { getStats } from '../static-resource/static-resource-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
@@ -279,66 +281,64 @@ export class FileBrowserService
     const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
     const key = path.join(reducedPath, name)
 
+    /** @todo should we allow user-specific content types? Or standardize on the backend? */
+    const contentType = data.contentType ?? getContentType(name)
+
     await storageProvider.putObject(
       {
         Key: key,
         Body: data.body,
-        ContentType: data.contentType
+        ContentType: contentType
       },
       {
         isDirectory: false
       }
     )
 
-    if (config.fsProjectSyncEnabled) {
+    if (project && config.fsProjectSyncEnabled) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
       fs.writeFileSync(filePath, data.body)
     }
 
-    const hash = createStaticResourceHash(data.body)
-
-    const query = {
-      hash,
-      mimeType: data.contentType,
-      $limit: 1
-    } as Record<string, unknown>
-    if (project) query.project = project
     const existingResource = (await this.app.service(staticResourcePath).find({
-      query
+      query: { key }
     })) as Paginated<StaticResourceType>
+
+    const stats = await getStats(data.body, contentType)
+    const hash = createStaticResourceHash(data.body)
 
     if (existingResource.data.length > 0) {
       const resource = existingResource.data[0]
       await this.app.service(staticResourcePath).patch(
         resource.id,
         {
-          key
+          key,
+          hash,
+          project,
+          mimeType: contentType,
+          stats
         },
         { isInternal: true }
       )
-
-      if (config.server.edgeCachingEnabled)
-        await this.app.service(invalidationPath).create({
-          path: key
-        })
     } else {
       await this.app.service(staticResourcePath).create(
         {
-          hash,
           key,
+          hash,
+          mimeType: contentType,
           project,
-          mimeType: data.contentType
+          stats
         },
         { isInternal: true }
       )
-
-      if (config.server.edgeCachingEnabled)
-        await this.app.service(invalidationPath).create({
-          path: key
-        })
     }
+
+    if (config.server.edgeCachingEnabled)
+      await this.app.service(invalidationPath).create({
+        path: key
+      })
 
     return storageProvider.getCachedURL(key, params && params.provider == null)
   }

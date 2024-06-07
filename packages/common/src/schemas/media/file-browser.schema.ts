@@ -65,7 +65,7 @@ export const fileBrowserPatchSchema = Type.Object(
     path: Type.String(),
     fileName: Type.String(),
     body: Type.Any(),
-    contentType: Type.String(),
+    contentType: Type.Optional(Type.String()),
     storageProviderName: Type.Optional(Type.String())
   },
   {
