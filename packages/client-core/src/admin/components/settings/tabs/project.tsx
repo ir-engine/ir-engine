@@ -28,9 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectSettingType, projectPath } from '@etherealengine/common/src/schema.type.module'
+import { ProjectSettingType, projectPath, projectSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -48,12 +47,12 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   const projectState = useMutableState(ProjectState)
   const projects = projectState.projects
 
-  const settings = useHookstate<Array<ProjectSettingType> | []>([])
+  const updatedSettings = useHookstate<ProjectSettingType[]>([])
   const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
   const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
 
-  const patchProjectSetting = useMutation(projectPath).patch
+  const patchProjectSetting = useMutation(projectSettingPath).patch
 
   useEffect(() => {
     ProjectService.fetchProjects()
@@ -61,55 +60,32 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   useEffect(() => {
     if (selectedProjectId.value) {
-      resetSettingsFromSchema()
+      updatedSettings.set([])
     }
   }, [selectedProjectId])
 
-  useEffect(() => {
-    if (!project.data?.settings || !project.data?.settings.length) {
-      return
-    }
-
-    const tempSettings = JSON.parse(JSON.stringify(settings.value))
-    for (const [index, setting] of tempSettings.entries()) {
-      const savedSetting = project.data.settings.filter((item) => item.key === setting.key)
-      if (savedSetting.length > 0) {
-        tempSettings[index].value = savedSetting[0].value
-      }
-    }
-    settings.set(tempSettings)
-  }, [project.data?.settings])
-
-  const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProjectId.value)
-    const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
-
-    if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSettingType[]
-
-      for (const setting of projectConfig.settings) {
-        tempSetting.push({ key: setting.key, value: '' })
-      }
-
-      settings.set(tempSetting)
-    } else {
-      settings.set([])
-    }
+  const handleClear = () => {
+    updatedSettings.set([])
   }
 
-  const handleCancel = () => {
-    resetSettingsFromSchema()
-  }
-
-  const handleSubmit = () => {
-    state.loading.set(true)
-    patchProjectSetting(selectedProjectId.value, { settings: settings.value as Array<ProjectSettingType> })
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((err) => {
-        state.set({ loading: false, errorMessage: err.message })
-      })
+  const handleSubmit = async () => {
+    try {
+      state.loading.set(true)
+      for (const updatedSetting of updatedSettings.value) {
+        await patchProjectSetting(
+          updatedSetting.id,
+          { value: updatedSetting.value },
+          {
+            query: {
+              projectId: selectedProjectId.value
+            }
+          }
+        )
+      }
+      state.set({ loading: false, errorMessage: '' })
+    } catch (err) {
+      state.set({ loading: false, errorMessage: err.message })
+    }
   }
 
   const projectsMenu = projects.value.map((el) => {
@@ -119,8 +95,22 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     }
   })
 
-  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    settings[index].nested('value').set(e.target.value)
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, setting: ProjectSettingType) => {
+    const index = updatedSettings.value.findIndex((item) => item.id === setting.id)
+    if (index === -1) {
+      updatedSettings.set([...updatedSettings.value, { ...setting, value: e.target.value }])
+    } else {
+      updatedSettings[index].nested('value').set(e.target.value)
+    }
+  }
+
+  const displayedSettings = JSON.parse(JSON.stringify(project.data?.settings || [])) as ProjectSettingType[]
+  for (const updatedSetting of updatedSettings.value) {
+    const index = displayedSettings.findIndex((setting) => setting.id === updatedSetting.id)
+
+    if (index !== -1) {
+      displayedSettings[index] = updatedSetting
+    }
   }
 
   return (
@@ -140,26 +130,21 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         className="mb-8 mt-6 max-w-[50%]"
       />
 
-      {settings?.length > 0 ? (
+      {displayedSettings.length > 0 ? (
         <>
-          {settings.value.map((setting: ProjectSettingType, index: number) => (
+          {displayedSettings.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
               <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
               <Input
                 className="col-span-1"
                 label="Value"
                 value={setting.value || ''}
-                onChange={(e) => handleSettingsChange(e, index)}
+                onChange={(e) => handleSettingsChange(e, setting)}
               />
             </div>
           ))}
           <div className="mb-3 grid grid-cols-8 gap-2">
-            <Button
-              size="small"
-              className="text-primary col-span-1 bg-theme-highlight"
-              fullWidth
-              onClick={handleCancel}
-            >
+            <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleClear}>
               {t('admin:components.setting.project.clear')}
             </Button>
             <Button

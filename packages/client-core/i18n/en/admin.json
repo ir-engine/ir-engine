@@ -518,7 +518,7 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No settings schema available in xrengine.config.ts"
+        "noSettingsMessage": "No settings available"
       },
       "server": {
         "header": "Server",
