@@ -42,9 +42,6 @@ export const middlewareSettingSchema = Type.Object(
     middlewareProjectName: Type.String(),
     middlewareSettingTemp: Type.String(),
     middlewareSettingMenu: Type.String(),
-    // conf0: Type.String(),
-    // conf1: Type.String(),
-    // conf2: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -61,9 +58,6 @@ export interface MiddlewareSettingDatabaseType
   middlewareProjectName: string
   middlewareSettingTemp: string
   middlewareSettingMenu: string
-  // conf0: string
-  // conf1: string
-  // conf2: string
 }
 
 // Schema for creating new entries

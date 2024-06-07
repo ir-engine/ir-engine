@@ -34,11 +34,11 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
-/* Dynamic Menu - Experimental */
+// Test DB Entry
+export const middlewareProject = ''
 
-export const middlewareProject = 'Electronic Shop'
-
-export const middlewareProjectName = 'irpro-electronics-store'
+// Test DB Entry
+export const middlewareProjectName = ''
 
 export const middlewareSettingTemp = JSON.stringify({
   Scene: [
@@ -87,141 +87,56 @@ export const middlewareSettingTemp = JSON.stringify({
   ]
 })
 
-export const middlewareSettingMenu = JSON.stringify({
-  store: [
-    {
-      component: 'MiddlewareToggle',
-      label: 'Dyn Toggle 0',
-      value: true,
-      action: 'mwHandleToggle'
-    },
-    {
-      component: 'MiddlewareSelect',
-      label: 'Dyn Select 0',
-      value: ['opt0', 'opt1', 'opt2'],
-      action: 'mwHandleSelect'
-    },
-    {
-      component: 'MiddlewareTextarea',
-      label: 'Textarea Label 0',
-      value: 'Default Value',
-      action: 'mwHandleTextarea'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 0',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 1',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 2',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 3',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    }
-  ],
-  'store-sales-agent': [
-    {
-      component: 'MiddlewareToggle',
-      label: 'Dyn Toggle 0',
-      value: true,
-      action: 'mwHandleToggle'
-    },
-    {
-      component: 'MiddlewareSelect',
-      label: 'Dyn Select 0',
-      value: ['opt0', 'opt1', 'opt2'],
-      action: 'mwHandleSelect'
-    },
-    {
-      component: 'MiddlewareTextarea',
-      label: 'Textarea Label 0',
-      value: 'Default Value',
-      action: 'mwHandleTextarea'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 0',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 1',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 2',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 3',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    }
-  ],
-  'npc-only': [
-    {
-      component: 'MiddlewareToggle',
-      label: 'Dyn Toggle 0',
-      value: true,
-      action: 'mwHandleToggle'
-    },
-    {
-      component: 'MiddlewareSelect',
-      label: 'Dyn Select 0',
-      value: ['opt0', 'opt1', 'opt2'],
-      action: 'mwHandleSelect'
-    },
-    {
-      component: 'MiddlewareTextarea',
-      label: 'Textarea Label 0',
-      value: 'Default Value',
-      action: 'mwHandleTextarea'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 0',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 1',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 2',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    },
-    {
-      component: 'MiddlewareInput',
-      label: 'Dyn Label 3',
-      value: 'Default Value',
-      action: 'mwHandleChange'
-    }
-  ]
-})
-/* Dynamic Menu - Experimental */
+/* Dynamic Menu Test */
+// export const middlewareSettingMenu = JSON.stringify({
+//   test: [
+//     {
+//       component: 'MiddlewareToggle',
+//       label: 'Dyn Toggle 0',
+//       value: true,
+//       action: 'mwHandleToggle'
+//     },
+//     {
+//       component: 'MiddlewareSelect',
+//       label: 'Dyn Select 0',
+//       value: ['opt0', 'opt1', 'opt2'],
+//       action: 'mwHandleSelect'
+//     },
+//     {
+//       component: 'MiddlewareTextarea',
+//       label: 'Textarea Label 0',
+//       value: 'Default Value',
+//       action: 'mwHandleTextarea'
+//     },
+//     {
+//       component: 'MiddlewareInput',
+//       label: 'Dyn Label 0',
+//       value: 'Default Value',
+//       action: 'mwHandleChange'
+//     },
+//     {
+//       component: 'MiddlewareInput',
+//       label: 'Dyn Label 1',
+//       value: 'Default Value',
+//       action: 'mwHandleChange'
+//     },
+//     {
+//       component: 'MiddlewareInput',
+//       label: 'Dyn Label 2',
+//       value: 'Default Value',
+//       action: 'mwHandleChange'
+//     },
+//     {
+//       component: 'MiddlewareInput',
+//       label: 'Dyn Label 3',
+//       value: 'Default Value',
+//       action: 'mwHandleChange'
+//     }
+//   ]
+// })
+/* Dynamic Menu Test */
+
+export const middlewareSettingMenu = JSON.stringify({})
 
 export const middlewareSettingSeedData = {
   middlewareProject: middlewareProject,
@@ -257,7 +172,6 @@ export async function seed(knex: Knex): Promise<void> {
         await knex(middlewareSettingPath).insert(item)
       }
     } else {
-      // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
       const existingRows = await knex(middlewareSettingPath).select<MiddlewareSettingDatabaseType[]>()
     }
   }
