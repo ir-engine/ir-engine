@@ -82,7 +82,7 @@ export async function up(knex: Knex): Promise<void> {
   const typeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'type')
   if (!typeColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
-      table.string('type', 255).notNullable()
+      table.string('type', 255).notNullable().defaultTo('file')
     })
   }
   // TODO auto populate "type" field for all static resources

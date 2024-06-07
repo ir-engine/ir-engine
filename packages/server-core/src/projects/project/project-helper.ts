@@ -1830,7 +1830,7 @@ export const uploadLocalProjectToProvider = async (
       )
       if (!filePathRelative.startsWith(`/assets/`) && !filePathRelative.startsWith(`/public/`)) continue
 
-      const isScene = oldManifestScenes.includes(filePathRelative)
+      const isScene = oldManifestScenes.includes(key.replace('projects/' + projectName + '/', ''))
       const thisFileClass = AssetLoader.getAssetClass(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
@@ -1843,7 +1843,7 @@ export const uploadLocalProjectToProvider = async (
             hash,
             mimeType: contentType,
             stats,
-            type: isScene ? 'scene' : resourceInfo?.type,
+            type: isScene ? 'scene' : resourceInfo?.type ?? resourceInfo?.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
             tags: resourceInfo?.tags ?? [thisFileClass],
             dependencies: resourceInfo?.dependencies ?? undefined,
             licensing: resourceInfo?.licensing ?? undefined,
@@ -1867,7 +1867,7 @@ export const uploadLocalProjectToProvider = async (
           hash,
           mimeType: contentType,
           stats,
-          type: isScene ? 'scene' : resourceInfo?.type,
+          type: isScene ? 'scene' : resourceInfo?.type ?? resourceInfo?.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
           tags: resourceInfo?.tags ?? [thisFileClass],
           dependencies: resourceInfo?.dependencies ?? undefined,
           licensing: resourceInfo?.licensing ?? undefined,
@@ -1902,7 +1902,7 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
       resource.key,
       {
         hash: resource.hash,
-        type: resource.tags ? 'asset' : 'file',
+        type: resource.type,
         tags: resource.tags ?? undefined,
         dependencies: resource.dependencies ?? undefined,
         licensing: resource.licensing ?? undefined,
