@@ -39,7 +39,7 @@
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@hookstate/localstored": "4.0.0-rc21",
     "@iconify/react": "4.1.0",
-    "@mui/icons-material": "5.11.11",
+    "@mui/icons-material": "5.15.15",
     "@mui/lab": "5.0.0-alpha.94",
     "@mui/material": "5.11.13",
     "@mui/x-date-pickers": "6.9.2",

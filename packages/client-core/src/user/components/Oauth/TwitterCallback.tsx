@@ -68,7 +68,7 @@ const TwitterCallbackComponent = (props): JSX.Element => {
 
   return state.error && state.error !== '' ? (
     <Container className={styles.oauthError}>
-      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Twitter' })}</div>
+      <div className={styles.title}>{t('user:oauth.authFailed', { service: 'X' })}</div>
       <div className={styles.message}>{state.error}</div>
       <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}
