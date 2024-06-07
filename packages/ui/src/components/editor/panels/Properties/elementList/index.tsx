@@ -39,6 +39,7 @@ import { ComponentShelfCategoriesState } from '@etherealengine/editor/src/servic
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GrStatusPlaceholder } from 'react-icons/gr'
 import { IoIosArrowDown, IoIosArrowUp, IoMdAddCircle } from 'react-icons/io'
+import Button from '../../../../../primitives/tailwind/Button'
 import Text from '../../../../../primitives/tailwind/Text'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
@@ -48,7 +49,7 @@ type ElementsType = 'components' | 'prefabs'
 export type SceneElementType = {
   componentJsonID: string
   label: string
-  Icon: any
+  Icon: JSX.Element
   type: typeof ItemTypes.Component
 }
 
@@ -61,15 +62,17 @@ const ComponentListItem = ({ item }: { item: Component }) => {
   const jsonName = item.jsonID?.slice(3).replace('_', '-') || item.name
 
   return (
-    <button
-      className="flex w-full items-center bg-theme-primary p-4 text-white"
+    <Button
+      variant="transparent"
+      fullWidth
+      className="w-full bg-theme-primary p-4 text-white"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         handleClosePopover()
       }}
+      startIcon={<Icon className="h-6 w-6 text-white" />}
     >
-      <Icon className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
         <Text className="text-subtitle1 block text-center text-theme-primary">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
@@ -78,7 +81,7 @@ const ComponentListItem = ({ item }: { item: Component }) => {
           {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
         </Text>
       </div>
-    </button>
+    </Button>
   )
 }
 
@@ -86,8 +89,10 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
   const handleClosePopover = usePopoverContextClose()
 
   return (
-    <button
-      className="flex w-full items-center bg-theme-primary p-4 text-white"
+    <Button
+      variant="transparent"
+      fullWidth
+      className="w-full bg-theme-primary p-4 text-white"
       onClick={() => {
         const url = item.url
         if (!url.length) {
@@ -97,15 +102,15 @@ const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
         }
         handleClosePopover()
       }}
+      startIcon={<IoMdAddCircle className="h-6 w-6 text-white" />}
     >
-      <IoMdAddCircle className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
         <Text className="text-subtitle1 block text-center text-theme-primary">{item.name}</Text>
         <Text component="p" className="text-caption block text-center text-theme-secondary">
           {item.detail}
         </Text>
       </div>
-    </button>
+    </Button>
   )
 }
 
@@ -123,20 +128,23 @@ const SceneElementListItem = ({
   const open = useHookstate(false)
   return (
     <>
-      <button
+      <Button
+        variant="transparent"
+        fullWidth
+        className="w-full bg-theme-primary px-4 py-2 text-white"
+        textContainerClassName="text-start"
         onClick={() => open.set((prev) => !prev)}
-        className="flex w-full cursor-pointer items-center justify-between bg-theme-primary px-4 py-2 text-white"
+        endIcon={isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
       >
-        <span>{categoryTitle}</span>
-        {isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
-      </button>
+        {categoryTitle}
+      </Button>
       <div className={isCollapsed || open.value ? '' : 'hidden'}>
         <ul className="w-full bg-theme-primary">
-          {categoryItems.map((item) =>
+          {categoryItems.map((item: Component | PrefabShelfItem) =>
             type === 'components' ? (
-              <ComponentListItem key={item.jsonID || item.name} item={item} />
+              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
             ) : (
-              <PrefabListItem key={item.url} item={item} />
+              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
             )
           )}
         </ul>
