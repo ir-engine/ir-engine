@@ -81,8 +81,20 @@ export const SaveNewSceneDialog = () => {
   const { t } = useTranslation()
   const inputSceneName = useHookstate('New Scene')
   const modalProcessing = useHookstate(false)
+  const inputError = useHookstate('')
 
   const handleSubmit = async () => {
+    if (
+      !(
+        inputSceneName.value.length >= 3 &&
+        inputSceneName.value.length <= 64 &&
+        inputSceneName.value.indexOf('_') === -1
+      )
+    ) {
+      inputError.set(t('editor:errors.invalidSceneName'))
+      return
+    }
+
     modalProcessing.set(true)
     const { projectName, sceneName, rootEntity } = getState(EditorState)
     const sceneModified = EditorState.isModified()
@@ -120,6 +132,7 @@ export const SaveNewSceneDialog = () => {
         onChange={(event) => inputSceneName.set(event.target.value)}
         label={t('editor:dialog.saveNewScene.lbl-name')}
         description={t('editor:dialog.saveNewScene.info-name')}
+        error={inputError.value}
       />
     </Modal>
   )
