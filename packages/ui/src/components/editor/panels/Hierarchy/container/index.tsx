@@ -56,17 +56,16 @@ import { cmdOrCtrlString } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { GLTFAssetState, GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { PopoverPosition } from '@mui/material'
 import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
+import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
 import ContextMenu from '../../../layout/ContextMenu'
 import Popover from '../../../layout/Popover'
-import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
-//import PrefabList from '../prefabList'
-import { PopoverPosition } from '@mui/material'
-import { HierarchyPanelTab } from '..'
 import { PopoverContext } from '../../../util/PopoverContext'
-import { PrefabList } from '../prefabList'
+import ElementList from '../../Properties/elementList'
+import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
 
 const uploadOptions = {
   multiple: true,
@@ -475,7 +474,6 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
               setAnchorPositionPop({ top: event.clientY - 10, left: panel?.getBoundingClientRect().left! + 10 })
               anchorElButton.set(event.currentTarget)
             }}
-            //onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
           >
             <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
           </Button>
@@ -491,7 +489,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           anchorPosition={anchorPositionPop}
           className="h-[60%] w-full min-w-[300px] overflow-y-auto"
         >
-          {<PrefabList />}
+          <ElementList type="prefabs" />
         </Popover>
       </PopoverContext.Provider>
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
