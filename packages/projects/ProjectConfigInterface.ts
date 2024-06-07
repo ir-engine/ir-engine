@@ -82,7 +82,12 @@ export interface ProjectConfigInterface {
 }
 
 type InstallFunctionType = (app: Application, project: ProjectType) => Promise<any>
-type OEmbedFunctionType = (app: Application, url: URL, currentOEmbed: OembedType) => Promise<OembedType | null>
+type OEmbedFunctionType = (
+  app: Application,
+  project: ProjectType,
+  url: URL,
+  currentOEmbed: OembedType
+) => Promise<OembedType | null>
 
 /**
  *
