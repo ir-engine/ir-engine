@@ -228,33 +228,29 @@ export const TransformComponent = defineComponent({
   },
 
   /**Transforms forward vector*/
-  forward: (entity: Entity) => {
+  forward: (entity: Entity, outVector: Vector3) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
-    vec3_forward.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
-    return vec3_forward
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
+    return outVector
   },
 
   /**Transforms up vector*/
-  up: (entity: Entity) => {
+  up: (entity: Entity, outVector: Vector3) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
-    vec3_up.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
-    return vec3_up
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
+    return outVector
   },
 
   /**Transforms right vector*/
-  right: (entity: Entity) => {
+  right: (entity: Entity, outVector: Vector3) => {
     const matrixElements = getComponent(entity, TransformComponent).matrix.elements
-    vec3_right.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
-    return vec3_right
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
+    return outVector
   },
 
   dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
-
-const vec3_forward = new Vector3()
-const vec3_right = new Vector3()
-const vec3_up = new Vector3()
 
 const vec3 = new Vector3()
 const vec3_2 = new Vector3()
