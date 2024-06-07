@@ -518,7 +518,8 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No settings available"
+        "noSettingsMessage": "No settings available",
+        "lastUpdatedBy": "Last updated by user id: {{userId}}"
       },
       "server": {
         "header": "Server",

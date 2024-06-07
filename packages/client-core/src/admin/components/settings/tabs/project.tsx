@@ -38,6 +38,8 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import Select from '@etherealengine/ui/src/primitives/tailwind/Select'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
+import Tooltip from '@etherealengine/ui/src/primitives/tailwind/Tooltip'
+import { HiUser } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -152,6 +154,16 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 className="col-span-1"
                 label="Value"
                 value={setting.value || ''}
+                endComponent={
+                  setting.userId && (
+                    <Tooltip
+                      title={t('admin:components.setting.project.lastUpdatedBy', { userId: setting.userId })}
+                      direction="left"
+                    >
+                      <HiUser className="mr-2" />
+                    </Tooltip>
+                  )
+                }
                 onChange={(e) => handleSettingsChange(e, setting)}
               />
             </div>
