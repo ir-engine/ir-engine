@@ -25,7 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { DefaultLoadingManager, LoadingManager } from 'three'
 
-class Loader<TData = unknown, TUrl = string> {
+interface Load<TData, TUrl> {
+  load: (
+    url: TUrl,
+    onLoad: (data: TData) => void,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (err: unknown) => void,
+    signal?: AbortSignal
+  ) => void
+}
+
+class Loader<TData = unknown, TUrl = string> implements Load<TData, TUrl> {
   static DEFAULT_MATERIAL_NAME = '__DEFAULT'
 
   manager: LoadingManager

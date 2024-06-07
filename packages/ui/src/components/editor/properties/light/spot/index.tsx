@@ -50,7 +50,12 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = useComponent(props.entity, SpotLightComponent).value
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.spotLight.description')} icon={<LuCircleDot />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.spotLight.name')}
+      description={t('editor:properties.spotLight.description')}
+      icon={<LuCircleDot />}
+    >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
         <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
       </InputGroup>

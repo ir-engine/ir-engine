@@ -76,19 +76,20 @@ export function deleteFolderRecursive(path) {
   }
 }
 
-export function getFilesRecursive(path, includeDirs = false) {
+export function getFilesRecursive(rootPath, includeDirs = false, excludeDirs = [] as string[]) {
   const files: string[] = []
-  if (fs.existsSync(path)) {
-    const curFiles = fs.readdirSync(path)
-    curFiles.forEach(function (file, index) {
-      const curPath = path + '/' + file
+  if (fs.existsSync(rootPath)) {
+    const curFiles = fs.readdirSync(rootPath)
+    for (const file of curFiles) {
+      const curPath = path.join(rootPath, file)
       if (fs.lstatSync(curPath).isDirectory()) {
+        if (excludeDirs.includes(file)) continue
         if (includeDirs) files.push(curPath)
-        files.push(...getFilesRecursive(curPath, includeDirs))
+        files.push(...getFilesRecursive(curPath, includeDirs, excludeDirs))
       } else {
         files.push(curPath)
       }
-    })
+    }
   }
   return files
 }
