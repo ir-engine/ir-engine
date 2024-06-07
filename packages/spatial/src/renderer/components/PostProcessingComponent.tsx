@@ -23,14 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
-import { NO_PROXY_STEALTH } from '@etherealengine/hyperflux'
-
-import { defaultPostProcessingSchema, EffectPropsSchema } from '../effects/PostProcessing'
-import { configureEffectComposer } from '../functions/configureEffectComposer'
+import { Entity, defineComponent, useComponent, useEntityContext } from '@etherealengine/ecs'
+import { ErrorBoundary, NO_PROXY, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  EdgeDetectionMode,
+  Effect,
+  EffectComposer,
+  EffectPass,
+  OutlineEffect,
+  RenderPass,
+  SMAAEffect
+} from 'postprocessing'
+import React, { Suspense, useEffect } from 'react'
+import { ArrayCamera, Scene, WebGLRenderer } from 'three'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { HighlightState } from '../HighlightState'
+import { RendererState } from '../RendererState'
+import { RenderSettingsState, RendererComponent } from '../WebGLRendererSystem'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { PostProcessingEffectState } from '../effects/EffectRegistry'
 import { useScene } from './SceneComponents'
+
+declare module 'postprocessing' {
+  interface EffectComposer {
+    // passes
+    EffectPass: EffectPass
+    // effects
+    SMAAEffect: SMAAEffect
+    OutlineEffect: OutlineEffect
+  }
+  interface Effect {
+    isActive: boolean
+  }
+}
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -39,13 +64,12 @@ export const PostProcessingComponent = defineComponent({
   onInit(entity) {
     return {
       enabled: false,
-      effects: defaultPostProcessingSchema
+      effects: {} as Record<string, Effect> // effect name, parameters
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-
     if (typeof json.enabled === 'boolean') component.enabled.set(json.enabled)
     if (typeof json.effects === 'object') component.merge({ effects: json.effects })
   },
@@ -61,18 +85,88 @@ export const PostProcessingComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const rendererEntity = useScene(entity)
-    const postprocessingComponent = useComponent(entity, PostProcessingComponent)
 
-    useEffect(() => {
-      if (!rendererEntity) return
-      configureEffectComposer(
-        rendererEntity,
-        postprocessingComponent.enabled.value
-          ? (postprocessingComponent.effects.get(NO_PROXY_STEALTH) as EffectPropsSchema)
-          : undefined
-      )
-    }, [rendererEntity, postprocessingComponent.enabled, postprocessingComponent.effects])
+    if (!rendererEntity) return null
 
-    return null
+    return <PostProcessingReactor entity={entity} rendererEntity={rendererEntity} />
   }
 })
+
+const PostProcessingReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
+  const { entity, rendererEntity } = props
+  const postProcessingComponent = useComponent(entity, PostProcessingComponent)
+  const EffectRegistry = getState(PostProcessingEffectState)
+  const effects = useHookstate<Record<string, Effect>>({})
+  const renderer = useComponent(rendererEntity, RendererComponent)
+  const renderSettings = getState(RendererState)
+  const camera = useComponent(rendererEntity, CameraComponent)
+  const scene = new Scene()
+  const composer = new EffectComposer(renderer.value.renderer as WebGLRenderer)
+
+  useEffect(() => {
+    renderer.effectComposer.set(composer)
+    const renderPass = new RenderPass()
+    renderer.value.effectComposer.addPass(renderPass)
+    renderer.renderPass.set(renderPass)
+  }, [])
+
+  useEffect(() => {
+    const effectsVal = effects.get(NO_PROXY) as Record<string, Effect>
+
+    if (renderSettings.usePostProcessing && postProcessingComponent.enabled.value) {
+      for (const key in effectsVal) {
+        const val = effectsVal[key]
+        renderer.value.effectComposer[key] = val
+      }
+    } else {
+      renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass as EffectPass)
+    }
+
+    //always have the smaa effect
+    const smaaPreset = getState(RenderSettingsState).smaaPreset
+    const smaaEffect = new SMAAEffect({
+      preset: smaaPreset,
+      edgeDetectionMode: EdgeDetectionMode.COLOR
+    })
+    effectsVal['SMAAEffect'] = smaaEffect
+    renderer.effectComposer['SMAAEffect'].set(smaaEffect)
+
+    // //always have the outline effect for the highlight selection
+    const outlineEffect = new OutlineEffect(scene as Scene, camera.value as ArrayCamera, getState(HighlightState))
+    outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+    effectsVal['OutlineEffect'] = outlineEffect
+    renderer.effectComposer['OutlineEffect'].set(outlineEffect)
+
+    if (renderer.value.effectComposer.EffectPass) {
+      renderer.value.effectComposer.removePass(renderer.value.effectComposer.EffectPass as EffectPass)
+    }
+
+    const effectArray = Object.values(effectsVal)
+    renderer.effectComposer.EffectPass.set(new EffectPass(camera.value as ArrayCamera, ...effectArray))
+    renderer.value.effectComposer.addPass(renderer.value.effectComposer.EffectPass as EffectPass)
+  }, [effects, postProcessingComponent.enabled])
+
+  // for each effect specified in our postProcessingComponent, we mount a sub-reactor based on the effect registry for that effect ID
+  return (
+    <>
+      {Object.keys(EffectRegistry).map((key) => {
+        const effect = EffectRegistry[key] // get effect registry entry
+        if (!effect) return null
+        return (
+          <Suspense key={key}>
+            <ErrorBoundary>
+              <effect.reactor
+                isActive={postProcessingComponent.effects[key]?.isActive}
+                rendererEntity={rendererEntity}
+                effectData={postProcessingComponent.effects}
+                effects={effects}
+                composer={composer}
+                scene={scene}
+              />
+            </ErrorBoundary>
+          </Suspense>
+        )
+      })}
+    </>
+  )
+}

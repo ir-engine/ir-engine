@@ -28,9 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { PiSpeakerLowLight } from 'react-icons/pi'
 
 import { hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
-
 import {
   EditorComponentType,
   commitProperty,
@@ -38,12 +35,13 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import Slider from '../../../../primitives/tailwind/Slider'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
-import ProgressBar from '../../input/Progress'
 import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
 
@@ -69,7 +67,6 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.audio.description')}
       icon={<PiSpeakerLowLight />}
     >
-      <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup
         name="Distance Model"
         label={t('editor:properties.audio.lbl-distanceModel')}
@@ -78,10 +75,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={DistanceModelOptions}
-          value={
-            //audioComponent.distanceModel.value
-            ''
-          }
+          value={audioComponent.distanceModel.value}
           onChange={commitProperty(PositionalAudioComponent, 'distanceModel')}
         />
       </InputGroup>
