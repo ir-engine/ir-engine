@@ -32,6 +32,7 @@ import { ProjectSettingType, projectPath, projectSettingPath } from '@etherealen
 import { NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
+import Badge from '@etherealengine/ui/src/primitives/tailwind/Badge'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
@@ -134,7 +135,19 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         <>
           {displayedSettings.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
-              <Input className="col-span-1" label="Key Name" disabled value={setting.key} />
+              <Input
+                className="col-span-1"
+                label="Key Name"
+                value={setting.key}
+                endComponent={
+                  <Badge
+                    className="rounded"
+                    variant={setting.type === 'private' ? 'success' : 'warning'}
+                    label={setting.type}
+                  />
+                }
+                disabled
+              />
               <Input
                 className="col-span-1"
                 label="Value"

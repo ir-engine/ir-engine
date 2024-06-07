@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   ProjectSettingQuery,
+  ProjectSettingType,
   projectSettingPath
 } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
@@ -66,6 +67,7 @@ export const createProjectSetting = async (
   app: Application,
   key: string,
   value: string,
+  type: ProjectSettingType['type'],
   user?: UserType,
   project?: ProjectType
 ) => {
@@ -83,6 +85,7 @@ export const createProjectSetting = async (
     {
       key,
       value,
+      type,
       projectId: project.id
     },
     {

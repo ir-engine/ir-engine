@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { dataValidator, queryValidator } from '@etherealengine/common/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { StringEnum, Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
 
@@ -42,6 +42,7 @@ export const projectSettingSchema = Type.Object(
     }),
     key: Type.String(),
     value: Type.String(),
+    type: StringEnum(['private', 'public']),
     projectId: Type.String({
       format: 'uuid'
     }),
@@ -56,13 +57,13 @@ export const projectSettingSchema = Type.Object(
 export interface ProjectSettingType extends Static<typeof projectSettingSchema> {}
 
 // Schema for creating new entries
-export const projectSettingDataSchema = Type.Pick(projectSettingSchema, ['key', 'value', 'projectId'], {
+export const projectSettingDataSchema = Type.Pick(projectSettingSchema, ['key', 'value', 'type', 'projectId'], {
   $id: 'ProjectSettingData'
 })
 export interface ProjectSettingData extends Static<typeof projectSettingDataSchema> {}
 
 // Schema for updating existing entries
-export const projectSettingPatchSchema = Type.Partial(projectSettingSchema, {
+export const projectSettingPatchSchema = Type.Pick(projectSettingSchema, ['value'], {
   $id: 'ProjectSettingPatch'
 })
 export interface ProjectSettingPatch extends Static<typeof projectSettingPatchSchema> {}

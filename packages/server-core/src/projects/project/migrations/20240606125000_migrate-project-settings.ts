@@ -60,6 +60,7 @@ const getConvertedProjectSettings = async (projects: ProjectDatabaseType[]) => {
         id: uuidv4(),
         key: setting.key,
         value: setting.value,
+        type: 'private',
         projectId: project.id,
         userId: '' as UserID,
         createdAt: await getDateTimeSql(),

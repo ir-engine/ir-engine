@@ -61,7 +61,7 @@ describe('project-setting.test', () => {
   after(() => destroyEngine())
 
   it('should create project-setting', async () => {
-    const response = await createProjectSetting(app, key1, value1, user, project)
+    const response = await createProjectSetting(app, key1, value1, 'private', user, project)
     const _projectSetting = response.projectSetting
 
     assert.ok(_projectSetting)
@@ -72,7 +72,7 @@ describe('project-setting.test', () => {
   })
 
   it('should get project-setting', async () => {
-    const createdResponse = await createProjectSetting(app, key1, value1, user, project)
+    const createdResponse = await createProjectSetting(app, key1, value1, 'private', user, project)
     const _createdProjectSetting = createdResponse.projectSetting
     const _projectSetting = await getProjectSetting(app, _createdProjectSetting.id)
 
@@ -90,8 +90,8 @@ describe('project-setting.test', () => {
   })
 
   it('should find the project-setting', async () => {
-    await createProjectSetting(app, key1, value1, user, project)
-    const { user: user2, project: project2 } = await createProjectSetting(app, key1, value2)
+    await createProjectSetting(app, key1, value1, 'private', user, project)
+    const { user: user2, project: project2 } = await createProjectSetting(app, key1, value2, 'private')
 
     const _projectSetting1 = await findProjectSetting(app, { projectId: project.id, key: key1 })
     const _projectSetting2 = await findProjectSetting(app, { projectId: project2.id, key: key1 })
@@ -110,7 +110,7 @@ describe('project-setting.test', () => {
   })
 
   it('should patch project-setting by id', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using id:
@@ -128,7 +128,7 @@ describe('project-setting.test', () => {
   })
 
   it('should patch project-setting by query', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using query params:
@@ -143,7 +143,7 @@ describe('project-setting.test', () => {
   })
 
   it('should remove the project-setting by id', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing remove using id:
@@ -154,7 +154,7 @@ describe('project-setting.test', () => {
   })
 
   it('should remove the project-setting by query', async () => {
-    const createdResponse = await createProjectSetting(app, key2, value2, user, project)
+    const createdResponse = await createProjectSetting(app, key2, value2, 'private', user, project)
     const _createdProjectSetting = createdResponse.projectSetting
 
     // Testing patch using query params:

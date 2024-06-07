@@ -39,6 +39,7 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('key', 255).notNullable()
       table.string('value', 255).notNullable()
+      table.string('type', 255).notNullable().defaultTo('private')
       //@ts-ignore
       table.uuid('projectId', 36).collate('utf8mb4_bin').index()
       //@ts-ignore
