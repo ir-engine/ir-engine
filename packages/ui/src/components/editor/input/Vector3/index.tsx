@@ -124,9 +124,14 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-1.5">
+    <div className="flex flex-wrap justify-start gap-1.5">
       {uniformScaling && (
-        <Button startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />} onClick={onToggleUniform} />
+        <Button
+          title="Uniform Scaling"
+          variant="transparent"
+          startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />}
+          onClick={onToggleUniform}
+        />
       )}
       <NumericInput
         {...rest}
