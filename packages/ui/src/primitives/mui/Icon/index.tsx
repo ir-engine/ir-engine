@@ -151,7 +151,6 @@ import ThumbUp from '@mui/icons-material/ThumbUp'
 import Timeline from '@mui/icons-material/Timeline'
 import TouchApp from '@mui/icons-material/TouchApp'
 import Toys from '@mui/icons-material/Toys'
-import Twitter from '@mui/icons-material/Twitter'
 import Upload from '@mui/icons-material/Upload'
 import Videocam from '@mui/icons-material/Videocam'
 import VideocamOff from '@mui/icons-material/VideocamOff'
@@ -165,6 +164,7 @@ import VolumeMute from '@mui/icons-material/VolumeMute'
 import VolumeOff from '@mui/icons-material/VolumeOff'
 import VolumeUp from '@mui/icons-material/VolumeUp'
 import WarningAmber from '@mui/icons-material/WarningAmber'
+import X from '@mui/icons-material/X'
 import ZoomOutMap from '@mui/icons-material/ZoomOutMap'
 import { SvgIconProps } from '@mui/material'
 import React from 'react'
@@ -421,13 +421,15 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
     case 'TouchApp':
       return <TouchApp {...props} />
     case 'Twitter':
-      return <Twitter {...props} />
+      return <X {...props} />
     case 'Upload':
       return <Upload {...props} />
     case 'Visibility':
       return <Visibility {...props} />
     case 'VisibilityOff':
       return <VisibilityOff {...props} />
+    case 'X':
+      return <X {...props} />
     case 'Dashboard':
       return <Dashboard {...props} />
     case 'Storage':

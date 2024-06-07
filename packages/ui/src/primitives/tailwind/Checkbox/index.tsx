@@ -24,39 +24,42 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { HiCheck } from 'react-icons/hi'
+
 import { twMerge } from 'tailwind-merge'
 
 import Label from '../Label'
 
-export interface CheckboxProps {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: boolean
   label?: string
   className?: string
+  containerClassName?: string
   onChange: (value: boolean) => void
   disabled?: boolean
 }
 
-const Checkbox = ({ className, label, value, onChange, disabled }: CheckboxProps) => {
-  const twClassName = twMerge(
-    'h-4 w-4 rounded',
-    'border-gray-300 bg-gray-100 text-blue-400 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600',
-    className
-  )
-
+const Checkbox = ({ className, containerClassName, label, value, onChange, disabled }: CheckboxProps) => {
   return (
-    <div className="flex w-full items-center gap-4">
-      <input
-        type="checkbox"
-        className={twClassName}
-        checked={value}
-        onChange={() => onChange(!value)}
-        disabled={disabled}
-      />
-      {label && (
-        <Label onClick={() => onChange(!value)} className="cursor-pointer self-stretch">
-          {label}
-        </Label>
-      )}
+    <div
+      onClick={() => {
+        if (!disabled) {
+          onChange(!value)
+        }
+      }}
+      className={twMerge('flex cursor-pointer items-end space-x-2', containerClassName)}
+    >
+      <div
+        className={twMerge(
+          'grid h-4 w-4 place-items-center rounded border border-theme-primary',
+          value ? 'bg-blue-primary' : 'bg-theme-surfaceInput',
+          disabled ? 'cursor-not-allowed opacity-50' : ''
+        )}
+      >
+        {value && <HiCheck className="h-3 w-3 text-white" />}
+      </div>
+
+      {label && <Label className="cursor-pointer self-stretch leading-[1.15]">{label}</Label>}
     </div>
   )
 }

@@ -462,11 +462,13 @@ const execute = () => {
 const RendererShadowReactor = () => {
   const entity = useEntityContext()
   const useShadows = useShadowsEnabled()
+  const rendererComponent = useComponent(entity, RendererComponent)
 
   useEffect(() => {
     const renderer = getComponent(entity, RendererComponent).renderer
+    if (!renderer) return
     renderer.shadowMap.enabled = renderer.shadowMap.autoUpdate = useShadows
-  }, [useShadows])
+  }, [useShadows, rendererComponent.renderer])
 
   return null
 }

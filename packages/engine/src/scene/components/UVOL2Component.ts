@@ -67,8 +67,8 @@ import { isIPhone, isMobile } from '@etherealengine/spatial/src/common/functions
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { getLoader } from '../../assets/classes/AssetLoader'
-import { AssetType } from '../../assets/enum/AssetType'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
@@ -407,7 +407,7 @@ const loadGLB = (url: string) => {
 const loadTexture = (url: string, repeat: Vector2, offset: Vector2) => {
   return new Promise<{ texture: CompressedTexture; fetchTime: number }>((resolve, reject) => {
     const startTime = performance.now()
-    getLoader(AssetType.KTX2).load(
+    getLoader(AssetExt.KTX2).load(
       url,
       (texture: CompressedTexture) => {
         texture.repeat.copy(repeat)

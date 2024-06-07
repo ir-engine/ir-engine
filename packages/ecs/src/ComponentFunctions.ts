@@ -132,7 +132,7 @@ export interface ComponentPartial<
    * `@todo` Explain what reactive is in this context
    * `@todo` Explain this function
    */
-  reactor?: React.FC
+  reactor?: any // previously <React.FC> breaks types
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -161,7 +161,7 @@ export interface Component<
   toJSON: (entity: Entity, component: State<ComponentType>) => JSON
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
-  reactor?: HookableFunction<React.FC>
+  reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType> | undefined>
   errors: ErrorTypes[]

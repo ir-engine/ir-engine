@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DescribeImagesCommand as DescribePrivateImagesCommand, ECRClient } from '@aws-sdk/client-ecr'
+import {
+  DescribeImagesCommand as DescribePrivateImagesCommand,
+  ECRClient,
+  TagStatus as TagStatusPrivate
+} from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
@@ -40,6 +44,7 @@ import semver from 'semver'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
@@ -71,7 +76,6 @@ import {
 } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -404,7 +408,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
     }
   })) as Paginated<ProjectType>
 
-  let projectSetting = project.data[0].settings || []
+  const projectSetting = project.data?.[0]?.settings || []
 
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
@@ -838,9 +842,6 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
       const response = await ecr.send(result)
       if (!response || !response.imageDetails) return []
       return response.imageDetails
-        .filter(
-          (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
-        )
         .sort((a, b) => b.imagePushedAt!.getTime() - a!.imagePushedAt!.getTime())
         .map((imageDetails) => {
           const tag = imageDetails.imageTags!.find((tag) => !/latest/.test(tag))!
@@ -872,7 +873,10 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
       region: privateECRExec[1]
     })
     const command = {
-      repositoryName: privateECRExec[2]
+      repositoryName: privateECRExec[2],
+      filter: {
+        tagStatus: TagStatusPrivate.TAGGED
+      }
     }
     const result = new DescribePrivateImagesCommand(command)
     try {
@@ -1747,7 +1751,7 @@ export const uploadLocalProjectToProvider = async (
   const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
-  const files = getFilesRecursive(projectRootPath)
+  const files = getFilesRecursive(projectRootPath, false, [path.join(projectRootPath, 'thumbnails')])
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
@@ -1776,6 +1780,11 @@ export const uploadLocalProjectToProvider = async (
       //remove userId if exists
       if (item.userId) delete (item as any).userId
 
+      //resolve thumbnail URL
+      if (item.thumbnailURL) {
+        item.thumbnailURL = getCachedURL(item.thumbnailURL, cacheDomain)
+      }
+
       const newResource: Partial<StaticResourceType> = {}
 
       const validFields: (keyof StaticResourceType)[] = [
@@ -1790,7 +1799,9 @@ export const uploadLocalProjectToProvider = async (
         'sid',
         'stats',
         'tags',
-        'updatedAt'
+        'updatedAt',
+        'thumbnailType',
+        'thumbnailURL'
       ]
 
       for (const field of validFields) {
@@ -1826,13 +1837,13 @@ export const uploadLocalProjectToProvider = async (
       if (!hasResourceDB) {
         //otherwise, upload the files into static resources individually
         const staticResourceClasses = [
-          AssetClass.Audio,
-          AssetClass.Image,
-          AssetClass.Model,
-          AssetClass.Video,
-          AssetClass.Volumetric,
-          AssetClass.Material,
-          AssetClass.Prefab
+          AssetType.Audio,
+          AssetType.Image,
+          AssetType.Model,
+          AssetType.Video,
+          AssetType.Volumetric,
+          AssetType.Material,
+          AssetType.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {

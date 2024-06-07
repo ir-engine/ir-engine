@@ -41,10 +41,7 @@ import { CameraComponent } from '@etherealengine/spatial/src/camera/components/C
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectLayerComponents,
-  ObjectLayerMaskComponent
-} from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayerMaskComponent } from '@etherealengine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import {
   EntityTreeComponent,
@@ -56,7 +53,6 @@ import { VRM } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { FC, useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-import { AssetType } from '../../assets/enum/AssetType'
 import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
@@ -82,8 +78,6 @@ export const ModelComponent = defineComponent({
       cameraOcclusion: true,
       /** optional, only for bone matchable avatars */
       convertToVRM: false,
-      // internal
-      assetTypeOverride: null as null | AssetType,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null,
       dereference: false
@@ -118,20 +112,13 @@ function ModelReactor() {
   const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
   const modelSceneID = getModelSceneID(entity)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity, {
-    forceAssetType: modelComponent.assetTypeOverride.value,
-    ignoreDisposeGeometry: modelComponent.cameraOcclusion.value
-  })
+  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
 
   useEffect(() => {
-    const occlusion =
-      !!modelComponent?.cameraOcclusion?.value || hasComponent(entity, ObjectLayerComponents[ObjectLayers.Camera])
-    if (!occlusion) return
-    ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
-    return () => {
-      ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
-    }
-  }, [modelComponent?.cameraOcclusion?.value])
+    const occlusion = modelComponent.cameraOcclusion.value
+    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+  }, [modelComponent.cameraOcclusion])
 
   useEffect(() => {
     if (!error) return

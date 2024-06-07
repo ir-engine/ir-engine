@@ -43,7 +43,7 @@ import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ec
 import { defineQuery, QueryReactor } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useImmediateEffect, useMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import {
   EntityTreeComponent,
@@ -235,8 +235,10 @@ const execute = () => {
       raycaster.set(inputRaycast.origin, inputRaycast.direction)
       raycaster.layers.enable(ObjectLayers.Default)
 
+      const inputState = getState(InputState)
+      const isEditing = getState(EngineState).isEditing
       // only heuristic is scene objects when in the editor
-      if (getState(EngineState).isEditing) {
+      if (isEditing) {
         const pickerObj = gizmoPickerObjects() // gizmo heuristic
         const inputObj = inputObjects()
 
@@ -277,7 +279,7 @@ const execute = () => {
             intersectionData.add({ entity: hit.entity, distance: hit.distance })
           }
         }
-        const inputState = getState(InputState)
+
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {
           const boundingBox = getComponent(entity, BoundingBoxComponent)
@@ -286,18 +288,19 @@ const execute = () => {
             intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
           }
         }
+      }
 
-        // 4th heuristic is meshes
-        const objects = Array.from(inputState.inputMeshes) // gizmo heuristic
-          .map((eid) => getComponent(eid, GroupComponent))
-          .flat()
+      // 4th heuristic is meshes
+      const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
+        .filter((eid) => hasComponent(eid, GroupComponent))
+        .map((eid) => getComponent(eid, GroupComponent))
+        .flat()
 
-        const hits = raycaster.intersectObjects<Object3D>(objects, true)
-        for (const hit of hits) {
-          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-          if (parentObject) {
-            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-          }
+      const hits = raycaster.intersectObjects<Object3D>(objects, true)
+      for (const hit of hits) {
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+        if (parentObject) {
+          intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
         }
       }
     }
@@ -374,9 +377,9 @@ const execute = () => {
 const setInputSources = (startEntity: Entity, inputSources: Entity[]) => {
   const inputEntity = getAncestorWithComponent(startEntity, InputComponent)
   if (inputEntity) {
-    const inputComponent = getMutableComponent(inputEntity, InputComponent)
+    const inputComponent = getComponent(inputEntity, InputComponent)
 
-    for (const sinkEntityUUID of inputComponent.inputSinks.value) {
+    for (const sinkEntityUUID of inputComponent.inputSinks) {
       const sinkEntity = sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityByUUID(sinkEntityUUID) //TODO why is this not sending input to my sinks
       const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
       sinkInputComponent.inputSources.merge(inputSources)
@@ -472,7 +475,7 @@ const useGamepadInputSources = () => {
   }, [])
 }
 
-const usePointerInputSources = () => {
+const CanvasInputReactor = () => {
   const canvasEntity = useEntityContext()
   const xrState = useMutableState(XRState)
   useEffect(() => {
@@ -547,8 +550,8 @@ const usePointerInputSources = () => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
       pointerComponent.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
+        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -557,8 +560,8 @@ const usePointerInputSources = () => {
       if (!pointerComponent) return
       const touch = event.touches[0]
       pointerComponent.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
+        ((touch.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((touch.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
     }
 
@@ -661,36 +664,33 @@ const reactor = () => {
 
   return (
     <>
-      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={usePointerInputSources} />
-      <QueryReactor Components={[MeshComponent, VisibleComponent]} ChildEntityReactor={filterMeshComponentsReactor} />
-      <QueryReactor
-        Components={[BoundingBoxComponent, VisibleComponent]}
-        ChildEntityReactor={filterBoundingBoxComponentsReactor}
-      />
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={CanvasInputReactor} />
+      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshInputReactor} />
+      <QueryReactor Components={[BoundingBoxComponent]} ChildEntityReactor={BoundingBoxInputReactor} />
     </>
   )
 }
 
-const filterMeshComponentsReactor = () => {
+const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const inputState = getState(InputState)
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
 
-  if (useAncestorWithComponent(entity, InputComponent) !== UndefinedEntity) {
-    inputState.inputMeshes.add(entity)
-  } else {
-    inputState.inputMeshes.delete(entity)
-  }
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputMeshes.add(entity)
+    else inputState.inputMeshes.delete(entity)
+  }, [shouldReceiveInput])
   return null
 }
-const filterBoundingBoxComponentsReactor = () => {
-  const entity = useEntityContext()
-  const inputState = getState(InputState)
 
-  if (useAncestorWithComponent(entity, InputComponent) !== UndefinedEntity) {
-    inputState.inputBoundingBoxes.add(entity)
-  } else {
-    inputState.inputBoundingBoxes.delete(entity)
-  }
+const BoundingBoxInputReactor = () => {
+  const entity = useEntityContext()
+  const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+  useImmediateEffect(() => {
+    const inputState = getState(InputState)
+    if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)
+    else inputState.inputBoundingBoxes.delete(entity)
+  }, [shouldReceiveInput])
   return null
 }
 

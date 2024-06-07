@@ -33,6 +33,7 @@ import { BrowserRouter, history } from '@etherealengine/client-core/src/common/s
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
 import './pages/styles.scss'
+import './pages/mui.styles.scss' /** @todo Remove when MUI is removed */
 // tslint:disable:ordered-imports
 // @ts-ignore
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
@@ -64,17 +65,6 @@ const App = () => {
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
                   <AppPage route={'location'} />
-                </Engine>
-              </Suspense>
-            }
-          />
-          <Route
-            key="studio"
-            path="/studio/*"
-            element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <Engine>
-                  <AppPage route={'studio'} />
                 </Engine>
               </Suspense>
             }

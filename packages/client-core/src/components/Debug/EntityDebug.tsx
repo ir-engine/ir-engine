@@ -42,7 +42,7 @@ import { entityExists } from '@etherealengine/ecs/src/EntityFunctions'
 import { defineQuery, removeQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { useExecute } from '@etherealengine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
-import { GLTFAssetState } from '@etherealengine/engine/src/gltf/GLTFState'
+import { GLTFSourceState } from '@etherealengine/engine/src/gltf/GLTFState'
 import {
   HyperFlux,
   NO_PROXY,
@@ -59,7 +59,7 @@ import styles from './styles.module.scss'
 
 const renderEntityTreeRoots = () => {
   return Object.fromEntries(
-    Object.values(getState(GLTFAssetState))
+    Object.values(getState(GLTFSourceState))
       .map((entity, i) => {
         if (!entity || !entityExists(entity)) return []
         return [

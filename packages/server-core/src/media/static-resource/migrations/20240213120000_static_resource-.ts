@@ -52,23 +52,21 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const thumbnailURLColumnExists = await trx.schema.hasColumn(staticResourcePath, 'thumbnailURL')
+  const thumbnailURLColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailURL')
   if (thumbnailURLColumnExists === true) {
-    await trx.schema.alterTable(staticResourcePath, async (table) => {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
       table.dropColumn('thumbnailURL')
     })
   }
 
-  const thumbnailTypeColumnExists = await trx.schema.hasColumn(staticResourcePath, 'thumbnailType')
+  const thumbnailTypeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailType')
   if (thumbnailTypeColumnExists === true) {
-    await trx.schema.alterTable(staticResourcePath, async (table) => {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
       table.dropColumn('thumbnailType')
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
