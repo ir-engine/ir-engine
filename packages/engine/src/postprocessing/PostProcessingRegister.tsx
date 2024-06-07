@@ -23,15 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** World Module */
-import '@etherealengine/spatial'
-
-export * from './FeatureFlagsState'
-export * from './avatar/AvatarModule'
-export * from './interaction/InteractionModule'
-export * from './interaction/MediaModule'
-export * from './mocap/MocapModule'
-export * from './postprocessing/PopulateEffectRegistry'
-export * from './recording/RecordingModule'
-export * from './scene/SceneModule'
-export * from './visualscript/VisualScriptModule'
+export enum PropertyTypes {
+  BlendFunction,
+  Number,
+  Boolean,
+  Color,
+  ColorSpace,
+  KernelSize,
+  SMAAPreset,
+  EdgeDetectionMode,
+  PredicationMode,
+  Texture,
+  Vector2,
+  Vector3,
+  VignetteTechnique
+}
