@@ -120,11 +120,11 @@ describe('project-setting.test', () => {
 
     assert.notEqual(_projectSetting.total, 0)
 
-    const privateSettings = _projectSetting.data.find((item) => item.type === 'private')
     const publicSettings = _projectSetting.data.find((item) => item.type === 'public')
+    const privateSettings = _projectSetting.data.find((item) => item.type === 'private')
 
-    assert.ok(privateSettings)
-    assert.equal(publicSettings, undefined)
+    assert.ok(publicSettings)
+    assert.equal(privateSettings, undefined)
   })
 
   it('should patch project-setting by id', async () => {
