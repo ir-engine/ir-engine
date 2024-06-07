@@ -35,6 +35,7 @@ import {
 
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 import checkScope from '../../hooks/check-scope'
+import setInContext from '../../hooks/set-in-context'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import {
   projectSettingDataResolver,
@@ -63,7 +64,13 @@ export default {
         iffElse(
           checkScope('projects', 'read'),
           [],
-          [verifyScope('editor', 'read'), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+          [
+            iffElse(
+              checkScope('editor', 'read'),
+              verifyProjectPermission(['owner', 'editor', 'reviewer']),
+              setInContext('type', 'public')
+            ) as any
+          ]
         )
       )
     ],
