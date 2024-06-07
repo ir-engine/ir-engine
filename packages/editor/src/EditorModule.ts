@@ -28,6 +28,7 @@ import { RenderInfoSystem } from '@etherealengine/spatial/src/renderer/RenderInf
 import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
 import { GizmoSystem } from './systems/GizmoSystem'
+import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
@@ -36,6 +37,7 @@ export {
   EditorInstanceNetworkingSystem,
   EditorControlSystem,
   GizmoSystem,
+  HighlightSystem,
   ModelHandlingSystem,
   ObjectGridSnapSystem,
   UploadRequestSystem,

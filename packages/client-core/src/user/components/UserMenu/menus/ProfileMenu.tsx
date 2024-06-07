@@ -34,10 +34,10 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
-import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
+import { MetaIcon } from '@etherealengine/client-core/src/common/components/Icons/MetaIcon'
+import { XIcon } from '@etherealengine/client-core/src/common/components/Icons/XIcon'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
@@ -570,7 +570,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   {authState?.value?.facebook && !oauthConnectedState.facebook.value && (
                     <IconButton
                       id="facebook"
-                      icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
+                      icon={<MetaIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -584,7 +584,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                   {authState?.value?.twitter && !oauthConnectedState.twitter.value && (
                     <IconButton
                       id="twitter"
-                      icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
+                      icon={<XIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
@@ -617,7 +617,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       {authState?.facebook.value && oauthConnectedState.facebook.value && (
                         <IconButton
                           id="facebook"
-                          icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                          icon={<MetaIcon viewBox="0 0 40 40" />}
                           onClick={handleRemoveOAuthServiceClick}
                         />
                       )}
@@ -631,7 +631,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                       {authState?.twitter.value && oauthConnectedState.twitter.value && (
                         <IconButton
                           id="twitter"
-                          icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                          icon={<XIcon viewBox="0 0 40 40" />}
                           onClick={handleRemoveOAuthServiceClick}
                         />
                       )}

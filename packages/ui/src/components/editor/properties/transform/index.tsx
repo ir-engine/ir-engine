@@ -116,10 +116,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
           <NumericInput
-            //style={{ paddingLeft: `12px`, paddingRight: `3px` }}
             min={1}
             max={100}
-            //step={1}
             value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
             onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
             onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
