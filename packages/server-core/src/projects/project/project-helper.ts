@@ -294,12 +294,12 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 
 export const onProjectEvent = async (
   app: Application,
-  projectName: string,
+  project: ProjectType,
   hookPath: string,
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
+  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
       return await hooks[eventType](app, ...args)
@@ -1653,7 +1653,7 @@ export const updateProject = async (
   }
   // run project install script
   if (projectConfig.onEvent) {
-    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+    await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
   // sync assets with latest query data

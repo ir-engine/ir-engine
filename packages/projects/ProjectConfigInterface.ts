@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OembedType } from '@etherealengine/common/src/schema.type.module'
+import { OembedType } from '@etherealengine/common/src/schemas/media/oembed.schema'
+import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import type { Application } from '@etherealengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
@@ -80,7 +81,7 @@ export interface ProjectConfigInterface {
   databaseSeed?: string
 }
 
-type InstallFunctionType = (app: Application) => Promise<any>
+type InstallFunctionType = (app: Application, project: ProjectType) => Promise<any>
 type OEmbedFunctionType = (app: Application, url: URL, currentOEmbed: OembedType) => Promise<OembedType | null>
 
 /**
