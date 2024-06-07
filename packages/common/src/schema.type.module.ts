@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
-export type * from './schemas/assets/asset.schema'
 export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -258,8 +257,6 @@ export const projectInvalidatePath = 'project-invalidate'
 export const projectPath = 'project'
 
 export const projectsPath = 'projects'
-
-export const assetPath = 'asset'
 
 export const builderInfoPath = 'builder-info'
 

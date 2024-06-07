@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Asset from './asset/asset'
 import ImageConvert from './image-convert/image-convert.service'
 import KTX2Encode from './ktx2-encode/ktx2-encode.service'
 import ModelTransform from './model-transform/model-transform'
 import Zipper from './zipper/zipper'
 
-export default [Asset, ImageConvert, ModelTransform, KTX2Encode, Zipper]
+export default [ImageConvert, ModelTransform, KTX2Encode, Zipper]
