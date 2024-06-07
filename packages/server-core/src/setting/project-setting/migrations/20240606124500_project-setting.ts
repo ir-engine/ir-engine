@@ -31,13 +31,10 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const tableExists = await trx.schema.hasTable(projectSettingPath)
+  const tableExists = await knex.schema.hasTable(projectSettingPath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(projectSettingPath, (table) => {
+    await knex.schema.createTable(projectSettingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('key', 255).notNullable()
@@ -53,9 +50,6 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
-
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
 }
 
 /**
@@ -63,15 +57,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const tableExists = await trx.schema.hasTable(projectSettingPath)
+  const tableExists = await knex.schema.hasTable(projectSettingPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(projectSettingPath)
+    await knex.schema.dropTable(projectSettingPath)
   }
-
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
 }

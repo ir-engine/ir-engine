@@ -76,27 +76,21 @@ const getConvertedProjectSettings = async (projects: ProjectDatabaseType[]) => {
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const settingsColumnExists = await trx.schema.hasColumn(projectPath, 'settings')
+  const settingsColumnExists = await knex.schema.hasColumn(projectPath, 'settings')
 
   if (settingsColumnExists === true) {
-    const projects = await trx.select().from(projectPath)
+    const projects = await knex.select().from(projectPath)
 
     if (projects.length > 0) {
       const projectSettings = await getConvertedProjectSettings(projects.filter((item) => item.settings))
 
-      await trx.from(projectSettingPath).insert(projectSettings)
+      await knex.from(projectSettingPath).insert(projectSettings)
     }
 
-    await trx.schema.alterTable(projectPath, async (table) => {
+    await knex.schema.alterTable(projectPath, async (table) => {
       table.dropColumn('settings')
     })
   }
-
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
 }
 
 /**
@@ -104,17 +98,11 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const settingsColumnExists = await trx.schema.hasColumn(projectPath, 'settings')
+  const settingsColumnExists = await knex.schema.hasColumn(projectPath, 'settings')
 
   if (settingsColumnExists === false) {
-    await trx.schema.alterTable(projectPath, async (table) => {
+    await knex.schema.alterTable(projectPath, async (table) => {
       table.json('settings').defaultTo(null)
     })
   }
-
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
 }
