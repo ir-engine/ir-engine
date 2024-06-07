@@ -67,11 +67,11 @@ const ComponentListItem = ({ item }: { item: Component }) => {
     >
       <Icon className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
-        <Text className="text-subtitle1 text-center text-theme-primary">
+        <Text className="text-subtitle1 block text-center text-theme-primary">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
         </Text>
-        <Text component="p" className="text-caption text-center text-theme-secondary">
-          {t(`editor:layout.assetGrid.component-detail.${jsonName}`)}
+        <Text component="p" className="text-caption block text-center text-theme-secondary">
+          {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
         </Text>
       </div>
     </button>
