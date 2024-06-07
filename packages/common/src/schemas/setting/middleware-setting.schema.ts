@@ -38,10 +38,13 @@ export const middlewareSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
+    middlewareProject: Type.String(),
+    middlewareProjectName: Type.String(),
+    middlewareSettingTemp: Type.String(),
     middlewareSettingMenu: Type.String(),
-    conf0: Type.String(),
-    conf1: Type.String(),
-    conf2: Type.String(),
+    // conf0: Type.String(),
+    // conf1: Type.String(),
+    // conf2: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -50,17 +53,23 @@ export const middlewareSettingSchema = Type.Object(
 export interface MiddlewareSettingType extends Static<typeof middlewareSettingSchema> {}
 
 export interface MiddlewareSettingDatabaseType
-  extends Omit<MiddlewareSettingType, 'middlewareSettingMenu' | 'conf0' | 'conf1' | 'conf2'> {
+  extends Omit<
+    MiddlewareSettingType,
+    'middlewareProject' | 'middlewareProjectName' | 'middlewareSettingTemp' | 'middlewareSettingMenu'
+  > {
+  middlewareProject: string
+  middlewareProjectName: string
+  middlewareSettingTemp: string
   middlewareSettingMenu: string
-  conf0: string
-  conf1: string
-  conf2: string
+  // conf0: string
+  // conf1: string
+  // conf2: string
 }
 
 // Schema for creating new entries
 export const middlewareSettingDataSchema = Type.Pick(
   middlewareSettingSchema,
-  ['middlewareSettingMenu', 'conf0', 'conf1', 'conf2'],
+  ['middlewareProject', 'middlewareProjectName', 'middlewareSettingTemp', 'middlewareSettingMenu'],
   {
     $id: 'MiddlewareSettingData'
   }

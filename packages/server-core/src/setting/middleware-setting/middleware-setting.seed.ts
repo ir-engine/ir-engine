@@ -35,8 +35,13 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 /* Dynamic Menu - Experimental */
-export const middlewareSettingMenu = JSON.stringify({
-  Dynamic0: [
+
+export const middlewareProject = 'Electronic Shop'
+
+export const middlewareProjectName = 'irpro-electronics-store'
+
+export const middlewareSettingTemp = JSON.stringify({
+  Scene: [
     {
       component: 'MiddlewareToggle',
       label: 'Dyn Toggle 0',
@@ -66,9 +71,142 @@ export const middlewareSettingMenu = JSON.stringify({
       label: 'Dyn Label 1',
       value: 'Default Value',
       action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 2',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 3',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    }
+  ]
+})
+
+export const middlewareSettingMenu = JSON.stringify({
+  store: [
+    {
+      component: 'MiddlewareToggle',
+      label: 'Dyn Toggle 0',
+      value: true,
+      action: 'mwHandleToggle'
+    },
+    {
+      component: 'MiddlewareSelect',
+      label: 'Dyn Select 0',
+      value: ['opt0', 'opt1', 'opt2'],
+      action: 'mwHandleSelect'
+    },
+    {
+      component: 'MiddlewareTextarea',
+      label: 'Textarea Label 0',
+      value: 'Default Value',
+      action: 'mwHandleTextarea'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 0',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 1',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 2',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 3',
+      value: 'Default Value',
+      action: 'mwHandleChange'
     }
   ],
-  Dynamic1: [
+  'store-sales-agent': [
+    {
+      component: 'MiddlewareToggle',
+      label: 'Dyn Toggle 0',
+      value: true,
+      action: 'mwHandleToggle'
+    },
+    {
+      component: 'MiddlewareSelect',
+      label: 'Dyn Select 0',
+      value: ['opt0', 'opt1', 'opt2'],
+      action: 'mwHandleSelect'
+    },
+    {
+      component: 'MiddlewareTextarea',
+      label: 'Textarea Label 0',
+      value: 'Default Value',
+      action: 'mwHandleTextarea'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 0',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 1',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 2',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 3',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    }
+  ],
+  'npc-only': [
+    {
+      component: 'MiddlewareToggle',
+      label: 'Dyn Toggle 0',
+      value: true,
+      action: 'mwHandleToggle'
+    },
+    {
+      component: 'MiddlewareSelect',
+      label: 'Dyn Select 0',
+      value: ['opt0', 'opt1', 'opt2'],
+      action: 'mwHandleSelect'
+    },
+    {
+      component: 'MiddlewareTextarea',
+      label: 'Textarea Label 0',
+      value: 'Default Value',
+      action: 'mwHandleTextarea'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 0',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
+    {
+      component: 'MiddlewareInput',
+      label: 'Dyn Label 1',
+      value: 'Default Value',
+      action: 'mwHandleChange'
+    },
     {
       component: 'MiddlewareInput',
       label: 'Dyn Label 2',
@@ -86,10 +224,10 @@ export const middlewareSettingMenu = JSON.stringify({
 /* Dynamic Menu - Experimental */
 
 export const middlewareSettingSeedData = {
-  middlewareSettingMenu: process.env.MIDDLEWARE_MENU || middlewareSettingMenu,
-  conf0: process.env.CONF0 || 'Test Value',
-  conf1: process.env.CONF1 || 'Test Value',
-  conf2: process.env.CONF2 || 'Test Value'
+  middlewareProject: middlewareProject,
+  middlewareProjectName: middlewareProjectName,
+  middlewareSettingTemp: middlewareSettingTemp,
+  middlewareSettingMenu: middlewareSettingMenu
 }
 
 export async function seed(knex: Knex): Promise<void> {

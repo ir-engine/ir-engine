@@ -29,47 +29,84 @@ import { useFind, useMutation } from '@etherealengine/spatial/src/common/functio
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
-import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import React, { forwardRef, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
+import _ from 'lodash'
 import MiddlewareInput from './middleware-components/MiddlewareInput'
 import MiddlewareSelect from './middleware-components/MiddlewareSelect'
 import MiddlewareTextarea from './middleware-components/MiddlewareTextarea'
 import MiddlewareToggle from './middleware-components/MiddlewareToggle'
 
+import { assetPath } from '@etherealengine/common/src/schema.type.module'
+
 const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
   const patchMiddlewareSetting = useMutation(middlewareSettingPath).patch
+  const middlewareTable = useFind(middlewareSettingPath).data
   const middlewareSetting = useFind(middlewareSettingPath).data.at(0)
 
   const id = middlewareSetting?.id
-  const mS = middlewareSetting?.middlewareSettingMenu
-  const c0 = useHookstate(middlewareSetting?.conf0)
-  const c1 = useHookstate(middlewareSetting?.conf1)
-  const c2 = useHookstate(middlewareSetting?.conf2)
+  const mS = middlewareTable
+  let mtObj = {}
+  const middlewareTemplate = middlewareSetting?.middlewareSettingTemp
 
-  // Initialize testSettings state
-  const [testSettings, setTestSettings] = useState({})
+  const [testSettings, setTestSettings] = useState([])
 
-  console.log('### middleware mS:', mS)
+  const scenes = useFind(assetPath, {
+    query: {
+      paginate: false
+    }
+  })
 
   useEffect(() => {
     if (mS !== undefined) {
-      console.log('### useEffect mS:', typeof mS, mS)
       try {
-        // const mSJson = JSON.parse(Buffer.from(mS).toString('utf8'))
-        const mSJson = JSON.parse(mS.toString('utf8'))
-        console.log('#### mSJson', mSJson, typeof mSJson)
-        setTestSettings(mSJson)
+        // #### Multi Project Array #### //
+        mtObj = middlewareTable.reduce((acc, object) => {
+          acc[object.middlewareProject] = JSON.parse(object.middlewareSettingMenu)
+          return acc
+        }, {})
+
+        const data = scenes['data']
+
+        middlewareTable.forEach((object) => {
+          const projectName = object.middlewareProjectName
+          let projectScenes = {}
+
+          for (let item of data) {
+            if (item.projectName === projectName) {
+              let sceneName = item.assetURL
+              let arr = sceneName.split('/')
+              let key = arr[arr.length - 1].split('.')[0]
+              projectScenes[key] = key
+                .replace(/-/g, ' ')
+                .split(' ')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+            }
+          }
+
+          const scenesKeys = _.keys(projectScenes)
+          const mSJsonKeys = _.keys(JSON.parse(object.middlewareSettingMenu))
+
+          _.difference(scenesKeys, mSJsonKeys).forEach((key: any) => {
+            const template = JSON.parse(object.middlewareSettingTemp.toString('utf8'))
+            mtObj[object.middlewareProject][key] = template['Scene']
+          })
+        })
+
+        console.log('#### mtObj', JSON.stringify(mtObj, null, 2))
+
+        setTestSettings(mtObj)
+        // #### Multi Project Array #### //
       } catch (e) {
         console.error('#### Could not parse middlewareSettingMenu', e)
       }
     }
   }, [mS]) // useEffect will re-run whenever mS changes
-
   /////* Dynamic Menu - Experimental */////
 
   const components = {
@@ -79,82 +116,114 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     MiddlewareTextarea: MiddlewareTextarea
   }
 
-  const mwHandleChange = (inputValue: string, inputLabel: string) => {
-    // console.log('#### #### mwHandleChange', inputValue, typeof(inputValue), inputLabel, typeof(inputLabel), inputValue, typeof(inputValue))
-
-    // console.log(inputLabel, inputValue)
-
+  const mwHandleChange = (inputValue: string, project: string, category: string, inputLabel: string) => {
+    // console.log('#### mwHandleChange', inputValue, '### e', typeof(inputValue))
     setTestSettings((prevTestSettings) => {
       const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
 
-      Object.entries(newTestSettings).forEach(([key, value]) => {
-        value.forEach((setting, idx) => {
-          if (setting.component === 'MiddlewareInput' && setting.label === inputLabel) {
-            // console.log('#### mwHandleChange', setting.value, typeof(setting.value))
-            setting.value = inputValue
-          }
-        })
-      })
-      return newTestSettings
-    })
-    // console.log('## mwHandleChange', testSettings)
-  }
-
-  const mwHandleTextarea = (inputValue: string, inputLabel: string) => {
-    // console.log('#### #### mwHandleTextarea', inputValue, typeof(inputValue), inputLabel, typeof(inputLabel))
-
-    setTestSettings((prevTestSettings) => {
-      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
-
-      Object.entries(newTestSettings).forEach(([key, value]) => {
-        value.forEach((setting, idx) => {
-          if (setting.component === 'MiddlewareTextarea' && setting.label === inputLabel) {
-            // console.log('#### mwHandleTextarea', setting.value, typeof(setting.value))
-            setting.value = inputValue
-          }
-        })
+      // iterate over newTestSettings
+      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+        if (key === category) {
+          // iterate over setting entries
+          value.forEach((setting, idx) => {
+            // checks if the component matches MiddlewareInput and the label matches inputLabel
+            if (setting.component === 'MiddlewareInput' && setting.label === inputLabel) {
+              // set the setting's value to the passed inputValue
+              setting.value = inputValue
+            }
+          })
+        }
       })
 
       return newTestSettings
     })
-    // console.log('## mwHandleTextarea', testSettings)
   }
 
-  const mwHandleToggle = (inputLabel: string) => {
-    // console.log('#### #### mwHandleToggle', inputLabel, typeof(inputLabel))
+  const mwHandleTextarea = (inputValue: string, project: string, category: string, label: string) => {
+    console.log('#### #### mwHandleTextarea', project, category, label, '### e', inputValue, typeof inputValue)
+    setTestSettings((prevTestSettings) => {
+      const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
+      const testSettingKeys = Object.keys(newTestSettings)
 
+      console.log('#### #### setTestSettings', testSettingKeys)
+      console.log('#### #### category', newTestSettings[project][category])
+
+      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+        if (key === category) {
+          console.log('#### #### entries', key)
+          value.forEach((setting, idx) => {
+            console.log(
+              '#### #### #### forEach',
+              setting.component,
+              '===',
+              'MiddlewareTextarea',
+              '&&',
+              setting.label,
+              '===',
+              label
+            )
+            if (setting.component === 'MiddlewareTextarea' && setting.label === label) {
+              console.log('#### PASS #### mwHandleTextarea', setting.value, typeof setting.value)
+              setting.value = inputValue
+            } else {
+              console.log('#### FAIL #### mwHandleTextarea')
+            }
+          })
+        }
+      })
+
+      return newTestSettings
+    })
+  }
+
+  const mwHandleToggle = (inputLabel: string, project: string, category: string) => {
+    // console.log('#### mwHandleToggle', inputValue, '### e', typeof(inputValue))
     setTestSettings((prevTestSettings) => {
       const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
 
-      Object.entries(newTestSettings).forEach(([key, value]) => {
-        value.forEach((setting, idx) => {
-          if (setting.component === 'MiddlewareToggle' && setting.label === inputLabel) {
-            // console.log('#### mwHandleToggle', !setting.value, typeof(setting.value))
-            setting.value = !setting.value // toggle the value
-          }
-        })
+      console.log('Project:', project)
+      console.log('category', category)
+      console.log('inputLabel', inputLabel)
+      console.log('NewTestSettings:', newTestSettings)
+
+      // Iterate over entries corresponding the project key
+      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+        // If the key matches the category, process the settings
+        if (key === category) {
+          // Iterate over each setting under the category
+          value.forEach((setting, idx) => {
+            // If the condition is satisfied, toggle the value
+            if (setting.component === 'MiddlewareToggle' && setting.label === inputLabel) {
+              setting.value = !setting.value // toggle the value
+            }
+          })
+        }
       })
+
       return newTestSettings
     })
     // console.log('## mwHandleToggle', testSettings)
   }
 
-  const mwHandleSelect = (inputValue: string, inputLabel: string) => {
+  const mwHandleSelect = (inputValue: string, project: string, category: string, inputLabel: string) => {
     // console.log('#### #### mwHandleSelect', inputValue, typeof(inputValue), inputLabel, typeof(inputLabel))
 
     setTestSettings((prevTestSettings) => {
       const newTestSettings = JSON.parse(JSON.stringify(prevTestSettings))
 
-      Object.values(newTestSettings).forEach((value) => {
-        value.forEach((setting, _) => {
-          if (setting.component === 'MiddlewareSelect' && setting.label === inputLabel) {
-            // console.log('#### mwHandleSelect', setting.value, typeof(setting.value))
-            // Filter out the selected value from the array
-            const filtered = setting.value.filter((item) => item !== inputValue)
-            // Put the selected value at the start of the array
-            setting.value = [inputValue, ...filtered]
-          }
-        })
+      //Iterate over entries corresponding the project key
+      Object.entries(newTestSettings[project]).forEach(([key, value]) => {
+        // If the key matches the category, process the settings
+        if (key === category) {
+          // Iterate over each setting under the category
+          value.forEach((setting, _) => {
+            if (setting.component === 'MiddlewareSelect' && setting.label === inputLabel) {
+              // console.log('#### mwHandleSelect', setting.value, typeof(setting.value))
+              const filtered = setting.value.filter((item) => item !== inputValue)
+              setting.value = [inputValue, ...filtered]
+            }
+          })
+        }
       })
 
       return newTestSettings
@@ -182,27 +251,55 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     state.loading.set(true)
 
     const middlewareSettingsMenuJson = JSON.stringify(testSettings)
+    const middlewareSettingObj = testSettings
 
-    patchMiddlewareSetting(id, {
-      middlewareSettingMenu: middlewareSettingsMenuJson,
-      conf0: c0.value,
-      conf1: c1.value,
-      conf2: c2.value
+    console.log('#### middlewareTable', JSON.stringify(middlewareTable, null, 2))
+
+    const projectNameArr = Object.keys(middlewareSettingObj)
+
+    console.log('#### projectNameArr', projectNameArr)
+
+    projectNameArr.forEach((projectName, index) => {
+      console.log('#### projectNameArr', projectName, index, typeof middlewareTable[index])
+      console.log('#### middlewareSettingObj', JSON.stringify(JSON.stringify(testSettings[projectName]), null, 2))
+      const middlewareRow = middlewareTable[index]
+      console.log('#### forEach', middlewareRow.id, middlewareRow.middlewareProject)
+      if (projectName === middlewareRow.middlewareProject) {
+        console.log('#### if', projectName, '===', middlewareRow.middlewareProject, '# id', middlewareRow.id)
+        patchMiddlewareSetting(middlewareRow.id, {
+          middlewareSettingMenu: JSON.stringify(testSettings[projectName])
+        })
+          .then(() => {
+            state.set({ loading: false, errorMessage: '' })
+          })
+          .catch((e) => {
+            state.set({ loading: false, errorMessage: e.message })
+          })
+      }
     })
-      .then(() => {
-        state.set({ loading: false, errorMessage: '' })
-      })
-      .catch((e) => {
-        state.set({ loading: false, errorMessage: e.message })
-      })
   }
 
-  // const handleCancel = () => {
+  // const handleCancel = () => {Default Value
   //   // TODO: middlewareSettingMenu state logic
-  //   c0.set(middlewareSetting?.conf0)
-  //   c1.set(middlewareSetting?.conf1)
-  //   c2.set(middlewareSetting?.conf2)
   // }
+
+  const renderSettings = (settings, components, actions, project, category) => {
+    console.log('#### renderSettings', project, category, settings, components)
+    return settings.map((setting, idx) => {
+      const Component = components[setting.component]
+      const onAction = actions[setting.action]
+      const compLabel = setting.label
+      // console.log('## types', project, typeof(project), category, typeof(category), compLabel, typeof(compLabel))
+      const handleAction = (e) => {
+        onAction(e, project, category, compLabel)
+      }
+      return (
+        <div>
+          <Component key={idx} mwLabel={setting.label} mwDefaultValue={setting.value} mwOnAction={handleAction} />
+        </div>
+      )
+    })
+  }
 
   return (
     <Accordion
@@ -214,17 +311,16 @@ const MiddlewareTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
       open={open}
     >
       {/* Dynamic Menu - Experimental */}
-      {Object.entries(testSettings).map(([key, value]) => {
+      {Object.entries(testSettings).map(([projectName, categories]) => {
         return (
-          <div className="mt-6 grid grid-cols-2 gap-4" key={key}>
-            <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">
-              {key}
-            </Text>
-            {value.map((setting, idx) => {
-              const Component = components[setting.component]
-              const onAction = actions[setting.action]
+          <div className="mt-6 grid grid-cols-2 gap-4" key={projectName}>
+            <h3 className="col-span-full mb-4">{projectName}</h3>
+            {Object.entries(categories).map(([categoryName, settings]) => {
               return (
-                <Component key={idx} mwLabel={setting.label} mwDefaultValue={setting.value} mwOnAction={onAction} />
+                <div key={categoryName}>
+                  <h4>{categoryName}</h4>
+                  {renderSettings(settings, components, actions, projectName, categoryName)}
+                </div>
               )
             })}
           </div>

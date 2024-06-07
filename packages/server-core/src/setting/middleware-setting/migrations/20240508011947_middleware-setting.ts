@@ -44,10 +44,10 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable(middlewareSettingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('middlewareProject', 255).notNullable()
+      table.string('middlewareProjectName', 255).notNullable()
+      table.text('middlewareSettingTemp').nullable()
       table.text('middlewareSettingMenu').nullable()
-      table.string('conf0', 255).nullable()
-      table.string('conf1', 255).nullable()
-      table.string('conf2', 255).nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })

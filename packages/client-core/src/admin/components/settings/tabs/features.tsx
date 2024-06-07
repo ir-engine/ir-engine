@@ -24,15 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Toggle from '@etherealengine/ui/src/primitives/tailwind/Toggle'
-import React, { forwardRef, useEffect } from 'react'
+import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
-import {
-  FeatureFlag,
-  FeatureFlagSettingType,
-  featureFlagSettingPath
-} from '@etherealengine/common/src/schema.type.module'
+import { FeatureFlagSettingType, featureFlagSettingPath } from '@etherealengine/common/src/schema.type.module'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Accordion from '@etherealengine/ui/src/primitives/tailwind/Accordion'
 import { useHookstate } from '@hookstate/core'
@@ -45,35 +41,35 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
 
   const featureFlagSettings = useFind(featureFlagSettingPath)
 
-  useEffect(() => {
-    const defaultTypes = [
-      'ir.client.menu.social',
-      'ir.client.menu.emote',
-      'ir.client.menu.avaturn',
-      'ir.client.menu.readyPlayerMe'
-    ]
-
-    if (featureFlagSettings.status === 'success') {
-      const missingTypes = defaultTypes.filter(
-        (type) =>
-          !featureFlagSettings.data.find(
-            (flag) => flag.flagName === type && !Object.keys(flag).filter((key) => !defaultProps.includes(key))
-          )
-      )
-
-      const updatedFeatures: FeatureFlagSettingType[] = [
-        ...missingTypes.map((type) => ({
-          flagName: type as FeatureFlag,
-          flagValue: true,
-          id: '',
-          createdAt: '',
-          updatedAt: ''
-        })),
-        ...featureFlagSettings.data
-      ]
-      displayedFeatures.set(updatedFeatures)
-    }
-  }, [featureFlagSettings])
+  // useEffect(() => {
+  //   const defaultTypes = [
+  //     'ir.client.menu.social',
+  //     'ir.client.menu.emote',
+  //     'ir.client.menu.avaturn',
+  //     'ir.client.menu.readyPlayerMe'
+  //   ]
+  //
+  //   if (featureFlagSettings.status === 'success') {
+  //     const missingTypes = defaultTypes.filter(
+  //       (type) =>
+  //         !featureFlagSettings.data.find(
+  //           (flag) => flag.flagName === type && !Object.keys(flag).filter((key) => !defaultProps.includes(key))
+  //         )
+  //     )
+  //
+  //     const updatedFeatures: FeatureFlagSettingType[] = [
+  //       ...missingTypes.map((type) => ({
+  //         flagName: type as FeatureFlag,
+  //         flagValue: true,
+  //         id: '',
+  //         createdAt: '',
+  //         updatedAt: ''
+  //       })),
+  //       ...featureFlagSettings.data
+  //     ]
+  //     displayedFeatures.set(updatedFeatures)
+  //   }
+  // }, [featureFlagSettings])
 
   return (
     <Accordion
