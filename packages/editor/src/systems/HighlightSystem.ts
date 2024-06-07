@@ -23,15 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/** World Module */
-import '@etherealengine/spatial'
+import { removeComponent, setComponent } from '@etherealengine/ecs'
+import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
+import { AnimationSystemGroup } from '@etherealengine/ecs/src/SystemGroups'
+import { HighlightComponent } from '@etherealengine/spatial/src/renderer/components/HighlightComponent'
+import { useEffect } from 'react'
+import { SelectionState } from '../services/SelectionServices'
 
-export * from './FeatureFlagsState'
-export * from './avatar/AvatarModule'
-export * from './interaction/InteractionModule'
-export * from './interaction/MediaModule'
-export * from './mocap/MocapModule'
-export * from './postprocessing/PopulateEffectRegistry'
-export * from './recording/RecordingModule'
-export * from './scene/SceneModule'
-export * from './visualscript/VisualScriptModule'
+const reactor = () => {
+  const selectedEntities = SelectionState.useSelectedEntities()
+
+  useEffect(() => {
+    if (!selectedEntities) return
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (!lastSelection) return
+    setComponent(lastSelection, HighlightComponent)
+    return () => {
+      removeComponent(lastSelection, HighlightComponent)
+    }
+  }, [selectedEntities])
+
+  return null
+}
+
+export const HighlightSystem = defineSystem({
+  uuid: 'ee.editor.HighlightSystem',
+  insert: { with: AnimationSystemGroup },
+  reactor
+})
