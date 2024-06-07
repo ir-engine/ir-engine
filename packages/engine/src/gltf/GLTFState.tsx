@@ -81,13 +81,12 @@ export const GLTFAssetState = defineState({
   useScene: (sceneID: string | undefined) => {
     const scene = useGet(staticResourcePath, sceneID).data
     const scenes = useMutableState(GLTFAssetState)
-    const sceneKey = scene?.key
+    const sceneKey = scene?.url
     return sceneKey ? scenes[sceneKey].value : null
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const source = fileServer + '/' + sceneURL
-    const gltfEntity = GLTFSourceState.load(source, uuid as EntityUUID)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
 

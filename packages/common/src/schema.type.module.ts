@@ -61,7 +61,6 @@ export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
-export type * from './schemas/projects/scene-data.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -269,8 +268,6 @@ export const botCommandPath = 'bot-command'
 export const projectPermissionTypePath = 'project-permission-type'
 
 export const projectDestinationCheckPath = 'project-destination-check'
-
-export const sceneDataPath = 'scene-data'
 
 export const spawnPointPath = 'spawn-point'
 

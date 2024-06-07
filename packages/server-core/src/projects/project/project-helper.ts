@@ -1780,6 +1780,9 @@ export const uploadLocalProjectToProvider = async (
     await deleteProjectFilesInStorageProvider(app, projectName)
   }
 
+  const manifest = getProjectManifest(projectName)
+  const oldManifestScenes = (manifest as any)?.scenes ?? []
+
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
@@ -1802,7 +1805,7 @@ export const uploadLocalProjectToProvider = async (
   for (const item of existingResources) {
     existingKeySet.add(item.key)
   }
-  const manifest: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
+  const resourcesJson: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
 
   /**
    * @todo replace all this verbosity with fileBrowser patch
@@ -1827,10 +1830,11 @@ export const uploadLocalProjectToProvider = async (
       )
       if (!filePathRelative.startsWith(`/assets/`) && !filePathRelative.startsWith(`/public/`)) continue
 
+      const isScene = oldManifestScenes.includes(filePathRelative)
       const thisFileClass = AssetLoader.getAssetClass(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
-      const resourceInfo = manifest[key]
+      const resourceInfo = resourcesJson[key]
       if (existingKeySet.has(key)) {
         // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
         await app.service(staticResourcePath).patch(
@@ -1839,7 +1843,7 @@ export const uploadLocalProjectToProvider = async (
             hash,
             mimeType: contentType,
             stats,
-            type: resourceInfo?.type,
+            type: isScene ? 'scene' : resourceInfo?.type,
             tags: resourceInfo?.tags ?? [thisFileClass],
             dependencies: resourceInfo?.dependencies ?? undefined,
             licensing: resourceInfo?.licensing ?? undefined,
@@ -1863,7 +1867,7 @@ export const uploadLocalProjectToProvider = async (
           hash,
           mimeType: contentType,
           stats,
-          type: resourceInfo?.type,
+          type: isScene ? 'scene' : resourceInfo?.type,
           tags: resourceInfo?.tags ?? [thisFileClass],
           dependencies: resourceInfo?.dependencies ?? undefined,
           licensing: resourceInfo?.licensing ?? undefined,

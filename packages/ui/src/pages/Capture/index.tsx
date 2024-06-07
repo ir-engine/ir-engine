@@ -43,8 +43,8 @@ import {
 import {
   RecordingID,
   StaticResourceType,
-  assetPath,
-  recordingPath
+  recordingPath,
+  staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { getComponent } from '@etherealengine/ecs'
@@ -494,7 +494,7 @@ const PlaybackMode = () => {
   const locationState = useMutableState(LocationState)
 
   const recording = useGet(recordingPath, recordingID.value!)
-  const scene = useGet(assetPath, locationState.currentLocation.location.sceneId.value).data
+  const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
 
   useEffect(() => {
     recording.refetch()
@@ -512,8 +512,7 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    const sceneURL = scene.assetURL
-    return GLTFAssetState.loadScene(sceneURL, scene.id)
+    return GLTFAssetState.loadScene(scene.url, scene.id)
   }, [scene])
 
   const ActiveRecording = () => {

@@ -80,7 +80,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
       !scene
     )
       return
-    const sceneURL = scene.key
+    const sceneURL = scene.url
     return GLTFAssetState.loadScene(sceneURL, scene.id)
   }, [locationState.currentLocation.location.sceneId, scene])
 }
@@ -92,6 +92,6 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     if (!props.sceneName || !props.projectName) return
     if (!assetID.data.length) return
     getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
-    return GLTFAssetState.loadScene(sceneKey, assetID.data[0].id)
+    return GLTFAssetState.loadScene(assetID.data[0].url, assetID.data[0].id)
   }, [assetID.data.length])
 }

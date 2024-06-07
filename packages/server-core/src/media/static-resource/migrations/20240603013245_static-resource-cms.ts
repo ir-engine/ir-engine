@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   StaticResourceDatabaseType,
-  assetPath,
   locationPath,
   projectPath,
   staticResourcePath
@@ -34,6 +33,8 @@ import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
 import { getStorageProvider } from '../../storageprovider/storageprovider'
 import { createStaticResourceHash } from '../../upload-asset/upload-asset.service'
+
+const assetPath = 'asset'
 
 /**
  * @param { import("knex").Knex } knex
