@@ -24,11 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { getComponent, hasComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@etherealengine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -56,14 +61,16 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
+  useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
-  useEffect(() => {
-    transformSpace.value === TransformSpace.world
-      ? transformComponent.matrixWorld.value.decompose(position, rotation, scale)
-      : transformComponent.matrix.value.decompose(position, rotation, scale)
-  }, [transformComponent.position, transformComponent.rotation, transformComponent.scale, transformSpace])
+  position.copy(transformComponent.position.value)
+  rotation.copy(transformComponent.rotation.value)
+  scale.copy(transformComponent.scale.value)
+
+  if (transformSpace.value === TransformSpace.world)
+    transformComponent.matrixWorld.value.decompose(position, rotation, scale)
 
   const onRelease = () => {
     const bboxSnapState = getMutableState(ObjectGridSnapState)
@@ -112,10 +119,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
-          value={position}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
+          value={position}
           onChange={onChangePosition}
           onRelease={onRelease}
         />
