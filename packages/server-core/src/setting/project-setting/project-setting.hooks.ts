@@ -61,7 +61,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('project', 'read'),
+          checkScope('projects', 'read'),
           [],
           [verifyScope('editor', 'read'), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
         )
@@ -75,7 +75,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('project', 'write'),
+          checkScope('projects', 'write'),
           [],
           [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
         )
@@ -88,7 +88,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('project', 'write'),
+          checkScope('projects', 'write'),
           [],
           [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
         )
@@ -99,7 +99,7 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          checkScope('project', 'write'),
+          checkScope('projects', 'write'),
           [],
           [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
         )
