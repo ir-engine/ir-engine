@@ -138,25 +138,6 @@ export default function Toolbar() {
               anchorEl.set(event.currentTarget)
             }}
           />
-          {/* Hiding the Panel Menu until we know what it does */}
-          {/* <Button
-            endIcon={
-              <MdOutlineKeyboardArrowDown
-                size="1em"
-                className={`-ml-3 text-[#A3A3A3] `}
-                // onClick={toggleDropdown}
-              />
-            }
-            rounded="none"
-            startIcon={<PiSquaresFourThin size={24} className="text-[#9CA0AA]" />}
-            iconContainerClassName="ml-2 mr-1"
-            className="-ml-1 border-0 bg-transparent p-0"
-            onClick={(event) => {
-              // anchorOpen.set(true)
-              // anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              // anchorEl.set(event.currentTarget)
-            }}
-          /> */}
         </div>
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
