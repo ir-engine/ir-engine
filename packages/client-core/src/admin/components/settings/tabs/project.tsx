@@ -141,7 +141,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 value={setting.key}
                 endComponent={
                   <Badge
-                    className="rounded"
+                    className="mr-2 rounded"
                     variant={setting.type === 'private' ? 'success' : 'warning'}
                     label={setting.type}
                   />
