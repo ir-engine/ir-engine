@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -31,13 +31,19 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import { useFullscreen } from '../useFullscreen'
 import styles from './index.module.scss'
 
 export const Fullscreen = () => {
   const { t } = useTranslation()
-  const [fullScreenActive, setFullScreenActive] = useFullscreen()
+  const [fullScreenActive, setFullScreenActive] = useState(false)
   const { bottomShelfStyle } = useShelfStyles()
+
+  const setFullscreen = (input: boolean) => {
+    setFullScreenActive(input)
+    if (input) document.body.requestFullscreen()
+    else document.exitFullscreen()
+  }
+
   return (
     <div className={styles.fullScreen}>
       {fullScreenActive ? (
@@ -45,7 +51,7 @@ export const Fullscreen = () => {
           title={t('user:menu.exitFullScreen')}
           className={`${styles.btn} ${bottomShelfStyle}`}
           background="white"
-          onClick={() => setFullScreenActive(false)}
+          onClick={() => setFullscreen(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="FullscreenExit" />}
@@ -55,7 +61,7 @@ export const Fullscreen = () => {
           title={t('user:menu.enterFullScreen')}
           className={`${styles.btn} ${bottomShelfStyle}`}
           background="white"
-          onClick={() => setFullScreenActive(true)}
+          onClick={() => setFullscreen(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           icon={<Icon type="ZoomOutMap" />}

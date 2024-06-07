@@ -27,7 +27,6 @@ import React, { createRef, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { FullscreenContainer } from '@etherealengine/client-core/src/components/FullscreenContainer'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
@@ -58,9 +57,7 @@ export default function ({ children, tailwind = false }): JSX.Element {
   const ref = createRef()
   const { t } = useTranslation()
   return !tailwind ? (
-    <FullscreenContainer ref={ref}>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
-    </FullscreenContainer>
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
   ) : (
     children
   )
