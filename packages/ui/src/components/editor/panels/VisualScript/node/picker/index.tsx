@@ -111,7 +111,7 @@ const NodePickerNode = ({ nodes, onPickNode, position, instance }) => {
 
   const initialTreeNodes = createPickerNodes(nodeTree, onPickNode, position, instance)
 
-  return <div className="flex h-72 flex-col">{initialTreeNodes}</div>
+  return <div className="flex h-48 flex-col overflow-x-hidden overflow-y-scroll">{initialTreeNodes}</div>
 }
 
 export type NodePickerFilters = {
@@ -170,9 +170,7 @@ export const NodePicker: React.FC<NodePickerProps> = ({
 
   return (
     <div
-      className={twMerge(
-        'absolute z-10 overflow-x-hidden overflow-y-scroll rounded border-zinc-800 bg-neutral-900 text-sm'
-      )}
+      className={twMerge('absolute z-10 rounded border-zinc-800 bg-neutral-900 text-sm')}
       style={{ ...{ top: position.y, left: position.x, ...pickerStyle } }}
     >
       <div className="flex justify-center p-2 text-white">{t('editor:visualScript.picker.title')}</div>
