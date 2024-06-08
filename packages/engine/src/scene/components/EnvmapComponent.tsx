@@ -30,6 +30,7 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  Material,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -37,6 +38,7 @@ import {
   RGBAFormat,
   SRGBColorSpace,
   Texture,
+  Uniform,
   Vector3
 } from 'three'
 
@@ -46,24 +48,18 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalMutableComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity } from '@etherealengine/ecs/src/Entity'
 import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
-import {
-  MaterialComponent,
-  MaterialComponents,
-  pluginByName
-} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
-import { applyPluginShaderParameters } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 
+import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -269,42 +265,50 @@ export const updateEnvMapIntensity = (obj: Mesh<any, any> | null, intensity: num
   }
 }
 
-export type BoxProjectionParameters = {
-  cubeMapSize: Vector3
-  cubeMapPos: Vector3
-}
-
-export const BoxProjectionPlugin = {
-  id: 'BoxProjectionPlugin',
-  compile: (shader, renderer) => {
-    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
-    const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-    if (!plugin) return
-
-    const shaderType = shader.shaderType
-    const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
-    const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
-    if (!isSupported) return
-
-    if (isPhysical) {
-      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
-      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <envmap_physical_pars_fragment>',
-        envmapPhysicalParsReplace
-      )
-    } else {
-      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplaceLambert)
-      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+export const BoxProjectionPlugin = defineComponent({
+  name: 'BoxProjectionPlugin',
+  onInit: (entity) => {
+    return {
+      cubeMapSize: new Uniform(new Vector3()),
+      cubeMapPos: new Uniform(new Vector3())
     }
+  },
+  onSet: (entity, component, json) => {
+    if (json?.cubeMapSize) component.cubeMapSize.set(json.cubeMapSize)
+    if (json?.cubeMapPos) component.cubeMapPos.set(json.cubeMapPos)
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+    addOBCPlugin(materialComponent.material as Material, (shader, renderer) => {
+      const plugin = getComponent(entity, BoxProjectionPlugin)
 
-    applyPluginShaderParameters(pluginEntity, shader, {
-      cubeMapSize: new Vector3(0, 0, 0),
-      cubeMapPos: new Vector3(0, 0, 0)
+      shader.uniforms.cubeMapSize = plugin.cubeMapSize
+      shader.uniforms.cubeMapPos = plugin.cubeMapPos
+
+      const shaderType = (shader as any).shaderType
+      const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+      const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+      if (!isSupported) return
+
+      if (isPhysical) {
+        if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+          shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+        shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <envmap_physical_pars_fragment>',
+          envmapPhysicalParsReplace
+        )
+      } else {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <envmap_pars_fragment>',
+          envmapParsReplaceLambert
+        )
+        shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+      }
     })
   }
-}
+})
 
 const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
@@ -312,14 +316,10 @@ const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
     const child = target as Mesh<any, MeshStandardMaterial>
     if (!child.material || child.type == 'VFXBatch') return
 
-    const pluginEntity = pluginByName[BoxProjectionPlugin.id]
     const materialEntity = UUIDComponent.getEntityByUUID(child.material.uuid as EntityUUID)
-    setComponent(materialEntity, MaterialComponent[MaterialComponents.State], { pluginEntities: [pluginEntity] })
-    getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin]).parameters[
-      getComponent(materialEntity, NameComponent)
-    ].set({
-      cubeMapSize: { value: bakeComponent.bakeScale },
-      cubeMapPos: { value: bakeComponent.bakePositionOffset }
+    setComponent(materialEntity, BoxProjectionPlugin, {
+      cubeMapPos: new Uniform(bakeComponent.bakePositionOffset),
+      cubeMapSize: new Uniform(bakeComponent.bakeScale)
     })
   }
 }
