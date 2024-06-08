@@ -41,7 +41,7 @@
     "@etherealengine/engine": "^1.6.0",
     "@etherealengine/hyperflux": "^1.6.0",
     "@etherealengine/projects": "^1.6.0",
-    "@mui/icons-material": "5.11.11",
+    "@mui/icons-material": "5.15.15",
     "@mui/material": "5.11.13",
     "@pixiv/three-vrm": "^2.0.6",
     "@pixiv/types-vrmc-vrm-1.0": "^2.0.6",
