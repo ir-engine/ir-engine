@@ -57,6 +57,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -236,6 +237,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const inputQuery = defineQuery([InputSourceComponent])
+let clickStartEntity = UndefinedEntity
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -277,6 +279,19 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
+    if (buttons.PrimaryClick?.down) {
+      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
+      while (
+        !hasComponent(clickStartEntity, SourceComponent) &&
+        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
+      ) {
+        clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
+      }
+    }
+    const capturingEntity = getState(InputState).capturingEntity
+    if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
+      clickStartEntity = capturingEntity
+    }
     primaryClickAccum += deltaSeconds
   }
   if (buttons.PrimaryClick?.up) {
@@ -291,7 +306,7 @@ const execute = () => {
       ) {
         clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
+      if (clickStartEntity === clickedEntity && hasComponent(clickedEntity, SourceComponent)) {
         const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
         const ancestorModelEntity = modelComponent || clickedEntity
         SelectionState.updateSelection([

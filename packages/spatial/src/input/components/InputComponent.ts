@@ -84,6 +84,8 @@ export const InputComponent = defineComponent({
     }
   },
 
+  //TODO - add handling of ordering, either with josh's code to insert with a priority or with an enum of predefined order to insert with, which maps to different useExecute systems we create
+  //i think for the subsystem idea i need to ask a bit more to understand how that avoids the issue of guaranteed order of subsystems
   useExecuteWithInput(executeOnInput: () => void, executeWhenEditing = false) {
     const entity = useEntityContext()
     return useExecute(
