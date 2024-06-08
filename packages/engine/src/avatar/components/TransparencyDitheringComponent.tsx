@@ -42,7 +42,7 @@ export enum ditherCalculationType {
   localPosition = 0
 }
 
-export const MAX_DITHER_POINTS = 4 //should be equal to the length of the vec3 array in the shader
+export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 array in the shader
 
 export const TransparencyDitheringRoot = defineComponent({
   name: 'TransparencyDitheringRoot',

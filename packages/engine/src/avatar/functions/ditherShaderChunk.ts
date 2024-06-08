@@ -41,18 +41,18 @@ export const ditheringFragUniform = `
 varying vec3 vWorldPosition;
 varying vec3 vLocalPosition; 
 
-uniform vec3 centers[4];
-uniform float exponents[4];
-uniform float distances[4];
+uniform vec3 centers[2];
+uniform float exponents[2];
+uniform float distances[2];
 uniform int maxDitherPoints;
-uniform int useWorldCalculation[4];
+uniform int useWorldCalculation[2];
 `
 
 /** glsl, fragment main */
 export const ditheringAlphatestChunk = `
 // sample sine at screen space coordinates for dithering pattern
 float distance = 1.0;
-for(int i = 0; i < 4; i++){
+for(int i = 0; i < 2; i++){
     distance *= pow(clamp(distances[i]*length(centers[i] - (useWorldCalculation[i] == 1 ? vWorldPosition : vLocalPosition)), 0.0, 1.0), exponents[i]);
     if(i > maxDitherPoints-1) break;
 }
