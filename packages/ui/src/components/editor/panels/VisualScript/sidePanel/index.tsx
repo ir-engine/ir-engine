@@ -30,7 +30,6 @@ import { XYPosition, useReactFlow } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
-import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
 import {
   useVisualScriptFlow,
   visualToFlow
@@ -43,6 +42,7 @@ import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } fr
 import Button from '../../../../../primitives/tailwind/Button'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
+import PaginatedList from '../../../layout/PaginatedList'
 import Panel from '../../../layout/Panel'
 import NodeEditor from '../../../properties/nodeEditor'
 import ParameterInput from '../../../properties/parameter'
@@ -98,33 +98,31 @@ export const SidePanel = ({
           list={Object.keys(visualScriptState.registries[VisualScriptDomain.ECS].nodes)}
           element={(nodeName: string, index) => {
             return (
-              <div>
-                <Button
-                  variant="outline"
-                  className="w-full p-0 lowercase"
-                  onClick={() => {
-                    const bounds = (flowref.current! as any).getBoundingClientRect()
-                    const centerX = bounds.left + bounds.width / 2
-                    const centerY = bounds.top + bounds.height / 2
-                    const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
-                    const position = viewportCenter // need a way to get viewport
-                    const newNode = {
-                      id: uuidv4(),
-                      type: nodeName,
-                      position,
-                      data: { configuration: {}, values: {} } //fill with default values here
+              <Button
+                variant="outline"
+                className="w-full truncate p-0 lowercase"
+                onClick={() => {
+                  const bounds = (flowref.current! as any).getBoundingClientRect()
+                  const centerX = bounds.left + bounds.width / 2
+                  const centerY = bounds.top + bounds.height / 2
+                  const viewportCenter = reactFlow.screenToFlowPosition({ x: centerX, y: centerY } as XYPosition)
+                  const position = viewportCenter // need a way to get viewport
+                  const newNode = {
+                    id: uuidv4(),
+                    type: nodeName,
+                    position,
+                    data: { configuration: {}, values: {} } //fill with default values here
+                  }
+                  onNodesChange([
+                    {
+                      type: 'add',
+                      item: newNode
                     }
-                    onNodesChange([
-                      {
-                        type: 'add',
-                        item: newNode
-                      }
-                    ])
-                  }}
-                >
-                  <Panel title={nodeName}></Panel>
-                </Button>
-              </div>
+                  ])
+                }}
+              >
+                <Panel title={nodeName}></Panel>
+              </Button>
             )
           }}
         ></PaginatedList>

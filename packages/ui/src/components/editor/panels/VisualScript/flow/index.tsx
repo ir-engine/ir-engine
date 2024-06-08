@@ -149,7 +149,7 @@ export const Flow: React.FC<FlowProps> = ({
       multiSelectionKeyCode={'Shift'}
       deleteKeyCode={'Backspace'}
     >
-      <Panel position="top-left" style={{ width: '20%' }}>
+      <Panel position="top-left" className="w-[33%]">
         <SidePanel
           flowref={flowRef}
           examples={examples}

@@ -23,52 +23,95 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useReactFlow, XYPosition } from 'reactflow'
-
 import { useOnPressKey } from '@etherealengine/editor/src/components/visualScript/VisualScriptUIModule'
 import { NodeSpecJSON } from '@etherealengine/visual-script'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { GoDotFill } from 'react-icons/go'
+import { HiMagnifyingGlass, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
+import { XYPosition, useReactFlow } from 'reactflow'
+import { twMerge } from 'tailwind-merge'
+import Input from '../../../../../../primitives/tailwind/Input'
+import { categoryColorMap, colors } from '../../util/colors'
 
-const nodePickerContainer: any = {
-  position: 'absolute',
-  zIndex: '10',
-  fontSize: 'small',
-  color: 'var(--textColor)',
-  backgroundColor: 'var(--popupBackground)',
-  borderStyle: 'round',
-  borderColor: 'var(--borderStyle)'
+const createPickerNodes = (tree, onPickNode, position, instance) => {
+  if (tree?.type !== undefined && typeof tree?.type === 'string') return null
+  return Object.entries(tree)
+    .filter(([key, value]) => key !== 'group')
+    .map(([key, value]) => {
+      return (
+        <PickerItem
+          key={key}
+          label={key}
+          node={value}
+          onPickNode={onPickNode}
+          position={position}
+          instance={instance}
+          color={categoryColorMap[key] ?? categoryColorMap.None}
+        />
+      )
+    })
 }
 
-/*const nodePicker::-webkit-scrollbar {
-  width: 2px;
-}*/
+const PickerItem = ({ label, node, onPickNode, position, instance, color }) => {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [childNodes, setChildNodes] = useState(null)
+  const [isLeafNode, setIsLeafNode] = useState(false)
+  useEffect(() => {
+    if (!isExpanded && !childNodes) {
+      const children = createPickerNodes(node, onPickNode, position, instance) as any
+      setChildNodes(children)
+      if (children === null) {
+        setIsLeafNode(true)
+      }
+    }
+  }, [isExpanded])
 
-const nodePickerHeader = {
-  backgroundColor: 'var(--tableHeaderBackground)',
-  padding: '0.5rem 0.25rem'
+  const handleNodeClick = () => {
+    if (isLeafNode) {
+      onPickNode(node.type, instance.screenToFlowPosition(position))
+    }
+    setIsExpanded(!isExpanded)
+  }
+  const finalColor = (colors[color][0] as string).slice(2)
+
+  return (
+    <>
+      <div onClick={handleNodeClick} className="flex w-full items-center justify-between py-1 pl-2">
+        <span className="flex flex-row items-center gap-3 text-center text-white">
+          <GoDotFill className={`text${finalColor}`} />
+          {label}
+        </span>
+        {node && !isLeafNode && (
+          <button className="bg-transparent pr-2 text-white">
+            {isExpanded ? <HiOutlineChevronDown /> : <HiOutlineChevronRight />}
+          </button>
+        )}
+      </div>
+      {isExpanded && childNodes && <div className="pl-4">{childNodes}</div>}
+    </>
+  )
 }
 
-const nodePickerSearchInput = {
-  backgroundColor: 'var(--inputBackground)',
-  color: 'var(--white)',
-  width: '100%',
-  padding: '0.25rem 0.5rem'
-}
+const NodePickerNode = ({ nodes, onPickNode, position, instance }) => {
+  const nodeTree = {}
+  nodes.forEach((node) => {
+    const parts = node.type.split('/')
+    let current = nodeTree
+    parts.forEach((part) => {
+      if (!current[part]) {
+        current[part] = {}
+      }
+      current = current[part]
+    })
+    current['type'] = node.type
+  })
 
-/*const nodePickerInput:disabled {
-  backgroundColor: 'var(--dockBackground)' 
-}*/
+  console.log('node tree', nodeTree)
 
-const nodePickerList: any = {
-  maxHeight: '12rem',
-  overflowY: 'scroll'
-}
+  const initialTreeNodes = createPickerNodes(nodeTree, onPickNode, position, instance)
 
-const nodePickerItem: any = {
-  padding: '0.25rem 0.5rem',
-  borderBottom: '1px solid var(--border)',
-  cursor: 'pointer'
+  return <div className="flex h-72 flex-col">{initialTreeNodes}</div>
 }
 
 export type NodePickerFilters = {
@@ -86,9 +129,8 @@ type NodePickerProps = {
 }
 
 const pickerStyle = {
-  overflow: 'hidden',
-  width: '320px',
-  height: '180px'
+  width: '240px',
+  height: '280px'
 }
 
 export const NodePicker: React.FC<NodePickerProps> = ({
@@ -127,29 +169,23 @@ export const NodePicker: React.FC<NodePickerProps> = ({
   position.y = position.y + height > paneBounds.height ? (position.y -= height) : position.y
 
   return (
-    <div style={{ ...nodePickerContainer, ...{ top: position.y, left: position.x, ...pickerStyle } }}>
-      <div style={nodePickerHeader}>{t('editor:visualScript.picker.title')}</div>
-      <div>
-        <input
-          type="text"
-          autoFocus
-          placeholder="Type to filter"
-          style={nodePickerSearchInput}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-      <div style={nodePickerList}>
-        {filtered.map(({ type }) => (
-          <div
-            key={type}
-            style={nodePickerItem}
-            onClick={() => onPickNode(type, instance.screenToFlowPosition(position))}
-          >
-            {type}
-          </div>
-        ))}
-      </div>
+    <div
+      className={twMerge(
+        'absolute z-10 overflow-x-hidden overflow-y-scroll rounded border-zinc-800 bg-neutral-900 text-sm'
+      )}
+      style={{ ...{ top: position.y, left: position.x, ...pickerStyle } }}
+    >
+      <div className="flex justify-center p-2 text-white">{t('editor:visualScript.picker.title')}</div>
+      <Input
+        placeholder={'Type to filter'}
+        value={search}
+        onChange={(event) => {
+          setSearch(event.target.value)
+        }}
+        className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
+        startComponent={<HiMagnifyingGlass className="text-white" />}
+      />
+      <NodePickerNode nodes={filtered} onPickNode={onPickNode} position={position} instance={instance} />
     </div>
   )
 }
