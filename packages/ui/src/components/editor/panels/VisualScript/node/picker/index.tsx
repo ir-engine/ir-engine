@@ -180,7 +180,7 @@ export const NodePicker: React.FC<NodePickerProps> = ({
         onChange={(event) => {
           setSearch(event.target.value)
         }}
-        className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
+        className="rounded bg-theme-primary px-1.5 text-[#A3A3A3]"
         startComponent={<HiMagnifyingGlass className="text-white" />}
       />
       <NodePickerNode nodes={filtered} onPickNode={onPickNode} position={position} instance={instance} />
