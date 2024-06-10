@@ -27,6 +27,10 @@ import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
 
 import { UndefinedEntity } from '@etherealengine/ecs'
 import { defineState } from '@etherealengine/hyperflux'
+import { Physics } from '../classes/Physics'
+
+type DrainCollisionsClousure = ReturnType<typeof Physics.drainCollisionEventQueue>
+type DrainContactsClosure = ReturnType<typeof Physics.drainContactEventQueue>
 
 export const PhysicsState = defineState({
   name: 'ee.engine.PhysicsState',
@@ -36,7 +40,9 @@ export const PhysicsState = defineState({
       physicsWorld: null! as PhysicsWorld,
       physicsCollisionEventQueue: null! as EventQueue,
       // used to ignore raycast hits for an entity the camera is attached to
-      cameraAttachedRigidbodyEntity: UndefinedEntity
+      cameraAttachedRigidbodyEntity: UndefinedEntity,
+      drainCollisions: null! as DrainCollisionsClousure,
+      drainContacts: null! as DrainContactsClosure
     }
   }
 })

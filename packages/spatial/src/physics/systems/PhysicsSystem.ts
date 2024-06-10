@@ -74,11 +74,8 @@ const collisionQuery = defineQuery([CollisionComponent])
 
 const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
 
-let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
-let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
-
 const execute = () => {
-  const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
+  const { physicsWorld, physicsCollisionEventQueue, drainCollisions, drainContacts } = getState(PhysicsState)
   if (!physicsWorld) return
 
   const allRigidBodies = nonFixedRigidbodyQuery()
@@ -158,16 +155,20 @@ const reactor = () => {
       const physicsWorld = Physics.createWorld()
       physicsState.physicsWorld.set(physicsWorld)
       physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
-      drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
-      drainContacts = Physics.drainContactEventQueue(physicsWorld)
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld))
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld))
     })
 
     return () => {
       const physicsWorld = getMutableState(PhysicsState).physicsWorld
       physicsWorld.value?.free()
       physicsWorld.set(null!)
-      drainCollisions = null!
-      drainContacts = null!
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainCollisions.set(null!)
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainContacts.set(null!)
 
       networkState.networkSchema[PhysicsSerialization.ID].set(none)
     }
