@@ -60,12 +60,11 @@ export default function ArrayInputGroup({
 
   return (
     <div aria-label={name} className={containerClassName}>
-      <div className="mb-3 flex justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <Text className="ml-5">{label}</Text>
         <HiPlus
           className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
-          height="1.5em"
-          width="1.5em"
+          size="20px"
           onClick={() => handleChange('', 0, 'add')}
         />
       </div>
