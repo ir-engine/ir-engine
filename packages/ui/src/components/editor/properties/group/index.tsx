@@ -72,7 +72,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
           ))}
         </Text>
       )}
-      {!minimized && <div className="flex flex-col py-2">{children}</div>}
+      {!minimized && <div className="flex w-full flex-col py-2">{children}</div>}
     </div>
   )
 }

@@ -549,7 +549,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",

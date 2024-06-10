@@ -97,7 +97,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 
     const twcontainerClassName = twMerge(
-      'flex w-full flex-col items-center ',
+      'flex flex-col items-center overflow-hidden',
       containerVariants[variant],
       containerClassname
     )

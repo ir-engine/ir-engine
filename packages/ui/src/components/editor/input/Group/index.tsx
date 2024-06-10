@@ -130,12 +130,14 @@ export interface InputGroupProps {
 export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
   return (
     <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
-      <Label className={twMerge('mr-2.5 text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
-      {info && (
-        <Tooltip title={info}>
-          <CiCircleInfo className={twMerge('-ml-0.5 mr-2.5 h-3.5 w-3.5 text-[#A0A1A2]', infoClassName)} />
-        </Tooltip>
-      )}
+      <div className="flex">
+        <Label className={twMerge('mr-2.5 text-nowrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+        {info && (
+          <Tooltip title={info}>
+            <CiCircleInfo className={twMerge('-ml-0.5 mr-2.5 h-3.5 w-3.5 text-[#A0A1A2]', infoClassName)} />
+          </Tooltip>
+        )}
+      </div>
       {children}
     </div>
   )

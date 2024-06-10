@@ -144,10 +144,11 @@ const Select = <T extends OptionValueType>({
         endComponent={
           <MdOutlineKeyboardArrowDown
             size="1.5em"
-            className={`text-theme-primary transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
+            className={`text-[#444444] transition-transform ${showOptions.value ? 'rotate-180' : ''}`}
             onClick={toggleDropdown}
           />
         }
+        containerClassname="rounded-md"
       />
       <div
         className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${

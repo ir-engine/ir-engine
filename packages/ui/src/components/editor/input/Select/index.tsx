@@ -32,14 +32,7 @@ const SelectInput = ({
   value,
   ...rest
 }: Omit<SelectProps<string | number>, 'currentValue'> & { value: string | number }) => {
-  return (
-    <Select
-      currentValue={value}
-      className="w-50 h-10 bg-[#212226] text-theme-primary"
-      inputClassName="rounded-none text-xs p-1"
-      {...rest}
-    />
-  )
+  return <Select currentValue={value} inputClassName="text-[#8B8B8D] text-xs bg-[#1A1A1A] border-none" {...rest} />
 }
 
 SelectInput.displayName = 'SelectInput'
