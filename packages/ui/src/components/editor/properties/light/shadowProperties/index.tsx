@@ -40,7 +40,7 @@ import NumericInput from '../../../input/Numeric'
 /**creating properties for LightShadowProperties component */
 type LightShadowPropertiesProps = {
   entity: Entity
-  comp: Component<any, any>
+  component: Component<any, any>
 }
 
 /**
@@ -50,12 +50,15 @@ type LightShadowPropertiesProps = {
 export const LightShadowProperties: EditorComponentType = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.entity, props.comp).value as any
+  const lightComponent = useComponent(props.entity, props.component) as any
 
   return (
     <>
       <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
-        <BooleanInput value={lightComponent.castShadow} onChange={commitProperty(props.comp, 'castShadow')} />
+        <BooleanInput
+          value={lightComponent.castShadow.value}
+          onChange={commitProperty(props.component, 'castShadow')}
+        />
       </InputGroup>
       <InputGroup name="Shadow Bias" label={t('editor:properties.directionalLight.lbl-shadowBias')}>
         <NumericInput
@@ -65,9 +68,9 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           smallStep={0.000001}
           largeStep={0.0001}
           displayPrecision={0.000001}
-          value={lightComponent.shadowBias}
-          onChange={updateProperty(props.comp, 'shadowBias')}
-          onRelease={commitProperty(props.comp, 'shadowBias')}
+          value={lightComponent.shadowBias.value}
+          onChange={updateProperty(props.component, 'shadowBias')}
+          onRelease={commitProperty(props.component, 'shadowBias')}
         />
       </InputGroup>
       <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
@@ -76,9 +79,9 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           smallStep={0.1}
           largeStep={1}
           displayPrecision={0.0001}
-          value={lightComponent.shadowRadius}
-          onChange={updateProperty(props.comp, 'shadowRadius')}
-          onRelease={commitProperty(props.comp, 'shadowRadius')}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(props.component, 'shadowRadius')}
+          onRelease={commitProperty(props.component, 'shadowRadius')}
         />
       </InputGroup>
     </>
