@@ -187,7 +187,7 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
   }
 
   const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
-  context.data = { type: data.type === 'owner' ? 'owner' : data.type } as any
+  context.data = { type: data.type === 'owner' ? 'owner' : data.type } as ProjectPermissionData
 }
 
 /**
