@@ -23,32 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectServer from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  ProjectServer,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm
-]
+import {
+  projectSettingDataSchema,
+  projectSettingPatchSchema,
+  projectSettingQuerySchema,
+  projectSettingSchema
+} from '@etherealengine/common/src/schemas/setting/project-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    projectSettingDataSchema,
+    projectSettingPatchSchema,
+    projectSettingQuerySchema,
+    projectSettingSchema
+  },
+  docs: {
+    description: 'Project setting service description',
+    securities: ['all']
+  }
+})
