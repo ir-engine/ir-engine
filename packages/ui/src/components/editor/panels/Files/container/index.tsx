@@ -54,7 +54,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
@@ -140,6 +140,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
+
+  const { projectName } = useMutableState(EditorState)
 
   const page = useHookstate(0)
 
@@ -611,7 +613,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={async () => {
-            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value, projectName: projectName.value! })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })

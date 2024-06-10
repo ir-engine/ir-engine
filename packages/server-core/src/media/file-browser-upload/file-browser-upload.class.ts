@@ -54,7 +54,8 @@ export class FileBrowserUploadService implements ServiceInterface<string[], File
           fileName: data.fileName,
           path: data.path,
           body: file.buffer as Buffer,
-          contentType: file.mimetype
+          contentType: file.mimetype,
+          project: data.project
         })
       )
     )) as string[]

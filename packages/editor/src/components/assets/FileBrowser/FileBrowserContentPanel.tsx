@@ -66,6 +66,7 @@ import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '../../../functions/assetFunctions'
 import { bytesToSize, unique } from '../../../functions/utils'
+import { EditorState } from '../../../services/EditorServices'
 import BooleanInput from '../../inputs/BooleanInput'
 import InputGroup from '../../inputs/InputGroup'
 import StringInput from '../../inputs/StringInput'
@@ -131,7 +132,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const selectedDirectory = useHookstate(originalPath)
   const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
   const fileProperties = useHookstate<FileType | null>(null)
-
+  const { projectName } = useMutableState(EditorState)
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
   const openConvert = useHookstate(false)
@@ -620,7 +621,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <ToolButton
             tooltip={t('editor:layout.filebrowser.uploadAssets')}
             onClick={async () => {
-              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value })
+              await inputFileWithAddToScene({ directoryPath: selectedDirectory.value, projectName: projectName.value! })
                 .then(refreshDirectory)
                 .catch((err) => {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })

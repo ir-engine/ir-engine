@@ -49,7 +49,7 @@ const onImportAsset = async () => {
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName })
+      await inputFileWithAddToScene({ projectName, uploadAsProjectFiles: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

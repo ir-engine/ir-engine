@@ -274,9 +274,13 @@ export class FileBrowserService
     checkDirectoryInsideNesting(reducedPath, params?.nestingDirectory)
 
     const reducedPathSplit = reducedPath.split('/')
-    const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
+    let project
+    if (data.project) {
+      project = data?.project
+    } else {
+      project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
+    }
     const key = path.join(reducedPath, name)
-
     await storageProvider.putObject(
       {
         Key: key,

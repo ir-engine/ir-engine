@@ -45,14 +45,17 @@ const logger = multiLogger.child({ component: 'editor:assetFunctions' })
 
 /**
  * @param config
+ * @param config.uploadAsProjectFiles will be uploaded to the assets directory of the project
  * @param config.projectName input and upload the file to the assets directory of the project
  * @param config.directoryPath input and upload the file to the `directoryPath`
  */
 export const inputFileWithAddToScene = async ({
+  uploadAsProjectFiles,
   projectName,
   directoryPath
 }: {
-  projectName?: string
+  projectName: string
+  uploadAsProjectFiles?: boolean
   directoryPath?: string
 }): Promise<null> =>
   new Promise((resolve, reject) => {
@@ -68,7 +71,7 @@ export const inputFileWithAddToScene = async ({
         let uploadedURLs: string[] = []
         if (el.files && el.files.length > 0) {
           const files = Array.from(el.files)
-          if (projectName) {
+          if (uploadAsProjectFiles) {
             const importSettings = getState(ImportSettingsState)
             uploadedURLs = (
               await Promise.all(
@@ -104,6 +107,7 @@ export const inputFileWithAddToScene = async ({
                   uploadToFeathersService(fileBrowserUploadPath, [file], {
                     fileName: file.name,
                     path: directoryPath,
+                    project: projectName,
                     contentType: ''
                   }).promise
               )
