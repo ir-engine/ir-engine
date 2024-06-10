@@ -407,7 +407,9 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  return projectSetting
+  const settings = {}
+  Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
+  return settings
 }
 
 export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: string, params: ProjectParams) => {
@@ -718,8 +720,8 @@ export const getBranches = async (app: Application, url: string, params?: Projec
               branch.name === repoResponse.data.default_branch
                 ? 'main'
                 : branch.name === `${config.server.releaseName}-deployment`
-                ? 'deployment'
-                : 'generic'
+                  ? 'deployment'
+                  : 'generic'
           }
         })
       )
