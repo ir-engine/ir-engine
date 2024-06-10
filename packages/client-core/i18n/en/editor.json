@@ -294,7 +294,8 @@
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
-      "seektime": "Start Time"
+      "seektime": "Start Time",
+      "lbl-mediaControls": "Media Controls"
     },
     "mesh": {
       "name": "Mesh",
@@ -820,7 +821,7 @@
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
-      "name": "Spot Light Component",
+      "name": "Spot Light",
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
@@ -1090,7 +1091,7 @@
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
-        "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
@@ -1130,6 +1131,7 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
+      "renameFile": "Rename File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
