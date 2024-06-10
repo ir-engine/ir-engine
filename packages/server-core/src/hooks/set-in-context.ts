@@ -23,32 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectServer from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+import { HookContext } from '../../declarations'
 
-export default [
-  ProjectServer,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm
-]
+/**
+ * This hook is used to set a string value in the context.
+ * If you want a value to be based on another value then use
+ * following setField hook.
+ * https://hooks-common.feathersjs.com/hooks.html#setfield
+ */
+export default (propertyName: string, propertyValue: string, inData?: false) => {
+  return (context: HookContext): HookContext => {
+    if (inData) {
+      if (Array.isArray(context.data)) {
+        context.data = context.data.map((item) => {
+          return {
+            ...item,
+            [propertyName]: propertyValue
+          }
+        })
+      } else {
+        context.data = {
+          ...context.data,
+          [propertyName]: propertyValue
+        }
+      }
+    } else {
+      context.params.query = {
+        ...context.params.query,
+        [propertyName]: propertyValue
+      }
+    }
+    return context
+  }
+}

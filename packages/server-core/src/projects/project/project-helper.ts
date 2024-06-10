@@ -57,11 +57,7 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import {
-  projectPath,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
@@ -299,17 +295,17 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 
 export const onProjectEvent = async (
   app: Application,
-  projectName: string,
+  project: ProjectType,
   hookPath: string,
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
+  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
-      return await hooks[eventType](app, ...args)
+      return await hooks[eventType](app, project, ...args)
     }
-    return await hooks[eventType](app)
+    return await hooks[eventType](app, project)
   }
 }
 
@@ -411,9 +407,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  const settings: ProjectSettingType[] = []
-  Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
-  return settings
+  return projectSetting
 }
 
 export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: string, params: ProjectParams) => {
@@ -1513,7 +1507,7 @@ export const updateProject = async (
   }
   // run project install script
   if (projectConfig.onEvent) {
-    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+    await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
   // sync assets with latest query data
