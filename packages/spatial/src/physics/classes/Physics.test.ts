@@ -48,7 +48,8 @@ import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enum
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
-import { UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
+import { PhysicsSystem } from '../PhysicsModule'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -672,15 +673,20 @@ describe('PhysicsAPI', () => {
         createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
         physicsWorld!.timestep = 1 / 60
+        const physicsState = getMutableState(PhysicsState)
+        physicsState.physicsWorld!.set(physicsWorld!)
+        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        setComponent(testEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -689,26 +695,21 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      /**
-      // @todo Why is the system failing?
       const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
-      // @todo
-      //  Existing tests above use physicsWorld.step().
-      //  Is that how the physics are run for applyImpulse, instead of the system's execute?
 
       it('should apply the impulse to the RigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
-        const body = Physics._Rigidbodies.get(testEntity)
-        assert.ok(body)
-        console.log(JSON.stringify(body.linvel()))
-        console.log(JSON.stringify(body.angvel()))
+        const beforeBody = Physics._Rigidbodies.get(testEntity)
+        assert.ok(beforeBody)
+        const before = beforeBody.linvel()
+        assert.deepEqual(before, Vector3_Zero)
         Physics.applyImpulse(testEntity, testImpulse)
-        // physicsWorld!.step()
         physicsSystemExecute()
-        console.log(JSON.stringify(body.linvel()))
-        console.log(JSON.stringify(body.angvel()))
+        const afterBody = Physics._Rigidbodies.get(testEntity)
+        assert.ok(afterBody)
+        const after = afterBody.linvel()
+        assert.notDeepEqual(after, before)
       })
-       */
     })
 
     // @todo How to check rotations?
