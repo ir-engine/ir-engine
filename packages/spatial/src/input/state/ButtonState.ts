@@ -27,11 +27,12 @@ Ethereal Engine. All Rights Reserved.
  * Button state
  */
 export type ButtonState = {
-  down: boolean
-  pressed: boolean
-  touched: boolean
-  up: boolean
-  value: number
+  /** true for ONLY the first frame this button is down*/ down: boolean
+  /** true for every frame this button is down (including the frame it is released and up is true)*/ pressed: boolean
+  /** true if button is touched (e.g. capacitive touch, not the same as pressed/down)*/ touched: boolean
+  /** true for ONLY the first frame this button is up*/ up: boolean
+  /** current value of button (useful for triggers)*/ value: number
+  /** true for every frame this button is being dragged*/ dragging: boolean
 }
 
 /**

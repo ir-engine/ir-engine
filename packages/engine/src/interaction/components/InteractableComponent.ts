@@ -318,10 +318,7 @@ export const InteractableComponent = defineComponent({
 
             //TODO store this threshold of 0.001 somewhere (drag threshold)
             if (inputPointer && inputPointerPosition.distanceToSquared(inputPointer.position) < 0.001) {
-              console.log('distanceSquared = ' + inputPointerPosition.distanceToSquared(inputPointer.position))
               callInteractCallbacks(entity)
-            } else {
-              console.log('not firing interact')
             }
           }
           inputPointerEntity = UndefinedEntity
