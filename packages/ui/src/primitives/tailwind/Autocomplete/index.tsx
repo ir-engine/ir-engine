@@ -23,60 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import Input from '../Input'
 
+export type AutoCompleteOptionsType = { label: string; value: any }
+
 export interface AutoCompleteProps {
-  className?: string
-  options: { label: string }[]
-  placeholder?: string
-  onSelect: (value: string) => void
   value: string
+  options: AutoCompleteOptionsType[]
+  className?: string
+  placeholder?: string
+  onSelect: (value: any) => void
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const AutoComplete = ({ options, onSelect, placeholder, className, value, onChange }: AutoCompleteProps) => {
-  const showDropdown = useHookstate(false)
-  const inputValue = useHookstate(value)
-  const isSelectingOption = useRef(false)
-
-  useEffect(() => {
-    inputValue.set(value)
-
-    if (!value) {
-      showDropdown.set(false)
-    }
-  }, [value])
-
-  const handleClick = (option) => {
-    isSelectingOption.current = true
-    inputValue.set(option.label)
-    onSelect(option.label)
-    showDropdown.set(false)
-    setTimeout(() => {
-      isSelectingOption.current = false
-    }, 1)
-  }
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value
-    inputValue.set(value)
-    onChange(event)
-    showDropdown.set(value !== '')
-  }
-
   return (
     <div className={`relative ${className}`}>
-      <Input value={inputValue.value} placeholder={placeholder} className="w-full" onChange={handleInputChange} />
-      {showDropdown.value && options.length > 0 && (
+      <Input value={value} placeholder={placeholder} className="w-full" onChange={onChange} />
+      {options.length > 0 && (
         <div className="fixed left-10 right-0 z-[60] mt-2 w-1/2 rounded border border-theme-primary bg-theme-surface-main">
           <ul className="max-h-40 overflow-auto [&>li]:px-4 [&>li]:py-2">
             {options.map((option, index) => (
               <li
                 key={index}
                 className="cursor-pointer px-4 py-2 text-theme-secondary"
-                onClick={() => handleClick(option)}
+                onClick={() => onSelect(option.value)}
               >
                 {option.label}
               </li>

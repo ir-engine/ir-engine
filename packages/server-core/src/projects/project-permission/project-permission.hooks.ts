@@ -23,11 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
   ProjectPermissionData,
@@ -40,7 +35,12 @@ import {
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
 import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import setLoggedInUserData from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -75,7 +75,7 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
   }
   if (data[0].userId && INVITE_CODE_REGEX.test(data[0].userId)) {
     data[0].inviteCode = data[0].userId as string as InviteCode
-    delete data[0].userId
+    delete (data[0] as any).userId
   }
   context.data = data[0]
 }
@@ -187,7 +187,7 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
   }
 
   const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
-  context.data = { type: data.type === 'owner' ? 'owner' : data.type }
+  context.data = { type: data.type === 'owner' ? 'owner' : data.type } as any
 }
 
 /**
@@ -224,6 +224,7 @@ export default {
       iff(isProvider('external'), verifyProjectOwner()),
       () => schemaHooks.validateData(projectPermissionDataValidator),
       schemaHooks.resolveData(projectPermissionDataResolver),
+      setLoggedInUserData('createdBy'),
       ensureInviteCode,
       checkExistingPermissions
     ],

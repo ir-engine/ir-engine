@@ -62,7 +62,7 @@ export interface ProjectPermissionType extends Static<typeof projectPermissionSc
 export interface ProjectPermissionDatabaseType extends Omit<ProjectPermissionType, 'user'> {}
 
 // Schema for creating new entries
-export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
+export const projectPermissionDataProperties = Type.Pick(projectPermissionSchema, ['projectId', 'userId', 'type'])
 
 export const projectPermissionDataSchema = Type.Intersect(
   [
@@ -79,7 +79,7 @@ export const projectPermissionDataSchema = Type.Intersect(
 export interface ProjectPermissionData extends Static<typeof projectPermissionDataSchema> {}
 
 // Schema for updating existing entries
-export const projectPermissionPatchSchema = Type.Partial(projectPermissionSchema, {
+export const projectPermissionPatchSchema = Type.Pick(projectPermissionSchema, ['type'], {
   $id: 'ProjectPermissionPatch'
 })
 export interface ProjectPermissionPatch extends Static<typeof projectPermissionPatchSchema> {}
