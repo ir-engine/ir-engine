@@ -32,7 +32,7 @@ import { UserID } from '../user/user.schema'
 
 export const projectSettingPath = 'project-setting'
 
-export const projectSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const projectSettingMethods = ['find', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
 export const projectSettingSchema = Type.Object(

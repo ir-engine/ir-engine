@@ -34,7 +34,6 @@ import {
   createProject,
   createProjectSetting,
   findProjectSetting,
-  getProjectSetting,
   patchProjectSetting,
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
@@ -78,21 +77,21 @@ describe('project-setting.test', () => {
     assert.equal(_projectSetting.projectId, _project.id)
   })
 
-  it('should get project-setting', async () => {
-    const _projectSetting = await getProjectSetting(app, projectSetting.id)
+  // it('should get project-setting', async () => {
+  //   const _projectSetting = await getProjectSetting(app, projectSetting.id)
 
-    assert.ok(_projectSetting)
-    assert.equal(_projectSetting.key, key1)
-    assert.equal(_projectSetting.key, projectSetting.key)
-    assert.equal(_projectSetting.value, value1)
-    assert.equal(_projectSetting.value, projectSetting.value)
-    assert.equal(_projectSetting.userId, user.id)
-    assert.equal(_projectSetting.userId, projectSetting.userId)
-    assert.equal(_projectSetting.projectId, project.id)
-    assert.equal(_projectSetting.projectId, projectSetting.projectId)
-    assert.equal(_projectSetting.createdAt, projectSetting.createdAt)
-    assert.equal(_projectSetting.updatedAt, projectSetting.updatedAt)
-  })
+  //   assert.ok(_projectSetting)
+  //   assert.equal(_projectSetting.key, key1)
+  //   assert.equal(_projectSetting.key, projectSetting.key)
+  //   assert.equal(_projectSetting.value, value1)
+  //   assert.equal(_projectSetting.value, projectSetting.value)
+  //   assert.equal(_projectSetting.userId, user.id)
+  //   assert.equal(_projectSetting.userId, projectSetting.userId)
+  //   assert.equal(_projectSetting.projectId, project.id)
+  //   assert.equal(_projectSetting.projectId, projectSetting.projectId)
+  //   assert.equal(_projectSetting.createdAt, projectSetting.createdAt)
+  //   assert.equal(_projectSetting.updatedAt, projectSetting.updatedAt)
+  // })
 
   it('should find the project-setting', async () => {
     const { user: user2, project: project2 } = await createProjectSetting(app, key1, value2, 'private')

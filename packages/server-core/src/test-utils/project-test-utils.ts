@@ -104,10 +104,10 @@ export const createProjectSetting = async (
  * @param projectSettingId
  * @returns
  */
-export const getProjectSetting = async (app: Application, projectSettingId: string) => {
-  const projectSetting = await app.service(projectSettingPath).get(projectSettingId)
-  return projectSetting
-}
+// export const getProjectSetting = async (app: Application, projectSettingId: string) => {
+//   const projectSetting = await app.service(projectSettingPath).get(projectSettingId)
+//   return projectSetting
+// }
 
 /**
  * Helper method used to find project setting.
