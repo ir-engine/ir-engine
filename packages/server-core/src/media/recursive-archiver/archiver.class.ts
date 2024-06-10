@@ -34,9 +34,10 @@ import { ArchiverQuery } from '@etherealengine/common/src/schemas/media/archiver
 import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
+import { getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
