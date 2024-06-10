@@ -56,7 +56,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
 
   return (
     <>
-      <InputGroup name="Transparency" label={t('editor:properties.image.lbl-transparency')} labelClassName="w-1/2">
+      <InputGroup name="Transparency" label={t('editor:properties.image.lbl-transparency')}>
         <SelectInput
           key={props.entity}
           options={imageTransparencyOptions}
@@ -71,7 +71,6 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
             name="Alpha Cutoff"
             label={t('editor:properties.image.lbl-alphaCutoff')}
             info={t('editor:properties.image.info-alphaCutoff')}
-            labelClassName="w-1/2"
           >
             <NumericInput
               min={0}
@@ -86,7 +85,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           </InputGroup>
         )
       }
-      <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')} labelClassName="w-1/2">
+      <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
         <SelectInput
           key={props.entity}
           options={imageProjectionOptions}
@@ -95,7 +94,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           className="w-1/2"
         />
       </InputGroup>
-      <InputGroup name="Side" label={t('editor:properties.image.lbl-side')} labelClassName="w-1/2">
+      <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
         <SelectInput
           key={props.entity}
           options={ImageProjectionSideOptions}

@@ -62,8 +62,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <div className="flex w-full justify-end">
           <HiPlus
             className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
-            height="1.5em"
-            width="1.5em"
+            size="20px"
             onClick={() => {
               const elem = { position: new Vector3(), quaternion: new Quaternion() }
               const newElements = [...elements.get(NO_PROXY), elem]

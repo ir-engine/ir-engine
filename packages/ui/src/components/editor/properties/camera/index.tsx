@@ -134,7 +134,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           options={projectionTypeSelect}
         />
       </InputGroup>
-      <InputGroup name="Camera Mode" label={'Camera mode'}>
+      <InputGroup name="Camera mode" label={'Camera mode'}>
         <SelectInput
           // placeholder={cameraModeSelect[0].label}
           value={cameraSettings.cameraMode.value}
@@ -142,7 +142,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           options={cameraModeSelect}
         />
       </InputGroup>
-      <InputGroup name="Field Of View" label={'FOV'}>
+      <InputGroup name="Field of view" label={'FOV'}>
         <NumericInput
           onChange={updateProperty(CameraSettingsComponent, 'fov')}
           onRelease={commitProperty(CameraSettingsComponent, 'fov')}
@@ -177,17 +177,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      {/* <InputGroup name="cameraFarClip" label={'Max Projection Distance'}>
-        <NumericInput
-          onChange={updateProperty(CameraSettingsComponent, 'cameraFarClip')}
-          onRelease={commitProperty(CameraSettingsComponent, 'cameraFarClip')}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          value={cameraSettings.cameraFarClip.value}
-        />
-      </InputGroup> */}
       <InputGroup name="minCameraDistance" label={'Camera distance'} className="gap-2">
         <div className="flex w-1/2 gap-2">
           <NumericInput
@@ -210,17 +199,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      {/* <InputGroup name="maxCameraDistance" label={'Max Camera Distance'}>
-        <NumericInput
-          onChange={updateProperty(CameraSettingsComponent, 'maxCameraDistance')}
-          onRelease={commitProperty(CameraSettingsComponent, 'maxCameraDistance')}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          value={cameraSettings.maxCameraDistance.value}
-        />
-      </InputGroup> */}
       <InputGroup name="startCameraDistance" label={'Start camera distance'}>
         <NumericInput
           onChange={updateProperty(CameraSettingsComponent, 'startCameraDistance')}
@@ -254,18 +232,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       </InputGroup>
-      {/* 
-      <InputGroup name="maxPhi" label={'Max Phi'}>
-        <NumericInput
-          onChange={updateProperty(CameraSettingsComponent, 'maxPhi')}
-          onRelease={commitProperty(CameraSettingsComponent, 'maxPhi')}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          value={cameraSettings.maxPhi.value}
-        />
-      </InputGroup> */}
     </PropertyGroup>
   )
 }
