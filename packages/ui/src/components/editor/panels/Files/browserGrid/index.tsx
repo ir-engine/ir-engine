@@ -115,7 +115,7 @@ export const FileTableListBody = ({
     name: (
       <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]">
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
+        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
       </span>
     ),

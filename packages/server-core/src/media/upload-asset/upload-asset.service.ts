@@ -84,17 +84,18 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   if (existingResource.data.length > 0) return existingResource.data[0]
 
-  const key = args.path ?? `/temp/${hash}`
+  const name = args.name ?? args.file.originalname
+  const relativePath = args.path!.replace('projects/' + args.project + '/', '') + name
   await app.service(fileBrowserPath).patch(null, {
+    project: args.project,
     body: args.file,
-    path: key,
-    fileName: args.name ?? args.file.originalname
+    path: relativePath
   })
 
   return (
     await app.service(staticResourcePath).find({
       query: {
-        key,
+        key: args.path,
         $limit: 1
       }
     })

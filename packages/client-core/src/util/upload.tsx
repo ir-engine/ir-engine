@@ -40,9 +40,9 @@ export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => vo
 export const uploadToFeathersService = (
   service: keyof ServiceTypes,
   files: Array<File>,
-  params: any = {},
+  params: ServiceTypes[typeof service]['create']['params'], // todo make this type work
   onUploadProgress?: (progress: number) => any
-): CancelableUploadPromiseReturnType => {
+): CancelableUploadPromiseReturnType<Awaited<ReturnType<ServiceTypes[typeof service]['create']['params']>>> => {
   const token = getMutableState(AuthState).authUser.accessToken.value
   const request = new XMLHttpRequest()
   request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections

@@ -84,14 +84,15 @@ describe('file-browser.test', () => {
   it('creates a file', async () => {
     testFileFullName = getRandomizedName('file', '.txt')
     testFileName = testFileFullName.split('.')[0]
+    const project = 'projects/' + testDirectoryName
 
     const newData = getRandomizedName('new data')
     const body = Buffer.from(newData, 'utf-8')
     testFileSize = Buffer.byteLength(body)
 
     const createdURL = await app.service(fileBrowserPath).patch(null, {
-      fileName: testFileFullName,
-      path: getDirectoryPath(testDirectoryName),
+      project,
+      path: getDirectoryPath(testDirectoryName) + testFileFullName,
       body,
       contentType: 'any'
     })
@@ -117,13 +118,14 @@ describe('file-browser.test', () => {
     let testFileName3: string
     before(async () => {
       testDirectoryName2 = getRandomizedName('directory2')
+      const project = 'projects/' + testDirectoryName2
 
       testFileName2 = getRandomizedName('file2', '.md')
       const newData2 = getRandomizedName('new data 2')
 
       await app.service(fileBrowserPath).patch(null, {
-        fileName: testFileName2,
-        path: getDirectoryPath(testDirectoryName2),
+        project,
+        path: getDirectoryPath(testDirectoryName2) + testFileName2,
         body: Buffer.from(newData2, 'utf-8'),
         contentType: 'any'
       })
@@ -132,8 +134,8 @@ describe('file-browser.test', () => {
       const newData3 = getRandomizedName('new data 3')
 
       await app.service(fileBrowserPath).patch(null, {
-        fileName: testFileName3,
-        path: getDirectoryPath(testDirectoryName2),
+        project,
+        path: getDirectoryPath(testDirectoryName2) + testFileName3,
         body: Buffer.from(newData3, 'utf-8'),
         contentType: 'any'
       })
@@ -246,9 +248,10 @@ describe('file-browser.test', () => {
 
     it('updates file with new content', async () => {
       const newData = getRandomizedName('new data 2 updated')
+      const project = 'projects/' + testDirectoryName
       const updateResult = await app.service(fileBrowserPath).patch(null, {
-        fileName: testFileName2,
-        path: getDirectoryPath(testDirectoryName),
+        project,
+        path: getDirectoryPath(testDirectoryName) + testFileName2,
         body: Buffer.from(newData, 'utf-8'),
         contentType: 'any'
       })

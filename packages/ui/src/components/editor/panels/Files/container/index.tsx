@@ -218,12 +218,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading) return
 
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
+    const folder = path.replace(/(.*\/).*/, '$1')
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      const projectName = folder.split('/')[1] // TODO: support projects with / in the name
+      const relativePath = folder.replace('projects/' + projectName + '/', '')
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
@@ -234,8 +237,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             try {
               const name = processFileName(file.name)
               await uploadToFeathersService(fileBrowserUploadPath, [file], {
-                fileName: name,
-                path,
+                project: projectName,
+                path: relativePath + name,
                 contentType: file.type
               }).promise
             } catch (err) {

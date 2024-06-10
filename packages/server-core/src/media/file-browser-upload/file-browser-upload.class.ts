@@ -35,23 +35,29 @@ export interface FileBrowserUploadParams extends KnexAdapterParams {
   files: UploadFile[]
 }
 
+export interface FileBrowserUploadData {
+  project: string
+  path: string
+  args: string
+}
+
 /**
  * A class for File Browser Upload service
  */
-export class FileBrowserUploadService implements ServiceInterface<string[], FileBrowserUploadParams> {
+export class FileBrowserUploadService implements ServiceInterface<string[], any, FileBrowserUploadParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async create(data: any, params: FileBrowserUploadParams) {
+  async create(data: FileBrowserUploadData, params: FileBrowserUploadParams) {
     if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
     const result = (await Promise.all(
       params.files.map((file) =>
         this.app.service(fileBrowserPath).patch(null, {
-          fileName: data.fileName,
+          project: data.project,
           path: data.path,
           body: file.buffer as Buffer,
           contentType: file.mimetype

@@ -257,7 +257,7 @@ export class FileBrowserService
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
-    const key = path.join('project', data.project, data.path)
+    const key = path.join('projects', data.project, data.path)
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
     const contentType = data.contentType ?? getContentType(key)
