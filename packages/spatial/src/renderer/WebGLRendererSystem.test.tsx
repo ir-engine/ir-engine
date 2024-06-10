@@ -22,45 +22,77 @@
 // All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 // Ethereal Engine. All Rights Reserved.
 // */
+
 import {
+  Engine,
   Entity,
   EntityUUID,
   SystemDefinitions,
   UUIDComponent,
-  createEntity,
   destroyEngine,
+  getComponent,
+  getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { SystemState } from '@etherealengine/ecs/src/SystemState'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { act, render } from '@testing-library/react'
+import assert from 'assert'
+import { EffectComposer, RenderPass } from 'postprocessing'
+import React from 'react'
 import { Color, MathUtils } from 'three'
+import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
+import { RendererState } from './RendererState'
 import { RendererComponent, WebGLRendererSystem, getSceneParameters } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
+import { RenderModes } from './constants/RenderModes'
 
-describe('FogSettingsComponent', () => {
+describe('WebGl Renderer System', () => {
   let rootEntity: Entity
+  let entity: Entity
 
   const mockCanvas = () => {
     return {
-      getDrawingBufferSize: () => 0
+      getDrawingBufferSize: () => 0,
+      getContext: () => {}
     } as any as HTMLCanvasElement
   }
 
   beforeEach(() => {
     createEngine()
 
-    rootEntity = createEntity()
+    rootEntity = Engine.instance.viewerEntity //createEntity()
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
     setComponent(rootEntity, SceneComponent)
     setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
+    getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
+    const rendererComp = getMutableComponent(rootEntity, RendererComponent)
+    rendererComp.canvas.set(mockCanvas())
     setComponent(rootEntity, BackgroundComponent, new Color(0x000000))
 
     setComponent(rootEntity, EnvironmentMapComponent)
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
+
+    //entity = createEntity()
+    //setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    //getMutableState(RendererState).usePostProcessing.set(true)
+    //setComponent(entity, PostProcessingComponent, { enabled: true })
+    //setComponent(entity, EntityTreeComponent)
+
+    //set data to test
+    //setComponent(rootEntity, SceneComponent, { children: [entity] })
+
+    //override addpass to test data without dependency on Browser
+    let addPassCount = 0
+    EffectComposer.prototype.addPass = () => {
+      addPassCount++
+    }
   })
 
   afterEach(() => {
@@ -73,5 +105,28 @@ describe('FogSettingsComponent', () => {
     globalThis._scene
     console.log('test')
     //assert(fogSettingsComponent.value, 'fog setting component exists')
+  })
+
+  it('test 2', async () => {
+    const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
+    const RenderSystem = SystemDefinitions.get(WebGLRendererSystem)?.reactor!
+    const tag = <RenderSystem />
+    //const PostReactor = PostProcessingComponent.reactorMap.get(entity)?.Reactor
+    const { rerender, unmount } = render(tag)
+
+    SystemDefinitions.get(WebGLRendererSystem)?.execute()
+    const test = getState(SystemState).activeSystemReactors.get(WebGLRendererSystem)?.isRunning.value
+
+    const engineRendererSettings = getMutableState(RendererState)
+    engineRendererSettings.renderMode.set(RenderModes.WIREFRAME)
+
+    await act(() => rerender(tag))
+
+    const rendererComp = getComponent(rootEntity, RendererComponent)
+    const effectComposer = rendererComp.effectComposer
+    const passes = effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
+    const renderPass: RenderPass = passes ? passes[0] : undefined
+
+    assert(renderPass.overrideMaterial, 'change render mode')
   })
 })
