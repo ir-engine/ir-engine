@@ -55,14 +55,12 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.image.lbl-imgURL')}
         labelClassName="text-nowrap text-[#A0A1A2] w-1/2"
       >
-        <div className="w-1/2">
-          <ImageInput
-            value={imageComponent.source.value}
-            onRelease={commitProperty(ImageComponent, 'source')}
-            containerClassname="rounded-md text-xs text-[#8B8B8D]"
-            className="h-10 rounded-md bg-[#1A1A1A] text-xs text-[#8B8B8D]"
-          />
-        </div>
+        <ImageInput
+          value={imageComponent.source.value}
+          onRelease={commitProperty(ImageComponent, 'source')}
+          containerClassname="rounded-md text-xs text-[#8B8B8D] w-1/2"
+          className="h-10 rounded-md bg-[#1A1A1A] text-xs text-[#8B8B8D]"
+        />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (

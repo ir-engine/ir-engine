@@ -57,14 +57,13 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
   return (
     <>
       <InputGroup name="Transparency" label={t('editor:properties.image.lbl-transparency')} labelClassName="w-1/2">
-        <div className="w-1/2">
-          <SelectInput
-            key={props.entity}
-            options={imageTransparencyOptions}
-            value={/*imageComponent.alphaMode.value*/ 'Opaque'}
-            onChange={commitProperty(ImageComponent, 'alphaMode')}
-          />
-        </div>
+        <SelectInput
+          key={props.entity}
+          options={imageTransparencyOptions}
+          value={/*imageComponent.alphaMode.value*/ 'Opaque'}
+          onChange={commitProperty(ImageComponent, 'alphaMode')}
+          className="w-1/2"
+        />
       </InputGroup>
       {
         /*imageComponent.alphaMode.value === ImageAlphaMode.Mask*/ true && (
@@ -74,40 +73,36 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
             info={t('editor:properties.image.info-alphaCutoff')}
             labelClassName="w-1/2"
           >
-            <div className="w-1/2">
-              <NumericInput
-                min={0}
-                max={1}
-                smallStep={0.01}
-                mediumStep={0.1}
-                largeStep={0.25}
-                value={/*imageComponent.alphaCutoff.value*/ 0}
-                onChange={updateProperty(ImageComponent, 'alphaCutoff')}
-                onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
-              />
-            </div>
+            <NumericInput
+              min={0}
+              max={1}
+              smallStep={0.01}
+              mediumStep={0.1}
+              largeStep={0.25}
+              value={/*imageComponent.alphaCutoff.value*/ 0}
+              onChange={updateProperty(ImageComponent, 'alphaCutoff')}
+              onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
+            />
           </InputGroup>
         )
       }
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')} labelClassName="w-1/2">
-        <div className="w-1/2">
-          <SelectInput
-            key={props.entity}
-            options={imageProjectionOptions}
-            value={/*imageComponent.projection.value*/ 0}
-            onChange={commitProperty(ImageComponent, 'projection')}
-          />
-        </div>
+        <SelectInput
+          key={props.entity}
+          options={imageProjectionOptions}
+          value={/*imageComponent.projection.value*/ 0}
+          onChange={commitProperty(ImageComponent, 'projection')}
+          className="w-1/2"
+        />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')} labelClassName="w-1/2">
-        <div className="w-1/2">
-          <SelectInput
-            key={props.entity}
-            options={ImageProjectionSideOptions}
-            value={/*imageComponent.side.value*/ 0}
-            onChange={commitProperty(ImageComponent, 'side')}
-          />
-        </div>
+        <SelectInput
+          key={props.entity}
+          options={ImageProjectionSideOptions}
+          value={/*imageComponent.side.value*/ 0}
+          onChange={commitProperty(ImageComponent, 'side')}
+          className="w-1/2"
+        />
       </InputGroup>
     </>
   )
