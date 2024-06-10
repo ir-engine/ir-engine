@@ -208,12 +208,12 @@ export default function ProjectTable() {
             </a>
             {!!row.needsRebuild && (
               <Tooltip title={t('admin:components.project.outdatedBuild')} direction="right">
-                <HiOutlineExclamationCircle className="text-orange-400" />
+                <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
               <Tooltip title={t('admin:components.project.hasLocalChanges')} direction="right">
-                <HiOutlineExclamationCircle className="text-yellow-400" />
+                <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
           </div>
