@@ -23,32 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication-setting'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectServer from './project-setting/project-setting'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+import {
+  projectSettingMethods,
+  projectSettingPath
+} from '@etherealengine/common/src/schemas/setting/project-setting.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { ProjectSettingService } from './project-setting.class'
+import projectSettingDocs from './project-setting.docs'
+import hooks from './project-setting.hooks'
 
-export default [
-  ProjectServer,
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  FeatureFlagSetting,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  Helm
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectSettingPath]: ProjectSettingService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: projectSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(projectSettingPath, new ProjectSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: projectSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectSettingDocs
+  })
+
+  const service = app.service(projectSettingPath)
+  service.hooks(hooks)
+}

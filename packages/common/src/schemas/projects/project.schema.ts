@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 
+import { projectSettingSchema } from '../setting/project-setting.schema'
 import { UserType } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
@@ -36,15 +37,6 @@ export const projectPath = 'project'
 export const projectMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
 export const projectUpdateTypes = ['none', 'commit', 'tag']
-
-export const projectSettingSchema = Type.Object(
-  {
-    key: Type.String(),
-    value: Type.String()
-  },
-  { $id: 'ProjectSetting', additionalProperties: false }
-)
-export interface ProjectSettingType extends Static<typeof projectSettingSchema> {}
 
 // Main data model schema
 export const projectSchema = Type.Object(
@@ -59,7 +51,6 @@ export const projectSchema = Type.Object(
     version: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
-    settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     needsRebuild: Type.Boolean(),
     hasLocalChanges: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
@@ -72,6 +63,7 @@ export const projectSchema = Type.Object(
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     assetsOnly: Type.Boolean(),
+    settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -79,9 +71,7 @@ export const projectSchema = Type.Object(
 )
 export interface ProjectType extends Static<typeof projectSchema> {}
 
-export interface ProjectDatabaseType extends Omit<ProjectType, 'settings'> {
-  settings: string
-}
+export interface ProjectDatabaseType extends Omit<ProjectType, 'settings'> {}
 
 // Schema for creating new entries
 export const projectDataSchema = Type.Partial(projectSchema, {
@@ -145,7 +135,6 @@ export const projectQuerySchema = Type.Intersect(
 )
 export interface ProjectQuery extends Static<typeof projectQuerySchema> {}
 
-export const projectSettingValidator = /* @__PURE__ */ getValidator(projectSettingSchema, dataValidator)
 export const projectValidator = /* @__PURE__ */ getValidator(projectSchema, dataValidator)
 export const projectDataValidator = /* @__PURE__ */ getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = /* @__PURE__ */ getValidator(projectPatchSchema, dataValidator)
