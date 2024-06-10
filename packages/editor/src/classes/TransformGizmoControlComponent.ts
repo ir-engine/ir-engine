@@ -46,7 +46,7 @@ import {
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { matches, useMutableState } from '@etherealengine/hyperflux'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
@@ -125,83 +125,87 @@ export const TransformGizmoControlComponent = defineComponent({
     getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
 
     const editorHelperState = useMutableState(EditorHelperState)
-    InputComponent.useExecuteWithInput(() => {
-      const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
-      if (!gizmoControlComponent.enabled) {
-        console.log('EO 1')
-        return
-      }
-      if (!gizmoControlComponent.visualEntity) {
-        console.log('EO 2')
-        return
-      }
-      if (!gizmoControlComponent.planeEntity) {
-        console.log('EO 3')
-        return
-      }
-      const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-      const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
-      // const pickerInputSourceEntity = getComponent(visualComponent.picker[gizmoControlComponent.mode], InputComponent)
-      //   .inputSources[0]
-      // const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
-
-      // if (
-      //
-      //   pickerInputSourceEntity === undefined &&
-      //   planeInputSourceEntity === undefined
-      // ) {
-      //   onPointerLost(gizmoControlEntity)
-      //   console.log('early out 1')
-      //   return
-      // }
-      onPointerHover(gizmoControlEntity)
-
-      const pickerButtons = InputComponent.getMergedButtons(pickerEntity) // getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
-      const planeButtons = InputComponent.getMergedButtons(gizmoControlComponent.planeEntity) // getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
-
-      if (!pickerButtons && !planeButtons) {
-        onPointerLost(gizmoControlEntity)
-        console.log('early out 2')
-        return
-      }
-      // if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
-      //   onPointerLost(gizmoControlEntity)
-      //   console.log('early out 3')
-      //   return
-      // }
-      //
-      // if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) {
-      //   console.log("early out 4")
-      //   return
-      // }
-      if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
-        console.log('up')
-        onPointerUp(gizmoControlEntity)
-        removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
-        onPointerLost(gizmoControlEntity)
-        return
-      }
-
-      if (pickerButtons?.PrimaryClick?.pressed || planeButtons?.PrimaryClick?.pressed) {
-        console.log('captured')
-        InputState.setCapturingEntity(pickerEntity)
-        setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
-        onPointerMove(gizmoControlEntity)
-
-        //pointer down
-        if (pickerButtons?.PrimaryClick?.down) {
-          console.log('down')
-          onPointerDown(gizmoControlEntity)
+    InputComponent.useExecuteWithInput(
+      () => {
+        const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
+        if (!gizmoControlComponent.enabled) {
+          console.log('EO 1')
+          return
         }
-      }
+        if (!gizmoControlComponent.visualEntity) {
+          console.log('EO 2')
+          return
+        }
+        if (!gizmoControlComponent.planeEntity) {
+          console.log('EO 3')
+          return
+        }
+        const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
+        const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
+        // const pickerInputSourceEntity = getComponent(visualComponent.picker[gizmoControlComponent.mode], InputComponent)
+        //   .inputSources[0]
+        // const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
 
-      //TODO - check whether we are good without capturing entity (making sure that captured entity is persisting inputSources on the InputComponent)
-      //TODO - clean house on the drag functionality within InteractableComponent (but KEEP the check for whether there is already a captured entity before setting one)
-      //TODO - add dragging information into the InputSourceComponent, use that in the productComponent and ignore the click callback from interactable there if we dragged
+        // if (
+        //
+        //   pickerInputSourceEntity === undefined &&
+        //   planeInputSourceEntity === undefined
+        // ) {
+        //   onPointerLost(gizmoControlEntity)
+        //   console.log('early out 1')
+        //   return
+        // }
+        onPointerHover(gizmoControlEntity)
 
-      // if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) onPointerUp(gizmoControlEntity)
-      // else if (pickerButtons?.PrimaryClick?.down) onPointerDown(gizmoControlEntity)
-    }, true)
+        const pickerButtons = InputComponent.getMergedButtons(pickerEntity) // getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
+        const planeButtons = InputComponent.getMergedButtons(gizmoControlComponent.planeEntity) // getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
+
+        if (!pickerButtons && !planeButtons) {
+          onPointerLost(gizmoControlEntity)
+          console.log('early out 2')
+          return
+        }
+        // if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
+        //   onPointerLost(gizmoControlEntity)
+        //   console.log('early out 3')
+        //   return
+        // }
+        //
+        // if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) {
+        //   console.log("early out 4")
+        //   return
+        // }
+        if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
+          console.log('up')
+          onPointerUp(gizmoControlEntity)
+          removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+          onPointerLost(gizmoControlEntity)
+          return
+        }
+
+        if (pickerButtons?.PrimaryClick?.pressed || planeButtons?.PrimaryClick?.pressed) {
+          console.log('captured')
+          InputState.setCapturingEntity(pickerEntity)
+          setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+          onPointerMove(gizmoControlEntity)
+
+          //pointer down
+          if (pickerButtons?.PrimaryClick?.down) {
+            console.log('down')
+            onPointerDown(gizmoControlEntity)
+          }
+        }
+
+        //TODO - check whether we are good without capturing entity (making sure that captured entity is persisting inputSources on the InputComponent)
+        //TODO - clean house on the drag functionality within InteractableComponent (but KEEP the check for whether there is already a captured entity before setting one)
+        //TODO - add dragging information into the InputSourceComponent, use that in the productComponent and ignore the click callback from interactable there if we dragged
+
+        // if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) onPointerUp(gizmoControlEntity)
+        // else if (pickerButtons?.PrimaryClick?.down) onPointerDown(gizmoControlEntity)
+      },
+      true,
+      InputExecutionOrder.Before
+    )
 
     useEffect(() => {
       const plane = new Mesh(
