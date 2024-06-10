@@ -712,7 +712,6 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    // @todo How to check rotations?
     describe('lockRotations', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
@@ -1278,13 +1277,51 @@ describe('PhysicsAPI', () => {
     })
 
     describe('attachCollider', () => {
-      // function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity, colliderEntity: Entity) {
-      //   if (Colliders.has(colliderEntity)) return
-      //   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
-      //   const collider = world.createCollider(colliderDesc, rigidBody)
-      //   Colliders.set(colliderEntity, collider)
-      //   return collider
-      // }
+      let testEntity = UndefinedEntity
+      let rigidbodyEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        rigidbodyEntity = createEntity()
+        setComponent(rigidbodyEntity, TransformComponent)
+        setComponent(rigidbodyEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(rigidbodyEntity, ColliderComponent, { shape: Shapes.Box })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        removeEntity(rigidbodyEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should return undefined when rigidBodyEntity doesn't have a RigidBodyComponent", () => {
+        removeComponent(rigidbodyEntity, RigidBodyComponent)
+        const colliderDesc = Physics.createColliderDesc(testEntity, rigidbodyEntity)
+        const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)
+        assert.equal(result, undefined)
+      })
+
+      it('should add the collider to the Physics._Colliders map', () => {
+        ColliderComponent.reactorMap.get(testEntity)!.stop()
+        const colliderDesc = Physics.createColliderDesc(testEntity, rigidbodyEntity)
+        const result = Physics.attachCollider(physicsWorld!, colliderDesc, rigidbodyEntity, testEntity)!
+        const expected = Physics._Colliders.get(testEntity)
+        assert.ok(result)
+        assert.ok(expected)
+        assert.deepEqual(result.handle, expected.handle)
+      })
     })
 
     /**
