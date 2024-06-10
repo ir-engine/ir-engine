@@ -39,6 +39,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene } from '../../functions/sceneFunctions'
+import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog2'
 import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog2'
@@ -83,7 +84,7 @@ const generateToolbarMenu = () => {
     },
     {
       name: t('editor:menubar.saveScene'),
-      // hotkey: `${cmdOrCtrlString}+s`,
+      hotkey: `${cmdOrCtrlString}+s`,
       action: () => PopoverState.showPopupover(<SaveSceneDialog />)
     },
     {
