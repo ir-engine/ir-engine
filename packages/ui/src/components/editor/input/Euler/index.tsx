@@ -64,7 +64,7 @@ export const EulerInput = (props: EulerInputProps) => {
   )
 
   return (
-    <div className="flex flex-wrap justify-start gap-1.5">
+    <div className="flex flex-nowrap justify-start gap-1.5">
       <NumericInput
         value={euler.x.value * RAD2DEG}
         onChange={onSetEuler('x')}

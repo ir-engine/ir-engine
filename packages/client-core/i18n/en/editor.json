@@ -868,7 +868,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
