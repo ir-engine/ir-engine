@@ -59,9 +59,11 @@ async function installAllProjects() {
     const projects = await app.service(projectPath).find({ paginate: false, assetsOnly: false })
     logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))
-    await app.service(projectPath).update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
+    const updatedProject = await app
+      .service(projectPath)
+      .update('', { sourceURL: 'default-project' }, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
-    if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
+    if (projectConfig.onEvent) await onProjectEvent(app, updatedProject, projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {
     logger.fatal(e)

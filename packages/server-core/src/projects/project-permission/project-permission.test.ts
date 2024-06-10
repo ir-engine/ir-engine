@@ -196,7 +196,8 @@ describe('project-permission.test', () => {
         project1Permission2 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
@@ -216,7 +217,8 @@ describe('project-permission.test', () => {
         const duplicate = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
-            userId: user2.id
+            userId: user2.id,
+            type: 'editor'
           },
           params
         )
@@ -237,7 +239,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: 'abcdefg',
-                userId: user2.id
+                userId: user2.id,
+                type: 'editor'
               },
               params
             )
@@ -259,7 +262,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: 'abcdefg' as UserID
+                userId: 'abcdefg' as UserID,
+                type: 'editor'
               },
               params
             )
@@ -281,7 +285,8 @@ describe('project-permission.test', () => {
             const res = await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -303,7 +308,8 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: 'editor'
               },
               params
             )
@@ -353,8 +359,6 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: 'abcdefg' as UserID,
             type: 'owner'
           }
           // params
@@ -374,8 +378,6 @@ describe('project-permission.test', () => {
         const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
-            projectId: project1.id,
-            userId: user2.id,
             type: 'editor'
           },
           params
@@ -397,8 +399,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params
@@ -427,8 +427,6 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
-                projectId: project1.id,
-                userId: user3.id,
                 type: ''
               },
               params
