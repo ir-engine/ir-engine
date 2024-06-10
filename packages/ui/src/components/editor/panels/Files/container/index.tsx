@@ -78,7 +78,7 @@ import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
-  projectName?: string
+  projectName: string
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
@@ -140,8 +140,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-
-  const { projectName } = useMutableState(EditorState)
 
   const page = useHookstate(0)
 
@@ -613,7 +611,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           className="h-full whitespace-nowrap bg-theme-highlight px-2"
           size="small"
           onClick={async () => {
-            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value, projectName: projectName.value! })
+            await inputFileWithAddToScene({ directoryPath: selectedDirectory.value, projectName: props.projectName })
               .then(refreshDirectory)
               .catch((err) => {
                 NotificationService.dispatchNotify(err.message, { variant: 'error' })
