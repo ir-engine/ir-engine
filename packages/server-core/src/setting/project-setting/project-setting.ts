@@ -23,35 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
+import {
+  projectSettingMethods,
+  projectSettingPath
+} from '@etherealengine/common/src/schemas/setting/project-setting.schema'
+import { Application } from '@etherealengine/server-core/declarations'
+import { ProjectSettingService } from './project-setting.class'
+import projectSettingDocs from './project-setting.docs'
+import hooks from './project-setting.hooks'
 
-import { objectToArgs } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectSettingPath]: ProjectSettingService
+  }
+}
 
-import { Application } from '../../../declarations'
-import { getJobBody } from '../../k8s-job-helper'
-
-export async function getModelTransformJobBody(
-  app: Application,
-  createParams: ModelTransformParameters
-): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
-    ...objectToArgs(createParams)
-  ]
-
-  const labels = {
-    'etherealengine/modelTransformer': 'true',
-    'etherealengine/transformSource': createParams.src,
-    'etherealengine/transformDestination': createParams.dst,
-    'etherealengine/release': process.env.RELEASE_NAME!
+export default (app: Application): void => {
+  const options = {
+    name: projectSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  const name = `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`
+  app.use(projectSettingPath, new ProjectSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: projectSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectSettingDocs
+  })
 
-  return getJobBody(app, command, name, labels)
+  const service = app.service(projectSettingPath)
+  service.hooks(hooks)
 }
