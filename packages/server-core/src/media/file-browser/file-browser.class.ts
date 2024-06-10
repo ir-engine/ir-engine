@@ -165,8 +165,6 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
     if (directory[0] === '/') directory = directory.slice(1)
 
-    if (!directory.startsWith('projects/')) throw new Error('Not allowed to access this directory')
-
     ensureProjectsDirectory(directory)
 
     const parentPath = path.dirname(directory)
