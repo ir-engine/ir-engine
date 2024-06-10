@@ -720,8 +720,8 @@ export const getBranches = async (app: Application, url: string, params?: Projec
               branch.name === repoResponse.data.default_branch
                 ? 'main'
                 : branch.name === `${config.server.releaseName}-deployment`
-                  ? 'deployment'
-                  : 'generic'
+                ? 'deployment'
+                : 'generic'
           }
         })
       )
