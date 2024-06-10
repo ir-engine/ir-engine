@@ -62,7 +62,12 @@ export default function ArrayInputGroup({
     <div aria-label={name} className={containerClassName}>
       <div className="mb-3 flex justify-between">
         <Text className="ml-5">{label}</Text>
-        <HiPlus className="mr-5 cursor-pointer bg-[#1A1A1A] text-white" onClick={() => handleChange('', 0, 'add')} />
+        <HiPlus
+          className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
+          height="1.5em"
+          width="1.5em"
+          onClick={() => handleChange('', 0, 'add')}
+        />
       </div>
       <div className="flex flex-col space-y-1 bg-[#1A1A1A] py-1.5">
         {values.map((value, idx) => (
