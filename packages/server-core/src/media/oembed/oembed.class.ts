@@ -31,6 +31,7 @@ import { routePath, RouteType } from '@etherealengine/common/src/schemas/route/r
 import { clientSettingPath, ClientSettingType } from '@etherealengine/common/src/schemas/setting/client-setting.schema'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/common/src/schemas/setting/server-setting.schema'
 
+import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 
@@ -79,9 +80,18 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
       for (const projectName of uniqueProjects) {
         const projectConfig = getProjectConfig(projectName)
         if (projectConfig?.onEvent) {
+          const project = await this.app.service(projectPath)._find({
+            query: {
+              name: projectName,
+              $limit: 1
+            }
+          })
+
+          if (project.data.length === 0) throw new BadRequest(`Project ${projectName} not found`)
+
           const oEmbedResponse: OembedType | null = await onProjectEvent(
             this.app,
-            projectName,
+            project.data[0],
             projectConfig.onEvent,
             'onOEmbedRequest',
             url,
