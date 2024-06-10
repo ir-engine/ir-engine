@@ -69,12 +69,12 @@ import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
-  createExecutorJob,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
