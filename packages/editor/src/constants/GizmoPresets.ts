@@ -235,7 +235,6 @@ const gizmoPlane = new Mesh(
     toneMapped: false
   })
 )
-gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
 
 function CircleGeometry(radius, arc) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)

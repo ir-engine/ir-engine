@@ -54,6 +54,7 @@ import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/component
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { gizmoPlane } from '../constants/GizmoPresets'
 import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -167,6 +168,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
     useEffect(() => {
       addObjectToGroup(gizmoControlComponent.planeEntity.value, gizmoPlane)
+      gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
     }, [])
