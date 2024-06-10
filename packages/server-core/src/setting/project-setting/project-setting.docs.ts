@@ -23,35 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { objectToArgs } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import {
+  projectSettingDataSchema,
+  projectSettingPatchSchema,
+  projectSettingQuerySchema,
+  projectSettingSchema
+} from '@etherealengine/common/src/schemas/setting/project-setting.schema'
 
-import { Application } from '../../../declarations'
-import { getJobBody } from '../../k8s-job-helper'
-
-export async function getModelTransformJobBody(
-  app: Application,
-  createParams: ModelTransformParameters
-): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
-    ...objectToArgs(createParams)
-  ]
-
-  const labels = {
-    'etherealengine/modelTransformer': 'true',
-    'etherealengine/transformSource': createParams.src,
-    'etherealengine/transformDestination': createParams.dst,
-    'etherealengine/release': process.env.RELEASE_NAME!
+export default createSwaggerServiceOptions({
+  schemas: {
+    projectSettingDataSchema,
+    projectSettingPatchSchema,
+    projectSettingQuerySchema,
+    projectSettingSchema
+  },
+  docs: {
+    description: 'Project setting service description',
+    securities: ['all']
   }
-
-  const name = `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`
-
-  return getJobBody(app, command, name, labels)
-}
+})

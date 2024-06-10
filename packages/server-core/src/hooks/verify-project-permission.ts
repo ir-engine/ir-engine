@@ -66,7 +66,10 @@ export default (types: string[]) => {
       }
     })) as Paginated<ProjectPermissionType>
 
-    if (data.length === 0) throw new Forbidden('Project permission not found')
+    if (data.length === 0) {
+      console.error(`Project permission not found. ProjectId: ${projectId}`)
+      throw new Forbidden(`Project permission not found`)
+    }
     if (!types.includes(data[0].type)) {
       throw new Forbidden('Missing required project permission')
     }

@@ -69,12 +69,12 @@ import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { createExecutorJob } from '../../k8s-job-helper'
 import logger from '../../ServerLogger'
 import { useGit } from '../../util/gitHelperFunctions'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
 import {
-  createExecutorJob,
   deleteProjectFilesInStorageProvider,
   engineVersion,
   getProjectConfig,
@@ -382,7 +382,7 @@ const linkGithubToProject = async (context: HookContext) => {
  */
 const getProjectName = async (context: HookContext<ProjectService>) => {
   if (!context.id) throw new BadRequest('You need to pass project id')
-  context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
+  context.project = await context.app.service(projectPath).get(context.id, context.params)
 }
 
 /**
@@ -391,10 +391,10 @@ const getProjectName = async (context: HookContext<ProjectService>) => {
  * @returns
  */
 const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
-  const projectConfig = getProjectConfig(context.name)
+  const projectConfig = getProjectConfig(context.project.name)
 
   if (projectConfig?.onEvent) {
-    await onProjectEvent(context.app, context.name, projectConfig.onEvent, 'onUninstall')
+    await onProjectEvent(context.app, context.project, projectConfig.onEvent, 'onUninstall')
   }
 }
 
@@ -404,12 +404,12 @@ const runProjectUninstallScript = async (context: HookContext<ProjectService>) =
  * @returns
  */
 const removeProjectFiles = async (context: HookContext<ProjectService>) => {
-  if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
-    fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
+  if (fs.existsSync(path.resolve(projectsRootFolder, context.project.name))) {
+    fs.rmSync(path.resolve(projectsRootFolder, context.project.name), { recursive: true })
   }
 
-  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
-  await deleteProjectFilesInStorageProvider(context.app, context.name)
+  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.project.name}".`)
+  await deleteProjectFilesInStorageProvider(context.app, context.project.name)
 }
 
 /**
@@ -443,7 +443,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   const removingLocations = await context.app.service(locationPath).find({
     query: {
       sceneId: {
-        $like: `${context.name}/%`
+        $like: `${context.project.name}/%`
       }
     }
   })
@@ -460,7 +460,7 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
 const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(routePath).remove(null, {
     query: {
-      project: context.name
+      project: context.project.name
     }
   })
 }
@@ -473,7 +473,7 @@ const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
 const removeAvatarsFromProject = async (context: HookContext<ProjectService>) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as AvatarType[]
@@ -493,7 +493,7 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
 const removeStaticResourcesFromProject = async (context: HookContext<ProjectService>) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
-      project: context.name
+      project: context.project.name
     },
     paginate: false
   })) as any as StaticResourceType[]
@@ -509,7 +509,7 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
  * @returns
  */
 const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
-  await removeProjectUpdateJob(context.app, context.name)
+  await removeProjectUpdateJob(context.app, context.project.name)
 }
 
 /**
