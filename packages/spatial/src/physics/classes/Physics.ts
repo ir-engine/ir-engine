@@ -287,7 +287,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
     case Shapes.Sphere:
       shape = ShapeType.Ball
       break
-    case Shapes.Box:
+    case Shapes.Box: /*fall-through*/
     case Shapes.Plane:
       shape = ShapeType.Cuboid
       break
@@ -309,11 +309,11 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
 
   const scale = TransformComponent.getWorldScale(entity, new Vector3())
 
-  let colliderDesc: ColliderDesc
+  let result: ColliderDesc
 
   switch (shape) {
     case ShapeType.Cuboid:
-      if (colliderComponent.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
+      if (colliderComponent.shape === 'plane') result = ColliderDesc.cuboid(10000, 0.001, 10000)
       else {
         if (mesh) {
           // if we have a mesh, we want to make sure it uses the geometry itself to calculate the size
@@ -322,23 +322,23 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
           const size = new Vector3()
           box.getSize(size)
           size.multiply(scale).multiplyScalar(0.5)
-          colliderDesc = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
+          result = ColliderDesc.cuboid(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z))
         } else {
-          colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x * 0.5), Math.abs(scale.y * 0.5), Math.abs(scale.z * 0.5))
+          result = ColliderDesc.cuboid(Math.abs(scale.x * 0.5), Math.abs(scale.y * 0.5), Math.abs(scale.z * 0.5))
         }
       }
       break
 
     case ShapeType.Ball:
-      colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+      result = ColliderDesc.ball(Math.abs(scale.x))
       break
 
     case ShapeType.Capsule:
-      colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+      result = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.Cylinder:
-      colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+      result = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
       break
 
     case ShapeType.ConvexPolyhedron: {
@@ -348,7 +348,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
         const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
-        colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+        result = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
         return
@@ -363,7 +363,7 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
         const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
-        colliderDesc = ColliderDesc.trimesh(vertices, indices)
+        result = ColliderDesc.trimesh(vertices, indices)
       } catch (e) {
         console.log('Failed to construct collider from trimesh geometry', mesh.geometry, e)
         return
@@ -392,23 +392,23 @@ function createColliderDesc(entity: Entity, rootEntity: Entity) {
   const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
   positionRelativeToRoot.multiply(rootWorldScale)
 
-  colliderDesc.setFriction(colliderComponent.friction)
-  colliderDesc.setRestitution(colliderComponent.restitution)
+  result.setFriction(colliderComponent.friction)
+  result.setRestitution(colliderComponent.restitution)
 
   const collisionLayer = colliderComponent.collisionLayer
   const collisionMask = colliderComponent.collisionMask
-  colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+  result.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
 
-  colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
-  colliderDesc.setRotation(quaternionRelativeToRoot)
+  result.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
+  result.setRotation(quaternionRelativeToRoot)
 
-  colliderDesc.setSensor(hasComponent(entity, TriggerComponent))
+  result.setSensor(hasComponent(entity, TriggerComponent))
 
   // TODO expose these
-  colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-  colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+  result.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+  result.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
 
-  return colliderDesc
+  return result
 }
 
 function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity, colliderEntity: Entity) {

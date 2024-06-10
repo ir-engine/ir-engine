@@ -27,7 +27,7 @@ import { RigidBodyType, ShapeType, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { getComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { createEntity } from '@etherealengine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
@@ -48,17 +48,24 @@ import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enum
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 
-import { SystemDefinitions, UndefinedEntity, removeEntity } from '@etherealengine/ecs'
-import { PhysicsSystem } from '../PhysicsModule'
+import { UndefinedEntity, removeEntity } from '@etherealengine/ecs'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
-function assertFloatApproxEq(A: number, B: number, epsilon = 0.001) {
+const Epsilon = 0.001
+function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) < epsilon, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
-function assertFloatApproxNotEq(A: number, B: number, epsilon = 0.001) {
+function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) > epsilon, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
+}
+
+function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
+  assertFloatApproxEq(A.x, B.x, epsilon)
+  assertFloatApproxEq(A.y, B.y, epsilon)
+  assertFloatApproxEq(A.z, B.z, epsilon)
+  if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
 }
 
 export const boxDynamicConfig = {
@@ -367,7 +374,7 @@ describe('PhysicsAPI', () => {
   describe('Rigidbodies', () => {
     describe('createRigidBody', () => {
       const position = new Vector3(1, 2, 3)
-      const rotation = new Quaternion(0.4, 0.5, 0.6, 0.0)
+      const rotation = new Quaternion(0.2, 0.3, 0.5, 0.0).normalize()
 
       const scale = new Vector3(10, 10, 10)
       let testEntity = UndefinedEntity
@@ -383,7 +390,8 @@ describe('PhysicsAPI', () => {
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent, { position: position, scale: scale, rotation: rotation })
-        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic, canSleep: true, gravityScale: 0 })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
       })
 
       afterEach(() => {
@@ -412,22 +420,14 @@ describe('PhysicsAPI', () => {
       it("should assign the entity's position to the rigidBody.translation property", () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.translation(), position)
+        assertVecApproxEq(body.translation(), position, 3)
       })
 
-      /**
-      // @todo How to check rotations?
       it("should assign the entity's rotation to the rigidBody.rotation property", () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body!.rotation(), {
-          w: 0.0,
-          x: 0.4,
-          y: 0.5,
-          z: 0.6
-        })
+        assertVecApproxEq(body!.rotation(), rotation, 4)
       })
-      */
 
       it('should create a body with no Linear Velocity', () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
@@ -438,10 +438,7 @@ describe('PhysicsAPI', () => {
       it('should create a body with no Angular Velocity', () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
         const body = Physics._Rigidbodies.get(testEntity)!
-        const result = new Vector3(body.angvel().x, body.angvel().y, body.angvel().z)
-        assert.equal(result.x, Vector3_Zero.x)
-        assert.equal(result.y, Vector3_Zero.y)
-        assert.equal(result.z, Vector3_Zero.z)
+        assert.deepEqual(body.angvel(), Vector3_Zero)
       })
 
       it("should store the entity in the body's userData property", () => {
@@ -466,6 +463,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -499,6 +497,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -534,6 +533,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -570,7 +570,7 @@ describe('PhysicsAPI', () => {
 
     describe('setRigidbodyPose', () => {
       const position = new Vector3(1, 2, 3)
-      const rotation = new Quaternion(0.4, 0.5, 0.6, 0.0)
+      const rotation = new Quaternion(0.1, 0.3, 0.7, 0.0).normalize()
       const linVel = new Vector3(7, 8, 9)
       const angVel = new Vector3(0, 1, 2)
       let testEntity = UndefinedEntity
@@ -587,6 +587,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -602,14 +603,11 @@ describe('PhysicsAPI', () => {
         assert.deepEqual(body.translation(), position)
       })
 
-      /*
-    // @todo How to check rotations?
-    it("should set the body's Rotation to the given value", () => {
-      Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
-      const body = Physics._Rigidbodies.get(testEntity)!
-      assert.deepEqual(body.rotation(), rotation)
-    })
-    */
+      it("should set the body's Rotation to the given value", () => {
+        Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assertVecApproxEq(body.rotation(), rotation, 4)
+      })
 
       it("should set the body's Linear Velocity to the given value", () => {
         Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
@@ -639,6 +637,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -680,6 +679,7 @@ describe('PhysicsAPI', () => {
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
         Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
@@ -689,6 +689,7 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
+      /**
       // @todo Why is the system failing?
       const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
       // @todo
@@ -703,61 +704,59 @@ describe('PhysicsAPI', () => {
         console.log(JSON.stringify(body.angvel()))
         Physics.applyImpulse(testEntity, testImpulse)
         // physicsWorld!.step()
-        // physicsSystemExecute()
+        physicsSystemExecute()
         console.log(JSON.stringify(body.linvel()))
         console.log(JSON.stringify(body.angvel()))
       })
-      /**
        */
     })
 
-    /**
-  // @todo How to check rotations?
-  describe("lockRotations", () => {
-    let testEntity = UndefinedEntity
-    let physicsWorld :World | undefined= undefined
+    // @todo How to check rotations?
+    describe('lockRotations', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
 
-    beforeEach(async () => {
-      createEngine()
-      await Physics.load()
-      physicsWorld  = Physics.createWorld()
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
-      physicsWorld!.timestep = 1 / 60
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
 
-      // Create the entity
-      testEntity = createEntity()
-      setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-      Physics.createRigidBody(testEntity, physicsWorld!)
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+        Physics.createRigidBody(testEntity, physicsWorld!)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should lock rotations on the entity', () => {
+        const ExpectedValue = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.notDeepEqual(body.rotation(), ExpectedValue)
+        Physics.lockRotations(testEntity, true)
+        body.setRotation(ExpectedValue, false)
+        assert.notDeepEqual(body.rotation(), ExpectedValue)
+      })
+
+      it('should disable locked rotations on the entity', () => {
+        const ExpectedValue = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+        const body = Physics._Rigidbodies.get(testEntity)!
+        assert.notDeepEqual(body.rotation(), ExpectedValue)
+        Physics.lockRotations(testEntity, true)
+        body.setRotation(ExpectedValue, false)
+        assert.notDeepEqual(body.rotation(), ExpectedValue)
+        Physics.lockRotations(testEntity, true)
+        assertVecApproxEq(body.rotation(), ExpectedValue, 4)
+      })
     })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      physicsWorld = undefined
-      return destroyEngine()
-    })
-
-    it("should lock rotations on the entity", () => {
-      const ExpectedValue = {x: 0.4, y: 0.3, z: 0.2, w: 0.0} as Rotation
-      const body = Physics._Rigidbodies.get(testEntity)!
-      assert.notDeepEqual(body.rotation(), ExpectedValue)
-      Physics.lockRotations(testEntity, true)
-      body.setRotation(ExpectedValue, false)
-      assert.notDeepEqual(body.rotation(), ExpectedValue)
-    })
-
-    it("should disable locked rotations on the entity", () => {
-      const ExpectedValue = {x: 0.4, y: 0.3, z: 0.2, w: 0.0} as Rotation
-      const body = Physics._Rigidbodies.get(testEntity)!
-      assert.notDeepEqual(body.rotation(), ExpectedValue)
-      Physics.lockRotations(testEntity, true)
-      body.setRotation(ExpectedValue, false)
-      assert.notDeepEqual(body.rotation(), ExpectedValue)
-      Physics.lockRotations(testEntity, true)
-      assert.deepEqual(body.rotation(), ExpectedValue)
-    })
-  })
-  */
 
     /**
   // @todo How to check rotations?
@@ -953,7 +952,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -987,7 +985,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -1021,7 +1018,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -1130,7 +1126,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -1245,7 +1240,57 @@ describe('PhysicsAPI', () => {
         const result = Physics.createColliderDesc(testEntity, rootEntity)
         assert.deepEqual(result, Default)
       })
+
+      it('should set the friction to the same value as the ColliderComponent', () => {
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.friction, getComponent(testEntity, ColliderComponent).friction)
+      })
+
+      it('should set the restitution to the same value as the ColliderComponent', () => {
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.restitution, getComponent(testEntity, ColliderComponent).restitution)
+      })
+
+      it('should set the collisionGroups to the same value as the ColliderComponent layer and mask', () => {
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        const data = getComponent(testEntity, ColliderComponent)
+        assert.equal(result.collisionGroups, getInteractionGroups(data.collisionLayer, data.collisionMask))
+      })
+
+      it('should set the sensor property according to whether the entity has a TriggerComponent or not', () => {
+        const noTriggerDesc = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(noTriggerDesc.isSensor, hasComponent(testEntity, TriggerComponent))
+        setComponent(testEntity, TriggerComponent)
+        const triggerDesc = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(triggerDesc.isSensor, hasComponent(testEntity, TriggerComponent))
+      })
+
+      /**
+      // @todo Are there functions from Desc used anywhere?
+      // @todo Test the shape is correct
+      //
+       * @todo How to check these without repeating the function's code?
+       * @answer Test the static resulting values
+      result.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
+      result.setRotation(quaternionRelativeToRoot)
+       */
     })
+
+    describe('attachCollider', () => {
+      // function attachCollider(world: World, colliderDesc: ColliderDesc, rigidBodyEntity: Entity, colliderEntity: Entity) {
+      //   if (Colliders.has(colliderEntity)) return
+      //   if (!rigidBody) return console.error('Rigidbody not found for entity ' + rigidBodyEntity)
+      //   const collider = world.createCollider(colliderDesc, rigidBody)
+      //   Colliders.set(colliderEntity, collider)
+      //   return collider
+      // }
+    })
+
+    /**
+    // @todo How to check rotations?
+    describe("setColliderPose", () => {
+    })
+    */
 
     describe('setMassCenter', () => {}) /** @todo The function is not implemented. It is annotated with a todo tag */
   }) // << Colliders
@@ -1275,7 +1320,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -1351,7 +1395,6 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
       })
 
       afterEach(() => {
@@ -1388,8 +1431,7 @@ describe('PhysicsAPI', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
-        Physics.createCharacterController(testEntity, physicsWorld!, {})
+        // Physics.createCharacterController(testEntity, physicsWorld!, {})
       })
 
       afterEach(() => {
@@ -1669,9 +1711,6 @@ describe('PhysicsAPI', () => {
 
 /** TODO:
     describe("load", () => {})
-  // Colliders
-    describe("attachCollider", () => {})  // @todo How does ColliderDesc work?
-    describe("setColliderPose", () => {})  // @todo How to check rotations?
   // Character Controller
     describe("getControllerOffset", () => {})  // @deprecated
   */
