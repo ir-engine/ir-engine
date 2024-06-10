@@ -55,14 +55,10 @@ export const ContextMenu = ({
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
 
-      // The amount of space that the menu can fill based on the current anchor position
-      const spaceToBottomFromAnchor = window.innerHeight - anchorPosition.top
-      // We want to reposition the context menu whenever it will overflow the bottom of the screen
-      const shouldRepositionMenu = menuHeight > spaceToBottomFromAnchor
-
-      if (shouldRepositionMenu) {
-        // Align the menu bottom with the bottom of the viewport
-        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 30
+      // if the panel height is less than the menu height plus the menu pos y offset, we need to move the menu up
+      const offset = panel?.getBoundingClientRect().height! - (menuHeight + positionY)
+      if (offset < 0) {
+        positionY = positionY + offset
       }
     }
 
