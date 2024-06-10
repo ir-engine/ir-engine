@@ -111,9 +111,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
         )
       ),
-      discardQuery('action'),
-      discardQuery('project'),
-      discardQuery('projectId'),
+      discardQuery('action', 'project', 'projectId'),
       collectAnalytics()
     ],
     get: [disallow('external')],
@@ -157,8 +155,7 @@ export default {
           ]
         )
       ),
-      discardQuery('project'),
-      discardQuery('projectId'),
+      discardQuery('project', 'projectId'),
       ensureResource
     ]
   },

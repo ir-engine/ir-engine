@@ -33,9 +33,9 @@ import { AssetsPanelCategories } from '@etherealengine/editor/src/components/ass
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { getState, State, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import {
   HiChevronDown,
   HiChevronRight,
