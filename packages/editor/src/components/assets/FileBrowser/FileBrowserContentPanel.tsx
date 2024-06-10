@@ -662,7 +662,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       {openConvert.value && fileProperties.value && (
         <ImageConvertPanel
           openConvert={openConvert}
-          fileProperties={fileProperties}
+          fileProperties={fileProperties.value}
           convertProperties={convertProperties}
           onRefreshDirectory={refreshDirectory}
         />

@@ -27,6 +27,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, Type } from '@feathersjs/typebox'
 
 import { dataValidator } from '../validators'
+import { staticResourceSchema } from './static-resource.schema'
 
 export const fileBrowserPath = 'file-browser'
 export const fileBrowserMethods = ['create', 'find', 'get', 'patch', 'remove', 'update'] as const
@@ -60,15 +61,30 @@ export const fileBrowserUpdateSchema = Type.Object(
 )
 export interface FileBrowserUpdate extends Static<typeof fileBrowserUpdateSchema> {}
 
-export const fileBrowserPatchSchema = Type.Object(
+export const fileBrowserPatchSchema = Type.Intersect(
+  [
+    Type.Partial(
+      Type.Pick(staticResourceSchema, [
+        'type',
+        'tags',
+        'dependencies',
+        'attribution',
+        'licensing',
+        'description',
+        'thumbnailURL',
+        'thumbnailMode'
+      ])
+    ),
+    Type.Object({
+      path: Type.String(),
+      project: Type.String(),
+      body: Type.Any(),
+      contentType: Type.Optional(Type.String()),
+      storageProviderName: Type.Optional(Type.String())
+    })
+  ],
   {
-    path: Type.String(),
-    fileName: Type.String(),
-    body: Type.Any(),
-    contentType: Type.Optional(Type.String()),
-    storageProviderName: Type.Optional(Type.String())
-  },
-  {
+    additionalProperties: false,
     $id: 'FileBrowserPatch'
   }
 )

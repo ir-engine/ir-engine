@@ -140,11 +140,6 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
     )
   }
 
-  const uploadPromises = [...promises]
-  Promise.all(uploadPromises).then(() =>
-    Engine.instance.api.service('project-resources').create({ project: projectName })
-  )
-
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)

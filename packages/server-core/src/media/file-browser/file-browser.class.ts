@@ -42,34 +42,22 @@ import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
-import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
-import { getStats } from '../static-resource/static-resource-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
-import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
+import { uploadStaticResource } from './file-helper'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-export interface FileBrowserParams extends KnexAdapterParams {
-  nestingDirectory?: string
-}
+export interface FileBrowserParams extends KnexAdapterParams {}
 
-const checkDirectoryInsideNesting = (directory: string, nestingDirectory?: string) => {
-  if (!nestingDirectory) {
-    if (/recordings/.test(directory)) nestingDirectory = 'recordings'
-    else nestingDirectory = 'projects'
-  }
-  const isInsideNestingDirectoryRegex = new RegExp(`^\/?(${nestingDirectory})`, 'g')
-
-  if (!isInsideNestingDirectoryRegex.test(directory)) {
-    throw new Error(`Not allowed to access "${directory}"`)
-  }
+const ensureProjectsDirectory = (directory: string) => {
+  if (!directory.startsWith('projects')) throw new Error('Not allowed to access this directory')
 }
 
 /**
@@ -93,16 +81,12 @@ export class FileBrowserService
   /**
    * Returns the metadata for a single file or directory
    */
-  async get(key: string, params?: FileBrowserParams & { query: { getNestingDirectory?: boolean } }) {
-    if (params?.query?.getNestingDirectory) {
-      return params.nestingDirectory || 'projects'
-    }
-
+  async get(key: string, params?: FileBrowserParams) {
     if (!key) return false
     const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
 
-    checkDirectoryInsideNesting(directory, params?.nestingDirectory)
+    ensureProjectsDirectory(directory)
 
     return await storageProvider.doesExist(file, directory)
   }
@@ -123,7 +107,7 @@ export class FileBrowserService
     const isAdmin = params.user && (await checkScope(params.user, 'admin', 'admin'))
     if (directory[0] === '/') directory = directory.slice(1)
 
-    checkDirectoryInsideNesting(directory, params.nestingDirectory)
+    ensureProjectsDirectory(directory)
 
     let result = await storageProvider.listFolderContent(directory)
     Object.entries(params.query).forEach(([key, value]) => {
@@ -181,7 +165,9 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
     if (directory[0] === '/') directory = directory.slice(1)
 
-    checkDirectoryInsideNesting(directory, params?.nestingDirectory)
+    if (!directory.startsWith('projects/')) throw new Error('Not allowed to access this directory')
+
+    ensureProjectsDirectory(directory)
 
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
@@ -271,74 +257,29 @@ export class FileBrowserService
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
-    const name = processFileName(data.fileName)
-
-    const reducedPath = data.path[0] === '/' ? data.path.substring(1) : data.path
-
-    checkDirectoryInsideNesting(reducedPath, params?.nestingDirectory)
-
-    const reducedPathSplit = reducedPath.split('/')
-    const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
-    const key = path.join(reducedPath, name)
+    const key = path.join('project', data.project, data.path)
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
-    const contentType = data.contentType ?? getContentType(name)
+    const contentType = data.contentType ?? getContentType(key)
 
-    await storageProvider.putObject(
-      {
-        Key: key,
-        Body: data.body,
-        ContentType: contentType
-      },
-      {
-        isDirectory: false
-      }
-    )
+    const existingResourceQuery = (await this.app.service(staticResourcePath).find({
+      query: { key }
+    })) as Paginated<StaticResourceType>
+    const existingResource = existingResourceQuery.data.length ? existingResourceQuery.data[0] : undefined
 
-    if (project && config.fsProjectSyncEnabled) {
+    await uploadStaticResource(this.app, {
+      ...data,
+      key,
+      contentType,
+      id: existingResource?.id
+    })
+
+    if (config.fsProjectSyncEnabled) {
       const filePath = path.resolve(projectsRootFolder, key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
       fs.writeFileSync(filePath, data.body)
     }
-
-    const existingResource = (await this.app.service(staticResourcePath).find({
-      query: { key }
-    })) as Paginated<StaticResourceType>
-
-    const stats = await getStats(data.body, contentType)
-    const hash = createStaticResourceHash(data.body)
-
-    if (existingResource.data.length > 0) {
-      const resource = existingResource.data[0]
-      await this.app.service(staticResourcePath).patch(
-        resource.id,
-        {
-          key,
-          hash,
-          project,
-          mimeType: contentType,
-          stats
-        },
-        { isInternal: true }
-      )
-    } else {
-      await this.app.service(staticResourcePath).create(
-        {
-          key,
-          hash,
-          mimeType: contentType,
-          project,
-          stats
-        },
-        { isInternal: true }
-      )
-    }
-
-    if (config.server.edgeCachingEnabled)
-      await this.app.service(invalidationPath).create({
-        path: key
-      })
 
     return storageProvider.getCachedURL(key, params && params.provider == null)
   }
@@ -350,7 +291,7 @@ export class FileBrowserService
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
 
-    checkDirectoryInsideNesting(key, params?.nestingDirectory)
+    ensureProjectsDirectory(key)
 
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)

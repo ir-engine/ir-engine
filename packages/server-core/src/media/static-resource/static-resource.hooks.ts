@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
@@ -60,16 +60,6 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
   }
 }
 
-const resourcesJsonCreate = async (context: HookContext<StaticResourceService>) => {
-  if (!context.data || context.method !== 'create') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
-  }
-
-  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
-
-  const data = context.data
-}
-
 export default {
   around: {
     all: [
@@ -89,8 +79,7 @@ export default {
       iff(isProvider('external'), verifyScope('static_resource', 'write')),
       setLoggedinUserInBody('userId'),
       // schemaHooks.validateData(staticResourceDataValidator),
-      schemaHooks.resolveData(staticResourceDataResolver),
-      resourcesJsonCreate
+      schemaHooks.resolveData(staticResourceDataResolver)
     ],
     update: [disallow()],
     patch: [

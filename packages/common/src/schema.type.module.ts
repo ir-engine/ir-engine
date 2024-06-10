@@ -292,3 +292,5 @@ export const migrationsInfoPath = 'knex_migrations'
 export const uploadAssetPath = 'upload-asset'
 
 export const invalidationPath = 'invalidation'
+
+export const imageConvertPath = 'image-convert'

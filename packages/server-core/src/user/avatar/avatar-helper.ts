@@ -30,7 +30,7 @@ import path from 'path'
 import { AvatarID, avatarPath } from '@etherealengine/common/src/schemas/user/avatar.schema'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
-import { fileBrowserPath, staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
@@ -155,79 +155,46 @@ export const uploadAvatarStaticResource = async (
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
   const staticResourceKey = `avatars/${data.isPublic ? 'public' : params?.user!.id}/`
+  const userID = params?.user!.id
   const isFromDomain = !!data.path
   const folderName = isFromDomain ? data.path! : staticResourceKey
-
-  await Promise.all([
-    app.service(fileBrowserPath).patch(
-      null,
-      {
-        body: data.avatar,
-        path: folderName,
-        fileName: `${name}.${data.avatarFileType ?? 'glb'}`,
-        contentType: CommonKnownContentTypes[data.avatarFileType ?? 'glb']
-      },
-      params
-    ),
-    app.service(fileBrowserPath).patch(
-      null,
-      {
-        body: data.thumbnail,
-        path: folderName,
-        fileName: `${name}.png`,
-        contentType: CommonKnownContentTypes.png
-      },
-      params
-    )
-  ])
-
-  // const [modelResource, thumbnailResource] = await Promise.all([
-  //   addAssetAsStaticResource(
-  //     app,
-  //     {
-  //       buffer: data.avatar,
-  //       originalname: `${name}.${data.avatarFileType ?? 'glb'}`,
-  //       mimetype: CommonKnownContentTypes[data.avatarFileType ?? 'glb'],
-  //       size: data.avatar.byteLength
-  //     },
-  //     {
-  //       userId: params?.user!.id,
-  //       path,
-  //       project: data.project
-  //     }
-  //   ),
-  //   addAssetAsStaticResource(
-  //     app,
-  //     {
-  //       buffer: data.thumbnail,
-  //       originalname: `${name}.png`,
-  //       mimetype: CommonKnownContentTypes.png,
-  //       size: data.thumbnail.byteLength
-  //     },
-  //     {
-  //       userId: params?.user!.id,
-  //       path,
-  //       project: data.project
-  //     }
-  //   )
-  // ])
 
   const modelKey = path.join(folderName, `${name}.${data.avatarFileType ?? 'glb'}`)
   const thumbnailKey = path.join(folderName, `${name}.png`)
 
-  const modelResourceQuery = await app.service(staticResourcePath).find({
-    query: {
-      key: modelKey
-    }
-  })
-  const modelResource = modelResourceQuery.data[0] as StaticResourceType
+  const storageProvider = getStorageProvider()
 
-  const thumbnailResourceQuery = await app.service(staticResourcePath).find({
-    query: {
-      key: thumbnailKey
-    }
-  })
-  const thumbnailResource = thumbnailResourceQuery.data[0] as StaticResourceType
+  const [modelResource, thumbnailResource] = await Promise.all([
+    app.service(staticResourcePath).create(
+      {
+        key: modelKey,
+        type: 'avatar',
+        dependencies: [thumbnailKey],
+        userId: userID,
+        project: data.project
+      },
+      params
+    ),
+    app.service(staticResourcePath).create(
+      {
+        key: thumbnailKey,
+        userId: userID,
+        type: 'thumbnail',
+        project: data.project
+      },
+      params
+    ),
+    storageProvider.putObject({
+      Body: data.avatar,
+      Key: modelKey,
+      ContentType: CommonKnownContentTypes[data.avatarFileType ?? 'glb']
+    }),
+    storageProvider.putObject({
+      Body: data.thumbnail,
+      Key: thumbnailKey,
+      ContentType: CommonKnownContentTypes.png
+    })
+  ])
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)
 

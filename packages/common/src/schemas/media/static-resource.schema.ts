@@ -48,16 +48,16 @@ export const staticResourceSchema = Type.Object(
     }),
     hash: Type.String(),
     type: Type.String(), // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
-    project: Type.String(),
-    tags: Type.Array(Type.String()),
-    dependencies: Type.Array(Type.String()),
-    attribution: Type.String(),
-    licensing: Type.String(),
-    description: Type.String(),
+    project: Type.Optional(Type.String()),
+    tags: Type.Optional(Type.Array(Type.String())),
+    dependencies: Type.Optional(Type.Array(Type.String())),
+    attribution: Type.Optional(Type.String()),
+    licensing: Type.Optional(Type.String()),
+    description: Type.Optional(Type.String()),
     url: Type.String(),
-    stats: Type.Record(Type.String(), Type.Any()),
-    thumbnailURL: Type.String(),
-    thumbnailMode: Type.String(), // 'automatic' | 'manual'
+    stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    thumbnailURL: Type.Optional(Type.String()),
+    thumbnailMode: Type.Optional(Type.String()), // 'automatic' | 'manual'
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

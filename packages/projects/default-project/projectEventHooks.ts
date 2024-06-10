@@ -119,14 +119,13 @@ const config = {
       fs
         .readdirSync(avatarsFolder)
         .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
-        .map((file) => {
-          console.log('installing avatar', file)
-          return patchStaticResourceAsAvatar(
+        .map((file) =>
+          patchStaticResourceAsAvatar(
             app,
             manifestJson.name,
             path.resolve(avatarsFolder, file).replace(projectRelativeFolder + '/', '')
           )
-        })
+        )
     )
   },
   // onUpdate: (app: Application) => {

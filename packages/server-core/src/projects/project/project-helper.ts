@@ -1783,6 +1783,12 @@ export const uploadLocalProjectToProvider = async (
   const manifest = getProjectManifest(projectName)
   const oldManifestScenes = (manifest as any)?.scenes ?? []
 
+  // remove scenes from manifest
+  if (oldManifestScenes.length) {
+    delete (manifest as any).scenes
+    fs.writeFileSync(path.join(projectsRootFolder, projectName, 'manifest.json'), JSON.stringify(manifest, null, 2))
+  }
+
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
@@ -1891,7 +1897,7 @@ export const uploadLocalProjectToProvider = async (
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
 }
 
-const updateProjectResourcesJson = async (app: Application, projectName: string) => {
+export const updateProjectResourcesJson = async (app: Application, projectName: string) => {
   const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
     query: { project: projectName },
     paginate: false
@@ -1901,7 +1907,6 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
     resources.map((resource) => [
       resource.key,
       {
-        hash: resource.hash,
         type: resource.type,
         tags: resource.tags ?? undefined,
         dependencies: resource.dependencies ?? undefined,
@@ -1914,8 +1919,8 @@ const updateProjectResourcesJson = async (app: Application, projectName: string)
     ])
   )
   await app.service(fileBrowserPath).patch(null, {
-    fileName: 'resources.json',
-    path: `projects/${projectName}`,
+    project: projectName,
+    path: `resources.json`,
     body: Buffer.from(JSON.stringify(resourcesJson, null, 2)),
     contentType: 'application/json'
   })
