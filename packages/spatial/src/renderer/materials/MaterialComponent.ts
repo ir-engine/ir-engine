@@ -28,14 +28,13 @@ import { Material, Shader, WebGLRenderer } from 'three'
 import {
   Component,
   defineComponent,
-  defineQuery,
   getMutableComponent,
   getOptionalComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
-import { PluginObjectType, PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
@@ -91,8 +90,7 @@ export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin 
 export enum MaterialComponents {
   Instance,
   State,
-  Prototype,
-  Plugin
+  Prototype
 }
 
 export const materialByHash = {} as Record<string, EntityUUID>
@@ -125,12 +123,6 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
             prototypeArguments: {} as PrototypeArgument,
             prototypeConstructor: {} as MaterialPrototypeObjectConstructor
           }
-        case MaterialComponents.Plugin:
-          return {
-            // plugin state
-            plugin: {} as PluginObjectType,
-            parameters: {} as { [key: string]: any }
-          }
         default:
           return {}
       }
@@ -151,7 +143,6 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
         component.prototypeArguments.set(json.prototypeArguments)
       if (json.prototypeConstructor && component.prototypeConstructor.value !== undefined)
         component.prototypeConstructor.set(json.prototypeConstructor)
-      if (json.plugin && component.plugin.value !== undefined) component.plugin.set(json.plugin)
     },
 
     onRemove: (entity, component) => {
@@ -166,8 +157,6 @@ export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
     }
   })
 })
-
-export const pluginQuery = defineQuery([MaterialComponent[MaterialComponents.Plugin]])
 
 declare module 'three/src/materials/Material' {
   export interface Material {

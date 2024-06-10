@@ -38,13 +38,10 @@ import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
 import {
   MaterialComponent,
   MaterialComponents,
-  MaterialPlugins,
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  applyMaterialPlugins,
-  createMaterialPlugin,
   createMaterialPrototype,
   setGroupMaterial,
   updateMaterialPrototype
@@ -59,9 +56,6 @@ import { createMaterialInstance, removeMaterial } from '../functions/materialSou
 const reactor = (): ReactElement => {
   useEffect(() => {
     MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition) => createMaterialPrototype(prototype))
-    MaterialPlugins.map((plugin) => {
-      createMaterialPlugin(plugin)
-    })
   }, [])
 
   return (
@@ -106,10 +100,6 @@ const MaterialEntityReactor = () => {
         })
       }
   }, [materialComponent.material])
-
-  useEffect(() => {
-    if (materialComponent.pluginEntities) applyMaterialPlugins(entity)
-  }, [materialComponent.pluginEntities])
 
   useEffect(() => {
     if (materialComponent.prototypeEntity.value) updateMaterialPrototype(entity)

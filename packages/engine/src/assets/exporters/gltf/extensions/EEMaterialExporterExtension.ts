@@ -26,9 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { CubeTexture, Material, Texture } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID, getComponent, UUIDComponent } from '@etherealengine/ecs'
+import { EntityUUID, getComponent, hasComponent, UUIDComponent } from '@etherealengine/ecs'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialComponent,
+  MaterialComponents,
+  MaterialPlugins
+} from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import { injectMaterialDefaults } from '../../../../scene/materials/functions/materialSourcingFunctions'
 import { GLTFWriter } from '../GLTFExporter'
@@ -114,17 +118,16 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     delete materialDef.emissiveFactor
     const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
     const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
-    const materialStates = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-    const materialPlugins = materialStates.pluginEntities?.map((entity) => {
-      const plugin = getComponent(entity, MaterialComponent[MaterialComponents.Plugin])
-      return { id: plugin?.plugin?.id ?? '', name: plugin?.parameters ?? '' }
+    const plugins = Object.keys(MaterialPlugins).map((plugin) => {
+      if (hasComponent(materialEntity, MaterialPlugins[plugin]))
+        return { id: plugin ?? '', uniforms: getComponent(materialEntity, MaterialPlugins[plugin]) }
     })
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
       name: getComponent(materialEntity, NameComponent),
       prototype: Object.keys(prototype.prototypeConstructor!)[0],
-      plugins: materialPlugins,
+      plugins: plugins,
       args: result
     }
     this.writer.extensionsUsed[this.name] = true

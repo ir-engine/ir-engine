@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { isArray } from 'lodash'
-import { Color, Material, Mesh, Shader, Texture, Uniform } from 'three'
+import { Color, Material, Mesh, Texture } from 'three'
 
 import {
   createEntity,
@@ -32,13 +32,10 @@ import {
   EntityUUID,
   generateEntityUUID,
   getComponent,
-  getMutableComponent,
-  getOptionalMutableComponent,
   setComponent,
   UUIDComponent
 } from '@etherealengine/ecs'
 
-import { addOBCPlugin, hasOBCPlugin, PluginObjectType } from '../../common/functions/OnBeforeCompilePlugin'
 import { NameComponent } from '../../common/NameComponent'
 import { GroupComponent } from '../components/GroupComponent'
 import {
@@ -46,7 +43,6 @@ import {
   MaterialComponents,
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
-  pluginByName,
   prototypeByName
 } from './MaterialComponent'
 
@@ -93,59 +89,6 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
   setComponent(prototypeEntity, NameComponent, prototype.prototypeId)
   setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
   prototypeByName[prototype.prototypeId] = prototypeEntity
-}
-
-export const createMaterialPlugin = (plugin: PluginObjectType) => {
-  const pluginEntity = createEntity()
-  setComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin], { plugin })
-  setComponent(pluginEntity, NameComponent, plugin.id)
-  setComponent(pluginEntity, UUIDComponent, generateEntityUUID())
-  pluginByName[plugin.id] = pluginEntity
-}
-
-export const addMaterialPlugin = (materialEntity: Entity, pluginEntity: Entity) => {
-  const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-  materialComponent.material?.shader
-  setComponent(materialEntity, MaterialComponent[MaterialComponents.Plugin], {
-    pluginEntities: [...(materialComponent.pluginEntities ?? []), pluginEntity]
-  })
-}
-
-export const getPluginObject = (pluginId: string) => {
-  const pluginEntity = pluginByName[pluginId]
-  const plugin = getOptionalMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])?.plugin
-  return plugin
-}
-
-export const applyMaterialPlugins = (materialEntity: Entity) => {
-  const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-  if (!materialComponent.pluginEntities?.length || !materialComponent.material) return
-  const material = materialComponent.material as Material
-  material.plugins = []
-  for (const pluginEntity of materialComponent.pluginEntities) {
-    const pluginComponent = getComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-    if (pluginComponent.plugin) {
-      if (hasOBCPlugin(material, pluginComponent.plugin)) return
-      addOBCPlugin(material, pluginComponent.plugin)
-    }
-  }
-  material.needsUpdate = true
-}
-
-export const applyPluginShaderParameters = (
-  pluginEntity: Entity,
-  shader: Shader,
-  parameters: { [key: string]: any }
-) => {
-  const pluginComponent = getMutableComponent(pluginEntity, MaterialComponent[MaterialComponents.Plugin])
-  const name = (shader as any).shaderName
-  if (!pluginComponent.parameters[name].value) pluginComponent.parameters[name].set({})
-  const parameterObject = pluginComponent.parameters[name]
-  for (const key in parameters) {
-    const parameterExists = !!parameterObject[key].value
-    if (!parameterExists) parameterObject[key].set(new Uniform(parameters[key]))
-    shader.uniforms[key] = parameterObject[key].value
-  }
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
