@@ -195,6 +195,8 @@ export class FileBrowserService
     const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
     const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
 
+    // TODO add oldProject and newProject arguments
+
     const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)

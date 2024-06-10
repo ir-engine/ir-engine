@@ -63,18 +63,18 @@ describe('file-browser.test', () => {
     assert.doesNotThrow(async () => await app.service(fileBrowserPath).get(''))
   })
 
-  let testDirectoryName: string
+  let testProjectName: string
   it('creates a directory', async () => {
-    testDirectoryName = getRandomizedName('directory')
+    testProjectName = getRandomizedName('directory')
 
-    const createdDirectory = await app.service(fileBrowserPath).create('projects/' + testDirectoryName)
+    const createdDirectory = await app.service(fileBrowserPath).create('projects/' + testProjectName)
     assert.ok(createdDirectory)
   })
 
   it('gets the directory', async () => {
     const foundDirectories = await app
       .service(fileBrowserPath)
-      .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      .find({ query: { directory: getDirectoryPath(testProjectName) } })
     assert.equal(foundDirectories.total, 0)
   })
 
@@ -84,15 +84,14 @@ describe('file-browser.test', () => {
   it('creates a file', async () => {
     testFileFullName = getRandomizedName('file', '.txt')
     testFileName = testFileFullName.split('.')[0]
-    const project = 'projects/' + testDirectoryName
 
     const newData = getRandomizedName('new data')
     const body = Buffer.from(newData, 'utf-8')
     testFileSize = Buffer.byteLength(body)
 
     const createdURL = await app.service(fileBrowserPath).patch(null, {
-      project,
-      path: getDirectoryPath(testDirectoryName) + testFileFullName,
+      project: testProjectName,
+      path: testFileFullName,
       body,
       contentType: 'any'
     })
@@ -103,7 +102,7 @@ describe('file-browser.test', () => {
   it('gets the file', async () => {
     const directoryContents = await app
       .service(fileBrowserPath)
-      .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+      .find({ query: { directory: getDirectoryPath(testProjectName) } })
     const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
 
     assert.ok(foundFile)
@@ -113,19 +112,18 @@ describe('file-browser.test', () => {
   })
 
   describe('update service', () => {
-    let testDirectoryName2: string
+    let testProjectName2: string
     let testFileName2: string
     let testFileName3: string
     before(async () => {
-      testDirectoryName2 = getRandomizedName('directory2')
-      const project = 'projects/' + testDirectoryName2
+      testProjectName2 = getRandomizedName('directory2')
 
       testFileName2 = getRandomizedName('file2', '.md')
       const newData2 = getRandomizedName('new data 2')
 
       await app.service(fileBrowserPath).patch(null, {
-        project,
-        path: getDirectoryPath(testDirectoryName2) + testFileName2,
+        project: testProjectName2,
+        path: testFileName2,
         body: Buffer.from(newData2, 'utf-8'),
         contentType: 'any'
       })
@@ -134,8 +132,8 @@ describe('file-browser.test', () => {
       const newData3 = getRandomizedName('new data 3')
 
       await app.service(fileBrowserPath).patch(null, {
-        project,
-        path: getDirectoryPath(testDirectoryName2) + testFileName3,
+        project: testProjectName2,
+        path: testFileName3,
         body: Buffer.from(newData3, 'utf-8'),
         contentType: 'any'
       })
@@ -145,8 +143,8 @@ describe('file-browser.test', () => {
       const copyFileResult = await app.service(fileBrowserPath).update(null, {
         oldName: testFileName2,
         newName: testFileName2,
-        oldPath: getDirectoryPath(testDirectoryName2),
-        newPath: getDirectoryPath(testDirectoryName),
+        oldPath: getDirectoryPath(testProjectName2),
+        newPath: getDirectoryPath(testProjectName),
         isCopy: true
       })
 
@@ -154,7 +152,7 @@ describe('file-browser.test', () => {
 
       const directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
       const foundFile = directoryContents.data.find((file) => file.key.match(testFileName2))
 
       assert.ok(foundFile)
@@ -162,10 +160,10 @@ describe('file-browser.test', () => {
 
     it('copies directory', async () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldName: testDirectoryName,
-        newName: testDirectoryName,
+        oldName: testProjectName,
+        newName: testProjectName,
         oldPath: 'projects/',
-        newPath: getDirectoryPath(testDirectoryName2),
+        newPath: getDirectoryPath(testProjectName2),
         isCopy: true
       })
 
@@ -173,8 +171,8 @@ describe('file-browser.test', () => {
 
       const directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName2) } })
-      const foundDirectory = directoryContents.data.find((dir) => dir.name.match(testDirectoryName))
+        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
+      const foundDirectory = directoryContents.data.find((dir) => dir.name.match(testProjectName))
       assert.ok(foundDirectory)
     })
 
@@ -182,46 +180,46 @@ describe('file-browser.test', () => {
       const moveFileResult = await app.service(fileBrowserPath).update(null, {
         oldName: testFileName3,
         newName: testFileName3,
-        oldPath: getDirectoryPath(testDirectoryName2),
-        newPath: getDirectoryPath(testDirectoryName)
+        oldPath: getDirectoryPath(testProjectName2),
+        newPath: getDirectoryPath(testProjectName)
       })
 
       assert.ok(Array.isArray(moveFileResult) ? moveFileResult.length > 0 : moveFileResult)
 
       const toMovedDirectoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
       const foundFile = toMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
 
       assert.ok(foundFile)
 
       const fromMovedDirectoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName2) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
       const notFoundFile = fromMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
       assert.ok(!notFoundFile)
     })
 
     it('moves directory', async () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldName: testDirectoryName2,
-        newName: testDirectoryName2,
+        oldName: testProjectName2,
+        newName: testProjectName2,
         oldPath: 'projects/',
-        newPath: getDirectoryPath(testDirectoryName)
+        newPath: getDirectoryPath(testProjectName)
       })
 
       assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
 
       const directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
-      const toMovedDirectoryContents = directoryContents.data.find((dir) => dir.name.match(testDirectoryName2))
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
+      const toMovedDirectoryContents = directoryContents.data.find((dir) => dir.name.match(testProjectName2))
       assert.ok(toMovedDirectoryContents)
 
       const fromMovedDirectoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName2) } })
-      const notFoundDirectory = fromMovedDirectoryContents.data.find((dir) => dir.name.match(testDirectoryName2))
+        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
+      const notFoundDirectory = fromMovedDirectoryContents.data.find((dir) => dir.name.match(testProjectName2))
       assert.ok(!notFoundDirectory)
     })
 
@@ -229,8 +227,8 @@ describe('file-browser.test', () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
         oldName: testFileFullName,
         newName: testFileFullName,
-        oldPath: getDirectoryPath(testDirectoryName),
-        newPath: getDirectoryPath(testDirectoryName),
+        oldPath: getDirectoryPath(testProjectName),
+        newPath: getDirectoryPath(testProjectName),
         isCopy: true
       })
 
@@ -238,7 +236,7 @@ describe('file-browser.test', () => {
 
       const directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
 
       const foundIncrementedFile = directoryContents.data.filter(
         (file) => file.name.startsWith(testFileName) && file.name.endsWith('(1)')
@@ -248,10 +246,9 @@ describe('file-browser.test', () => {
 
     it('updates file with new content', async () => {
       const newData = getRandomizedName('new data 2 updated')
-      const project = 'projects/' + testDirectoryName
       const updateResult = await app.service(fileBrowserPath).patch(null, {
-        project,
-        path: getDirectoryPath(testDirectoryName) + testFileName2,
+        project: testProjectName,
+        path: testFileName2,
         body: Buffer.from(newData, 'utf-8'),
         contentType: 'any'
       })
@@ -259,7 +256,7 @@ describe('file-browser.test', () => {
 
       const testDirectoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
       const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
       assert.ok(updatedFile)
     })
@@ -267,7 +264,7 @@ describe('file-browser.test', () => {
     it('filters entries using $like', async () => {
       const totalEntries = await app.service(fileBrowserPath).find({
         query: {
-          directory: getDirectoryPath(testDirectoryName)
+          directory: getDirectoryPath(testProjectName)
         }
       })
 
@@ -276,7 +273,7 @@ describe('file-browser.test', () => {
           key: {
             $like: `%${PREFIX}%`
           },
-          directory: getDirectoryPath(testDirectoryName)
+          directory: getDirectoryPath(testProjectName)
         }
       })
       assert.ok(filteredEntries.data.length === totalEntries.data.length)
@@ -287,7 +284,7 @@ describe('file-browser.test', () => {
           key: {
             $like: `%${invalidSubstring}%`
           },
-          directory: getDirectoryPath(testDirectoryName)
+          directory: getDirectoryPath(testProjectName)
         }
       })
       assert.ok(emptyEntries.data.length === 0)
@@ -298,7 +295,7 @@ describe('file-browser.test', () => {
     it('removes file', async () => {
       let directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
       let foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
       assert.ok(foundFile)
       const removeResult = await app.service(fileBrowserPath).remove(foundFile.key)
@@ -306,7 +303,7 @@ describe('file-browser.test', () => {
 
       directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testDirectoryName) } })
+        .find({ query: { directory: getDirectoryPath(testProjectName) } })
       foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
       assert.ok(!foundFile)
     })
@@ -314,17 +311,17 @@ describe('file-browser.test', () => {
     it('removes directory', async () => {
       let directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: 'projects/' + testDirectoryName } })
-      let foundDirectory = directoryContents.data.find((dir) => dir.key.match(testDirectoryName))
+        .find({ query: { directory: 'projects/' + testProjectName } })
+      let foundDirectory = directoryContents.data.find((dir) => dir.key.match(testProjectName))
       assert.ok(foundDirectory)
 
-      const removeResult = await app.service(fileBrowserPath).remove(getDirectoryPath(testDirectoryName))
+      const removeResult = await app.service(fileBrowserPath).remove(getDirectoryPath(testProjectName))
       assert.ok(removeResult)
 
       directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: 'projects/' + testDirectoryName } })
-      foundDirectory = directoryContents.data.find((dir) => dir.key.match(testDirectoryName))
+        .find({ query: { directory: 'projects/' + testProjectName } })
+      foundDirectory = directoryContents.data.find((dir) => dir.key.match(testProjectName))
       assert.ok(!foundDirectory)
     })
   })

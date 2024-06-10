@@ -413,7 +413,7 @@ const EditorContainer = () => {
     const scene = sceneQuery[0]
     if (!scene) return
 
-    projectName.set(scene.project)
+    projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
     return setCurrentEditorScene(scene.key, scene.id as EntityUUID)
