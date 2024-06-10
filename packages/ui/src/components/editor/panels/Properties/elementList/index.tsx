@@ -28,16 +28,16 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { ComponentShelfCategoriesState } from '@etherealengine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
+import { GrStatusPlaceholder } from 'react-icons/gr'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import Text from '../../../../../primitives/tailwind/Text'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
 
@@ -50,9 +50,11 @@ export type SceneElementType = {
 
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
-  useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
-  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PlaceHolderIcon
+  useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
+  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
   const handleClosePopover = usePopoverContextClose()
+
+  const jsonName = item.jsonID?.slice(3).replace('_', '-') || item.name
 
   return (
     <button
@@ -65,12 +67,12 @@ const ComponentListItem = ({ item }: { item: Component }) => {
     >
       <Icon className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
-        <h3 className="text-subtitle1 text-center text-white">
-          {startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase())}
-        </h3>
-        <p className="text-caption text-center text-white">
-          {t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}
-        </p>
+        <Text className="text-subtitle1 block text-center text-theme-primary">
+          {startCase(jsonName.replace('-', ' ').toLowerCase())}
+        </Text>
+        <Text component="p" className="text-caption block text-center text-theme-secondary">
+          {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
+        </Text>
       </div>
     </button>
   )
@@ -95,7 +97,7 @@ const SceneElementListItem = ({
         <span>{categoryTitle}</span>
         {isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
       </button>
-      <div className={`${isCollapsed || open.value ? '' : 'hidden'}`}>
+      <div className={isCollapsed || open.value ? '' : 'hidden'}>
         <ul className="w-full bg-theme-primary">
           {categoryItems.map((item) => (
             <ComponentListItem key={item.jsonID || item.name} item={item} />
@@ -145,16 +147,16 @@ export function ElementList() {
 
   return (
     <>
-      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary">
-        <div className="p-2">
-          <h2 className="text-center uppercase text-white">{t('editor:layout.assetGrid.components')}</h2>
-          <StringInput
-            placeholder={t('editor:layout.assetGrid.components-search')}
-            value={search.local.value}
-            onChange={(val) => onSearch(val)}
-            inputRef={inputReference}
-          />
-        </div>
+      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary p-2">
+        <Text className="mb-1.5 w-full text-center uppercase text-white">
+          {t('editor:layout.assetGrid.components')}
+        </Text>
+        <StringInput
+          placeholder={t('editor:layout.assetGrid.components-search')}
+          value={search.local.value}
+          onChange={(val) => onSearch(val)}
+          inputRef={inputReference}
+        />
       </div>
       {shelves.map(([category, items]) => (
         <SceneElementListItem
@@ -166,29 +168,6 @@ export function ElementList() {
       ))}
     </>
   )
-  {
-    /* <List
-      sx={{ width: 300, height: 600, bgcolor: 'var(--dockBackground)' }}
-      subheader={
-        <div style={{ padding: '0.5rem' }}>
-          <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
-            {t('editor:layout.assetGrid.components')}
-          </Typography>
-          <InputText
-            placeholder={t('editor:layout.assetGrid.components-search')}
-            value={search.local.value}
-            sx={{ mt: 1 }}
-            onChange={(e) => onSearch(e.target.value)}
-            inputRef={inputReference}
-          />
-        </div>
-      }
-    >
-      {shelves.map(([category, items]) => (
-       
-      ))}
-    </List>*/
-  }
 }
 
 export default ElementList

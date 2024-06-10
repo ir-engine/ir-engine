@@ -35,7 +35,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { StandardCallbacks, setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { getAudioAsync } from '../../assets/functions/resourceLoaderHooks'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { AudioState, useAudioState } from '../AudioState'
@@ -61,7 +61,7 @@ export class AudioEffectPlayer {
   bufferMap = {} as { [path: string]: AudioBuffer }
 
   loadBuffer = async (path: string) => {
-    const buffer = await AssetLoader.loadAsync(path)
+    const [buffer] = await getAudioAsync(path)
     return buffer
   }
 
@@ -85,7 +85,8 @@ export class AudioEffectPlayer {
 
     if (!this.bufferMap[sound]) {
       // create buffer if doesn't exist
-      this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
+      const [buffer] = await getAudioAsync(sound)
+      if (buffer) this.bufferMap[sound] = buffer
     }
 
     const source = getState(AudioState).audioContext.createBufferSource()

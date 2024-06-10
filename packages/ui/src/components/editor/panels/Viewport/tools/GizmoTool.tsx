@@ -66,7 +66,7 @@ export default function GizmoTool() {
           )}
           iconContainerClassName="m-0"
           startIcon={<TbVector />}
-          title="Translate"
+          title="Translate (key W)"
           onClick={() => setTransformMode(TransformMode.translate)}
         />
         <Button
@@ -77,7 +77,7 @@ export default function GizmoTool() {
           )}
           iconContainerClassName="m-0"
           startIcon={<TbRefresh />}
-          title="Rotate"
+          title="Rotate (key E)"
           onClick={() => setTransformMode(TransformMode.rotate)}
         />
         <Button
@@ -88,7 +88,7 @@ export default function GizmoTool() {
           )}
           iconContainerClassName="m-0"
           startIcon={<TbWindowMaximize />}
-          title="Scale"
+          title="Scale (key R)"
           onClick={() => setTransformMode(TransformMode.scale)}
         />
       </div>

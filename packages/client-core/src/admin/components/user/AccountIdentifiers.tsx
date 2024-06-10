@@ -27,12 +27,12 @@ import React from 'react'
 import { MdEmail } from 'react-icons/md'
 import {
   RiDiscordFill,
-  RiFacebookBoxFill,
   RiGithubFill,
   RiGoogleFill,
   RiLinkedinFill,
   RiMessage2Line,
-  RiTwitterFill
+  RiMetaFill,
+  RiTwitterXFill
 } from 'react-icons/ri'
 
 import { UserType } from '@etherealengine/common/src/schema.type.module'
@@ -62,12 +62,12 @@ export default function AccountIdentifiers({ user }: { user: UserType }) {
       ) : null}
       {facebookIp ? (
         <Tooltip title={facebookIp.accountIdentifier!}>
-          <RiFacebookBoxFill className="h-6 w-6" />
+          <RiMetaFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {twitterIp ? (
         <Tooltip title={twitterIp.accountIdentifier!}>
-          <RiTwitterFill className="h-6 w-6" />
+          <RiTwitterXFill className="h-6 w-6" />
         </Tooltip>
       ) : null}
       {linkedinIp ? (

@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 */
 import React, { useImperativeHandle } from 'react'
 
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 
+import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
@@ -75,9 +75,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
   const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
     if (/ktx2$/.test(props.resourceUrl)) {
-      const texture = await AssetLoader.loadAsync(props.resourceUrl)
-      thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
-      texture.dispose()
+      const [texture, unload] = await getTextureAsync(props.resourceUrl)
+      if (texture) {
+        thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
+        unload()
+      }
     } else {
       thumbnail.set('')
     }
@@ -90,13 +92,13 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
       case 'model/gltf':
       case 'model/gltf-binary':
       case 'model/glb':
-      case AssetType.VRM:
+      case AssetExt.VRM:
       case 'model/vrm':
-      case AssetType.glB:
-      case AssetType.glTF:
+      case AssetExt.GLB:
+      case AssetExt.GLTF:
       case 'gltf-binary':
-      case AssetType.USDZ:
-      case AssetType.FBX:
+      case AssetExt.USDZ:
+      case AssetExt.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
