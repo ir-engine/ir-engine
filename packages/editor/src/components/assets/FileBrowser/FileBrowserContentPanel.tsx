@@ -83,6 +83,7 @@ import { FilePropertiesPanel } from './FilePropertiesPanel'
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
+  projectName?: string
   selectedFile?: string
   folderName?: string
   nestingDirectory?: string
@@ -386,6 +387,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         key: {
           $in: isListView ? files.map((file) => file.key) : []
         },
+        project: props.projectName,
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
       }
