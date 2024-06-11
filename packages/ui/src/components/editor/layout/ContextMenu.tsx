@@ -89,7 +89,7 @@ export const ContextMenu = ({
         {open && anchorEl && (
           <div
             ref={menuRef}
-            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
+            className="absolute z-[200] w-44 rounded-lg bg-neutral-900 shadow-lg"
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
