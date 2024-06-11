@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Uniform, Vector3 } from 'three'
+import { Uniform, Vector3 } from 'three'
 
 import {
   defineComponent,
@@ -38,8 +38,8 @@ import { getState } from '@etherealengine/hyperflux'
 import { generateNoiseTexture } from '@etherealengine/spatial/src/renderer/functions/generateNoiseTexture'
 
 import { useEffect } from 'react'
-import { addOBCPlugin } from '../../../../common/functions/OnBeforeCompilePlugin'
 import { MaterialComponent, MaterialComponents } from '../../MaterialComponent'
+import { setPlugin } from '../../materialFunctions'
 
 export type NoiseOffsetParameters = {
   textureSize: Uniform
@@ -63,9 +63,9 @@ export const NoiseOffsetPlugin = defineComponent({
   },
   reactor: () => {
     const entity = useEntityContext()
-    const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
     useEffect(() => {
-      addOBCPlugin(materialComponent.material as Material, (shader) => {
+      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+      const callback = (shader) => {
         const plugin = getComponent(entity, NoiseOffsetPlugin)
 
         shader.uniforms.textureSize = plugin.textureSize
@@ -130,7 +130,8 @@ export const NoiseOffsetPlugin = defineComponent({
             transformed += offset;
           `
         )
-      })
+      }
+      setPlugin(entity, callback)
     })
     return null
   }
