@@ -46,9 +46,11 @@ export const projectSettingSchema = Type.Object(
     projectId: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    userId: Type.Optional(
+      TypedString<UserID>({
+        format: 'uuid'
+      })
+    ),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

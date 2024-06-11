@@ -35,7 +35,7 @@
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
-    "quit": "Quit"
+    "quit": "Quit to Dashboard"
   },
   "errors": {
     "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",

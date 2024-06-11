@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import type { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import { UserID } from '@etherealengine/common/src/schema.type.module'
 import { ProjectDatabaseType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
   ProjectSettingType,
@@ -62,7 +61,6 @@ const getConvertedProjectSettings = async (projects: ProjectDatabaseType[]) => {
         value: setting.value,
         type: 'private',
         projectId: project.id,
-        userId: '' as UserID,
         createdAt: await getDateTimeSql(),
         updatedAt: await getDateTimeSql()
       })
