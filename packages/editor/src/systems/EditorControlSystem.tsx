@@ -279,9 +279,6 @@ const execute = () => {
   if (buttons.PrimaryClick?.pressed) {
     primaryClickAccum += deltaSeconds
   }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
-  }
   if (primaryClickAccum <= 0.2) {
     if (buttons.PrimaryClick?.up) {
       let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
@@ -302,6 +299,9 @@ const execute = () => {
         ])
       }
     }
+  }
+  if (buttons.PrimaryClick?.up) {
+    primaryClickAccum = 0
   }
 }
 
