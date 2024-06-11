@@ -53,6 +53,8 @@ import { PhysicsSystem } from '../PhysicsModule'
 import { BodyTypes, ColliderDescOptions, CollisionEvents, SceneQueryType, Shapes } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
+const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
+
 const Epsilon = 0.001
 function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) < epsilon, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
@@ -67,6 +69,13 @@ function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
   assertFloatApproxEq(A.y, B.y, epsilon)
   assertFloatApproxEq(A.z, B.z, epsilon)
   if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
+}
+
+function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
+  assertFloatApproxNotEq(A.x, B.x, epsilon)
+  assertFloatApproxNotEq(A.y, B.y, epsilon)
+  assertFloatApproxNotEq(A.z, B.z, epsilon)
+  if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
 }
 
 export const boxDynamicConfig = {
@@ -760,7 +769,6 @@ describe('PhysicsAPI', () => {
 
     // @todo How to check rotations?
     describe('setEnabledRotations', () => {
-      const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
 
@@ -824,8 +832,70 @@ describe('PhysicsAPI', () => {
       })
     })
 
+    describe('updatePreviousRigidbodyPose', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should set the previous position of the entity's RigidBodyComponent", () => {
+        const Expected = new Vector3(1, 2, 3)
+        const body = Physics._Rigidbodies.get(testEntity)!
+        body.setTranslation(Expected, false)
+        const before = {
+          x: RigidBodyComponent.previousPosition.x[testEntity],
+          y: RigidBodyComponent.previousPosition.y[testEntity],
+          z: RigidBodyComponent.previousPosition.z[testEntity]
+        }
+        Physics.updatePreviousRigidbodyPose([testEntity])
+        const after = {
+          x: RigidBodyComponent.previousPosition.x[testEntity],
+          y: RigidBodyComponent.previousPosition.y[testEntity],
+          z: RigidBodyComponent.previousPosition.z[testEntity]
+        }
+        assertVecAllApproxNotEq(before, after, 3)
+      })
+
+      it("should set the previous rotation of the entity's RigidBodyComponent", () => {
+        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+        const body = Physics._Rigidbodies.get(testEntity)!
+        body.setRotation(Expected, false)
+        const before = {
+          x: RigidBodyComponent.previousRotation.x[testEntity],
+          y: RigidBodyComponent.previousRotation.y[testEntity],
+          z: RigidBodyComponent.previousRotation.z[testEntity],
+          w: RigidBodyComponent.previousRotation.w[testEntity]
+        }
+        Physics.updatePreviousRigidbodyPose([testEntity])
+        const after = {
+          x: RigidBodyComponent.previousRotation.x[testEntity],
+          y: RigidBodyComponent.previousRotation.y[testEntity],
+          z: RigidBodyComponent.previousRotation.z[testEntity],
+          w: RigidBodyComponent.previousRotation.w[testEntity]
+        }
+        assertVecAllApproxNotEq(before, after, 4)
+      })
+    })
+
     /**
-    describe("updatePreviousRigidbodyPose", () => {})
     describe("updateRigidbodyPose", () => {})
     describe("setKinematicRigidbodyPose", () => {})
     */
