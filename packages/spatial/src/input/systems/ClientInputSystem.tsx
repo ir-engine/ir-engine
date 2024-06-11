@@ -593,28 +593,39 @@ const CanvasInputReactor = () => {
       if (!inputSourceComponent) return
 
       const state = inputSourceComponent.buttons as ButtonStateMap
+      if (down) {
+        state[button] = createInitialButtonState() //down, pressed, touched = true
 
-      if (down) state[button] = createInitialButtonState()
-      else if (state[button]) state[button]!.up = true
+        const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+        if (pointer) {
+          state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
+          //rotation will never be defined for the mouse or touch
+        }
+      } else if (state[button]) {
+        state[button]!.up = true
+        state[button]!.dragging = false
+      }
     }
 
     const handleMouseMove = (event: MouseEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
-      if (!pointerComponent) return
-      pointerComponent.position.set(
-        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
-      )
+      handleMouseOrTouchMovement(event.clientX, event.clientY, event)
     }
 
     const handleTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      handleMouseOrTouchMovement(touch.clientX, touch.clientY, event)
+    }
+
+    const handleMouseOrTouchMovement = (clientX: number, clientY: number, event: MouseEvent | TouchEvent) => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
-      const touch = event.touches[0]
       pointerComponent.position.set(
-        ((touch.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((touch.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+        ((clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
+
+      const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+      updateMouseOrTouchDragging(emulatedInputSourceEntity, event)
     }
 
     canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
@@ -752,6 +763,36 @@ export const ClientInputSystem = defineSystem({
   execute,
   reactor
 })
+
+function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: MouseEvent | TouchEvent) {
+  const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+  if (!inputSourceComponent) return
+
+  const state = inputSourceComponent.buttons as ButtonStateMap
+
+  let button = MouseButton.PrimaryClick
+  if (event.type === 'mousemove') {
+    if ((event as MouseEvent).button === 1) button = MouseButton.AuxiliaryClick
+    else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
+  }
+  const btn = state[button]
+  if (btn && !btn.dragging) {
+    const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+
+    if (btn.pressed && btn.downPosition) {
+      //if not yet dragging, compare distance to drag threshold and begin if appropriate
+      if (!btn.dragging) {
+        const squaredDistance = btn.downPosition.distanceToSquared(
+          pointer ? new Vector3(pointer.position.x, pointer.position.y, 0) : Vector3_Zero
+        )
+
+        if (squaredDistance > DRAGGING_THRESHOLD) {
+          btn.dragging = true
+        }
+      }
+    }
+  }
+}
 
 function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
   const button = buttons[key]

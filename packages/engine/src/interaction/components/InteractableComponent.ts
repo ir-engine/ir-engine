@@ -54,17 +54,12 @@ import {
   updateBoundingBox
 } from '@etherealengine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@etherealengine/spatial/src/transform/components/ComputedTransformComponent'
-import {
-  EntityTreeComponent,
-  getAncestorWithComponent
-} from '@etherealengine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { smootheLerpAlpha } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { InputPointerComponent } from '@etherealengine/spatial/src/input/components/InputPointerComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
@@ -300,45 +295,11 @@ export const InteractableComponent = defineComponent({
     InputComponent.useExecuteWithInput(() => {
       const buttons = InputComponent.getMergedButtons(entity)
 
-      //interact for E key, independent of clicks
-      if (buttons.NonSpatialInteract?.pressed) {
-        if (buttons.NonSpatialInteract?.up) {
-          callInteractCallbacks(entity)
-        }
-      }
-
-      //SpatialInteract click is still down
-      if (buttons.SpatialInteract?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
+      if (buttons.MergedInteract?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
         InputState.setCapturingEntity(entity)
 
-        //on releasing continued SpatialInteract click
-        if (buttons.SpatialInteract?.up) {
-          if (inputPointerEntity !== UndefinedEntity) {
-            const inputPointer = getOptionalComponent(inputPointerEntity, InputPointerComponent)
-
-            //TODO store this threshold of 0.001 somewhere (drag threshold)
-            if (inputPointer && inputPointerPosition.distanceToSquared(inputPointer.position) < 0.001) {
-              callInteractCallbacks(entity)
-            }
-          }
-          inputPointerEntity = UndefinedEntity
-        }
-      }
-      if (buttons.SpatialInteract?.down) {
-        //get position of pointer when click begins
-        const intersectingPointer = getComponent(entity, InputComponent).inputSources.find((inputSourceEntity) => {
-          if (!hasComponent(inputSourceEntity, InputPointerComponent)) return
-          const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-          return inputSource?.intersections.find((e) => {
-            const matchEntity = getAncestorWithComponent(e.entity, InputComponent)
-            if (!matchEntity || matchEntity === UndefinedEntity) return
-            return matchEntity === entity
-          })
-        })
-        if (intersectingPointer && intersectingPointer !== UndefinedEntity) {
-          inputPointerEntity = intersectingPointer
-          const inputPointer = getComponent(inputPointerEntity, InputPointerComponent)
-          inputPointerPosition.copy(inputPointer.position)
+        if (buttons.MergedInteract?.up && !buttons.MergedInteract?.dragging) {
+          callInteractCallbacks(entity)
         }
       }
     }, true)
@@ -356,26 +317,6 @@ export const InteractableComponent = defineComponent({
 
       return () => {}
     }, [isEditing.value])
-
-    // useEffect(() => {
-    //   if (isEditing.value || !input) return
-    //   const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-    //   if (input.inputSources.length > 0) {
-    //     canvas.style.cursor = 'pointer'
-    //   }
-    //   return () => {
-    //     canvas.style.cursor = 'auto'
-    //   }
-    // }, [input?.inputSources.length, isEditing.value])
-
-    // //handle highlighting when state is set
-    // useEffect(() => {
-    //   if (!interactable.highlighted.value) return
-    //   setComponent(entity, HighlightComponent)
-    //   return () => {
-    //     removeComponent(entity, HighlightComponent)
-    //   }
-    // }, [interactable.highlighted])
     return null
   }
 })
