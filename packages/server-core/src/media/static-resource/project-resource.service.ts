@@ -79,7 +79,7 @@ const createProjectResource =
     const storageProvider = getStorageProvider()
     const key = `projects/${project}/resources.json`
     await storageProvider.putObject({
-      Body: Buffer.from(JSON.stringify(resources, null, 4)),
+      Body: Buffer.from(JSON.stringify(resources, null, 2)),
       ContentType: 'application/json',
       Key: key
     })
@@ -87,7 +87,7 @@ const createProjectResource =
       const filePath = path.resolve(projectsRootFolder, key)
       const dirName = path.dirname(filePath)
       fs.mkdirSync(dirName, { recursive: true })
-      fs.writeFileSync(filePath, JSON.stringify(resources, null, 4))
+      fs.writeFileSync(filePath, JSON.stringify(resources, null, 2))
     }
   }
 
@@ -123,7 +123,7 @@ const patchProjectResource =
     }
 
     await storageProvider.putObject({
-      Body: Buffer.from(JSON.stringify(resourceJSON, null, 4)),
+      Body: Buffer.from(JSON.stringify(resourceJSON, null, 2)),
       ContentType: 'application/json',
       Key: `projects/${project}/resources.json`
     })
@@ -131,7 +131,7 @@ const patchProjectResource =
       const filePath = path.resolve(projectsRootFolder, resourceJSONPath)
       const dirName = path.dirname(filePath)
       fs.mkdirSync(dirName, { recursive: true })
-      fs.writeFileSync(filePath, JSON.stringify(resourceJSON, null, 4))
+      fs.writeFileSync(filePath, JSON.stringify(resourceJSON, null, 2))
     }
   }
 
