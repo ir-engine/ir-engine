@@ -758,13 +758,77 @@ describe('PhysicsAPI', () => {
       })
     })
 
+    // @todo How to check rotations?
+    describe('setEnabledRotations', () => {
+      const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it('should disable rotations on the X axis for the rigidBody of the entity', () => {
+        const testImpulse = new Vector3(1, 2, 3)
+        const enabledRotation = [false, true, true] as [boolean, boolean, boolean]
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const before = body.rotation()
+        assert.deepEqual(before, Rotation_Zero)
+        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.applyImpulse(testEntity, testImpulse)
+        const after = body.rotation()
+        assert.equal(after.x, 0)
+        assert.equal(after.x, before.x)
+      })
+
+      it('should disable rotations on the Y axis for the rigidBody of the entity', () => {
+        const testImpulse = new Vector3(1, 2, 3)
+        const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const before = body.rotation()
+        assert.deepEqual(before, Rotation_Zero)
+        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.applyImpulse(testEntity, testImpulse)
+        const after = body.rotation()
+        assert.equal(after.y, 0)
+        assert.equal(after.y, before.y)
+      })
+
+      it('should disable rotations on the Z axis for the rigidBody of the entity', () => {
+        const testImpulse = new Vector3(1, 2, 3)
+        const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const before = body.rotation()
+        assert.deepEqual(before, Rotation_Zero)
+        Physics.setEnabledRotations(testEntity, enabledRotation)
+        Physics.applyImpulse(testEntity, testImpulse)
+        const after = body.rotation()
+        assert.equal(after.z, 0)
+        assert.equal(after.z, before.z)
+      })
+    })
+
     /**
-  // @todo How to check rotations?
-  describe("setEnabledRotations", () => {})
-  describe("updatePreviousRigidbodyPose", () => {})
-  describe("updateRigidbodyPose", () => {})
-  describe("setKinematicRigidbodyPose", () => {})
-  */
+    describe("updatePreviousRigidbodyPose", () => {})
+    describe("updateRigidbodyPose", () => {})
+    describe("setKinematicRigidbodyPose", () => {})
+    */
   }) // << Rigidbodies
 
   describe('Colliders', () => {
@@ -1324,7 +1388,6 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    // @todo How to check rotations?
     describe('setColliderPose', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
