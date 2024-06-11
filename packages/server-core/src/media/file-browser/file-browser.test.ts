@@ -38,7 +38,7 @@ const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
   `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
 
 /**prepends `projects` and appends `/` for directory paths */
-const getDirectoryPath = (name: string) => 'projects/' + name + '/'
+const getDirectoryPath = (name: string) => 'projects/' + name + '/public/'
 
 describe('file-browser.test', () => {
   let app: Application
@@ -79,24 +79,26 @@ describe('file-browser.test', () => {
   })
 
   let testFileFullName: string
+  let testFileFullPath: string
   let testFileName: string
   let testFileSize: number
   it('creates a file', async () => {
     testFileFullName = getRandomizedName('file', '.txt')
+    testFileFullPath = 'projects/' + testProjectName + '/public/' + testFileFullName
     testFileName = testFileFullName.split('.')[0]
 
     const newData = getRandomizedName('new data')
     const body = Buffer.from(newData, 'utf-8')
     testFileSize = Buffer.byteLength(body)
 
-    const createdURL = await app.service(fileBrowserPath).patch(null, {
+    const resource = await app.service(fileBrowserPath).patch(null, {
       project: testProjectName,
-      path: testFileFullName,
+      path: 'public/' + testFileFullName,
       body,
       contentType: 'any'
     })
 
-    assert.ok(createdURL)
+    assert.equal(resource.key, testFileFullPath)
   })
 
   it('gets the file', async () => {
@@ -108,22 +110,23 @@ describe('file-browser.test', () => {
     assert.ok(foundFile)
     assert.equal(foundFile.name, testFileName)
     assert.equal(foundFile.size, testFileSize)
-    assert.equal(foundFile.url, getStorageProvider().getCachedURL(foundFile.key))
+    assert.equal(foundFile.key, testFileFullPath)
   })
 
   describe('update service', () => {
     let testProjectName2: string
+    let testFileFullPath2: string
     let testFileName2: string
     let testFileName3: string
     before(async () => {
       testProjectName2 = getRandomizedName('directory2')
-
       testFileName2 = getRandomizedName('file2', '.md')
+      testFileFullPath2 = 'projects/' + testProjectName2 + '/public/' + testFileName2
       const newData2 = getRandomizedName('new data 2')
 
       await app.service(fileBrowserPath).patch(null, {
         project: testProjectName2,
-        path: testFileName2,
+        path: 'public/' + testFileName2,
         body: Buffer.from(newData2, 'utf-8'),
         contentType: 'any'
       })
@@ -133,7 +136,7 @@ describe('file-browser.test', () => {
 
       await app.service(fileBrowserPath).patch(null, {
         project: testProjectName2,
-        path: testFileName3,
+        path: 'public/' + testFileName3,
         body: Buffer.from(newData3, 'utf-8'),
         contentType: 'any'
       })
@@ -141,6 +144,8 @@ describe('file-browser.test', () => {
 
     it('copies file', async () => {
       const copyFileResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
         oldName: testFileName2,
         newName: testFileName2,
         oldPath: getDirectoryPath(testProjectName2),
@@ -148,36 +153,34 @@ describe('file-browser.test', () => {
         isCopy: true
       })
 
-      assert.ok(Array.isArray(copyFileResult) ? copyFileResult.length > 0 : copyFileResult)
-
-      const directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      const foundFile = directoryContents.data.find((file) => file.key.match(testFileName2))
-
-      assert.ok(foundFile)
+      assert.equal(copyFileResult[0].key, 'projects/' + testProjectName + '/public/' + testFileName2)
     })
 
     it('copies directory', async () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
         oldName: testProjectName,
         newName: testProjectName,
-        oldPath: 'projects/',
+        oldPath: getDirectoryPath(testProjectName2),
         newPath: getDirectoryPath(testProjectName2),
         isCopy: true
       })
 
-      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
+      assert.equal(copyDirectoryResult[0].key, 'projects/' + testProjectName + '/public/' + testProjectName)
 
       const directoryContents = await app
         .service(fileBrowserPath)
         .find({ query: { directory: getDirectoryPath(testProjectName2) } })
       const foundDirectory = directoryContents.data.find((dir) => dir.name.match(testProjectName))
       assert.ok(foundDirectory)
+      assert.equal(foundDirectory.key, 'projects/' + testProjectName2 + '/public/' + testProjectName)
     })
 
     it('moves file', async () => {
       const moveFileResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
         oldName: testFileName3,
         newName: testFileName3,
         oldPath: getDirectoryPath(testProjectName2),
@@ -202,9 +205,11 @@ describe('file-browser.test', () => {
 
     it('moves directory', async () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldName: testProjectName2,
-        newName: testProjectName2,
-        oldPath: 'projects/',
+        oldProject: testProjectName2,
+        newProject: testProjectName,
+        oldName: 'public',
+        newName: 'public',
+        oldPath: getDirectoryPath(testProjectName2),
         newPath: getDirectoryPath(testProjectName)
       })
 
@@ -225,8 +230,10 @@ describe('file-browser.test', () => {
 
     it('increment file name if file already exists', async () => {
       const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldName: testFileFullName,
-        newName: testFileFullName,
+        oldProject: testProjectName,
+        newProject: testProjectName,
+        oldName: 'public',
+        newName: 'public',
         oldPath: getDirectoryPath(testProjectName),
         newPath: getDirectoryPath(testProjectName),
         isCopy: true

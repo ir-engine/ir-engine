@@ -58,6 +58,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
+import { useValidProjectForFileBrowser } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
@@ -127,7 +128,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const { t } = useTranslation()
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+
   const selectedDirectory = useHookstate(originalPath)
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const nestingDirectory = useHookstate('projects')
   const fileProperties = useHookstate<FileType | null>(null)
 
@@ -277,7 +280,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
@@ -419,6 +430,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
+                  projectName={projectName}
                   moveContent={moveContent}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}

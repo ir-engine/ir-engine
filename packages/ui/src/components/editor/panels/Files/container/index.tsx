@@ -77,7 +77,6 @@ type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   originalPath: string
-  validProjects: string[]
   folderName?: string
   nestingDirectory?: string
 }
@@ -119,8 +118,16 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 /**
  * Gets the project name that may or may not have a single slash it in from a list of valid project names
  */
-const getProjectName = (directory: string, validProjectNames: string[]) =>
-  validProjectNames.find((project) => directory.startsWith(`/projects/${project}/`)) ?? ''
+export const useValidProjectForFileBrowser = (projectName: string) => {
+  const projects = useFind(projectPath, {
+    query: {
+      paginate: false,
+      action: 'studio',
+      allowed: true
+    }
+  })
+  return projects.data.find((project) => projectName.startsWith(`/projects/${project}/`))?.name ?? ''
+}
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -130,7 +137,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const selectedDirectory = useHookstate(props.originalPath)
 
-  const projectName = getProjectName(selectedDirectory.value, props.validProjects)
+  const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
 
   const fileProperties = useHookstate<FileType | null>(null)
@@ -276,7 +283,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
+    fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
+      oldName,
+      newName,
+      oldPath,
+      newPath,
+      isCopy
+    })
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
@@ -417,6 +432,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
+                  projectName={projectName}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
@@ -624,30 +640,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
   const originalPath = useMutableState(EditorState).projectName.value
-  const { t } = useTranslation()
-
-  const projects = useFind(projectPath, {
-    query: {
-      paginate: false,
-      action: 'studio',
-      allowed: true
-    }
-  })
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
-  if (!originalPath || !projects.data.length)
-    return <LoadingView title={t('editor:layout.filebrowser.loadingProjects')} className="h-6 w-6" />
-
-  const validProjects = projects.data.map((project) => project.name)
-
   return (
-    <FileBrowserContentPanel
-      validProjects={validProjects}
-      originalPath={'/projects/' + originalPath + '/'}
-      onSelectionChanged={onSelectionChanged}
-    />
+    <FileBrowserContentPanel originalPath={'/projects/' + originalPath + '/'} onSelectionChanged={onSelectionChanged} />
   )
 }

@@ -188,19 +188,24 @@ export class FileBrowserService
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
-    const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
-    const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
 
-    // TODO add oldProject and newProject arguments
+    /** @todo future proofing for when projects include orgname */
+    if (!data.oldPath.startsWith('projects/' + data.oldProject)) throw new Error('Not allowed to access this directory')
+    if (!data.newPath.startsWith('projects/' + data.newProject)) throw new Error('Not allowed to access this directory')
 
-    const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
-    const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
-    const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
+    const _oldPath = data.oldPath.split('/').slice(1).join('/')
+    const _newPath = data.newPath.split('/').slice(1).join('/')
+    const oldName = data.oldPath.split('/').pop()!
+    const newName = data.newPath.split('/').pop()!
+
+    const isDirectory = await storageProvider.isDirectory(oldName, _oldPath)
+    const fileName = await getIncrementalName(newName, _newPath, storageProvider, isDirectory)
+    await storageProvider.moveObject(oldName, fileName, _oldPath, _newPath, data.isCopy)
 
     if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create([
         {
-          path: _oldPath + data.oldName
+          path: _oldPath + oldName
         },
         {
           path: _newPath + fileName
@@ -209,27 +214,27 @@ export class FileBrowserService
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(_oldPath, data.oldName)}%` }
+        key: { $like: `%${path.join(_oldPath, oldName)}%` }
       },
       paginate: false
     })) as StaticResourceType[]
 
-    if (staticResources?.length > 0) {
-      await Promise.all(
-        staticResources.map(async (resource) => {
-          const newKey = resource.key.replace(path.join(_oldPath, data.oldName), path.join(_newPath, fileName))
-          await this.app.service(staticResourcePath).patch(
-            resource.id,
-            {
-              key: newKey
-            },
-            { isInternal: true }
-          )
-        })
+    if (!staticResources?.length) throw new Error('Static resource not found')
+
+    const results = [] as StaticResourceType[]
+    for (const resource of staticResources) {
+      const newKey = resource.key.replace(path.join(_oldPath, oldName), path.join(_newPath, fileName))
+      const result = await this.app.service(staticResourcePath).patch(
+        resource.id,
+        {
+          key: newKey
+        },
+        { isInternal: true }
       )
+      results.push(result)
     }
 
-    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
+    const oldNamePath = path.join(projectsRootFolder, _oldPath, oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
 
     if (config.fsProjectSyncEnabled) {
@@ -243,7 +248,7 @@ export class FileBrowserService
       else fs.renameSync(oldNamePath, newNamePath)
     }
 
-    return result
+    return results
   }
 
   /**
@@ -251,7 +256,7 @@ export class FileBrowserService
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     if (!data.path.startsWith('assets/') && !data.path.startsWith('public/'))
-      throw new Error('Not allowed to access this directory')
+      throw new Error('Not allowed to access this directory ' + data.path)
 
     if (typeof data.body === 'string') {
       const url = new URL(data.body)

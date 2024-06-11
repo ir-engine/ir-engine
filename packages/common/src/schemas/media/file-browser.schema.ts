@@ -48,6 +48,8 @@ export interface FileBrowserContentType extends Static<typeof fileBrowserContent
 
 export const fileBrowserUpdateSchema = Type.Object(
   {
+    oldProject: Type.String(),
+    newProject: Type.String(),
     oldName: Type.String(),
     newName: Type.String(),
     oldPath: Type.String(),
