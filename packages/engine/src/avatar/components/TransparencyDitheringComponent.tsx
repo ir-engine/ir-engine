@@ -28,7 +28,7 @@ import { FrontSide, Material, Uniform, Vector3 } from 'three'
 import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@etherealengine/ecs'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
-import { hasPlugin, setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
+import { setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
 import {
   ditheringAlphatestChunk,
@@ -97,10 +97,7 @@ export const TransparencyDitheringPlugin = defineComponent({
         shader.uniforms.exponents = plugin.exponents
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
-        console.log(shader)
       }
-      console.log(hasPlugin(material, callback))
-
       setPlugin(entity, callback)
     })
     return null

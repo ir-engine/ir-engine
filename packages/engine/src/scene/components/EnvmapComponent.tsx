@@ -30,7 +30,6 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
-  Material,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -59,7 +58,7 @@ import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/M
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { createDisposable } from '@etherealengine/spatial/src/resources/resourceHooks'
 
-import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -279,33 +278,39 @@ export const BoxProjectionPlugin = defineComponent({
   },
   reactor: () => {
     const entity = useEntityContext()
-    const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
-    addOBCPlugin(materialComponent.material as Material, (shader, renderer) => {
-      const plugin = getComponent(entity, BoxProjectionPlugin)
 
-      shader.uniforms.cubeMapSize = plugin.cubeMapSize
-      shader.uniforms.cubeMapPos = plugin.cubeMapPos
+    useEffect(() => {
+      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
 
-      const shaderType = (shader as any).shaderType
-      const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
-      const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
-      if (!isSupported) return
+      const callback = (shader, renderer) => {
+        const plugin = getComponent(entity, BoxProjectionPlugin)
 
-      if (isPhysical) {
-        if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
-          shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
-        shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <envmap_physical_pars_fragment>',
-          envmapPhysicalParsReplace
-        )
-      } else {
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <envmap_pars_fragment>',
-          envmapParsReplaceLambert
-        )
-        shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+        shader.uniforms.cubeMapSize = plugin.cubeMapSize
+        shader.uniforms.cubeMapPos = plugin.cubeMapPos
+
+        const shaderType = (shader as any).shaderType
+        const isPhysical = shaderType === 'MeshStandardMaterial' || shaderType === 'MeshPhysicalMaterial'
+        const isSupported = isPhysical || shaderType === 'MeshLambertMaterial' || shaderType === 'MeshPhongMaterial'
+        if (!isSupported) return
+
+        if (isPhysical) {
+          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+          shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_physical_pars_fragment>',
+            envmapPhysicalParsReplace
+          )
+        } else {
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_pars_fragment>',
+            envmapParsReplaceLambert
+          )
+          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+        }
       }
+
+      setPlugin(entity, callback)
     })
   }
 })
