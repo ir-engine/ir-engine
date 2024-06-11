@@ -51,6 +51,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   const projects = projectState.projects
 
   const displayedSettings = useHookstate<ProjectSettingType[]>([])
+  const originalSettings = useHookstate<ProjectSettingType[]>([])
   const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
   const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
@@ -63,12 +64,13 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   useEffect(() => {
     if (project.data && project.data.settings) {
-      displayedSettings.set(JSON.parse(JSON.stringify(project.data.settings)))
+      originalSettings.set(JSON.parse(JSON.stringify(project.data.settings)))
+      displayedSettings.set(originalSettings.value)
     }
   }, [project])
 
   const handleClear = () => {
-    displayedSettings.set([])
+    displayedSettings.set(originalSettings.value)
   }
 
   const handleSubmit = async () => {
