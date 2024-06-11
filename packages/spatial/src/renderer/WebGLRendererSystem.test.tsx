@@ -49,6 +49,7 @@ import { RendererState } from './RendererState'
 import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
+import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
 
 describe('WebGl Renderer System', () => {
@@ -110,7 +111,6 @@ describe('WebGl Renderer System', () => {
   */
 
   it('Test WebGL Reactors', async () => {
-    const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
     const RenderSystem = SystemDefinitions.get(WebGLRendererSystem)?.reactor!
     const tag = <RenderSystem />
     const { rerender, unmount } = render(tag)
@@ -122,9 +122,14 @@ describe('WebGl Renderer System', () => {
     engineRendererSettings.renderScale.set(2)
     engineRendererSettings.qualityLevel.set(3)
     engineRendererSettings.automatic.set(false)
+    engineRendererSettings.physicsDebug.set(true)
+    engineRendererSettings.avatarDebug.set(true)
+    engineRendererSettings.gridVisibility.set(true)
+    engineRendererSettings.nodeHelperVisibility.set(true)
 
     await act(() => rerender(tag))
 
+    const camera = getComponent(rootEntity, CameraComponent)
     const rendererComp = getComponent(rootEntity, RendererComponent)
     const effectComposer = rendererComp.effectComposer
     const passes = effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
@@ -135,5 +140,9 @@ describe('WebGl Renderer System', () => {
     assert(renderPass.overrideMaterial, 'change render mode')
     assert(rendererComp.needsResize, 'change render scale')
     assert(performanceState.cpuTier.value == 3, 'change quality level')
+    assert(camera.layers.isEnabled(ObjectLayers.PhysicsHelper), 'enable physicsDebug')
+    assert(camera.layers.isEnabled(ObjectLayers.AvatarHelper), 'enable avatarDebug')
+    assert(camera.layers.isEnabled(ObjectLayers.Gizmos), 'enable gridVisibility')
+    assert(camera.layers.isEnabled(ObjectLayers.NodeHelper), 'enable nodeHelperVisibility')
   })
 })
