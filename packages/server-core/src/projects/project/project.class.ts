@@ -129,12 +129,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    const projectManifest = getProjectManifest(projectName)
-
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-    const project = await super._create({
+    await super._create({
       id: uuidv4(),
       name: projectName,
       enabled,
@@ -152,20 +150,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     })
 
     await uploadLocalProjectToProvider(this.app, projectName)
-
-    // migrate old scenes
-    if ((projectManifest as any)?.scenes) {
-      for (const scene of (projectManifest as any).scenes) {
-        await this.app.service(staticResourcePath).create({
-          key: `projects/${projectName}/${scene}`,
-          mimeType: 'model/gltf+json',
-          hash: createStaticResourceHash(fs.readFileSync(path.resolve(projectsRootFolder, projectName, scene))),
-          project: projectName,
-          type: 'scene',
-          thumbnailURL: `projects/${projectName}/${scene.replace('.scene.json', '.thumbnail.jpg')}`
-        })
-      }
-    }
 
     // run project install script
     if (projectConfig.onEvent) {

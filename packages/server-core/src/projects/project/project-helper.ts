@@ -1635,10 +1635,10 @@ export const uploadLocalProjectToProvider = async (
   }
 
   const manifest = getProjectManifest(projectName)
-  const oldManifestScenes = (manifest as any)?.scenes ?? []
+  const oldManifestScenes = (manifest as any)?.scenes as Array<string> | undefined
 
   // remove scenes from manifest
-  if (oldManifestScenes.length) {
+  if (oldManifestScenes?.length) {
     delete (manifest as any).scenes
     fs.writeFileSync(path.join(projectsRootFolder, projectName, 'manifest.json'), JSON.stringify(manifest, null, 2))
   }
@@ -1661,9 +1661,9 @@ export const uploadLocalProjectToProvider = async (
     },
     paginate: false
   })
-  const existingKeySet = new Set<string>()
+  const existingKeySet = new Map<string, string>()
   for (const item of existingResources) {
-    existingKeySet.add(item.key)
+    existingKeySet.set(item.key, item.id)
   }
   const resourcesJson: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
 
@@ -1676,8 +1676,8 @@ export const uploadLocalProjectToProvider = async (
   for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
-      const filePathRelative = processFileName(file.slice(projectRootPath.length))
-      const key = `projects/${projectName}${filePathRelative}`
+      const filePathRelative = processFileName(file.slice(projectRootPath.length + 1))
+      const key = `projects/${projectName}/${filePathRelative}`
 
       const contentType = getContentType(key)
       await storageProvider.putObject(
@@ -1688,37 +1688,40 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`/assets/`) && !filePathRelative.startsWith(`/public/`)) continue
+      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) continue
 
-      const isScene = oldManifestScenes.includes(key.replace('projects/' + projectName + '/', ''))
+      const isScene = oldManifestScenes && oldManifestScenes.includes(filePathRelative)
       const thisFileClass = AssetLoader.getAssetClass(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
-      const resourceInfo = resourcesJson[key]
+      const resourceInfo = resourcesJson[filePathRelative]
+      const type = isScene ? 'scene' : resourceInfo?.type ? resourceInfo?.type : resourceInfo?.tags ? 'asset' : 'file' // assume if it has already been given tag metadata that it is an asset
+      const thumbnailURL =
+        resourceInfo?.thumbnailURL ?? isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined
+
+      if (projectName === 'default-project') {
+        console.log(
+          '\n',
+          resourceInfo,
+          { oldManifestScenes, key, filePathRelative, isScene, type },
+          existingKeySet.has(key)
+        )
+      }
       if (existingKeySet.has(key)) {
         // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-        await app.service(staticResourcePath).patch(
-          null,
-          {
-            hash,
-            mimeType: contentType,
-            stats,
-            type: isScene ? 'scene' : resourceInfo?.type ?? resourceInfo?.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
-            tags: resourceInfo?.tags ?? [thisFileClass],
-            dependencies: resourceInfo?.dependencies ?? undefined,
-            licensing: resourceInfo?.licensing ?? undefined,
-            description: resourceInfo?.description ?? undefined,
-            attribution: resourceInfo?.attribution ?? undefined,
-            thumbnailURL: resourceInfo?.thumbnailURL ?? undefined,
-            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
-          },
-          {
-            query: {
-              key,
-              project: projectName
-            }
-          }
-        )
+        await app.service(staticResourcePath).patch(existingKeySet.get(key)!, {
+          hash,
+          mimeType: contentType,
+          stats,
+          type,
+          tags: resourceInfo?.tags ?? [thisFileClass],
+          dependencies: resourceInfo?.dependencies ?? undefined,
+          licensing: resourceInfo?.licensing ?? undefined,
+          description: resourceInfo?.description ?? undefined,
+          attribution: resourceInfo?.attribution ?? undefined,
+          thumbnailURL,
+          thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+        })
       } else {
         // logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
         await app.service(staticResourcePath).create({
@@ -1727,19 +1730,19 @@ export const uploadLocalProjectToProvider = async (
           hash,
           mimeType: contentType,
           stats,
-          type: isScene ? 'scene' : resourceInfo?.type ?? resourceInfo?.tags ? 'asset' : 'file', // assume if it has already been given tag metadata that it is an asset
+          type,
           tags: resourceInfo?.tags ?? [thisFileClass],
           dependencies: resourceInfo?.dependencies ?? undefined,
           licensing: resourceInfo?.licensing ?? undefined,
           description: resourceInfo?.description ?? undefined,
           attribution: resourceInfo?.attribution ?? undefined,
-          thumbnailURL: resourceInfo?.thumbnailURL ?? undefined,
+          thumbnailURL,
           thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
         })
         logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
       }
 
-      results.push(storageProvider.getCachedURL(`projects/${projectName}${filePathRelative}`, true))
+      results.push(storageProvider.getCachedURL(key, true))
     } catch (e) {
       logger.error(e)
       results.push(null)
@@ -1759,7 +1762,7 @@ export const updateProjectResourcesJson = async (app: Application, projectName: 
   if (resources.length === 0) return
   const resourcesJson = Object.fromEntries(
     resources.map((resource) => [
-      resource.key,
+      resource.key.replace(`projects/${projectName}/`, ''),
       {
         type: resource.type,
         tags: resource.tags ?? undefined,
