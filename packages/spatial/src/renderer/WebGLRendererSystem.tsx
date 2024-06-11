@@ -148,10 +148,9 @@ export class EngineRenderer {
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     this.renderer = renderer
     this.renderer.outputColorSpace = SRGBColorSpace
-    this.renderer.debug.checkShaderErrors = true
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = true
+    this.renderer.debug.checkShaderErrors = false
 
     // @ts-ignore
     this.xrManager = renderer.xr = createWebXRManager(renderer)
