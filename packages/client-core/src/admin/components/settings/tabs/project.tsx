@@ -50,7 +50,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   const projectState = useMutableState(ProjectState)
   const projects = projectState.projects
 
-  const updatedSettings = useHookstate<ProjectSettingType[]>([])
+  const displayedSettings = useHookstate<ProjectSettingType[]>([])
   const selectedProjectId = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
   const project = useGet(projectPath, selectedProjectId.value, { query: { $select: ['settings'] } })
@@ -62,22 +62,22 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   }, [])
 
   useEffect(() => {
-    if (selectedProjectId.value) {
-      updatedSettings.set([])
+    if (selectedProjectId.value && project.data?.settings) {
+      displayedSettings.set(JSON.parse(JSON.stringify(project.data?.settings || [])))
     }
-  }, [selectedProjectId])
+  }, [project])
 
   const handleClear = () => {
-    updatedSettings.set([])
+    displayedSettings.set([])
   }
 
   const handleSubmit = async () => {
     try {
       state.loading.set(true)
-      for (const updatedSetting of updatedSettings.value) {
+      for (const displayedSetting of displayedSettings.value) {
         await patchProjectSetting(
-          updatedSetting.id,
-          { value: updatedSetting.value },
+          displayedSetting.id,
+          { value: displayedSetting.value },
           {
             query: {
               projectId: selectedProjectId.value
@@ -98,22 +98,8 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     }
   })
 
-  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, setting: ProjectSettingType) => {
-    const index = updatedSettings.value.findIndex((item) => item.id === setting.id)
-    if (index === -1) {
-      updatedSettings.set([...updatedSettings.value, { ...setting, value: e.target.value }])
-    } else {
-      updatedSettings[index].nested('value').set(e.target.value)
-    }
-  }
-
-  const displayedSettings = JSON.parse(JSON.stringify(project.data?.settings || [])) as ProjectSettingType[]
-  for (const updatedSetting of updatedSettings.value) {
-    const index = displayedSettings.findIndex((setting) => setting.id === updatedSetting.id)
-
-    if (index !== -1) {
-      displayedSettings[index] = updatedSetting
-    }
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>, setting: ProjectSettingType, index: number) => {
+    displayedSettings[index].set({ ...setting, value: e.target.value })
   }
 
   return (
@@ -135,7 +121,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
       {displayedSettings.length > 0 ? (
         <>
-          {displayedSettings.map((setting: ProjectSettingType, index: number) => (
+          {displayedSettings.value.map((setting: ProjectSettingType, index: number) => (
             <div className="mb-3 grid grid-cols-2 gap-2" key={index}>
               <Input
                 className="col-span-1"
@@ -164,7 +150,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                     </Tooltip>
                   )
                 }
-                onChange={(e) => handleSettingsChange(e, setting)}
+                onChange={(e) => handleSettingsChange(e, setting, index)}
               />
             </div>
           ))}
