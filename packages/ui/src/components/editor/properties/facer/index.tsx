@@ -33,6 +33,7 @@ import { FaRegFaceFlushed } from 'react-icons/fa6'
 import { EntityUUID } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NodeInput from '../../input/Node'
 import NodeEditor from '../nodeEditor'
@@ -57,6 +58,22 @@ export const FacerNodeEditor: EditorComponentType = (props) => {
           value={facerComponent.target.value ?? ('' as EntityUUID)}
           onRelease={commitProperty(FacerComponent, 'target')}
           onChange={commitProperty(FacerComponent, 'target')}
+        />
+      </InputGroup>
+      <InputGroup name="X Axis" label={t('editor:properties.facer.xAxis')}>
+        <BooleanInput
+          value={facerComponent.axes.x.value}
+          onChange={() =>
+            commitProperty(FacerComponent, 'axes')({ x: !facerComponent.axes.x.value, y: facerComponent.axes.y.value })
+          }
+        />
+      </InputGroup>
+      <InputGroup name="Y Axis" label={t('editor:properties.facer.yAxis')}>
+        <BooleanInput
+          value={facerComponent.axes.y.value}
+          onChange={() =>
+            commitProperty(FacerComponent, 'axes')({ x: facerComponent.axes.x.value, y: !facerComponent.axes.y.value })
+          }
         />
       </InputGroup>
     </NodeEditor>

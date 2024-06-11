@@ -32,6 +32,8 @@ import { TransformSystem } from './TransformSystem'
 const facerQuery = defineQuery([FacerComponent, TransformComponent])
 const srcPosition = new Vector3()
 const dstPosition = new Vector3()
+const direction = new Vector3()
+const zero = new Vector3()
 const up = new Vector3(0, 1, 0)
 const lookMatrix = new Matrix4()
 const lookRotation = new Quaternion()
@@ -47,7 +49,15 @@ export const FacerSystem = defineSystem({
       if (!targetEntity) continue
       TransformComponent.getWorldPosition(entity, srcPosition)
       TransformComponent.getWorldPosition(targetEntity, dstPosition)
-      lookMatrix.lookAt(srcPosition, dstPosition, up)
+      direction.subVectors(dstPosition, srcPosition).normalize()
+      // look at target about enabled axes
+      if (!facer.axes.x) {
+        direction.y = 0
+      }
+      if (!facer.axes.y) {
+        direction.x = 0
+      }
+      lookMatrix.lookAt(zero, direction, up)
       lookRotation.setFromRotationMatrix(lookMatrix)
       TransformComponent.setWorldRotation(entity, lookRotation)
       TransformComponent.updateFromWorldMatrix(entity)

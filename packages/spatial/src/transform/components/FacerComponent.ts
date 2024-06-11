@@ -29,14 +29,30 @@ export const FacerComponent = defineComponent({
   name: 'FacerComponent',
   jsonID: 'IR_facer',
   onInit: (entity) => ({
-    target: null as EntityUUID | null
+    target: null as EntityUUID | null,
+    axes: {
+      x: true,
+      y: true
+    }
   }),
   onSet: (entity, component, props) => {
     if (matches.string.test(props?.target)) {
       component.target.set(props.target)
     }
+    if (matches.object.test(props?.axes)) {
+      if (matches.boolean.test(props.axes.x)) {
+        component.axes.x.set(props.axes.x)
+      }
+      if (matches.boolean.test(props.axes.y)) {
+        component.axes.y.set(props.axes.y)
+      }
+    }
   },
   toJSON: (entity, component) => ({
-    target: component.target.value
+    target: component.target.value,
+    axes: {
+      x: component.axes.x.value,
+      y: component.axes.y.value
+    }
   })
 })
