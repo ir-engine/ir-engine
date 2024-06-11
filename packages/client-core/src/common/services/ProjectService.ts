@@ -45,7 +45,8 @@ import {
   projectPath,
   projectPermissionPath,
   ProjectType,
-  ProjectUpdateParams
+  ProjectUpdateParams,
+  UserID
 } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -176,11 +177,13 @@ export const ProjectService = {
     }
   },
 
-  createPermission: async (userInviteCode: InviteCode, projectId: string) => {
+  createPermission: async (userInviteCode: InviteCode, projectId: string, type: string) => {
     try {
       return Engine.instance.api.service(projectPermissionPath).create({
         inviteCode: userInviteCode,
-        projectId: projectId
+        userId: '' as UserID,
+        projectId: projectId,
+        type
       })
     } catch (err) {
       logger.error('Error with creating new project-permission', err)

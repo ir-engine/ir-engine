@@ -64,7 +64,7 @@ export default function ManageUserPermissionModal({
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id)
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

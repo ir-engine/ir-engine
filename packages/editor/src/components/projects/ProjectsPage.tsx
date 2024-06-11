@@ -270,7 +270,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
-    await ProjectService.createPermission(userInviteCode, projectId)
+    await ProjectService.createPermission(userInviteCode, projectId, 'reviewer')
   }
 
   const onPatchPermission = async (id: string, type: string) => {
