@@ -58,7 +58,7 @@ export function isOldEEMaterial(extension: any) {
     .test(argValues)
 }
 
-export type MaterialExtensionPluginType = { id: string; parameters: { [key: string]: any } }
+export type MaterialExtensionPluginType = { id: string; uniforms: { [key: string]: any } }
 
 export type EEMaterialExtensionType = {
   uuid: EntityUUID
