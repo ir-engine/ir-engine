@@ -70,13 +70,13 @@ export const TransparencyDitheringPlugin = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
-    const material = materialComponent.material as Material
-    material.alphaTest = 0.5
-    material.side = FrontSide
-
     useEffect(() => {
+      const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
+      const material = materialComponent.material as Material
       addOBCPlugin(material, (shader) => {
+        material.alphaTest = 0.5
+        material.side = FrontSide
+        console.log(material.uuid)
         const plugin = getComponent(entity, TransparencyDitheringPlugin)
 
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
@@ -100,6 +100,7 @@ export const TransparencyDitheringPlugin = defineComponent({
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
         shader.uniforms.maxDitherPoints = plugin.maxDitherPoints
+        console.log(shader)
       })
     })
     return null
