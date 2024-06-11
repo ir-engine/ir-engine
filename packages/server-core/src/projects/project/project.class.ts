@@ -85,15 +85,14 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async _callOnLoad() {
     try {
-      const projects = (await super._find({
-        query: { $select: ['name'] },
+      const projects = await super._find({
         paginate: false
-      })) as Array<{ name }>
+      })
       await Promise.all(
-        projects.map(async ({ name }) => {
-          if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-          const config = getProjectConfig(name)
-          if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+        projects.map(async (project) => {
+          if (!fs.existsSync(path.join(projectsRootFolder, project.name, 'xrengine.config.ts'))) return
+          const config = getProjectConfig(project.name)
+          if (config?.onEvent) return onProjectEvent(this.app, project, config.onEvent, 'onLoad')
         })
       )
     } catch (err) {
@@ -153,7 +152,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     // run project install script
     if (projectConfig.onEvent) {
-      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+      return onProjectEvent(this.app, project, projectConfig.onEvent, 'onInstall')
     }
 
     return Promise.resolve()

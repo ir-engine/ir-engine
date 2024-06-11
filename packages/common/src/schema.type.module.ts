@@ -76,6 +76,7 @@ export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/helm-setting.schema'
 export type * from './schemas/setting/instance-server-setting.schema'
+export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/setting/redis-setting.schema'
 export type * from './schemas/setting/server-setting.schema'
 export type * from './schemas/setting/task-server-setting.schema'
@@ -212,6 +213,8 @@ export const routePath = 'route'
 
 export const helmMainVersionPath = 'helm-main-version'
 export const helmBuilderVersionPath = 'helm-builder-version'
+
+export const projectSettingPath = 'project-setting'
 
 export const coilSettingPath = 'coil-setting'
 

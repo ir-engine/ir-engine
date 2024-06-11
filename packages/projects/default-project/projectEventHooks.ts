@@ -27,7 +27,7 @@ import { BadRequest } from '@feathersjs/errors'
 import fs from 'fs'
 import path from 'path'
 
-import { locationPath, LocationType, OembedType } from '@etherealengine/common/src/schema.type.module'
+import { locationPath, LocationType, OembedType, ProjectType } from '@etherealengine/common/src/schema.type.module'
 import { createLocations } from '@etherealengine/projects/createLocations'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -43,7 +43,7 @@ import manifestJson from './manifest.json'
 const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
-const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OembedType) => {
+const handleOEmbedRequest = async (app: Application, project: ProjectType, url: URL, currentOEmbed: OembedType) => {
   const isLocation = /^\/location\//.test(url.pathname)
   const isAdminPanel = /^\/admin/.test(url.pathname)
   const isEditor = /^\/studio/.test(url.pathname)
