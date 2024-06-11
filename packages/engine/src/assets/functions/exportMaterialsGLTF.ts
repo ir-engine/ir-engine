@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BufferGeometry, Material, Mesh, Scene } from 'three'
-import { v4 as uuidv4 } from 'uuid'
 
 import { Entity, getComponent } from '@etherealengine/ecs'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
@@ -41,13 +40,10 @@ export default async function exportMaterialsGLTF(
   scene.name = 'Root'
   const dudGeo = new BufferGeometry()
   dudGeo.groups = materialEntities.map((_, i) => ({ count: 0, start: 0, materialIndex: i }))
-  const nuMats: Material[] = []
-  for (const material of materialEntities) {
-    const nuMat: Material = getComponent(material, MaterialComponent[MaterialComponents.State]).material!.clone()
-    nuMat.uuid = uuidv4()
-    nuMats.push(nuMat)
-  }
-  const lib = new Mesh(dudGeo, nuMats)
+  const materials = materialEntities.map(
+    (entity) => getComponent(entity, MaterialComponent[MaterialComponents.State]).material as Material
+  )
+  const lib = new Mesh(dudGeo, materials)
   lib.name = 'Materials'
   scene.add(lib)
   const exporter = createGLTFExporter()
@@ -65,8 +61,6 @@ export default async function exportMaterialsGLTF(
       }
     )
   })
-  for (const material of nuMats) {
-    material.dispose()
-  }
+
   return gltf
 }
