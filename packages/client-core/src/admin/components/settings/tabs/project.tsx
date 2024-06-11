@@ -88,7 +88,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         )
       }
       state.set({ loading: false, errorMessage: '' })
-      originalSettings.set(displayedSettings.value.slice())
+      project.refetch()
     } catch (err) {
       state.set({ loading: false, errorMessage: err.message })
     }
