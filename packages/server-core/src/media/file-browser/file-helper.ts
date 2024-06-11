@@ -78,14 +78,14 @@ export const uploadStaticResource = async (app: Application, args: StaticResourc
         project,
         mimeType: contentType,
         stats,
-        type: data?.type ?? undefined,
-        tags: data?.tags ?? [assetClass],
-        dependencies: data?.dependencies ?? undefined,
-        licensing: data?.licensing ?? undefined,
-        description: data?.description ?? undefined,
-        attribution: data?.attribution ?? undefined,
-        thumbnailURL: data?.thumbnailURL ?? undefined,
-        thumbnailMode: data?.thumbnailMode ?? undefined
+        type: data.type,
+        tags: data.tags ?? [assetClass],
+        dependencies: data.dependencies,
+        licensing: data.licensing,
+        description: data.description,
+        attribution: data.attribution,
+        thumbnailURL: data.thumbnailURL,
+        thumbnailMode: data.thumbnailMode
       },
       { isInternal: true }
     )
@@ -97,14 +97,14 @@ export const uploadStaticResource = async (app: Application, args: StaticResourc
         mimeType: contentType,
         project,
         stats,
-        type: data?.type ?? undefined,
-        tags: data?.tags ?? [assetClass],
-        dependencies: data?.dependencies ?? undefined,
-        licensing: data?.licensing ?? undefined,
-        description: data?.description ?? undefined,
-        attribution: data?.attribution ?? undefined,
-        thumbnailURL: data?.thumbnailURL ?? undefined,
-        thumbnailMode: data?.thumbnailMode ?? undefined
+        type: data.type,
+        tags: data.tags ?? [assetClass],
+        dependencies: data.dependencies,
+        licensing: data.licensing,
+        description: data.description,
+        attribution: data.attribution,
+        thumbnailURL: data.thumbnailURL,
+        thumbnailMode: data.thumbnailMode
       },
       { isInternal: true }
     )

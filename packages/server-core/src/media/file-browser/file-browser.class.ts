@@ -46,6 +46,7 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { updateProjectResourcesJson } from '../../projects/project/project-helper'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -66,7 +67,7 @@ const ensureProjectsDirectory = (directory: string) => {
 export class FileBrowserService
   implements
     ServiceInterface<
-      boolean | string | Paginated<FileBrowserContentType>,
+      boolean | StaticResourceType | Paginated<FileBrowserContentType>,
       string | FileBrowserUpdate | FileBrowserPatch,
       FileBrowserParams,
       FileBrowserPatch
@@ -182,6 +183,8 @@ export class FileBrowserService
 
     if (config.fsProjectSyncEnabled) fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
+    // updateProjectResourcesJson(this.app, data.project)
+
     return result
   }
 
@@ -247,6 +250,8 @@ export class FileBrowserService
       else fs.renameSync(oldNamePath, newNamePath)
     }
 
+    // updateProjectResourcesJson(this.app, data.project)
+
     return result
   }
 
@@ -256,7 +261,17 @@ export class FileBrowserService
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
-    const storageProvider = getStorageProvider(storageProviderName)
+
+    if (typeof data.body === 'string') {
+      const url = new URL(data.body)
+      try {
+        const response = await fetch(url)
+        const arr = await response.arrayBuffer()
+        data.body = Buffer.from(arr)
+      } catch (error) {
+        throw new Error('Invalid URL ' + url)
+      }
+    }
     const key = path.join('projects', data.project, data.path)
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
@@ -267,7 +282,7 @@ export class FileBrowserService
     })) as Paginated<StaticResourceType>
     const existingResource = existingResourceQuery.data.length ? existingResourceQuery.data[0] : undefined
 
-    await uploadStaticResource(this.app, {
+    const staticResource = await uploadStaticResource(this.app, {
       ...data,
       key,
       contentType,
@@ -281,7 +296,9 @@ export class FileBrowserService
       fs.writeFileSync(filePath, data.body)
     }
 
-    return storageProvider.getCachedURL(key, params && params.provider == null)
+    updateProjectResourcesJson(this.app, data.project)
+
+    return staticResource
   }
 
   /**
@@ -316,6 +333,8 @@ export class FileBrowserService
     }
 
     if (config.fsProjectSyncEnabled) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+
+    // updateProjectResourcesJson(this.app, data.project)
 
     return result
   }

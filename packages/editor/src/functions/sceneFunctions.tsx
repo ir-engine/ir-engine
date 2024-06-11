@@ -27,7 +27,7 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -52,7 +52,7 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  */
 export const deleteScene = async (sceneID: string): Promise<any> => {
   try {
-    await Engine.instance.api.service(staticResourcePath).remove(sceneID)
+    await Engine.instance.api.service(fileBrowserPath).remove(sceneID)
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
@@ -62,9 +62,9 @@ export const deleteScene = async (sceneID: string): Promise<any> => {
 
 export const renameScene = async (id: string, newKey: string, projectName: string, params?: Params) => {
   try {
-    return await Engine.instance.api
-      .service(staticResourcePath)
-      .patch(id, { key: newKey, project: projectName }, params)
+    // return await Engine.instance.api
+    //   .service(fileBrowserPath)
+    //   .update(id, { key: newKey, project: projectName }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -136,26 +136,26 @@ export const saveSceneGLTF = async (
   })
 }
 
-export const onNewScene = async () => {
+export const onNewScene = async (
+  templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
+) => {
   const { projectName } = getState(EditorState)
   if (!projectName) return
 
   try {
-    const sceneData = await Engine.instance.api.service(staticResourcePath).create({
+    const sceneData = await Engine.instance.api.service(fileBrowserPath).patch(null, {
       project: projectName,
       type: 'scene',
-      // TODO
-      // sourceURL: 'projects/default-project/public/scenes/default.gltf',
-      key: `projects/${projectName}/public/scenes/New-Scene.gltf`
+      body: templateURL,
+      path: 'public/scenes/New-Scene.gltf'
     })
     if (!sceneData) return
     const sceneName = sceneData.key.split('/').pop()
-    const newProjectName = sceneData.project
 
     getMutableState(EditorState).merge({
       sceneName,
       scenePath: sceneData.key,
-      projectName: newProjectName,
+      projectName: projectName,
       sceneAssetID: sceneData.id
     })
   } catch (error) {

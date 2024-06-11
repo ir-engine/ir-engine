@@ -29,7 +29,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import {
   StaticResourceDatabaseType,
-  StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -68,9 +67,9 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
   {
     createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
     updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt)),
-    url: virtual(async (staticResource) => {
+    url: virtual(async (staticResource, context) => {
       const storageProvider = getStorageProvider()
-      return storageProvider.getCachedURL(staticResource.key)
+      return storageProvider.getCachedURL(staticResource.key, context.params.isInternal)
     })
   },
   {
@@ -80,8 +79,6 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     }
   }
 )
-
-export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>({})
 
 export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
   {
@@ -120,5 +117,3 @@ export const staticResourcePatchResolver = resolve<StaticResourceType, HookConte
     }
   }
 )
-
-export const staticResourceQueryResolver = resolve<StaticResourceQuery, HookContext>({})

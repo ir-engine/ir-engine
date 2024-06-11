@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
@@ -32,12 +32,11 @@ import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
+import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 import { StaticResourceService } from './static-resource.class'
 import {
   staticResourceDataResolver,
-  staticResourceExternalResolver,
   staticResourcePatchResolver,
-  staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
 
@@ -60,34 +59,50 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
   }
 }
 
+const createHashIfNeeded = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  if (Array.isArray(context.data)) throw new BadRequest('Batch create is not supported')
+
+  const data = context.data
+
+  if (!data.key) throw new BadRequest('key is required')
+
+  if (!data.hash) {
+    const storageProvider = getStorageProvider()
+    const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(data.key)!
+    if (!(await storageProvider.doesExist(file, directory))) throw new BadRequest('File could not be found')
+    const result = await storageProvider.getObject(data.key)
+    const hash = createStaticResourceHash(result.Body)
+    context.data.hash = hash
+  }
+}
+
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(staticResourceExternalResolver),
-      schemaHooks.resolveResult(staticResourceResolver)
-    ]
+    all: [schemaHooks.resolveResult(staticResourceResolver)]
   },
 
   before: {
-    all: [
-      // schemaHooks.validateQuery(staticResourceQueryValidator),
-      schemaHooks.resolveQuery(staticResourceQueryResolver)
-    ],
+    all: [],
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(isProvider('external'), disallow()),
       setLoggedinUserInBody('userId'),
       // schemaHooks.validateData(staticResourceDataValidator),
-      schemaHooks.resolveData(staticResourceDataResolver)
+      schemaHooks.resolveData(staticResourceDataResolver),
+      createHashIfNeeded
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(isProvider('external'), disallow()),
       // schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]
+    remove: [iff(isProvider('external'), disallow()), ensureResource]
   },
 
   after: {

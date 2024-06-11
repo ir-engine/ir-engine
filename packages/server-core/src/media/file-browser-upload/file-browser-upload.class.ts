@@ -54,16 +54,18 @@ export class FileBrowserUploadService implements ServiceInterface<string[], any,
   async create(data: FileBrowserUploadData, params: FileBrowserUploadParams) {
     if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
-    const result = (await Promise.all(
-      params.files.map((file) =>
-        this.app.service(fileBrowserPath).patch(null, {
-          project: data.project,
-          path: data.path,
-          body: file.buffer as Buffer,
-          contentType: file.mimetype
-        })
+    const result = (
+      await Promise.all(
+        params.files.map((file) =>
+          this.app.service(fileBrowserPath).patch(null, {
+            project: data.project,
+            path: data.path,
+            body: file.buffer as Buffer,
+            contentType: file.mimetype
+          })
+        )
       )
-    )) as string[]
+    ).map((result) => result.url)
 
     // Clear params otherwise all the files and auth details send back to client as  response
     for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

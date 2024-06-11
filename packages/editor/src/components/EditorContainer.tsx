@@ -286,7 +286,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: onNewScene
+      action: () => onNewScene()
     },
     {
       name: t('editor:menubar.saveScene'),

@@ -1638,7 +1638,7 @@ export const uploadLocalProjectToProvider = async (
   const oldManifestScenes = (manifest as any)?.scenes as Array<string> | undefined
 
   // remove scenes from manifest
-  if (oldManifestScenes?.length) {
+  if (oldManifestScenes) {
     delete (manifest as any).scenes
     fs.writeFileSync(path.join(projectsRootFolder, projectName, 'manifest.json'), JSON.stringify(manifest, null, 2))
   }
@@ -1646,9 +1646,6 @@ export const uploadLocalProjectToProvider = async (
   // upload new files to storage provider
   const projectRootPath = path.resolve(projectsRootFolder, projectName)
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
-
-  // migrate resources.json if needed
-  migrateResourcesJson(resourcesJsonPath)
 
   const filteredFilesInProjectFolder = getFilesRecursive(projectRootPath).filter(
     (file) => !file.includes(`projects/${projectName}/.git/`) && !file.includes(`projects/${projectName}/thumbnails/`)
@@ -1665,6 +1662,10 @@ export const uploadLocalProjectToProvider = async (
   for (const item of existingResources) {
     existingKeySet.set(item.key, item.id)
   }
+
+  // migrate resources.json if needed
+  migrateResourcesJson(resourcesJsonPath)
+
   const resourcesJson: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
 
   /**
@@ -1688,7 +1689,10 @@ export const uploadLocalProjectToProvider = async (
         },
         { isDirectory: false }
       )
-      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) continue
+      if (!filePathRelative.startsWith(`assets/`) && !filePathRelative.startsWith(`public/`)) {
+        existingKeySet.delete(key)
+        continue
+      }
 
       const isScene = oldManifestScenes && oldManifestScenes.includes(filePathRelative)
       const thisFileClass = AssetLoader.getAssetClass(key)
@@ -1699,17 +1703,11 @@ export const uploadLocalProjectToProvider = async (
       const thumbnailURL =
         resourceInfo?.thumbnailURL ?? isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined
 
-      if (projectName === 'default-project') {
-        console.log(
-          '\n',
-          resourceInfo,
-          { oldManifestScenes, key, filePathRelative, isScene, type },
-          existingKeySet.has(key)
-        )
-      }
       if (existingKeySet.has(key)) {
+        const id = existingKeySet.get(key)!
+        existingKeySet.delete(key)
         // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-        await app.service(staticResourcePath).patch(existingKeySet.get(key)!, {
+        await app.service(staticResourcePath).patch(id, {
           hash,
           mimeType: contentType,
           stats,
@@ -1748,6 +1746,7 @@ export const uploadLocalProjectToProvider = async (
       results.push(null)
     }
   }
+  await Promise.all(Array.from(existingKeySet.values()).map((id) => app.service(staticResourcePath).remove(id)))
   await updateProjectResourcesJson(app, projectName)
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
