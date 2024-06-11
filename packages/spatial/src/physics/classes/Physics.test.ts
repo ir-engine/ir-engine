@@ -1583,11 +1583,24 @@ describe('PhysicsAPI', () => {
       })
 
       /**
-       * @todo How to check these without repeating the function's code?
-       * @answer Test the static resulting values
-      result.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
-      result.setRotation(quaternionRelativeToRoot)
-       */
+      // @todo Test the static resulting values, in order to not repeate the internal function's code (computing relative pos/rot)
+      it('should set the position relative to the parent entity', () => {
+        const Expected = new Vector3(1, 2, 3)
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        console.log(JSON.stringify(result.position))
+        assertVecApproxEq(result.position, 0, 3)
+      })
+      */
+
+      /**
+      // @todo Test the static resulting values, in order to not repeate the internal function's code (computing relative pos/rot)
+      it('should set the rotation relative to the parent entity', () => {
+        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        console.log(JSON.stringify(result.rotation))
+        assertVecApproxEq(result.rotation, 0, 4)
+      })
+      */
     })
 
     describe('attachCollider', () => {
