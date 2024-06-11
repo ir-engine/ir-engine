@@ -994,9 +994,51 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    /**
-    describe("setKinematicRigidbodyPose", () => {})
-    */
+    describe('setKinematicRigidbodyPose', () => {
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      /**
+      // @todo What is missing for these tests to work as expected? Before/After are all 0
+      it("should set the nextTranslation property of the entity's Kinematic RigidBody", () => {
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const before = body.nextTranslation()
+        Physics.setKinematicRigidbodyPose(testEntity, position, rotation)
+        const after = body.nextTranslation()
+        assertVecAllApproxNotEq(before, after, 3)
+      })
+
+      it("should set the nextRotation property of the entity's Kinematic RigidBody", () => {
+        const body = Physics._Rigidbodies.get(testEntity)!
+        const before = body.nextRotation()
+        Physics.setKinematicRigidbodyPose(testEntity, position, rotation)
+        const after = body.nextRotation()
+        assertVecAllApproxNotEq(before, after, 4)
+      })
+      */
+    })
   }) // << Rigidbodies
 
   describe('Colliders', () => {
