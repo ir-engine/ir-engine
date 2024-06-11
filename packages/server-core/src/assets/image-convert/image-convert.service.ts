@@ -68,13 +68,13 @@ const convertImage =
         image.flip(false)
       }
       await image.toFile(outPath)
-      const result: string = await app.service(fileBrowserPath).patch(null, {
+      const result = await app.service(fileBrowserPath).patch(null, {
         project,
         path: projectRelativeDirectoryPath + '/' + fileName,
         body: fs.readFileSync(outPath),
         contentType: `image/${data.format}`
       })
-      return result
+      return result.url
     }
 
     if (isDir) {

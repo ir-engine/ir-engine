@@ -27,7 +27,7 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { StaticResourceType, fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { cleanString } from '@etherealengine/common/src/utils/cleanString'
 import { EntityUUID, UUIDComponent, UndefinedEntity } from '@etherealengine/ecs'
 import { getComponent, getMutableComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -60,11 +60,20 @@ export const deleteScene = async (sceneID: string): Promise<any> => {
   return true
 }
 
-export const renameScene = async (id: string, newKey: string, projectName: string, params?: Params) => {
+export const renameScene = async (
+  resource: StaticResourceType,
+  newKey: string,
+  projectName: string,
+  params?: Params
+) => {
+  const oldName = resource.key.split('/').pop()!
+  const newName = newKey.split('/').pop()!
+  const oldPath = resource.key.split('/').slice(0, -1).join('/')
+  const newPath = newKey.split('/').slice(0, -1).join('/')
   try {
-    // return await Engine.instance.api
-    //   .service(fileBrowserPath)
-    //   .update(id, { key: newKey, project: projectName }, params)
+    return await Engine.instance.api
+      .service(fileBrowserPath)
+      .update(null, { oldName, newName, oldPath, newPath }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error

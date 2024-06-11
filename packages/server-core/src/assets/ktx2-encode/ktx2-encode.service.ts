@@ -71,7 +71,7 @@ const createKtx2 =
         body: fs.readFileSync(outPath),
         contentType: 'image/ktx2'
       })
-      return result
+      return result.url
     }
     if (isDir) {
       const files = fs

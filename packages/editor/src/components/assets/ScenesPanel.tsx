@@ -134,17 +134,17 @@ export default function ScenesPanel() {
     setNewName(loadedScene!.key.split('/').pop()!.replace('.gltf', '').replace('.scene.json', ''))
   }
 
-  const finishRenaming = async (id: string) => {
+  const finishRenaming = async (resource: StaticResourceType) => {
     setRenaming(false)
     const currentURL = loadedScene!.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
-    const newData = await renameScene(id, newURL, loadedScene!.project!)
+    const newData = await renameScene(resource, newURL, loadedScene!.project!)
     getMutableState(EditorState).scenePath.set(newData.key)
     setNewName('')
   }
 
-  const renameSceneToNewName = async (e, id: string) => {
-    if (e.key == 'Enter' && loadedScene) finishRenaming(id)
+  const renameSceneToNewName = async (e, resource: StaticResourceType) => {
+    if (e.key == 'Enter' && loadedScene) finishRenaming(resource)
   }
 
   const getSceneURL = async (url) => {
@@ -187,7 +187,7 @@ export default function ScenesPanel() {
                   <div className={styles.detailBlock}>
                     {loadedScene === scene && isRenaming ? (
                       <Paper component="div" className={styles.inputContainer}>
-                        <ClickAwayListener onClickAway={() => finishRenaming(scene.id)}>
+                        <ClickAwayListener onClickAway={() => finishRenaming(scene)}>
                           <InputBase
                             className={styles.input}
                             name="name"
@@ -198,7 +198,7 @@ export default function ScenesPanel() {
                               e.stopPropagation()
                             }}
                             onChange={(e) => setNewName(e.target.value)}
-                            onKeyPress={(e) => renameSceneToNewName(e, scene.id)}
+                            onKeyPress={(e) => renameSceneToNewName(e, scene)}
                           />
                         </ClickAwayListener>
                       </Paper>
