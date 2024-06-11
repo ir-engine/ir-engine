@@ -27,8 +27,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-
 import { AssetType } from '@etherealengine/common/src/schema.type.module'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
 import { renameScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -41,9 +41,7 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
   const inputError = useHookstate('')
 
   const handleSubmit = async () => {
-    if (
-      !(newSceneName.value.length >= 3 && newSceneName.value.length <= 64 && newSceneName.value.indexOf('_') === -1)
-    ) {
+    if (!isValidSceneName(newSceneName.value)) {
       inputError.set(t('editor:errors.invalidSceneName'))
       return
     }
