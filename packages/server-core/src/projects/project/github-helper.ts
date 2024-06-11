@@ -33,10 +33,10 @@ import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -51,12 +51,13 @@ import {
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { useGit } from '../../util/gitHelperFunctions'
-import { createExecutorJob, getProjectPushJobBody } from './project-helper'
+import { getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
 
 // 30 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing some files that were around
