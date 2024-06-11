@@ -50,10 +50,16 @@ export default function ScenesPanel() {
   const contextMenuRef = useRef(null)
   const isContextMenuOpen = useHookstate<StaticResourceType['id']>('')
   const scenesLoading = scenesQuery.status === 'pending'
-  const onCreateScene = async () => onNewScene()
 
   const onClickScene = (scene: StaticResourceType) => {
     getMutableState(EditorState).scenePath.set(scene.key)
+  }
+
+  const isCreatingScene = useHookstate(false)
+  const handleCreateScene = async () => {
+    isCreatingScene.set(true)
+    await onNewScene()
+    isCreatingScene.set(false)
   }
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
@@ -77,11 +83,13 @@ export default function ScenesPanel() {
       <div className="mb-4 w-full bg-theme-surface-main">
         <Button
           startIcon={<HiOutlinePlusCircle />}
+          endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
+          disabled={isCreatingScene.value}
           variant="transparent"
           rounded="none"
-          className="ml-auto w-32 bg-theme-highlight px-2"
+          className="ml-auto bg-theme-highlight px-2"
           size="small"
-          onClick={onCreateScene}
+          onClick={handleCreateScene}
         >
           {t('editor:newScene')}
         </Button>

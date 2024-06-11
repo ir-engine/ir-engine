@@ -63,6 +63,7 @@ import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/sy
 import React, { useEffect } from 'react'
 import { Color, Euler, MathUtils, Matrix4, Quaternion, Scene, Sphere, Vector3 } from 'three'
 
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Paginated } from '@feathersjs/feathers'
@@ -269,8 +270,19 @@ const ThumbnailJobReactor = () => {
   const sceneState = useHookstate(getMutableState(GLTFDocumentState)) // for model rendering
   const [tex] = useTexture(fileType === 'texture' ? src : '') // for texture loading
   const lightComponent = useOptionalComponent(state.lightEntity.value, DirectionalLightComponent)
+  const errorComponent = useOptionalComponent(state.modelEntity.value, ErrorComponent)
 
   const rendering = useHookstate(false)
+
+  const tryCatch = (fn: any) => {
+    try {
+      fn()
+    } catch (e) {
+      console.error('failed to generate thumbnail for', src)
+      console.error(e)
+      jobState.set(jobState.get(NO_PROXY).slice(1))
+    }
+  }
 
   function cleanupState() {
     if (state.cameraEntity.value) {
@@ -306,18 +318,20 @@ const ThumbnailJobReactor = () => {
   useEffect(() => {
     if (src === '') return
     if (fileType !== 'image') return
-    if (loadPromiseState.value != null) return
-    const image = new Image()
-    image.crossOrigin = 'anonymous'
-    image.src = src
-    loadPromiseState.set(
-      image
-        .decode()
-        .then(() => drawToCanvas(image))
-        .then(getCanvasBlob)
-        .then((blob) => uploadThumbnail(src, project, id, blob))
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-    )
+    if (loadPromiseState.promised || loadPromiseState.value != null) return
+    tryCatch(() => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+      image.src = src
+      loadPromiseState.set(
+        image
+          .decode()
+          .then(() => drawToCanvas(image))
+          .then(getCanvasBlob)
+          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
+          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+      )
+    })
   }, [fileType, id])
 
   // Load and render video
@@ -325,17 +339,19 @@ const ThumbnailJobReactor = () => {
     if (src === '') return
     if (fileType !== 'video') return
     if (loadPromiseState.value != null) return
-    const video: HTMLVideoElement = document.createElement('video')
-    video.src = src
-    video.crossOrigin = 'anonymous'
-    loadPromiseState.set(
-      seekVideo(video, 1)
-        .then(() => drawToCanvas(video))
-        .then(getCanvasBlob)
-        .then((blob) => uploadThumbnail(src, project, id, blob))
-        .then(() => video.remove())
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-    )
+    tryCatch(() => {
+      const video = document.createElement('video')
+      video.src = src
+      video.crossOrigin = 'anonymous'
+      loadPromiseState.set(
+        seekVideo(video, 1)
+          .then(() => drawToCanvas(video))
+          .then(getCanvasBlob)
+          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
+          .then(() => video.remove())
+          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+      )
+    })
   }, [fileType, id])
 
   // Load and render texture
@@ -344,22 +360,23 @@ const ThumbnailJobReactor = () => {
     if (fileType !== 'texture') return
     if (loadPromiseState.value != null) return
     if (!tex) return
+    tryCatch(() => {
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
 
-    const image = new Image()
-    image.crossOrigin = 'anonymous'
-
-    loadPromiseState.set(
-      createReadableTexture(tex, { url: true })
-        .then((result) => {
-          image.src = result as string
-          return image.decode()
-        })
-        .then(() => drawToCanvas(image))
-        .then(getCanvasBlob)
-        .then((blob) => uploadThumbnail(src, project, id, blob))
-        .then(() => image.remove())
-        .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
-    )
+      loadPromiseState.set(
+        createReadableTexture(tex, { url: true })
+          .then((result) => {
+            image.src = result as string
+            return image.decode()
+          })
+          .then(() => drawToCanvas(image))
+          .then(getCanvasBlob)
+          .then((blob) => tryCatch(() => uploadThumbnail(src, project, id, blob)))
+          .then(() => image.remove())
+          .then(() => jobState.set(jobState.get(NO_PROXY).slice(1)))
+      )
+    })
   }, [fileType, tex, id])
 
   // Load models
@@ -414,6 +431,12 @@ const ThumbnailJobReactor = () => {
 
   // Render model to canvas
   useEffect(() => {
+    if (errorComponent?.keys.includes(ModelComponent.name)) {
+      console.error('failed to load model for thumbnail', src)
+      rendering.set(false)
+      jobState.set(jobState.get(NO_PROXY).slice(1))
+      return
+    }
     if (src === '') return
     if (rendering.value) return
     if (fileType !== 'model' || !state.cameraEntity.value || !state.modelEntity.value || !lightComponent?.light.value)
@@ -429,99 +452,105 @@ const ThumbnailJobReactor = () => {
     }
 
     rendering.set(true)
+    try {
+      updateBoundingBox(modelEntity)
 
-    updateBoundingBox(modelEntity)
+      const bbox = getComponent(modelEntity, BoundingBoxComponent).box
+      const length = bbox.getSize(new Vector3(0, 0, 0)).length()
+      const normalizedSize = new Vector3().setScalar(length / 2)
 
-    const bbox = getComponent(modelEntity, BoundingBoxComponent).box
-    const length = bbox.getSize(new Vector3(0, 0, 0)).length()
-    const normalizedSize = new Vector3().setScalar(length / 2)
+      //const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement
+      // Create the camera entity
+      const cameraEntity = state.cameraEntity.value
+      setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
 
-    //const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement
-    // Create the camera entity
-    const cameraEntity = state.cameraEntity.value
-    setComponent(cameraEntity, NameComponent, 'thumbnail job camera for ' + src)
+      // Assuming bbox is already defined
+      const size = bbox.getSize(new Vector3())
+      const center = bbox.getCenter(new Vector3())
 
-    // Assuming bbox is already defined
-    const size = bbox.getSize(new Vector3())
-    const center = bbox.getCenter(new Vector3())
+      // Calculate the bounding sphere radius
+      const boundingSphere = bbox.getBoundingSphere(new Sphere())
+      const radius = boundingSphere.radius
 
-    // Calculate the bounding sphere radius
-    const boundingSphere = bbox.getBoundingSphere(new Sphere())
-    const radius = boundingSphere.radius
+      const camera = getComponent(cameraEntity, CameraComponent).cameras[0]
+      const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
 
-    const camera = getComponent(cameraEntity, CameraComponent).cameras[0]
-    const fov = camera.fov * (Math.PI / 180) // convert vertical fov to radians
+      // Calculate the camera direction vector with the desired angle offsets
+      const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
+      const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
 
-    // Calculate the camera direction vector with the desired angle offsets
-    const angleY = 30 * (Math.PI / 180) // 30 degrees in radians
-    const angleX = 15 * (Math.PI / 180) // 15 degrees in radians
+      const direction = new Vector3(
+        Math.sin(angleY) * Math.cos(angleX),
+        Math.sin(angleX),
+        Math.cos(angleY) * Math.cos(angleX)
+      ).normalize()
 
-    const direction = new Vector3(
-      Math.sin(angleY) * Math.cos(angleX),
-      Math.sin(angleX),
-      Math.cos(angleY) * Math.cos(angleX)
-    ).normalize()
+      // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
+      const distance = radius / Math.sin(fov / 2)
 
-    // Calculate the distance from the camera to the bounding sphere such that it fully frames the content
-    const distance = radius / Math.sin(fov / 2)
+      // Calculate the camera position
+      const cameraPosition = direction.multiplyScalar(distance).add(center)
 
-    // Calculate the camera position
-    const cameraPosition = direction.multiplyScalar(distance).add(center)
+      // Set the camera transform component
+      setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
+      computeTransformMatrix(cameraEntity)
 
-    // Set the camera transform component
-    setComponent(cameraEntity, TransformComponent, { position: cameraPosition })
-    computeTransformMatrix(cameraEntity)
+      // Calculate the quaternion rotation to look at the center
+      const lookAtMatrix = new Matrix4()
+      lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
+      const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
 
-    // Calculate the quaternion rotation to look at the center
-    const lookAtMatrix = new Matrix4()
-    lookAtMatrix.lookAt(cameraPosition, center, new Vector3(0, 1, 0))
-    const targetRotation = new Quaternion().setFromRotationMatrix(lookAtMatrix)
+      // Apply the rotation to the camera's TransfortexturemComponent
+      setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
+      computeTransformMatrix(cameraEntity)
+      camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
 
-    // Apply the rotation to the camera's TransformComponent
-    setComponent(cameraEntity, TransformComponent, { rotation: targetRotation })
-    computeTransformMatrix(cameraEntity)
-    camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
+      // Update the view camera matrices
+      const viewCamera = camera
+      viewCamera.matrixWorld.copy(camera.matrixWorld)
+      viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
+      viewCamera.projectionMatrix.copy(camera.projectionMatrix)
+      viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
 
-    // Update the view camera matrices
-    const viewCamera = camera
-    viewCamera.matrixWorld.copy(camera.matrixWorld)
-    viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
-    viewCamera.projectionMatrix.copy(camera.projectionMatrix)
-    viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
+      viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+      setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
 
-    viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
-    setComponent(cameraEntity, SceneComponent, { children: [modelEntity, lightEntity] })
+      const scene = new Scene()
+      scene.children = getComponent(cameraEntity, SceneComponent)
+        .children.map((entity) => getComponent(entity, GroupComponent))
+        .flat()
+      const canvas = getComponent(cameraEntity, RendererComponent).canvas
 
-    const scene = new Scene()
-    scene.children = getComponent(cameraEntity, SceneComponent)
-      .children.map((entity) => getComponent(entity, GroupComponent))
-      .flat()
-    const canvas = getComponent(cameraEntity, RendererComponent).canvas
-    // canvas.width = 256
-    // canvas.height = 256
-    const renderer = getComponent(cameraEntity, RendererComponent).renderer
-    //renderer.setSize(256, 256)
+      requestAnimationFrame(() => {
+        const tmpCanvas = document.createElement('canvas')
+        tmpCanvas.width = 256
+        tmpCanvas.height = 256
+        const ctx = tmpCanvas.getContext('2d')!
+        ctx.drawImage(canvas, 0, 0, 256, 256)
 
-    //renderer.render(scene, viewCamera)
-    requestAnimationFrame(() => {
-      //setTimeout(() => {
-      //previewScreenshot(256, 256, 0.9, 'png', scene, camera).then((blob) => {
-      const tmpCanvas = document.createElement('canvas')
-      tmpCanvas.width = 256
-      tmpCanvas.height = 256
-      const ctx = tmpCanvas.getContext('2d')!
-      ctx.drawImage(canvas, 0, 0, 256, 256)
-      tmpCanvas.toBlob((blob: Blob) => {
-        //blitTexture(new CanvasTexture(canvas)).then((blob: Blob) => {
-        uploadThumbnail(src, project, id, blob).then(() => {
+        function cleanup() {
           tmpCanvas.remove()
           jobState.set(jobState.get(NO_PROXY).slice(1))
           rendering.set(false)
+        }
+
+        tmpCanvas.toBlob((blob: Blob) => {
+          try {
+            uploadThumbnail(src, project, id, blob).then(cleanup)
+          } catch (e) {
+            console.error('failed to upload model thumbnail for', src)
+            console.error(e)
+            cleanup()
+          }
         })
       })
-      //}, 5000)
-    })
-  }, [state.cameraEntity, state.modelEntity, lightComponent?.light, sceneState.keys])
+    } catch (e) {
+      console.error('failed to generate model thumbnail for', src)
+      console.error(e)
+      jobState.set(jobState.get(NO_PROXY).slice(1))
+      rendering.set(false)
+    }
+  }, [state.cameraEntity, state.modelEntity, lightComponent?.light, sceneState.keys, errorComponent?.keys])
 
   return null
 }

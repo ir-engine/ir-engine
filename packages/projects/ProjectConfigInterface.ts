@@ -51,6 +51,9 @@ export interface ProjectConfigInterface {
         [x: string]: any
         exact?: boolean
       }
+      componentProps?: {
+        [x: string]: any
+      }
     }
   }
 
