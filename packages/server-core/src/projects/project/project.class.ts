@@ -131,7 +131,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-    await super._create({
+    const project = await super._create({
       id: uuidv4(),
       name: projectName,
       enabled,

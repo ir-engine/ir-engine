@@ -48,6 +48,7 @@ type StaticResourceUploadArgs = {
 }
 
 export const uploadStaticResource = async (app: Application, args: StaticResourceUploadArgs) => {
+  console.log(args)
   const { key, project, body, contentType, id, ...data } = args
 
   const storageProvider = getStorageProvider()

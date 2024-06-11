@@ -75,7 +75,6 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
-import { fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
@@ -1749,7 +1748,16 @@ export const uploadLocalProjectToProvider = async (
       results.push(null)
     }
   }
-  await Promise.all(Array.from(existingKeySet.values()).map((id) => app.service(staticResourcePath).remove(id)))
+
+  await Promise.all(
+    Array.from(existingKeySet.values()).map(async (id) => {
+      try {
+        await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
+      } catch (error) {
+        logger.warn(`Error deleting resource: ${error}`)
+      }
+    })
+  )
   await updateProjectResourcesJson(app, projectName)
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
@@ -1761,6 +1769,7 @@ export const updateProjectResourcesJson = async (app: Application, projectName: 
     query: { project: projectName },
     paginate: false
   })
+  console.log('\n\n\nupdateProjectResourcesJson', projectName)
   if (resources.length === 0) return
   const resourcesJson = Object.fromEntries(
     resources.map((resource) => [
@@ -1777,10 +1786,27 @@ export const updateProjectResourcesJson = async (app: Application, projectName: 
       }
     ])
   )
-  await app.service(fileBrowserPath).patch(null, {
-    project: projectName,
-    path: `resources.json`,
-    body: Buffer.from(JSON.stringify(resourcesJson, null, 2)),
-    contentType: 'application/json'
-  })
+
+  const key = `projects/${projectName}/resources.json`
+  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+  const storageProvider = getStorageProvider()
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
 }

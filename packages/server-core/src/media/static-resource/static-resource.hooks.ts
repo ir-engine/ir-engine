@@ -45,6 +45,18 @@ import {
   staticResourceResolver
 } from './static-resource.resolvers'
 
+const ensureProject = async (context: HookContext<StaticResourceService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data)
+    if (item.key?.startsWith('projects/') && !item.project)
+      throw new BadRequest('Project is required for project resources')
+}
+
 /**
  * Ensure static-resource with the specified id exists and user is creator of the resource
  * @param context
@@ -142,8 +154,20 @@ export default {
       discardQuery('action', 'project', 'projectId'),
       collectAnalytics()
     ],
-    get: [disallow('external')],
+    get: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'read'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+        )
+      ),
+      discardQuery('action', 'project', 'projectId'),
+      collectAnalytics()
+    ],
     create: [
+      ensureProject,
       iff(
         isProvider('external'),
         iffElse(

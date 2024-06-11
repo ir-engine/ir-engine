@@ -250,8 +250,8 @@ export class FileBrowserService
    * Upload file
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
-    const storageProviderName = data.storageProviderName
-    delete data.storageProviderName
+    if (!data.path.startsWith('assets/') && !data.path.startsWith('public/'))
+      throw new Error('Not allowed to access this directory')
 
     if (typeof data.body === 'string') {
       const url = new URL(data.body)
@@ -272,6 +272,7 @@ export class FileBrowserService
       query: { key }
     })) as Paginated<StaticResourceType>
     const existingResource = existingResourceQuery.data.length ? existingResourceQuery.data[0] : undefined
+    console.log(existingResource)
 
     const staticResource = await uploadStaticResource(this.app, {
       ...data,
