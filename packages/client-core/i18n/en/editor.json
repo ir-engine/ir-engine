@@ -1136,6 +1136,7 @@
       "refresh": "Refresh",
       "back": "Back",
       "loadingFiles": "Loading files",
+      "loadingProjects": "Loading projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",

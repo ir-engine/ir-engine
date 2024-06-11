@@ -75,7 +75,7 @@ import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../bro
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
-  selectedFile?: string
+  originalPath: string
   validProjects: string[]
   folderName?: string
   nestingDirectory?: string
@@ -127,8 +127,7 @@ const getProjectName = (directory: string, validProjectNames: string[]) =>
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
 
-  const originalPath = `/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`
-  const selectedDirectory = useHookstate(originalPath)
+  const selectedDirectory = useHookstate(props.originalPath)
 
   const projectName = getProjectName(selectedDirectory.value, props.validProjects)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
@@ -231,7 +230,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
-      const projectName = folder.split('/')[1] // TODO: support projects with / in the name
       const relativePath = folder.replace('projects/' + projectName + '/', '')
       await Promise.all(
         data.files.map(async (file) => {
@@ -293,7 +291,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     !['projects' + (orgName ? `/${orgName}` : ''), 'projects/' + (orgName ? `/${orgName}/` : '')].includes(
       selectedDirectory.value.slice(1)
     )
-  const showBackButton = selectedDirectory.value.split('/').length > originalPath.split('/').length
+  const showBackButton = selectedDirectory.value.split('/').length > props.originalPath.split('/').length
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
@@ -623,7 +621,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
 export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
-  const projectName = useMutableState(EditorState).projectName.value
+  const originalPath = useMutableState(EditorState).projectName.value
+  const { t } = useTranslation()
 
   const projects = useFind(projectPath, {
     query: {
@@ -637,14 +636,15 @@ export default function FilesPanelContainer() {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
-  if (!projects.data.length) return <LoadingView />
+  if (!originalPath || !projects.data.length)
+    return <LoadingView title={t('editor:layout.filebrowser.loadingProjects')} className="h-6 w-6" />
 
   const validProjects = projects.data.map((project) => project.name)
 
   return (
     <FileBrowserContentPanel
       validProjects={validProjects}
-      selectedFile={projectName!}
+      originalPath={'/projects/' + originalPath + '/'}
       onSelectionChanged={onSelectionChanged}
     />
   )
