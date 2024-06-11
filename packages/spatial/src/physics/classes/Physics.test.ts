@@ -1539,10 +1539,50 @@ describe('PhysicsAPI', () => {
         assert.equal(triggerDesc.isSensor, hasComponent(testEntity, TriggerComponent))
       })
 
+      it('should set the shape to a Ball when the ColliderComponent shape is a Sphere', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Ball)
+      })
+
+      it('should set the shape to a Cuboid when the ColliderComponent shape is a Box', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+      })
+
+      it('should set the shape to a Cuboid when the ColliderComponent shape is a Plane', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Plane })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+      })
+
       /**
-      // @todo Are there functions from Desc used anywhere?
-      // @todo Test the shape is correct
-      //
+      // @todo Needs a proper MeshComponent object
+      it('should set the shape to a TriMesh when the ColliderComponent shape is a Mesh', () => {
+        setComponent(testEntity, MeshComponent)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.TriMesh)
+      })
+      */
+
+      /**
+      // @todo Why is this failing? Does it also need a proper MeshComponent object
+      it('should set the shape to a ConvexPolyhedron when the ColliderComponent shape is a ConvexHull', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.ConvexHull })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.ConvexPolyhedron)
+      })
+      */
+
+      it('should set the shape to a Cylinder when the ColliderComponent shape is a Cylinder', () => {
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder })
+        const result = Physics.createColliderDesc(testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cylinder)
+      })
+
+      /**
        * @todo How to check these without repeating the function's code?
        * @answer Test the static resulting values
       result.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
