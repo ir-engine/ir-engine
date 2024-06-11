@@ -379,7 +379,13 @@ export async function handleWebRtcTransportCreate(
 
     getMutableState(MediasoupTransportObjectsState)[newTransport.id].set(newTransport)
 
+    logger.info('[IR-NET] Creating transport for network with Transfport: ' + newTransport.id)
+
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
+
+    logger.info(
+      `[IR-NET] iceCadidates[0]s IPaddress is : ${iceCandidates[0].address} and port is ${iceCandidates[0].port} and ${iceCandidates[0].ip}`
+    )
 
     if (config.kubernetes.enabled) {
       const serverState = getState(ServerState)
@@ -452,6 +458,7 @@ export async function handleWebRtcTransportCreate(
 export async function handleProduceData(
   action: typeof MediasoupDataProducerActions.requestProducer.matches._TYPE
 ): Promise<any> {
+  logger.info(`[IR-NET] executing handleProducerData for network: ${action.$network} and peer: ${action.$peer}`)
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { $peer: peerID, transportID, sctpStreamParameters, dataChannel: label, protocol, appData, requestID } = action
@@ -462,6 +469,9 @@ export async function handleProduceData(
       logger.info('userId could not be found for sparkID ' + peerID)
       return
     }
+    logger.info(
+      `[IR-NET] userId is : ${userId} and peerID is : ${peerID} and label is : ${label} and protocol is : ${protocol} and appData is : ${appData} and requestID is : ${requestID} and transportID is : ${transportID} and sctpStreamParameters is : ${sctpStreamParameters}`
+    )
 
     if (typeof label !== 'string' || !getState(DataChannelRegistryState)[label]) {
       const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + label
@@ -490,7 +500,7 @@ export async function handleProduceData(
         })
       )
     }
-
+    logger.info(`[IR-NET] peerID "${peerID}", Data channel "${label}" %o: `, action)
     logger.info(`peerID "${peerID}", Data channel "${label}" %o: `, action)
     const transport = getState(MediasoupTransportObjectsState)[transportID]
     if (!transport) {
@@ -515,6 +525,7 @@ export async function handleProduceData(
     logger.info('Data producer params: %o', options)
     const dataProducer = await transport.produceData(options)
 
+    logger.info(`[IR-NET] User ${userId} producing data on ${label}`)
     logger.info(`User ${userId} producing data on ${label}`)
     if (!network.peers[peerID]) {
       logger.error('Client no longer exists.')
@@ -587,6 +598,7 @@ export async function handleProduceData(
     }
 
     // Possibly do stuff with appData here
+    logger.info('[IR-NET] Sending dataproducer id to client: ' + dataProducer.id)
     logger.info('Sending dataproducer id to client: ' + dataProducer.id)
     return dispatchAction(
       MediasoupDataProducerActions.producerCreated({
@@ -622,8 +634,14 @@ export async function handleWebRtcTransportConnect(
   action: typeof MediasoupTransportActions.requestTransportConnect.matches._TYPE
 ) {
   const { transportID, requestID, dtlsParameters } = action
+  logger.info(
+    `[IR-NET] Inside handleWebRtcTransportConnect for transportID: ${transportID} and requestID: ${requestID} and dtlsParameters: ${dtlsParameters}`
+  )
   const transport = getState(MediasoupTransportObjectsState)[transportID]
   if (transport) {
+    logger.info(
+      `[IR-NET] transport is ${transport.id} and first iceCandidate is ${transport.iceCadidates[0].address} and its port is ${transport.iceCadidates[0].port} and ${transport.iceCadidates[0].ip}`
+    )
     const pending =
       transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
     pending
@@ -655,6 +673,7 @@ export async function handleWebRtcTransportConnect(
     transportsConnectPending[transportID] = pending
   } else {
     logger.error('Invalid transport.')
+    logger.error(`[IR-NET] Invalid transport with transportID: ${transport?.id}`)
     dispatchAction(
       MediasoupTransportActions.requestTransportConnectError({
         requestID,
@@ -676,9 +695,12 @@ export async function handleRequestProducer(
   const userId = getUserIdFromPeerID(network, peerID)
 
   const transport = getState(MediasoupTransportObjectsState)[transportID]
-
+  logger.error(
+    `[IR-NET] Inside HandleRequestProducer with network id: ${network.id} and peerID: ${peerID} and transportID: ${transportID} and rtpParameters: ${rtpParameters} and paused: ${paused} and requestID: ${requestID} and appData: ${appData} and kind: ${kind} and userId: ${userId}`
+  )
   if (!transport) {
     logger.error('Invalid transport ID.')
+    logger.error('[IR-NET] Invalid transport ID.')
     return dispatchAction(
       MediasoupMediaProducerActions.requestProducerError({
         requestID,
@@ -738,6 +760,7 @@ export async function handleRequestProducer(
     })
 
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
+    logger.info(`[IR-NET] New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
     if (userId && network.peers[peerID]) {
       network.peers[peerID]!.media![appData.mediaTag!] = {
@@ -783,7 +806,9 @@ export const handleRequestConsumer = async (
 
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
   const forPeerID = action.$peer
-
+  logger.info(
+    `[IR-NET] Inside handleRequestConsumer for network: ${network.id} and mediaPeerId: ${mediaPeerId} and mediaTag: ${mediaTag} and rtpCapabilities: ${rtpCapabilities} and channelID: ${channelID} and forPeerID: ${forPeerID}`
+  )
   let producer
   try {
     producer = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers).find(
@@ -791,6 +816,7 @@ export const handleRequestConsumer = async (
     )
   } catch (err) {
     console.log('error getting producer', getState(MediasoupMediaProducerConsumerState), network.id, err)
+    console.log('[IR-NET] error getting producer', getState(MediasoupMediaProducerConsumerState), network.id, err)
     return
   }
 
@@ -800,6 +826,7 @@ export const handleRequestConsumer = async (
   const router = network.transport.routers.find((router) => router.id === transport?.internal.routerId)
   if (!producer || !router || !transport || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
     logger.info('%o', { producer, router, transport })
+    logger.info('[IR-NET] %o', { producer, router, transport })
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${forPeerID} ${msg}`)
     return
@@ -825,6 +852,7 @@ export const handleRequestConsumer = async (
     // to make sure we close and clean up consumers in all circumstances
     consumer.on('transportclose', () => {
       logger.info(`Consumer's transport closed, consumer.id: "${consumer.id}".`)
+      logger.info(`[IR-NET] Consumer's transport closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
         MediasoupMediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
@@ -837,6 +865,7 @@ export const handleRequestConsumer = async (
 
     consumer.on('producerclose', () => {
       logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
+      logger.info(`[IR-NET] Consumer's producer closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
         MediasoupMediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
@@ -883,6 +912,12 @@ export const handleCloseProducer = async (
     )
   } catch (err) {
     console.log('error getting producer', getState(MediasoupMediaProducersConsumersObjectsState), network.id, err)
+    console.log(
+      '[IR-NET] error getting producer',
+      getState(MediasoupMediaProducersConsumersObjectsState),
+      network.id,
+      err
+    )
     return
   }
 
@@ -905,6 +940,12 @@ export const handleCloseConsumer = async (
     )
   } catch (err) {
     console.log('error getting consumer', getState(MediasoupMediaProducersConsumersObjectsState), network.id, err)
+    console.log(
+      '[IR-NET] error getting consumer',
+      getState(MediasoupMediaProducersConsumersObjectsState),
+      network.id,
+      err
+    )
     return
   }
 
@@ -922,10 +963,12 @@ export async function handleConsumerSetLayers(
     | undefined
   if (!consumer) return logger.warn('consumer-set-layers: consumer not found ' + action.consumerID)
   logger.info('consumer-set-layers: %o, %o', layer, consumer.appData)
+  logger.info('[IR-NET] consumer-set-layers: %o, %o', layer, consumer.appData)
   try {
     await consumer.setPreferredLayers({ spatialLayer: layer })
   } catch (err) {
     logger.warn(err)
     logger.warn('consumer-set-layers: failed to set preferred layers ' + action.consumerID)
+    logger.warn('[IR-NET] consumer-set-layers: failed to set preferred layers ' + action.consumerID)
   }
 }

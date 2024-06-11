@@ -104,7 +104,7 @@ export const setupIPs = async () => {
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
-
+  logger.info(`[IR-NET] cleanupOldInstanceservers with ${app.channel('instanceserver').connections.length} connections`)
   const instances = (await app.service(instancePath).find({
     query: {
       ended: false
@@ -155,6 +155,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
       $limit: 0
     }
   })) as any
+  logger.info(`[IR-NET] inside authorizeUserToJoinServer with ${authorizedUsers.total} authorized users.`)
   if (authorizedUsers.total > 0) {
     const thisUserAuthorized = (await app.service(instanceAuthorizedUserPath).find({
       query: {
@@ -165,6 +166,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
     })) as any
     if (thisUserAuthorized.total === 0) {
       logger.info(`User "${userId}" not authorized to be on this server.`)
+      logger.info(`[IR-NET] User "${userId}" not authorized to be on this server.`)
       return false
     }
   }
@@ -183,6 +185,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   })) as any
   if (userKick.total > 0) {
     logger.info(`User "${userId}" has been kicked from this server for this duration`)
+    logger.info(`[IR-NET] User "${userId}" has been kicked from this server for this duration`)
     return false
   }
 
@@ -191,6 +194,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 
 export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
   const client = Object.values(network.peers).find((c) => c.peerID === peerID)
+  logger.info(`[IR-NET] inside getUserIdFromPeerID with probable userID ${client?.userId}`)
   return client?.userId
 }
 
@@ -208,7 +212,7 @@ export const handleConnectingPeer = (
   const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
-
+  logger.info(`[IR-NET] inside handleConnectionPeer with peerID ${peerID} and userId ${userId}`)
   NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
 
   const networkState = getMutableState(NetworkState).networks[network.id]
@@ -221,6 +225,7 @@ export const handleConnectingPeer = (
   const updatePeersAction = updatePeers(network)
 
   logger.info('Connect to world from ' + userId)
+  logger.info('[IR-NET] Connect to world from ' + userId)
 
   const cachedActions = ([updatePeersAction] as Required<Action>[])
     .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
@@ -245,6 +250,7 @@ const getUserSpawnFromInvite = async (
   inviteCode: InviteCode,
   iteration = 0
 ) => {
+  logger.info(`[IR-NET] inside getUserSpawnFromInvite with inviteCode ${inviteCode}`)
   if (inviteCode) {
     const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
       query: {
@@ -272,6 +278,9 @@ const getUserSpawnFromInvite = async (
           if (iteration >= 100) {
             logger.warn(
               `User ${user.id} did not spawn their avatar within 5 seconds, abandoning attempts to spawn at inviter`
+            )
+            logger.warn(
+              `[IR-NET]  User ${user.id} did not spawn their avatar within 5 seconds, abandoning attempts to spawn at inviter`
             )
             return
           }
@@ -313,6 +322,7 @@ const getUserSpawnFromInvite = async (
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserID
   const disconnectedClient = network.peers[peerID]
+  logger.info(`[IR-NET] inside handleDisconnect for peer ${peerID} and userId ${userId}`)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
@@ -359,7 +369,9 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
+    logger.info(`[IR-NET] Disconnecting user ${userId} on spark ${peerID}`)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
+    logger.warn("[IR-NET] Spark didn't match for disconnecting client.")
   }
 }

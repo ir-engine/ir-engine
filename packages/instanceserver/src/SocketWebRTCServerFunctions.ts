@@ -58,7 +58,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
   const outgoingDataTransport = await routers[0].createDirectTransport()
 
   logger.info('Server transport initialized.')
-
+  logger.info('[IR-NET] Server transport initialized.')
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
       const spark = network.peers[peerId]?.spark
@@ -66,10 +66,12 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
     },
 
     messageToAll: (data: any) => {
+      logger.info('[IR-NET] Server messageToAll with data: ' + data)
       for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
     onMessage: (fromPeerID: PeerID, message: any) => {
+      logger.info('[IR-NET] ' + fromPeerID + ' sent message: ' + message)
       const networkPeer = network.peers[fromPeerID]
       if (!networkPeer) return
 
@@ -85,10 +87,12 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
 
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
       /** @todo - for now just send to everyone */
+      logger.info('[IR-NET] server bufferToPeer with data: ' + data + ' from ' + fromPeerID + ' to ' + toPeerID)
       network.transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
     bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, message: any) => {
+      logger.info('[IR-NET] server bufferToAll with message: ' + message + ' from ' + fromPeerID)
       const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
       const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
@@ -97,6 +101,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
     },
 
     onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      logger.info('[IR-NET] server onBuffer with data: ' + data + ' from ' + fromPeerID)
       const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
       if (dataChannelFunctions) {
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)

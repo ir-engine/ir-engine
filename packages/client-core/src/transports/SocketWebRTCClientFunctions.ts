@@ -157,6 +157,7 @@ const unprovisionInstance = (topic: Topic, instanceID: InstanceID) => {
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
+  logger.info(`[IR-NET] Closing network with networkID: ${network.id}`)
   clearInterval(network.transport.heartbeat)
   network.transport.primus?.removeAllListeners()
   network.transport.primus?.end()
@@ -173,30 +174,40 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
 }
 
 export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
+  logger.info(`[IR-NET] Initializing netowrk with networkID: ${id} and topic: ${topic} and hostPeerID: ${hostPeerID}`)
   const mediasoupDevice = new mediasoupClient.Device(
     navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
 
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
+      logger.info(`[IR-NET] Executing messageTopeer with peerID: ${peerId} and data: ${data}`)
       network.transport.primus?.write(data)
     },
 
     messageToAll: (data: any) => {
+      logger.info(`[IR-NET] inside messageToAll with data: ${data.toString()}`)
       network.transport.primus?.write(data)
     },
 
     onMessage: (fromPeerID: PeerID, message: any) => {
+      logger.info(`[IR-NET]inside OnMessage with fromPeerID: ${fromPeerID} and message: ${message.toString()}`)
       const actions = message as any as Required<Action>[]
       // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
       NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
+      logger.info(
+        `[IR-NET]inside bufferToPeer with dataChannelType: ${dataChannelType} and fromPeerID: ${fromPeerID} and peerID: ${peerID} and data: ${data}`
+      )
       transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
     bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      logger.info(
+        `[IR-NET] inside bufferToAll with dataChannelType: ${dataChannelType} and fromPeerID: ${fromPeerID} and data: ${data}`
+      )
       const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
         | DataProducer
         | undefined
@@ -209,6 +220,9 @@ export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Top
     },
 
     onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      logger.info(
+        `[IR-NET]inside onBufffer with dataChannelType: ${dataChannelType} and fromPeerID: ${fromPeerID} and data: ${data}`
+      )
       const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
       if (dataChannelFunctions) {
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
@@ -250,6 +264,14 @@ export const connectToInstance = (
     connecting = true
 
     logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationID, channelID, roomCode })
+    logger.info('[IR-NET] Connecting to instance type: %o', {
+      instanceID,
+      ipAddress,
+      port,
+      locationID,
+      channelID,
+      roomCode
+    })
 
     const authState = getState(AuthState)
     const token = authState.authUser.accessToken
@@ -273,14 +295,17 @@ export const connectToInstance = (
       ) {
         const queryString = new URLSearchParams(query).toString()
         primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
+        logger.info(`[IR-NET] primus is ${primus?.url}`)
       } else {
         query.address = ipAddress
         query.port = port.toString()
         const queryString = new URLSearchParams(query).toString()
+        logger.info(`[IR-NET] address is ${ipAddress} and port is ${port} and query is ${queryString}`)
         primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
       }
     } catch (err) {
       logger.error('Failed to connect to primus', err)
+      logger.info(`[IR-NET] Failed to connect to primus ${err}`)
       // TODO: do we want to unprovision here?
       return unprovisionInstance(locationID ? NetworkTopics.world : NetworkTopics.media, instanceID)
     }
@@ -298,6 +323,7 @@ export const connectToInstance = (
       connecting = false
       primus.off('incoming::open', onConnect)
       logger.info('CONNECTED to port %o', { port })
+      logger.info('[IR-NET] CONNECTED to port %o', { port })
 
       clearTimeout(connectionFailTimeout)
 
@@ -306,6 +332,7 @@ export const connectToInstance = (
 
       /** Server closed the connection. */
       const onDisconnect = () => {
+        logger.info('[IR-NET] Inside onDisconnect')
         if (aborted) return
         if (primus) {
           primus.off('incoming::end', onDisconnect)
@@ -315,6 +342,7 @@ export const connectToInstance = (
         if (!network) return logger.error('Disconnected from unconnected instance ' + instanceID)
 
         logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
+        logger.info('[IR-NET] Disonnected from network %o', { topic: network.topic, id: network.id })
         /**
          * If we are disconnected (server closes our socket) rather than leave the network,
          * we just need to destroy and recreate the transport
@@ -357,6 +385,7 @@ export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) =>
 
 export async function authenticatePrimus(primus: Primus, instanceID: InstanceID, topic: Topic) {
   logger.info('Authenticating instance ' + instanceID)
+  logger.info('[IR-NET] Authenticating instance ' + instanceID)
 
   const authState = getState(AuthState)
   const accessToken = authState.authUser.accessToken
@@ -399,7 +428,7 @@ export async function authenticatePrimus(primus: Primus, instanceID: InstanceID,
     unprovisionInstance(topic, instanceID)
     return logger.error(new Error('Unable to connect with credentials' + error))
   }
-
+  logger.info(`[IR-NET] Successfully connected to hostpeerid ${hostPeerID}`)
   connectToNetwork(primus, instanceID, topic, hostPeerID!, routerRtpCapabilities!, cachedActions!)
 }
 
@@ -420,7 +449,9 @@ export const connectToNetwork = async (
   }
 
   const network = getState(NetworkState).networks[instanceID] as SocketWebRTCClientNetwork
-
+  logger.info(
+    `[IR-NET] Connecting to peer with networkID: ${network.id} and topic: ${network.topic} and hostPeerID: ${network.hostPeerID}`
+  )
   const networkState = getMutableState(NetworkState).networks[network.id] as State<
     SocketWebRTCClientNetwork,
     Identifiable
@@ -443,6 +474,7 @@ export const connectToNetwork = async (
   if (!network.transport.mediasoupDevice.loaded) {
     await network.transport.mediasoupDevice.load({ routerRtpCapabilities })
     logger.info('Successfully loaded routerRtpCapabilities')
+    logger.info('[IR-NET]  Successfully loaded routerRtpCapabilities')
     networkState.transport.mediasoupLoaded.set(true)
   }
 
@@ -469,6 +501,7 @@ export const connectToNetwork = async (
   )
 
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
+  logger.info('[IR-NET] Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
 }
 
 export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
@@ -494,7 +527,11 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   let transport: MediaSoupTransport
 
   const iceServers = config.client.nodeEnv === 'production' ? PUBLIC_STUN_SERVERS : []
-
+  logger.info(
+    `[IR-NET] onTransportCreated with transportID: ${transportID} and direction: ${direction} and channelId: ${channelId} and iceserver ${iceServers.join(
+      ', '
+    )}`
+  )
   const transportOptions = {
     id: action.transportID,
     sctpParameters: sctpParameters as any,
@@ -572,6 +609,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   )
 
   if (direction === 'send') {
+    logger.info(`[IR-NET] direction is ${direction}`)
     transport.on(
       'produce',
       async (
@@ -671,6 +709,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         callback: (arg0: { id: string }) => void,
         errback: (error: Error) => void
       ) => {
+        logger.info(`[IR-NET] inside transport.on('producedata') with parameters: ${parameters}`)
         const { sctpStreamParameters, label, protocol, appData } = parameters
 
         const requestID = uuidv4()
@@ -731,12 +770,18 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
       logger.error('Transport %o transitioned to state ' + state, transport)
+      logger.error('[IR-NET] Transport %o transitioned to state ' + state, transport)
       logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
       logger.info('Waiting 5 seconds to make a new transport')
+      logger.info(' [IR-NET] Waiting 5 seconds to make a new transport')
       setTimeout(() => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
+          direction,
+          channelId
+        })
+        logger.info('[IR-NET] Re-creating transport after unexpected closing/fail/disconnect %o', {
           direction,
           channelId
         })
@@ -787,6 +832,7 @@ function getLoadBalancerPort(containerPort: number): number {
 
 export async function configureMediaTransports(mediaTypes: string[]): Promise<boolean> {
   const mediaStreamState = getMutableState(MediaStreamState)
+  logger.info(`[IR-NET] inside configureMediaTransports with mediaTypes: ${mediaTypes}`)
   if (
     mediaTypes.indexOf('video') > -1 &&
     (!mediaStreamState.videoStream.value || !mediaStreamState.videoStream.value.active)
@@ -814,6 +860,7 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
 }
 
 const getCodecEncodings = (service: string) => {
+  logger.info(`[IR-NET] inside getCodecEncodings with service: ${service}`)
   const clientSettingState = getState(AdminClientSettingsState).client[0]
   const settings =
     service === 'video' ? clientSettingState.mediaSettings.video : clientSettingState.mediaSettings.screenshare
@@ -844,6 +891,7 @@ const getCodecEncodings = (service: string) => {
 }
 
 export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
+  logger.info(`[IR-NET] insideCreateCAMVideoProducer with networkID: ${network.id} and network: ${network}`)
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
@@ -890,6 +938,9 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
+  logger.info(
+    `[IR-NET] inside createCamAudioProducer with networkID: ${network.id} and network: ${network} and channelId: ${channelId} and mediaStreamState: ${mediaStreamState} and clientSettingState: ${clientSettingState} and currentChannelInstanceConnection: ${currentChannelInstanceConnection} and channelConnectionState: ${channelConnectionState}`
+  )
   if (mediaStreamState.audioStream.value !== null) {
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
     //This Gain is saved on MediaStreamState so it can be accessed from the user's component and controlled.
@@ -944,6 +995,9 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
 export const receiveConsumerHandler = async (
   action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE
 ) => {
+  logger.info(
+    `[IR-NET] inside recieveConsumerHandler with action.peerID ${action.peerID} and action.channelID ${action.channelID} and action.consumerID ${action.consumerID} and action.producerID ${action.producerID} and action.rtpParameters ${action.rtpParameters} and action.kind ${action.kind} and action.$network ${action.$network} and action.$topic ${action.$topic} and action.$to ${action.$to} and action.mediaTag ${action.mediaTag} and action.paused ${action.paused}`
+  )
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
   const { peerID, mediaTag, channelID, paused } = action
@@ -981,6 +1035,7 @@ export const receiveConsumerHandler = async (
       })
     )
     getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
+    logger.info(`[IR-NET] getMutableState with consumerID ${consumer.id}`)
     // okay, we're ready. let's ask the peer to send us media
     if (!paused) {
       resumeConsumer(network, consumer)
@@ -1001,6 +1056,7 @@ export const receiveConsumerHandler = async (
 
 /** @todo move these pause/resume/mute/unmute functions onto a state definition */
 export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
+  logger.info(`[IR-NET] inside pauseConsumer with networkID ${network.id} and consumerID is ${consumer.id}`)
   dispatchAction(
     MediasoupMediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
@@ -1013,6 +1069,7 @@ export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: Cons
 }
 
 export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
+  logger.info(`[IR-NET] insideResumeConsumer ${consumer.id}`)
   dispatchAction(
     MediasoupMediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
@@ -1025,6 +1082,7 @@ export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: Con
 }
 
 export function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
+  logger.info(`[IR-NET] insidePauseProduceer with ${network.id} and ${producer.id}`)
   dispatchAction(
     MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
@@ -1037,6 +1095,7 @@ export function pauseProducer(network: SocketWebRTCClientNetwork, producer: Prod
 }
 
 export function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
+  logger.info(`[IR-NET] resumeProducer ${network.id} and ${producer.id}`)
   dispatchAction(
     MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
@@ -1049,6 +1108,7 @@ export function resumeProducer(network: SocketWebRTCClientNetwork, producer: Pro
 }
 
 export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
+  logger.info(`[IR-NET] globalMuteProducer ${network.id} and ${producer.id}`)
   dispatchAction(
     MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
@@ -1061,6 +1121,7 @@ export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer:
 }
 
 export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
+  logger.info(`[IR-NET] globalunMuteProducer ${network.id} and ${producer.id}`)
   dispatchAction(
     MediasoupMediaProducerActions.producerPaused({
       producerID: producer.id,
@@ -1077,6 +1138,7 @@ export function setPreferredConsumerLayer(
   consumer: ConsumerExtension,
   layer: number
 ) {
+  logger.info(`[IR-NET] setPrefferedConsumerLayer ${network.id} and ${consumer.id} and ${layer}`)
   dispatchAction(
     MediasoupMediaConsumerActions.consumerLayers({
       consumerID: consumer.id,
@@ -1089,6 +1151,7 @@ export function setPreferredConsumerLayer(
 }
 
 export const toggleFaceTracking = async () => {
+  logger.info(`[IR-NET] inside toggleFaceTracking`)
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.faceTracking.value) {
     mediaStreamState.faceTracking.set(false)
@@ -1105,6 +1168,7 @@ export const toggleFaceTracking = async () => {
 }
 
 export const toggleMicrophonePaused = async () => {
+  logger.info(`[IR-NET] inside toggleMicrophonePaused`)
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['audio'])) {
@@ -1119,6 +1183,7 @@ export const toggleMicrophonePaused = async () => {
 }
 
 export const toggleWebcamPaused = async () => {
+  logger.info(`[IR-NET] inside toggleWebcamPaused`)
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
@@ -1134,6 +1199,7 @@ export const toggleWebcamPaused = async () => {
 }
 
 export const toggleScreenshare = async () => {
+  logger.info(`[IR-NET] inside toggelScreenshare`)
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (mediaStreamState.screenVideoProducer.value) await stopScreenshare(mediaNetwork)
@@ -1141,6 +1207,7 @@ export const toggleScreenshare = async () => {
 }
 
 export const toggleScreenshareAudioPaused = async () => {
+  logger.info(`[IR-NET] inside toggleScreenshareAudioPaused`)
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
@@ -1150,6 +1217,7 @@ export const toggleScreenshareAudioPaused = async () => {
 }
 
 export const toggleScreenshareVideoPaused = async () => {
+  logger.info(`[IR-NET] inside togglescreeenshareVideoPaused`)
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
@@ -1160,6 +1228,7 @@ export const toggleScreenshareVideoPaused = async () => {
 export function leaveNetwork(network: SocketWebRTCClientNetwork) {
   if (!network) return
   logger.info('Leaving network %o', { topic: network.topic, id: network.id })
+  logger.info('[IR-NET] Leaving network %o', { topic: network.topic, id: network.id })
 
   try {
     closeNetwork(network)
@@ -1189,6 +1258,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Start screen share')
+  logger.info(`[IR-NET] startscreenshare with networkID: ${network.id} and network: ${network}`)
   const mediaStreamState = getMutableState(MediaStreamState)
 
   // get a screen share track
@@ -1245,6 +1315,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Screen share stopped')
+  logger.info(`[IR-NET] inside stopscreenshare with networkID: ${network.id} and network: ${network}`)
   const mediaStreamState = getMutableState(MediaStreamState)
 
   console.log(mediaStreamState.screenVideoProducer.value, mediaStreamState.screenShareVideoPaused.value)
