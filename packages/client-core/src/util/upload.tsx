@@ -72,12 +72,12 @@ export const uploadToFeathersService = (
             resolve(JSON.parse(request.responseText))
           } else {
             if (aborted) return
+            const errorResponse = JSON.parse(request.responseText)
             console.error('Oh no! There has been an error with the request!', request, e)
             if (status === 403) {
-              const errorResponse = JSON.parse(request.responseText)
               reject(new Error(errorResponse.message))
             } else {
-              reject()
+              reject(errorResponse)
             }
           }
         }

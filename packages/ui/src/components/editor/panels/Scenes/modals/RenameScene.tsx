@@ -38,13 +38,19 @@ import Modal from '../../../../../primitives/tailwind/Modal'
 export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: AssetType }) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
+  const error = useHookstate('')
 
   const handleSubmit = async () => {
     const currentURL = scene.assetURL
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
-    const newData = await renameScene(scene.id, newURL, scene.projectName)
-    getMutableState(EditorState).scenePath.set(newData.assetURL)
-    PopoverState.hidePopupover()
+    try {
+      const newData = await renameScene(scene.id, newURL, scene.projectName)
+      getMutableState(EditorState).scenePath.set(newData.assetURL)
+      PopoverState.hidePopupover()
+    } catch (err) {
+      console.error('rename scene error', err)
+      error.set(err.message)
+    }
   }
 
   return (
@@ -54,6 +60,7 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
     >
+      {error.value && <p className="mt-2 text-red-700">{error.value}</p>}
       <Input value={newSceneName.value} onChange={(event) => newSceneName.set(event.target.value)} />
     </Modal>
   )

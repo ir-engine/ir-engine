@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
@@ -278,14 +279,19 @@ export function FileBrowserItem({
   const pasteContent = async () => {
     handleClose()
 
-    if (isFilesLoading) return
-    fileService.update(null, {
-      oldName: currentContent.current.item.fullName,
-      newName: currentContent.current.item.fullName,
-      oldPath: currentContent.current.item.path,
-      newPath: item.isFolder ? item.path + item.fullName : item.path,
-      isCopy: currentContent.current.isCopy
-    })
+    try {
+      if (isFilesLoading) return
+      await fileService.update(null, {
+        oldName: currentContent.current.item.fullName,
+        newName: currentContent.current.item.fullName,
+        oldPath: currentContent.current.item.path,
+        newPath: item.isFolder ? item.path + item.fullName : item.path,
+        isCopy: currentContent.current.isCopy
+      })
+    } catch (err) {
+      console.error(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
   }
 
   const viewAssetProperties = () => {

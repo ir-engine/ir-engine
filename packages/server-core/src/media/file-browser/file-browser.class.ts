@@ -45,6 +45,7 @@ import {
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
+import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getIncrementalName } from '../FileUtil'
@@ -207,6 +208,9 @@ export class FileBrowserService
     const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
     const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
 
+    if (!config.fsProjectSyncEnabled && _oldPath.startsWith('projects/default-project') && !data.isCopy)
+      throw new BadRequest("You cannot move files from project 'default-project'")
+
     const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
@@ -276,6 +280,9 @@ export class FileBrowserService
     const reducedPathSplit = reducedPath.split('/')
     const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
     const key = path.join(reducedPath, name)
+
+    if (!config.fsProjectSyncEnabled && key.startsWith('projects/default-project'))
+      throw new BadRequest(`You cannot patch files in project \'default-project\'`)
 
     await storageProvider.putObject(
       {
@@ -349,6 +356,9 @@ export class FileBrowserService
    * Remove a directory
    */
   async remove(key: string, params?: FileBrowserParams) {
+    if (!config.fsProjectSyncEnabled && key.startsWith('projects/default-project'))
+      throw new BadRequest(`You cannot delete files in project \'default-project\'`)
+
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
 

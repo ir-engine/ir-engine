@@ -28,8 +28,8 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import {
-  FileBrowserContentType,
   archiverPath,
+  FileBrowserContentType,
   fileBrowserPath,
   fileBrowserUploadPath,
   staticResourcePath
@@ -39,9 +39,9 @@ import { processFileName } from '@etherealengine/common/src/utils/processFileNam
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import {
+  availableTableColumns,
   FilesViewModeSettings,
-  FilesViewModeState,
-  availableTableColumns
+  FilesViewModeState
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -75,7 +75,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import Popover from '../../../layout/Popover'
-import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
+import { canDropItemOverFolder, FileBrowserItem, FileTableWrapper } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
   projectName?: string
