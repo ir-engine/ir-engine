@@ -35,6 +35,7 @@ class MockRenderer {
   setPixelRatio = () => {}
   getSize = () => 0
   getContext = () => {}
+  getPixelRatio = () => 1
 }
 
 export class MockEngineRenderer extends EngineRenderer {
@@ -45,7 +46,10 @@ export class MockEngineRenderer extends EngineRenderer {
     this.renderer = new MockRenderer() as unknown as WebGLRenderer
     this.effectComposer = {
       setSize: () => {},
-      passes: [{ name: 'RenderPass', overrideMaterial: null }]
+      passes: [{ name: 'RenderPass', overrideMaterial: null }],
+      setMainScene: () => {},
+      setMainCamera: () => {},
+      render: () => {}
     } as unknown as EffectComposer
     this.needsResize = false
   }

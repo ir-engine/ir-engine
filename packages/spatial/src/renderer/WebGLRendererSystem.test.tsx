@@ -59,7 +59,11 @@ describe('WebGl Renderer System', () => {
   const mockCanvas = () => {
     return {
       getDrawingBufferSize: () => 0,
-      getContext: () => {}
+      getContext: () => {},
+      parentElement: {
+        clientWidth: 100,
+        clientHeight: 100
+      }
     } as any as HTMLCanvasElement
   }
 
@@ -111,7 +115,8 @@ describe('WebGl Renderer System', () => {
   */
 
   it('Test WebGL Reactors', async () => {
-    const RenderSystem = SystemDefinitions.get(WebGLRendererSystem)?.reactor!
+    const webGLRendererSystem = SystemDefinitions.get(WebGLRendererSystem)
+    const RenderSystem = webGLRendererSystem?.reactor!
     const tag = <RenderSystem />
     const { rerender, unmount } = render(tag)
 
@@ -144,5 +149,9 @@ describe('WebGl Renderer System', () => {
     assert(camera.layers.isEnabled(ObjectLayers.AvatarHelper), 'enable avatarDebug')
     assert(camera.layers.isEnabled(ObjectLayers.Gizmos), 'enable gridVisibility')
     assert(camera.layers.isEnabled(ObjectLayers.NodeHelper), 'enable nodeHelperVisibility')
+
+    webGLRendererSystem?.execute()
+
+    assert(!rendererComp.needsResize, 'resize updated')
   })
 })
