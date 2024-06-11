@@ -295,10 +295,10 @@ export const InteractableComponent = defineComponent({
     InputComponent.useExecuteWithInput(() => {
       const buttons = InputComponent.getMergedButtons(entity)
 
-      if (buttons.MergedInteract?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
+      if (buttons.Interact?.pressed && getState(InputState).capturingEntity === UndefinedEntity) {
         InputState.setCapturingEntity(entity)
 
-        if (buttons.MergedInteract?.up && !buttons.MergedInteract?.dragging) {
+        if (buttons.Interact?.up && !buttons.Interact?.dragging) {
           callInteractCallbacks(entity)
         }
       }

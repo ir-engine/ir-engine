@@ -54,9 +54,7 @@ import { InputSourceComponent } from './InputSourceComponent'
 export type InputAlias = Record<string, (string | number)[]>
 
 export const DefaultInputAlias = {
-  MergedInteract: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE],
-  SpatialInteract: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger],
-  NonSpatialInteract: [KeyboardButton.KeyE]
+  Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.Trigger, KeyboardButton.KeyE]
 }
 
 export const InputComponent = defineComponent({
