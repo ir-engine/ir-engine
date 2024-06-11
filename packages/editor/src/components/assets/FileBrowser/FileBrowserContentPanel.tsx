@@ -85,7 +85,6 @@ type FileBrowserContentPanelProps = {
   disableDnD?: boolean
   selectedFile?: string
   folderName?: string
-  nestingDirectory?: string
 }
 
 type DnDFileType = {
@@ -128,7 +127,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
-  const nestingDirectory = useHookstate(props.nestingDirectory || 'projects')
+  const nestingDirectory = useHookstate('projects')
   const fileProperties = useHookstate<FileType | null>(null)
 
   const openProperties = useHookstate(false)

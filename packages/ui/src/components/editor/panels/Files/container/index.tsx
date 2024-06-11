@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
@@ -32,6 +31,7 @@ import {
   archiverPath,
   fileBrowserPath,
   fileBrowserUploadPath,
+  projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
@@ -63,7 +63,6 @@ import { PiFolderPlusBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
 import { FilesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
-import ErrorView from '../../../../../primitives/tailwind/ErrorView'
 import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Slider from '../../../../../primitives/tailwind/Slider'
@@ -77,9 +76,9 @@ type FileBrowserContentPanelProps = {
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
+  validProjects: string[]
   folderName?: string
   nestingDirectory?: string
-  projectName: string
 }
 
 export type DnDFileType = {
@@ -117,16 +116,23 @@ function extractDirectoryWithoutOrgName(directory: string, orgName: string) {
 }
 
 /**
+ * Gets the project name that may or may not have a single slash it in from a list of valid project names
+ */
+const getProjectName = (directory: string, validProjectNames: string[]) =>
+  validProjectNames.find((project) => directory.startsWith(`/projects/${project}/`)) ?? ''
+
+/**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
 
-  const orgName = props.projectName.includes('/') ? props.projectName.split('/')[1] : ''
-  const originalPath = `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+  const originalPath = `/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`
   const selectedDirectory = useHookstate(originalPath)
 
-  const nestingDirectory = props.nestingDirectory || 'projects'
+  const projectName = getProjectName(selectedDirectory.value, props.validProjects)
+  const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
+
   const fileProperties = useHookstate<FileType | null>(null)
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
@@ -180,7 +186,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+    // FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
   }, [fileQuery.data])
 
   useEffect(() => {
@@ -330,7 +336,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       .slice(1, -1)
       .split('/')
 
-    const nestedIndex = breadcrumbDirectoryFiles.indexOf(nestingDirectory)
+    const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
 
     breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
@@ -619,18 +625,26 @@ export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
   const projectName = useMutableState(EditorState).projectName.value
 
+  const projects = useFind(projectPath, {
+    query: {
+      paginate: false,
+      action: 'studio',
+      allowed: true
+    }
+  })
+
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
-  if (!projectName) {
-    return <ErrorView title={'Project Name not found!'} />
-  }
+  if (!projects.data.length) return <LoadingView />
+
+  const validProjects = projects.data.map((project) => project.name)
 
   return (
     <FileBrowserContentPanel
-      projectName={projectName}
-      selectedFile={projectName}
+      validProjects={validProjects}
+      selectedFile={projectName!}
       onSelectionChanged={onSelectionChanged}
     />
   )
