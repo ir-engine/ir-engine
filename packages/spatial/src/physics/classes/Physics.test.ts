@@ -1324,11 +1324,45 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    /**
     // @todo How to check rotations?
-    describe("setColliderPose", () => {
+    describe('setColliderPose', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: World | undefined = undefined
+      const position = new Vector3(1, 2, 3)
+      const rotation = new Quaternion(0.5, 0.4, 0.1, 0.0).normalize()
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorld = Physics.createWorld()
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        physicsWorld = undefined
+        return destroyEngine()
+      })
+
+      it("should assign the entity's position to the collider.translation property", () => {
+        Physics.setColliderPose(testEntity, position, rotation)
+        const collider = Physics._Colliders.get(testEntity)!
+        assertVecApproxEq(collider.translation(), position, 3)
+      })
+
+      it("should assign the entity's rotation to the collider.rotation property", () => {
+        Physics.setColliderPose(testEntity, position, rotation)
+        const collider = Physics._Colliders.get(testEntity)!
+        assertVecApproxEq(collider.rotation(), rotation, 4)
+      })
     })
-    */
 
     describe('setMassCenter', () => {}) /** @todo The function is not implemented. It is annotated with a todo tag */
   }) // << Colliders
