@@ -31,6 +31,7 @@ import { staticResourcePath } from '@etherealengine/common/src/schemas/media/sta
 import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
+import { updateProjectResourcesJson } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 import { StaticResourceService } from './static-resource.class'
@@ -80,6 +81,24 @@ const createHashIfNeeded = async (context: HookContext<StaticResourceService>) =
   }
 }
 
+const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
+  if (!context.result) throw new BadRequest('Batch update is not supported')
+  const ignoreResourcesJson = context.params?.ignoreResourcesJson
+  if (ignoreResourcesJson) return
+
+  const results =
+    'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
+
+  const projectNames = results.reduce((acc: string[], result) => {
+    if (result.project && result.key.startsWith('projects/') && !acc.includes(result.project)) acc.push(result.project)
+    return acc
+  }, [])
+
+  for (const projectName of projectNames) {
+    await updateProjectResourcesJson(context.app, projectName)
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -90,7 +109,7 @@ export default {
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), disallow()),
+      iff(isProvider('external'), verifyScope('static_resource', 'write')),
       setLoggedinUserInBody('userId'),
       // schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver),
@@ -98,21 +117,21 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), disallow()),
+      iff(isProvider('external'), verifyScope('static_resource', 'write')),
       // schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), disallow()), ensureResource]
+    remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [updateResourcesJson],
+    update: [updateResourcesJson],
+    patch: [updateResourcesJson],
+    remove: [updateResourcesJson]
   },
 
   error: {

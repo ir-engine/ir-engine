@@ -46,7 +46,6 @@ import { checkScope } from '@etherealengine/spatial/src/common/functions/checkSc
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { updateProjectResourcesJson } from '../../projects/project/project-helper'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -183,8 +182,6 @@ export class FileBrowserService
 
     if (config.fsProjectSyncEnabled) fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
-    // updateProjectResourcesJson(this.app, data.project)
-
     return result
   }
 
@@ -250,8 +247,6 @@ export class FileBrowserService
       else fs.renameSync(oldNamePath, newNamePath)
     }
 
-    // updateProjectResourcesJson(this.app, data.project)
-
     return result
   }
 
@@ -296,8 +291,6 @@ export class FileBrowserService
       fs.writeFileSync(filePath, data.body)
     }
 
-    updateProjectResourcesJson(this.app, data.project)
-
     return staticResource
   }
 
@@ -333,8 +326,6 @@ export class FileBrowserService
     }
 
     if (config.fsProjectSyncEnabled) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
-
-    // updateProjectResourcesJson(this.app, data.project)
 
     return result
   }

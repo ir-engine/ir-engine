@@ -25,14 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiEye, HiTrash } from 'react-icons/hi2'
+import { HiEye } from 'react-icons/hi2'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { useFind, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 
-import { Engine } from '@etherealengine/ecs'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { resourceColumns } from '../../common/constants/resources'
 import DataTable from '../../common/Table'
@@ -78,22 +76,6 @@ export default function ResourceTable({ search }: { search: string }) {
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
           >
             <HiEye className="place-self-center text-theme-primary" />
-          </Button>
-          <Button
-            rounded="full"
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            onClick={() => {
-              PopoverState.showPopupover(
-                <ConfirmDialog
-                  text={`${t('admin:components.resources.confirmResourceDelete')} '${el.key}'?`}
-                  onSubmit={async () => {
-                    await Engine.instance.api.service(staticResourcePath).remove(el.id)
-                  }}
-                />
-              )
-            }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
           </Button>
         </div>
       )

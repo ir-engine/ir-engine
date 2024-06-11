@@ -1707,36 +1707,43 @@ export const uploadLocalProjectToProvider = async (
         const id = existingKeySet.get(key)!
         existingKeySet.delete(key)
         // logger.info(`Updating static resource of class ${thisFileClass}: "${key}"`)
-        await app.service(staticResourcePath).patch(id, {
-          hash,
-          mimeType: contentType,
-          stats,
-          type,
-          tags: resourceInfo?.tags ?? [thisFileClass],
-          dependencies: resourceInfo?.dependencies ?? undefined,
-          licensing: resourceInfo?.licensing ?? undefined,
-          description: resourceInfo?.description ?? undefined,
-          attribution: resourceInfo?.attribution ?? undefined,
-          thumbnailURL,
-          thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
-        })
+        await app.service(staticResourcePath).patch(
+          id,
+          {
+            hash,
+            mimeType: contentType,
+            stats,
+            type,
+            tags: resourceInfo?.tags ?? [thisFileClass],
+            dependencies: resourceInfo?.dependencies ?? undefined,
+            licensing: resourceInfo?.licensing ?? undefined,
+            description: resourceInfo?.description ?? undefined,
+            attribution: resourceInfo?.attribution ?? undefined,
+            thumbnailURL,
+            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+          },
+          { ignoreResourcesJson: true }
+        )
       } else {
         // logger.info(`Creating static resource of class ${thisFileClass}: "${key}"`)
-        await app.service(staticResourcePath).create({
-          key,
-          project: projectName,
-          hash,
-          mimeType: contentType,
-          stats,
-          type,
-          tags: resourceInfo?.tags ?? [thisFileClass],
-          dependencies: resourceInfo?.dependencies ?? undefined,
-          licensing: resourceInfo?.licensing ?? undefined,
-          description: resourceInfo?.description ?? undefined,
-          attribution: resourceInfo?.attribution ?? undefined,
-          thumbnailURL,
-          thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
-        })
+        await app.service(staticResourcePath).create(
+          {
+            key,
+            project: projectName,
+            hash,
+            mimeType: contentType,
+            stats,
+            type,
+            tags: resourceInfo?.tags ?? [thisFileClass],
+            dependencies: resourceInfo?.dependencies ?? undefined,
+            licensing: resourceInfo?.licensing ?? undefined,
+            description: resourceInfo?.description ?? undefined,
+            attribution: resourceInfo?.attribution ?? undefined,
+            thumbnailURL,
+            thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
+          },
+          { ignoreResourcesJson: true }
+        )
         logger.info(`Uploaded static resource of class ${thisFileClass}: "${key}"`)
       }
 

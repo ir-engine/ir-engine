@@ -99,10 +99,10 @@ const drawToCanvas = (source: CanvasImageSource): Promise<HTMLCanvasElement | nu
   return Promise.resolve(canvas)
 }
 
-const uploadThumbnail = async (key: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
+const uploadThumbnail = async (src: string, projectName: string, staticResourceId: string, blob: Blob | null) => {
   if (!blob) return
   const thumbnailMode = 'automatic'
-  const thumbnailKey = `${decodeURI(key.replace(/^.*?\/projects\//, ''))
+  const thumbnailKey = `${decodeURI(src.replace(/^.*?\/projects\//, ''))
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
@@ -110,7 +110,7 @@ const uploadThumbnail = async (key: string, projectName: string, staticResourceI
     fileName: file.name,
     project: projectName,
     path: 'thumbnails/' + file.name,
-    contentType: ''
+    contentType: file.type
   }).promise
   await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailMode })
 }
