@@ -85,10 +85,11 @@ export async function seed(knex: Knex): Promise<void> {
           apple: {
             key: process.env.APPLE_CLIENT_ID,
             secret: process.env.APPLE_CLIENT_SECRET,
-            scope: ['openid'],
+            scope: ['openid', 'email', 'name'],
             response: ['raw', 'jwt'],
             custom_params: {
-              response_type: 'code id_token'
+              response_type: 'code id_token',
+              response_mode: 'form_post'
             }
           },
           discord: {
