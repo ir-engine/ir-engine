@@ -47,5 +47,6 @@ export class MockEngineRenderer extends EngineRenderer {
       setSize: () => {},
       passes: [{ name: 'RenderPass', overrideMaterial: null }]
     } as unknown as EffectComposer
+    this.needsResize = false
   }
 }

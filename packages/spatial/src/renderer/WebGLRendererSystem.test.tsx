@@ -34,8 +34,7 @@ import {
   getMutableComponent,
   setComponent
 } from '@etherealengine/ecs'
-import { SystemState } from '@etherealengine/ecs/src/SystemState'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { EffectComposer, RenderPass } from 'postprocessing'
@@ -45,8 +44,9 @@ import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
+import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import { RendererComponent, WebGLRendererSystem, getSceneParameters } from './WebGLRendererSystem'
+import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
 import { RenderModes } from './constants/RenderModes'
@@ -99,6 +99,7 @@ describe('WebGl Renderer System', () => {
     return destroyEngine()
   })
 
+  /*
   it('test', async () => {
     const { background, environment, fog, children } = getSceneParameters([rootEntity])
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
@@ -106,19 +107,21 @@ describe('WebGl Renderer System', () => {
     console.log('test')
     //assert(fogSettingsComponent.value, 'fog setting component exists')
   })
+  */
 
-  it('test 2', async () => {
+  it('Test WebGL Reactors', async () => {
     const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
     const RenderSystem = SystemDefinitions.get(WebGLRendererSystem)?.reactor!
     const tag = <RenderSystem />
-    //const PostReactor = PostProcessingComponent.reactorMap.get(entity)?.Reactor
     const { rerender, unmount } = render(tag)
 
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
-    const test = getState(SystemState).activeSystemReactors.get(WebGLRendererSystem)?.isRunning.value
 
     const engineRendererSettings = getMutableState(RendererState)
     engineRendererSettings.renderMode.set(RenderModes.WIREFRAME)
+    engineRendererSettings.renderScale.set(2)
+    engineRendererSettings.qualityLevel.set(3)
+    engineRendererSettings.automatic.set(false)
 
     await act(() => rerender(tag))
 
@@ -127,6 +130,10 @@ describe('WebGl Renderer System', () => {
     const passes = effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
     const renderPass: RenderPass = passes ? passes[0] : undefined
 
+    const performanceState = getMutableState(PerformanceState)
+
     assert(renderPass.overrideMaterial, 'change render mode')
+    assert(rendererComp.needsResize, 'change render scale')
+    assert(performanceState.cpuTier.value == 3, 'change quality level')
   })
 })
