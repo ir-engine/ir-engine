@@ -27,6 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import Center from '@etherealengine/editor/src/components/layout/Center'
@@ -37,7 +38,6 @@ import {
   commitProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
 import { loadResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -271,7 +271,7 @@ export const BudgetVariantNodeEditor = (props: {
     lastSrc.set(src)
 
     const assetType = AssetLoader.getAssetType(src)
-    if (assetType !== AssetType.glB && assetType !== AssetType.glTF) return
+    if (assetType !== AssetExt.GLB && assetType !== AssetExt.GLTF) return
 
     const controller = new AbortController()
     buildBudgetVariantMetadata(level.value, controller.signal, (maxTextureSize: number, vertexCount: number) => {
