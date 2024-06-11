@@ -34,7 +34,7 @@ import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
@@ -42,6 +42,7 @@ import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
+import { EditorState } from '../../../services/EditorServices'
 import { ContextMenu } from '../../layout/ContextMenu'
 import styles from '../styles.module.scss'
 import { availableTableColumns, FilesViewModeSettings } from './FileBrowserState'
@@ -132,8 +133,13 @@ export const FileTableListBody = ({
   const fontSize = useHookstate(getMutableState(FilesViewModeSettings).list.fontSize).value
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
-
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, {
+    query: {
+      key: file.key,
+      project: projectName.value!
+    }
+  })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
@@ -178,7 +184,13 @@ type FileGridItemProps = {
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, {
+    query: {
+      key: props.item.key,
+      project: projectName.value!
+    }
+  })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
