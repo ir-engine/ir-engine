@@ -63,7 +63,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
   useEffect(() => {
     if (project.data && project.data.settings) {
-      displayedSettings.set(JSON.parse(JSON.stringify(project.data?.settings)))
+      displayedSettings.set(JSON.parse(JSON.stringify(project.data.settings)))
     }
   }, [project])
 
