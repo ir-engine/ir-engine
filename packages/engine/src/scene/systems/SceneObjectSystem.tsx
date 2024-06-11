@@ -128,7 +128,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       }
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-      const newBasicMaterial = new MeshLambertMaterial()
+      const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
       newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
       if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
       else newBasicMaterial.map = prevMaterial.map
