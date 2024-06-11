@@ -53,7 +53,7 @@ import {
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/MathConstants'
+import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -78,6 +78,12 @@ import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
+/** squared distance threshold for dragging state */
+const DRAGGING_THRESHOLD = 0.001
+
+/** radian threshold for rotating state*/
+const ROTATING_THRESHOLD = 1.5 * (PI / 180)
+
 function preventDefault(e) {
   e.preventDefault()
 }
@@ -93,7 +99,7 @@ export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const gamepad = inputSource.source.gamepad
   const buttons = inputSource.buttons as ButtonStateMap
-
+  // const buttonDownPos = inputSource.buttonDownPositions as WeakMap<AnyButton, Vector3>
   // log buttons
   // if (source.gamepad) {
   //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
@@ -105,18 +111,57 @@ export function updateGamepadInput(eid: Entity) {
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
   if (gamepadButtons) {
+    const pointer = getOptionalComponent(eid, InputPointerComponent)
+    const xrTransform = getOptionalComponent(eid, TransformComponent)
+
     for (let i = 0; i < gamepadButtons.length; i++) {
       const button = gamepadButtons[i]
       if (!buttons[i] && (button.pressed || button.touched)) {
         buttons[i] = createInitialButtonState(button)
       }
       if (buttons[i] && (button.pressed || button.touched)) {
-        if (!buttons[i].pressed && button.pressed) buttons[i].down = true
+        if (!buttons[i].pressed && button.pressed) {
+          buttons[i].down = true
+          buttons[i].downPosition = new Vector3()
+          buttons[i].downRotation = new Quaternion()
+
+          if (pointer) {
+            buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+            //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
+          } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
+            buttons[i].downPosition.copy(xrTransform.position)
+            buttons[i].downRotation.copy(xrTransform.rotation)
+          }
+        }
         buttons[i].pressed = button.pressed
         buttons[i].touched = button.touched
         buttons[i].value = button.value
+
+        if (buttons[i].downPosition) {
+          //if not yet dragging, compare distance to drag threshold and begin if appropriate
+          if (!buttons[i].dragging) {
+            const squaredDistance = buttons[i].downPosition.squaredDistance(
+              pointer ? new Vector3(pointer.position.x, pointer.position.y, 0) : xrTransform?.position ?? Vector3_Zero
+            )
+
+            if (squaredDistance > DRAGGING_THRESHOLD) {
+              buttons[i].dragging = true
+            }
+          }
+
+          //if not yet rotating, compare distance to drag threshold and begin if appropriate
+          if (!buttons[i].rotating) {
+            const angleRadians = buttons[i].downRotation.angleTo(
+              pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
+            )
+            if (angleRadians > ROTATING_THRESHOLD) {
+              buttons[i].rotating = true
+            }
+          }
+        }
       } else if (buttons[i]) {
         buttons[i].up = true
+        buttons[i].dragging = false
       }
     }
   }

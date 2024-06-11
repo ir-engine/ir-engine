@@ -23,16 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Quaternion, Vector3 } from 'three'
+
 /**
  * Button state
  */
 export type ButtonState = {
-  /** true for ONLY the first frame this button is down*/ down: boolean
-  /** true for every frame this button is down (including the frame it is released and up is true)*/ pressed: boolean
-  /** true if button is touched (e.g. capacitive touch, not the same as pressed/down)*/ touched: boolean
-  /** true for ONLY the first frame this button is up*/ up: boolean
-  /** current value of button (useful for triggers)*/ value: number
-  /** true for every frame this button is being dragged*/ dragging: boolean
+  /** true for ONLY the first frame this button is down*/
+  down: boolean
+
+  /** true for every frame this button is down (including the frame it is released and up is true)*/
+  pressed: boolean
+
+  /** true if button is touched (e.g. capacitive touch, not the same as pressed/down)*/
+  touched: boolean
+
+  /** true for ONLY the first frame this button is up*/
+  up: boolean
+
+  /** current value of button (useful for triggers)*/
+  value: number
+
+  /** true for every frame this button is being dragged*/
+  dragging: boolean
+
+  /** true for every frame this button is being rotated*/
+  rotating: boolean
+
+  /** position when this button down was true of either InputPointerComponent.position OR the Transform.position if an XRInputSource */
+  downPosition?: Vector3
+
+  /** rotation when this button down was true of the Transform.position if XRInputSource */
+  downRotation?: Quaternion
 }
 
 /**
@@ -220,13 +242,22 @@ export type AnyButton = MouseButton | KeyboardButton | StandardGamepadButton | X
 
 export type ButtonStateMap = Partial<Record<AnyButton, ButtonState | undefined>>
 
-export const DefaultBooleanButtonState = Object.freeze({ down: true, pressed: true, touched: true, value: 1 })
+export const DefaultBooleanButtonState = Object.freeze({
+  down: true,
+  pressed: true,
+  touched: true,
+  value: 1,
+  dragging: false,
+  rotating: false
+})
 
 export const createInitialButtonState = (initial: Readonly<Partial<ButtonState>> = DefaultBooleanButtonState) => {
   return {
     down: initial.down ?? initial.pressed ?? false,
     pressed: initial.pressed ?? true,
     touched: initial.touched ?? true,
+    dragging: initial.dragging ?? false,
+    rotating: initial.rotating ?? false,
     up: initial.up ?? false,
     value: initial.value ?? 1
   }
