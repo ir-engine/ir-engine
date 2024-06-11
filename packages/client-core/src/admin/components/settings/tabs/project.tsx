@@ -65,12 +65,12 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   useEffect(() => {
     if (project.data && project.data.settings) {
       originalSettings.set(JSON.parse(JSON.stringify(project.data.settings)))
-      displayedSettings.set(originalSettings.value)
+      displayedSettings.set(originalSettings.value.slice())
     }
   }, [project])
 
   const handleClear = () => {
-    displayedSettings.set(originalSettings.value)
+    displayedSettings.set(originalSettings.value.slice())
   }
 
   const handleSubmit = async () => {
@@ -88,6 +88,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
         )
       }
       state.set({ loading: false, errorMessage: '' })
+      originalSettings.set(displayedSettings.value.slice())
     } catch (err) {
       state.set({ loading: false, errorMessage: err.message })
     }
