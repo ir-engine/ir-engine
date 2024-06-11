@@ -22,14 +22,18 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
 import { HookContext } from '../../../declarations'
+import checkScope from '../../hooks/check-scope'
+import collectAnalytics from '../../hooks/collect-analytics'
+import resolveProjectId from '../../hooks/resolve-project-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
 import { updateProjectResourcesJson } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -99,6 +103,26 @@ const updateResourcesJson = async (context: HookContext<StaticResourceService>) 
   }
 }
 
+/**
+ * Gets the name of the project to which the resource belongs
+ * @param context
+ * @returns
+ */
+const getProjectName = async (context: HookContext<StaticResourceService>) => {
+  if (!context.id) {
+    throw new BadRequest('Static Resource id missing in the request')
+  }
+  const resource = await context.app.service(staticResourcePath).get(context.id)
+  if (!resource) {
+    throw new NotFound('resource not found.')
+  }
+  context.params.query = {
+    ...context.params.query,
+    project: resource.project
+  }
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveResult(staticResourceResolver)]
@@ -106,10 +130,28 @@ export default {
 
   before: {
     all: [],
-    find: [],
-    get: [],
+    find: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'read'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
+        )
+      ),
+      discardQuery('action', 'project', 'projectId'),
+      collectAnalytics()
+    ],
+    get: [disallow('external')],
     create: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       setLoggedinUserInBody('userId'),
       // schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver),
@@ -117,11 +159,34 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('static_resource', 'write')),
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
       // schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('static_resource', 'write')), ensureResource]
+    remove: [
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [
+            verifyScope('editor', 'write'),
+            getProjectName,
+            resolveProjectId(),
+            verifyProjectPermission(['owner', 'editor'])
+          ]
+        )
+      ),
+      discardQuery('project', 'projectId'),
+      ensureResource
+    ]
   },
 
   after: {

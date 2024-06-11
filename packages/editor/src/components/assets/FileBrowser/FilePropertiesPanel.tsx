@@ -31,9 +31,10 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
+import { EditorState } from '../../../services/EditorServices'
 import { Button } from '../../inputs/Button'
 import styles from '../styles.module.scss'
 import { FileType } from './FileBrowserContentPanel'
@@ -75,7 +76,8 @@ export const FilePropertiesPanel = (props: {
 
   const staticResource = useFind(staticResourcePath, {
     query: {
-      key: fileProperties.value!.key
+      key: fileProperties.value!.key,
+      project: getMutableState(EditorState).projectName.value!
     }
   })
 
