@@ -76,16 +76,17 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
   const handleSubmit = async () => {
     try {
       state.loading.set(true)
-      for (const displayedSetting of displayedSettings.value) {
-        await patchProjectSetting(
-          displayedSetting.id,
-          { value: displayedSetting.value },
-          {
-            query: {
-              projectId: selectedProjectId.value
+      for (const [index, displayedSetting] of displayedSettings.value.entries()) {
+        if (displayedSetting.value !== originalSettings.value[index].value)
+          await patchProjectSetting(
+            displayedSetting.id,
+            { value: displayedSetting.value },
+            {
+              query: {
+                projectId: selectedProjectId.value
+              }
             }
-          }
-        )
+          )
       }
       state.set({ loading: false, errorMessage: '' })
       project.refetch()
