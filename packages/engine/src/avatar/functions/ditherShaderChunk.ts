@@ -25,26 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 /** glsl, vertex uniforms */
 export const ditheringVertexUniform = `
-varying vec3 vWorldPosition;
+#ifndef LAMBERT
+    varying vec3 vWorldPosition;
+#endif
 varying vec3 vLocalPosition;
-uniform int maxDitherPoints;
 `
 
 /** glsl, vertex main */
 export const ditheringVertex = `
-vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+#ifndef LAMBERT
+    vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
+#endif
 vLocalPosition = position.xyz;
 `
 
 /** glsl, fragment uniforms */
 export const ditheringFragUniform = `
-varying vec3 vWorldPosition;
+#ifndef LAMBERT
+    varying vec3 vWorldPosition;
+#endif
 varying vec3 vLocalPosition; 
 
 uniform vec3 centers[2];
 uniform float exponents[2];
 uniform float distances[2];
-uniform int maxDitherPoints;
 uniform int useWorldCalculation[2];
 `
 
@@ -54,7 +58,6 @@ export const ditheringAlphatestChunk = `
 float distance = 1.0;
 for(int i = 0; i < 2; i++){
     distance *= pow(clamp(distances[i]*length(centers[i] - (useWorldCalculation[i] == 1 ? vWorldPosition : vLocalPosition)), 0.0, 1.0), exponents[i]);
-    if(i > maxDitherPoints-1) break;
 }
 
 float dither = (sin( gl_FragCoord.x * 2.0)*sin( gl_FragCoord.y * 2.0));

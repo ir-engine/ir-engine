@@ -55,6 +55,7 @@ export type PluginObjectType = {
 
 export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCompile
 
+/**@deprecated Use setPlugin instead */
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
   console.log(material.onBeforeCompile)
@@ -69,6 +70,7 @@ export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   }
 }
 
+/**@deprecated use hasPlugin instead */
 export function hasOBCPlugin(material: Material, plugin: PluginType): boolean {
   if (!material.plugins) return false
   return indexOfPlugin(plugin, material.plugins) > -1

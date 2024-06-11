@@ -128,14 +128,17 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       }
       const prevMaterial = child.material
       const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-      const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
+      const newBasicMaterial = new MeshLambertMaterial()
       newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
       if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
       else newBasicMaterial.map = prevMaterial.map
       newBasicMaterial.reflectivity = prevMaterial.metalness
       newBasicMaterial.envMap = prevMaterial.envMap
-      newBasicMaterial.vertexColors = prevMaterial.vertexColors
       newBasicMaterial.uuid = basicUUID
+      newBasicMaterial.alphaTest = prevMaterial.alphaTest
+      newBasicMaterial.side = prevMaterial.side
+      newBasicMaterial.plugins = undefined
+
       createMaterialEntity(newBasicMaterial, '', entity)
       setComponent(entity, MaterialComponent[MaterialComponents.Instance], { uuid: [basicUUID] })
     } else {

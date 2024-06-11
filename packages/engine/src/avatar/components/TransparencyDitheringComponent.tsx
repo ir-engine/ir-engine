@@ -28,7 +28,7 @@ import { FrontSide, Material, Uniform, Vector3 } from 'three'
 import { defineComponent, EntityUUID, getComponent, useEntityContext } from '@etherealengine/ecs'
 import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
-import { addOBCPlugin } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
+import { hasPlugin, setPlugin } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
 import {
   ditheringAlphatestChunk,
@@ -63,8 +63,7 @@ export const TransparencyDitheringPlugin = defineComponent({
       distances: new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1)),
       useWorldCalculation: new Uniform(
         Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed)
-      ),
-      maxDitherPoints: new Uniform(MAX_DITHER_POINTS)
+      )
     }
   },
 
@@ -73,10 +72,9 @@ export const TransparencyDitheringPlugin = defineComponent({
     useEffect(() => {
       const materialComponent = getComponent(entity, MaterialComponent[MaterialComponents.State])
       const material = materialComponent.material as Material
-      addOBCPlugin(material, (shader) => {
+      const callback = (shader) => {
         material.alphaTest = 0.5
         material.side = FrontSide
-        console.log(material.uuid)
         const plugin = getComponent(entity, TransparencyDitheringPlugin)
 
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
@@ -99,9 +97,11 @@ export const TransparencyDitheringPlugin = defineComponent({
         shader.uniforms.exponents = plugin.exponents
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
-        shader.uniforms.maxDitherPoints = plugin.maxDitherPoints
         console.log(shader)
-      })
+      }
+      console.log(hasPlugin(material, callback))
+
+      setPlugin(entity, callback)
     })
     return null
   }
