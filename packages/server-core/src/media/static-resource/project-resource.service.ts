@@ -79,7 +79,7 @@ const createProjectResource =
     const storageProvider = getStorageProvider()
     const key = `projects/${project}/resources.json`
     await storageProvider.putObject({
-      Body: Buffer.from(JSON.stringify(resources)),
+      Body: Buffer.from(JSON.stringify(resources, null, 4)),
       ContentType: 'application/json',
       Key: key
     })
@@ -87,7 +87,7 @@ const createProjectResource =
       const filePath = path.resolve(projectsRootFolder, key)
       const dirName = path.dirname(filePath)
       fs.mkdirSync(dirName, { recursive: true })
-      fs.writeFileSync(filePath, JSON.stringify(resources))
+      fs.writeFileSync(filePath, JSON.stringify(resources, null, 4))
     }
   }
 
@@ -97,7 +97,7 @@ const patchProjectResource =
     const storageProvider = getStorageProvider()
     const resourceJSONPath = `projects/${project}/resources.json`
     const resourceJSONFile = await storageProvider.getObject(resourceJSONPath)
-    const resourceJSON = JSON.parse(resourceJSONFile.Body.toString())
+    const resourceJSON: object[] = JSON.parse(resourceJSONFile.Body.toString())
     const updatedResource = (await app.service(staticResourcePath).get(id)) as StaticResourceType
 
     const resource = resourceJSON.find((resource: StaticResourceType) => resource.key === updatedResource.key)
@@ -116,10 +116,14 @@ const patchProjectResource =
         updatedResource.thumbnailURL = updatedResource.thumbnailURL.replace(cacheRe, '')
       }
     }
-    Object.assign(resource, updatedResource)
+    if (resource) {
+      Object.assign(resource, updatedResource)
+    } else {
+      resourceJSON.push(updatedResource)
+    }
 
     await storageProvider.putObject({
-      Body: Buffer.from(JSON.stringify(resourceJSON)),
+      Body: Buffer.from(JSON.stringify(resourceJSON, null, 4)),
       ContentType: 'application/json',
       Key: `projects/${project}/resources.json`
     })
@@ -127,7 +131,7 @@ const patchProjectResource =
       const filePath = path.resolve(projectsRootFolder, resourceJSONPath)
       const dirName = path.dirname(filePath)
       fs.mkdirSync(dirName, { recursive: true })
-      fs.writeFileSync(filePath, JSON.stringify(resourceJSON))
+      fs.writeFileSync(filePath, JSON.stringify(resourceJSON, null, 4))
     }
   }
 
