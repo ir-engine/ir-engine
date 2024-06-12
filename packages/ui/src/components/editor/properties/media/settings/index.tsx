@@ -34,6 +34,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
+import { MdPermMedia } from 'react-icons/md'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
@@ -50,6 +51,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.mediaSettings.name')}
       description={t('editor:properties.mediaSettings.description')}
+      icon={<MediaSettingsEditor.iconComponent />}
     >
       <InputGroup
         name="Media Distance Model"
@@ -189,4 +191,5 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
   )
 }
 
+MediaSettingsEditor.iconComponent = MdPermMedia
 export default MediaSettingsEditor
