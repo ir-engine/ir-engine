@@ -30,7 +30,6 @@ import { Color } from 'three'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import NumericInputGroup from '@etherealengine/editor/src/components/inputs/NumericInputGroup'
 import {
   EditorComponentType,
   commitProperties,
@@ -54,6 +53,7 @@ import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import InputGroup from '../../../input/Group'
 import ImagePreviewInput from '../../../input/Image/Preview'
+import NumericInput from '../../../input/Numeric'
 import PropertyGroup from '../../group'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
@@ -223,7 +223,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         </div>
       </InputGroup>
       <InputGroup name="Kill Height" label={t('editor:properties.sceneSettings.lbl-killHeight')}>
-        <NumericInputGroup
+        <NumericInput
           value={sceneSettingsComponent.sceneKillHeight.value}
           onChange={updateProperty(SceneSettingsComponent, 'sceneKillHeight')}
           onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
