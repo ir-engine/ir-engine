@@ -177,6 +177,7 @@ const NumericInput = ({
         onFocus={handleFocus}
         onChange={handleChange}
         onBlur={handleBlur}
+        type="number"
         {...rest}
       />
       {unit && (
