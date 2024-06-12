@@ -556,7 +556,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
@@ -875,7 +875,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
