@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SpawnPoseState } from './SpawnPoseState'
+import { FacerSystem } from './systems/FacerSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { SpawnPoseState, TransformSystem }
+export { SpawnPoseState, TransformSystem, FacerSystem }
