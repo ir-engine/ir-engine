@@ -131,7 +131,7 @@ export function InputGroup({ children, info, label, className, labelClassName, i
   return (
     <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
       <div className="flex">
-        <Label className={twMerge('mr-2.5 text-nowrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+        <Label className={twMerge('mr-2.5 text-wrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
         {info && (
           <Tooltip title={info}>
             <LuInfo className={twMerge('-ml-0.5 mr-2.5 h-5 w-5 text-[#A0A1A2]', infoClassName)} />
