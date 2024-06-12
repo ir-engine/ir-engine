@@ -1860,9 +1860,7 @@ describe('PhysicsAPI', () => {
       })
     }) // << computeColliderMovement
 
-    /**
-    // @todo After test for Physics.computeColliderMovement is done
-    describe("getComputedMovement", () => {
+    describe('getComputedMovement', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
 
@@ -1870,15 +1868,20 @@ describe('PhysicsAPI', () => {
         createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
         physicsWorld!.timestep = 1 / 60
+        const physicsState = getMutableState(PhysicsState)
+        physicsState.physicsWorld!.set(physicsWorld!)
+        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
       })
 
       afterEach(() => {
@@ -1887,23 +1890,32 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      it("should return (0,0,0) when the entity does not have a CharacterController", () => {
-        const result = new Vector3(1,2,3)
+      it('should return (0,0,0) when the entity does not have a CharacterController', () => {
+        const result = new Vector3(1, 2, 3)
         Physics.getComputedMovement(testEntity, result)
         assert.deepEqual(result, Vector3_Zero)
       })
 
-      it("should not return (0,0,0) when the entity has a moving CharacterController", () => {
-        const result = new Vector3(1,2,3)
-        const Expected = { x: 4, y: 5, z: 6 }
-        const Vector_Zero = { x: 0, y: 0, z: 0 }
+      it("should return the same value contained in the `computedMovement` value of the entity's Character Controller", () => {
         Physics.createCharacterController(testEntity, physicsWorld!, {})
-        Physics.getComputedMovement(testEntity, result)
+        const movement = new Vector3(1, 2, 3)
         const controller = Physics._Controllers.get(testEntity)!
-        assert.notDeepEqual(controller.computedMovement(), Vector_Zero)
+        const before = controller.computedMovement()
+        Physics.computeColliderMovement(
+          testEntity, // entity: Entity,
+          testEntity, // colliderEntity: Entity,
+          movement // desiredTranslation: Vector3,
+          // filterGroups?: InteractionGroups,
+          // filterPredicate?: (collider: Collider) => boolean
+        )
+        const after = controller.computedMovement()
+        assertVecAllApproxNotEq(before, after, 3)
+        const result = new Vector3()
+        Physics.getComputedMovement(testEntity, result)
+        assertVecAllApproxNotEq(before, result, 3)
+        assertVecApproxEq(after, result, 3)
       })
-    })
-    */
+    }) // << getComputedMovement
   }) // << CharacterControllers
 
   describe('Raycasts', () => {
