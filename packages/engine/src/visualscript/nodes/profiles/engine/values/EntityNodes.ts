@@ -63,7 +63,7 @@ const sceneQuery = defineQuery([SourceComponent])
 
 export const getEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/entityInScene',
-  category: NodeCategory.Query,
+  category: NodeCategory.Logic,
   label: 'Get entity in scene',
   in: {
     entity: (_) => {
@@ -88,7 +88,7 @@ export const getEntity = makeFunctionNodeDefinition({
 
 export const getLocalClientEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/localClientEntity',
-  category: NodeCategory.Query,
+  category: NodeCategory.Logic,
   label: 'Get local client entity',
   in: {},
   out: { entity: 'entity' },
@@ -100,7 +100,7 @@ export const getLocalClientEntity = makeFunctionNodeDefinition({
 
 export const getCameraEntity = makeFunctionNodeDefinition({
   typeName: 'logic/entity/get/cameraEntity',
-  category: NodeCategory.Query,
+  category: NodeCategory.Logic,
   label: 'Get camera entity',
   in: {},
   out: { entity: 'entity' },
@@ -112,7 +112,7 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 
 export const entityExists = makeFlowNodeDefinition({
   typeName: 'logic/entity/exists',
-  category: NodeCategory.Action,
+  category: NodeCategory.Logic,
   label: 'Entity exists',
   in: {
     flow: 'flow',
@@ -149,7 +149,7 @@ export const entityExists = makeFlowNodeDefinition({
 
 export const addEntity = makeFlowNodeDefinition({
   typeName: 'logic/entity/addEntity',
-  category: NodeCategory.Action,
+  category: NodeCategory.Logic,
   label: 'Add entity',
   in: {
     flow: 'flow',
@@ -194,7 +194,7 @@ export const addEntity = makeFlowNodeDefinition({
 
 export const deleteEntity = makeFlowNodeDefinition({
   typeName: 'logic/entity/deleteEntity',
-  category: NodeCategory.Action,
+  category: NodeCategory.Logic,
   label: 'Delete entity',
   in: {
     flow: 'flow',
@@ -222,7 +222,7 @@ export const deleteEntity = makeFlowNodeDefinition({
 
 export const getEntityTransform = makeFunctionNodeDefinition({
   typeName: 'engine/entity/TransformComponent/get',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'Get entity transform',
   in: {
     entity: 'entity'
@@ -241,7 +241,7 @@ export const getEntityTransform = makeFunctionNodeDefinition({
 
 export const setEntityTransform = makeFlowNodeDefinition({
   typeName: 'engine/entity/TransformComponent/set',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'set transformComponent',
   in: {
     flow: 'flow',
@@ -270,7 +270,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
 
 export const useEntityTransform = makeEventNodeDefinition({
   typeName: 'engine/entity/TransformComponent/use',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'Use entity transform',
   in: {
     entity: 'entity'

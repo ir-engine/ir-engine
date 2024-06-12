@@ -99,7 +99,7 @@ export default function ParameterInput({
       {Object.entries(_defaults).map(([k, parms]: [string, any]) => {
         const compKey = `${entity}-${k}`
         return (
-          <InputGroup key={compKey} name={k} label={k}>
+          <InputGroup key={compKey} name={k} label={''}>
             {(() => {
               switch (parms.type) {
                 case 'boolean':

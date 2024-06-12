@@ -23,29 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID, defineComponent } from '@etherealengine/ecs'
-export const FacerComponent = defineComponent({
-  name: 'FacerComponent',
-  jsonID: 'IR_facer',
-  onInit: (entity) => ({
-    target: null as EntityUUID | null,
-    xAxis: true,
-    yAxis: true
-  }),
-  onSet: (entity, component, props) => {
-    if (typeof props?.target === 'string') {
-      component.target.set(props.target)
-    }
-    if (typeof props?.xAxis === 'boolean') {
-      component.xAxis.set(props.xAxis)
-    }
-    if (typeof props?.yAxis === 'boolean') {
-      component.yAxis.set(props.yAxis)
-    }
-  },
-  toJSON: (entity, component) => ({
-    target: component.target.value,
-    xAxis: component.xAxis.value,
-    yAxis: component.yAxis.value
-  })
-})
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Modal } from '..'
+
+export type HelpModalProps = {
+  open?: boolean
+  onClose: () => void
+}
+
+export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
+  const { t } = useTranslation()
+
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.help.title')}
+      actions={[{ label: t('editor:visualScript.modal.buttons.close'), onClick: onClose }]}
+      open={open}
+      onClose={onClose}
+    >
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addNodeHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addConnectionHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.deleteNodeHelp')}</p>
+    </Modal>
+  )
+}
