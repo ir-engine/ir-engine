@@ -117,7 +117,7 @@ export function updateGamepadInput(eid: Entity) {
     for (let i = 0; i < gamepadButtons.length; i++) {
       const button = gamepadButtons[i]
       if (!buttons[i] && (button.pressed || button.touched)) {
-        buttons[i] = createInitialButtonState(button)
+        buttons[i] = createInitialButtonState(eid, button)
       }
       if (buttons[i] && (button.pressed || button.touched)) {
         if (!buttons[i].pressed && button.pressed) {
@@ -460,7 +460,7 @@ const useNonSpatialInputSources = () => {
       const down = event.type === 'keydown'
 
       const buttonState = inputSourceComponent.buttons as ButtonStateMap
-      if (down) buttonState[code] = createInitialButtonState()
+      if (down) buttonState[code] = createInitialButtonState(eid)
       else if (buttonState[code]) buttonState[code].up = true
     }
     document.addEventListener('keyup', onKeyEvent)
@@ -478,7 +478,7 @@ const useNonSpatialInputSources = () => {
 
     document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons as ButtonStateMap
-      buttonState[event.detail.button] = createInitialButtonState()
+      buttonState[event.detail.button] = createInitialButtonState(eid)
     })
 
     document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
@@ -594,7 +594,7 @@ const CanvasInputReactor = () => {
 
       const state = inputSourceComponent.buttons as ButtonStateMap
       if (down) {
-        state[button] = createInitialButtonState() //down, pressed, touched = true
+        state[button] = createInitialButtonState(emulatedInputSourceEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
         if (pointer) {
@@ -694,7 +694,7 @@ const useXRInputSources = () => {
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
       const state = inputSourceComponent.buttons as ButtonStateMap
-      state.PrimaryClick = createInitialButtonState()
+      state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
       const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import { Quaternion, Vector3 } from 'three'
 
 /**
@@ -55,6 +56,9 @@ export type ButtonState = {
 
   /** rotation when this button down was true of the Transform.position if XRInputSource */
   downRotation?: Quaternion
+
+  /** input source associated with this button state */
+  inputSource: Entity
 }
 
 /**
@@ -251,7 +255,10 @@ export const DefaultBooleanButtonState = Object.freeze({
   rotating: false
 })
 
-export const createInitialButtonState = (initial: Readonly<Partial<ButtonState>> = DefaultBooleanButtonState) => {
+export const createInitialButtonState = (
+  inputSourceEntity: Entity,
+  initial: Readonly<Partial<ButtonState>> = DefaultBooleanButtonState
+) => {
   return {
     down: initial.down ?? initial.pressed ?? false,
     pressed: initial.pressed ?? true,
@@ -259,6 +266,7 @@ export const createInitialButtonState = (initial: Readonly<Partial<ButtonState>>
     dragging: initial.dragging ?? false,
     rotating: initial.rotating ?? false,
     up: initial.up ?? false,
-    value: initial.value ?? 1
+    value: initial.value ?? 1,
+    inputSource: inputSourceEntity ?? UndefinedEntity
   }
 }
