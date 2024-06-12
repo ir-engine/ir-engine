@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID, defineComponent } from '@etherealengine/ecs'
-export const FacerComponent = defineComponent({
-  name: 'FacerComponent',
-  jsonID: 'IR_facer',
+export const LookAtComponent = defineComponent({
+  name: 'LookAtComponent',
+  jsonID: 'IR_lookAt',
   onInit: (entity) => ({
     target: null as EntityUUID | null,
     xAxis: true,
