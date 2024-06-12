@@ -51,10 +51,10 @@ export const FacerSystem = defineSystem({
       TransformComponent.getWorldPosition(targetEntity, dstPosition)
       direction.subVectors(dstPosition, srcPosition).normalize()
       // look at target about enabled axes
-      if (!facer.axes.x) {
+      if (!facer.xAxis) {
         direction.y = 0
       }
-      if (!facer.axes.y) {
+      if (!facer.yAxis) {
         direction.x = 0
       }
       lookMatrix.lookAt(zero, direction, up)

@@ -61,20 +61,10 @@ export const FacerNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="X Axis" label={t('editor:properties.facer.xAxis')}>
-        <BooleanInput
-          value={facerComponent.axes.x.value}
-          onChange={() =>
-            commitProperty(FacerComponent, 'axes')({ x: !facerComponent.axes.x.value, y: facerComponent.axes.y.value })
-          }
-        />
+        <BooleanInput value={facerComponent.xAxis.value} onChange={commitProperty(FacerComponent, 'xAxis')} />
       </InputGroup>
       <InputGroup name="Y Axis" label={t('editor:properties.facer.yAxis')}>
-        <BooleanInput
-          value={facerComponent.axes.y.value}
-          onChange={() =>
-            commitProperty(FacerComponent, 'axes')({ x: facerComponent.axes.x.value, y: !facerComponent.axes.y.value })
-          }
-        />
+        <BooleanInput value={facerComponent.yAxis.value} onChange={commitProperty(FacerComponent, 'yAxis')} />
       </InputGroup>
     </NodeEditor>
   )
