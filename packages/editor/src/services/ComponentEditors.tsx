@@ -95,13 +95,12 @@ import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/compone
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
-import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
-import FacerNodeEditor from '@etherealengine/ui/src/components/editor/properties/facer'
 import GroundPlaneNodeEditor from '@etherealengine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
@@ -110,6 +109,7 @@ import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
 import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
+import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import { default as MediaNodeEditor } from '@etherealengine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
@@ -187,7 +187,7 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [FacerComponent.name]: FacerNodeEditor
+      [LookAtComponent.name]: LookAtNodeEditor
     } as Record<string, EditorComponentType>
   }
 })
