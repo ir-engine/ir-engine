@@ -173,7 +173,7 @@ const NumericInput = ({
           inputClassName
         )}
         value={focused.value ? tempValue.value : toPrecisionString(value, displayPrecision)}
-        onKeyUp={handleKeyPress}
+        onKeyDown={handleKeyPress}
         onFocus={handleFocus}
         onChange={handleChange}
         onBlur={handleBlur}
