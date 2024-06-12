@@ -148,12 +148,20 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     type: ItemTypes.Node,
     item() {
       const selectedEntities = SelectionState.getSelectedEntities()
-      const multiple = selectedEntities.length > 1
 
-      return {
-        type: ItemTypes.Node,
-        multiple,
-        value: multiple ? selectedEntities : selectedEntities[0]
+      if (selectedEntities.includes(node.entity)) {
+        const multiple = selectedEntities.length > 1
+        return {
+          type: ItemTypes.Node,
+          multiple,
+          value: multiple ? selectedEntities : selectedEntities[0]
+        }
+      } else {
+        return {
+          type: ItemTypes.Node,
+          multiple: false,
+          value: node.entity
+        }
       }
     },
     canDrag() {
