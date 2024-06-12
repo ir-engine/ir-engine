@@ -25,42 +25,51 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdPanTool } from 'react-icons/md'
 
-import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+
+import { FaRegFaceFlushed } from 'react-icons/fa6'
+
+import { EntityUUID } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
-import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
-import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
+import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
-import SelectInput from '../../input/Select'
+import NodeInput from '../../input/Node'
 import NodeEditor from '../nodeEditor'
 
-const bodyTypeOptions = Object.entries(BodyTypes).map(([label, value]) => {
-  return { label: camelCaseToSpacedString(label as string), value }
-})
-
-export const RigidBodyComponentEditor: EditorComponentType = (props) => {
+/**
+ * FacerNodeEditor component used to customize the facer element on the scene
+ */
+export const FacerNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rigidbodyComponent = useComponent(props.entity, RigidBodyComponent)
+
+  const facerComponent = useComponent(props.entity, FacerComponent)
 
   return (
     <NodeEditor
-      {...props}
-      name={t('editor:properties.rigidbody.name')}
-      description={t('editor:properties.rigidbody.description')}
+      entity={props.entity}
+      component={FacerComponent}
+      name={t('editor:properties.facer.name')}
+      description={t('editor:properties.facer.description')}
     >
-      <InputGroup name="Type" label={t('editor:properties.rigidbody.lbl-type')}>
-        <SelectInput
-          options={bodyTypeOptions}
-          value={rigidbodyComponent.type.value}
-          onChange={commitProperty(RigidBodyComponent, 'type')}
+      <InputGroup name="Target" label={t('editor:properties.facer.target')}>
+        <NodeInput
+          value={facerComponent.target.value ?? ('' as EntityUUID)}
+          onRelease={commitProperty(FacerComponent, 'target')}
+          onChange={commitProperty(FacerComponent, 'target')}
         />
+      </InputGroup>
+      <InputGroup name="X Axis" label={t('editor:properties.facer.xAxis')}>
+        <BooleanInput value={facerComponent.xAxis.value} onChange={commitProperty(FacerComponent, 'xAxis')} />
+      </InputGroup>
+      <InputGroup name="Y Axis" label={t('editor:properties.facer.yAxis')}>
+        <BooleanInput value={facerComponent.yAxis.value} onChange={commitProperty(FacerComponent, 'yAxis')} />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-RigidBodyComponentEditor.iconComponent = MdPanTool
+FacerNodeEditor.iconComponent = FaRegFaceFlushed
 
-export default RigidBodyComponentEditor
+export default FacerNodeEditor
