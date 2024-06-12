@@ -42,7 +42,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
   const [minimized, setMinimized] = useState(true)
 
   return (
-    <div className="flex w-full flex-col rounded border-solid bg-[#242424] px-4 py-1.5">
+    <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#242424] px-4 py-1.5">
       <div className="flex items-center gap-2 text-[#FAFAFA]">
         <Button
           onClick={() => setMinimized(!minimized)}
@@ -71,7 +71,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
           ))}
         </Text>
       )}
-      {!minimized && <div className="flex flex-col py-2">{children}</div>}
+      {!minimized && <div className="flex w-full flex-col py-2">{children}</div>}
     </div>
   )
 }
