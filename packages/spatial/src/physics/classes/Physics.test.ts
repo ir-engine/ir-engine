@@ -673,7 +673,6 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    // @todo How to check for the impulse of an entity?
     describe('applyImpulse', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
@@ -767,7 +766,6 @@ describe('PhysicsAPI', () => {
       })
     })
 
-    // @todo How to check rotations?
     describe('setEnabledRotations', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: World | undefined = undefined
@@ -1583,7 +1581,7 @@ describe('PhysicsAPI', () => {
       })
 
       /**
-      // @todo Test the static resulting values, in order to not repeate the internal function's code (computing relative pos/rot)
+      // @todo Test the static resulting values, in order to not repeat the internal function's code (computing relative pos/rot)
       it('should set the position relative to the parent entity', () => {
         const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(testEntity, rootEntity)
@@ -1593,7 +1591,7 @@ describe('PhysicsAPI', () => {
       */
 
       /**
-      // @todo Test the static resulting values, in order to not repeate the internal function's code (computing relative pos/rot)
+      // @todo Test the static resulting values, in order to not repeat the internal function's code (computing relative pos/rot)
       it('should set the rotation relative to the parent entity', () => {
         const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(testEntity, rootEntity)
