@@ -181,17 +181,58 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       {video.useAlpha.value && (
-        <InputGroup
-          name="Alpha Threshold"
-          label={t('editor:properties.video.lbl-alpha-threshold')}
-          info={t('editor:properties.video.lbl-alpha-threshold-info')}
-        >
-          <NumericInput
-            value={video.alphaThreshold.value}
-            onChange={updateProperty(VideoComponent, 'alphaThreshold')}
-            onRelease={commitProperty(VideoComponent, 'alphaThreshold')}
-          />
-        </InputGroup>
+        <>
+          <InputGroup
+            name="Alpha Threshold"
+            label={t('editor:properties.video.lbl-alpha-threshold')}
+            info={t('editor:properties.video.lbl-alpha-threshold-info')}
+          >
+            <NumericInput
+              value={video.alphaThreshold.value}
+              onChange={updateProperty(VideoComponent, 'alphaThreshold')}
+              onRelease={commitProperty(VideoComponent, 'alphaThreshold')}
+            />
+          </InputGroup>
+
+          <InputGroup
+            name="Use Alpha UV Transform"
+            label={t('editor:properties.video.lbl-use-alpha-uv-transform')}
+            info={t('editor:properties.video.lbl-use-alpha-uv-transform-info')}
+          >
+            <BooleanInput
+              value={video.useAlphaUVTransform.value}
+              onChange={commitProperty(VideoComponent, 'useAlphaUVTransform')}
+            />
+          </InputGroup>
+
+          {video.useAlphaUVTransform.value && (
+            <>
+              <InputGroup
+                name="Alpha UV Offset"
+                label={t('editor:properties.video.lbl-alpha-uv-offset')}
+                info={t('editor:properties.video.lbl-alpha-uv-offset-info')}
+              >
+                <Vector2Input
+                  value={video.alphaUVOffset.value}
+                  onChange={updateProperty(VideoComponent, 'alphaUVOffset')}
+                  onRelease={commitProperty(VideoComponent, 'alphaUVOffset')}
+                />
+              </InputGroup>
+
+              <InputGroup
+                name="Alpha UV Scale"
+                label={t('editor:properties.video.lbl-alpha-uv-scale')}
+                info={t('editor:properties.video.lbl-alpha-uv-scale-info')}
+              >
+                <Vector2Input
+                  value={video.alphaUVScale.value}
+                  onChange={updateProperty(VideoComponent, 'alphaUVScale')}
+                  onRelease={commitProperty(VideoComponent, 'alphaUVScale')}
+                />
+              </InputGroup>
+            </>
+          )}
+        </>
       )}
 
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
