@@ -268,6 +268,13 @@
         "lbl-callbackID": "Callback ID"
       }
     },
+    "facer": {
+      "name": "Facer",
+      "description": "A facer component that makes the entity always face the user, or another entity",
+      "target": "Target Entity",
+      "xAxis": "X Axis",
+      "yAxis": "Y Axis"
+    },
     "grabbable": {
       "name": "Grabbable",
       "description": "A grabbable component that can be picked up and manipulated by the user"
@@ -549,7 +556,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
@@ -868,7 +875,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
