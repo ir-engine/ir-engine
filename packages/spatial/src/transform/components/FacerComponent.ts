@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID, defineComponent } from '@etherealengine/ecs'
-import { matches } from '@etherealengine/hyperflux'
 export const FacerComponent = defineComponent({
   name: 'FacerComponent',
   jsonID: 'IR_facer',
@@ -36,14 +35,14 @@ export const FacerComponent = defineComponent({
     }
   }),
   onSet: (entity, component, props) => {
-    if (matches.string.test(props?.target)) {
+    if (typeof props?.target === 'string') {
       component.target.set(props.target)
     }
-    if (matches.object.test(props?.axes)) {
-      if (matches.boolean.test(props.axes.x)) {
+    if (typeof props?.axes === 'object') {
+      if (typeof props.axes.x === 'boolean') {
         component.axes.x.set(props.axes.x)
       }
-      if (matches.boolean.test(props.axes.y)) {
+      if (typeof props.axes.y === 'boolean') {
         component.axes.y.set(props.axes.y)
       }
     }
