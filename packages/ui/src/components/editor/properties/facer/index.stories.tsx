@@ -28,11 +28,11 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Properties/group',
+  title: 'Editor/Properties/Facer',
   component: Component,
   parameters: {
-    componentSubtitle: 'PropertyGroup',
-    jest: 'propertyGroup.test.tsx',
+    componentSubtitle: 'FacerNodeEditor',
+    jest: 'facerNodeEditor.test.tsx',
     design: {
       type: 'figma',
       url: ''
@@ -40,5 +40,4 @@ export default {
   },
   argTypes
 }
-
-export const Default = { args: Component.defaultProps }
+export const Default = { args: {} }

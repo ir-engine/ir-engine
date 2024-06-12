@@ -95,11 +95,13 @@ import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/compone
 import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
+import FacerNodeEditor from '@etherealengine/ui/src/components/editor/properties/facer'
 import GroundPlaneNodeEditor from '@etherealengine/ui/src/components/editor/properties/groundPlane'
 import ImageNodeEditor from '@etherealengine/ui/src/components/editor/properties/image'
 import AmbientLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/ambient'
@@ -184,7 +186,8 @@ export const ComponentEditorsState = defineState({
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
-      [TextComponent.name]: TextNodeEditor
+      [TextComponent.name]: TextNodeEditor,
+      [FacerComponent.name]: FacerNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

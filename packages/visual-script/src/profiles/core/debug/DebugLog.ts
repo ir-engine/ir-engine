@@ -28,7 +28,7 @@ import { ILogger, LogSeverity } from '../abstractions/ILogger'
 
 export const Log = makeFlowNodeDefinition({
   typeName: 'debug/log',
-  category: NodeCategory.Action,
+  category: NodeCategory.Debug,
   label: 'Debug Log',
   in: {
     flow: 'flow',

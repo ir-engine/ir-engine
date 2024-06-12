@@ -32,8 +32,8 @@ import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@etherealengine/spatial/src/physics/types/PhysicsTypes'
-import Select from '../../../../primitives/tailwind/Select'
 import InputGroup from '../../input/Group'
+import SelectInput from '../../input/Select'
 import NodeEditor from '../nodeEditor'
 
 const bodyTypeOptions = Object.entries(BodyTypes).map(([label, value]) => {
@@ -51,11 +51,10 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.rigidbody.description')}
     >
       <InputGroup name="Type" label={t('editor:properties.rigidbody.lbl-type')}>
-        <Select
+        <SelectInput
           options={bodyTypeOptions}
-          currentValue={rigidbodyComponent.type.value}
+          value={rigidbodyComponent.type.value}
           onChange={commitProperty(RigidBodyComponent, 'type')}
-          inputClassName="text-xs p-2"
         />
       </InputGroup>
     </NodeEditor>

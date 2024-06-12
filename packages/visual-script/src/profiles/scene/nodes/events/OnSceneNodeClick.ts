@@ -36,7 +36,7 @@ const initialState = (): State => ({})
 // very 3D specific.
 export const OnSceneNodeClick = makeEventNodeDefinition({
   typeName: 'scene/nodeClick',
-  category: NodeCategory.Event,
+  category: NodeCategory.None,
   label: 'On Scene Node Click',
   in: {
     jsonPath: (_, graphApi) => {
