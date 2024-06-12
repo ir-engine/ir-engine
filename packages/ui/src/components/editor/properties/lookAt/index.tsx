@@ -32,7 +32,7 @@ import { FaRegFaceFlushed } from 'react-icons/fa6'
 
 import { EntityUUID } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
-import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NodeInput from '../../input/Node'
@@ -41,35 +41,35 @@ import NodeEditor from '../nodeEditor'
 /**
  * FacerNodeEditor component used to customize the facer element on the scene
  */
-export const FacerNodeEditor: EditorComponentType = (props) => {
+export const LookAtNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const facerComponent = useComponent(props.entity, FacerComponent)
+  const facerComponent = useComponent(props.entity, LookAtComponent)
 
   return (
     <NodeEditor
       entity={props.entity}
-      component={FacerComponent}
-      name={t('editor:properties.facer.name')}
-      description={t('editor:properties.facer.description')}
+      component={LookAtComponent}
+      name={t('editor:properties.lookAt.name')}
+      description={t('editor:properties.lookAt.description')}
     >
-      <InputGroup name="Target" label={t('editor:properties.facer.target')}>
+      <InputGroup name="Target" label={t('editor:properties.lookAt.target')}>
         <NodeInput
           value={facerComponent.target.value ?? ('' as EntityUUID)}
-          onRelease={commitProperty(FacerComponent, 'target')}
-          onChange={commitProperty(FacerComponent, 'target')}
+          onRelease={commitProperty(LookAtComponent, 'target')}
+          onChange={commitProperty(LookAtComponent, 'target')}
         />
       </InputGroup>
-      <InputGroup name="X Axis" label={t('editor:properties.facer.xAxis')}>
-        <BooleanInput value={facerComponent.xAxis.value} onChange={commitProperty(FacerComponent, 'xAxis')} />
+      <InputGroup name="X Axis" label={t('editor:properties.lookAt.xAxis')}>
+        <BooleanInput value={facerComponent.xAxis.value} onChange={commitProperty(LookAtComponent, 'xAxis')} />
       </InputGroup>
-      <InputGroup name="Y Axis" label={t('editor:properties.facer.yAxis')}>
-        <BooleanInput value={facerComponent.yAxis.value} onChange={commitProperty(FacerComponent, 'yAxis')} />
+      <InputGroup name="Y Axis" label={t('editor:properties.lookAt.yAxis')}>
+        <BooleanInput value={facerComponent.yAxis.value} onChange={commitProperty(LookAtComponent, 'yAxis')} />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-FacerNodeEditor.iconComponent = FaRegFaceFlushed
+LookAtNodeEditor.iconComponent = FaRegFaceFlushed
 
-export default FacerNodeEditor
+export default LookAtNodeEditor

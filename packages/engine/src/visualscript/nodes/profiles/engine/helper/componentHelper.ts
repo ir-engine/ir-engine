@@ -99,7 +99,7 @@ export function registerComponentSetters() {
     }
     const node = makeFlowNodeDefinition({
       typeName: `engine/component/${componentName}/set`,
-      category: NodeCategory.Action,
+      category: NodeCategory.Engine,
       label: `set ${componentName}`,
       in: {
         flow: 'flow',
@@ -144,7 +144,7 @@ export function registerComponentGetters() {
     }
     const node = makeFunctionNodeDefinition({
       typeName: `engine/component/${componentName}/get`,
-      category: NodeCategory.Query,
+      category: NodeCategory.Engine,
       label: `get ${componentName}`,
       in: {
         entity: 'entity'
@@ -197,7 +197,7 @@ export function registerComponentListeners() {
 
     const node = makeEventNodeDefinition({
       typeName: `engine/component/${componentName}/use`,
-      category: NodeCategory.Event,
+      category: NodeCategory.Engine,
       label: `use ${componentName}`,
       in: {
         entity: 'entity'

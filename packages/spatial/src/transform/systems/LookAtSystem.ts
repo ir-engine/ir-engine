@@ -25,11 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine, Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '@etherealengine/ecs'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { FacerComponent } from '../components/FacerComponent'
+import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformSystem } from './TransformSystem'
 
-const facerQuery = defineQuery([FacerComponent, TransformComponent])
+const facerQuery = defineQuery([LookAtComponent, TransformComponent])
 const srcPosition = new Vector3()
 const dstPosition = new Vector3()
 const direction = new Vector3()
@@ -38,13 +38,13 @@ const up = new Vector3(0, 1, 0)
 const lookMatrix = new Matrix4()
 const lookRotation = new Quaternion()
 
-export const FacerSystem = defineSystem({
-  uuid: 'ir.spatial.FacerSystem',
+export const LookAtSystem = defineSystem({
+  uuid: 'ir.spatial.LookAtSystem',
   insert: { before: TransformSystem },
   execute: () => {
     const viewerEntity = Engine.instance.viewerEntity
     for (const entity of facerQuery()) {
-      const facer = getComponent(entity, FacerComponent)
+      const facer = getComponent(entity, LookAtComponent)
       const targetEntity: Entity | null = facer.target ? UUIDComponent.getEntityByUUID(facer.target) : viewerEntity
       if (!targetEntity) continue
       TransformComponent.getWorldPosition(entity, srcPosition)

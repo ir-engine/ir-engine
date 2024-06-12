@@ -35,7 +35,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import PropertyGroup from './PropertyGroup'
+import NodeEditor from './NodeEditor'
 import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const MediaSettingsEditor: EditorComponentType = (props) => {
@@ -44,9 +44,11 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
   const mediaState = useComponent(props.entity, MediaSettingsComponent)
 
   return (
-    <PropertyGroup
+    <NodeEditor
+      {...props}
       name={t('editor:properties.mediaSettings.name')}
       description={t('editor:properties.mediaSettings.description')}
+      entity={props.entity}
     >
       <InputGroup
         name="Media Distance Model"
@@ -169,6 +171,6 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(MediaSettingsComponent, 'coneOuterGain')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }

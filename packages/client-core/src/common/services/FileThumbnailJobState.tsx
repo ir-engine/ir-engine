@@ -67,6 +67,7 @@ import { ErrorComponent } from '@etherealengine/engine/src/scene/components/Erro
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Paginated } from '@feathersjs/feathers'
+import { useTranslation } from 'react-i18next'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 import { ProgressBarState } from './ProgressBarState'
@@ -120,23 +121,17 @@ const seenThumbnails = new Set<string>()
 
 const ProgressBar = () => {
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  const { t } = useTranslation()
 
   return (
     <div
       key="thumbnail-generation-progress-bar"
-      style={{
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '1em'
-      }}
+      className="pointer-events-none fixed inset-x-0 top-0 z-[1000] m-2 flex justify-center"
     >
-      <div>Generating Thumbnails</div>
-      <div>{thumbnailJobState.length} remaining</div>
+      <div className="flex max-w-[500px] flex-col items-center rounded-md bg-gray-700 bg-opacity-50 px-4 py-2">
+        <div>{t('editor:generatingThumbnails.title')}</div>
+        <div>{t('editor:generatingThumbnails.amountRemaining', { count: thumbnailJobState.length })}</div>
+      </div>
     </div>
   )
 }

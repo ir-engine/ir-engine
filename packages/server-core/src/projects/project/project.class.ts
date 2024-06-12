@@ -64,7 +64,9 @@ const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs comp
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
+export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {
+  appJWT?: string
+}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
