@@ -1769,7 +1769,6 @@ export const updateProjectResourcesJson = async (app: Application, projectName: 
     query: { project: projectName },
     paginate: false
   })
-  console.log('\n\n\nupdateProjectResourcesJson', projectName)
   if (resources.length === 0) return
   const resourcesJson = Object.fromEntries(
     resources.map((resource) => [

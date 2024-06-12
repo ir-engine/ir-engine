@@ -171,12 +171,12 @@ export class FileBrowserService
       isDirectory: true
     })
 
+    if (config.fsProjectSyncEnabled) fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
+
     if (config.server.edgeCachingEnabled)
       await this.app.service(invalidationPath).create({
         path: keyPath
       })
-
-    if (config.fsProjectSyncEnabled) fs.mkdirSync(path.resolve(projectsRootFolder, keyPath), { recursive: true })
 
     return result
   }
@@ -193,37 +193,27 @@ export class FileBrowserService
     if (!data.oldPath.startsWith('projects/' + data.oldProject)) throw new Error('Not allowed to access this directory')
     if (!data.newPath.startsWith('projects/' + data.newProject)) throw new Error('Not allowed to access this directory')
 
-    const _oldPath = data.oldPath.split('/').slice(1).join('/')
-    const _newPath = data.newPath.split('/').slice(1).join('/')
-    const oldName = data.oldPath.split('/').pop()!
-    const newName = data.newPath.split('/').pop()!
+    const oldDirectory = data.oldPath.split('/').slice(0, -1).join('/')
+    const newDirectory = data.newPath.split('/').slice(0, -1).join('/')
+    const oldName = data.oldName.endsWith('/') ? data.oldName.slice(0, -1) : data.oldName
+    const newName = data.newName.endsWith('/') ? data.newName.slice(0, -1) : data.newName
 
-    const isDirectory = await storageProvider.isDirectory(oldName, _oldPath)
-    const fileName = await getIncrementalName(newName, _newPath, storageProvider, isDirectory)
-    await storageProvider.moveObject(oldName, fileName, _oldPath, _newPath, data.isCopy)
-
-    if (config.server.edgeCachingEnabled)
-      await this.app.service(invalidationPath).create([
-        {
-          path: _oldPath + oldName
-        },
-        {
-          path: _newPath + fileName
-        }
-      ])
+    const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
+    const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
+    await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${path.join(_oldPath, oldName)}%` }
+        key: { $like: `%${path.join(oldDirectory, oldName)}%` }
       },
       paginate: false
     })) as StaticResourceType[]
 
-    if (!staticResources?.length) throw new Error('Static resource not found')
+    if (!staticResources?.length) throw new Error('Static resources not found')
 
     const results = [] as StaticResourceType[]
     for (const resource of staticResources) {
-      const newKey = resource.key.replace(path.join(_oldPath, oldName), path.join(_newPath, fileName))
+      const newKey = resource.key.replace(path.join(oldDirectory, oldName), path.join(newDirectory, fileName))
       const result = await this.app.service(staticResourcePath).patch(
         resource.id,
         {
@@ -234,10 +224,9 @@ export class FileBrowserService
       results.push(result)
     }
 
-    const oldNamePath = path.join(projectsRootFolder, _oldPath, oldName)
-    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
-
     if (config.fsProjectSyncEnabled) {
+      const oldNamePath = path.join(projectsRootFolder, oldDirectory, oldName)
+      const newNamePath = path.join(projectsRootFolder, newDirectory, fileName)
       // ensure the directory exists
       if (!fs.existsSync(path.dirname(newNamePath))) {
         const dirname = path.dirname(newNamePath)
@@ -246,6 +235,10 @@ export class FileBrowserService
       // move or copy the file
       if (data.isCopy) fs.copyFileSync(oldNamePath, newNamePath)
       else fs.renameSync(oldNamePath, newNamePath)
+    }
+
+    if (config.server.edgeCachingEnabled) {
+      await this.app.service(invalidationPath).create(staticResources.map((resource) => ({ path: resource.key })))
     }
 
     return results
@@ -277,7 +270,6 @@ export class FileBrowserService
       query: { key }
     })) as Paginated<StaticResourceType>
     const existingResource = existingResourceQuery.data.length ? existingResourceQuery.data[0] : undefined
-    console.log(existingResource)
 
     const staticResource = await uploadStaticResource(this.app, {
       ...data,
@@ -291,6 +283,10 @@ export class FileBrowserService
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
       fs.writeFileSync(filePath, data.body)
+    }
+
+    if (config.server.edgeCachingEnabled) {
+      await this.app.service(invalidationPath).create([{ path: staticResource.key }])
     }
 
     return staticResource
@@ -309,11 +305,6 @@ export class FileBrowserService
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
-    if (config.server.edgeCachingEnabled)
-      await this.app.service(invalidationPath).create({
-        path: key
-      })
-
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
         key: { $like: `%${key}%` }
@@ -328,6 +319,11 @@ export class FileBrowserService
     }
 
     if (config.fsProjectSyncEnabled) fs.rmSync(path.resolve(projectsRootFolder, key), { recursive: true })
+
+    if (config.server.edgeCachingEnabled)
+      await this.app.service(invalidationPath).create({
+        path: key
+      })
 
     return result
   }

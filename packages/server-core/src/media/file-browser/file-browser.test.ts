@@ -37,9 +37,6 @@ const PREFIX = 'test'
 const getRandomizedName = (name: string, suffix = '', prefix = PREFIX) =>
   `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
 
-/**prepends `projects` and appends `/` for directory paths */
-const getDirectoryPath = (name: string) => 'projects/' + name + '/public/'
-
 describe('file-browser.test', () => {
   let app: Application
   before(async () => {
@@ -59,219 +56,41 @@ describe('file-browser.test', () => {
     return destroyEngine()
   })
 
-  it('find service', () => {
-    assert.doesNotThrow(async () => await app.service(fileBrowserPath).get(''))
-  })
-
-  let testProjectName: string
-  it('creates a directory', async () => {
-    testProjectName = getRandomizedName('directory')
-
-    const createdDirectory = await app.service(fileBrowserPath).create('projects/' + testProjectName)
-    assert.ok(createdDirectory)
-  })
-
-  it('gets the directory', async () => {
-    const foundDirectories = await app
-      .service(fileBrowserPath)
-      .find({ query: { directory: getDirectoryPath(testProjectName) } })
-    assert.equal(foundDirectories.total, 0)
-  })
-
-  let testFileFullName: string
-  let testFileFullPath: string
-  let testFileName: string
-  let testFileSize: number
-  it('creates a file', async () => {
-    testFileFullName = getRandomizedName('file', '.txt')
-    testFileFullPath = 'projects/' + testProjectName + '/public/' + testFileFullName
-    testFileName = testFileFullName.split('.')[0]
-
-    const newData = getRandomizedName('new data')
-    const body = Buffer.from(newData, 'utf-8')
-    testFileSize = Buffer.byteLength(body)
-
-    const resource = await app.service(fileBrowserPath).patch(null, {
-      project: testProjectName,
-      path: 'public/' + testFileFullName,
-      body,
-      contentType: 'any'
+  describe('create', () => {
+    const testProjectName = getRandomizedName('directory')
+    after(async () => {
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
     })
 
-    assert.equal(resource.key, testFileFullPath)
+    it('creates a directory', async () => {
+      const createdDirectory = await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+      assert.equal(createdDirectory, true)
+      const storageProvider = getStorageProvider()
+      assert.equal(await storageProvider.isDirectory('public', 'projects/' + testProjectName), true)
+    })
   })
 
-  it('gets the file', async () => {
-    const directoryContents = await app
-      .service(fileBrowserPath)
-      .find({ query: { directory: getDirectoryPath(testProjectName) } })
-    const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
-
-    assert.ok(foundFile)
-    assert.equal(foundFile.name, testFileName)
-    assert.equal(foundFile.size, testFileSize)
-    assert.equal(foundFile.key, testFileFullPath)
-  })
-
-  describe('update service', () => {
-    let testProjectName2: string
-    let testFileFullPath2: string
-    let testFileName2: string
-    let testFileName3: string
+  describe('find', () => {
+    const testProjectName = getRandomizedName('directory')
     before(async () => {
-      testProjectName2 = getRandomizedName('directory2')
-      testFileName2 = getRandomizedName('file2', '.md')
-      testFileFullPath2 = 'projects/' + testProjectName2 + '/public/' + testFileName2
-      const newData2 = getRandomizedName('new data 2')
-
-      await app.service(fileBrowserPath).patch(null, {
-        project: testProjectName2,
-        path: 'public/' + testFileName2,
-        body: Buffer.from(newData2, 'utf-8'),
-        contentType: 'any'
-      })
-
-      testFileName3 = getRandomizedName('file3', '.mdx')
-      const newData3 = getRandomizedName('new data 3')
-
-      await app.service(fileBrowserPath).patch(null, {
-        project: testProjectName2,
-        path: 'public/' + testFileName3,
-        body: Buffer.from(newData3, 'utf-8'),
-        contentType: 'any'
-      })
+      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
     })
 
-    it('copies file', async () => {
-      const copyFileResult = await app.service(fileBrowserPath).update(null, {
-        oldProject: testProjectName2,
-        newProject: testProjectName,
-        oldName: testFileName2,
-        newName: testFileName2,
-        oldPath: getDirectoryPath(testProjectName2),
-        newPath: getDirectoryPath(testProjectName),
-        isCopy: true
-      })
-
-      assert.equal(copyFileResult[0].key, 'projects/' + testProjectName + '/public/' + testFileName2)
+    after(async () => {
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
     })
 
-    it('copies directory', async () => {
-      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldProject: testProjectName2,
-        newProject: testProjectName,
-        oldName: testProjectName,
-        newName: testProjectName,
-        oldPath: getDirectoryPath(testProjectName2),
-        newPath: getDirectoryPath(testProjectName2),
-        isCopy: true
-      })
-
-      assert.equal(copyDirectoryResult[0].key, 'projects/' + testProjectName + '/public/' + testProjectName)
-
-      const directoryContents = await app
+    it('gets the directory', async () => {
+      const foundDirectories = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
-      const foundDirectory = directoryContents.data.find((dir) => dir.name.match(testProjectName))
-      assert.ok(foundDirectory)
-      assert.equal(foundDirectory.key, 'projects/' + testProjectName2 + '/public/' + testProjectName)
-    })
-
-    it('moves file', async () => {
-      const moveFileResult = await app.service(fileBrowserPath).update(null, {
-        oldProject: testProjectName2,
-        newProject: testProjectName,
-        oldName: testFileName3,
-        newName: testFileName3,
-        oldPath: getDirectoryPath(testProjectName2),
-        newPath: getDirectoryPath(testProjectName)
-      })
-
-      assert.ok(Array.isArray(moveFileResult) ? moveFileResult.length > 0 : moveFileResult)
-
-      const toMovedDirectoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      const foundFile = toMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
-
-      assert.ok(foundFile)
-
-      const fromMovedDirectoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
-      const notFoundFile = fromMovedDirectoryContents.data.find((file) => file.key.match(testFileName3))
-      assert.ok(!notFoundFile)
-    })
-
-    it('moves directory', async () => {
-      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldProject: testProjectName2,
-        newProject: testProjectName,
-        oldName: 'public',
-        newName: 'public',
-        oldPath: getDirectoryPath(testProjectName2),
-        newPath: getDirectoryPath(testProjectName)
-      })
-
-      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
-
-      const directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      const toMovedDirectoryContents = directoryContents.data.find((dir) => dir.name.match(testProjectName2))
-      assert.ok(toMovedDirectoryContents)
-
-      const fromMovedDirectoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName2) } })
-      const notFoundDirectory = fromMovedDirectoryContents.data.find((dir) => dir.name.match(testProjectName2))
-      assert.ok(!notFoundDirectory)
-    })
-
-    it('increment file name if file already exists', async () => {
-      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
-        oldProject: testProjectName,
-        newProject: testProjectName,
-        oldName: 'public',
-        newName: 'public',
-        oldPath: getDirectoryPath(testProjectName),
-        newPath: getDirectoryPath(testProjectName),
-        isCopy: true
-      })
-
-      assert.ok(Array.isArray(copyDirectoryResult) ? copyDirectoryResult.length > 0 : copyDirectoryResult)
-
-      const directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-
-      const foundIncrementedFile = directoryContents.data.filter(
-        (file) => file.name.startsWith(testFileName) && file.name.endsWith('(1)')
-      )
-      assert.equal(foundIncrementedFile.length, 1)
-    })
-
-    it('updates file with new content', async () => {
-      const newData = getRandomizedName('new data 2 updated')
-      const updateResult = await app.service(fileBrowserPath).patch(null, {
-        project: testProjectName,
-        path: testFileName2,
-        body: Buffer.from(newData, 'utf-8'),
-        contentType: 'any'
-      })
-      assert.ok(updateResult)
-
-      const testDirectoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
-      assert.ok(updatedFile)
+        .find({ query: { directory: 'projects/' + testProjectName + '/public/' } })
+      assert.equal(foundDirectories.total, 0)
     })
 
     it('filters entries using $like', async () => {
       const totalEntries = await app.service(fileBrowserPath).find({
         query: {
-          directory: getDirectoryPath(testProjectName)
+          directory: 'projects/' + testProjectName + '/public/'
         }
       })
 
@@ -280,7 +99,7 @@ describe('file-browser.test', () => {
           key: {
             $like: `%${PREFIX}%`
           },
-          directory: getDirectoryPath(testProjectName)
+          directory: 'projects/' + testProjectName + '/public/'
         }
       })
       assert.ok(filteredEntries.data.length === totalEntries.data.length)
@@ -291,45 +110,260 @@ describe('file-browser.test', () => {
           key: {
             $like: `%${invalidSubstring}%`
           },
-          directory: getDirectoryPath(testProjectName)
+          directory: 'projects/' + testProjectName + '/public/'
         }
       })
       assert.ok(emptyEntries.data.length === 0)
     })
   })
 
-  describe('remove service', () => {
-    it('removes file', async () => {
-      let directoryContents = await app
+  describe('patch', () => {
+    const testProjectName = getRandomizedName('directory')
+    const testFileFullName = getRandomizedName('file', '.txt')
+    const testFileFullPath = 'projects/' + testProjectName + '/public/' + testFileFullName
+    const testFileName = testFileFullName.split('.')[0]
+
+    const newData = getRandomizedName('new data')
+    const body = Buffer.from(newData, 'utf-8')
+    const testFileSize = Buffer.byteLength(body)
+
+    before(async () => {
+      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+    })
+
+    after(async () => {
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+    })
+
+    it('creates a file', async () => {
+      const resource = await app.service(fileBrowserPath).patch(null, {
+        project: testProjectName,
+        path: 'public/' + testFileFullName,
+        body,
+        contentType: 'any'
+      })
+
+      assert.equal(resource.key, testFileFullPath)
+    })
+
+    it('gets the file', async () => {
+      const directoryContents = await app
         .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      let foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
+        .find({ query: { directory: 'projects/' + testProjectName + '/public/' } })
+      const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
+
       assert.ok(foundFile)
-      const removeResult = await app.service(fileBrowserPath).remove(foundFile.key)
+      assert.equal(foundFile.name, testFileName)
+      assert.equal(foundFile.size, testFileSize)
+      assert.equal(foundFile.key, testFileFullPath)
+    })
+
+    it('updates file with new content', async () => {
+      const newData = getRandomizedName('new data 2 updated')
+      const updateResult = await app.service(fileBrowserPath).patch(null, {
+        project: testProjectName,
+        path: 'public/' + testFileFullName,
+        body: Buffer.from(newData, 'utf-8'),
+        contentType: 'any'
+      })
+      assert.ok(updateResult)
+
+      const testDirectoryContents = await app
+        .service(fileBrowserPath)
+        .find({ query: { directory: 'projects/' + testProjectName + '/public/' } })
+      const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName))
+      assert.ok(updatedFile)
+
+      const storageProvider = getStorageProvider()
+      const fileContent = await storageProvider.getObject(testFileFullPath)
+      assert.equal(fileContent.Body.toString(), newData)
+    })
+  })
+
+  describe('update', () => {
+    const testFileName = getRandomizedName('file', '.txt')
+    const testProjectName = getRandomizedName('directory')
+    const testProjectName2 = getRandomizedName('directory2')
+    const testFileName2 = getRandomizedName('file2', '.md')
+    const newData2 = getRandomizedName('new data 2')
+    const testFileName3 = getRandomizedName('file3', '.mdx')
+    const newData3 = getRandomizedName('new data 3')
+
+    beforeEach(async () => {
+      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+      await app.service(fileBrowserPath).create('projects/' + testProjectName2 + '/public/')
+
+      await app.service(fileBrowserPath).patch(null, {
+        project: testProjectName2,
+        path: 'public/' + testFileName2,
+        body: Buffer.from(newData2, 'utf-8'),
+        contentType: 'any'
+      })
+
+      await app.service(fileBrowserPath).patch(null, {
+        project: testProjectName2,
+        path: 'public/' + testFileName3,
+        body: Buffer.from(newData3, 'utf-8'),
+        contentType: 'any'
+      })
+    })
+
+    afterEach(async () => {
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName)
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName2)
+    })
+
+    it('copies file', async () => {
+      const copyFileResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
+        oldName: testFileName2,
+        newName: testFileName2,
+        oldPath: 'projects/' + testProjectName2 + '/public/',
+        newPath: 'projects/' + testProjectName + '/public/',
+        isCopy: true
+      })
+
+      assert.equal(copyFileResult.length, 1)
+      assert(copyFileResult[0].key === 'projects/' + testProjectName + '/public/' + testFileName2)
+    })
+
+    it('copies directory', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName2,
+        oldName: 'public/',
+        newName: 'public2/',
+        oldPath: `projects/${testProjectName2}/`,
+        newPath: `projects/${testProjectName2}/`,
+        isCopy: true
+      })
+
+      assert.equal(copyDirectoryResult.length, 2)
+      assert(
+        copyDirectoryResult.find((file) => file.key === 'projects/' + testProjectName2 + '/public2/' + testFileName2)
+      )
+      assert(
+        copyDirectoryResult.find((file) => file.key === 'projects/' + testProjectName2 + '/public2/' + testFileName3)
+      )
+
+      const storageProvider = getStorageProvider()
+      assert.equal(await storageProvider.isDirectory('public2', 'projects/' + testProjectName2), true)
+      assert(await storageProvider.getObject('projects/' + testProjectName2 + '/public2/' + testFileName3))
+
+      // copy back
+      await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName2,
+        oldName: 'public2/',
+        newName: 'public/',
+        oldPath: `projects/${testProjectName2}/`,
+        newPath: `projects/${testProjectName2}/`,
+        isCopy: true
+      })
+    })
+
+    it('moves file', async () => {
+      const moveFileResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
+        oldName: testFileName3,
+        newName: testFileName3,
+        oldPath: 'projects/' + testProjectName2 + '/public/',
+        newPath: 'projects/' + testProjectName + '/public/'
+      })
+
+      assert.equal(moveFileResult.length, 1)
+      assert(moveFileResult[0].key === 'projects/' + testProjectName + '/public/' + testFileName3)
+
+      const storageProvider = getStorageProvider()
+      assert.ok(await storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileName3))
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName3))
+    })
+
+    it('moves directory', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName,
+        oldName: 'public/',
+        newName: 'public/',
+        oldPath: 'projects/' + testProjectName2 + '/',
+        newPath: 'projects/' + testProjectName + '/'
+      })
+
+      assert.equal(copyDirectoryResult.length, 2)
+      assert(
+        copyDirectoryResult.find((file) => file.key === 'projects/' + testProjectName + '/public(1)/' + testFileName2)
+      )
+      assert(
+        copyDirectoryResult.find((file) => file.key === 'projects/' + testProjectName + '/public(1)/' + testFileName3)
+      )
+
+      const storageProvider = getStorageProvider()
+      assert.equal(await storageProvider.isDirectory('public', 'projects/' + testProjectName), true)
+      assert(await storageProvider.getObject('projects/' + testProjectName + '/public(1)/' + testFileName2))
+      assert(await storageProvider.getObject('projects/' + testProjectName + '/public(1)/' + testFileName3))
+    })
+
+    it('increment file name if file already exists', async () => {
+      const copyDirectoryResult = await app.service(fileBrowserPath).update(null, {
+        oldProject: testProjectName2,
+        newProject: testProjectName2,
+        oldName: testFileName2,
+        newName: testFileName2,
+        oldPath: 'projects/' + testProjectName2 + '/public/',
+        newPath: 'projects/' + testProjectName2 + '/public/',
+        isCopy: true
+      })
+
+      assert.equal(copyDirectoryResult.length, 1)
+
+      const fileName = testFileName2.split('.').slice(0, -1).join('.')
+      const extension = testFileName2.split('.').pop()!
+      const newFileName = `${fileName}(1).${extension}`
+      assert(copyDirectoryResult.find((file) => file.key === 'projects/' + testProjectName2 + '/public/' + newFileName))
+
+      const storageProvider = getStorageProvider()
+      assert.equal(await storageProvider.isDirectory('public', 'projects/' + testProjectName2), true)
+      assert(await storageProvider.getObject('projects/' + testProjectName2 + '/public/' + testFileName2))
+      assert(await storageProvider.getObject('projects/' + testProjectName2 + '/public/' + newFileName))
+    })
+  })
+
+  describe('remove', () => {
+    const testProjectName = getRandomizedName('directory')
+    const testFileFullName = getRandomizedName('file', '.txt')
+
+    before(async () => {
+      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+      await app.service(fileBrowserPath).patch(null, {
+        project: testProjectName,
+        path: 'public/' + testFileFullName,
+        body: Buffer.from(''),
+        contentType: 'any'
+      })
+    })
+
+    after(async () => {
+      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+    })
+
+    it('removes file', async () => {
+      const removeResult = await app
+        .service(fileBrowserPath)
+        .remove('projects/' + testProjectName + '/public/' + testFileFullName)
       assert.ok(removeResult)
 
-      directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: getDirectoryPath(testProjectName) } })
-      foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
-      assert.ok(!foundFile)
+      const storageProvider = getStorageProvider()
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/' + testFileFullName))
     })
 
     it('removes directory', async () => {
-      let directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: 'projects/' + testProjectName } })
-      let foundDirectory = directoryContents.data.find((dir) => dir.key.match(testProjectName))
-      assert.ok(foundDirectory)
-
-      const removeResult = await app.service(fileBrowserPath).remove(getDirectoryPath(testProjectName))
+      const removeResult = await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
       assert.ok(removeResult)
 
-      directoryContents = await app
-        .service(fileBrowserPath)
-        .find({ query: { directory: 'projects/' + testProjectName } })
-      foundDirectory = directoryContents.data.find((dir) => dir.key.match(testProjectName))
-      assert.ok(!foundDirectory)
+      const storageProvider = getStorageProvider()
+      assert.rejects(storageProvider.getObject('projects/' + testProjectName + '/public/'))
     })
   })
 })

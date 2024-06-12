@@ -176,7 +176,7 @@ export class LocalStorage implements StorageProviderInterface {
    * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject = async (data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> => {
+  putObject = async (data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> => {
     const filePath = path.join(this.PATH_PREFIX, data.Key!)
 
     if (params.isDirectory) {

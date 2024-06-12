@@ -274,7 +274,7 @@ export interface StorageProviderInterface {
    * @param object Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<any>
+  putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<boolean>
 
   getFolderSize(folderName: string): Promise<number>
 }
