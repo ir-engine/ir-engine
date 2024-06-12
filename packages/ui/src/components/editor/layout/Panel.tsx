@@ -51,10 +51,7 @@ interface PanelProps {
 
 const Panel: React.FC<PanelProps> = ({ icon, title, children, toolbarContent, ...rest }) => {
   return (
-    <div
-      className="relative flex flex-1 select-none flex-col overflow-hidden rounded bg-[var(--dockBackground)]"
-      {...rest}
-    >
+    <div className="bg-surface-main relative flex flex-1 select-none flex-col overflow-hidden rounded" {...rest}>
       <div className="toolbar flex h-6 items-center border-b border-black border-opacity-20 p-1">
         {icon && <PanelIcon as={icon} size={12} />}
         <PanelTitle>{title}</PanelTitle>

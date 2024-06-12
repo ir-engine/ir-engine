@@ -94,6 +94,7 @@ const Select = <T extends OptionValueType>({
   }, [options])
 
   const toggleDropdown = () => {
+    if (options.length === 0) return
     showOptions.set((v) => !v)
   }
 

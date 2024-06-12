@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { NodeTypes } from 'reactflow'
 
-import { Node } from '../components/Node'
+import { Node } from '@etherealengine/ui/src/components/editor/panels/VisualScript/node'
 import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
 const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {

@@ -52,7 +52,7 @@ const initialState = (): State => ({
 const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
 export const OnButton = makeEventNodeDefinition({
   typeName: 'engine/onButton',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'On Button',
   in: {
     button: (_) => {
