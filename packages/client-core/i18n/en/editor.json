@@ -1360,5 +1360,9 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
   }
 }
