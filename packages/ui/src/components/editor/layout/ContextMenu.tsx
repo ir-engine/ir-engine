@@ -48,56 +48,55 @@ export const ContextMenu = ({
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
-  // Calculate the Y position of the context menu based on the menu height and space to the bottom of the viewport in order to avoid overflow
-  const calculatePositionY = () => {
-    let positionY = open ? anchorPosition.top - panel?.getBoundingClientRect().top! : 0
-
-    if (open && menuRef.current) {
-      const menuHeight = menuRef.current.offsetHeight
-
-      // if the panel height is less than the menu height plus the menu pos y offset, we need to move the menu up
-      const offset = panel?.getBoundingClientRect().height! - (menuHeight + positionY)
-      if (offset < 0) {
-        positionY = positionY + offset
-      }
-    }
-
-    return positionY
-  }
-
-  // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
-  const calculatePositionX = () => {
-    let positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
-
-    if (open && menuRef.current) {
-      const menuWidth = menuRef.current.offsetWidth
-
-      // if the panel width is less than the menu width plus the menu pos x offset, we need to move the menu left
-      const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
-      if (offset < 0) {
-        positionX = positionX + offset
-      }
-    }
-
-    return positionX
-  }
-
-  const [positionX, setPositionX] = useState(calculatePositionX())
-  const [positionY, setPositionY] = useState(calculatePositionY())
+  const [positionY, setPositionY] = useState(0)
+  const [positionX, setPositionX] = useState(0)
 
   const [isScrollable, setIsScrollable] = useState(false)
   const parentRect = panel?.getBoundingClientRect()
 
+  const calculatePosition = () => {
+    if (!open || !menuRef.current) return { x: 0, y: 0 }
+
+    const menuHeight = menuRef.current.offsetHeight
+    const menuWidth = menuRef.current.offsetWidth
+
+    let positionX = anchorEl?.getBoundingClientRect().left! ?? 0
+    let positionY = anchorEl?.getBoundingClientRect().bottom! ?? 0
+
+    const viewportHeight = window.innerHeight
+    const viewportWidth = window.innerWidth
+
+    // Adjust Y position to avoid overflow
+    if (positionY + menuHeight > viewportHeight) {
+      positionY = viewportHeight - menuHeight - 10 // 10px for padding
+    }
+    if (positionY < 0) {
+      positionY = 10 // 10px for padding
+    }
+
+    // Adjust X position to avoid overflow
+    if (positionX + menuWidth > viewportWidth) {
+      positionX = viewportWidth - menuWidth - 10 // 10px for padding
+    }
+    if (positionX < 0) {
+      positionX = 10 // 10px for padding
+    }
+
+    return { x: positionX, y: positionY }
+  }
+
   useEffect(() => {
     if (open && menuRef.current) {
+      const { x, y } = calculatePosition()
+
+      setPositionX(x)
+      setPositionY(y)
+
       const menuHeight = menuRef.current.offsetHeight
       const parentHeight = parentRect?.height || 0
 
       // Make the menu scrollable if it is too tall for the parent component
       setIsScrollable(parentHeight <= menuHeight + 1)
-
-      setPositionY(calculatePositionY())
-      setPositionX(calculatePositionX())
     }
   }, [open])
 
