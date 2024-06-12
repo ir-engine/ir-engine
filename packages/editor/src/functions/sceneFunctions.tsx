@@ -66,12 +66,14 @@ export const renameScene = async (
   projectName: string,
   params?: Params
 ) => {
-  const oldPath = resource.key.replace('projects/' + projectName, '')
-  const newPath = newKey.replace('projects/' + projectName, '')
+  const oldPath = resource.key.split('/').slice(1).join('/')
+  const newPath = newKey.split('/').slice(1).join('/')
+  const oldName = resource.key.split('/').pop()!
+  const newName = newKey.split('/').pop()!
   try {
     return await Engine.instance.api
       .service(fileBrowserPath)
-      .update(null, { oldProject: projectName, newProject: projectName, oldPath, newPath }, params)
+      .update(null, { oldProject: projectName, newProject: projectName, oldPath, newPath, oldName, newName }, params)
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
