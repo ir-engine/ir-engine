@@ -2097,6 +2097,21 @@ describe('PhysicsAPI', () => {
       it('dummy', () => {
         assert.ok(1)
       })
+      // should return a function with the correct shape  (handle1: number, handle2: number, started: boolean) => void
+      // should do nothing if one of the collider handles is not found
+      // should add a CollisionComponent to the entities contained in the userData of the parent rigidBody of each collider  (collider.parent())
+      // started: true
+      //   should create a CollisionEvents.TRIGGER_START when either of the colliders is a sensor and `started` is true
+      //   should create a CollisionEvents.COLLISION_START otherwise if `started` is true
+      //   should set entity2 in the CollisionComponent of entity1 if `started` is true
+      //   should set entity1 in the CollisionComponent of entity2 if `started` is true
+      // started: false
+      //   should create a CollisionEvents.TRIGGER_END when either of the colliders is a sensor and `started` is false
+      //   should create a CollisionEvents.COLLISION_END otherwise if `started` is false
+      //   should set CollisionEvents.TRIGGER_END to the CollisionComponent.type property of entity1.collision.get(entity2) when either of the colliders is a sensor and `started` is false
+      //   should set CollisionEvents.COLLISION_END to the CollisionComponent.type property of entity1.collision.get(entity2) otherwise if `started` is false
+      //   should set CollisionEvents.TRIGGER_END to the CollisionComponent.type property of entity2.collision.get(entity1) when either of the colliders is a sensor and `started` is false
+      //   should set CollisionEvents.COLLISION_END to the CollisionComponent.type property of entity2.collision.get(entity1) otherwise if `started` is false
     }) // << drainCollisionEventQueue
 
     describe('drainContactEventQueue', () => {
@@ -2113,6 +2128,11 @@ describe('PhysicsAPI', () => {
         assert.ok(1)
       })
     }) // << drainContactEventQueue
+    // should return a function with the correct shape  (event: TempContactForceEvent) => void
+    // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists
+    // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists
+    // should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists
+    // should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists
   }) // << Collisions
 })
 
