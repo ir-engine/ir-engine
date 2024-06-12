@@ -67,6 +67,7 @@ import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import { isSignedByAppJWT } from '../../hooks/is-signed-by-app-jwt'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { createExecutorJob } from '../../k8s-job-helper'
@@ -361,7 +362,9 @@ const linkGithubToProject = async (context: HookContext) => {
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
       throw new Forbidden(
-        `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
+        `The organization ${org} needs to install the GitHub ${
+          config.authentication.oauth.github.appId != null ? 'App' : 'OAuth app'
+        } ${config.authentication.oauth.github.key} in order to push code to its repositories`
       )
     const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
     if (repoWriteStatus !== 200) {
@@ -529,7 +532,7 @@ const updateProjectJob = async (context: HookContext) => {
     context.result = await updateProject(context.app, context.data, context.params)
   else {
     const urlParts = data.sourceURL.split('/')
-    let projectName = data.name || urlParts.pop()
+    let projectName = data.name?.length > 0 ? data.name : urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
@@ -542,7 +545,13 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(data, context.app, context.params!.user!.id, newJob.id)
+    const jobBody = await getProjectUpdateJobBody(
+      data,
+      context.app,
+      newJob.id,
+      context.params!.user?.id,
+      context.params!.appJWT
+    )
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
@@ -589,7 +598,7 @@ export default createSkippableHooks(
       ],
       get: [],
       create: [
-        iff(isProvider('external'), verifyScope('editor', 'write')),
+        iff(isProvider('external') && !isSignedByAppJWT(), verifyScope('editor', 'write')),
         () => schemaHooks.validateData(projectDataValidator),
         schemaHooks.resolveData(projectDataResolver),
         discardQuery('action'),
@@ -599,11 +608,19 @@ export default createSkippableHooks(
         updateCreateData
       ],
       update: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
         updateProjectJob
       ],
       patch: [
-        iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
+        iff(
+          isProvider('external') && !isSignedByAppJWT(),
+          verifyScope('editor', 'write'),
+          projectPermissionAuthenticate(false)
+        ),
         () => schemaHooks.validateData(projectPatchValidator),
         schemaHooks.resolveData(projectPatchResolver),
         iff(isProvider('external'), iffElse(checkEnabled, [], linkGithubToProject))

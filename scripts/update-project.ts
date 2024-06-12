@@ -28,8 +28,13 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { projectPath, userPath } from '@etherealengine/common/src/schema.type.module'
-import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
+import { createFeathersKoaApp, serverJobPipe } from '@etherealengine/server-core/src/createApp'
+import { updateAppConfig } from '@etherealengine/server-core/src/updateAppConfig'
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Octokit } from '@octokit/rest'
+import { JwtPayload, decode } from 'jsonwebtoken'
 
 dotenv.config({
   path: appRootPath.path,
@@ -61,18 +66,37 @@ const options = cli.parse({
   sourceBranch: [false, 'Branch to use for project source', 'string'],
   updateType: [false, 'Type of updating for project', 'string'],
   updateSchedule: [false, 'Schedule for auto-updating project', 'string'],
-  jobId: [false, 'ID of Job record', 'string']
+  jobId: [false, 'ID of Job record', 'string'],
+  token: [false, 'GitHub JWT', 'string']
 })
 
 cli.main(async () => {
   try {
+    await updateAppConfig()
     const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, jobId, ...data } = options
     data.reset = data.reset === 'true'
     data.needsRebuild = data.needsRebuild === 'true'
-    const user = await app.service(userPath).get(userId)
-    await app.service(projectPath).update('', data, { user: user, isJob: true, jobId })
+    const params = { isJob: true, jobId, appJWT: data.token, signedByAppJWT: true } as any
+    if (data.token) {
+      const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
+      const token = data.token
+      const jwtDecoded = decode(token)! as JwtPayload
+      if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
+        throw new NotAuthenticated('Invalid app credentials')
+      const octokit = new Octokit({ auth: token })
+      let appResponse
+      try {
+        appResponse = await octokit.rest.apps.getAuthenticated()
+      } catch (err) {
+        throw new NotAuthenticated('Invalid app credentials')
+      }
+      if (appResponse.data.id !== appId) throw new NotAuthenticated('App ID of JWT does not match installed App ID')
+      params.appJWT = data.token
+      params.signedByAppJWT = true
+    } else params.user = await app.service(userPath).get(userId)
+    await app.service(projectPath).update('', data, params)
     cli.exit(0)
   } catch (err) {
     console.log(err)

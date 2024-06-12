@@ -67,9 +67,12 @@ const TOKEN_REGEX = /"RemoteAuth ([0-9a-zA-Z-_]+)"/
 const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
 
-export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
+export const getAuthenticatedRepo = async (token: string, repositoryPath: string, isInstallationToken = false) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
+    if (isInstallationToken) {
+      return repositoryPath.replace('https://', `https://oauth2:${token}@`)
+    }
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {
