@@ -182,6 +182,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
   const editPermissionsDialogOpen = useHookstate(false)
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
+  const selfUser = useHookstate(getMutableState(AuthState)).user
 
   const navigate = useNavigate()
   const hasWriteAccess =
@@ -212,7 +213,11 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
     }
   })
 
-  const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
+  const isOwner =
+    projectPermissionsFindQuery.data?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
+  const installedProjects = projectFindQuery.data.filter(
+    (proj) => (projectCategoryFilter.installed.value && isOwner) || proj.name === 'default-project'
+  )
   const officialProjects = (
     search.query.value
       ? OFFICIAL_PROJECTS_DATA.filter(
