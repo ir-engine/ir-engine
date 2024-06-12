@@ -1821,15 +1821,21 @@ describe('PhysicsAPI', () => {
         createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
         physicsWorld!.timestep = 1 / 60
+        const physicsState = getMutableState(PhysicsState)
+        physicsState.physicsWorld!.set(physicsWorld!)
+        physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
+        /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+        physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        setComponent(testEntity, ColliderComponent, { shape: Shapes.Mesh })
-        // Physics.createCharacterController(testEntity, physicsWorld!, {})
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box })
+        Physics.createCharacterController(testEntity, physicsWorld!, {})
       })
 
       afterEach(() => {
@@ -1838,27 +1844,20 @@ describe('PhysicsAPI', () => {
         return destroyEngine()
       })
 
-      /**
-      // @todo Why is the system failing?
-      const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
-
-      it("dummy", () => {
-        const movement = new Vector3(1,2,3)
-        // const collider = Physics._Colliders.get(testEntity)
+      it("should change the `computedMovement` value for the entity's Character Controller", () => {
+        const movement = new Vector3(1, 2, 3)
         const controller = Physics._Controllers.get(testEntity)!
         const before = controller.computedMovement()
         Physics.computeColliderMovement(
-           testEntity,  // entity: Entity,
-           testEntity,  // colliderEntity: Entity,
-           movement,    // desiredTranslation: Vector3,
-           // filterGroups?: InteractionGroups,
-           // filterPredicate?: (collider: Collider) => boolean
+          testEntity, // entity: Entity,
+          testEntity, // colliderEntity: Entity,
+          movement // desiredTranslation: Vector3,
+          // filterGroups?: InteractionGroups,
+          // filterPredicate?: (collider: Collider) => boolean
         )
-        physicsSystemExecute()
         const after = controller.computedMovement()
-        assert.notDeepEqual(before, after)
+        assertVecAllApproxNotEq(before, after, 3)
       })
-      */
     }) // << computeColliderMovement
 
     /**
