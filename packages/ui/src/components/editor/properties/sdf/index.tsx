@@ -28,6 +28,7 @@ import React from 'react'
 import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { SDFComponent, SDFMode } from '@etherealengine/engine/src/scene/components/SDFComponent'
+import { GiExplosionRays } from 'react-icons/gi'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -39,7 +40,7 @@ export const SDFEditor: EditorComponentType = (props) => {
   const sdfComponent = useComponent(props.entity, SDFComponent)
 
   return (
-    <NodeEditor {...props} name={'SDF'} description={'Raymarching--torus and fog'}>
+    <NodeEditor {...props} name={'SDF'} description={'Raymarching--torus and fog'} icon={<SDFEditor.iconComponent />}>
       <InputGroup name="Add Pass" label={'add pass to postprocess'}>
         <BooleanInput value={sdfComponent.enable.value} onChange={commitProperty(SDFComponent, 'enable')} />
       </InputGroup>
@@ -62,5 +63,5 @@ export const SDFEditor: EditorComponentType = (props) => {
     </NodeEditor>
   )
 }
-
+SDFEditor.iconComponent = GiExplosionRays
 export default SDFEditor

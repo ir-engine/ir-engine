@@ -33,16 +33,22 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { AudioAnalysisComponent } from '@etherealengine/engine/src/scene/components/AudioAnalysisComponent'
+import { SiAudiomack } from 'react-icons/si'
 import Slider from '../../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import PropertyGroup from '../../group'
+import NodeEditor from '../../nodeEditor'
 
 export const AudioAnalysisEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const audioAnalysisComponent = useComponent(props.entity, AudioAnalysisComponent)
+
   return (
-    <PropertyGroup name={t('editor:properties.audioAnalysis.name')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.audioAnalysis.name')}
+      icon={<AudioAnalysisEditor.iconComponent />}
+    >
       <InputGroup name="Bass" label={t('editor:properties.audioAnalysis.lbl-bassEnabled')}>
         <BooleanInput
           value={audioAnalysisComponent.bassEnabled.value}
@@ -91,8 +97,10 @@ export const AudioAnalysisEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(AudioAnalysisComponent, 'trebleMultiplier')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
+
+AudioAnalysisEditor.iconComponent = SiAudiomack
 
 export default AudioAnalysisEditor

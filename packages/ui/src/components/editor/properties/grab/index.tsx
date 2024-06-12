@@ -33,6 +33,7 @@ import { EditorControlFunctions } from '@etherealengine/editor/src/functions/Edi
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
 import { InteractableComponent } from '@etherealengine/engine/src/interaction/components/InteractableComponent'
 import { grabbableInteractMessage } from '@etherealengine/engine/src/interaction/functions/grabbableFunctions'
+import { GiGrab } from 'react-icons/gi'
 import NodeEditor from '../nodeEditor'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
@@ -59,10 +60,13 @@ export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.grabbable.name')}
       description={t('editor:properties.grabbable.description')}
+      icon={<GrabbableComponentNodeEditor.iconComponent />}
     >
       <div id={'grabbable-component'}></div>
     </NodeEditor>
   )
 }
+
+GrabbableComponentNodeEditor.iconComponent = GiGrab
 
 export default GrabbableComponentNodeEditor

@@ -54,7 +54,11 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   const elements = component.elements
 
   return (
-    <NodeEditor description={t('editor:properties.spline.description')} {...props}>
+    <NodeEditor
+      description={t('editor:properties.spline.description')}
+      icon={<SplineNodeEditor.iconComponent />}
+      {...props}
+    >
       <div className="flex-strech flex w-full flex-row items-center gap-2 py-1">
         <div className="flex w-full justify-center font-['Figtree'] text-xs font-normal text-neutral-50">
           {t('editor:properties.spline.lbl-addNode')}

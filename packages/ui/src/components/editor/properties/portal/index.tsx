@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CiSpeaker } from 'react-icons/ci'
 import { Euler, Quaternion, Vector3 } from 'three'
 
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
@@ -48,6 +47,7 @@ import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
+import { GiPortal } from 'react-icons/gi'
 import Button from '../../../../primitives/tailwind/Button'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
@@ -132,7 +132,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.portal.name')}
       description={t('editor:properties.portal.description')}
-      icon={<CiSpeaker />}
+      icon={<PortalNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
@@ -226,6 +226,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-PortalNodeEditor.iconComponent = CiSpeaker
+PortalNodeEditor.iconComponent = GiPortal
 
 export default PortalNodeEditor

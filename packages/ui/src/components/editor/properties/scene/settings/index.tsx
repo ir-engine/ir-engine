@@ -48,6 +48,7 @@ import {
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@etherealengine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { RiLandscapeLine } from 'react-icons/ri'
 import Button from '../../../../../primitives/tailwind/Button'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
@@ -164,6 +165,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
+      icon={<SceneSettingsEditor.iconComponent />}
     >
       <InputGroup
         name="Thumbnail"
@@ -231,4 +233,5 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   )
 }
 
+SceneSettingsEditor.iconComponent = RiLandscapeLine
 export default SceneSettingsEditor

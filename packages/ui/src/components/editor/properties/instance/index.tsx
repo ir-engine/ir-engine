@@ -43,6 +43,7 @@ export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entit
     <NodeEditor
       name={t('editor:properties.instancing.name')}
       description={t('editor:properties.instancing.description')}
+      icon={<InstancingNodeEditor.iconComponent />}
       {...props}
     ></NodeEditor>
   )

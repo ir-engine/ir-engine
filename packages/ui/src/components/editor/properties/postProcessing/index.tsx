@@ -285,6 +285,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.postprocessing.name')}
       description={t('editor:properties.postprocessing.description')}
+      icon={<PostProcessingSettingsEditor.iconComponent />}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
         <BooleanInput

@@ -47,6 +47,7 @@ import {
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { DirectionalLightComponent } from '@etherealengine/spatial/src/renderer/components/DirectionalLightComponent'
+import { SiRender } from 'react-icons/si'
 import Slider from '../../../../primitives/tailwind/Slider'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
@@ -126,6 +127,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
+      icon={<RenderSettingsEditor.iconComponent />}
     >
       <InputGroup
         name="Primary Light"
@@ -205,5 +207,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+RenderSettingsEditor.iconComponent = SiRender
 
 export default RenderSettingsEditor

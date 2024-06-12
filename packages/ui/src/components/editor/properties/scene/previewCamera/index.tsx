@@ -98,7 +98,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.sceneCamera.name')}
       description={t('editor:properties.sceneCamera.description')}
-      icon={<HiOutlineCamera />}
+      icon={<ScenePreviewCameraNodeEditor.iconComponent />}
     >
       {/*<Button
         onClick={() => {

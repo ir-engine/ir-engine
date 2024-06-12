@@ -36,7 +36,7 @@ import {
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Md3dRotation } from 'react-icons/md'
+import { Md3DRotation } from 'react-icons/md'
 
 import {
   EditorComponentType,
@@ -109,7 +109,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup name={t('editor:properties.transform.title')} description="change transform of an entity">
+    <PropertyGroup
+      name={t('editor:properties.transform.title')}
+      description="change transform of an entity"
+      icon={<TransformPropertyGroup.iconComponent />}
+    >
       <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
@@ -150,6 +154,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   )
 }
 
-TransformPropertyGroup.iconComponent = Md3dRotation
+TransformPropertyGroup.iconComponent = Md3DRotation
 
 export default TransformPropertyGroup

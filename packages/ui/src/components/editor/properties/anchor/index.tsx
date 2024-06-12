@@ -33,6 +33,7 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
+import { MdAnchor } from 'react-icons/md'
 import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
 import NodeEditor from '../nodeEditor'
@@ -47,6 +48,7 @@ export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.persistent-anchor.name')}
       description={t('editor:properties.persistent-anchor.description')}
+      icon={<PersistentAnchorNodeEditor.iconComponent />}
     >
       <InputGroup name="Volume" label={t('editor:properties.persistent-anchor.lbl-name')}>
         <StringInput
@@ -58,5 +60,7 @@ export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
     </NodeEditor>
   )
 }
+
+PersistentAnchorNodeEditor.iconComponent = MdAnchor
 
 export default PersistentAnchorNodeEditor

@@ -57,6 +57,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
       component={ScreenshareTargetComponent}
       name={t('editor:properties.screenshare.name')}
       description={t('editor:properties.screenshare.description')}
+      icon={<ScreenshareTargetNodeEditor.iconComponent />}
     >
       <InputGroup name="enableScreenShareTarget" label={'enable screen share target'}>
         <BooleanInput value={enabled.value} onChange={onChange} />

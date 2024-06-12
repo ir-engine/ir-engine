@@ -49,7 +49,12 @@ export const VisualScriptNodeEditor: EditorComponentType = (props) => {
   const visualScriptComponent = useComponent(props.entity, VisualScriptComponent)
 
   return (
-    <NodeEditor {...props} name={'Visual Script Component'} description={' adds a visual script to the entity'}>
+    <NodeEditor
+      {...props}
+      name={'Visual Script Component'}
+      description={' adds a visual script to the entity'}
+      icon={<VisualScriptNodeEditor.iconComponent />}
+    >
       <InputGroup name="Disable Visual Script" label="Disable Visual Script">
         <BooleanInput
           value={visualScriptComponent.disabled.value}

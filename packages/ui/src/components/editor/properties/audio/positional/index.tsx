@@ -65,7 +65,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
-      icon={<PiSpeakerLowLight />}
+      icon={<PositionalAudioNodeEditor.iconComponent />}
     >
       <InputGroup
         name="Distance Model"

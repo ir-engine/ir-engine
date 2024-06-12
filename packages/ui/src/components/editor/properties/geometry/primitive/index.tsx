@@ -129,6 +129,7 @@ export const PrimitiveGeometryNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.primitiveGeometry.name')}
       description={t('editor:properties.primitiveGeometry.description')}
+      icon={<PrimitiveGeometryNodeEditor.iconComponent />}
     >
       <InputGroup name="Geometry Type" label={t('editor:properties.primitiveGeometry.lbl-geometryType')}>
         <SelectInput

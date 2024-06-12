@@ -122,6 +122,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.model.title')}
       description={t('editor:properties.model.description')}
+      icon={<ModelNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>

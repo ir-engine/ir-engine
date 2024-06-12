@@ -131,6 +131,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.interactable.name')}
       description={t('editor:properties.interactable.description')}
+      icon={<InteractableComponentNodeEditor.iconComponent />}
     >
       <InputGroup name="Label" label={t('editor:properties.interactable.lbl-label')}>
         <StringInput

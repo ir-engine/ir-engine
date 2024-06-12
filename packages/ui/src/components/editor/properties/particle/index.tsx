@@ -185,7 +185,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
-      icon={<HiSparkles />}
+      icon={<ParticleSystemNodeEditor.iconComponent />}
     >
       <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Options</h4>
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>

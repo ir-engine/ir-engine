@@ -131,6 +131,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
     <NodeEditor
       name={t('editor:properties.variant.name')}
       description={t('editor:properties.variant.description')}
+      icon={<VariantNodeEditor.iconComponent />}
       {...props}
     >
       <div className="m-4 rounded-lg bg-gray-800 p-4">

@@ -82,6 +82,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.loopAnimation.title')}
       description={t('editor:properties.loopAnimation.description')}
+      icon={<LoopAnimationNodeEditor.iconComponent />}
     >
       <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup name="Loop Animation" label={t('editor:properties.loopAnimation.lbl-loopAnimation')}>

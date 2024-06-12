@@ -56,6 +56,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.systemnode.name')}
       description={t('editor:properties.systemnode.description')}
+      icon={<SystemNodeEditor.iconComponent />}
     >
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
         <ScriptInput value={systemComponent.filePath} onRelease={onChangePath} />

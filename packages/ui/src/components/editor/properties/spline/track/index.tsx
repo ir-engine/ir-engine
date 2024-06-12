@@ -75,7 +75,11 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
+    <NodeEditor
+      description={t('editor:properties.splinetrack.description')}
+      icon={<SplineTrackNodeEditor.iconComponent />}
+      {...props}
+    >
       <InputGroup name="Spline" label={t('editor:properties.splinetrack.lbl-spline')}>
         <SelectInput
           key={props.entity}

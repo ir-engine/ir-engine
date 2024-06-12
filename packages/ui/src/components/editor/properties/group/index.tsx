@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useState } from 'react'
+import { BiSolidComponent } from 'react-icons/bi'
 import { HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi'
 import { HiMiniXMark } from 'react-icons/hi2'
-import { PiCursor } from 'react-icons/pi'
 import Button from '../../../../primitives/tailwind/Button'
 import Text from '../../../../primitives/tailwind/Text'
 
@@ -79,7 +79,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
 
 PropertyGroup.defaultProps = {
   name: 'Component name',
-  icon: <PiCursor />
+  icon: <BiSolidComponent />
 }
 
 export default PropertyGroup

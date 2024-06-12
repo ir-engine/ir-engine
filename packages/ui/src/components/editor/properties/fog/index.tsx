@@ -35,11 +35,12 @@ import {
   commitProperty,
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
+import { GiFog } from 'react-icons/gi'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import PropertyGroup from '../group'
+import NodeEditor from '../nodeEditor'
 
 const FogTypeOptions = [
   {
@@ -70,7 +71,12 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
   const fogState = useComponent(props.entity, FogSettingsComponent)
 
   return (
-    <PropertyGroup name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.fog.name')}
+      description={t('editor:properties.fog.description')}
+      icon={<FogSettingsEditor.iconComponent />}
+    >
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
         <SelectInput
           options={FogTypeOptions}
@@ -154,8 +160,9 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
           )}
         </>
       )}
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 
+FogSettingsEditor.iconComponent = GiFog
 export default FogSettingsEditor
