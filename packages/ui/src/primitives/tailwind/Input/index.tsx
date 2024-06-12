@@ -96,11 +96,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       onboarding: ''
     }
 
-    const twcontainerClassName = twMerge(
-      'flex flex-col items-center overflow-hidden',
-      containerVariants[variant],
-      containerClassname
-    )
+    const twcontainerClassName = twMerge('flex flex-col items-center', containerVariants[variant], containerClassname)
 
     const containerClass = variant === 'outlined' ? 'bg-theme-surface-main relative w-full' : ' relative w-full'
     const labelClass = variant === 'outlined' ? '' : 'text-neutral-500 text-xs'

@@ -90,7 +90,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   return (
     <Input
       ref={ref}
-      containerClassname={twMerge('', containerClassname)}
+      containerClassname={twMerge('overflow-hidden rounded-lg', containerClassname)}
       className={twMerge(
         'h-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className
