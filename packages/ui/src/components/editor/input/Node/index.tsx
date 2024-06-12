@@ -23,34 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Entity, EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import React from 'react'
-import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
-import Select, { SelectProps } from '../../../../primitives/tailwind/Select'
+import { useDrop } from 'react-dnd'
+import { InputProps } from '../../../../primitives/tailwind/Input'
+import { ControlledStringInput } from '../String'
 
-/**Tailwind `Select` styled for studio */
-const SelectInput = ({
-  value,
-  ...rest
-}: Omit<SelectProps<string | number>, 'currentValue'> & { value: string | number }) => {
-  return (
-    <Select
-      currentValue={value}
-      inputContainerClassName="rounded-lg overflow-hidden"
-      inputClassName="text-[#8B8B8D] text-xs bg-[#1A1A1A] border-none"
-      {...rest}
-    />
-  )
+export interface NodeInputProps extends Omit<InputProps, 'onChange'> {
+  value: EntityUUID
+  onChange?: (value: EntityUUID) => void
+  onRelease?: (value: EntityUUID) => void
+  inputRef?: React.Ref<any>
 }
 
-SelectInput.displayName = 'SelectInput'
-SelectInput.defaultProps = {
-  options: [
-    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
-    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
-    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
-  ],
-  value: 'a',
-  onChange: () => {}
+export function NodeInput({ onRelease, value, ...rest }: NodeInputProps) {
+  const [{ canDrop, isOver }, dropRef] = useDrop({
+    accept: [ItemTypes.Node],
+    async drop(item: any, monitor) {
+      const entity: Entity = item.value as Entity
+      const uuid = getComponent(entity, UUIDComponent)
+      onRelease?.(uuid)
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop()
+    })
+  })
+
+  return <ControlledStringInput ref={dropRef} value={value} {...rest} />
 }
 
-export default SelectInput
+NodeInput.defaultProps = {}
+
+export default NodeInput
