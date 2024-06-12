@@ -1653,6 +1653,7 @@ export const uploadLocalProjectToProvider = async (
     },
     paginate: false
   })
+
   const existingKeySet = new Map<string, string>()
   for (const item of existingResources) {
     existingKeySet.set(item.key, item.id)
