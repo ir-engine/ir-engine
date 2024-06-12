@@ -36,7 +36,7 @@ import {
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Md3dRotation } from 'react-icons/md'
+import { LuMove3D } from 'react-icons/lu'
 
 import {
   EditorComponentType,
@@ -154,6 +154,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   )
 }
 
-TransformPropertyGroup.iconComponent = Md3dRotation
+TransformPropertyGroup.iconComponent = LuMove3D
 
 export default TransformPropertyGroup
