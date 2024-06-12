@@ -62,7 +62,7 @@ const onCloseProject = () => {
   editorState.projectName.set(null)
   editorState.scenePath.set(null)
   editorState.sceneName.set(null)
-  RouterState.navigate('/studio')
+  RouterState.navigate('/dashboard')
 
   const parsed = new URL(window.location.href)
   const query = parsed.searchParams
