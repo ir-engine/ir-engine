@@ -52,6 +52,7 @@ export const FacerNodeEditor: EditorComponentType = (props) => {
       component={FacerComponent}
       name={t('editor:properties.facer.name')}
       description={t('editor:properties.facer.description')}
+      icon={<FacerNodeEditor.iconComponent />}
     >
       <InputGroup name="Target" label={t('editor:properties.facer.target')}>
         <NodeInput
