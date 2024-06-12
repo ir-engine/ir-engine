@@ -23,22 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Modal } from '..'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Properties/group',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PropertyGroup',
-    jest: 'propertyGroup.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+export type HelpModalProps = {
+  open?: boolean
+  onClose: () => void
 }
 
-export const Default = { args: Component.defaultProps }
+export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
+  const { t } = useTranslation()
+
+  return (
+    <Modal
+      title={t('editor:visualScript.modal.help.title')}
+      actions={[{ label: t('editor:visualScript.modal.buttons.close'), onClick: onClose }]}
+      open={open}
+      onClose={onClose}
+    >
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addNodeHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.addConnectionHelp')}</p>
+      <p style={{ marginBottom: '0.5rem' }}>{t('editor:visualScript.modal.help.deleteNodeHelp')}</p>
+    </Modal>
+  )
+}

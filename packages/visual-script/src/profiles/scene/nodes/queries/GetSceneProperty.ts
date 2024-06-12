@@ -30,7 +30,7 @@ export const GetSceneProperty = (valueTypeNames: string[]) =>
   valueTypeNames.map((valueTypeName) =>
     makeFunctionNodeDefinition({
       typeName: `scene/get/${valueTypeName}`,
-      category: NodeCategory.Query,
+      category: NodeCategory.None,
       label: `Get scene  ${valueTypeName}`,
       in: {
         jsonPath: (_, graphApi) => {

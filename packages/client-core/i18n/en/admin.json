@@ -355,6 +355,7 @@
         "subtitle": "Edit Authentication Settings"
       },
       "service": "Service",
+      "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
