@@ -57,6 +57,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -236,6 +237,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const inputQuery = defineQuery([InputSourceComponent])
+let clickStartEntity = UndefinedEntity
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -277,30 +279,34 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
-    primaryClickAccum += deltaSeconds
-  }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
-  }
-  if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up) {
-      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
+    if (buttons.PrimaryClick?.down) {
+      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
-        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+        !hasComponent(clickStartEntity, SourceComponent) &&
+        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
       ) {
-        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+        clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
-        const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
-        const ancestorModelEntity = modelComponent || clickedEntity
-        SelectionState.updateSelection([
-          getComponent(
-            SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickedEntity : ancestorModelEntity,
-            UUIDComponent
-          )
-        ])
-      }
+    }
+    const capturingEntity = getState(InputState).capturingEntity
+    if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
+      clickStartEntity = capturingEntity
+    }
+  }
+  if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
+    if (hasComponent(clickStartEntity, SourceComponent)) {
+      const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
+      const ancestorModelEntity = modelComponent || clickStartEntity
+
+      console.log(
+        SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
+      )
+      SelectionState.updateSelection([
+        getComponent(
+          SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity,
+          UUIDComponent
+        )
+      ])
     }
   }
 }
