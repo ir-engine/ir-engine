@@ -42,6 +42,8 @@ import {
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -58,7 +60,7 @@ const buildBudgetVariantMetadata = (
   signal: AbortSignal,
   callback: (maxTextureSize: number, vertexCount: number) => void
 ) => {
-  const src = level.src
+  const src = getState(EngineState).isEditing ? bustURLCache(level.src) : level.src
   const resources = getState(ResourceState).resources
   if (resources[src] && resources[src].status == ResourceStatus.Loaded) {
     const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }

@@ -28,6 +28,9 @@ import React from 'react'
 import { HiFolder } from 'react-icons/hi2'
 import { IoAccessibilityOutline } from 'react-icons/io5'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { MdOutlineAudioFile, MdOutlinePhotoSizeSelectActual, MdOutlineViewInAr } from 'react-icons/md'
 import { PiVideoCameraBold } from 'react-icons/pi'
 import { TbFileDescription } from 'react-icons/tb'
@@ -75,7 +78,7 @@ export const FileIcon = ({
   color?: string
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
-
+  thumbnailURL = getState(EngineState).isEditing ? bustURLCache(thumbnailURL) : thumbnailURL
   return (
     <>
       {isFolder ? (

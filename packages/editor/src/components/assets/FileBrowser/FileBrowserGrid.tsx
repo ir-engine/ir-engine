@@ -34,11 +34,13 @@ import { useTranslation } from 'react-i18next'
 import { Vector3 } from 'three'
 
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { SupportedFileTypes } from '../../../constants/AssetTypes'
 import { addMediaNode } from '../../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../../functions/screenSpaceFunctions'
@@ -140,7 +142,9 @@ export const FileTableListBody = ({
       project: projectName.value!
     }
   })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = getState(EngineState).isEditing
+    ? bustURLCache(staticResource.data[0]?.thumbnailURL)
+    : staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
     name: (

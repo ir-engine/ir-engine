@@ -26,10 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import config from '@etherealengine/common/src/config'
 import { AssetType, assetPath } from '@etherealengine/common/src/schema.type.module'
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -76,6 +78,11 @@ export default function ScenesPanel() {
 
   useClickOutside(contextMenuRef, () => isContextMenuOpen.set(''))
 
+  const getThumbnailURL = (scene) =>
+    getState(EngineState).isEditing
+      ? bustURLCache(config.client.fileServer + '/' + scene.thumbnailURL)
+      : config.client.fileServer + '/' + scene.thumbnailURL
+
   return (
     <div className="h-full bg-theme-primary">
       <div className="mb-4 w-full bg-theme-surface-main">
@@ -104,7 +111,7 @@ export default function ScenesPanel() {
                   className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
-                    src={config.client.fileServer + '/' + scene.thumbnailURL}
+                    src={getThumbnailURL(scene)}
                     alt={scene.assetURL}
                     onError={(e) => {
                       e.currentTarget.src = 'static/ir.svg'

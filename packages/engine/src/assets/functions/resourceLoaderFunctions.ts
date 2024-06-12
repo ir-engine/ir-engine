@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '@etherealengine/ecs'
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 import {
   ResourceAssetType,
   ResourceManager,
@@ -33,6 +33,8 @@ import {
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { AssetLoader } from '../classes/AssetLoader'
 
 export const loadResource = <T extends ResourceAssetType>(
@@ -109,6 +111,7 @@ export const loadResource = <T extends ResourceAssetType>(
  * @returns
  */
 export const updateModelResource = (url: string) => {
+  url = getState(EngineState).isEditing ? bustURLCache(url) : url
   const resourceState = getMutableState(ResourceState)
   const resources = resourceState.nested('resources')
   const resource = resources[url]

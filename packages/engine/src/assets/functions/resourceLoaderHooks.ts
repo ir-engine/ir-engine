@@ -28,8 +28,10 @@ import { useEffect } from 'react'
 import { Texture } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs'
-import { NO_PROXY, State, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getState, useHookstate, useImmediateEffect } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { ResourceAssetType, ResourceManager, ResourceType } from '@etherealengine/spatial/src/resources/ResourceState'
 
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
@@ -57,7 +59,7 @@ function useLoader<T extends ResourceAssetType>(
   }, [])
 
   useImmediateEffect(() => {
-    const _url = url
+    const _url = getState(EngineState).isEditing ? bustURLCache(url) : url
     if (!_url) return
     let completed = false
 
@@ -140,7 +142,7 @@ function useBatchLoader<T extends ResourceAssetType>(
     const controller = new AbortController()
 
     for (let i = 0; i < urls.length; i++) {
-      const url = urls[i]
+      const url = getState(EngineState).isEditing ? bustURLCache(urls[i]) : urls[i]
       if (!url) continue
       loadResource<T>(
         url,
@@ -181,6 +183,7 @@ async function getLoader<T extends ResourceAssetType>(
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
+  url = getState(EngineState).isEditing ? bustURLCache(url) : url
   const unload = () => {
     ResourceManager.unload(url, entity)
   }

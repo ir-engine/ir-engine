@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Cache, LoadingManager } from 'three'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { Loader } from './Loader'
 
 const loading = {}
@@ -53,6 +56,8 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     signal?: AbortSignal
   ) {
     if (url === undefined) url = ''
+
+    if (getState(EngineState).isEditing && !url.startsWith('blob:')) url = bustURLCache(url)
 
     if (this.path !== undefined) url = this.path + url
 
@@ -93,6 +98,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
       onError: onError
     })
 
+    console.log('requesting', url)
     // create request
     const req = new Request(url, {
       headers: new Headers(this.requestHeader),
@@ -105,6 +111,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     const responseType = this.responseType
     const manager = this.manager
 
+    console.log('req', req)
     // start the fetch
     fetch(req, { signal })
       .then((response) => {

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AudioLoader } from 'three'
 
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
 import { getState } from '@etherealengine/hyperflux'
 import { isAbsolutePath } from '@etherealengine/spatial/src/common/functions/isAbsolutePath'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
@@ -45,6 +46,14 @@ import { AssetLoaderState } from '../state/AssetLoaderState'
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetExt => {
+  let fileNameParts
+  try {
+    fileNameParts = new URL(assetFileName)
+    fileNameParts.search = ''
+    assetFileName = fileNameParts.toJSON()
+  } catch (err) {
+    // If the URL isn't valid, it's probably because it's a built static file with a URL like /assets/cube.glb, so do nothing
+  }
   const ext = assetFileName.split('.').pop()
   if (!ext) return undefined!
   return FileExtToAssetExt(ext)!
@@ -109,6 +118,7 @@ const loadAsset = async <T>(
   const assetExt = AssetLoader.getAssetType(url)
   const loader = getLoader(assetExt)
 
+  if (getState(EngineState).isEditing) url = bustURLCache(url)
   try {
     return loader.load(url, onLoad, onProgress, onError, signal)
   } catch (error) {

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { fileBrowserPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import bustURLCache from '@etherealengine/common/src/utils/bustURLcache'
 import {
   FilesViewModeSettings,
   availableTableColumns
@@ -34,7 +35,8 @@ import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTy
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
@@ -159,7 +161,9 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const { projectName } = useMutableState(EditorState)
   const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
-  const thumbnailURL = staticResource.data[0]?.thumbnailURL
+  const thumbnailURL = getState(EngineState).isEditing
+    ? bustURLCache(staticResource.data[0]?.thumbnailURL)
+    : staticResource.data[0]?.thumbnailURL
   return (
     <div
       className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${

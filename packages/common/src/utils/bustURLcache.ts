@@ -23,18 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
-
-import { createGLTFLoader } from '../functions/createGLTFLoader'
-import { CORTOLoader } from '../loaders/corto/CORTOLoader'
-
-export const AssetLoaderState = defineState({
-  name: 'AssetLoaderState',
-  initial: () => {
-    const gltfLoader = createGLTFLoader()
-    return {
-      gltfLoader,
-      cortoLoader: null! as CORTOLoader
-    }
+export default function bustURLCache(url, hash = Math.floor(new Date().getTime() / 1000).toString()) {
+  try {
+    const urlParts = new URL(url)
+    let params = new URLSearchParams(urlParts.search)
+    params.set('hash', hash)
+    urlParts.search = params.toString()
+    return urlParts.toJSON()
+  } catch (err) {
+    return url
   }
-})
+}
