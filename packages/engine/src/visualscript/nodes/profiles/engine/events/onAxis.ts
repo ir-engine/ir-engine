@@ -51,7 +51,7 @@ const initialState = (): State => ({
 // very 3D specific.
 export const OnAxis = makeEventNodeDefinition({
   typeName: 'engine/axis/use',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'Use Axis',
   in: {
     axis: (_, graphApi) => {
