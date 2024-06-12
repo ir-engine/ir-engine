@@ -32,6 +32,7 @@ import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBa
 import { commitProperty, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
 import { uploadBPCEMBakeToServer } from '@etherealengine/editor/src/functions/uploadEnvMapBake'
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
+import { useTranslation } from 'react-i18next'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
@@ -115,6 +116,8 @@ const envMapBakeNodeEditorStyle = {}
 
 export const EnvMapBakeNodeEditor = (props) => {
   const bakeComponent = useComponent(props.entity, EnvMapBakeComponent)
+  const { t } = useTranslation()
+
   const renderEnvMapBakeProperties = () => {
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
       if (element.label == 'Realtime Settings' && bakeComponent.bakeType.value == EnvMapBakeTypes.Realtime) {
@@ -162,7 +165,9 @@ export const EnvMapBakeNodeEditor = (props) => {
       description="For Adding EnvMap bake in your scene"
       icon={<IoMapOutline />}
     >
-      <Button onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</Button>
+      <Button className="my-1 ml-auto mr-6 px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
+        {t(`editor.projects.bake`)}
+      </Button>
       <InputGroup name="Position" label="Position Offset">
         <Vector3Input
           value={bakeComponent.bakePositionOffset.value}
