@@ -97,7 +97,8 @@ const execute = () => {
     )
       continue
 
-    if (buttons.PrimaryClick?.pressed) {
+    if (buttons.PrimaryClick?.pressed && buttons.PrimaryClick?.dragging) {
+      InputState.setCapturingEntity(cameraEid)
       cameraOrbit.isOrbiting.set(true)
     }
 

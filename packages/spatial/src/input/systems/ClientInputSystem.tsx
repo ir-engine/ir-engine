@@ -161,7 +161,6 @@ export function updateGamepadInput(eid: Entity) {
         }
       } else if (buttons[i]) {
         buttons[i].up = true
-        buttons[i].dragging = false
       }
     }
   }
@@ -603,7 +602,6 @@ const CanvasInputReactor = () => {
         }
       } else if (state[button]) {
         state[button]!.up = true
-        state[button]!.dragging = false
       }
     }
 

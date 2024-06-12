@@ -128,15 +128,10 @@ export const TransformGizmoControlComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
-        if (!gizmoControlComponent.enabled) {
+
+        if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity || !gizmoControlComponent.planeEntity)
           return
-        }
-        if (!gizmoControlComponent.visualEntity) {
-          return
-        }
-        if (!gizmoControlComponent.planeEntity) {
-          return
-        }
+
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
         const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
 
@@ -145,29 +140,24 @@ export const TransformGizmoControlComponent = defineComponent({
         const pickerButtons = InputComponent.getMergedButtons(pickerEntity)
         const planeButtons = InputComponent.getMergedButtons(gizmoControlComponent.planeEntity)
 
-        if (!pickerButtons && !planeButtons) {
-          onPointerLost(gizmoControlEntity)
-          return
-        }
-
-        if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
-          onPointerUp(gizmoControlEntity)
-          removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
-          onPointerLost(gizmoControlEntity)
-          return
-        }
-
         if (
           (pickerButtons?.PrimaryClick?.pressed || planeButtons?.PrimaryClick?.pressed) &&
           getState(InputState).capturingEntity === UndefinedEntity
         ) {
           InputState.setCapturingEntity(pickerEntity)
-          setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
           onPointerMove(gizmoControlEntity)
 
           //pointer down
           if (pickerButtons?.PrimaryClick?.down) {
+            setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
             onPointerDown(gizmoControlEntity)
+          }
+
+          if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
+            onPointerUp(gizmoControlEntity)
+            onPointerLost(gizmoControlEntity)
+            onPointerLost(gizmoControlEntity)
+            removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
           }
         }
       },

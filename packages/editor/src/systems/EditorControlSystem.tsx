@@ -292,30 +292,21 @@ const execute = () => {
     if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
       clickStartEntity = capturingEntity
     }
-    primaryClickAccum += deltaSeconds
   }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
-  }
-  if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up) {
-      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
-      while (
-        !hasComponent(clickedEntity, SourceComponent) &&
-        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
-      ) {
-        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
-      }
-      if (clickStartEntity === clickedEntity && hasComponent(clickedEntity, SourceComponent)) {
-        const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
-        const ancestorModelEntity = modelComponent || clickedEntity
-        SelectionState.updateSelection([
-          getComponent(
-            SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickedEntity : ancestorModelEntity,
-            UUIDComponent
-          )
-        ])
-      }
+  if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
+    if (hasComponent(clickStartEntity, SourceComponent)) {
+      const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
+      const ancestorModelEntity = modelComponent || clickStartEntity
+
+      console.log(
+        SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
+      )
+      SelectionState.updateSelection([
+        getComponent(
+          SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity,
+          UUIDComponent
+        )
+      ])
     }
   }
 }
