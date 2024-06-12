@@ -1,0 +1,4 @@
+.selected-file {
+  background: rgba(64, 92, 169, .2);
+  border-radius: 6px;
+}

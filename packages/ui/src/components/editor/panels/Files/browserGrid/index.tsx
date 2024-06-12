@@ -48,6 +48,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
 import RenameFileModal from './RenameFileModal'
+import './index.css'
 
 export const canDropItemOverFolder = (folderName: string) =>
   folderName.endsWith('/assets') ||
@@ -149,6 +150,7 @@ type FileGridItemProps = {
   item: FileDataType
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
+  isSelected: boolean
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
@@ -158,7 +160,9 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex w-[112px] cursor-pointer flex-col items-center text-center"
+      className={`flex w-[112px] cursor-pointer flex-col items-center text-center ${
+        props.isSelected ? 'selected-file' : ''
+      }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
@@ -199,6 +203,7 @@ type FileBrowserItemType = {
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
+  isSelected: boolean
 }
 
 export function FileBrowserItem({
@@ -215,7 +220,8 @@ export function FileBrowserItem({
   isFilesLoading,
   addFolder,
   isListView,
-  staticResourceModifiedDates
+  staticResourceModifiedDates,
+  isSelected
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
@@ -239,7 +245,7 @@ export function FileBrowserItem({
     setAnchorPosition({ left: 0, top: 0 })
   }
 
-  const onClickItem = () => onClick(item)
+  const onClickItem = (e) => onClick({ ...item, ...e })
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
@@ -353,7 +359,7 @@ export function FileBrowserItem({
         <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              {<FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} />}
+              {<FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />}
             </div>
           </div>
         </div>
