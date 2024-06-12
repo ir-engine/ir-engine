@@ -98,7 +98,7 @@ export const TransparencyDitheringPlugin = defineComponent({
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
       }
-      setPlugin(entity, callback)
+      setPlugin(materialComponent.material as Material, callback)
     })
     return null
   }

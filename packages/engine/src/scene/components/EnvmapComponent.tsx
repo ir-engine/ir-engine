@@ -30,6 +30,7 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  Material,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -310,7 +311,7 @@ export const BoxProjectionPlugin = defineComponent({
         }
       }
 
-      setPlugin(entity, callback)
+      setPlugin(materialComponent.material as Material, callback)
     })
   }
 })

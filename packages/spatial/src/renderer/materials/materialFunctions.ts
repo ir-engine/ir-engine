@@ -104,11 +104,9 @@ export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUU
       mesh.material[i] = getMaterial(newMaterialUUIDs[i])! ?? mesh.material[i]
 }
 
-export const setPlugin = (materialEntity: Entity, callback) => {
-  const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-  const material = materialComponent.material as Material
-  console.log(hasPlugin(material, callback), material.plugins)
-  if (!hasPlugin(material, callback)) material.onBeforeCompile = callback
+export const setPlugin = (material: Material, callback) => {
+  if (hasPlugin(material, callback)) removePlugin(material, callback)
+  material.onBeforeCompile = callback
 }
 
 export const hasPlugin = (material: Material, callback) =>
@@ -116,6 +114,11 @@ export const hasPlugin = (material: Material, callback) =>
   material.plugins.find((plugin) => {
     if (plugin === callback) return true
   })
+
+export const removePlugin = (material: Material, callback) => {
+  const pluginIndex = material.plugins?.findIndex((plugin) => plugin === callback)
+  if (pluginIndex !== undefined) material.plugins?.splice(pluginIndex, 1)
+}
 
 /**Updates the material entity's threejs material prototype to match its current prototype entity */
 export const updateMaterialPrototype = (materialEntity: Entity) => {

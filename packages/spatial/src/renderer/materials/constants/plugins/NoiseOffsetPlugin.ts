@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Uniform, Vector3 } from 'three'
+import { Material, Uniform, Vector3 } from 'three'
 
 import {
   defineComponent,
@@ -131,7 +131,7 @@ export const NoiseOffsetPlugin = defineComponent({
           `
         )
       }
-      setPlugin(entity, callback)
+      setPlugin(materialComponent.material as Material, callback)
     })
     return null
   }

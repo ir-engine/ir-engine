@@ -62,6 +62,7 @@ export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.needsUpdate = true
 }
 
+/**@deprecated Use removePlugin instead */
 export function removeOBCPlugin(material: Material, plugin: PluginType): void {
   if (material.plugins) {
     const index = indexOfPlugin(plugin, material.plugins)
