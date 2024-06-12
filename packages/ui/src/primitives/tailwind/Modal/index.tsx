@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 
+import { IoMdClose } from 'react-icons/io'
 import Button from '../Button'
 import LoadingView from '../LoadingView'
 import Text from '../Text'
@@ -43,26 +43,41 @@ export interface ModalProps {
   submitButtonDisabled?: boolean
   closeButtonText?: string
   submitButtonText?: string
+  startSubmitIcon?: ReactNode
+  actionsOnHeader?: boolean
   onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
 }
 
 export const ModalHeader = ({
   title,
+  actionsOnHeader,
+  startSubmitIcon,
+  submitButtonText,
+  onSubmit,
   onClose
 }: {
   closeIcon?: boolean
   title?: string
+  startSubmitIcon?: ReactNode
+  actionsOnHeader?: boolean
+  submitButtonText?: string
+  onSubmit?: () => void
   onClose?: (isHeader: boolean) => void
 }) => {
   // sticky top-0 z-10 bg-theme-surface-main
+  const { t } = useTranslation()
   return (
-    <div className="relative flex items-center justify-center border-b border-b-theme-primary px-6 py-5">
+    <div className="relative flex items-center justify-between border-b border-b-theme-primary px-6 py-5">
       {title && <Text>{title}</Text>}
+      {onSubmit && actionsOnHeader && (
+        <Button startIcon={startSubmitIcon} onClick={onSubmit} variant="primary" className="mr-6 place-self-end">
+          {submitButtonText || t('common:components.confirm')}
+        </Button>
+      )}
       <Button
-        variant="outline"
-        className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-        startIcon={<MdClose />}
+        className="absolute right-0 border-0 dark:bg-transparent dark:text-white"
+        startIcon={<IoMdClose />}
         onClick={() => onClose && onClose(true)}
       />
     </div>
@@ -77,6 +92,7 @@ export const ModalFooter = ({
   submitButtonDisabled,
   closeButtonText,
   submitButtonText,
+  startSubmitIcon,
   showCloseButton = true
 }: {
   onCancel?: (isHeader: boolean) => void
@@ -87,20 +103,23 @@ export const ModalFooter = ({
   closeButtonText?: string
   submitButtonText?: string
   showCloseButton?: boolean
+  startSubmitIcon?: ReactNode
 }) => {
   const { t } = useTranslation()
   return (
     <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        <Button variant="secondary" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
       {onSubmit && (
         <Button
+          startIcon={startSubmitIcon}
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
+          variant="primary"
           className="place-self-end"
         >
           {submitButtonText || t('common:components.confirm')}
@@ -122,15 +141,26 @@ const Modal = ({
   submitButtonText,
   closeButtonDisabled,
   submitButtonDisabled,
+  startSubmitIcon,
+  actionsOnHeader = false,
   showCloseButton = true
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
   return (
     <div className={twClassName}>
-      <div className="relative rounded-lg bg-theme-surface-main shadow">
-        {onClose && <ModalHeader title={title} onClose={onClose} />}
+      <div className="relative rounded-lg bg-theme-surface-modal shadow">
+        {onClose && (
+          <ModalHeader
+            actionsOnHeader={actionsOnHeader}
+            startSubmitIcon={startSubmitIcon}
+            submitButtonText={submitButtonText}
+            onSubmit={onSubmit}
+            title={title}
+            onClose={onClose}
+          />
+        )}
         <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
-        {!hideFooter && (
+        {!hideFooter && !actionsOnHeader && (
           <ModalFooter
             closeButtonText={closeButtonText}
             submitButtonText={submitButtonText}
@@ -140,6 +170,7 @@ const Modal = ({
             onSubmit={onSubmit}
             submitLoading={submitLoading}
             showCloseButton={showCloseButton}
+            startSubmitIcon={startSubmitIcon}
           />
         )}
       </div>
