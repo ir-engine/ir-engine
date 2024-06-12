@@ -84,6 +84,9 @@ const DRAGGING_THRESHOLD = 0.001
 /** radian threshold for rotating state*/
 const ROTATING_THRESHOLD = 1.5 * (PI / 180)
 
+/** anti-garbage variable!! value not to be used unless you set values just before use*/
+const pointerPositionVector3 = new Vector3()
+
 function preventDefault(e) {
   e.preventDefault()
 }
@@ -140,8 +143,9 @@ export function updateGamepadInput(eid: Entity) {
         if (buttons[i].downPosition) {
           //if not yet dragging, compare distance to drag threshold and begin if appropriate
           if (!buttons[i].dragging) {
+            if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
             const squaredDistance = buttons[i].downPosition.squaredDistance(
-              pointer ? new Vector3(pointer.position.x, pointer.position.y, 0) : xrTransform?.position ?? Vector3_Zero
+              pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
             )
 
             if (squaredDistance > DRAGGING_THRESHOLD) {
@@ -780,9 +784,10 @@ function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: Mo
     if (btn.pressed && btn.downPosition) {
       //if not yet dragging, compare distance to drag threshold and begin if appropriate
       if (!btn.dragging) {
-        const squaredDistance = btn.downPosition.distanceToSquared(
-          pointer ? new Vector3(pointer.position.x, pointer.position.y, 0) : Vector3_Zero
-        )
+        pointer
+          ? pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          : pointerPositionVector3.copy(Vector3_Zero)
+        const squaredDistance = btn.downPosition.distanceToSquared(pointerPositionVector3)
 
         if (squaredDistance > DRAGGING_THRESHOLD) {
           btn.dragging = true
