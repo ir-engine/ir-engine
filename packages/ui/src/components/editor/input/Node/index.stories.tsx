@@ -23,8 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SpawnPoseState } from './SpawnPoseState'
-import { FacerSystem } from './systems/FacerSystem'
-import { TransformSystem } from './systems/TransformSystem'
+import Component from './index'
 
-export { SpawnPoseState, TransformSystem, FacerSystem }
+const argTypes = {}
+
+export default {
+  title: 'Editor/Input/Model',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'ModelInput',
+    jest: 'Model.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
+}
+export const Default = { args: Component.defaultProps }
