@@ -29,6 +29,7 @@ import {
   EntityUUID,
   SystemDefinitions,
   UUIDComponent,
+  createEntity,
   destroyEngine,
   getComponent,
   getMutableComponent,
@@ -48,13 +49,18 @@ import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
+import { GroupComponent } from './components/GroupComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
+import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
 
 describe('WebGl Renderer System', () => {
   let rootEntity: Entity
-  let entity: Entity
+  let visibleEntity: Entity
+  let invisibleEntity: Entity
+  let nestedVisibleEntity: Entity
+  let nestedInvisibleEntity: Entity
 
   const mockCanvas = () => {
     return {
@@ -84,14 +90,31 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, EnvironmentMapComponent)
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
 
-    //entity = createEntity()
-    //setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    //getMutableState(RendererState).usePostProcessing.set(true)
-    //setComponent(entity, PostProcessingComponent, { enabled: true })
-    //setComponent(entity, EntityTreeComponent)
+    invisibleEntity = createEntity()
+    setComponent(invisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(invisibleEntity, GroupComponent)
+    setComponent(invisibleEntity, EntityTreeComponent)
+    setComponent(rootEntity, SceneComponent, { children: [invisibleEntity] })
 
-    //set data to test
-    //setComponent(rootEntity, SceneComponent, { children: [entity] })
+    visibleEntity = createEntity()
+    setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(visibleEntity, VisibleComponent)
+    setComponent(visibleEntity, GroupComponent)
+    setComponent(visibleEntity, EntityTreeComponent)
+    setComponent(rootEntity, SceneComponent, { children: [visibleEntity] })
+
+    nestedInvisibleEntity = createEntity()
+    setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(nestedInvisibleEntity, GroupComponent)
+    setComponent(nestedInvisibleEntity, EntityTreeComponent)
+    setComponent(visibleEntity, SceneComponent, { children: [nestedInvisibleEntity] })
+
+    nestedVisibleEntity = createEntity()
+    setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(nestedVisibleEntity, VisibleComponent)
+    setComponent(nestedVisibleEntity, GroupComponent)
+    setComponent(nestedVisibleEntity, EntityTreeComponent)
+    setComponent(invisibleEntity, SceneComponent, { children: [nestedVisibleEntity] })
 
     //override addpass to test data without dependency on Browser
     let addPassCount = 0
@@ -153,5 +176,6 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
+    assert(globalThis._scene.children.length == 1 && globalThis._scene.children[0] == visibleEntity, 'visible children')
   })
 })
