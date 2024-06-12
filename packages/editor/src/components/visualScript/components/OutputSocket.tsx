@@ -29,8 +29,8 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { OutputSocketSpecJSON } from '@etherealengine/visual-script'
 
+import { colors, valueTypeColorMap } from '@etherealengine/ui/src/components/editor/panels/VisualScript/util/colors'
 import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
-import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'
 
 export type OutputSocketProps = {
