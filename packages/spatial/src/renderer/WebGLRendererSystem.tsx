@@ -285,6 +285,7 @@ export const getSceneParameters = (entities: Entity[]) => {
       vals.fog = getComponent(entity, FogComponent)
     }
     if (hasComponent(entity, GroupComponent)) {
+      const test = getComponent(entity, GroupComponent)
       vals.children.push(...getComponent(entity, GroupComponent)!)
     }
   }

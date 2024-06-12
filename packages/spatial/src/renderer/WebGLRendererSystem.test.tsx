@@ -40,16 +40,17 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { EffectComposer, RenderPass } from 'postprocessing'
 import React from 'react'
-import { Color, MathUtils } from 'three'
+import { Color, Group, MathUtils, Texture } from 'three'
 import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import { RendererComponent, WebGLRendererSystem } from './WebGLRendererSystem'
+import { RendererComponent, WebGLRendererSystem, getSceneParameters } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
-import { GroupComponent } from './components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from './components/GroupComponent'
+import { Object3DComponent } from './components/Object3DComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -87,18 +88,22 @@ describe('WebGl Renderer System', () => {
     rendererComp.canvas.set(mockCanvas())
     setComponent(rootEntity, BackgroundComponent, new Color(0x000000))
 
-    setComponent(rootEntity, EnvironmentMapComponent)
+    setComponent(rootEntity, EnvironmentMapComponent, new Texture())
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
 
     invisibleEntity = createEntity()
     setComponent(invisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(invisibleEntity, GroupComponent)
+    const invisibleObject3d = setComponent(invisibleEntity, Object3DComponent, new Group())
+    addObjectToGroup(invisibleEntity, invisibleObject3d)
     setComponent(invisibleEntity, EntityTreeComponent)
     setComponent(rootEntity, SceneComponent, { children: [invisibleEntity] })
 
     visibleEntity = createEntity()
     setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(visibleEntity, VisibleComponent)
+    const visibleObject3d = setComponent(visibleEntity, Object3DComponent, new Group())
+    addObjectToGroup(visibleEntity, visibleObject3d)
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
     setComponent(rootEntity, SceneComponent, { children: [visibleEntity] })
@@ -106,12 +111,16 @@ describe('WebGl Renderer System', () => {
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedInvisibleEntity, GroupComponent)
+    const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
+    addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
     setComponent(visibleEntity, SceneComponent, { children: [nestedInvisibleEntity] })
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedVisibleEntity, VisibleComponent)
+    const nestedVisibleObject3d = setComponent(nestedVisibleEntity, Object3DComponent, new Group())
+    addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
     setComponent(nestedVisibleEntity, GroupComponent)
     setComponent(nestedVisibleEntity, EntityTreeComponent)
     setComponent(invisibleEntity, SceneComponent, { children: [nestedVisibleEntity] })
@@ -127,15 +136,15 @@ describe('WebGl Renderer System', () => {
     return destroyEngine()
   })
 
-  /*
   it('test', async () => {
     const { background, environment, fog, children } = getSceneParameters([rootEntity])
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
     globalThis._scene
     console.log('test')
-    //assert(fogSettingsComponent.value, 'fog setting component exists')
+    assert(background, 'background component exists')
+    assert(environment, 'environment component exists')
+    assert(fog, 'fog component exists')
   })
-  */
 
   it('Test WebGL Reactors', async () => {
     const webGLRendererSystem = SystemDefinitions.get(WebGLRendererSystem)
@@ -176,6 +185,9 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
-    assert(globalThis._scene.children.length == 1 && globalThis._scene.children[0] == visibleEntity, 'visible children')
+    assert(
+      globalThis._scene.children.length == 1 && globalThis._scene.children[0].entity == visibleEntity,
+      'visible children'
+    )
   })
 })
