@@ -57,11 +57,7 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import {
-  projectPath,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
@@ -83,6 +79,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { getJobBody } from '../../k8s-job-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -298,17 +295,17 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 
 export const onProjectEvent = async (
   app: Application,
-  projectName: string,
+  project: ProjectType,
   hookPath: string,
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
+  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
-      return await hooks[eventType](app, ...args)
+      return await hooks[eventType](app, project, ...args)
     }
-    return await hooks[eventType](app)
+    return await hooks[eventType](app, project)
   }
 }
 
@@ -410,7 +407,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  const settings: ProjectSettingType[] = []
+  const settings = {}
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
 }
@@ -995,15 +992,6 @@ export async function getProjectUpdateJobBody(
   userId: string,
   jobId: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
@@ -1039,44 +1027,16 @@ export async function getProjectUpdateJobBody(
     command.push('--reset')
     command.push(data.reset.toString())
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${data.name}-update`,
-      labels: {
-        'etherealengine/projectUpdater': 'true',
-        'etherealengine/autoUpdate': 'false',
-        'etherealengine/projectField': data.name,
-        'etherealengine/release': process.env.RELEASE_NAME!
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/projectUpdater': 'true',
-            'etherealengine/autoUpdate': 'false',
-            'etherealengine/projectField': data.name,
-            'etherealengine/release': process.env.RELEASE_NAME!
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${data.name}-update`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/projectUpdater': 'true',
+    'etherealengine/autoUpdate': 'false',
+    'etherealengine/projectField': data.name,
+    'etherealengine/release': process.env.RELEASE_NAME!
   }
+
+  const name = `${process.env.RELEASE_NAME}-${data.name}-update`
+  return getJobBody(app, command, name, labels)
 }
 export async function getProjectPushJobBody(
   app: Application,
@@ -1087,15 +1047,6 @@ export async function getProjectPushJobBody(
   commitSHA?: string,
   storageProviderName?: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
@@ -1121,42 +1072,16 @@ export async function getProjectPushJobBody(
     command.push('--storageProviderName')
     command.push(storageProviderName)
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
-      labels: {
-        'etherealengine/projectPusher': 'true',
-        'etherealengine/projectField': project.name,
-        'etherealengine/release': process.env.RELEASE_NAME!
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/projectPusher': 'true',
-            'etherealengine/projectField': project.name,
-            'etherealengine/release': process.env.RELEASE_NAME!
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/projectPusher': 'true',
+    'etherealengine/projectField': project.name,
+    'etherealengine/release': process.env.RELEASE_NAME!
   }
+
+  const name = `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`
+
+  return getJobBody(app, command, name, labels)
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
@@ -1225,15 +1150,6 @@ export async function getDirectoryArchiveJobBody(
   jobId: string,
   storageProviderName?: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
@@ -1249,42 +1165,16 @@ export async function getDirectoryArchiveJobBody(
     command.push('--storageProviderName')
     command.push(storageProviderName)
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
-      labels: {
-        'etherealengine/directoryArchiver': 'true',
-        'etherealengine/directoryField': projectName,
-        'etherealengine/release': process.env.RELEASE_NAME || ''
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/directoryArchiver': 'true',
-            'etherealengine/directoryField': projectName,
-            'etherealengine/release': process.env.RELEASE_NAME || ''
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/directoryArchiver': 'true',
+    'etherealengine/directoryField': projectName,
+    'etherealengine/release': process.env.RELEASE_NAME || ''
   }
+
+  const name = `${process.env.RELEASE_NAME}-${projectName}-archive`
+
+  return getJobBody(app, command, name, labels)
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
@@ -1388,46 +1278,6 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
       },
       { user: user }
     )
-}
-
-export const createExecutorJob = async (
-  app: Application,
-  jobBody: k8s.V1Job,
-  jobLabelSelector: string,
-  timeout: number,
-  jobId: string
-) => {
-  const k8BatchClient = getState(ServerState).k8BatchClient
-
-  const name = jobBody.metadata!.name!
-  try {
-    await k8BatchClient.deleteNamespacedJob(name, 'default', undefined, undefined, 0, undefined, 'Background')
-  } catch (err) {
-    console.log('Old job did not exist, continuing...')
-  }
-
-  await k8BatchClient.createNamespacedJob('default', jobBody)
-  let counter = 0
-  return new Promise((resolve, reject) => {
-    const interval = setInterval(async () => {
-      counter++
-
-      const job = await app.service(apiJobPath).get(jobId)
-      console.log('job to be checked on', job, job.status)
-      if (job.status !== 'pending') clearInterval(interval)
-      if (job.status === 'succeeded') resolve(job.returnData)
-      if (job.status === 'failed') reject()
-      if (counter >= timeout) {
-        clearInterval(interval)
-        const date = await getDateTimeSql()
-        await app.service(apiJobPath).patch(jobId, {
-          status: 'failed',
-          endTime: date
-        })
-        reject('Job timed out; try again later or check error logs of job')
-      }
-    }, 1000)
-  })
 }
 
 export const copyDefaultProject = () => {
@@ -1659,7 +1509,7 @@ export const updateProject = async (
   }
   // run project install script
   if (projectConfig.onEvent) {
-    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+    await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
   // sync assets with latest query data

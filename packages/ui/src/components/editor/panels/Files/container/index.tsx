@@ -78,6 +78,7 @@ import Popover from '../../../layout/Popover'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
+  projectName?: string
   onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
@@ -85,7 +86,7 @@ type FileBrowserContentPanelProps = {
   nestingDirectory?: string
 }
 
-type DnDFileType = {
+export type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
@@ -391,6 +392,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         key: {
           $in: isListView ? files.map((file) => file.key) : []
         },
+        project: props.projectName,
         $select: ['key', 'updatedAt'] as any,
         $limit: FILES_PAGE_LIMIT
       }
@@ -420,7 +422,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
-                  moveContent={moveContent}
                   deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
@@ -640,7 +641,11 @@ export default function FilesPanelContainer() {
 
   return (
     <>
-      <FileBrowserContentPanel selectedFile={projectName ?? undefined} onSelectionChanged={onSelectionChanged} />
+      <FileBrowserContentPanel
+        projectName={projectName!}
+        selectedFile={projectName ?? undefined}
+        onSelectionChanged={onSelectionChanged}
+      />
     </>
   )
 }

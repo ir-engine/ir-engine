@@ -122,7 +122,7 @@ const Table = ({ containerClassName, className, children }: TableProps) => {
 
 const TablePagination = ({
   className,
-  steps = 3,
+  neighbours = 1,
   totalPages,
   currentPage,
   onPageChange
@@ -130,7 +130,7 @@ const TablePagination = ({
   className?: string
   totalPages: number
   currentPage: number
-  steps?: number
+  neighbours?: number
   onPageChange: (newPage: number) => void
 }) => {
   const commonClasses = twMerge(
@@ -141,6 +141,17 @@ const TablePagination = ({
     'hover:enabled:bg-gray-200 dark:hover:enabled:bg-gray-700',
     'hover:enabled:text-gray-700 dark:hover:enabled:text-gray-200'
   )
+
+  const prevPages = [] as number[]
+  for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
+    prevPages.push(i)
+  }
+  prevPages.reverse()
+
+  const nextPages = [] as number[]
+  for (let i = currentPage + 1; i < Math.min(totalPages, currentPage + neighbours + 1); i++) {
+    nextPages.push(i)
+  }
 
   return (
     <div className="flex-column mb-2 flex flex-wrap items-center justify-between pt-4 md:flex-row">
@@ -163,16 +174,31 @@ const TablePagination = ({
             <GoChevronLeft />
           </button>
         </li>
-        {[...Array(Math.min(totalPages, steps)).keys()].map((page) => (
+        {prevPages.map((page) => (
           <li key={page}>
-            <button
-              onClick={() => onPageChange(page)}
-              className={twMerge(commonClasses, currentPage === page ? 'bg-gray-300 dark:bg-gray-600' : '')}
-            >
+            <button onClick={() => onPageChange(page)} className={commonClasses}>
               {page + 1}
             </button>
           </li>
         ))}
+
+        <li>
+          <button
+            onClick={() => onPageChange(currentPage)}
+            className={twMerge(commonClasses, 'bg-gray-300 dark:bg-gray-600')}
+          >
+            {currentPage + 1}
+          </button>
+        </li>
+
+        {nextPages.map((page) => (
+          <li key={page}>
+            <button onClick={() => onPageChange(page)} className={commonClasses}>
+              {page + 1}
+            </button>
+          </li>
+        ))}
+
         <li>
           <button
             disabled={currentPage === totalPages - 1}
