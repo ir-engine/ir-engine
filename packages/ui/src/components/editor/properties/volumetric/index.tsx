@@ -272,9 +272,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           onChange={(value: number) => {
             volumetricComponent.currentTrackInfo.playbackRate.set(value)
           }}
-          onRelease={(value: number) => {
-            volumetricComponent.currentTrackInfo.playbackRate.set(value)
-          }}
+          onRelease={() => {}}
         />
       </InputGroup>
 

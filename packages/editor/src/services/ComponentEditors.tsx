@@ -86,6 +86,7 @@ import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
+import FacerNodeEditor from '@etherealengine/ui/src/components/editor/properties/facer'
 import FogSettingsEditor from '@etherealengine/ui/src/components/editor/properties/fog'
 import PrimitiveGeometryNodeEditor from '@etherealengine/ui/src/components/editor/properties/geometry/primitive'
 import GrabbableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/grab'
@@ -117,6 +118,7 @@ import ShadowNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/properties/skybox'
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
+
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
@@ -128,6 +130,7 @@ import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/prope
 
 import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 
+import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
 import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'
 import PlaylistNodeEditor from '../components/properties/PlaylistNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
@@ -185,7 +188,8 @@ export const ComponentEditorsState = defineState({
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
-      [TextComponent.name]: TextNodeEditor
+      [TextComponent.name]: TextNodeEditor,
+      [FacerComponent.name]: FacerNodeEditor
     } as Record<string, EditorComponentType>
   }
 })
