@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
+  ClampToEdgeWrapping,
   DoubleSide,
   LinearFilter,
   Mesh,
@@ -33,7 +34,8 @@ import {
   Side,
   SphereGeometry,
   Vector2,
-  VideoTexture
+  VideoTexture,
+  Wrapping
 } from 'three'
 
 import { EntityUUID, UUIDComponent } from '@etherealengine/ecs'
@@ -47,7 +49,7 @@ import {
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
-import { defineState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@etherealengine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -91,6 +93,12 @@ export const VideoComponent = defineComponent({
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
+      uvOffset: new Vector2(0, 0),
+      uvScale: new Vector2(1, 1),
+      wrapS: ClampToEdgeWrapping as Wrapping,
+      wrapT: ClampToEdgeWrapping as Wrapping,
+      useAlpha: false,
+      alphaThreshold: 0.5,
       fit: 'contain' as ContentFitType,
       projection: 'Flat' as 'Flat' | 'Equirectangular360',
       mediaUUID: '' as EntityUUID,
@@ -108,6 +116,12 @@ export const VideoComponent = defineComponent({
       mediaUUID: component.mediaUUID.value,
       side: component.side.value,
       size: component.size.value,
+      uvOffset: component.uvOffset.value,
+      uvScale: component.uvScale.value,
+      wrapS: component.wrapS.value,
+      wrapT: component.wrapT.value,
+      useAlpha: component.useAlpha.value,
+      alphaThreshold: component.alphaThreshold.value,
       fit: component.fit.value,
       projection: component.projection.value
     }
@@ -118,6 +132,12 @@ export const VideoComponent = defineComponent({
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
     if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
+    if (typeof json.uvOffset === 'object') component.uvOffset.set(new Vector2(json.uvOffset.x, json.uvOffset.y))
+    if (typeof json.uvScale === 'object') component.uvScale.set(new Vector2(json.uvScale.x, json.uvScale.y))
+    if (typeof json.wrapS === 'number') component.wrapS.set(json.wrapS)
+    if (typeof json.wrapT === 'number') component.wrapT.set(json.wrapT)
+    if (typeof json.useAlpha === 'boolean') component.useAlpha.set(json.useAlpha)
+    if (typeof json.alphaThreshold === 'number') component.alphaThreshold.set(json.alphaThreshold)
     if (typeof json.fit === 'string') component.fit.set(json.fit)
     if (typeof json.projection === 'string' && (json.projection === 'Flat' || json.projection === 'Equirectangular360'))
       component.projection.set(json.projection)
@@ -186,10 +206,31 @@ function VideoReactor() {
   }, [video.size, video.fit, video.texture])
 
   useEffect(() => {
+    if (!video.texture.value) return
+    const texture = video.texture as State<VideoTexturePriorityQueue>
+    texture.wrapS.set(video.wrapS.value)
+    texture.wrapT.set(video.wrapT.value)
+  }, [video.texture, video.wrapS, video.wrapT])
+
+  useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
     mesh.geometry.attributes.position.needsUpdate.set(true)
     mesh.material.map.set(video.texture.value)
   }, [video.texture, video.projection])
+
+  useEffect(() => {
+    mesh.material.alphaMap.set(video.useAlpha.value ? video.texture.value : null)
+    mesh.material.alphaTest.set(video.useAlpha.value ? video.alphaThreshold.value : 0)
+    mesh.material.transparent.set(video.useAlpha.value)
+  }, [video.texture, video.useAlpha, video.alphaThreshold])
+
+  useEffect(() => {
+    mesh.material.map.get(NO_PROXY)?.offset.copy(video.uvOffset.value)
+  }, [video.uvOffset])
+
+  useEffect(() => {
+    mesh.material.map.get(NO_PROXY)?.repeat.copy(video.uvScale.value)
+  }, [video.uvScale])
 
   useEffect(() => {
     if (!mediaEntity || !mediaElement) return
