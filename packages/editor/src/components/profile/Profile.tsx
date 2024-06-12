@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
@@ -82,15 +107,15 @@ const ProfileModal = ({ user }) => {
 
   return (
     <>
-      <div className="w-[400px]">
-        <div className="flex gap-2 px-4 py-5">
+      <div className="w-[350px]">
+        <div className="flex gap-2 px-4 py-2">
           <div className="h-[60px] w-[60px] gap-2 overflow-hidden rounded-full">
             <img src={avatar.thumbnailResource.url.value} />
           </div>
           <span className="text-lg text-white">{name.value}</span>
         </div>
-        <hr className="m-4 text-[#A0A1A2] opacity-10" />
-        <div className="px-4 py-5">
+        <hr className="mx-4 text-[#A0A1A2] opacity-10" />
+        <div className="px-4 py-2">
           <div className="grid grid-cols-1 gap-3">
             <InputGroup
               className="flex flex-row items-center justify-start"
@@ -116,20 +141,20 @@ const ProfileModal = ({ user }) => {
           </div>
         </div>
 
-        <hr className="m-4 text-[#A0A1A2] opacity-10" />
-        <div className="px-4 py-5">
-          <span className="text-md mb-6 ml-4 flex items-center gap-2 text-[#A0A1A2]">
+        <hr className="mx-4 text-[#A0A1A2] opacity-10" />
+        <div className="space-y-4 px-4 py-5">
+          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]">
             <LuSettings /> <span className="text-xs">Settings</span>
           </span>
-          <span className="text-md mb-6 ml-4 flex items-center gap-2 text-[#A0A1A2]" onClick={handleLogout}>
+          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]" onClick={handleLogout}>
             <FaArrowRightToBracket /> <span className="text-xs">Log out</span>
           </span>
-          <span className="text-md mb-6 ml-4 flex items-center gap-2 text-[#A0A1A2]">
+          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]">
             <PiTrashSimple /> <span className="text-xs">Delete account</span>
           </span>
         </div>
-        <hr className="m-4 text-[#A0A1A2] opacity-10" />
-        <div className="flex justify-center px-4 py-5">
+        <hr className="mx-4 text-[#A0A1A2] opacity-10" />
+        <div className="flex justify-center px-4 py-2">
           {
             <>
               <div>
@@ -216,8 +241,8 @@ const ProfileModal = ({ user }) => {
             </>
           }
         </div>
-        <hr className="m-4 text-[#A0A1A2] opacity-10" />
-        <div className="px-7 py-5">
+        <hr className="mx-4 text-[#A0A1A2] opacity-10" />
+        <div className="px-7 py-2">
           <a href={clientSetting?.privacyPolicy} className="text-xs text-[#A0A1A2] underline">
             {t('user:usermenu.profile.privacyPolicy')}
           </a>
