@@ -87,6 +87,9 @@ export async function getJobBody(
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
+  // Add this label to the job so that we can identify pods for a job
+  labels['etherealengine/isJob'] = 'true'
+
   return {
     metadata: {
       name,
