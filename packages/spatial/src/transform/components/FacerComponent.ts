@@ -23,8 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SpawnPoseState } from './SpawnPoseState'
-import { FacerSystem } from './systems/FacerSystem'
-import { TransformSystem } from './systems/TransformSystem'
-
-export { SpawnPoseState, TransformSystem, FacerSystem }
+import { EntityUUID, defineComponent } from '@etherealengine/ecs'
+export const FacerComponent = defineComponent({
+  name: 'FacerComponent',
+  jsonID: 'IR_facer',
+  onInit: (entity) => ({
+    target: null as EntityUUID | null,
+    xAxis: true,
+    yAxis: true
+  }),
+  onSet: (entity, component, props) => {
+    if (typeof props?.target === 'string') {
+      component.target.set(props.target)
+    }
+    if (typeof props?.xAxis === 'boolean') {
+      component.xAxis.set(props.xAxis)
+    }
+    if (typeof props?.yAxis === 'boolean') {
+      component.yAxis.set(props.yAxis)
+    }
+  },
+  toJSON: (entity, component) => ({
+    target: component.target.value,
+    xAxis: component.xAxis.value,
+    yAxis: component.yAxis.value
+  })
+})

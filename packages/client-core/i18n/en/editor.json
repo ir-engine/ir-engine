@@ -268,6 +268,13 @@
         "lbl-callbackID": "Callback ID"
       }
     },
+    "facer": {
+      "name": "Facer",
+      "description": "A facer component that makes the entity always face the user, or another entity",
+      "target": "Target Entity",
+      "xAxis": "X Axis",
+      "yAxis": "Y Axis"
+    },
     "grabbable": {
       "name": "Grabbable",
       "description": "A grabbable component that can be picked up and manipulated by the user"
