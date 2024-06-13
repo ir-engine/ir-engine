@@ -24,20 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import React from 'react'
 
+import { RigidBodyType, World } from '@dimforge/rapier3d-compat'
 import {
   UndefinedEntity,
   createEntity,
   destroyEngine,
   getComponent,
+  hasComponent,
+  removeComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
+import { PhysicsState } from '../state/PhysicsState'
 import { BodyTypes } from '../types/PhysicsTypes'
+import { ColliderComponent } from './ColliderComponent'
 import {
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
@@ -195,29 +201,94 @@ describe('RigidBodyComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
+    let physicsWorld: World | undefined = undefined
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
+      physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
       testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, ColliderComponent)
       setComponent(testEntity, RigidBodyComponent)
     })
 
     afterEach(() => {
       removeEntity(testEntity)
+      physicsWorld = undefined
       return destroyEngine()
     })
 
-    const RigidBodyComponentReactor = RigidBodyComponent.reactor
-    const tag = <RigidBodyComponentReactor />
+    /**
+    // @todo How to change physicsWorld?
+    it("should create a RigidBody for the entity in the new PhysicsState.physicsWorld when it is changed", () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+    })
+    */
+
+    it('should set the correct RigidBody type on the API data when component.type changes', () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      const one = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      assert.equal(one, RigidBodyType.Dynamic)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+      const two = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      assert.equal(two, RigidBodyType.Fixed)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+      const three = Physics._Rigidbodies.get(testEntity)!.bodyType()
+      assert.equal(three, RigidBodyType.KinematicPositionBased)
+    })
+
+    it('should set and remove a RigidBodyDynamicTagComponent on the entity when the component.type changes to dynamic', () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const tag = RigidBodyDynamicTagComponent
+      removeComponent(testEntity, RigidBodyComponent)
+      assert.equal(hasComponent(testEntity, tag), false)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      assert.equal(hasComponent(testEntity, tag), true)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+      assert.equal(hasComponent(testEntity, tag), false)
+    })
+
+    it('should set and remove a RigidBodyFixedTagComponent on the entity when the component.type changes to fixed', () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const tag = RigidBodyFixedTagComponent
+      removeComponent(testEntity, RigidBodyComponent)
+      assert.equal(hasComponent(testEntity, tag), false)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+      assert.equal(hasComponent(testEntity, tag), true)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+      assert.equal(hasComponent(testEntity, tag), false)
+    })
+
+    it('should set and remove a RigidBodyKinematicTagComponent on the entity when the component.type changes to kinematic', () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const tag = RigidBodyKinematicTagComponent
+      removeComponent(testEntity, RigidBodyComponent)
+      assert.equal(hasComponent(testEntity, tag), false)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Kinematic })
+      assert.equal(hasComponent(testEntity, tag), true)
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+      assert.equal(hasComponent(testEntity, tag), false)
+    })
 
     /**
-    // @todo How to test a Component's reactor?
-    it("dummy", async () => {
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      // ...
-      unmount()
+    // @todo
+    it("should enable CCD for the RigidBody on the API data when component.ccd changes", () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+    })
+
+    // @todo
+    it("should lock/unlock rotations for the RigidBody on the API data when component.allowRolling changes", () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+    })
+
+    // @todo
+    it("should enable/disable rotations for each axis for the RigidBody on the API data when component.enabledRotations changes", () => {
+      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
     })
     */
   }) // << reactor
