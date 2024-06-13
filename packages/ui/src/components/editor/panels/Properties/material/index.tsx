@@ -31,6 +31,7 @@ import {
   EntityUUID,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -179,12 +180,15 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     pluginValues.set({})
     pluginParameters.set({})
-  }, [materialName])
+  }, [materialName, selectedPlugin])
 
   useEffect(() => {
+    console.log(selectedPlugin.value)
     for (const pluginComponent of Object.values(MaterialPlugins)) {
       const component = getOptionalComponent(entity, pluginComponent)
-      if (!component) continue
+      if (!component || pluginComponent != MaterialPlugins[selectedPlugin.value]) {
+        continue
+      }
       const pluginParameterValues = {}
       Object.entries(component).map(([key, uniform]) => {
         const value = (uniform as Uniform).value
@@ -192,6 +196,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       })
       pluginParameters.set(formatMaterialArgs(pluginParameterValues))
       for (const key in component) pluginValues[key].set(component[key].value)
+      return
     }
   }, [selectedPlugin, useOptionalComponent(entity, MaterialPlugins[selectedPlugin.value])])
   return (
@@ -255,10 +260,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             setComponent(entity, MaterialPlugins[selectedPlugin.value])
           }}
         >
-          {t('editor:properties.mesh.material.addPlugin')}
+          {t('editor:properties.mesh.material.setPlugin')}
         </Button>
       </div>
-      {!!material.plugins?.length && (
+      {hasComponent(entity, MaterialPlugins[selectedPlugin.value]) && (
         <div className={styles.contentContainer}>
           <ParameterInput
             entity={props.materialUUID}

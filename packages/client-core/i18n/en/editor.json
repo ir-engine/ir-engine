@@ -322,7 +322,7 @@
         "path": "Path:",
         "prototype": "Prototype",
         "loading": "Loading...",
-        "addPlugin": "Add Plugin",
+        "setPlugin": "Set Plugin",
         "plugin": "Plugin"
       },
       "materialProperties": {
