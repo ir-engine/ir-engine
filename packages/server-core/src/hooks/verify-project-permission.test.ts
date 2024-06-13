@@ -32,6 +32,9 @@ import { InviteCode, UserName, userPath, UserType } from '@etherealengine/common
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { projectPath, projectPermissionPath } from '@etherealengine/common/src/schema.type.module'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import appRootPath from 'app-root-path'
+import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
@@ -126,6 +129,8 @@ describe('verify-project-permission', () => {
     // cleanup
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
+    deleteFolderRecursive(projectDir)
   })
 
   it('should verify if user has required permission', async () => {
@@ -153,6 +158,8 @@ describe('verify-project-permission', () => {
     // cleanup
     await app.service(userPath).remove(user.id)
     await app.service(projectPath).remove(project.id)
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
+    deleteFolderRecursive(projectDir)
   })
 
   it('should verify if isInternal', () => {
