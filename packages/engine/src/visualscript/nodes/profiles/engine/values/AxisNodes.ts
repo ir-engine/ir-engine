@@ -31,7 +31,7 @@ import { Assert, Choices, NodeCategory, makeFunctionNodeDefinition } from '@ethe
 // very 3D specific.
 export const getAxis = makeFunctionNodeDefinition({
   typeName: 'engine/axis/get',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'get Axis',
   in: {
     axis: (_, graphApi) => {
