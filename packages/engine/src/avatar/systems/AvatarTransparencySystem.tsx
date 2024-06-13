@@ -93,7 +93,6 @@ export const AvatarTransparencySystem = defineSystem({
   insert: { with: PresentationSystemGroup },
   reactor: () => {
     const selfEid = AvatarComponent.useSelfAvatarEntity()
-    console.log('test', selfEid)
     const hasDecapComponent = !!useOptionalComponent(selfEid, AvatarHeadDecapComponent)
     const hasFollowCamera = !!useOptionalComponent(Engine.instance.viewerEntity, FollowCameraComponent)
     useEffect(() => {
@@ -106,7 +105,6 @@ export const AvatarTransparencySystem = defineSystem({
       }
     }, [hasFollowCamera, hasDecapComponent, selfEid])
 
-    // if(selfEid) setComponent(selfEid, TransparencyDitheringRoot, { materials: [] })
     const sceneInstanceID = useModelSceneID(selfEid)
     const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
     return (
