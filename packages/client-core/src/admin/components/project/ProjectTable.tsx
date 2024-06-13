@@ -90,7 +90,7 @@ export default function ProjectTable() {
       await ProjectService.uploadProject({
         sourceURL: projectUpdateStatus.sourceURL,
         destinationURL: projectUpdateStatus.destinationURL,
-        name: projectUpdateStatus.projectName,
+        name: project.name,
         reset: true,
         commitSHA: projectUpdateStatus.selectedSHA,
         sourceBranch: projectUpdateStatus.selectedBranch,

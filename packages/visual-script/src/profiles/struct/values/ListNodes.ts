@@ -94,7 +94,7 @@ export const Concat = makeFunctionNodeDefinition({
 
 export const ListLoop = makeFlowNodeDefinition({
   typeName: 'logic/list/loop',
-  category: NodeCategory.Flow,
+  category: NodeCategory.Logic,
   label: 'list Loop',
   in: {
     flow: 'flow',

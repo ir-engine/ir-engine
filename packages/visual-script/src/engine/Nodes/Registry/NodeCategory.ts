@@ -25,12 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 export enum NodeCategory {
   Action = 'Action',
-  Query = 'Query',
   Logic = 'Logic',
-  Event = 'Event',
+  Engine = 'Engine',
   Variable = 'Variable',
   Flow = 'Flow',
-  Time = 'Time',
   None = 'None',
-  Effect = 'Effect'
+  Math = 'Math',
+  Debug = 'Debug'
 }

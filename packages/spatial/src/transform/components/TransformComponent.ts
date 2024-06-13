@@ -227,6 +227,27 @@ export const TransformComponent = defineComponent({
     transform.matrixWorld.compose(vec3, quat, scale)
   },
 
+  /**Transforms forward vector*/
+  forward: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[8], matrixElements[9], matrixElements[10]).normalize()
+    return outVector
+  },
+
+  /**Transforms up vector*/
+  up: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[4], matrixElements[5], matrixElements[6]).normalize()
+    return outVector
+  },
+
+  /**Transforms right vector*/
+  right: (entity: Entity, outVector: Vector3) => {
+    const matrixElements = getComponent(entity, TransformComponent).matrix.elements
+    outVector.set(matrixElements[0], matrixElements[1], matrixElements[2]).normalize()
+    return outVector
+  },
+
   dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
