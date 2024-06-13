@@ -23,22 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Component from './index'
-
-const argTypes = {}
-
-export default {
-  title: 'Editor/Properties/group',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PropertyGroup',
-    jest: 'propertyGroup.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
+import { EntityUUID, defineComponent } from '@etherealengine/ecs'
+export const LookAtComponent = defineComponent({
+  name: 'LookAtComponent',
+  jsonID: 'IR_lookAt',
+  onInit: (entity) => ({
+    target: null as EntityUUID | null,
+    xAxis: true,
+    yAxis: true
+  }),
+  onSet: (entity, component, props) => {
+    if (typeof props?.target === 'string') {
+      component.target.set(props.target)
+    }
+    if (typeof props?.xAxis === 'boolean') {
+      component.xAxis.set(props.xAxis)
+    }
+    if (typeof props?.yAxis === 'boolean') {
+      component.yAxis.set(props.yAxis)
     }
   },
-  argTypes
-}
-
-export const Default = { args: Component.defaultProps }
+  toJSON: (entity, component) => ({
+    target: component.target.value,
+    xAxis: component.xAxis.value,
+    yAxis: component.yAxis.value
+  })
+})

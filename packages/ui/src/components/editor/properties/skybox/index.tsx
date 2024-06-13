@@ -223,7 +223,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           options={SkyOptions}
           value={skyboxComponent.backgroundType.value.toString()}
           onChange={(value) => commitProperty(SkyboxComponent, 'backgroundType')(parseInt(value as string, 10))}
-          inputClassName="text-xs p-2"
         />
       </InputGroup>
       {renderSkyBoxProps()}

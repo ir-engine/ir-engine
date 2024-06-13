@@ -100,6 +100,14 @@ export const getServerInfo = async (app: Application) => {
         app
       )
       serverInfo.push(projectUpdatePods)
+
+      const jobsPods = await getPodsData(
+        `etherealengine/release=${config.server.releaseName},etherealengine/isJob=true`,
+        'jobs',
+        'Jobs',
+        app
+      )
+      serverInfo.push(jobsPods)
     }
 
     // if (k8AgonesClient) {

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import { CiCircleInfo } from 'react-icons/ci'
+import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../../primitives/tailwind/Label'
 import Tooltip from '../../../../primitives/tailwind/Tooltip'
@@ -130,12 +130,14 @@ export interface InputGroupProps {
 export function InputGroup({ children, info, label, className, labelClassName, infoClassName }: InputGroupProps) {
   return (
     <div className={twMerge('my-1 mr-6 flex items-center justify-end', className)}>
-      <Label className={twMerge('mr-2.5 text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
-      {info && (
-        <Tooltip title={info}>
-          <CiCircleInfo className={twMerge('-ml-0.5 mr-2.5 h-3.5 w-3.5 text-[#A0A1A2]', infoClassName)} />
-        </Tooltip>
-      )}
+      <div className="flex">
+        <Label className={twMerge('mr-2.5 text-wrap text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+        {info && (
+          <Tooltip title={info}>
+            <LuInfo className={twMerge('-ml-0.5 mr-2.5 h-5 w-5 text-[#A0A1A2]', infoClassName)} />
+          </Tooltip>
+        )}
+      </div>
       {children}
     </div>
   )

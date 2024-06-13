@@ -28,6 +28,7 @@ import {
   AdditiveBlending,
   Blending,
   BufferGeometry,
+  DoubleSide,
   Material,
   MeshBasicMaterial,
   Object3D,
@@ -847,17 +848,18 @@ export const ParticleSystemComponent = defineComponent({
     const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
       color: 0xffffff,
       transparent: componentState.value.systemParameters.transparent ?? true,
-      blending: componentState.value.systemParameters.blending as Blending
+      blending: componentState.value.systemParameters.blending as Blending,
+      side: DoubleSide
     })
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
       if (rootGLTF?.value?.progress !== 100) return
       if (refreshed.value) return
 
-      if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
-        const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
-        dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
-      }
+      //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
+      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
+      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+      //}
       refreshed.set(true)
     }, [rootGLTF?.value?.progress])
 

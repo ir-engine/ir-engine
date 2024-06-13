@@ -30,7 +30,7 @@ export class LogObject extends FlowNode {
   public static Description = (logger: ILogger) =>
     new NodeDescription(
       'logic/object/log',
-      NodeCategory.Action,
+      NodeCategory.Logic,
       'Log',
       (description, graph) => new LogObject(description, graph, logger)
     )

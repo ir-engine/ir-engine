@@ -35,8 +35,8 @@ const SelectInput = ({
   return (
     <Select
       currentValue={value}
-      className="h-10 w-72 bg-[#212226] text-theme-primary"
-      inputClassName="rounded-none text-xs p-1"
+      inputContainerClassName="rounded-lg overflow-hidden"
+      inputClassName="text-[#8B8B8D] text-xs bg-[#1A1A1A] border-none"
       {...rest}
     />
   )

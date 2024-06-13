@@ -35,7 +35,7 @@
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
-    "quit": "Quit"
+    "quit": "Quit to Dashboard"
   },
   "errors": {
     "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",
@@ -267,6 +267,13 @@
         "lbl-target": "Target",
         "lbl-callbackID": "Callback ID"
       }
+    },
+    "lookAt": {
+      "name": "LookAt",
+      "description": "A component that makes the entity always face the user, or another entity",
+      "target": "Target Entity",
+      "xAxis": "X Axis",
+      "yAxis": "Y Axis"
     },
     "grabbable": {
       "name": "Grabbable",
@@ -549,7 +556,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
@@ -868,7 +875,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
@@ -1087,7 +1094,8 @@
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
       "prefab": "Prefab",
-      "prefab-search": "Search Prefabs ...",
+      "prefabs": "Prefabs",
+      "prefabs-search": "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
@@ -1352,5 +1360,9 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
   }
 }
