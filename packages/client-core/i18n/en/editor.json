@@ -1149,6 +1149,7 @@
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "search-placeholder": "Search folders",
+      "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1360,9 +1361,5 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
-  },
-  "generatingThumbnails": {
-    "title": "Generating Thumbnails",
-    "amountRemaining": "{{count}} remaining"
   }
 }
