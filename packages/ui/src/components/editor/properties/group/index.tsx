@@ -40,7 +40,7 @@ interface Props {
 }
 
 const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: Props) => {
-  const [minimized, setMinimized] = useState(false)
+  const [minimized, setMinimized] = useState(true)
 
   return (
     <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#242424] px-4 py-1.5">
@@ -52,7 +52,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
           className="ml-0 h-4 border-0 p-0 text-[#444444]"
         />
         {icon}
-        <Text>{name}</Text>
+        {name && <Text>{name}</Text>}
         <div className="ml-auto mr-0 flex items-center gap-3 text-white">
           {onClose && (
             <button onPointerUp={onClose}>

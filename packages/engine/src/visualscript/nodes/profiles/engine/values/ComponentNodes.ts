@@ -34,7 +34,7 @@ import { Assert, NodeCategory, makeFlowNodeDefinition } from '@etherealengine/vi
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Add Component',
   in: {
     flow: 'flow',
@@ -62,7 +62,7 @@ export const addComponent = makeFlowNodeDefinition({
 
 export const deleteComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/deleteComponent',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Delete Component',
   in: {
     flow: 'flow',
@@ -90,7 +90,7 @@ export const deleteComponent = makeFlowNodeDefinition({
 
 export const setTag = makeFlowNodeDefinition({
   typeName: 'engine/component/tag/set',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'set Tag',
   in: {
     flow: 'flow',
@@ -114,7 +114,7 @@ export const setTag = makeFlowNodeDefinition({
 
 export const removeTag = makeFlowNodeDefinition({
   typeName: 'engine/component/tag/remove',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'remove Tag',
   in: {
     flow: 'flow',

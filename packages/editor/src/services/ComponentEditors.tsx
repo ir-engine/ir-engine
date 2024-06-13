@@ -86,7 +86,6 @@ import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
 import EnvMapBakeNodeEditor from '@etherealengine/ui/src/components/editor/properties/envMapBake'
 import EnvMapEditor from '@etherealengine/ui/src/components/editor/properties/envmap'
-import FacerNodeEditor from '@etherealengine/ui/src/components/editor/properties/facer'
 import FogSettingsEditor from '@etherealengine/ui/src/components/editor/properties/fog'
 import PrimitiveGeometryNodeEditor from '@etherealengine/ui/src/components/editor/properties/geometry/primitive'
 import GrabbableComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/grab'
@@ -100,6 +99,7 @@ import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
 import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
+import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@etherealengine/ui/src/components/editor/properties/media'
 import MediaSettingsEditor from '@etherealengine/ui/src/components/editor/properties/media/settings'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
@@ -130,7 +130,7 @@ import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/prope
 
 import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 
-import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'
 import PlaylistNodeEditor from '../components/properties/PlaylistNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
@@ -189,7 +189,7 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [FacerComponent.name]: FacerNodeEditor
+      [LookAtComponent.name]: LookAtNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

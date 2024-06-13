@@ -268,9 +268,9 @@
         "lbl-callbackID": "Callback ID"
       }
     },
-    "facer": {
-      "name": "Facer",
-      "description": "A facer component that makes the entity always face the user, or another entity",
+    "lookAt": {
+      "name": "LookAt",
+      "description": "A component that makes the entity always face the user, or another entity",
       "target": "Target Entity",
       "xAxis": "X Axis",
       "yAxis": "Y Axis"
@@ -1361,5 +1361,9 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
   }
 }
