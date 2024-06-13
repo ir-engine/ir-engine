@@ -95,7 +95,6 @@ export enum MaterialComponents {
 
 export const materialByHash = {} as Record<string, EntityUUID>
 export const prototypeByName = {} as Record<string, Entity>
-export const pluginByName = {} as Record<string, Entity>
 
 export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
   return defineComponent({
