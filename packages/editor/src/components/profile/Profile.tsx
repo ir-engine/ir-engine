@@ -88,9 +88,11 @@ const ProfileModal = ({ user }) => {
   const handleOAuthServiceClick = (e) => {
     AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
+
   const handleRemoveOAuthServiceClick = (e) => {
     AuthService.removeUserOAuth(e.currentTarget.id)
   }
+
   const enableSocial =
     authState?.value?.discord ||
     authState?.value?.facebook ||
@@ -132,19 +134,18 @@ const ProfileModal = ({ user }) => {
           <div className="h-[60px] w-[60px] gap-2 overflow-hidden rounded-full">
             <img src={avatar.thumbnailResource.url.value} />
           </div>
-          <span className="text-lg text-white">{name.value}</span>
+          <span className="px-2 py-3 text-lg text-white">{name.value}</span>
         </div>
         <hr className="mx-4 text-[#A0A1A2] opacity-10" />
         <div className="px-4 py-2">
           <div className="grid grid-cols-1 gap-3">
             <InputGroup
-              className="flex flex-row items-center justify-start"
+              className="mr-0 flex flex-row items-center justify-start"
               label="Invite Code"
-              labelClassName="text-left w-32"
+              labelClassName="text-left w-20"
             >
               <StringInput
                 type={showKeys.inviteCode.value ? 'text' : 'password'}
-                className="w-full"
                 value={inviteCode.value}
                 endComponent={
                   <button
@@ -163,13 +164,12 @@ const ProfileModal = ({ user }) => {
               />
             </InputGroup>
             <InputGroup
-              className="flex flex-row items-center justify-start"
+              className="mr-0 flex flex-row items-center justify-start"
               label="User ID"
-              labelClassName="text-left w-32"
+              labelClassName="text-left w-20"
             >
               <StringInput
                 type={showKeys.userId.value ? 'text' : 'password'}
-                className="w-full"
                 value={userId.value}
                 endComponent={
                   <button
@@ -188,13 +188,12 @@ const ProfileModal = ({ user }) => {
               />
             </InputGroup>
             <InputGroup
-              className="flex flex-row items-center justify-start"
+              className="mr-0 flex flex-row items-center justify-start"
               label="API Key"
-              labelClassName="text-left w-32"
+              labelClassName="text-left w-20"
             >
               <StringInput
                 type={showKeys.apiKey.value ? 'text' : 'password'}
-                className="w-full"
                 value={apiKey.token.value}
                 endComponent={
                   <button
