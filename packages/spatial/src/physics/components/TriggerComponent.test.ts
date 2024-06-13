@@ -23,20 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
   UndefinedEntity,
   createEntity,
   destroyEngine,
   getComponent,
+  removeComponent,
   removeEntity,
   serializeComponent,
   setComponent
 } from '@etherealengine/ecs'
+import { getMutableState } from '@etherealengine/hyperflux'
 import assert from 'assert'
-import React from 'react'
+import { Vector3 } from 'three'
+import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { PhysicsState } from '../state/PhysicsState'
+import { Shapes } from '../types/PhysicsTypes'
+import { ColliderComponent } from './ColliderComponent'
+import { ColliderComponentDefaults, assertColliderComponentEquals } from './ColliderComponent.test'
+import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
 
 const TriggerComponentDefaults = {
@@ -165,30 +175,47 @@ describe('TriggerComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
+    let physicsWorld: World | undefined = undefined
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
+      physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
       testEntity = createEntity()
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent)
+      setComponent(testEntity, ColliderComponent)
       setComponent(testEntity, TriggerComponent)
     })
 
     afterEach(() => {
       removeEntity(testEntity)
+      physicsWorld = undefined
       return destroyEngine()
     })
 
-    const TriggerComponentReactor = TriggerComponent.reactor
-    const tag = <TriggerComponentReactor />
-
-    /**
-    // @todo How to test a Component's reactor?
-    it("dummy", async () => {
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      // ...
-      unmount()
+    it("should call Physics.setTrigger on the entity's collider when a new ColliderComponent is set", () => {
+      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentDefaults)
+      removeComponent(testEntity, ColliderComponent)
+      const ColliderComponentData = {
+        shape: Shapes.Sphere,
+        mass: 3,
+        massCenter: new Vector3(1, 2, 3),
+        friction: 1.0,
+        restitution: 0.1,
+        collisionLayer: CollisionGroups.Default,
+        collisionMask: DefaultCollisionMask
+      }
+      setComponent(testEntity, ColliderComponent, ColliderComponentData)
+      assertColliderComponentEquals(getComponent(testEntity, ColliderComponent), ColliderComponentData)
+      const reactor = ColliderComponent.reactorMap.get(testEntity)!
+      assert.ok(reactor.isRunning)
+      const collider = Physics._Colliders.get(testEntity)!
+      assert.ok(collider)
+      assert.ok(collider.isSensor())
     })
-    */
   }) // << reactor
 })

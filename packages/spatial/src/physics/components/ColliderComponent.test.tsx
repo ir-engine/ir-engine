@@ -49,7 +49,8 @@ import { ColliderComponent } from './ColliderComponent'
 import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
 
-const ColliderComponentDefaults = {
+export const ColliderComponentDefaults = {
+  // also used in TriggerComponent.test.ts
   shape: Shapes.Box,
   mass: 1,
   massCenter: new Vector3(),
@@ -59,7 +60,8 @@ const ColliderComponentDefaults = {
   collisionMask: DefaultCollisionMask
 }
 
-function assertColliderComponentEquals(data, expected) {
+export function assertColliderComponentEquals(data, expected) {
+  // also used in TriggerComponent.test.ts
   assert.equal(data.shape, expected.shape)
   assert.equal(data.mass, expected.mass)
   assert.deepEqual(data.massCenter, expected.massCenter)
