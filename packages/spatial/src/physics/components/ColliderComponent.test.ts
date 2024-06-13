@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import React from 'react'
 
 import {
+  Entity,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -38,9 +38,11 @@ import {
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { World } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
@@ -233,29 +235,98 @@ describe('ColliderComponent', () => {
 
   describe('reactor', () => {
     let testEntity = UndefinedEntity
+    let parentEntity = UndefinedEntity
+    let physicsWorld: World | undefined = undefined
+
+    function createValidAncestor(colliderData = ColliderComponentDefaults): Entity {
+      const result = createEntity()
+      setComponent(result, TransformComponent)
+      setComponent(result, ColliderComponent, colliderData)
+      setComponent(result, RigidBodyComponent)
+      return result
+    }
 
     beforeEach(async () => {
       createEngine()
       await Physics.load()
+      physicsWorld = Physics.createWorld()
+      physicsWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+
+      parentEntity = createValidAncestor()
       testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+      setComponent(testEntity, TransformComponent)
       setComponent(testEntity, ColliderComponent)
+      setComponent(testEntity, RigidBodyComponent)
     })
 
     afterEach(() => {
       removeEntity(testEntity)
+      physicsWorld = undefined
       return destroyEngine()
     })
 
-    const ColliderComponentReactor = ColliderComponent.reactor
-    const tag = <ColliderComponentReactor />
-
     /**
-    // @todo How to test a Component's reactor?
-    it("dummy", async () => {
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
-      // ...
-      unmount()
+    // @todo After the other tests fails are fixed
+    describe("should attach a collider to the physicsWorld based on the entity and its closest ancestor with a RigidBodyComponent ...", () => {
+      it("... when the shape of the entity's collider changes", () => {
+        assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      })
+      it("... when the scale of the entity's collider changes", () => {
+        assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      })
+      it("... when the closest ancestor to the entity, with a RigidBodyComponent, changes", () => {
+        assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      })
+    })
+
+    // @todo Why is this failing?
+    it("should set the mass of the API data based on the component.mass.value when it changes", () => {
+      assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      const Expected = 42
+      const before = Physics._Colliders.get(testEntity)!.mass()
+      getMutableComponent(testEntity, ColliderComponent).mass.set(Expected)
+      const after = Physics._Colliders.get(testEntity)!.mass()
+      assert.notEqual(before, after, "Before and After should not be equal")
+      assert.notEqual(before, Expected, "Before and Expected should not be equal")
+      assert.equal(after, Expected, "After and Expected should be equal")
+    })
+
+    // @todo Why is this failing?
+    it("should set the friction of the API data based on the component.friction.value when it changes", () => {
+      assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      const Expected = 42
+      const before = Physics._Colliders.get(testEntity)!.friction()
+      getMutableComponent(testEntity, ColliderComponent).friction.set(Expected)
+      const after = Physics._Colliders.get(testEntity)!.friction()
+      assert.notEqual(before, after, "Before and After should not be equal")
+      assert.notEqual(before, Expected, "Before and Expected should not be equal")
+      assert.equal(after, Expected, "After and Expected should be equal")
+    })
+
+    // @todo Why is this failing?
+    it("should set the restitution of the API data based on the component.restitution.value when it changes", () => {
+      assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      const Expected = 42
+      const before = Physics._Colliders.get(testEntity)!.restitution()
+      getMutableComponent(testEntity, ColliderComponent).restitution.set(Expected)
+      const after = Physics._Colliders.get(testEntity)!.restitution()
+      assert.notEqual(before, after, "Before and After should not be equal")
+      assert.notEqual(before, Expected, "Before and Expected should not be equal")
+      assert.equal(after, Expected, "After and Expected should be equal")
+    })
+
+    // @todo After the above issues are solved
+    it("should set the collisionLayer of the API data based on the component.collisionLayer.value when it changes", () => {
+      assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      const collider = Physics._Colliders.get(testEntity)
+    })
+
+    // @todo After the above issues are solved
+    it("should set the collisionMask of the API data based on the component.collisionMask.value when it changes", () => {
+      assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+      const collider = Physics._Colliders.get(testEntity)
     })
     */
   }) // << reactor
