@@ -37,7 +37,6 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import CompoundNumericInput from '@etherealengine/editor/src/components/inputs/CompoundNumericInput'
 import {
   EditorComponentType,
   commitProperty,
@@ -52,6 +51,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
+import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
@@ -236,7 +236,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput
+        <Slider
           min={0}
           max={1}
           step={0.01}
@@ -262,7 +262,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       )}
 
       <InputGroup name="Playback Rate" label="Playback Rate">
-        <CompoundNumericInput
+        <Slider
           value={volumetricComponent.currentTrackInfo.playbackRate.value}
           min={0.5}
           max={4}
@@ -270,6 +270,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           onChange={(value: number) => {
             volumetricComponent.currentTrackInfo.playbackRate.set(value)
           }}
+          onRelease={() => {}}
         />
       </InputGroup>
 

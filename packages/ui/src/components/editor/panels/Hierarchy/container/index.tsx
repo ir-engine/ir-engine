@@ -167,8 +167,27 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
     [expandedNodes]
   )
 
-  /* Event handlers */
-  const onMouseDown = useCallback(
+  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HeirarchyTreeNodeType) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    setContextSelectedItem(item)
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      left: event.clientX + 2,
+      top: event.clientY - 6
+    })
+  }
+
+  const handleClose = () => {
+    setContextSelectedItem(undefined)
+    setAnchorEl(null)
+    setAnchorPosition({ left: 0, top: 0 })
+  }
+
+  const onMouseDown = useCallback((e: React.MouseEvent, node: HeirarchyTreeNodeType) => {}, [])
+
+  const onClick = useCallback(
     (e: MouseEvent, node: HeirarchyTreeNodeType) => {
       if (e.detail === 1) {
         if (e.ctrlKey) {
@@ -189,36 +208,14 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
           }
         }
         setPrevClickedNode(node)
+      } else if (e.detail === 2) {
+        const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+        editorCameraState.focusedEntities.set([node.entity])
+        editorCameraState.refocus.set(true)
       }
     },
     [prevClickedNode, entityHierarchy]
   )
-
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HeirarchyTreeNodeType) => {
-    event.preventDefault()
-    event.stopPropagation()
-
-    setContextSelectedItem(item)
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
-  }
-
-  const handleClose = () => {
-    setContextSelectedItem(undefined)
-    setAnchorEl(null)
-    setAnchorPosition({ left: 0, top: 0 })
-  }
-
-  const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
-    if (e.detail === 2) {
-      const editorCameraState = getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
-      editorCameraState.focusedEntities.set([node.entity])
-      editorCameraState.refocus.set(true)
-    }
-  }, [])
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {

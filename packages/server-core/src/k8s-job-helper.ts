@@ -76,7 +76,8 @@ export async function getJobBody(
   app: Application,
   command: string[],
   name: string,
-  labels: { [key: string]: string }
+  labels: { [key: string]: string },
+  ttlSecondsAfterFinished = 86400 // This value is 1 day
 ): Promise<k8s.V1Job> {
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
@@ -87,12 +88,16 @@ export async function getJobBody(
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
+  // Add this label to the job so that we can identify pods for a job
+  labels['etherealengine/isJob'] = 'true'
+
   return {
     metadata: {
       name,
       labels
     },
     spec: {
+      ttlSecondsAfterFinished,
       template: {
         metadata: {
           labels

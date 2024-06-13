@@ -43,7 +43,7 @@ const initialState = (): State => ({
 
 export const OnQuery = makeEventNodeDefinition({
   typeName: 'engine/query/use',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'On Query',
   configuration: {
     numInputs: {
