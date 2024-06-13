@@ -41,7 +41,7 @@ import {
 } from '@etherealengine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { ClampToEdgeWrapping, MirroredRepeatWrapping, RepeatWrapping } from 'three'
+import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -121,6 +121,22 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           value={video.size.value}
           onChange={updateProperty(VideoComponent, 'size')}
           onRelease={commitProperty(VideoComponent, 'size')}
+        />
+      </InputGroup>
+
+      <InputGroup
+        name="Side"
+        label={t('editor:properties.video.lbl-side')}
+        info={t('editor:properties.video.lbl-side-info')}
+      >
+        <SelectInput
+          value={video.side.value}
+          onChange={commitProperty(VideoComponent, 'side')}
+          options={[
+            { label: 'Front', value: FrontSide },
+            { label: 'Back', value: BackSide },
+            { label: 'Double', value: DoubleSide }
+          ]}
         />
       </InputGroup>
 

@@ -388,6 +388,5 @@ function VideoReactor() {
       }
     }
   }, [video.texture, mediaEntity, mediaElement])
-
   return null
 }
