@@ -75,6 +75,7 @@ import { TriggerComponent } from '@etherealengine/spatial/src/physics/components
 import { FogSettingsComponent } from '@etherealengine/spatial/src/renderer/components/FogSettingsComponent'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 import { PersistentAnchorComponent } from '@etherealengine/spatial/src/xr/XRAnchorComponents'
 
 // everything above still needs to be built
@@ -119,6 +120,8 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
+import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
+import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
 import SystemNodeEditor from '@etherealengine/ui/src/components/editor/properties/system'
 import TextNodeEditor from '@etherealengine/ui/src/components/editor/properties/text'
@@ -127,12 +130,7 @@ import VariantNodeEditor from '@etherealengine/ui/src/components/editor/properti
 import VideoNodeEditor from '@etherealengine/ui/src/components/editor/properties/video'
 import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/properties/visualScript'
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
-
-import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
-
-import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
-import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'
-import PlaylistNodeEditor from '../components/properties/PlaylistNodeEditor'
+import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
