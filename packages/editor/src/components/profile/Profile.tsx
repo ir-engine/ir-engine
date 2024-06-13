@@ -129,10 +129,10 @@ const ProfileModal = ({ user }) => {
 
   return (
     <>
-      <div className="w-[350px]">
+      <div className="w-80">
         <div className="flex gap-2 px-4 py-2">
-          <div className="h-[60px] w-[60px] gap-2 overflow-hidden rounded-full">
-            <img src={avatar.thumbnailResource.url.value} />
+          <div className="h-16 w-16 gap-2 overflow-hidden rounded-full bg-slate-300">
+            <img src={avatar.thumbnailResource.url.value} className="h-full w-full object-contain" />
           </div>
           <span className="px-2 py-3 text-lg text-white">{name.value}</span>
         </div>
@@ -341,8 +341,8 @@ export const Profile = ({ user }) => {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-2 rounded-full bg-[#1F1F1F] px-1 py-0.5">
-        <div className="overflow-hideen h-[26px] w-[26px] rounded-full px-1">
+      <div className="flex items-center justify-center rounded-full bg-[#1F1F1F] px-1 py-1">
+        <div className="h-6 w-6 overflow-hidden rounded-full bg-slate-300 px-1">
           <img src={avatar.thumbnailResource.url.value} alt="Image" className="h-full w-full object-contain" />
         </div>
         <MdOutlineKeyboardArrowDown

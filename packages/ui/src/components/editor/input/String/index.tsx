@@ -37,9 +37,9 @@ export interface StringInputProps extends Omit<InputProps, 'onChange'> {
 const StringInput = ({ value, onChange, onRelease, className, inputRef, ...rest }: StringInputProps) => {
   return (
     <Input
-      containerClassname="h-7 bg-[#1A1A1A] rounded"
+      containerClassname="h-7 rounded-md overflow-hidden border-[#8B8B8D]"
       className={twMerge(
-        'h-full w-full text-ellipsis rounded border-none bg-inherit px-5 py-2 text-xs font-normal text-[#8B8B8D]',
+        'h-full text-ellipsis rounded border-none bg-inherit bg-none px-5 py-2 text-xs font-normal text-[#8B8B8D]',
         className
       )}
       value={value}
