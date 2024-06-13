@@ -31,7 +31,6 @@ import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
 import { getOptionalMutableComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import Center from '@etherealengine/editor/src/components/layout/Center'
-import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
 import {
   EditorComponentType,
   commitProperties,
@@ -48,12 +47,13 @@ import {
   ResourceStatus,
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
-import { Button } from '@mui/material'
+import Button from '../../../../primitives/tailwind/Button'
 import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
+import PaginatedList from '../../layout/PaginatedList'
 import NodeEditor from '../nodeEditor'
 
 const buildBudgetVariantMetadata = (
@@ -134,7 +134,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
       icon={<VariantNodeEditor.iconComponent />}
       {...props}
     >
-      <div className="m-4 rounded-lg bg-gray-800 p-4">
+      <div className="m-4 flex flex-col rounded-lg bg-theme-primary p-4">
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
@@ -151,8 +151,9 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             ]}
           />
         </InputGroup>
-        <Center>
+        <div className="flex flex-1 justify-center align-middle">
           <Button
+            size="small"
             onClick={() =>
               commitProperties(
                 VariantComponent,
@@ -168,7 +169,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           >
             Add Variant
           </Button>
-        </Center>
+        </div>
         {variantComponent.heuristic.value === Heuristic.BUDGET && (
           <InputGroup name="Cast Shadow" label={t('editor:properties.variant.useDistance')}>
             <BooleanInput
@@ -182,60 +183,59 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           list={variantComponent.levels}
           element={(level: State<VariantLevel>, index) => {
             return (
-              <div className="m-2 bg-gray-900">
-                <div style={{ margin: '2em' }}>
-                  <InputGroup name="src" label={t('editor:properties.variant.src')}>
-                    <ModelInput
-                      value={level.src.value}
-                      onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
-                    />
-                  </InputGroup>
-                  {variantComponent.heuristic.value === Heuristic.DEVICE && (
-                    <>
-                      <InputGroup name="device" label={t('editor:properties.variant.device')}>
-                        <SelectInput
-                          value={level.metadata['device'].value}
-                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
-                          options={[
-                            { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
-                            { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') },
-                            { value: 'XR', label: t('editor:properties.variant.device-xr') }
-                          ]}
-                        />
-                      </InputGroup>
-                    </>
-                  )}
-                  {variantComponent.heuristic.value === Heuristic.DISTANCE && (
-                    <>
-                      <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
-                        <NumericInput
-                          value={level.metadata['minDistance'].value}
-                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
-                        />
-                      </InputGroup>
-                      <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
-                        <NumericInput
-                          value={level.metadata['maxDistance'].value}
-                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
-                        />
-                      </InputGroup>
-                    </>
-                  )}
-                  {variantComponent.heuristic.value === Heuristic.BUDGET && (
-                    <BudgetVariantNodeEditor
-                      entity={entity}
-                      level={level}
-                      index={index}
-                      useDistance={variantComponent.useDistance.value}
-                      preview={index == previewIndex.value}
-                      onPreview={() => {
-                        setPreview(index)
-                      }}
-                    />
-                  )}
-                </div>
-                <Center>
+              <div className="m-2 flex flex-col gap-1 bg-theme-secondary py-1">
+                <InputGroup name="src" label={t('editor:properties.variant.src')}>
+                  <ModelInput
+                    value={level.src.value}
+                    onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                  />
+                </InputGroup>
+                {variantComponent.heuristic.value === Heuristic.DEVICE && (
+                  <>
+                    <InputGroup name="device" label={t('editor:properties.variant.device')}>
+                      <SelectInput
+                        value={level.metadata['device'].value}
+                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
+                        options={[
+                          { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
+                          { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') },
+                          { value: 'XR', label: t('editor:properties.variant.device-xr') }
+                        ]}
+                      />
+                    </InputGroup>
+                  </>
+                )}
+                {variantComponent.heuristic.value === Heuristic.DISTANCE && (
+                  <>
+                    <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
+                      <NumericInput
+                        value={level.metadata['minDistance'].value}
+                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
+                      />
+                    </InputGroup>
+                    <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
+                      <NumericInput
+                        value={level.metadata['maxDistance'].value}
+                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
+                      />
+                    </InputGroup>
+                  </>
+                )}
+                {variantComponent.heuristic.value === Heuristic.BUDGET && (
+                  <BudgetVariantNodeEditor
+                    entity={entity}
+                    level={level}
+                    index={index}
+                    useDistance={variantComponent.useDistance.value}
+                    preview={index == previewIndex.value}
+                    onPreview={() => {
+                      setPreview(index)
+                    }}
+                  />
+                )}
+                <div className="flex flex-1 justify-center align-middle">
                   <Button
+                    size="small"
                     onClick={() =>
                       commitProperties(VariantComponent, {
                         levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))
@@ -244,7 +244,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                   >
                     Remove
                   </Button>
-                </Center>
+                </div>
               </div>
             )
           }}
