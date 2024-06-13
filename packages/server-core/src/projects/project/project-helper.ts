@@ -1639,7 +1639,6 @@ const migrateResourcesJson = (resourceJsonPath: string) => {
   fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
 }
 
-//otherwise, upload the files into static resources individually
 const staticResourceClasses = [
   AssetType.Audio,
   AssetType.Image,
