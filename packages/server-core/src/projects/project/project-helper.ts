@@ -30,10 +30,10 @@ import {
 } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import * as k8s from '@kubernetes/client-node'
-import { RestEndpointMethodTypes } from '@octokit/rest'
+import { Octokit, RestEndpointMethodTypes } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
@@ -45,7 +45,7 @@ import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
 import { AssetType } from '@etherealengine/common/src/constants/AssetType'
-import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
@@ -989,8 +989,9 @@ export async function getProjectUpdateJobBody(
     updateSchedule: string
   },
   app: Application,
-  userId: string,
-  jobId: string
+  jobId: string,
+  userId?: string,
+  token?: string
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
@@ -998,8 +999,6 @@ export async function getProjectUpdateJobBody(
     'ts-node',
     '--swc',
     'scripts/update-project.ts',
-    `--userId`,
-    userId,
     '--sourceURL',
     data.sourceURL,
     '--destinationURL',
@@ -1008,13 +1007,25 @@ export async function getProjectUpdateJobBody(
     data.name,
     '--sourceBranch',
     data.sourceBranch,
-    '--updateType',
-    data.updateType,
-    '--updateSchedule',
-    data.updateSchedule,
     '--jobId',
     jobId
   ]
+  if (data.updateType) {
+    command.push('--updateType')
+    command.push(data.updateType as string)
+  }
+  if (data.updateSchedule) {
+    command.push('--updateSchedule')
+    command.push(data.updateSchedule)
+  }
+  if (token) {
+    command.push('--token')
+    command.push(token)
+  }
+  if (userId) {
+    command.push('--userId')
+    command.push(userId)
+  }
   if (data.commitSHA) {
     command.push('--commitSHA')
     command.push(data.commitSHA)
@@ -1327,6 +1338,7 @@ export const updateProject = async (
     sourceBranch: string
     updateType: ProjectType['updateType']
     updateSchedule: string
+    token?: string
   },
   params?: ProjectParams
 ) => {
@@ -1374,24 +1386,50 @@ export const updateProject = async (
     }
   })) as Paginated<ProjectType>
 
-  let project
+  let project, userId
   if (projectResult.data.length > 0) project = projectResult.data[0]
 
-  const userId = params!.user?.id || project?.updateUserId
-  if (!userId) throw new BadRequest('No user ID from call or existing project owner')
-
-  const githubIdentityProvider = (await app.service(identityProviderPath).find({
-    query: {
-      userId: userId,
-      type: 'github',
-      $limit: 1
+  let repoPath,
+    signingToken,
+    usesInstallationToken = false
+  if (params?.appJWT) {
+    const octokit = new Octokit({ auth: params.appJWT })
+    let repoInstallation
+    try {
+      repoInstallation = await octokit.rest.apps.getRepoInstallation({
+        owner: urlParts[urlParts.length - 2],
+        repo: urlParts[urlParts.length - 1]
+      })
+    } catch (err) {
+      throw new NotFound(
+        'The GitHub App associated with this deployment has not been installed with access to that repository, or that repository does not exist'
+      )
     }
-  })) as Paginated<IdentityProviderType>
+    const installationAccessToken = await octokit.rest.apps.createInstallationAccessToken({
+      installation_id: repoInstallation.data.id
+    })
+    signingToken = installationAccessToken.data.token
+    usesInstallationToken = true
+    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL, usesInstallationToken)
+    params.provider = 'server'
+  } else {
+    userId = params!.user?.id || project?.updateUserId
+    if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+    const githubIdentityProvider = (await app.service(identityProviderPath).find({
+      query: {
+        userId: userId,
+        type: 'github',
+        $limit: 1
+      }
+    })) as Paginated<IdentityProviderType>
 
-  let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
-  if (!repoPath) repoPath = data.sourceURL //public repo
+    if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+    signingToken = githubIdentityProvider.data[0].oauthToken
+    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL)
+    if (!repoPath) repoPath = data.sourceURL //public repo
+  }
 
   const gitCloner = useGit(projectLocalDirectory)
   await gitCloner.clone(repoPath, projectDirectory)
@@ -1439,9 +1477,13 @@ export const updateProject = async (
   const existingProject = existingProjectResult.total > 0 ? existingProjectResult.data[0] : null
   let repositoryPath = data.destinationURL || data.sourceURL
   const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
+  const installationSignedExec = INSTALLATION_SIGNED_REGEX.exec(repositoryPath)
   //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
   //Stripping the signed portion out if it's about to be inserted.
+  if (installationSignedExec)
+    repositoryPath = `https://github.com/${installationSignedExec[1]}/${installationSignedExec[2]}`
   if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
+
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
   const returned = !existingProject
@@ -1458,7 +1500,7 @@ export const updateProject = async (
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
           updateSchedule: data.updateSchedule,
-          updateUserId: userId,
+          updateUserId: userId || null,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
           assetsOnly: assetsOnly,
@@ -1479,7 +1521,7 @@ export const updateProject = async (
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
           updateSchedule: data.updateSchedule,
-          updateUserId: userId
+          updateUserId: userId || null
         },
         params
       )
@@ -1492,7 +1534,7 @@ export const updateProject = async (
     })
 
   if (data.reset) {
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
+    let repoPath = await getAuthenticatedRepo(signingToken, data.destinationURL, usesInstallationToken)
     if (!repoPath) repoPath = data.destinationURL //public repo
     await git.addRemote('destination', repoPath)
     await git.raw(['lfs', 'fetch', '--all'])

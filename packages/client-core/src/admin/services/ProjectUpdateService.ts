@@ -72,7 +72,7 @@ export const ProjectUpdateService = {
       sourceProjectName: '',
       sourceVsDestinationChecked: false,
       selectedSHA: '',
-      projectName: '',
+      projectName: projectName,
       submitDisabled: true,
       triggerSetDestination: '',
       updateType: 'none' as ProjectType['updateType'],
