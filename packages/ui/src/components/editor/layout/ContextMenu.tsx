@@ -89,10 +89,11 @@ export const ContextMenu = ({
         {open && anchorEl && (
           <div
             ref={menuRef}
-            className="absolute z-[200] w-44 rounded-lg bg-neutral-900 shadow-lg"
+            className="absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg"
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
+              maxWidth: `${panel?.getBoundingClientRect().width}px`,
               maxHeight: `${panel?.getBoundingClientRect().height}px`,
               overflowY: isScrollable ? 'auto' : 'visible'
             }}
