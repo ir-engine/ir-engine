@@ -46,7 +46,7 @@ import { useTranslation } from 'react-i18next'
 import { FaArrowRightToBracket } from 'react-icons/fa6'
 import { LuSettings } from 'react-icons/lu'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { PiTrashSimple } from 'react-icons/pi'
+import { PiEyeBold, PiEyeClosedBold, PiTrashSimple } from 'react-icons/pi'
 
 const ProfileModal = ({ user }) => {
   const { t } = useTranslation()
@@ -105,6 +105,26 @@ const ProfileModal = ({ user }) => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
   }
 
+  const showKeys = useHookstate({
+    apiKey: false,
+    userId: false,
+    inviteCode: false
+  })
+
+  const toggleKey = (type: string) => {
+    switch (type) {
+      case 'apiKey':
+        showKeys.set({ ...showKeys.value, apiKey: !showKeys.apiKey.value })
+        break
+      case 'userId':
+        showKeys.set({ ...showKeys.value, userId: !showKeys.userId.value })
+        break
+      case 'inviteCode':
+        showKeys.set({ ...showKeys.value, inviteCode: !showKeys.inviteCode.value })
+        break
+    }
+  }
+
   return (
     <>
       <div className="w-[350px]">
@@ -122,21 +142,75 @@ const ProfileModal = ({ user }) => {
               label="Invite Code"
               labelClassName="text-left w-32"
             >
-              <StringInput className="w-full" value={inviteCode.value} disabled />
+              <StringInput
+                type={showKeys.inviteCode.value ? 'text' : 'password'}
+                className="w-full"
+                value={inviteCode.value}
+                endComponent={
+                  <button
+                    type="button"
+                    className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+                    onClick={() => toggleKey('inviteCode')}
+                    name="inviteCode"
+                  >
+                    {showKeys.inviteCode.value ? (
+                      <PiEyeBold className="font-small text-[#6B7280]" />
+                    ) : (
+                      <PiEyeClosedBold className="font-small text-[#6B7280]" />
+                    )}
+                  </button>
+                }
+              />
             </InputGroup>
             <InputGroup
               className="flex flex-row items-center justify-start"
               label="User ID"
               labelClassName="text-left w-32"
             >
-              <StringInput className="w-full" value={userId.value} disabled />
+              <StringInput
+                type={showKeys.userId.value ? 'text' : 'password'}
+                className="w-full"
+                value={userId.value}
+                endComponent={
+                  <button
+                    type="button"
+                    className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+                    onClick={() => toggleKey('userId')}
+                    name="userId"
+                  >
+                    {showKeys.userId.value ? (
+                      <PiEyeBold className="font-small text-[#6B7280]" />
+                    ) : (
+                      <PiEyeClosedBold className="font-small text-[#6B7280]" />
+                    )}
+                  </button>
+                }
+              />
             </InputGroup>
             <InputGroup
               className="flex flex-row items-center justify-start"
               label="API Key"
               labelClassName="text-left w-32"
             >
-              <StringInput className="w-full" value={apiKey.token.value} disabled />
+              <StringInput
+                type={showKeys.apiKey.value ? 'text' : 'password'}
+                className="w-full"
+                value={apiKey.token.value}
+                endComponent={
+                  <button
+                    type="button"
+                    className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+                    onClick={() => toggleKey('apiKey')}
+                    name="apiKey"
+                  >
+                    {showKeys.apiKey.value ? (
+                      <PiEyeBold className="font-small text-[#6B7280]" />
+                    ) : (
+                      <PiEyeClosedBold className="font-small text-[#6B7280]" />
+                    )}
+                  </button>
+                }
+              />
             </InputGroup>
           </div>
         </div>
