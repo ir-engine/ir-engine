@@ -56,7 +56,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -385,7 +385,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
-    const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+    const selectedKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {
@@ -408,31 +408,28 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       staticResourceModifiedDates.set(modifiedDates)
     }, [staticResourceData.data])
 
-    const handleItemClick = useCallback(
-      (e, key) => {
-        if (e.ctrlKey || e.metaKey) {
-          setSelectedKeys((prevSelectedKeys: any) =>
-            prevSelectedKeys.includes(key)
-              ? prevSelectedKeys.filter((selectedKey) => selectedKey !== key)
-              : [...prevSelectedKeys, key]
-          )
-        } else if (e.shiftKey) {
-          const lastIndex = files.findIndex((file) => file.key === selectedKeys[selectedKeys.length - 1])
-          const clickedIndex = files.findIndex((file) => file.key === key)
-          const newSelectedKeys = files
-            .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
-            .map((file) => file.key)
-          setSelectedKeys((prevSelectedKeys: any) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+    const handleItemClick = (e: FileDataType & React.MouseEvent<HTMLButtonElement>, key) => {
+      if (e.ctrlKey || e.metaKey) {
+        selectedKeys.set((prevSelectedKeys: any) =>
+          prevSelectedKeys.includes(key)
+            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== key)
+            : [...prevSelectedKeys, key]
+        )
+      } else if (e.shiftKey) {
+        const lastIndex = files.findIndex((file) => file.key === selectedKeys.get()[selectedKeys.length - 1])
+        const clickedIndex = files.findIndex((file) => file.key === key)
+        const newSelectedKeys = files
+          .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+          .map((file) => file.key)
+        selectedKeys.set((prevSelectedKeys: any) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+      } else {
+        if (selectedKeys.get().includes(key)) {
+          selectedKeys.set([])
         } else {
-          if (selectedKeys.includes(key)) {
-            setSelectedKeys([])
-          } else {
-            setSelectedKeys([key])
-          }
+          selectedKeys.set([key])
         }
-      },
-      [selectedKeys, files]
-    )
+      }
+    }
 
     return (
       <div
@@ -463,7 +460,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={selectedKeys.includes(file.key)}
+                  isSelected={selectedKeys.get().includes(file.key)}
                 />
               ))}
             </>

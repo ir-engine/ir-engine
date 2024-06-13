@@ -48,7 +48,6 @@ import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
 import RenameFileModal from './RenameFileModal'
-import './index.css'
 
 export const canDropItemOverFolder = (folderName: string) =>
   folderName.endsWith('/assets') ||
@@ -161,7 +160,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   return (
     <div
       className={`flex w-[112px] cursor-pointer flex-col items-center text-center ${
-        props.isSelected ? 'selected-file' : ''
+        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
       }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
