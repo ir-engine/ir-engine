@@ -80,7 +80,8 @@ export const ModelComponent = defineComponent({
       convertToVRM: false,
       scene: null as Group | null,
       asset: null as VRM | GLTF | null,
-      dereference: false
+      dereference: false,
+      save: false
     }
   },
 

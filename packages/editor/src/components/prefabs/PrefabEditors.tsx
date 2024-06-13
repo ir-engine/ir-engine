@@ -18,6 +18,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import config from '@etherealengine/common/src/config'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+
 import { defineState } from '@etherealengine/hyperflux'
 
 export type PrefabShelfItem = {
@@ -26,7 +28,15 @@ export type PrefabShelfItem = {
   category: string
   detail?: string
 }
-
+export const PrefabSettingsState = defineState({
+  name: 'PrefabSettingsState',
+  initial: () => ({
+    prefabFolder: '/assets/custom-prefabs',
+    prefabName: 'prefab',
+    prefabTag: 'custom-prefab',
+    entity: null as Entity | null
+  })
+})
 export const PrefabShelfState = defineState({
   name: 'ee.editor.PrefabShelfItem',
   initial: () =>
