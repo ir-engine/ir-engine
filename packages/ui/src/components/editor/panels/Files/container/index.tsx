@@ -446,7 +446,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={(e) => {
-                    handleItemClick(e, file.key)
+                    handleItemClick(e as FileDataType & React.MouseEvent<HTMLButtonElement>, file.key)
                     onSelect(file)
                   }}
                   deleteContent={handleConfirmDelete}
