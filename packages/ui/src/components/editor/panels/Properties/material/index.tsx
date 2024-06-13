@@ -183,7 +183,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialName, selectedPlugin])
 
   useEffect(() => {
-    console.log(selectedPlugin.value)
     for (const pluginComponent of Object.values(MaterialPlugins)) {
       const component = getOptionalComponent(entity, pluginComponent)
       if (!component || pluginComponent != MaterialPlugins[selectedPlugin.value]) {
