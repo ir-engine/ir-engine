@@ -250,6 +250,7 @@ function VideoReactor() {
         #ifdef USE_MAP
           vec2 mapUv = applyWrapping(vUv * uvScale + uvOffset, wrapS, wrapT);
           vec4 color = texture2D(map, mapUv);
+          color.rgb = pow(color.rgb, vec3(2.2));
           if (useAlpha) {
             if (useAlphaUVTransform) {
                 vec2 alphaMapUv = applyWrapping(vUv * alphaUVScale + alphaUVOffset, wrapS, wrapT);
@@ -376,7 +377,6 @@ function VideoReactor() {
         mesh.material.set(sourceMeshComponent.material as ShaderMaterial)
         clearErrors(entity, VideoComponent)
       } else {
-        video.texture.set(new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement))
         VideoComponent.uniqueVideoEntities.push(mediaEntity)
         clearErrors(entity, VideoComponent)
         return () => {
@@ -386,7 +386,7 @@ function VideoReactor() {
         }
       }
     }
-  }, [video, mediaEntity, mediaElement])
+  }, [video?.texture, mediaEntity, mediaElement])
 
   return null
 }
