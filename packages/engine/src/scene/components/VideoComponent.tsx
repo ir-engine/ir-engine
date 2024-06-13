@@ -264,7 +264,7 @@ function VideoReactor() {
           }
           gl_FragColor = color;
         #else
-          gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
         #endif
         }
       `
@@ -377,6 +377,7 @@ function VideoReactor() {
         mesh.material.set(sourceMeshComponent.material as ShaderMaterial)
         clearErrors(entity, VideoComponent)
       } else {
+        video.texture.set(new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement))
         VideoComponent.uniqueVideoEntities.push(mediaEntity)
         clearErrors(entity, VideoComponent)
         return () => {
@@ -386,7 +387,7 @@ function VideoReactor() {
         }
       }
     }
-  }, [video?.texture, mediaEntity, mediaElement])
+  }, [video.texture, mediaEntity, mediaElement])
 
   return null
 }
