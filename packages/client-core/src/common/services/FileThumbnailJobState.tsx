@@ -286,7 +286,6 @@ const ThumbnailJobReactor = () => {
   }
 
   useEffect(() => {
-    console.log('debug1 the job state was', jobState)
     if (jobState.length > 0) {
       const newJob = jobState[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
