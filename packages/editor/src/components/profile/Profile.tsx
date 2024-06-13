@@ -216,13 +216,13 @@ const ProfileModal = ({ user }) => {
 
         <hr className="mx-4 text-[#A0A1A2] opacity-10" />
         <div className="space-y-4 px-4 py-5">
-          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]">
+          <span className="text-md ml-4 flex cursor-pointer items-center gap-2 text-[#A0A1A2]">
             <LuSettings /> <span className="text-xs">Settings</span>
           </span>
-          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]" onClick={handleLogout}>
+          <span className="text-md ml-4 flex cursor-pointer items-center gap-2 text-[#A0A1A2]" onClick={handleLogout}>
             <FaArrowRightToBracket /> <span className="text-xs">Log out</span>
           </span>
-          <span className="text-md ml-4 flex items-center gap-2 text-[#A0A1A2]">
+          <span className="text-md ml-4 flex cursor-pointer items-center gap-2 text-[#A0A1A2]">
             <PiTrashSimple /> <span className="text-xs">Delete account</span>
           </span>
         </div>
