@@ -119,7 +119,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const assetType = AssetLoader.getAssetType(resource.key)
   const splitResourceKey = resource.key.split('/')
   const name = splitResourceKey.at(-1)!
-  const path = resource.key.split('/').slice(0, -1).join('/') + '/'
+  const path = splitResourceKey.slice(0, -1).join('/') + '/'
 
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
@@ -167,7 +167,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
               { label: 'Name', value: `${name}` },
               { label: 'Path', value: `${path}` },
               { label: 'Type', value: `${resource.mimeType}` },
-              { label: 'Tags', value: `${resource.tags}` }
+              { label: 'Tags', value: `${resource.tags || 'none'}` }
             ]}
           />
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
