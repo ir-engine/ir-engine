@@ -153,7 +153,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
         )
       ),
-      discardQuery('action'),
+      discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
     get: [
@@ -165,7 +165,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
         )
       ),
-      discardQuery('action'),
+      discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
     create: [
@@ -180,6 +180,7 @@ export default {
       ),
       setLoggedinUserInBody('userId'),
       // schemaHooks.validateData(staticResourceDataValidator),
+      discardQuery('projectId'),
       schemaHooks.resolveData(staticResourceDataResolver),
       createHashIfNeeded
     ],
@@ -194,6 +195,7 @@ export default {
         )
       ),
       // schemaHooks.validateData(staticResourcePatchValidator),
+      discardQuery('projectId'),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
     remove: [
@@ -210,6 +212,7 @@ export default {
           ]
         )
       ),
+      discardQuery('projectId'),
       ensureResource
     ]
   },
