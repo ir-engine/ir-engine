@@ -208,12 +208,18 @@ function enabledCcd(entity: Entity, enabled: boolean) {
   rigidBody.enableCcd(enabled)
 }
 
+/**
+ * @note `lockRotations(entity, true)` is the exact same as `setEnabledRotations(entity, [ true, true, true ])`
+ */
 function lockRotations(entity: Entity, lock: boolean) {
   const rigidBody = Rigidbodies.get(entity)
   if (!rigidBody) return
   rigidBody.lockRotations(lock, false)
 }
 
+/**
+ * @note `setEnabledRotations(entity, [ true, true, true ])` is the exact same as `lockRotations(entity, true)`
+ */
 function setEnabledRotations(entity: Entity, enabledRotations: [boolean, boolean, boolean]) {
   const rigidBody = Rigidbodies.get(entity)
   if (!rigidBody) return
