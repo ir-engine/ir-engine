@@ -64,7 +64,8 @@ export default function ScenesPanel() {
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
-      await deleteScene(scene.id)
+      await deleteScene(scene.key)
+      scenesQuery.refetch()
       if (editorState.sceneAssetID.value === scene.id) {
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)

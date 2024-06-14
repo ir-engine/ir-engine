@@ -94,7 +94,8 @@ export default function ScenesPanel() {
 
   const deleteActiveScene = async () => {
     if (loadedScene) {
-      await deleteScene(loadedScene.id)
+      await deleteScene(loadedScene.key)
+      scenesQuery.refetch()
       if (editorState.sceneAssetID.value === loadedScene.id) {
         editorState.sceneName.set(null)
         editorState.sceneAssetID.set(null)
@@ -139,6 +140,7 @@ export default function ScenesPanel() {
     const currentURL = loadedScene!.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newName + '.gltf')
     const newData = await renameScene(resource, newURL, loadedScene!.project!)
+    scenesQuery.refetch()
     getMutableState(EditorState).scenePath.set(newData[0].key)
     setNewName('')
   }
