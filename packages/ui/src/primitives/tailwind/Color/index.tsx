@@ -71,7 +71,7 @@ export function ColorInput({
       >
         <SketchPicker
           className={twMerge(
-            'absolute z-10 mt-5 scale-0 overflow-scroll group-hover:scale-100 group-focus:scale-100',
+            'absolute z-10 mt-5 scale-0 bg-theme-surface-main group-hover:scale-100 group-focus:scale-100',
             sketchPickerClassName
           )}
           color={hexColor}
