@@ -74,9 +74,44 @@ module.exports = {
       },
       colors: {
         'blue-primary': '#375DAF'
+      },
+      scrollbar: {
+        'transparent-track': {
+          'thumb': 'rgba(255, 255, 255, 0.5)',
+          'track': 'transparent',
+          'width': '6px',
+          'border-radius': '4px'
+        },
       }
     }
   },
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-thin': {
+          'scrollbar-width': 'thin',
+        },
+        '.scrollbar-thumb': {
+          'scrollbar-color': 'rgba(255, 255, 255, 0.5) transparent',
+        },
+        '.scrollbar-hidden': {
+          'scrollbar-width': 'none',
+          '-ms-overflow-style': 'none',
+          'overflow': 'hidden',
+        },
+        '.scrollbar-transparent-track::-webkit-scrollbar': {
+          'width': '6px',
+        },
+        '.scrollbar-transparent-track::-webkit-scrollbar-track': {
+          'background': 'transparent',
+        },
+        '.scrollbar-transparent-track::-webkit-scrollbar-thumb': {
+          'background-color': 'rgba(255, 255, 255, 0.5)',
+          'border-radius': '4px',
+        },
+      }, ['responsive']);
+    }
+  ],
   purge: {
     safelist: [
       ...Array.from({ length: 101 }, (_, i) => `via-[${i}%]`),
