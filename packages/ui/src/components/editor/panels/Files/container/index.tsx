@@ -51,7 +51,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -109,6 +109,22 @@ const viewModes = [
   { mode: 'icons', icon: <FiGrid /> }
 ]
 
+function GeneratingThumbnailsProgress() {
+  const { t } = useTranslation()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  if (!thumbnailJobState.length) return null
+
+  return (
+    <LoadingView
+      titleClassname="mt-0"
+      containerClassname="flex-row mt-1"
+      className="mx-2 my-auto h-6 w-6"
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+    />
+  )
+}
+
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  */
@@ -124,8 +140,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
   const openConvert = useHookstate(false)
-
-  const openConfirm = useHookstate(false)
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
@@ -317,7 +331,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <>
+            <Fragment key={index}>
               {index !== 0 && ( // Add separator for all but the first item
                 <span className="cursor-default align-middle text-xs">{'>'}</span>
               )}
@@ -337,7 +351,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   </span>
                 </a>
               )}
-            </>
+            </Fragment>
           ))}
         </span>
       </nav>
@@ -582,6 +596,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
+      <GeneratingThumbnailsProgress />
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
