@@ -124,7 +124,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
     <PropertyGroup
       name={t('editor:properties.cameraSettings.name')}
       description={t('editor:properties.cameraSettings.description')}
-      icon={<HiOutlineCamera />}
+      icon={<CameraPropertiesNodeEditor.iconComponent />}
     >
       <InputGroup name="Projection type" label={'Projection type'}>
         <SelectInput
@@ -235,5 +235,7 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+CameraPropertiesNodeEditor.iconComponent = HiOutlineCamera
 
 export default CameraPropertiesNodeEditor
