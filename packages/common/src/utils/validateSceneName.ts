@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// eslint-disable-next-line no-control-regex
 const invalidFileNameRegex = /[_<>:"/\\|?*\u0000-\u001F]/g
 const windowsReservedNameRegex = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 
