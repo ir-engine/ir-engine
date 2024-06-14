@@ -50,8 +50,6 @@ const ensureProject = async (context: HookContext<StaticResourceService>) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  // console.trace('ensureProject', context.data, context.params?.user?.id)
-
   const data = Array.isArray(context.data) ? context.data : [context.data]
 
   for (const item of data)
