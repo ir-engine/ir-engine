@@ -48,6 +48,7 @@ import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
+import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -196,7 +197,6 @@ type FileBrowserItemType = {
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
-  deleteContent: (contentPath: string, type: string) => void
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
@@ -213,7 +213,6 @@ export function FileBrowserItem({
   setFileProperties,
   setOpenCompress,
   setOpenConvert,
-  deleteContent,
   onClick,
   dropItemsOnPanel,
   isFilesLoading,
@@ -312,11 +311,6 @@ export function FileBrowserItem({
     handleClose()
   }
 
-  const deleteContentCallback = () => {
-    deleteContent(item.key, item.type)
-    handleClose()
-  }
-
   const [_dragProps, drag, preview] = disableDnD
     ? [undefined, undefined, undefined]
     : useDrag(() => ({
@@ -410,7 +404,12 @@ export function FileBrowserItem({
         >
           {t('editor:layout.filebrowser.renameAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={deleteContentCallback}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
+        >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
         <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
