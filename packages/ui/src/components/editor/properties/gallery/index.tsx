@@ -45,7 +45,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.gallery.name')}
       description={t('editor:properties.gallery.description')}
-      icon={<LuImage />}
+      icon={<GalleryNodeEditor.iconComponent />}
     >
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">

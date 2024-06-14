@@ -73,7 +73,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.mountPoint.name')}
       description={t('editor:properties.mountPoint.description')}
-      icon={<LuUsers2 />}
+      icon={<MountPointNodeEditor.iconComponent />}
     >
       <InputGroup name="Mount Type" label={t('editor:properties.mountPoint.lbl-type')}>
         <SelectInput // we dont know the options and the component for this

@@ -53,7 +53,7 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.hemisphere.name')}
       description={t('editor:properties.hemisphere.description')}
-      icon={<PiSunHorizon />}
+      icon={<HemisphereLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
         <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />

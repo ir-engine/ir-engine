@@ -44,7 +44,7 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.spawnPoint.name')}
       description={t('editor:properties.spawnPoint.description')}
-      icon={<RiCameraLensFill />}
+      icon={<SpawnPointNodeEditor.iconComponent />}
     ></NodeEditor>
   )
 }

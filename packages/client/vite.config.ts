@@ -137,11 +137,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
           `../projects/projects/${project}/vite.config.extension.ts`
         )
         if (typeof viteConfigExtension === 'function') {
-          const configExtension = await viteConfigExtension()
+          const configExtension = (await viteConfigExtension(config)) as UserConfig
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-          delete configExtension.default.plugins
-          config = merge(config, configExtension.default)
+          if (configExtension?.plugins) {
+            config.plugins = [...config.plugins!, ...configExtension.plugins]
+            delete configExtension.plugins
+          }
+          config = merge(config, configExtension)
         }
       } catch (e) {
         console.error(e)
