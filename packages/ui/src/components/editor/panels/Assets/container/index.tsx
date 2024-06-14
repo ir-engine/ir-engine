@@ -97,7 +97,7 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorPosition)
+  const open = Boolean(anchorEl)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
