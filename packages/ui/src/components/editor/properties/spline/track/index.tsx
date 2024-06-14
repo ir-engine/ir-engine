@@ -28,8 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
-
-import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
+import { MdCameraswitch } from 'react-icons/md'
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
@@ -76,7 +75,11 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
+    <NodeEditor
+      description={t('editor:properties.splinetrack.description')}
+      icon={<SplineTrackNodeEditor.iconComponent />}
+      {...props}
+    >
       <InputGroup name="Spline" label={t('editor:properties.splinetrack.lbl-spline')}>
         <SelectInput
           key={props.entity}
@@ -118,6 +121,6 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SplineTrackNodeEditor.iconComponent = CameraswitchIcon
+SplineTrackNodeEditor.iconComponent = MdCameraswitch
 
 export default SplineTrackNodeEditor

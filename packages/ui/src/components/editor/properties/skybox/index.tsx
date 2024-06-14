@@ -214,7 +214,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.skybox.name')}
       description={t('editor:properties.skybox.description')}
-      icon={<FiCloud />}
+      icon={<SkyboxNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
