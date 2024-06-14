@@ -111,7 +111,7 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   const [thumbnailURL] = await uploadToFeathersService(fileBrowserUploadPath, [file], {
     fileName: file.name,
     project: projectName,
-    path: 'thumbnails/' + file.name,
+    path: 'public/thumbnails/' + file.name,
     contentType: file.type
   }).promise
   await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailMode })

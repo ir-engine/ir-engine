@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
@@ -193,7 +194,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    // FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
+    FileThumbnailJobState.processFiles(fileQuery.data as FileBrowserContentType[])
   }, [fileQuery.data])
 
   useEffect(() => {
