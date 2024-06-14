@@ -408,25 +408,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       staticResourceModifiedDates.set(modifiedDates)
     }, [staticResourceData.data])
 
-    const handleItemClick = (e: FileDataType & React.MouseEvent<HTMLButtonElement>, key) => {
+    const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
       if (e.ctrlKey || e.metaKey) {
-        selectedKeys.set((prevSelectedKeys: any) =>
-          prevSelectedKeys.includes(key)
-            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== key)
-            : [...prevSelectedKeys, key]
+        selectedKeys.set((prevSelectedKeys) =>
+          prevSelectedKeys.includes(currentFile.key)
+            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== currentFile.key)
+            : [...prevSelectedKeys, currentFile.key]
         )
       } else if (e.shiftKey) {
-        const lastIndex = files.findIndex((file) => file.key === selectedKeys.get()[selectedKeys.length - 1])
-        const clickedIndex = files.findIndex((file) => file.key === key)
+        const lastIndex = files.findIndex((file) => file.key === selectedKeys.value.at(-1))
+        const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
         const newSelectedKeys = files
           .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
           .map((file) => file.key)
-        selectedKeys.set((prevSelectedKeys: any) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+        selectedKeys.set((prevSelectedKeys) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
       } else {
-        if (selectedKeys.get().includes(key)) {
+        if (selectedKeys.value.includes(currentFile.key)) {
           selectedKeys.set([])
         } else {
-          selectedKeys.set([key])
+          selectedKeys.set([currentFile.key])
         }
       }
     }
@@ -440,13 +440,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <div className={isListView ? '' : 'flex flex-wrap justify-start gap-3 pb-8'}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(files, (file) => file.key).map((file, i) => (
+              {unique(files, (file) => file.key).map((file) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
                   disableDnD={props.disableDnD}
-                  onClick={(e) => {
-                    handleItemClick(e as FileDataType & React.MouseEvent<HTMLButtonElement>, file.key)
+                  onClick={(event, currentFile) => {
+                    handleFileBrowserItemClick(event, currentFile)
                     onSelect(file)
                   }}
                   deleteContent={handleConfirmDelete}
@@ -460,7 +460,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
-                  isSelected={selectedKeys.get().includes(file.key)}
+                  isSelected={selectedKeys.value.includes(file.key)}
                 />
               ))}
             </>

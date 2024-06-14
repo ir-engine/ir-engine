@@ -197,7 +197,7 @@ type FileBrowserItemType = {
   setOpenConvert: any
   isFilesLoading: boolean
   deleteContent: (contentPath: string, type: string) => void
-  onClick: (params: FileDataType) => void
+  onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
@@ -244,7 +244,7 @@ export function FileBrowserItem({
     setAnchorPosition({ left: 0, top: 0 })
   }
 
-  const onClickItem = (e) => onClick({ ...item, ...e })
+  const onClickItem = (e: React.MouseEvent) => onClick(e, item)
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
