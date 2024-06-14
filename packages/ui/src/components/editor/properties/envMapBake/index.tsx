@@ -163,7 +163,7 @@ export const EnvMapBakeNodeEditor = (props) => {
       {...props}
       name="EnvMap Bake"
       description="For Adding EnvMap bake in your scene"
-      icon={<IoMapOutline />}
+      icon={<EnvMapBakeNodeEditor.iconComponent />}
     >
       <Button className="my-1 ml-auto mr-6 px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}

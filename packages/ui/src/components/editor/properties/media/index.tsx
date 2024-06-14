@@ -91,7 +91,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.media.name')}
       description={t('editor:properties.media.description')}
-      icon={<HiOutlineVideoCamera />}
+      icon={<MediaNodeEditor.iconComponent />}
     >
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <Slider

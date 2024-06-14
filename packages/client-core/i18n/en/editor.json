@@ -932,6 +932,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
+      "name":"Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
@@ -1160,6 +1161,7 @@
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
       "renameFile": "Rename File",
+      "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
@@ -1169,6 +1171,7 @@
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "search-placeholder": "Search folders",
+      "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1380,9 +1383,5 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
-  },
-  "generatingThumbnails": {
-    "title": "Generating Thumbnails",
-    "amountRemaining": "{{count}} remaining"
   }
 }
