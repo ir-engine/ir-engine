@@ -49,7 +49,7 @@ const initialState = (): State => ({
 // a visual script node
 export const OnCollision = makeEventNodeDefinition({
   typeName: 'engine/onCollision',
-  category: NodeCategory.Event,
+  category: NodeCategory.Engine,
   label: 'Collision Events',
 
   // socket configuration support

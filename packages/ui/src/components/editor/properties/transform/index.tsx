@@ -108,8 +108,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup name={t('editor:properties.transform.title')} description="change transform of an entity">
-      <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
+    <PropertyGroup name={t('editor:properties.transform.title')}>
+      <InputGroup
+        name="Dynamically Load Children"
+        label={t('editor:properties.lbl-dynamicLoad')}
+        className="flex justify-start"
+      >
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
           <NumericInput

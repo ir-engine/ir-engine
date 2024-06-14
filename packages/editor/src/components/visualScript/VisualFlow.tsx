@@ -37,9 +37,9 @@ import { VisualScriptState } from '@etherealengine/visual-script'
 
 import 'reactflow/dist/style.css'
 
+import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
-import { PropertiesPanelButton } from '../inputs/Button'
 import { commitProperty } from '../properties/Util'
 
 import './ReactFlowStyle.css'
@@ -85,21 +85,16 @@ const VisualFlow = () => {
   return (
     <AutoSizer>
       {({ width, height }) => (
-        <div style={{ width, height }}>
+        <div className="flex items-center justify-center" style={{ width, height }}>
           {entities.length && !validEntity ? (
-            <PropertiesPanelButton
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)'
-              }}
+            <Button
+              variant="outline"
               onClick={() => {
                 addVisualScript()
               }}
             >
               {t('editor:visualScript.panel.addVisualScript')}
-            </PropertiesPanelButton>
+            </Button>
           ) : (
             <></>
           )}
