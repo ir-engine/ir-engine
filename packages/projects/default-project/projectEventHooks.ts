@@ -89,8 +89,8 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const projectName = locationResult[0].sceneAsset.projectName
-        const sceneName = locationResult[0].sceneAsset.assetURL.split('/').pop()!.replace('.gltf', '')
+        const projectName = locationResult[0].sceneAsset.project
+        const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
         const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
