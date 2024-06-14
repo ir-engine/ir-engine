@@ -65,7 +65,24 @@ export const ContextMenu = ({
     return positionY
   }
 
-  const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+  // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
+  const calculatePositionX = () => {
+    let positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+
+    if (open && menuRef.current) {
+      const menuWidth = menuRef.current.offsetWidth
+
+      // if the panel width is less than the menu width plus the menu pos x offset, we need to move the menu left
+      const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
+      if (offset < 0) {
+        positionX = positionX + offset
+      }
+    }
+
+    return positionX
+  }
+
+  const [positionX, setPositionX] = useState(calculatePositionX())
   const [positionY, setPositionY] = useState(calculatePositionY())
 
   const [isScrollable, setIsScrollable] = useState(false)
@@ -80,6 +97,7 @@ export const ContextMenu = ({
       setIsScrollable(parentHeight <= menuHeight + 1)
 
       setPositionY(calculatePositionY())
+      setPositionX(calculatePositionX())
     }
   }, [open])
 
