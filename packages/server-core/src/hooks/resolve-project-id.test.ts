@@ -30,6 +30,9 @@ import assert from 'assert'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { projectPath } from '@etherealengine/common/src/schema.type.module'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
+import appRootPath from 'app-root-path'
+import path from 'path'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
 import resolveProjectId from './resolve-project-id'
@@ -75,5 +78,8 @@ describe('resolve-project-id', () => {
     const hookContext = mockHookContext(app, { project: project.name })
     const contextUpdated = await resolveProject(hookContext)
     assert.equal(contextUpdated.params.query?.projectId, project.id)
+    await app.service(projectPath).remove(project.id)
+    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
+    deleteFolderRecursive(projectDir)
   })
 })

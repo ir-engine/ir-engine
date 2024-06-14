@@ -143,6 +143,16 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     state.set(temp)
   }
 
+  const handleOnChangeAppId = (event, type) => {
+    keySecret.set({
+      ...JSON.parse(JSON.stringify(keySecret.value)),
+      [type]: {
+        ...JSON.parse(JSON.stringify(keySecret[type].value)),
+        appId: event.target.value
+      }
+    })
+  }
+
   const handleOnChangeKey = (event, type) => {
     keySecret.set({
       ...JSON.parse(JSON.stringify(keySecret.value)),
@@ -370,6 +380,12 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             <Text component="h4" fontSize="base" fontWeight="medium" className="my-4 w-full">
               {t('admin:components.setting.github')}
             </Text>
+
+            <PasswordInput
+              label={t('admin:components.setting.githubAppId')}
+              value={keySecret?.value?.github?.appId || ''}
+              onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+            />
 
             <PasswordInput
               label={t('admin:components.setting.key')}

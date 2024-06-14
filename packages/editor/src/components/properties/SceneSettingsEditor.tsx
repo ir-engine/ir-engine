@@ -47,7 +47,7 @@ import ColorInput from '../inputs/ColorInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import PropertyGroup from './PropertyGroup'
+import NodeEditor from './NodeEditor'
 import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
@@ -156,7 +156,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <NodeEditor
+      {...props}
+      entity={props.entity}
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
     >
@@ -234,6 +236,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         onChange={updateProperty(SceneSettingsComponent, 'sceneKillHeight')}
         onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
       />
-    </PropertyGroup>
+    </NodeEditor>
   )
 }

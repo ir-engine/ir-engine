@@ -45,7 +45,7 @@ import { useTexture } from '@etherealengine/engine/src/assets/functions/resource
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { NO_PROXY, defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -71,7 +71,6 @@ import { iterateEntityNode } from '@etherealengine/spatial/src/transform/compone
 import { Paginated } from '@feathersjs/feathers'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
-import { ProgressBarState } from './ProgressBarState'
 
 type ThumbnailJob = {
   key: string
@@ -123,29 +122,6 @@ const uploadThumbnail = async (key: string, projectName: string, staticResourceI
 }
 
 const seenThumbnails = new Set<string>()
-
-const ProgressBar = () => {
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
-
-  return (
-    <div
-      key="thumbnail-generation-progress-bar"
-      style={{
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '1em'
-      }}
-    >
-      <div>Generating Thumbnails</div>
-      <div>{thumbnailJobState.length} remaining</div>
-    </div>
-  )
-}
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
@@ -313,9 +289,7 @@ const ThumbnailJobReactor = () => {
     if (jobState.length > 0) {
       const newJob = jobState[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
-      getMutableState(ProgressBarState)['thumbnail-generation'].set(<ProgressBar />)
     } else {
-      getMutableState(ProgressBarState)['thumbnail-generation'].set(none)
       cleanupState()
     }
   }, [jobState.length])

@@ -73,7 +73,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
-import { FacerComponent } from '@etherealengine/spatial/src/transform/components/FacerComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
@@ -130,7 +130,7 @@ export const ComponentShelfCategoriesState = defineState({
         SplineComponent,
         TextComponent,
         ScreenshareTargetComponent,
-        FacerComponent
+        LookAtComponent
       ]
     } as Record<string, Component[]>
   }

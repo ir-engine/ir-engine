@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { ProjectSettingType } from '@etherealengine/common/src/schemas/setting/project-setting.schema'
-import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
+import { deleteFolderRecursive } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 import { Application } from '@etherealengine/server-core/declarations'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import appRootPath from 'app-root-path'
 import assert from 'assert'
+import path from 'path'
 import {
   createProject,
   createProjectSetting,
@@ -38,6 +41,11 @@ import {
   removeProjectSetting
 } from '../../test-utils/project-test-utils'
 import { createUser, createUserApiKey } from '../../test-utils/user-test-utils'
+
+function cleanup(name: string) {
+  const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${name}/`)
+  deleteFolderRecursive(projectDir)
+}
 
 describe('project-setting.test', () => {
   let app: Application
@@ -62,7 +70,12 @@ describe('project-setting.test', () => {
     projectSetting = projectSettingResponse.projectSetting
   })
 
-  after(() => destroyEngine())
+  after(async () => {
+    await app.service(userPath).remove(user.id)
+    await app.service(projectPath).remove(project.id)
+    cleanup(project.name)
+    await destroyEngine()
+  })
 
   it('should create project-setting', async () => {
     const response = await createProjectSetting(app, key1, value1, 'private')
@@ -75,6 +88,9 @@ describe('project-setting.test', () => {
     assert.equal(_projectSetting.value, value1)
     assert.equal(_projectSetting.userId, _user.id)
     assert.equal(_projectSetting.projectId, _project.id)
+    await app.service(userPath).remove(_user.id)
+    await app.service(projectPath).remove(_project.id)
+    cleanup(_project.name)
   })
 
   // it('should get project-setting', async () => {
@@ -110,6 +126,9 @@ describe('project-setting.test', () => {
     assert.equal(_projectSetting2.data[0].value, value2)
     assert.equal(_projectSetting2.data[0].userId, user2.id)
     assert.equal(_projectSetting2.data[0].projectId, project2.id)
+    await app.service(userPath).remove(user2.id)
+    await app.service(projectPath).remove(project2.id)
+    cleanup(project2.name)
   })
 
   it('should only find public project-setting for guests', async () => {
@@ -127,6 +146,7 @@ describe('project-setting.test', () => {
 
     assert.ok(publicSettings)
     assert.equal(privateSettings, undefined)
+    await app.service(userPath).remove(guestUser.id)
   })
 
   it('should patch project-setting by id', async () => {
@@ -145,6 +165,9 @@ describe('project-setting.test', () => {
 
     assert.notEqual(_patchedProjectSetting.value, _createdProjectSetting.value)
     assert.equal(_patchedProjectSetting.value, updatedValue)
+    await app.service(userPath).remove(createdResponse.user.id)
+    await app.service(projectPath).remove(createdResponse.project.id)
+    cleanup(createdResponse.project.name)
   })
 
   it('should patch project-setting by query', async () => {
@@ -161,6 +184,9 @@ describe('project-setting.test', () => {
 
     assert.notEqual(_patchedProjectSetting.value, _createdProjectSetting.value)
     assert.equal(_patchedProjectSetting.value, updatedValue)
+    await app.service(userPath).remove(createdResponse.user.id)
+    await app.service(projectPath).remove(createdResponse.project.id)
+    cleanup(createdResponse.project.name)
   })
 
   it('should remove the project-setting by id', async () => {
@@ -172,6 +198,9 @@ describe('project-setting.test', () => {
     assert.ok(_projectSetting)
     const findResponse = await findProjectSetting(app, { id: _createdProjectSetting.id })
     assert.equal(findResponse.total, 0)
+    await app.service(userPath).remove(createdResponse.user.id)
+    await app.service(projectPath).remove(createdResponse.project.id)
+    cleanup(createdResponse.project.name)
   })
 
   it('should remove the project-setting by query', async () => {
@@ -184,5 +213,8 @@ describe('project-setting.test', () => {
     assert.ok(_projectSetting)
     const findResponse = await findProjectSetting(app, { id: _createdProjectSetting.id })
     assert.equal(findResponse.total, 0)
+    await app.service(userPath).remove(createdResponse.user.id)
+    await app.service(projectPath).remove(createdResponse.project.id)
+    cleanup(createdResponse.project.name)
   })
 })
