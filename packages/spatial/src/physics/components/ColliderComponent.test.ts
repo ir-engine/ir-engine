@@ -323,8 +323,12 @@ describe('ColliderComponent', () => {
 
         removeComponent(testEntity, EntityTreeComponent)
         setComponent(testEntity, EntityTreeComponent, { parentEntity: newParent })
-        removeComponent(testEntity, RigidBodyComponent) // @note Hack to make getAncestorWithComponent to return the parent and not the entity itself
-        const ancestor = getAncestorWithComponent(testEntity, RigidBodyComponent)
+        const ancestor = getAncestorWithComponent(
+          testEntity,
+          RigidBodyComponent,
+          /*closest*/ true,
+          /*includeSelf*/ false
+        )
         console.log(testEntity, parentEntity, newParent, ancestor)
         assert.equal(ancestor, newParent)
       })
