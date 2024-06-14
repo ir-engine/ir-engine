@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import MenuIcon from '@mui/icons-material/Menu'
-import WindowIcon from '@mui/icons-material/Window'
+import { BsWindow } from 'react-icons/bs'
+import { IoMenu } from 'react-icons/io5'
 
 import DropDownMenu from '@etherealengine/editor/src/components/dropDownMenu'
 import { EditorNavbarProfile } from '@etherealengine/editor/src/components/projects/EditorNavbarProfile'
@@ -40,8 +40,8 @@ type ToolBarProps = {
 export const ToolBar = (props: ToolBarProps) => {
   return (
     <div className="flex-between fixed z-[1000] flex h-10 w-full select-none items-center px-2">
-      <DropDownMenu icon={MenuIcon} commands={props.menu} />
-      <DropDownMenu icon={WindowIcon} commands={props.panels} />
+      <DropDownMenu icon={IoMenu} commands={props.menu} />
+      <DropDownMenu icon={BsWindow} commands={props.panels} />
       <EditorNavbarProfile />
       <PublishLocation />
     </div>
