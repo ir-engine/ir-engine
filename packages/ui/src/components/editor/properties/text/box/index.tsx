@@ -30,7 +30,8 @@ import {
   updateProperty
 } from '@etherealengine/editor/src/components/properties/Util'
 import { TextComponent } from '@etherealengine/engine/src/scene/components/TextComponent'
-import StreetviewIcon from '@mui/icons-material/Streetview'
+import { FaStreetView } from 'react-icons/fa'
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import ColorInput from '../../../../../primitives/tailwind/Color'
@@ -137,6 +138,6 @@ export const TextBoxEditor: EditorComponentType = (props) => {
   )
 }
 
-TextBoxEditor.iconComponent = StreetviewIcon
+TextBoxEditor.iconComponent = FaStreetView
 
 export default TextBoxEditor

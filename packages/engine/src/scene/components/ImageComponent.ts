@@ -34,6 +34,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
+  ShaderMaterial,
   SphereGeometry,
   SRGBColorSpace,
   Texture,
@@ -117,6 +118,19 @@ export function getTextureSize(texture: Texture | CompressedTexture | null, size
   const width = image?.videoWidth || image?.naturalWidth || image?.width || 0
   const height = image?.videoHeight || image?.naturalHeight || image?.height || 0
   return size.set(width, height)
+}
+
+export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
+  if (!mesh.material.uniforms.map?.value) return
+
+  const { width, height } = getTextureSize(mesh.material.uniforms.map.value as Texture | CompressedTexture)
+
+  if (!width || !height) return
+
+  const ratio = (height || 1) / (width || 1)
+  const _width = Math.min(1.0, 1.0 / ratio)
+  const _height = Math.min(1.0, ratio)
+  mesh.scale.set(_width, _height, 1)
 }
 
 export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {

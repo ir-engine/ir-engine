@@ -53,7 +53,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.ambientLight.name')}
       description={t('editor:properties.ambientLight.description')}
-      icon={<HiOutlineSun />}
+      icon={<AmbientLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
         <ColorInput

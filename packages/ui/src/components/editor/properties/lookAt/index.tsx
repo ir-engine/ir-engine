@@ -44,27 +44,28 @@ import NodeEditor from '../nodeEditor'
 export const LookAtNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const facerComponent = useComponent(props.entity, LookAtComponent)
+  const lookAtComponent = useComponent(props.entity, LookAtComponent)
 
   return (
     <NodeEditor
       entity={props.entity}
       component={LookAtComponent}
-      name={t('editor:properties.lookAt.name')}
-      description={t('editor:properties.lookAt.description')}
+      name={t('editor:properties.facer.name')}
+      description={t('editor:properties.facer.description')}
+      icon={<LookAtNodeEditor.iconComponent />}
     >
       <InputGroup name="Target" label={t('editor:properties.lookAt.target')}>
         <NodeInput
-          value={facerComponent.target.value ?? ('' as EntityUUID)}
+          value={lookAtComponent.target.value ?? ('' as EntityUUID)}
           onRelease={commitProperty(LookAtComponent, 'target')}
           onChange={commitProperty(LookAtComponent, 'target')}
         />
       </InputGroup>
       <InputGroup name="X Axis" label={t('editor:properties.lookAt.xAxis')}>
-        <BooleanInput value={facerComponent.xAxis.value} onChange={commitProperty(LookAtComponent, 'xAxis')} />
+        <BooleanInput value={lookAtComponent.xAxis.value} onChange={commitProperty(LookAtComponent, 'xAxis')} />
       </InputGroup>
       <InputGroup name="Y Axis" label={t('editor:properties.lookAt.yAxis')}>
-        <BooleanInput value={facerComponent.yAxis.value} onChange={commitProperty(LookAtComponent, 'yAxis')} />
+        <BooleanInput value={lookAtComponent.yAxis.value} onChange={commitProperty(LookAtComponent, 'yAxis')} />
       </InputGroup>
     </NodeEditor>
   )
