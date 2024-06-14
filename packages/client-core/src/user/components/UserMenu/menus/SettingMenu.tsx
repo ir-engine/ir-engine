@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
@@ -43,8 +42,8 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
@@ -200,7 +199,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
       // open
       // showBackButton
       // isPopover={isPopover}
-      title={selectedTab.value}
+      title={'Settings'}
       // onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
       onClose={() => PopupMenuServices.showPopupMenu()}
       hideFooter
@@ -208,6 +207,18 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
       variant="dark"
     >
       <div>
+        <div className="mb-3 flex">
+          {settingTabs.map((tab) => (
+            <div className={`${tab.value === selectedTab.value ? 'border-b-2 border-[#6B7280]' : ''} p-2`}>
+              <button
+                className={`p-2 ${tab.value === selectedTab.value ? 'text-[#214AA6]' : 'text-[#6B7280]'}`}
+                onClick={() => handleTabChange(tab.value)}
+              >
+                {tab.label}
+              </button>
+            </div>
+          ))}
+        </div>
         {selectedTab.value === 'general' && selfUser && (
           <>
             <span className="mb02 mt-1 items-center">{t('user:usermenu.setting.themes')}</span>
@@ -351,105 +362,114 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               </Text>
             )}
 
-            <InputCheck
-              type="wide"
-              icon={<Icon type="SurroundSound" />}
-              label={t('user:usermenu.setting.use-positional-media')}
-              checked={audioState.positionalMedia.value}
-              onChange={(value: boolean) => {
-                getMutableState(AudioState).positionalMedia.set(value)
-              }}
-            />
-
-            <Slider
-              // icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              // label={t('user:usermenu.setting.lbl-volume')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.masterVolume.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).masterVolume.set(value)
-              }}
-              onRelease={() => {}}
-            />
-
-            <Slider
-              // icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
-              // label={t('user:usermenu.setting.lbl-microphone')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.microphoneGain.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).microphoneGain.set(value)
-              }}
-              onRelease={() => {}}
-            />
+            <InputGroup name="Type" label={t('user:usermenu.setting.use-positional-media')} className="justify-start">
+              <BooleanInput
+                // type="wide"
+                // icon={<Icon type="SurroundSound" />}
+                // label={t('user:usermenu.setting.use-positional-media')}
+                // checked={audioState.positionalMedia.value}
+                value={false}
+                onChange={(value: boolean) => {
+                  getMutableState(AudioState).positionalMedia.set(value)
+                }}
+              />
+            </InputGroup>
 
             {/* <Button
               type="expander"
               open={openOtherAudioSettings}
               sx={{ justifyContent: 'center', margin: 1.5 }}
               onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
-            >
+              >
               {t('user:usermenu.setting.other-audio-setting')}
             </Button> */}
 
             {/* <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
               <> */}
-
-            <Slider
-              // icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              // label={t('user:usermenu.setting.lbl-media-instance')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.mediaStreamVolume.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).mediaStreamVolume.set(value)
-              }}
-              onRelease={() => {}}
-            />
-
-            <Slider
-              // icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              // label={t('user:usermenu.setting.lbl-notification')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.notificationVolume.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).notificationVolume.set(value)
-              }}
-              onRelease={() => {}}
-            />
-
-            <Slider
-              // icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              // label={t('user:usermenu.setting.lbl-sound-effect')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.soundEffectsVolume.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).soundEffectsVolume.set(value)
-              }}
-              onRelease={() => {}}
-            />
-
-            <Slider
-              // icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              // label={t('user:usermenu.setting.lbl-background-music-volume')}
-              max={1}
-              min={0}
-              step={0.01}
-              value={audioState.backgroundMusicVolume.value}
-              onChange={(value: number) => {
-                getMutableState(AudioState).backgroundMusicVolume.set(value)
-              }}
-              onRelease={() => {}}
-            />
+            <InputGroup name="Type" label="Total Volume" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+                // label={t('user:usermenu.setting.lbl-volume')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.masterVolume.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).masterVolume.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
+            <InputGroup name="Type" label="Microphone" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
+                // label={t('user:usermenu.setting.lbl-microphone')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.microphoneGain.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).microphoneGain.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
+            <InputGroup name="Type" label="User Volume" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+                // label={t('user:usermenu.setting.lbl-media-instance')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.mediaStreamVolume.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).mediaStreamVolume.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
+            <InputGroup name="Type" label="Notification Volume" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+                // label={t('user:usermenu.setting.lbl-notification')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.notificationVolume.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).notificationVolume.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
+            <InputGroup name="Type" label="Scene Volume" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+                // label={t('user:usermenu.setting.lbl-sound-effect')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.soundEffectsVolume.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).soundEffectsVolume.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
+            <InputGroup name="Type" label="Music Volume" className="justify-start">
+              <Slider
+                // icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+                // label={t('user:usermenu.setting.lbl-background-music-volume')}
+                max={1}
+                min={0}
+                step={0.01}
+                value={audioState.backgroundMusicVolume.value}
+                onChange={(value: number) => {
+                  getMutableState(AudioState).backgroundMusicVolume.set(value)
+                }}
+                onRelease={() => {}}
+              />
+            </InputGroup>
             {/* </>
             </Collapse> */}
           </>
@@ -472,27 +492,36 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
             <div className="grid">
               <div className="grid">
-                <InputCheck
-                  label={t('user:usermenu.setting.lbl-pp')}
-                  checked={rendererState.usePostProcessing.value}
-                  onChange={handlePostProcessingCheckbox}
-                />
+                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-pp')} className="justify-start">
+                  <BooleanInput
+                    // label={t('user:usermenu.setting.lbl-pp')}
+                    // checked={rendererState.usePostProcessing.value}
+                    onChange={handlePostProcessingCheckbox}
+                    value={false}
+                  />
+                </InputGroup>
               </div>
 
               <div className="grid">
-                <InputCheck
-                  label={t('user:usermenu.setting.lbl-shadow')}
-                  checked={rendererState.useShadows.value}
-                  onChange={handleShadowCheckbox}
-                />
+                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-shadow')} className="justify-start">
+                  <BooleanInput
+                    // label={t('user:usermenu.setting.lbl-shadow')}
+                    // checked={rendererState.useShadows.value}
+                    onChange={handleShadowCheckbox}
+                    value={false}
+                  />
+                </InputGroup>
               </div>
 
               <div className="grid">
-                <InputCheck
-                  label={t('user:usermenu.setting.lbl-automatic')}
-                  checked={rendererState.automatic.value}
-                  onChange={handleAutomaticCheckbox}
-                />
+                <InputGroup name="Type" label={t('user:usermenu.setting.lbl-automatic')} className="justify-start">
+                  <BooleanInput
+                    // label={t('user:usermenu.setting.lbl-automatic')}
+                    // checked={rendererState.automatic.value}
+                    onChange={handleAutomaticCheckbox}
+                    value={false}
+                  />
+                </InputGroup>
               </div>
             </div>
             {rendererState.useShadows.value && (
