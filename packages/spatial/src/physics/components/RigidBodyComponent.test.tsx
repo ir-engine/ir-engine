@@ -296,7 +296,6 @@ describe('RigidBodyComponent', () => {
       assert.equal(hasComponent(testEntity, tag), false)
     })
 
-    // @todo
     it('should enable CCD for the RigidBody on the API data when component.ccd changes', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const Expected = !RigidBodyComponentDefaults.ccd

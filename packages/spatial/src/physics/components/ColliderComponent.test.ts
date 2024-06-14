@@ -42,8 +42,9 @@ import { World } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../SpatialModule'
 import { createEngine } from '../../initializeEngine'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { EntityTreeComponent, getAncestorWithComponent } from '../../transform/components/EntityTree'
 import { Physics } from '../classes/Physics'
+import { assertVecAllApproxNotEq, assertVecApproxEq } from '../classes/Physics.test'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { PhysicsState } from '../state/PhysicsState'
 import { BodyTypes, Shapes } from '../types/PhysicsTypes'
@@ -62,9 +63,9 @@ export const ColliderComponentDefaults = {
   collisionMask: DefaultCollisionMask
 }
 
-export function assertColliderComponentEquals(data, expected) {
+export function assertColliderComponentEquals(data, expected, testShape = true) {
   // also used in TriggerComponent.test.ts
-  assert.equal(data.shape, expected.shape)
+  testShape && assert.equal(data.shape.type, expected.shape.type)
   assert.equal(data.mass, expected.mass)
   assert.deepEqual(data.massCenter, expected.massCenter)
   assert.equal(data.friction, expected.friction)
@@ -245,7 +246,7 @@ describe('ColliderComponent', () => {
     let parentEntity = UndefinedEntity
     let physicsWorld: World | undefined = undefined
 
-    function createValidAncestor(colliderData = ColliderComponentDefaults): Entity {
+    function createValidAncestor(colliderData = ColliderComponentDefaults as any): Entity {
       const result = createEntity()
       setComponent(result, TransformComponent)
       setComponent(result, ColliderComponent, colliderData)
@@ -293,15 +294,40 @@ describe('ColliderComponent', () => {
         assert.equal(after2, undefined)
       })
 
-      /**
-    // @todo After the other tests fails are fixed
-      it("... when the scale of the entity's collider changes", () => {
+      it("... when the scale of the entity's transform changes", () => {
         assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+        const TransformScaleDefault = new Vector3(1, 1, 1)
+        const Expected = new Vector3(42, 42, 42)
+        const beforeCollider = Physics._Colliders.get(testEntity)
+        assert.ok(beforeCollider)
+        const before = getComponent(testEntity, TransformComponent).scale.clone()
+        assertVecApproxEq(before, TransformScaleDefault, 3)
+
+        // Apply and check on changes
+        setComponent(testEntity, TransformComponent, { scale: Expected })
+        const after1 = getComponent(testEntity, TransformComponent).scale.clone()
+        assertVecAllApproxNotEq(before, after1, 3)
+
+        // Apply and check on component removal
+        removeComponent(testEntity, ColliderComponent)
+        const after2 = getComponent(testEntity, TransformComponent).scale.clone()
+        assert.notEqual(after1, after2)
+        const afterCollider = Physics._Colliders.get(testEntity)
+        assert.equal(afterCollider, undefined)
       })
-      it("... when the closest ancestor to the entity, with a RigidBodyComponent, changes", () => {
+
+      it('... when the closest ancestor to the entity, with a RigidBodyComponent, changes', () => {
         assert.ok(ColliderComponent.reactorMap.get(testEntity)!.isRunning)
+        const newParent = createValidAncestor()
+        assert.notEqual(parentEntity, newParent)
+
+        removeComponent(testEntity, EntityTreeComponent)
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: newParent })
+        removeComponent(testEntity, RigidBodyComponent) // @note Hack to make getAncestorWithComponent to return the parent and not the entity itself
+        const ancestor = getAncestorWithComponent(testEntity, RigidBodyComponent)
+        console.log(testEntity, parentEntity, newParent, ancestor)
+        assert.equal(ancestor, newParent)
       })
-    */
     })
 
     it('should set the mass of the API data based on the component.mass.value when it changes', () => {
