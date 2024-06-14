@@ -45,6 +45,7 @@ export interface ModalProps {
   submitButtonText?: string
   onClose?: (isHeader: boolean) => void
   onSubmit?: () => void
+  variant?: string
 }
 
 export const ModalHeader = ({
@@ -122,12 +123,14 @@ const Modal = ({
   submitButtonText,
   closeButtonDisabled,
   submitButtonDisabled,
-  showCloseButton = true
+  showCloseButton = true,
+  variant
 }: ModalProps) => {
   const twClassName = twMerge('relative z-50 max-h-[80vh] w-full', className)
+  const bgColor = variant === 'dark' ? '' : 'bg-theme-surface-main'
   return (
     <div className={twClassName}>
-      <div className="relative rounded-lg bg-theme-surface-main shadow">
+      <div className={`relative rounded-lg shadow ${bgColor}`}>
         {onClose && <ModalHeader title={title} onClose={onClose} />}
         <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
         {!hideFooter && (

@@ -27,10 +27,6 @@ import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
-import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
@@ -47,17 +43,18 @@ import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
+import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
+import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
+import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
-import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
-export const ShadowMapResolutionOptions: InputMenuItem[] = [
+export const ShadowMapResolutionOptions = [
   {
     label: '256px',
     value: 256
@@ -158,21 +155,21 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return true
   })
 
-  const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
+  const colorModesMenu = Object.keys(themeSettings).map((el) => {
     return {
       label: capitalizeFirstLetter(el),
       value: el
     }
   })
 
-  const controlSchemesMenu: InputMenuItem[] = controlSchemes.map(([label, value]) => {
+  const controlSchemesMenu = controlSchemes.map(([label, value]) => {
     return {
       label,
       value
     }
   })
 
-  const handOptionsMenu: InputMenuItem[] = handOptions.map((el) => {
+  const handOptionsMenu = handOptions.map((el) => {
     return {
       label: el,
       value: el
@@ -199,34 +196,37 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   }
 
   return (
-    <Menu
-      open
-      showBackButton
-      isPopover={isPopover}
-      header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+    <Modal
+      // open
+      // showBackButton
+      // isPopover={isPopover}
+      title={selectedTab.value}
+      // onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
       onClose={() => PopupMenuServices.showPopupMenu()}
+      hideFooter
+      className="bg-[#0E0F11]"
+      variant="dark"
     >
-      <Box className={styles.menuContent}>
+      <div>
         {selectedTab.value === 'general' && selfUser && (
           <>
-            <Text align="center" variant="body1" mb={2} mt={1}>
-              {t('user:usermenu.setting.themes')}
-            </Text>
+            <span className="mb02 mt-1 items-center">{t('user:usermenu.setting.themes')}</span>
 
-            <Grid container spacing={{ xs: 0, sm: 2 }}>
+            <div className="flex justify-between">
               {accessibleThemeModes.map((mode, index) => (
-                <Grid key={index} item xs={12} sm={4}>
-                  <InputSelect
-                    name={mode}
-                    label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                    value={themeModes[mode]}
-                    menu={colorModesMenu}
-                    onChange={(e) => handleChangeUserThemeMode(e)}
-                  />
-                </Grid>
+                <div className="flex-1" key={index}>
+                  <InputGroup name="Type" label="">
+                    <SelectInput
+                      label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                      value={themeModes[mode]}
+                      // menu={colorModesMenu}
+                      className="w-full"
+                      onChange={(e) => handleChangeUserThemeMode(e)}
+                    />
+                  </InputGroup>
+                </div>
               ))}
-            </Grid>
+            </div>
 
             {xrSupported && (
               <>
@@ -241,57 +241,56 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                   onChange={handleChangeInvertRotationAndMoveSticks}
                 /> */}
 
-                <Grid container spacing={{ xs: 0, sm: 2 }}>
-                  <Grid item xs={12} sm={4}>
-                    <InputSelect
+                <div className="grid">
+                  <div className="grid">
+                    <SelectInput
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
-                      menu={controlSchemesMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
-                      }
+                      // menu={controlSchemesMenu}
+                      // onChange={(event) =>
+                      // getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
+                      // }
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <InputSelect
+                  </div>
+                  <div className="grid">
+                    <SelectInput
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
-                      menu={controlSchemesMenu}
-                      onChange={(event) =>
-                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
-                      }
+                      // menu={controlSchemesMenu}
+                      // onChange={(event) =>
+                      // getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
+                      // }
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <InputSelect
+                  </div>
+                  <div className="grid">
+                    <SelectInput
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
-                      menu={handOptionsMenu}
-                      onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
+                      // menu={handOptionsMenu}
+                      // onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
                     />
-                  </Grid>
-                </Grid>
+                  </div>
+                </div>
               </>
             )}
 
             {/* Controls Helptext */}
             <>
-              <Text align="center" variant="body1" mb={2} mt={1}>
-                {t('user:usermenu.setting.controls')}
-              </Text>
+              <div>{t('user:usermenu.setting.controls')}</div>
 
               {!isMobile && !xrSupported && (
                 <>
-                  <img
-                    className={`${styles.row} ${styles.tutorialImage}`}
-                    src="/static/Desktop_Tutorial.png"
-                    alt="Desktop Controls"
-                  />
-                  <img
-                    className={`${styles.row} ${styles.tutorialImage}`}
-                    src="/static/Controller_Tutorial.png"
-                    alt="Controller Controls"
-                  />
+                  <div className="m-2 rounded-md bg-[#191B1F]">
+                    <img src="/static/Desktop_Tutorial_Keyboard.png" alt="Desktop Controls" className="m-auto" />
+                  </div>
+                  <div className="flex">
+                    <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+                      <img src="/static/Controller_Tutorial.png" alt="Controller Controls" className="m-auto" />
+                    </div>
+                    <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+                      <img src="/static/Desktop_Tutorial_Mouse.png" alt="Controller Controls" className="m-auto" />
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -362,9 +361,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               }}
             />
 
-            <InputSlider
-              icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              label={t('user:usermenu.setting.lbl-volume')}
+            <Slider
+              // icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              // label={t('user:usermenu.setting.lbl-volume')}
               max={1}
               min={0}
               step={0.01}
@@ -372,11 +371,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).masterVolume.set(value)
               }}
+              onRelease={() => {}}
             />
 
-            <InputSlider
-              icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
-              label={t('user:usermenu.setting.lbl-microphone')}
+            <Slider
+              // icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
+              // label={t('user:usermenu.setting.lbl-microphone')}
               max={1}
               min={0}
               step={0.01}
@@ -384,6 +384,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).microphoneGain.set(value)
               }}
+              onRelease={() => {}}
             />
 
             {/* <Button
@@ -398,9 +399,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
             {/* <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
               <> */}
 
-            <InputSlider
-              icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              label={t('user:usermenu.setting.lbl-media-instance')}
+            <Slider
+              // icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              // label={t('user:usermenu.setting.lbl-media-instance')}
               max={1}
               min={0}
               step={0.01}
@@ -408,11 +409,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).mediaStreamVolume.set(value)
               }}
+              onRelease={() => {}}
             />
 
-            <InputSlider
-              icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              label={t('user:usermenu.setting.lbl-notification')}
+            <Slider
+              // icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              // label={t('user:usermenu.setting.lbl-notification')}
               max={1}
               min={0}
               step={0.01}
@@ -420,11 +422,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).notificationVolume.set(value)
               }}
+              onRelease={() => {}}
             />
 
-            <InputSlider
-              icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              label={t('user:usermenu.setting.lbl-sound-effect')}
+            <Slider
+              // icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              // label={t('user:usermenu.setting.lbl-sound-effect')}
               max={1}
               min={0}
               step={0.01}
@@ -432,11 +435,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).soundEffectsVolume.set(value)
               }}
+              onRelease={() => {}}
             />
 
-            <InputSlider
-              icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-              label={t('user:usermenu.setting.lbl-background-music-volume')}
+            <Slider
+              // icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
+              // label={t('user:usermenu.setting.lbl-background-music-volume')}
               max={1}
               min={0}
               step={0.01}
@@ -444,6 +448,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               onChange={(value: number) => {
                 getMutableState(AudioState).backgroundMusicVolume.set(value)
               }}
+              onRelease={() => {}}
             />
             {/* </>
             </Collapse> */}
@@ -453,54 +458,55 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
         {/* Graphics Settings */}
         {selectedTab.value === 'graphics' && (
           <>
-            <InputSlider
-              icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
-              label={t('user:usermenu.setting.lbl-quality')}
+            <Slider
+              // icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
+              // label={t('user:usermenu.setting.lbl-quality')}
               max={5}
               min={0}
               step={1}
               value={rendererState.qualityLevel.value}
-              sx={{ mt: 4 }}
+              // sx={{ mt: 4 }}
               onChange={handleQualityLevelChange}
+              onRelease={() => {}}
             />
 
-            <Grid container spacing={{ xs: 0, sm: 2 }}>
-              <Grid item xs={12} sm={4}>
+            <div className="grid">
+              <div className="grid">
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-pp')}
                   checked={rendererState.usePostProcessing.value}
                   onChange={handlePostProcessingCheckbox}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={4}>
+              <div className="grid">
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-shadow')}
                   checked={rendererState.useShadows.value}
                   onChange={handleShadowCheckbox}
                 />
-              </Grid>
+              </div>
 
-              <Grid item xs={12} sm={4}>
+              <div className="grid">
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-automatic')}
                   checked={rendererState.automatic.value}
                   onChange={handleAutomaticCheckbox}
                 />
-              </Grid>
-            </Grid>
+              </div>
+            </div>
             {rendererState.useShadows.value && (
-              <InputSelect
+              <SelectInput
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
                 value={rendererState.shadowMapResolution.value}
-                menu={ShadowMapResolutionOptions}
-                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
+                // menu={ShadowMapResolutionOptions}
+                // onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
               />
             )}
           </>
         )}
-      </Box>
-    </Menu>
+      </div>
+    </Modal>
   )
 }
 
