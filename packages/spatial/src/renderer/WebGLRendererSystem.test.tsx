@@ -86,7 +86,7 @@ describe('WebGl Renderer System', () => {
     getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
     const rendererComp = getMutableComponent(rootEntity, RendererComponent)
     rendererComp.canvas.set(mockCanvas())
-    setComponent(rootEntity, BackgroundComponent, new Color(0x000000))
+    setComponent(rootEntity, BackgroundComponent, new Color(0xffffff))
 
     setComponent(rootEntity, EnvironmentMapComponent, new Texture())
     setComponent(rootEntity, FogSettingsComponent, { type: FogType.Height })
@@ -140,6 +140,12 @@ describe('WebGl Renderer System', () => {
     const { background, environment, fog, children } = getSceneParameters([rootEntity])
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
     assert(background, 'background component exists')
+    const backgroundColor = background as Color
+    assert(
+      backgroundColor.r == 1 && backgroundColor.g == 1 && backgroundColor.b == 1,
+      'backgroud color was set correctly'
+    )
+
     assert(environment, 'environment component exists')
     assert(fog, 'fog component exists')
   })
