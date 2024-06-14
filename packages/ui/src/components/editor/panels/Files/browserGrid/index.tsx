@@ -43,6 +43,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
@@ -151,6 +152,7 @@ type FileGridItemProps = {
   item: FileDataType
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
+  isSelected: boolean
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
@@ -160,12 +162,14 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex w-[112px] cursor-pointer flex-col items-center text-center"
+      className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
+        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
+      }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
       <div
-        className="mx-[16px] mt-[8px]"
+        className="mx-4 mt-2"
         style={{
           height: iconSize,
           width: iconSize,
@@ -179,9 +183,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-[8px] line-clamp-1 w-full text-wrap break-all text-[14px]">
-        {props.item.fullName}
-      </div>
+      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
     </div>
   )
 }
@@ -195,11 +197,12 @@ type FileBrowserItemType = {
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
-  onClick: (params: FileDataType) => void
+  onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
+  isSelected: boolean
 }
 
 export function FileBrowserItem({
@@ -215,7 +218,8 @@ export function FileBrowserItem({
   isFilesLoading,
   addFolder,
   isListView,
-  staticResourceModifiedDates
+  staticResourceModifiedDates,
+  isSelected
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
@@ -239,7 +243,7 @@ export function FileBrowserItem({
     setAnchorPosition({ left: 0, top: 0 })
   }
 
-  const onClickItem = () => onClick(item)
+  const onClickItem = (e: React.MouseEvent) => onClick(e, item)
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
@@ -345,10 +349,10 @@ export function FileBrowserItem({
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
+        <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              {<FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} />}
+              <FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />
             </div>
           </div>
         </div>
