@@ -44,7 +44,11 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
-    <NodeEditor {...props} name={t('editor:properties.gallery.lbl-imageGrid')} icon={<LuImage />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.gallery.lbl-imageGrid')}
+      icon={<GalleryNodeEditor.iconComponent />}
+    >
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">
           {t('editor:properties.gallery.assets')}

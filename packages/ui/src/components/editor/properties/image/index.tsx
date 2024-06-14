@@ -48,7 +48,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.image.name')}
       description={t('editor:properties.image.description')}
-      icon={<LuImage />}
+      icon={<ImageNodeEditor.iconComponent />}
     >
       <InputGroup
         name="Image Url"

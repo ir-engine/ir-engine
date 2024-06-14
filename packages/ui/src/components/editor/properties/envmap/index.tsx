@@ -91,7 +91,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       component={EnvmapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
-      icon={<IoMapOutline />}
+      icon={<EnvMapEditor.iconComponent />}
     >
       <InputGroup name="Envmap Source" label={t('editor:properties.envmap.lbl-source')}>
         <SelectInput
