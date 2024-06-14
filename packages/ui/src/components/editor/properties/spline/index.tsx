@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 
-import TimelineIcon from '@mui/icons-material/Timeline'
+import { MdOutlineTimeline } from 'react-icons/md'
 
 import { useComponent } from '@etherealengine/ecs'
 import { EditorComponentType, commitProperty } from '@etherealengine/editor/src/components/properties/Util'
@@ -54,7 +54,11 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   const elements = component.elements
 
   return (
-    <NodeEditor description={t('editor:properties.spline.description')} {...props}>
+    <NodeEditor
+      description={t('editor:properties.spline.description')}
+      icon={<SplineNodeEditor.iconComponent />}
+      {...props}
+    >
       <div className="flex-strech flex w-full flex-row items-center gap-2 px-6 py-1">
         <div className="flex w-full font-['Figtree'] text-xs font-normal text-neutral-50">
           {t('editor:properties.spline.lbl-addNode')}
@@ -128,6 +132,6 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-SplineNodeEditor.iconComponent = TimelineIcon
+SplineNodeEditor.iconComponent = MdOutlineTimeline
 
 export default SplineNodeEditor

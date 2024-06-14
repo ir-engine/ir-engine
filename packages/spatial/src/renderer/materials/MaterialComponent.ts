@@ -81,12 +81,6 @@ export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin 
   Component<any, any, any>
 >
 
-export enum MaterialComponents {
-  Instance,
-  State,
-  Prototype
-}
-
 export const materialByHash = {} as Record<string, EntityUUID>
 export const prototypeByName = {} as Record<string, Entity>
 

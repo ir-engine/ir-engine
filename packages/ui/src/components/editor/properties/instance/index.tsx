@@ -23,11 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProgressBarState } from '@etherealengine/client-core/src/common/services/ProgressBarState'
-import { NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { MdScatterPlot } from 'react-icons/md'
 
-export const EditorProgressBar = () => {
-  const progressBarState = useMutableState(ProgressBarState)
-  return <>{Object.values(progressBarState.get(NO_PROXY)).map((element) => element)}</>
+import { useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
+import { Entity } from '@etherealengine/ecs/src/Entity'
+import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import NodeEditor from '../nodeEditor'
+
+export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
+  const { t } = useTranslation()
+  const entity = props.entity
+
+  const instancingComponent = useComponent(entity, InstancingComponent)
+
+  return (
+    <NodeEditor
+      name={t('editor:properties.instancing.name')}
+      description={t('editor:properties.instancing.description')}
+      icon={<InstancingNodeEditor.iconComponent />}
+      {...props}
+    ></NodeEditor>
+  )
 }
+
+InstancingNodeEditor.iconComponent = MdScatterPlot
+
+export default InstancingNodeEditor

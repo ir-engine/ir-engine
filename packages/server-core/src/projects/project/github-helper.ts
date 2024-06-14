@@ -321,7 +321,7 @@ const uploadToRepo = async (
   filePaths: string[],
   org: string,
   repo: string,
-  branch = `master`,
+  branch = `main`,
   project: ProjectType,
   token: string,
   app: Application
@@ -419,7 +419,7 @@ const uploadToRepo = async (
     })
   }
 }
-export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'master') => {
+export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'main') => {
   try {
     await octo.repos.getBranch({ owner: org, repo, branch })
   } catch (err) {
@@ -632,7 +632,7 @@ const createNewCommit = async (
     })
   ).data
 
-const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `master`, commitSha: string) =>
+const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `main`, commitSha: string) =>
   octo.git.updateRef({
     owner: org,
     repo,
