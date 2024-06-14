@@ -40,7 +40,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
-import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import React, { useEffect } from 'react'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
@@ -119,7 +119,7 @@ export const AvatarTransparencySystem = defineSystem({
 
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
-  const materialComponentUUID = useOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
+  const materialComponentUUID = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
   useEffect(() => {
     if (!materialComponentUUID?.value) return
     for (const materialUUID of materialComponentUUID.value) {

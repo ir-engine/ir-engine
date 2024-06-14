@@ -37,16 +37,14 @@ import { setMaterialName } from '@etherealengine/engine/src/scene/materials/func
 import { NO_PROXY } from '@etherealengine/hyperflux'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import {
-  MaterialComponent,
-  MaterialComponents,
-  prototypeByName
+  MaterialPrototypeComponent,
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { none, State, useHookstate } from '@hookstate/core'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import { InfoTooltip } from '../layout/Tooltip'
@@ -66,13 +64,13 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
 
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const prototypes = Object.keys(prototypeByName).map((prototype) => ({
-    label: prototype,
-    value: prototype
-  }))
+  // const prototypes = Object.keys(prototypeByName).map((prototype) => ({
+  //   label: prototype,
+  //   value: prototype
+  // }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.State])
+  const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
@@ -138,7 +136,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialName, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity.value!
-  const prototype = useComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+  const prototype = useComponent(prototypeEntity, MaterialPrototypeComponent)
 
   const shouldLoadTexture = async (value, key: string, parametersObject: State<any>) => {
     let prop
@@ -215,14 +213,14 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       </InputGroup>
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
-        <SelectInput
+        {/* <SelectInput
           value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
             if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
             prototypeName.set(protoId)
           }}
-        />
+        /> */}
       </InputGroup>
       <Divider className={styles.divider} />
       <ParameterInput

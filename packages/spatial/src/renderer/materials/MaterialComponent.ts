@@ -82,7 +82,6 @@ export const MaterialPlugins = { TransparencyDitheringPlugin, NoiseOffsetPlugin 
 >
 
 export const materialByHash = {} as Record<string, EntityUUID>
-export const prototypeByName = {} as Record<string, Entity>
 
 export const MaterialStateComponent = defineComponent({
   name: 'MaterialStateComponent',
@@ -112,7 +111,6 @@ export const MaterialInstanceComponent = defineComponent({
   name: 'MaterialInstanceComponent',
   onInit: (entity) => {
     return {
-      // materialUUID points to entities with MaterialComponent holding state
       uuid: [] as EntityUUID[]
     }
   },
@@ -125,7 +123,6 @@ export const MaterialPrototypeComponent = defineComponent({
   name: 'MaterialPrototypeComponent',
   onInit: (entity) => {
     return {
-      // prototype state
       prototypeArguments: {} as PrototypeArgument,
       prototypeConstructor: {} as MaterialPrototypeObjectConstructor
     }

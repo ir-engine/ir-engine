@@ -28,10 +28,9 @@ import matches from 'ts-matches'
 
 import { getComponent, UUIDComponent } from '@etherealengine/ecs'
 import {
-  MaterialComponent,
-  MaterialComponents,
+  MaterialPrototypeComponent,
   MaterialPrototypeObjectConstructor,
-  prototypeByName
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 
 import {
@@ -83,18 +82,14 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
     }
-    const materialComponent = getComponent(
-      UUIDComponent.getEntityByUUID(extension.uuid),
-      MaterialComponent[MaterialComponents.State]
-    )
+    const materialComponent = getComponent(UUIDComponent.getEntityByUUID(extension.uuid), MaterialStateComponent)
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!materialComponent.prototypeConstructor
+      foundPrototype = !!materialComponent.prototypeEntity
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(prototypeByName[extension.prototype], MaterialComponent[MaterialComponents.Prototype])
-          .prototypeArguments
+        getComponent(prototypeByName[extension.prototype], MaterialPrototypeComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {
