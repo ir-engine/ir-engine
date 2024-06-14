@@ -23,5 +23,4 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createLocations } from '@etherealengine/server-core/src/social/location/location-helper'
-export { createLocations }
+export { createLocations } from '@etherealengine/server-core/src/social/location/location-helper'
