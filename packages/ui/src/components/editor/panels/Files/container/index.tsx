@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -43,6 +44,9 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -638,6 +642,33 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openProperties.value && fileProperties.value && (
+        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
+      )}
+      <ConfirmDialog
+        open={openConfirm.value}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
+        onClose={handleConfirmClose}
+        onSubmit={deleteContent}
+      />
     </>
   )
 }
