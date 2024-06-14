@@ -53,6 +53,7 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
+import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -94,10 +95,31 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 }
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
+  const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorPosition)
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+    setAnchorPosition({
+      top: event.clientY,
+      left: event.clientX
+    })
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+    setAnchorPosition({ left: 0, top: 0 })
+  }
+
   const { onAssetSelectionChanged } = useContext(AssetsPreviewContext)
 
   const assetType = AssetLoader.getAssetType(resource.key)
-  const name = resource.key.split('/').at(-1)!
+  const splitResourceKey = resource.key.split('/')
+  const name = splitResourceKey.at(-1)!
+  const path = resource.key.split('/').slice(0, -1).join('/') + '/'
 
   const [_, drag, preview] = useDrag(() => ({
     type: assetType,
@@ -123,15 +145,84 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
           size: 'unknown size'
         })
       }
-      className="mt-[10px] flex cursor-pointer flex-col items-center justify-center align-middle"
+      onContextMenu={handleContextMenu}
+      className={'mt-[10px] flex cursor-pointer flex-col items-center justify-center align-middle'}
     >
       <span className="mb-[5px] h-[70px] w-[70px] text-[70px]">
         <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
       </span>
       <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
+
+      <ContextMenu
+        open={open}
+        anchorEl={anchorEl}
+        panelId={'asset-browser-panel'}
+        anchorPosition={anchorPosition}
+        onClose={handleClose}
+        className="gap-1"
+      >
+        <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
+          <MetadataTable
+            rows={[
+              { label: 'Name', value: `${name}` },
+              { label: 'Path', value: `${path}` },
+              { label: 'Type', value: `${resource.mimeType}` },
+              { label: 'Tags', value: `${resource.tags}` }
+            ]}
+          />
+          {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
+          <MenuDivider />
+          <Button
+            fullWidth
+            size="small"
+            variant="transparent"
+            className="text-s text-left hover:bg-theme-surfaceInput"
+            onClick={() => handleClose()}
+          >
+            {'Close'}
+          </Button>
+        </div>
+      </ContextMenu>
     </div>
   )
 }
+
+export const MenuDivider = () => {
+  return <div className="my-2 flex w-full border-b border-theme-primary" />
+}
+
+interface MetadataTableProps {
+  rows: MetadataTableRowProps[]
+}
+
+const MetadataTable: React.FC<MetadataTableProps> = ({ rows }) => (
+  <table className="cursor-default select-text">
+    <tbody>
+      {rows.map((row, index) => (
+        <MetadataTableRow key={index} label={row.label} value={row.value} />
+      ))}
+    </tbody>
+  </table>
+)
+
+interface MetadataTableRowProps {
+  label: string
+  value: string
+}
+
+const MetadataTableRow: React.FC<MetadataTableRowProps> = ({ label, value }) => (
+  <tr>
+    <td className="font-semibold">{label}</td>
+    <td
+      className="cursor-default select-text pl-4"
+      onContextMenu={(e) => {
+        e.stopPropagation() // allow user to copy selected text
+      }}
+    >
+      {value}
+    </td>
+  </tr>
+)
 
 function iterativelyListTags(obj: object): string[] {
   const tags: string[] = []
@@ -432,7 +523,7 @@ const AssetPanel = () => {
           {t('editor:layout.filebrowser.uploadAssets')}
         </Button>
       </div>
-      <div className="flex h-full">
+      <div id="asset-browser-panel" className="flex h-full overflow-y-auto">
         <CategoriesList />
         <div className="grid flex-1 grid-cols-3 gap-2 overflow-auto p-2">
           <ResourceItems />
