@@ -365,6 +365,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
+    const selectedFileKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {
@@ -387,21 +388,55 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       staticResourceModifiedDates.set(modifiedDates)
     }, [staticResourceData.data])
 
+    const handleFileBrowserItemClick = (e: React.MouseEvent, currentFile: FileDataType) => {
+      e.stopPropagation()
+      if (e.ctrlKey || e.metaKey) {
+        selectedFileKeys.set((prevSelectedKeys) =>
+          prevSelectedKeys.includes(currentFile.key)
+            ? prevSelectedKeys.filter((selectedKey) => selectedKey !== currentFile.key)
+            : [...prevSelectedKeys, currentFile.key]
+        )
+      } else if (e.shiftKey) {
+        const lastIndex = files.findIndex((file) => file.key === selectedFileKeys.value.at(-1))
+        const clickedIndex = files.findIndex((file) => file.key === currentFile.key)
+        const newSelectedKeys = files
+          .slice(Math.min(lastIndex, clickedIndex), Math.max(lastIndex, clickedIndex) + 1)
+          .map((file) => file.key)
+        selectedFileKeys.set((prevSelectedKeys) => Array.from(new Set([...prevSelectedKeys, ...newSelectedKeys])))
+      } else {
+        if (selectedFileKeys.value.includes(currentFile.key)) {
+          selectedFileKeys.set([])
+        } else {
+          selectedFileKeys.set([currentFile.key])
+        }
+      }
+    }
+
     return (
       <div
         ref={fileDropRef}
-        className={twMerge('px-4 text-gray-400 ', isListView ? '' : 'flex py-8')}
-        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+        className={twMerge(
+          'h-full px-4 text-gray-400',
+          isListView && 'flex py-8',
+          isFileDropOver && 'border-2 border-gray-300'
+        )}
+        onClick={(event) => {
+          event.stopPropagation()
+          selectedFileKeys.set([])
+        }}
       >
-        <div className={isListView ? '' : 'flex flex-wrap justify-start gap-3 pb-8'}>
+        <div className={twMerge(!isListView && 'flex flex-wrap')}>
           <FileTableWrapper wrap={isListView}>
             <>
-              {unique(files, (file) => file.key).map((file, i) => (
+              {unique(files, (file) => file.key).map((file) => (
                 <FileBrowserItem
                   key={file.key}
                   item={file}
                   disableDnD={props.disableDnD}
-                  onClick={onSelect}
+                  onClick={(event, currentFile) => {
+                    handleFileBrowserItemClick(event, currentFile)
+                    onSelect(file)
+                  }}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
@@ -412,6 +447,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   addFolder={createNewFolder}
                   isListView={isListView}
                   staticResourceModifiedDates={staticResourceModifiedDates.value}
+                  isSelected={selectedFileKeys.value.includes(file.key)}
                 />
               ))}
             </>
