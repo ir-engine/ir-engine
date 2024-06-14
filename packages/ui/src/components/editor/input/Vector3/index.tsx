@@ -42,7 +42,7 @@ interface Vector3ScrubberProps {
   className?: string
 }
 
-export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, ...props }: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -59,7 +59,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   props.className = twMerge(`text-${color}`)
   const content = children ?? axis?.toUpperCase()
   return (
-    <Scrubber onChange={onChange} value={value} {...props}>
+    <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
       {content}
     </Scrubber>
   )

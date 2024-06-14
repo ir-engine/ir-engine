@@ -72,7 +72,7 @@
     },
     {
       "id": "30b0ad60-2f9b-401f-8ff6-26711cd1a5ab",
-      "type": "engine/variable/get",
+      "type": "variable/get",
       "metadata": {
         "positionX": "-718.3746466302628",
         "positionY": "-1181.8195985301993"
@@ -88,7 +88,7 @@
     },
     {
       "id": "9280e546-65ca-478d-bd3e-3cae449d87bc",
-      "type": "engine/variable/use",
+      "type": "variable/use",
       "metadata": {
         "positionX": "-1193.8215357373301",
         "positionY": "-963.2145736022504"
@@ -132,7 +132,7 @@
     },
     {
       "id": "169eee0f-c1c0-432b-945d-db39a2545578",
-      "type": "engine/variable/set",
+      "type": "variable/set",
       "metadata": {
         "positionX": "-511.05179069688785",
         "positionY": "-1401.7883959196747"
@@ -158,7 +158,7 @@
     },
     {
       "id": "a682db55-01fb-47f8-8845-25b4fb6e8b8e",
-      "type": "engine/variable/get",
+      "type": "variable/get",
       "metadata": {
         "positionX": "-1432.2974656004633",
         "positionY": "-1174.660191125468"

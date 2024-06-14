@@ -25,7 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { getComponent, getOptionalComponent, InputSystemGroup, UndefinedEntity, useExecute } from '@etherealengine/ecs'
+import {
+  defineSystem,
+  getComponent,
+  getOptionalComponent,
+  InputSystemGroup,
+  UndefinedEntity,
+  useExecute
+} from '@etherealengine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -82,20 +89,22 @@ export const InputComponent = defineComponent({
     }
   },
 
-  useExecuteWithInput(executeOnInput: () => void, executeWhenEditing = false) {
+  useExecuteWithInput(
+    executeOnInput: () => void,
+    executeWhenEditing = false,
+    order: InputExecutionOrder = InputExecutionOrder.With
+  ) {
     const entity = useEntityContext()
-    return useExecute(
-      () => {
-        const capturingEntity = getState(InputState).capturingEntity
-        if (
-          (!executeWhenEditing && getState(EngineState).isEditing) ||
-          (capturingEntity && !isAncestor(capturingEntity, entity, true))
-        )
-          return
-        executeOnInput()
-      },
-      { with: InputSystemGroup }
-    )
+
+    return useExecute(() => {
+      const capturingEntity = getState(InputState).capturingEntity
+      if (
+        (!executeWhenEditing && getState(EngineState).isEditing) ||
+        (capturingEntity && !isAncestor(capturingEntity, entity, true))
+      )
+        return
+      executeOnInput()
+    }, getInputExecutionInsert(order))
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
@@ -252,3 +261,26 @@ export const InputComponent = defineComponent({
 function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
 }
+
+export const enum InputExecutionOrder {
+  'Before' = -1,
+  'With' = 0,
+  'After' = 1
+}
+
+function getInputExecutionInsert(order: InputExecutionOrder) {
+  switch (order) {
+    case InputExecutionOrder.Before:
+      return { before: InputExecutionSystemGroup }
+    case InputExecutionOrder.After:
+      return { after: InputExecutionSystemGroup }
+    default:
+      return { with: InputExecutionSystemGroup }
+  }
+}
+
+/** System for inserting subsystems*/
+export const InputExecutionSystemGroup = defineSystem({
+  uuid: 'ee.engine.InputExecutionSystemGroup',
+  insert: { with: InputSystemGroup }
+})
