@@ -52,7 +52,7 @@ import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -128,6 +128,22 @@ export const useValidProjectForFileBrowser = (projectName: string) => {
     }
   })
   return projects.data.find((project) => projectName.startsWith(`/projects/${project}/`))?.name ?? ''
+}
+
+function GeneratingThumbnailsProgress() {
+  const { t } = useTranslation()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+
+  if (!thumbnailJobState.length) return null
+
+  return (
+    <LoadingView
+      titleClassname="mt-0"
+      containerClassname="flex-row mt-1"
+      className="mx-2 my-auto h-6 w-6"
+      title={t('editor:layout.filebrowser.generatingThumbnails', { count: thumbnailJobState.length })}
+    />
+  )
 }
 
 /**
@@ -295,12 +311,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     })
   }
 
-  const handleConfirmDelete = (contentPath: string, type: string) => {
-    contentToDeletePath.set(contentPath)
-
-    openConfirm.set(true)
-  }
-
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
   const showUploadAndDownloadButtons =
@@ -362,7 +372,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
           {breadcrumbDirectoryFiles.map((file, index, arr) => (
-            <>
+            <Fragment key={index}>
               {index !== 0 && ( // Add separator for all but the first item
                 <span className="cursor-default align-middle text-xs">{'>'}</span>
               )}
@@ -382,7 +392,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   </span>
                 </a>
               )}
-            </>
+            </Fragment>
           ))}
         </span>
       </nav>
@@ -434,7 +444,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
                   projectName={projectName}
-                  deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
@@ -629,6 +638,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Button>
       </div>
       {isLoading && <LoadingView title={t('editor:layout.filebrowser.loadingFiles')} className="h-6 w-6" />}
+      <GeneratingThumbnailsProgress />
       <div id="file-browser-panel" style={{ overflowY: 'auto', height: '100%' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
