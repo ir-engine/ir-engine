@@ -136,11 +136,9 @@ describe('WebGl Renderer System', () => {
     return destroyEngine()
   })
 
-  it('test', async () => {
+  it('Test Background, Environment, Fog Components', async () => {
     const { background, environment, fog, children } = getSceneParameters([rootEntity])
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
-    globalThis._scene
-    console.log('test')
     assert(background, 'background component exists')
     assert(environment, 'environment component exists')
     assert(fog, 'fog component exists')
