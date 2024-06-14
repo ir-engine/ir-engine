@@ -23,6 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+const invalidFileNameRegex = /[_<>:"/\\|?*\u0000-\u001F]/g
+const windowsReservedNameRegex = /^(con|prn|aux|nul|com\d|lpt\d)$/i
+
 export default function isValidSceneName(sceneName: string) {
-  return sceneName.length >= 3 && sceneName.length <= 64 && sceneName.indexOf('_') === -1
+  return (
+    sceneName.length >= 3 &&
+    sceneName.length <= 64 &&
+    !invalidFileNameRegex.test(sceneName) &&
+    !windowsReservedNameRegex.test(sceneName)
+  )
 }
