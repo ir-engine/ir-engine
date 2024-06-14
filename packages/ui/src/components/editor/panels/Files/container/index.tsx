@@ -35,7 +35,6 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
@@ -51,10 +50,6 @@ import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/edit
 import { bytesToSize, unique } from '@etherealengine/editor/src/functions/utils'
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import {
-  ImageConvertDefaultParms,
-  ImageConvertParms
-} from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation, useSearch } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import React, { Fragment, useEffect, useRef } from 'react'
@@ -106,18 +101,14 @@ export type FileType = {
   url: string
 }
 
-const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
-  if (file.isFolder) {
-    return contentType.startsWith('image')
-  } else {
-    const guessedType: string = CommonKnownContentTypes[file.type]
-    return guessedType?.startsWith(contentType)
-  }
-}
-
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
+
+const viewModes = [
+  { mode: 'list', icon: <FaList /> },
+  { mode: 'icons', icon: <FiGrid /> }
+]
 
 function GeneratingThumbnailsProgress() {
   const { t } = useTranslation()
@@ -150,12 +141,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
   const openConvert = useHookstate(false)
-  const convertProperties = useHookstate<ImageConvertParms>(ImageConvertDefaultParms)
 
-  const openConfirm = useHookstate(false)
-  const contentToDeletePath = useHookstate('')
-
-  const filesViewMode = useHookstate(getMutableState(FilesViewModeState).viewMode)
+  const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
 
   const page = useHookstate(0)
@@ -228,10 +215,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
   }
 
-  const handlePageChange = async (_event, newPage: number) => {
-    page.set(newPage)
-  }
-
   const createNewFolder = async () => {
     fileService.create(`${selectedDirectory.value}New_Folder`)
   }
@@ -291,25 +274,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   ): Promise<void> => {
     if (isLoading) return
     fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
-  }
-
-  const handleConfirmDelete = (contentPath: string, type: string) => {
-    contentToDeletePath.set(contentPath)
-
-    openConfirm.set(true)
-  }
-
-  const handleConfirmClose = () => {
-    contentToDeletePath.set('')
-
-    openConfirm.set(false)
-  }
-
-  const deleteContent = async (): Promise<void> => {
-    if (isLoading) return
-    openConfirm.set(false)
-    fileService.remove(contentToDeletePath.value)
-    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
@@ -439,7 +403,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   item={file}
                   disableDnD={props.disableDnD}
                   onClick={onSelect}
-                  deleteContent={handleConfirmDelete}
                   currentContent={currentContentRef}
                   setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
@@ -544,11 +507,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </>
     )
   }
-
-  const viewModes = [
-    { mode: 'list', icon: <FaList /> },
-    { mode: 'icons', icon: <FiGrid /> }
-  ]
 
   return (
     <>
@@ -659,19 +617,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
 export default function FilesPanelContainer() {
   const assetsPreviewPanelRef = React.useRef()
-  const projectName = useHookstate(getMutableState(EditorState).projectName).value
+  const projectName = useMutableState(EditorState).projectName.value
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 
   return (
-    <>
-      <FileBrowserContentPanel
-        projectName={projectName!}
-        selectedFile={projectName ?? undefined}
-        onSelectionChanged={onSelectionChanged}
-      />
-    </>
+    <FileBrowserContentPanel
+      projectName={projectName!}
+      selectedFile={projectName ?? undefined}
+      onSelectionChanged={onSelectionChanged}
+    />
   )
 }
