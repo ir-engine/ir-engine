@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { Entity, getMutableComponent, hasComponent } from '@etherealengine/ecs'
+import { Entity, getMutableComponent, hasComponent, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
@@ -32,7 +32,6 @@ import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
 import { PrefabSettingsState } from '../prefabs/PrefabEditors'
 
@@ -51,8 +50,7 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
     prefabSettingsState.prefabName.set(prefabName)
     prefabSettingsState.entity.set(entity)
     if (!hasComponent(entity, ModelComponent)) {
-      EditorControlFunctions.addOrRemoveComponent([entity], ModelComponent, true)
-      //EditorControlFunctions.addOrRemoveComponent([entity], SourceComponent, true)
+      setComponent(entity, ModelComponent)
     }
     const modelComponent = getMutableComponent(entity, ModelComponent)
     try {
