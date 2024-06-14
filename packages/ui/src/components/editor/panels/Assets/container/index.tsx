@@ -95,6 +95,8 @@ const generateAssetsBreadcrumb = (categories: Category[], target: string) => {
 }
 
 const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
+  const { t } = useTranslation()
+
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -164,10 +166,10 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
         <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
           <MetadataTable
             rows={[
-              { label: 'Name', value: `${name}` },
-              { label: 'Path', value: `${path}` },
-              { label: 'Type', value: `${resource.mimeType}` },
-              { label: 'Tags', value: `${resource.tags || 'none'}` }
+              { label: t('editor:assetMetadata.name'), value: `${name}` },
+              { label: t('editor:assetMetadata.path'), value: `${path}` },
+              { label: t('editor:assetMetadata.type'), value: `${resource.mimeType}` },
+              { label: t('editor:assetMetadata.tags'), value: `${resource.tags || 'none'}` }
             ]}
           />
           {/* TODO: add more actions (compressing images/models, editing tags, etc) here as desired  */}
@@ -179,7 +181,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
             className="text-s text-left hover:bg-theme-surfaceInput"
             onClick={() => handleClose()}
           >
-            {'Close'}
+            {t('editor:visualScript.modal.buttons.close')}
           </Button>
         </div>
       </ContextMenu>
