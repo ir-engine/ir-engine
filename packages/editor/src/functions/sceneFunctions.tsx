@@ -117,22 +117,21 @@ export const saveSceneGLTF = async (
   const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
-    const result = await Engine.instance.api
-      .service(staticResourcePath)
-      .update(sceneAssetID, { key: assetURL, project: projectName })
+    if (getState(EditorState).scenePath !== newPath) {
+      const result = await Engine.instance.api
+        .service(staticResourcePath)
+        .patch(sceneAssetID, { key: assetURL, project: projectName })
 
-    // no need to update state if the assetURL is the same
-    if (getState(EditorState).scenePath === result.key && getState(EditorState).sceneAssetID === result.id) return
-
-    getMutableState(EditorState).merge({
-      sceneName,
-      scenePath: assetURL,
-      projectName,
-      sceneAssetID: result.id
-    })
-
+      getMutableState(EditorState).merge({
+        sceneName,
+        scenePath: assetURL,
+        projectName,
+        sceneAssetID: result.id
+      })
+    }
     return
   }
+
   const result = await Engine.instance.api
     .service(staticResourcePath)
     .create({ key: assetURL, project: projectName, type: 'scene' })

@@ -134,12 +134,13 @@ export const uploadProjectFiles = (projectName: string, files: File[], paths: st
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const path = paths[i].replace('projects/' + projectName + '/', '')
+    const fileDirectory = paths[i].replace('projects/' + projectName + '/', '')
+    const filePath = (fileDirectory.endsWith('/') ? fileDirectory : fileDirectory + '/') + file.name
     promises.push(
       uploadToFeathersService(
         fileBrowserUploadPath,
         [file],
-        { project: projectName, path: path + file.name, contentType: '' },
+        { project: projectName, path: filePath, contentType: '' },
         onProgress
       )
     )

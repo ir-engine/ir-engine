@@ -33,7 +33,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
 
-export const staticResourceMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const staticResourceMethods = ['get', 'find', 'create', 'update', 'patch', 'remove'] as const
 
 // Main data model schema
 export const staticResourceSchema = Type.Object(

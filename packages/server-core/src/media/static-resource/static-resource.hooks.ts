@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { staticResourcePath } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
@@ -46,7 +46,7 @@ import {
 } from './static-resource.resolvers'
 
 const ensureProject = async (context: HookContext<StaticResourceService>) => {
-  if (!context.data || context.method !== 'create') {
+  if (!context.data || !(context.method === 'create' || context.method === 'update')) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -79,7 +79,7 @@ const ensureResource = async (context: HookContext<StaticResourceService>) => {
 }
 
 const createHashIfNeeded = async (context: HookContext<StaticResourceService>) => {
-  if (!context.data || context.method !== 'create') {
+  if (!context.data || !(context.method === 'create' || context.method === 'update')) {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
@@ -184,7 +184,22 @@ export default {
       schemaHooks.resolveData(staticResourceDataResolver),
       createHashIfNeeded
     ],
-    update: [disallow()],
+    update: [
+      ensureProject,
+      iff(
+        isProvider('external'),
+        iffElse(
+          checkScope('static_resource', 'write'),
+          [],
+          [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
+      setLoggedinUserInBody('userId'),
+      // schemaHooks.validateData(staticResourceDataValidator),
+      discardQuery('projectId'),
+      schemaHooks.resolveData(staticResourceDataResolver),
+      createHashIfNeeded
+    ],
     patch: [
       iff(
         isProvider('external'),
