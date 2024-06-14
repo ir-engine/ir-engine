@@ -25,13 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Material, Shader, WebGLRenderer } from 'three'
 
-import {
-  Component,
-  defineComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  UUIDComponent
-} from '@etherealengine/ecs'
+import { Component, defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
 import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
@@ -95,67 +89,59 @@ export enum MaterialComponents {
 
 export const materialByHash = {} as Record<string, EntityUUID>
 export const prototypeByName = {} as Record<string, Entity>
-export const pluginByName = {} as Record<string, Entity>
 
-export const MaterialComponent = Array.from({ length: 4 }, (_, i) => {
-  return defineComponent({
-    name: `Material${MaterialComponents[i]}Component`,
-    onInit: (entity) => {
-      switch (i) {
-        case MaterialComponents.Instance:
-          return {
-            // materialUUID points to entities with MaterialComponent holding state
-            uuid: [] as EntityUUID[]
-          }
-        case MaterialComponents.State:
-          return {
-            // material & material specific data
-            material: {} as Material,
-            parameters: {} as { [key: string]: any },
-            // all entities using this material. an undefined entity at index 0 is a fake user
-            instances: [] as Entity[],
-            pluginEntities: [] as Entity[],
-            prototypeEntity: UndefinedEntity as Entity
-          }
-        case MaterialComponents.Prototype:
-          return {
-            // prototype state
-            prototypeArguments: {} as PrototypeArgument,
-            prototypeConstructor: {} as MaterialPrototypeObjectConstructor
-          }
-        default:
-          return {}
-      }
-    },
-
-    onSet: (entity, component, json) => {
-      if (!json) return
-
-      if (json.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
-      if (json.material && component.material.value !== undefined) component.material.set(json.material)
-      if (json.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
-      if (json.instances && component.instances.value !== undefined) component.instances.set(json.instances)
-      if (json.pluginEntities && component.pluginEntities.value !== undefined)
-        component.pluginEntities.set(json.pluginEntities)
-      if (json.prototypeEntity && component.prototypeEntity.value !== undefined)
-        component.prototypeEntity.set(json.prototypeEntity)
-      if (json.prototypeArguments && component.prototypeArguments.value !== undefined)
-        component.prototypeArguments.set(json.prototypeArguments)
-      if (json.prototypeConstructor && component.prototypeConstructor.value !== undefined)
-        component.prototypeConstructor.set(json.prototypeConstructor)
-    },
-
-    onRemove: (entity, component) => {
-      const uuids = getOptionalComponent(entity, MaterialComponent[MaterialComponents.Instance])?.uuid
-      if (!uuids) return
-      for (const uuid of uuids) {
-        const materialEntity = UUIDComponent.getEntityByUUID(uuid)
-        const materialComponent = getMutableComponent(materialEntity, MaterialComponent[MaterialComponents.State])
-        if (materialComponent.instances.value)
-          materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
-      }
+export const MaterialStateComponent = defineComponent({
+  name: 'MaterialStateComponent',
+  onInit: (entity) => {
+    return {
+      // material & material specific data
+      material: {} as Material,
+      parameters: {} as { [key: string]: any },
+      // all entities using this material. an undefined entity at index 0 is a fake user
+      instances: [] as Entity[],
+      pluginEntities: [] as Entity[],
+      prototypeEntity: UndefinedEntity as Entity
     }
-  })
+  },
+  onSet: (entity, component, json) => {
+    if (json?.material && component.material.value !== undefined) component.material.set(json.material)
+    if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
+    if (json?.instances && component.instances.value !== undefined) component.instances.set(json.instances)
+    if (json?.pluginEntities && component.pluginEntities.value !== undefined)
+      component.pluginEntities.set(json.pluginEntities)
+    if (json?.prototypeEntity && component.prototypeEntity.value !== undefined)
+      component.prototypeEntity.set(json.prototypeEntity)
+  }
+})
+
+export const MaterialInstanceComponent = defineComponent({
+  name: 'MaterialInstanceComponent',
+  onInit: (entity) => {
+    return {
+      // materialUUID points to entities with MaterialComponent holding state
+      uuid: [] as EntityUUID[]
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (json?.uuid && component.uuid.value !== undefined) component.uuid.set(json.uuid)
+  }
+})
+
+export const MaterialPrototypeComponent = defineComponent({
+  name: 'MaterialPrototypeComponent',
+  onInit: (entity) => {
+    return {
+      // prototype state
+      prototypeArguments: {} as PrototypeArgument,
+      prototypeConstructor: {} as MaterialPrototypeObjectConstructor
+    }
+  },
+  onSet: (entity, component, json) => {
+    if (json?.prototypeArguments && component.prototypeArguments.value !== undefined)
+      component.prototypeArguments.set(json.prototypeArguments)
+    if (json?.prototypeConstructor && component.prototypeConstructor.value !== undefined)
+      component.prototypeConstructor.set(json.prototypeConstructor)
+  }
 })
 
 declare module 'three/src/materials/Material' {
