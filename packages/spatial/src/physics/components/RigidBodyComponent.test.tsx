@@ -59,25 +59,46 @@ function assertProxifiedVecUninitialized(vec, elems: number) {
   if (elems > 3) assert.equal(vec.w, 1)
 }
 
-function assertRigidBodyComponentDefaults(data) {
-  assert.equal(data.type, BodyTypes.Fixed)
-  assert.equal(data.ccd, false)
-  assert.equal(data.allowRolling, true)
-  assert.equal(data.enabledRotations.length, 3)
-  assert.equal(data.enabledRotations[0], true)
-  assert.equal(data.enabledRotations[1], true)
-  assert.equal(data.enabledRotations[2], true)
-  assert.equal(data.canSleep, true)
-  assert.equal(data.gravityScale, 1)
-  assertProxifiedVecUninitialized(data.previousPosition, 3)
-  assertProxifiedVecUninitialized(data.previousRotation, 4)
-  assertProxifiedVecUninitialized(data.position, 3)
-  assertProxifiedVecUninitialized(data.rotation, 4)
-  assertProxifiedVecUninitialized(data.targetKinematicPosition, 3)
-  assertProxifiedVecUninitialized(data.targetKinematicRotation, 4)
-  assertProxifiedVecUninitialized(data.linearVelocity, 3)
-  assertProxifiedVecUninitialized(data.angularVelocity, 3)
-  assert.equal(data.targetKinematicLerpMultiplier, 0)
+const RigidBodyComponentDefaults = {
+  type: BodyTypes.Fixed,
+  ccd: false,
+  allowRolling: true,
+  enabledRotations: [true, true, true] as [boolean, boolean, boolean],
+  canSleep: true,
+  gravityScale: 1,
+  previousPosition: 3,
+  previousRotation: 4,
+  position: 3,
+  rotation: 4,
+  targetKinematicPosition: 3,
+  targetKinematicRotation: 4,
+  linearVelocity: 3,
+  angularVelocity: 3,
+  targetKinematicLerpMultiplier: 0
+}
+
+function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
+  assert.equal(data.type, expected.type)
+  assert.equal(data.ccd, expected.ccd)
+  assert.equal(data.allowRolling, expected.allowRolling)
+  assert.equal(data.enabledRotations.length, expected.enabledRotations.length)
+  assert.equal(data.enabledRotations[0], expected.enabledRotations[0])
+  assert.equal(data.enabledRotations[1], expected.enabledRotations[1])
+  assert.equal(data.enabledRotations[2], expected.enabledRotations[2])
+  assert.equal(data.canSleep, expected.canSleep)
+  assert.equal(data.gravityScale, expected.gravityScale)
+  /**
+  // @todo Not serialized by the component
+  assertVecApproxEq(data.previousPosition, expected.previousPosition, 3)
+  assertVecApproxEq(data.previousRotation, expected.previousRotation, 4)
+  assertVecApproxEq(data.position, expected.position, 3)
+  assertVecApproxEq(data.rotation, expected.rotation, 4)
+  assertVecApproxEq(data.targetKinematicPosition, expected.targetKinematicPosition, 3)
+  assertVecApproxEq(data.targetKinematicRotation, expected.targetKinematicRotation, 4)
+  assertVecApproxEq(data.linearVelocity, expected.linearVelocity, 3)
+  assertVecApproxEq(data.angularVelocity, expected.angularVelocity, 3)
+  assert.equal(data.targetKinematicLerpMultiplier, expected.targetKinematicLerpMultiplier)
+  */
 }
 
 describe('RigidBodyComponent', () => {
@@ -107,7 +128,7 @@ describe('RigidBodyComponent', () => {
 
     it('should initialize the component with the expected default values', () => {
       const data = getComponent(testEntity, RigidBodyComponent)
-      assertRigidBodyComponentDefaults(data)
+      assertRigidBodyComponentEqual(data, RigidBodyComponentDefaults)
     })
   }) // << onInit
 
@@ -136,7 +157,7 @@ describe('RigidBodyComponent', () => {
         enabledRotations: [false, false, false] as [boolean, boolean, boolean]
       }
       const before = getComponent(testEntity, RigidBodyComponent)
-      assertRigidBodyComponentDefaults(before)
+      assertRigidBodyComponentEqual(before, RigidBodyComponentDefaults)
 
       setComponent(testEntity, RigidBodyComponent, Expected)
       const data = getComponent(testEntity, RigidBodyComponent)
@@ -161,12 +182,12 @@ describe('RigidBodyComponent', () => {
         enabledRotations: [4, 5, 6]
       }
       const before = getComponent(testEntity, RigidBodyComponent)
-      assertRigidBodyComponentDefaults(before)
+      assertRigidBodyComponentEqual(before, RigidBodyComponentDefaults)
 
-      // @ts-ignore
+      // @ts-ignore    Pass an incorrect type to setComponent
       setComponent(testEntity, RigidBodyComponent, Incorrect)
-      const data = getComponent(testEntity, RigidBodyComponent)
-      assertRigidBodyComponentDefaults(data)
+      const after = getComponent(testEntity, RigidBodyComponent)
+      assertRigidBodyComponentEqual(after, RigidBodyComponentDefaults)
     })
   }) // << onSet
 
@@ -275,18 +296,57 @@ describe('RigidBodyComponent', () => {
       assert.equal(hasComponent(testEntity, tag), false)
     })
 
-    /**
     // @todo
-    it("should enable CCD for the RigidBody on the API data when component.ccd changes", () => {
+    it('should enable CCD for the RigidBody on the API data when component.ccd changes', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const Expected = !RigidBodyComponentDefaults.ccd
+      const beforeBody = Physics._Rigidbodies.get(testEntity)!
+      assert.ok(beforeBody)
+      const beforeAPI = beforeBody.isCcdEnabled()
+      assert.equal(beforeAPI, RigidBodyComponentDefaults.ccd)
+      const beforeECS = getComponent(testEntity, RigidBodyComponent).ccd
+      assert.equal(beforeECS, RigidBodyComponentDefaults.ccd)
+
+      setComponent(testEntity, RigidBodyComponent, { ccd: Expected })
+      const afterBody = Physics._Rigidbodies.get(testEntity)!
+      assert.ok(afterBody)
+      const afterAPI = afterBody.isCcdEnabled()
+      assert.equal(afterAPI, Expected)
+      const afterECS = getComponent(testEntity, RigidBodyComponent).ccd
+      assert.equal(afterECS, Expected)
     })
 
-    // @todo
+    /**
+    // @todo how to check that rotations are actually locked?
+    // @todo Why are these not applying changes?
     it("should lock/unlock rotations for the RigidBody on the API data when component.allowRolling changes", () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const TorqueImpulse = new Vector3(10, 20, 30)
+      const body = Physics._Rigidbodies.get(testEntity)!
+
+      // Defaults
+      const before = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      assertVecApproxEq(before, Vector3_Zero, 3)
+      const Expected = !RigidBodyComponentDefaults.allowRolling 
+      assert.notEqual(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected)
+
+      // Locked
+      setComponent(testEntity, RigidBodyComponent, { allowRolling: Expected })
+      assert.equal(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      const after = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      assertVecApproxEq(before, after, 3)
+
+      // Unlocked
+      setComponent(testEntity, RigidBodyComponent, { allowRolling: !Expected })
+      assert.equal(getComponent(testEntity, RigidBodyComponent).allowRolling, !Expected)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      const unlocked = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      assertVecAllApproxNotEq(before, unlocked, 3)
     })
 
-    // @todo
+    // @todo How to check that rotations are actually locked?
+    // @todo Why are these not applying changes?
     it("should enable/disable rotations for each axis for the RigidBody on the API data when component.enabledRotations changes", () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
     })

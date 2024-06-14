@@ -64,14 +64,16 @@ function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) > epsilon, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
-function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
+export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
+  // @note Also used by RigidBodyComponent.test.ts
   assertFloatApproxEq(A.x, B.x, epsilon)
   assertFloatApproxEq(A.y, B.y, epsilon)
   assertFloatApproxEq(A.z, B.z, epsilon)
   if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
 }
 
-function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
+export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
+  // @note Also used by RigidBodyComponent.test.ts
   assertFloatApproxNotEq(A.x, B.x, epsilon)
   assertFloatApproxNotEq(A.y, B.y, epsilon)
   assertFloatApproxNotEq(A.z, B.z, epsilon)
@@ -2137,7 +2139,7 @@ describe('PhysicsAPI', () => {
 })
 
 /** TODO:
-    describe("load", () => {})
+    describe("load", () => {}) // @todo Is there a way to check that the wasmInit() call from rapier.js has been run?
   // Character Controller
     describe("getControllerOffset", () => {})  // @deprecated
   */
