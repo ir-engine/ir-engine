@@ -107,6 +107,7 @@ export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUU
 export const setPlugin = (material: Material, callback) => {
   if (hasPlugin(material, callback)) removePlugin(material, callback)
   material.onBeforeCompile = callback
+  material.needsUpdate = true
 }
 
 export const hasPlugin = (material: Material, callback) =>
