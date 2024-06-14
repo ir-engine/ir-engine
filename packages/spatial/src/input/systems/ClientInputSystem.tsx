@@ -53,7 +53,7 @@ import {
 
 import { UUIDComponent } from '@etherealengine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { ObjectDirection } from '../../common/constants/MathConstants'
+import { ObjectDirection, PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { NameComponent } from '../../common/NameComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -78,6 +78,15 @@ import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
+/** squared distance threshold for dragging state */
+const DRAGGING_THRESHOLD = 0.001
+
+/** radian threshold for rotating state*/
+const ROTATING_THRESHOLD = 1.5 * (PI / 180)
+
+/** anti-garbage variable!! value not to be used unless you set values just before use*/
+const pointerPositionVector3 = new Vector3()
+
 function preventDefault(e) {
   e.preventDefault()
 }
@@ -93,7 +102,7 @@ export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const gamepad = inputSource.source.gamepad
   const buttons = inputSource.buttons as ButtonStateMap
-
+  // const buttonDownPos = inputSource.buttonDownPositions as WeakMap<AnyButton, Vector3>
   // log buttons
   // if (source.gamepad) {
   //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
@@ -105,16 +114,55 @@ export function updateGamepadInput(eid: Entity) {
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
   if (gamepadButtons) {
+    const pointer = getOptionalComponent(eid, InputPointerComponent)
+    const xrTransform = getOptionalComponent(eid, TransformComponent)
+
     for (let i = 0; i < gamepadButtons.length; i++) {
       const button = gamepadButtons[i]
       if (!buttons[i] && (button.pressed || button.touched)) {
-        buttons[i] = createInitialButtonState(button)
+        buttons[i] = createInitialButtonState(eid, button)
       }
       if (buttons[i] && (button.pressed || button.touched)) {
-        if (!buttons[i].pressed && button.pressed) buttons[i].down = true
+        if (!buttons[i].pressed && button.pressed) {
+          buttons[i].down = true
+          buttons[i].downPosition = new Vector3()
+          buttons[i].downRotation = new Quaternion()
+
+          if (pointer) {
+            buttons[i].downPosition.set(pointer.position.x, pointer.position.y, 0)
+            //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
+          } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
+            buttons[i].downPosition.copy(xrTransform.position)
+            buttons[i].downRotation.copy(xrTransform.rotation)
+          }
+        }
         buttons[i].pressed = button.pressed
         buttons[i].touched = button.touched
         buttons[i].value = button.value
+
+        if (buttons[i].downPosition) {
+          //if not yet dragging, compare distance to drag threshold and begin if appropriate
+          if (!buttons[i].dragging) {
+            if (pointer) pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+            const squaredDistance = buttons[i].downPosition.squaredDistance(
+              pointer ? pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
+            )
+
+            if (squaredDistance > DRAGGING_THRESHOLD) {
+              buttons[i].dragging = true
+            }
+          }
+
+          //if not yet rotating, compare distance to drag threshold and begin if appropriate
+          if (!buttons[i].rotating) {
+            const angleRadians = buttons[i].downRotation.angleTo(
+              pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
+            )
+            if (angleRadians > ROTATING_THRESHOLD) {
+              buttons[i].rotating = true
+            }
+          }
+        }
       } else if (buttons[i]) {
         buttons[i].up = true
       }
@@ -168,6 +216,7 @@ const bboxHitTarget = new Vector3()
 const quat = new Quaternion()
 
 const execute = () => {
+  const capturedEntity = getMutableState(InputState).capturingEntity.value
   InputState.setCapturingEntity(UndefinedEntity, true)
 
   for (const eid of inputs())
@@ -213,8 +262,6 @@ const execute = () => {
     }
   }
 
-  const capturedEntity = getMutableState(InputState).capturingEntity
-
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
   for (const sourceEid of inputSourceQuery()) {
     const isSpatialInput = hasComponent(sourceEid, TransformComponent)
@@ -235,8 +282,10 @@ const execute = () => {
       raycaster.set(inputRaycast.origin, inputRaycast.direction)
       raycaster.layers.enable(ObjectLayers.Default)
 
+      const inputState = getState(InputState)
+      const isEditing = getState(EngineState).isEditing
       // only heuristic is scene objects when in the editor
-      if (getState(EngineState).isEditing) {
+      if (isEditing) {
         const pickerObj = gizmoPickerObjects() // gizmo heuristic
         const inputObj = inputObjects()
 
@@ -277,7 +326,7 @@ const execute = () => {
             intersectionData.add({ entity: hit.entity, distance: hit.distance })
           }
         }
-        const inputState = getState(InputState)
+
         // 3rd heuristic is bboxes
         for (const entity of inputState.inputBoundingBoxes) {
           const boundingBox = getComponent(entity, BoundingBoxComponent)
@@ -286,30 +335,38 @@ const execute = () => {
             intersectionData.add({ entity, distance: inputRay.origin.distanceTo(bboxHitTarget) })
           }
         }
+      }
 
-        // 4th heuristic is meshes
-        const objects = Array.from(inputState.inputMeshes) // gizmo heuristic
-          .filter((eid) => hasComponent(eid, GroupComponent))
-          .map((eid) => getComponent(eid, GroupComponent))
-          .flat()
+      // 4th heuristic is meshes
+      const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
+        .filter((eid) => hasComponent(eid, GroupComponent))
+        .map((eid) => getComponent(eid, GroupComponent))
+        .flat()
 
-        const hits = raycaster.intersectObjects<Object3D>(objects, true)
-        for (const hit of hits) {
-          const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-          if (parentObject) {
-            intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-          }
+      const hits = raycaster.intersectObjects<Object3D>(objects, true)
+      for (const hit of hits) {
+        const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+        if (parentObject) {
+          intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
         }
       }
     }
 
-    const sortedIntersections = Array.from(intersectionData).sort((a, b) => a.distance - b.distance)
+    const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
+      // - if a < b
+      // + if a > b
+      // 0 if equal
+      const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
+      const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
+      //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+      return Math.sign(a.distance - b.distance) + (aNum - bNum)
+    })
     const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
 
     //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery
     //Proximity check ONLY if we have no raycast results, as it is always lower priority
     if (
-      capturedEntity.value === UndefinedEntity &&
+      capturedEntity === UndefinedEntity &&
       sortedIntersections.length === 0 &&
       !hasComponent(sourceEid, InputPointerComponent)
     ) {
@@ -358,8 +415,8 @@ const execute = () => {
     const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSourceQuery()]))
 
     //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
-    if (capturedEntity.value !== UndefinedEntity) {
-      setInputSources(capturedEntity.value, finalInputSources)
+    if (capturedEntity !== UndefinedEntity) {
+      setInputSources(capturedEntity, finalInputSources)
     } else {
       for (const intersection of sortedIntersections) {
         setInputSources(intersection.entity, finalInputSources)
@@ -406,7 +463,7 @@ const useNonSpatialInputSources = () => {
       const down = event.type === 'keydown'
 
       const buttonState = inputSourceComponent.buttons as ButtonStateMap
-      if (down) buttonState[code] = createInitialButtonState()
+      if (down) buttonState[code] = createInitialButtonState(eid)
       else if (buttonState[code]) buttonState[code].up = true
     }
     document.addEventListener('keyup', onKeyEvent)
@@ -424,7 +481,7 @@ const useNonSpatialInputSources = () => {
 
     document.addEventListener('touchgamepadbuttondown', (event: CustomEvent) => {
       const buttonState = inputSourceComponent.buttons as ButtonStateMap
-      buttonState[event.detail.button] = createInitialButtonState()
+      buttonState[event.detail.button] = createInitialButtonState(eid)
     })
 
     document.addEventListener('touchgamepadbuttonup', (event: CustomEvent) => {
@@ -539,28 +596,38 @@ const CanvasInputReactor = () => {
       if (!inputSourceComponent) return
 
       const state = inputSourceComponent.buttons as ButtonStateMap
+      if (down) {
+        state[button] = createInitialButtonState(emulatedInputSourceEntity) //down, pressed, touched = true
 
-      if (down) state[button] = createInitialButtonState()
-      else if (state[button]) state[button]!.up = true
+        const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+        if (pointer) {
+          state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
+          //rotation will never be defined for the mouse or touch
+        }
+      } else if (state[button]) {
+        state[button]!.up = true
+      }
     }
 
     const handleMouseMove = (event: MouseEvent) => {
-      const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
-      if (!pointerComponent) return
-      pointerComponent.position.set(
-        ((event.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((event.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
-      )
+      handleMouseOrTouchMovement(event.clientX, event.clientY, event)
     }
 
     const handleTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      handleMouseOrTouchMovement(touch.clientX, touch.clientY, event)
+    }
+
+    const handleMouseOrTouchMovement = (clientX: number, clientY: number, event: MouseEvent | TouchEvent) => {
       const pointerComponent = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
       if (!pointerComponent) return
-      const touch = event.touches[0]
       pointerComponent.position.set(
-        ((touch.clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
-        ((touch.clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
+        ((clientX - canvas.getBoundingClientRect().x) / canvas.clientWidth) * 2 - 1,
+        ((clientY - canvas.getBoundingClientRect().y) / canvas.clientHeight) * -2 + 1
       )
+
+      const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+      updateMouseOrTouchDragging(emulatedInputSourceEntity, event)
     }
 
     canvas.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
@@ -629,7 +696,7 @@ const useXRInputSources = () => {
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
       const state = inputSourceComponent.buttons as ButtonStateMap
-      state.PrimaryClick = createInitialButtonState()
+      state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
       const eid = InputSourceComponent.entitiesByInputSource.get(event.inputSource)
@@ -672,6 +739,7 @@ const reactor = () => {
 const MeshInputReactor = () => {
   const entity = useEntityContext()
   const shouldReceiveInput = !!useAncestorWithComponent(entity, InputComponent)
+
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputMeshes.add(entity)
@@ -697,6 +765,37 @@ export const ClientInputSystem = defineSystem({
   execute,
   reactor
 })
+
+function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: MouseEvent | TouchEvent) {
+  const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+  if (!inputSourceComponent) return
+
+  const state = inputSourceComponent.buttons as ButtonStateMap
+
+  let button = MouseButton.PrimaryClick
+  if (event.type === 'mousemove') {
+    if ((event as MouseEvent).button === 1) button = MouseButton.AuxiliaryClick
+    else if ((event as MouseEvent).button === 2) button = MouseButton.SecondaryClick
+  }
+  const btn = state[button]
+  if (btn && !btn.dragging) {
+    const pointer = getOptionalComponent(emulatedInputSourceEntity, InputPointerComponent)
+
+    if (btn.pressed && btn.downPosition) {
+      //if not yet dragging, compare distance to drag threshold and begin if appropriate
+      if (!btn.dragging) {
+        pointer
+          ? pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          : pointerPositionVector3.copy(Vector3_Zero)
+        const squaredDistance = btn.downPosition.distanceToSquared(pointerPositionVector3)
+
+        if (squaredDistance > DRAGGING_THRESHOLD) {
+          btn.dragging = true
+        }
+      }
+    }
+  }
+}
 
 function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
   const button = buttons[key]

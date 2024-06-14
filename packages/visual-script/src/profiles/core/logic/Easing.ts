@@ -27,7 +27,7 @@ import { EasingFunctions, EasingModes, makeFunctionNodeDefinition, NodeCategory 
 
 export const Easing = makeFunctionNodeDefinition({
   typeName: 'math/easing',
-  category: NodeCategory.Logic,
+  category: NodeCategory.Math,
   label: 'Easing',
   in: {
     easingFunction: {

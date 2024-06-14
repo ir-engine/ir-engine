@@ -46,7 +46,6 @@ import { TransformSpace } from '@etherealengine/engine/src/scene/constants/trans
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@etherealengine/spatial'
 import { MAT4_IDENTITY } from '@etherealengine/spatial/src/common/constants/MathConstants'
-import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import {
@@ -59,6 +58,7 @@ import { SourceComponent, SourceID } from '@etherealengine/spatial/src/transform
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@etherealengine/spatial/src/transform/systems/TransformSystem'
 
+import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { NodeID, NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
@@ -103,6 +103,7 @@ const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Ent
   }
   return false
 }
+
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,

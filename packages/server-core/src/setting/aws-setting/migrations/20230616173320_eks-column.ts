@@ -65,17 +65,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const eksColumnExists = await trx.schema.hasColumn(awsSettingPath, 'eks')
+  const eksColumnExists = await knex.schema.hasColumn(awsSettingPath, 'eks')
 
   if (eksColumnExists === true) {
-    await trx.schema.alterTable(awsSettingPath, async (table) => {
+    await knex.schema.alterTable(awsSettingPath, async (table) => {
       table.dropColumn('eks')
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

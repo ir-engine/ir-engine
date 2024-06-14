@@ -59,8 +59,14 @@ export const Vector2_Zero = Object.freeze(new Vector2(0, 0))
 /** const Vector2(1,0) */
 export const Vector2_Right = Object.freeze(new Vector2(1, 0))
 
+/** const Vector2(-1,0) */
+export const Vector2_Left = Object.freeze(new Vector2(-1, 0))
+
 /** const Vector2(0,1) */
 export const Vector2_Up = Object.freeze(new Vector2(0, 1))
+
+/** const Vector2(0,-1) */
+export const Vector2_Down = Object.freeze(new Vector2(0, -1))
 
 /** const Vector2(1,1) */
 export const Vector2_One = Object.freeze(new Vector2(1, 1))

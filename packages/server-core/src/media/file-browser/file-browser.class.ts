@@ -126,6 +126,13 @@ export class FileBrowserService
     checkDirectoryInsideNesting(directory, params.nestingDirectory)
 
     let result = await storageProvider.listFolderContent(directory)
+    Object.entries(params.query).forEach(([key, value]) => {
+      if (value['$like']) {
+        const searchString = value['$like'].replace(/%/g, '')
+        result = result.filter((item) => item[key].includes(searchString))
+      }
+    })
+
     let total = result.length
 
     result = result.slice(skip, skip + limit)
@@ -149,12 +156,8 @@ export class FileBrowserService
 
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
       result = result.filter((item) => {
-        const projectRegexExec = /projects\/(.+)$/.exec(item.key)
-        const subFileRegexExec = /projects\/(.+)\//.exec(item.key)
         return (
-          (subFileRegexExec && allowedProjectNames.indexOf(subFileRegexExec[1]) > -1) ||
-          (projectRegexExec && allowedProjectNames.indexOf(projectRegexExec[1]) > -1) ||
-          item.name === 'projects'
+          allowedProjectNames.some((project) => item.key.startsWith(`projects/${project}`)) || item.name === 'projects'
         )
       })
     }

@@ -35,13 +35,11 @@ import {
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await addProjectColumn(trx, instancePath)
+  await addProjectColumn(knex, instancePath)
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -49,11 +47,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await dropProjectColumn(trx, instancePath)
+  await dropProjectColumn(knex, instancePath)
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

@@ -91,8 +91,11 @@ import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 
 // everythign above still needs to be built
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
+import { PlaylistComponent } from '@etherealengine/engine/src/scene/components/PlaylistComponent'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@etherealengine/spatial/src/physics/components/ColliderComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 import LoopAnimationNodeEditor from '@etherealengine/ui/src/components/editor/properties/animation'
 import CameraPropertiesNodeEditor from '@etherealengine/ui/src/components/editor/properties/camera'
 import ColliderComponentEditor from '@etherealengine/ui/src/components/editor/properties/collider'
@@ -106,6 +109,7 @@ import HemisphereLightNodeEditor from '@etherealengine/ui/src/components/editor/
 import PointLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/point'
 import SpotLightNodeEditor from '@etherealengine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@etherealengine/ui/src/components/editor/properties/link'
+import LookAtNodeEditor from '@etherealengine/ui/src/components/editor/properties/lookAt'
 import { default as MediaNodeEditor } from '@etherealengine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@etherealengine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/mountPoint'
@@ -125,6 +129,8 @@ import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/pro
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
 import InputComponentNodeEditor from '../components/properties/InputComponentNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
+import { NewVolumetricNodeEditor } from '../components/properties/NewVolumetricNodeEditor'
+import PlaylistNodeEditor from '../components/properties/PlaylistNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 
 export const ComponentEditorsState = defineState({
@@ -164,6 +170,8 @@ export const ComponentEditorsState = defineState({
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
+      [NewVolumetricComponent.name]: NewVolumetricNodeEditor,
+      [PlaylistComponent.name]: PlaylistNodeEditor,
       [SystemComponent.name]: SystemNodeEditor,
       [EnvmapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
@@ -178,7 +186,8 @@ export const ComponentEditorsState = defineState({
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
-      [TextComponent.name]: TextNodeEditor
+      [TextComponent.name]: TextNodeEditor,
+      [LookAtComponent.name]: LookAtNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

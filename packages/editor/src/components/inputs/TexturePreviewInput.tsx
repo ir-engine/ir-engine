@@ -27,9 +27,9 @@ import { Stack } from '@mui/material'
 import React, { Fragment, useEffect } from 'react'
 import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
@@ -75,7 +75,7 @@ export default function TexturePreviewInput({
   }
   const { preview } = rest
   const validSrcValue =
-    typeof value === 'string' && [AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(value))
+    typeof value === 'string' && [AssetType.Image, AssetType.Video].includes(AssetLoader.getAssetClass(value))
 
   const srcState = useHookstate(value)
   const texture = srcState.value as Texture
@@ -109,10 +109,10 @@ export default function TexturePreviewInput({
         {showPreview && (
           <Fragment>
             {(typeof preview === 'string' ||
-              (typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetClass.Image)) && (
+              (typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetType.Image)) && (
               <img src={previewSrc} style={previewStyle} alt="" crossOrigin="anonymous" />
             )}
-            {typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetClass.Video && (
+            {typeof value === 'string' && AssetLoader.getAssetClass(value) === AssetType.Video && (
               <video src={previewSrc} style={previewStyle} />
             )}
           </Fragment>

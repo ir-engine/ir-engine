@@ -39,6 +39,7 @@ import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkC
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
+import { NewVolumetricComponent } from '@etherealengine/engine/src/scene/components/NewVolumetricComponent'
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@etherealengine/engine/src/scene/components/PrimitiveGeometryComponent'
@@ -72,6 +73,7 @@ import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/componen
 import { TriggerComponent } from '@etherealengine/spatial/src/physics/components/TriggerComponent'
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
+import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
@@ -80,6 +82,7 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [
         ModelComponent,
         VolumetricComponent,
+        NewVolumetricComponent,
         PositionalAudioComponent,
         AudioAnalysisComponent,
         VideoComponent,
@@ -126,7 +129,8 @@ export const ComponentShelfCategoriesState = defineState({
         SplineTrackComponent,
         SplineComponent,
         TextComponent,
-        ScreenshareTargetComponent
+        ScreenshareTargetComponent,
+        LookAtComponent
       ]
     } as Record<string, Component[]>
   }

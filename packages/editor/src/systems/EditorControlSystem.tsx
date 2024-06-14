@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Intersection, Layers, MathUtils, Object3D, Raycaster } from 'three'
+import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import { PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
@@ -44,17 +44,20 @@ import { GLTFSnapshotAction } from '@etherealengine/engine/src/gltf/GLTFDocument
 import { GLTFSnapshotState } from '@etherealengine/engine/src/gltf/GLTFState'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '@etherealengine/spatial'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@etherealengine/spatial/src/camera/components/FlyControlComponent'
-import { Vector3_Up } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@etherealengine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  getAncestorWithComponent
+} from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { SourceComponent } from '@etherealengine/spatial/src/transform/components/SourceComponent'
 
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -88,49 +91,49 @@ const onKeyF = () => {
   )
 }
 
-const onKeyQ = () => {
-  const nodes = SelectionState.getSelectedEntities()
-  const gizmo = gizmoControlledQuery()
-  if (gizmo.length === 0) return
-  const gizmoEntity = gizmo[gizmo.length - 1]
-  const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-  const editorHelperState = getState(EditorHelperState)
-  EditorControlFunctions.rotateAround(
-    nodes,
-    Vector3_Up,
-    editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    gizmoTransform.position
-  )
-}
+// const onKeyQ = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
 
-const onKeyE = () => {
-  const nodes = SelectionState.getSelectedEntities()
-  const gizmo = gizmoControlledQuery()
-  if (gizmo.length === 0) return
-  const gizmoEntity = gizmo[gizmo.length - 1]
-  const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-  const editorHelperState = getState(EditorHelperState)
-  EditorControlFunctions.rotateAround(
-    nodes,
-    Vector3_Up,
-    -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    gizmoTransform.position
-  )
-}
+// const onKeyE = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
 
 const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
 }
 
-const onKeyT = () => {
+const onKeyW = () => {
   setTransformMode(TransformMode.translate)
 }
 
-const onKeyR = () => {
+const onKeyE = () => {
   setTransformMode(TransformMode.rotate)
 }
 
-const onKeyY = () => {
+const onKeyR = () => {
   setTransformMode(TransformMode.scale)
 }
 
@@ -234,6 +237,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const inputQuery = defineQuery([InputSourceComponent])
+let clickStartEntity = UndefinedEntity
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -251,11 +255,9 @@ const execute = () => {
 
   if (buttons.KeyB?.down) onKeyB()
 
-  if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
-  if (buttons.KeyT?.down) onKeyT()
   if (buttons.KeyR?.down) onKeyR()
-  if (buttons.KeyY?.down) onKeyY()
+  if (buttons.KeyW?.down) onKeyW()
   if (buttons.KeyC?.down) onKeyC()
   if (buttons.KeyX?.down) onKeyX()
   if (buttons.KeyF?.down) onKeyF()
@@ -277,23 +279,34 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
-    primaryClickAccum += deltaSeconds
-  }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
-  }
-  if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up) {
-      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
+    if (buttons.PrimaryClick?.down) {
+      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
-        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+        !hasComponent(clickStartEntity, SourceComponent) &&
+        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
       ) {
-        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+        clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
-        SelectionState.updateSelection([getComponent(clickedEntity, UUIDComponent)])
-      }
+    }
+    const capturingEntity = getState(InputState).capturingEntity
+    if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
+      clickStartEntity = capturingEntity
+    }
+  }
+  if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
+    if (hasComponent(clickStartEntity, SourceComponent)) {
+      const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
+      const ancestorModelEntity = modelComponent || clickStartEntity
+
+      console.log(
+        SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
+      )
+      SelectionState.updateSelection([
+        getComponent(
+          SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity,
+          UUIDComponent
+        )
+      ])
     }
   }
 }

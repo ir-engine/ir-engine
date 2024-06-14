@@ -34,7 +34,7 @@ import config from '@etherealengine/common/src/config'
 import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { getComponent, useComponent } from '@etherealengine/ecs/src/ComponentFunctions'
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
-import { updateResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
+import { updateModelResource } from '@etherealengine/engine/src/assets/functions/resourceLoaderFunctions'
 import { recursiveHipsLookup } from '@etherealengine/engine/src/avatar/AvatarBoneMatching'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -134,7 +134,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           value={modelComponent.src.value}
           onRelease={(src) => {
             if (src !== modelComponent.src.value) commitProperty(ModelComponent, 'src')(src)
-            else updateResource(src)
+            else updateModelResource(src)
           }}
         />
         {errors?.LOADING_ERROR ||

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VideoTexture } from 'three'
+import { RepeatWrapping, VideoTexture } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
 
@@ -57,6 +57,8 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
   el.currentTime = 1
   if (!texture) console.error('texture is missing')
 
+  texture.wrapS = RepeatWrapping
+  texture.wrapT = RepeatWrapping
   el.addEventListener(
     'loadeddata',
     () => {

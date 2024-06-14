@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, Vector2, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
@@ -85,6 +85,8 @@ export enum XRUIActivationType {
 }
 
 const xrDistVec3 = new Vector3()
+const inputPointerPosition = new Vector2()
+let inputPointerEntity = UndefinedEntity
 
 const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
   //TODO change from using rigidbody to use the transform position (+ height of avatar)
@@ -287,18 +289,21 @@ export const InteractableComponent = defineComponent({
   reactor: () => {
     if (!isClient) return null
     const entity = useEntityContext()
-    // const interactable = useComponent(entity, InteractableComponent)
     const isEditing = useMutableState(EngineState).isEditing
-    // const hasFocus = useMutableState(EngineState).hasFocus
 
     InputComponent.useExecuteWithInput(() => {
       const buttons = InputComponent.getMergedButtons(entity)
 
-      if (buttons.Interact?.pressed) {
+      if (
+        buttons.Interact?.pressed &&
+        !buttons.Interact?.dragging &&
+        getState(InputState).capturingEntity === UndefinedEntity
+      ) {
         InputState.setCapturingEntity(entity)
-      }
-      if (buttons.Interact?.down) {
-        callInteractCallbacks(entity)
+
+        if (buttons.Interact?.up) {
+          callInteractCallbacks(entity)
+        }
       }
     }, true)
 
@@ -315,26 +320,6 @@ export const InteractableComponent = defineComponent({
 
       return () => {}
     }, [isEditing.value])
-
-    // useEffect(() => {
-    //   if (isEditing.value || !input) return
-    //   const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).canvas
-    //   if (input.inputSources.length > 0) {
-    //     canvas.style.cursor = 'pointer'
-    //   }
-    //   return () => {
-    //     canvas.style.cursor = 'auto'
-    //   }
-    // }, [input?.inputSources.length, isEditing.value])
-
-    // //handle highlighting when state is set
-    // useEffect(() => {
-    //   if (!interactable.highlighted.value) return
-    //   setComponent(entity, HighlightComponent)
-    //   return () => {
-    //     removeComponent(entity, HighlightComponent)
-    //   }
-    // }, [interactable.highlighted])
     return null
   }
 })
