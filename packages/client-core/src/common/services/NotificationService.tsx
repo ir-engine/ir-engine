@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SnackbarProvider, VariantType } from 'notistack'
+import { SnackbarKey, SnackbarProvider, VariantType, closeSnackbar } from 'notistack'
+import React, { CSSProperties, Fragment, useEffect, useRef } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState, getState, useMutableState } from '@etherealengine/hyperflux'
 
-import { defaultAction } from '../components/NotificationActions'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })
 
@@ -43,6 +45,15 @@ export const NotificationState = defineState({
 export type NotificationOptions = {
   variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
   actionType?: keyof typeof NotificationActions
+}
+
+export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
+  return (
+    <Fragment>
+      {content}
+      <IconButton onClick={() => closeSnackbar(key)} icon={<Icon type="Close" sx={{ color: 'white' }} />} />
+    </Fragment>
+  )
 }
 
 export const NotificationActions = {
@@ -62,4 +73,25 @@ export const NotificationService = {
       action: NotificationActions[options.actionType ?? 'default']
     })
   }
+}
+
+globalThis.NotificationService = NotificationService
+
+export const NotificationSnackbar = (props: { style?: CSSProperties }) => {
+  const notistackRef = useRef<SnackbarProvider>()
+  const notificationstate = useMutableState(NotificationState)
+
+  useEffect(() => {
+    notificationstate.snackbar.set(notistackRef.current)
+  }, [notistackRef.current])
+
+  return (
+    <SnackbarProvider
+      ref={notistackRef as any}
+      maxSnack={7}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      action={defaultAction}
+      style={props.style}
+    />
+  )
 }

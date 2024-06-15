@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 
-import { SnackbarProvider } from 'notistack'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -34,14 +33,12 @@ import {
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { NotificationSnackbar } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/ecs/src/Engine'
+import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
+import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useMutableState } from '@etherealengine/hyperflux'
-import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 
 import PublicRouter from '../route/public_tw'
@@ -51,50 +48,29 @@ import '../themes/components.css'
 import '../themes/utilities.css'
 
 const AppPage = () => {
-  const authState = useMutableState(AuthState)
-  const isLoggedIn = useMutableState(AuthState).isLoggedIn
-  const selfUser = authState.user
-  const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const { t } = useTranslation()
+  const isLoggedIn = useAuthenticated()
 
   useEffect(() => {
-    AuthService.doLoginAuto()
     initGA()
     logPageView()
   }, [])
 
-  useEffect(() => {
-    if (!isLoggedIn.value || projectComponents.length) return
-    loadWebappInjection().then((result) => {
-      setProjectComponents(result)
-    })
-  }, [isLoggedIn])
-
-  useEffect(() => {
-    Engine.instance.userID = selfUser.id.value
-  }, [selfUser.id])
-
-  if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn.value) {
+  if (!/auth\/oauth/.test(location.pathname) && !isLoggedIn) {
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingRoutes')} />
   }
 
   return (
     <>
-      {projectComponents && <PublicRouter />}
-      {projectComponents?.map((Component, i) => <Component key={i} />)}
+      <LoadWebappInjection>
+        <PublicRouter />
+      </LoadWebappInjection>
     </>
   )
 }
 
 const TailwindPage = () => {
-  const notistackRef = useRef<SnackbarProvider>()
-  const notificationstate = useMutableState(NotificationState)
   const clientSettingState = useMutableState(AdminClientSettingsState)
-
-  useEffect(() => {
-    notificationstate.snackbar.set(notistackRef.current)
-  }, [notistackRef.current])
-
   useEffect(() => {
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
@@ -102,15 +78,9 @@ const TailwindPage = () => {
   return (
     <>
       <ThemeProvider>
-        <SnackbarProvider
-          ref={notistackRef as any}
-          maxSnack={7}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          action={defaultAction}
-        >
-          <AppPage />
-          <Debug />
-        </SnackbarProvider>
+        <NotificationSnackbar />
+        <AppPage />
+        <Debug />
       </ThemeProvider>
     </>
   )

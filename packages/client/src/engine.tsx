@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { createRef, Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
+import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
@@ -53,12 +54,22 @@ initializeBrowser()
 API.createAPI()
 initializeLogs()
 
-export default function ({ children, tailwind = false }): JSX.Element {
-  const ref = createRef()
+export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
-  return !tailwind ? (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
-  ) : (
-    children
+
+  useEffect(() => {
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    const redirectUrl = urlSearchParams.get('redirectUrl')
+    if (redirectUrl) {
+      history.push(redirectUrl)
+    }
+  }, [])
+
+  return (
+    <>
+      <BrowserRouter history={history}>
+        <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
+      </BrowserRouter>
+    </>
   )
 }

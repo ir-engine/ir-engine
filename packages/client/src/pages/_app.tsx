@@ -25,14 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
-import { NotificationState } from '@etherealengine/client-core/src/common/services/NotificationService'
+import {
+  NotificationSnackbar,
+  NotificationState
+} from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
 
 import '@etherealengine/client-core/src/util/GlobalStyle.css'
 
@@ -40,10 +42,9 @@ import { StyledEngineProvider, Theme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { Engine } from '@etherealengine/ecs/src/Engine'
 import { useMutableState } from '@etherealengine/hyperflux'
-import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
+import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from './themeContext'
 
@@ -55,15 +56,11 @@ declare module '@mui/styles/defaultTheme' {
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useMutableState(AuthState)
-  const isLoggedIn = useMutableState(AuthState).isLoggedIn
-  const selfUser = authState.user
-  const [projectComponents, setProjectComponents] = useState<Array<any> | null>(null)
+  const isLoggedIn = useAuthenticated()
   const notificationstate = useMutableState(NotificationState)
   const { t } = useTranslation()
 
   useEffect(() => {
-    AuthService.doLoginAuto()
     initGA()
     logPageView()
   }, [])
@@ -72,18 +69,7 @@ const AppPage = ({ route }: { route: string }) => {
     notificationstate.snackbar.set(notistackRef.current)
   }, [notistackRef.current])
 
-  useEffect(() => {
-    if (!isLoggedIn.value || projectComponents) return
-    loadWebappInjection().then((result) => {
-      setProjectComponents(result)
-    })
-  }, [isLoggedIn])
-
-  useEffect(() => {
-    Engine.instance.userID = selfUser.id.value
-  }, [selfUser.id])
-
-  if (!isLoggedIn.value) {
+  if (!isLoggedIn) {
     return <LoadingCircle message={t('common:loader.authenticating')} />
   }
 
@@ -91,23 +77,19 @@ const AppPage = ({ route }: { route: string }) => {
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          <SnackbarProvider
-            ref={notistackRef as any}
-            maxSnack={7}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            action={defaultAction}
+          <NotificationSnackbar
             style={{
               fontFamily: 'var(--lato)',
               fontSize: '12px'
             }}
-          >
-            <div style={{ pointerEvents: 'auto' }}>
-              <InviteToast />
-              <Debug />
-            </div>
-            {projectComponents && <RouterComp route={route} />}
-            {projectComponents?.map((Component, i) => <Component key={i} />)}
-          </SnackbarProvider>
+          />
+          <div style={{ pointerEvents: 'auto' }}>
+            <InviteToast />
+            <Debug />
+          </div>
+          <LoadWebappInjection>
+            <RouterComp route={route} />
+          </LoadWebappInjection>
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>
