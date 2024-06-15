@@ -190,10 +190,6 @@ const FogShaders = {
 }
 
 export function initBrownianMotionFogShader() {
-  console.log(ShaderChunk.fog_pars_vertex)
-  console.log(ShaderChunk.fog_vertex)
-  console.log(ShaderChunk.fog_pars_fragment)
-  console.log(ShaderChunk.fog_fragment)
   ShaderChunk.fog_pars_vertex = FogShaders.fog_pars_vertex.brownianMotionFog
   ShaderChunk.fog_vertex = FogShaders.fog_vertex.brownianMotionFog
   ShaderChunk.fog_pars_fragment = FogShaders.fog_pars_fragment.brownianMotionFog
