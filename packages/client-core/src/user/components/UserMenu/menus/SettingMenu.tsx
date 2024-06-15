@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
@@ -196,11 +195,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   return (
     <Modal
-      // open
-      // showBackButton
-      // isPopover={isPopover}
       title={'Settings'}
-      // onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
       onClose={() => PopupMenuServices.showPopupMenu()}
       hideFooter
       className="bg-[#0E0F11]"
@@ -221,17 +216,16 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
         </div>
         {selectedTab.value === 'general' && selfUser && (
           <>
-            <span className="mb02 mt-1 items-center">{t('user:usermenu.setting.themes')}</span>
-
-            <div className="flex justify-between">
+            <div className="mb-5 mt-1">{t('user:usermenu.setting.themes')}</div>
+            <div className="mb-4 flex justify-between">
               {accessibleThemeModes.map((mode, index) => (
                 <div className="flex-1" key={index}>
                   <InputGroup name="Type" label="">
                     <SelectInput
                       label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
                       value={themeModes[mode]}
-                      // menu={colorModesMenu}
                       className="w-full"
+                      inputClassName="rounded-lg overflow-hidden"
                       onChange={(e) => handleChangeUserThemeMode(e)}
                     />
                   </InputGroup>
@@ -241,16 +235,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
             {xrSupported && (
               <>
-                <Text align="center" variant="body1" mb={1} mt={1}>
-                  {t('user:usermenu.setting.xrusersetting')}
-                </Text>
-
-                {/* <InputSwitch
-                  checked={invertRotationAndMoveSticks}
-                  label={t('user:usermenu.setting.invert-rotation')}
-                  sx={{ mb: 2 }}
-                  onChange={handleChangeInvertRotationAndMoveSticks}
-                /> */}
+                <div className="my-1 items-center">{t('user:usermenu.setting.xrusersetting')}</div>
 
                 <div className="grid">
                   <div className="grid">
@@ -287,7 +272,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
             {/* Controls Helptext */}
             <>
-              <div>{t('user:usermenu.setting.controls')}</div>
+              <div className="mb-5 mt-1">{t('user:usermenu.setting.controls')}</div>
 
               {!isMobile && !xrSupported && (
                 <>
@@ -325,24 +310,18 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
             {/* Windows-specific Graphics/Performance Optimization Helptext */}
             {windowsPerformanceHelp && (
               <>
-                <Text align="center" variant="body1" mb={2} mt={3}>
-                  {t('user:usermenu.setting.windowsPerformanceHelp')}
-                </Text>
+                <div>{t('user:usermenu.setting.windowsPerformanceHelp')}</div>
 
-                <Text variant="caption">
+                <div>
                   If you're experiencing performance issues, and you're running on a machine with Nvidia graphics, try
                   the following.
-                </Text>
+                </div>
 
-                <Text variant="caption">
-                  Open the Nvidia Control Panel, select Chrome, make sure "High Performance" is selected.
-                </Text>
+                <div>Open the Nvidia Control Panel, select Chrome, make sure "High Performance" is selected.</div>
 
                 <img className={styles.row} src="/static/Nvidia_control_panel1.png" alt="Nvidia Control Panel" />
 
-                <Text variant="caption">
-                  In settings for Windows 10/11, search for the 'Graphics' preference on AMD/Nvidia for Chrome.
-                </Text>
+                <div>In settings for Windows 10/11, search for the 'Graphics' preference on AMD/Nvidia for Chrome.</div>
 
                 <img className={styles.row} src="/static/Nvidia_windows_prefs.png" alt="Nvidia Windows Preferences" />
               </>
@@ -353,22 +332,18 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
         {selectedTab.value === 'audio' && (
           <>
             {chromeDesktop && (
-              <Text align="center" variant="caption" mb={2.5}>
+              <div className="py-2 text-xs">
                 {t('user:usermenu.setting.chromeAEC')}
                 <br />
                 <b>
                   <u>chrome://flags/#chrome-wide-echo-cancellation</u>
                 </b>
-              </Text>
+              </div>
             )}
 
             <InputGroup name="Type" label={t('user:usermenu.setting.use-positional-media')} className="justify-start">
               <BooleanInput
-                // type="wide"
-                // icon={<Icon type="SurroundSound" />}
-                // label={t('user:usermenu.setting.use-positional-media')}
-                // checked={audioState.positionalMedia.value}
-                value={false}
+                value={audioState.positionalMedia.value}
                 onChange={(value: boolean) => {
                   getMutableState(AudioState).positionalMedia.set(value)
                 }}
@@ -386,10 +361,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
             {/* <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
               <> */}
-            <InputGroup name="Type" label="Total Volume" className="justify-start">
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-volume')} className="justify-start">
               <Slider
-                // icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                // label={t('user:usermenu.setting.lbl-volume')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -400,10 +373,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 onRelease={() => {}}
               />
             </InputGroup>
-            <InputGroup name="Type" label="Microphone" className="justify-start">
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-microphone')} className="justify-start">
               <Slider
-                // icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
-                // label={t('user:usermenu.setting.lbl-microphone')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -414,10 +385,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 onRelease={() => {}}
               />
             </InputGroup>
-            <InputGroup name="Type" label="User Volume" className="justify-start">
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-media-instance')} className="justify-start">
               <Slider
-                // icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                // label={t('user:usermenu.setting.lbl-media-instance')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -428,10 +397,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 onRelease={() => {}}
               />
             </InputGroup>
-            <InputGroup name="Type" label="Notification Volume" className="justify-start">
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-notification')} className="justify-start">
               <Slider
-                // icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                // label={t('user:usermenu.setting.lbl-notification')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -442,10 +409,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 onRelease={() => {}}
               />
             </InputGroup>
-            <InputGroup name="Type" label="Scene Volume" className="justify-start">
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-sound-effect')} className="justify-start">
               <Slider
-                // icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                // label={t('user:usermenu.setting.lbl-sound-effect')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -456,10 +421,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                 onRelease={() => {}}
               />
             </InputGroup>
-            <InputGroup name="Type" label="Music Volume" className="justify-start">
+            <InputGroup
+              name="Type"
+              label={t('user:usermenu.setting.lbl-background-music-volume')}
+              className="justify-start"
+            >
               <Slider
-                // icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
-                // label={t('user:usermenu.setting.lbl-background-music-volume')}
                 max={1}
                 min={0}
                 step={0.01}
@@ -478,52 +445,37 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
         {/* Graphics Settings */}
         {selectedTab.value === 'graphics' && (
           <>
-            <Slider
-              // icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
-              // label={t('user:usermenu.setting.lbl-quality')}
-              max={5}
-              min={0}
-              step={1}
-              value={rendererState.qualityLevel.value}
-              // sx={{ mt: 4 }}
-              onChange={handleQualityLevelChange}
-              onRelease={() => {}}
-            />
+            <InputGroup name="Type" label={t('user:usermenu.setting.lbl-quality')} className="justify-start">
+              <Slider
+                max={5}
+                min={0}
+                step={1}
+                value={rendererState.qualityLevel.value}
+                onChange={handleQualityLevelChange}
+                onRelease={() => {}}
+              />
+            </InputGroup>
 
-            <div className="grid">
+            <div className="grid py-4">
               <div className="grid">
                 <InputGroup name="Type" label={t('user:usermenu.setting.lbl-pp')} className="justify-start">
-                  <BooleanInput
-                    // label={t('user:usermenu.setting.lbl-pp')}
-                    // checked={rendererState.usePostProcessing.value}
-                    onChange={handlePostProcessingCheckbox}
-                    value={false}
-                  />
+                  <BooleanInput onChange={handlePostProcessingCheckbox} value={rendererState.usePostProcessing.value} />
                 </InputGroup>
               </div>
 
               <div className="grid">
                 <InputGroup name="Type" label={t('user:usermenu.setting.lbl-shadow')} className="justify-start">
-                  <BooleanInput
-                    // label={t('user:usermenu.setting.lbl-shadow')}
-                    // checked={rendererState.useShadows.value}
-                    onChange={handleShadowCheckbox}
-                    value={false}
-                  />
+                  <BooleanInput onChange={handleShadowCheckbox} value={rendererState.useShadows.value} />
                 </InputGroup>
               </div>
 
               <div className="grid">
                 <InputGroup name="Type" label={t('user:usermenu.setting.lbl-automatic')} className="justify-start">
-                  <BooleanInput
-                    // label={t('user:usermenu.setting.lbl-automatic')}
-                    // checked={rendererState.automatic.value}
-                    onChange={handleAutomaticCheckbox}
-                    value={false}
-                  />
+                  <BooleanInput onChange={handleAutomaticCheckbox} value={rendererState.automatic.value} />
                 </InputGroup>
               </div>
             </div>
+
             {rendererState.useShadows.value && (
               <SelectInput
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
