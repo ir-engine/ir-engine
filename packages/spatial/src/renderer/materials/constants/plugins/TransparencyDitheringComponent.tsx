@@ -35,7 +35,7 @@ import {
   ditheringFragUniform,
   ditheringVertex,
   ditheringVertexUniform
-} from '../functions/ditherShaderChunk'
+} from './ditherShaderChunk'
 
 export enum ditherCalculationType {
   worldTransformed = 1,
