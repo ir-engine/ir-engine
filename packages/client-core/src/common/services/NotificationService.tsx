@@ -75,8 +75,6 @@ export const NotificationService = {
   }
 }
 
-globalThis.NotificationService = NotificationService
-
 export const NotificationSnackbar = (props: { style?: CSSProperties }) => {
   const notistackRef = useRef<SnackbarProvider>()
   const notificationstate = useMutableState(NotificationState)
