@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { FileThumbnailJobState } from '@etherealengine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
@@ -34,6 +35,7 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
@@ -43,6 +45,9 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
+import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
+import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
+import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { downloadBlobAsZip, inputFileWithAddToScene } from '@etherealengine/editor/src/functions/assetFunctions'
@@ -100,6 +105,15 @@ export type FileType = {
   url: string
 }
 
+const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
+}
+
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
@@ -140,6 +154,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
   const openConvert = useHookstate(false)
+
+  const openConfirm = useHookstate(false)
+  const contentToDeletePath = useHookstate('')
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
@@ -273,6 +290,19 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   ): Promise<void> => {
     if (isLoading) return
     fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
+  }
+
+  const handleConfirmClose = () => {
+    contentToDeletePath.set('')
+
+    openConfirm.set(false)
+  }
+
+  const deleteContent = async (): Promise<void> => {
+    if (isLoading) return
+    openConfirm.set(false)
+    fileService.remove(contentToDeletePath.value)
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
@@ -638,6 +668,33 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'model') && (
+        <ModelCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openCompress.value && fileProperties.value && fileConsistsOfContentType(fileProperties.value, 'image') && (
+        <ImageCompressionPanel
+          openCompress={openCompress}
+          fileProperties={fileProperties as any}
+          onRefreshDirectory={refreshDirectory}
+        />
+      )}
+
+      {openProperties.value && fileProperties.value && (
+        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
+      )}
+      <ConfirmDialog
+        open={openConfirm.value}
+        description={t('editor:dialog.delete.confirm-content', {
+          content: contentToDeletePath.value.split('/').at(-1)
+        })}
+        onClose={handleConfirmClose}
+        onSubmit={deleteContent}
+      />
     </>
   )
 }

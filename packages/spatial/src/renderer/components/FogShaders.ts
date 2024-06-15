@@ -103,10 +103,10 @@ const FogShaders = {
     default: ShaderChunk.fog_fragment,
     brownianMotionFog: `#ifdef USE_FOG
         vec3 fogOrigin = cameraPosition;
-        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-        float fogDepth = distance(vWorldPosition, fogOrigin);
+        vec3 fogDirection = normalize(fogWorldPosition - fogOrigin);
+        float fogDepth = myDistance(fogWorldPosition, fogOrigin);
         // f(p) = fbm( p + fbm( p ) )
-        vec3 noiseSampleCoord = vWorldPosition * 0.00025 + vec3(
+        vec3 noiseSampleCoord = fogWorldPosition * 0.00025 + vec3(
             0.0, 0.0, fogTime * fogTimeScale * 0.025);
         float noiseSample = FBM(noiseSampleCoord + FBM(noiseSampleCoord)) * 0.5 + 0.5;
         fogDepth *= mix(noiseSample, 1.0, saturate((fogDepth - 5000.0) / 5000.0));
@@ -119,8 +119,8 @@ const FogShaders = {
     heightFog: `
       #ifdef USE_FOG
         vec3 fogOrigin = cameraPosition;
-        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
-        float fogDepth = distance(vWorldPosition, fogOrigin);
+        vec3 fogDirection = normalize(fogWorldPosition - fogOrigin);
+        float fogDepth = myDistance(fogWorldPosition, fogOrigin);
 
         float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
             1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
@@ -133,11 +133,14 @@ const FogShaders = {
     brownianMotionFog:
       _NOISE_GLSL +
       `
+      float myDistance(vec3 a, vec3 b) {
+        return length(a - b);
+      } 
       #ifdef USE_FOG
         uniform float fogTime;
         uniform float fogTimeScale;
         uniform vec3 fogColor;
-        varying vec3 vWorldPosition;
+        varying vec3 fogWorldPosition;
         #ifdef FOG_EXP2
           uniform float fogDensity;
           uniform float heightFactor;
@@ -147,9 +150,12 @@ const FogShaders = {
         #endif
       #endif`,
     heightFog: `
+      float myDistance(vec3 a, vec3 b) {
+        return length(a - b);
+      }
       #ifdef USE_FOG
         uniform vec3 fogColor;
-        varying vec3 vWorldPosition;
+        varying vec3 fogWorldPosition;
         #ifdef FOG_EXP2
           uniform float fogDensity;
           uniform float heightFactor;
@@ -163,22 +169,22 @@ const FogShaders = {
     default: ShaderChunk.fog_vertex,
     brownianMotionFog: `
       #ifdef USE_FOG
-        vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
+        fogWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
       #endif`,
     heightFog: `
       #ifdef USE_FOG
-        vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
+        fogWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz; // From local position to global position
       #endif`
   },
   fog_pars_vertex: {
     default: ShaderChunk.fog_pars_vertex,
     brownianMotionFog: `
       #ifdef USE_FOG
-        varying vec3 vWorldPosition;
+        varying vec3 fogWorldPosition;
       #endif`,
     heightFog: `
       #ifdef USE_FOG
-        varying vec3 vWorldPosition;
+        varying vec3 fogWorldPosition;
       #endif`
   }
 }
