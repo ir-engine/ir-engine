@@ -34,7 +34,7 @@ import {
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { NotificationSnackbar } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
+import { useThemeProvider } from '@etherealengine/client-core/src/common/services/ThemeService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -75,13 +75,13 @@ const TailwindPage = () => {
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
 
+  useThemeProvider()
+
   return (
     <>
-      <ThemeProvider>
-        <NotificationSnackbar />
-        <AppPage />
-        <Debug />
-      </ThemeProvider>
+      <NotificationSnackbar />
+      <AppPage />
+      <Debug />
     </>
   )
 }
