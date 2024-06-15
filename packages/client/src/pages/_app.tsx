@@ -24,14 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
-import { SnackbarProvider } from 'notistack'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import {
-  NotificationSnackbar,
-  NotificationState
-} from '@etherealengine/client-core/src/common/services/NotificationService'
+import { NotificationSnackbar } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { useAuthenticated } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -42,7 +38,6 @@ import { StyledEngineProvider, Theme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { useMutableState } from '@etherealengine/hyperflux'
 
 import { LoadWebappInjection } from '@etherealengine/client-core/src/components/LoadWebappInjection'
 import RouterComp from '../route/public'
@@ -55,19 +50,13 @@ declare module '@mui/styles/defaultTheme' {
 
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 const AppPage = ({ route }: { route: string }) => {
-  const notistackRef = useRef<SnackbarProvider>()
   const isLoggedIn = useAuthenticated()
-  const notificationstate = useMutableState(NotificationState)
   const { t } = useTranslation()
 
   useEffect(() => {
     initGA()
     logPageView()
   }, [])
-
-  useEffect(() => {
-    notificationstate.snackbar.set(notistackRef.current)
-  }, [notistackRef.current])
 
   if (!isLoggedIn) {
     return <LoadingCircle message={t('common:loader.authenticating')} />
