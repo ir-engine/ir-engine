@@ -285,13 +285,15 @@ describe('ColliderComponent', () => {
 
         setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere })
         assert.notEqual(getComponent(testEntity, ColliderComponent).shape, ColliderComponentDefaults.shape)
-        const after1 = Physics._Colliders.get(testEntity)!.shape
+        const after1Collider = Physics._Colliders.get(testEntity)!
+        const after1 = after1Collider.shape
+        assert.notEqual(beforeCollider.handle, after1Collider.handle)
         assert.notDeepEqual(after1, before)
 
         removeComponent(testEntity, ColliderComponent)
         assert.notEqual(getComponent(testEntity, ColliderComponent)?.shape, ColliderComponentDefaults.shape)
-        const after2 = Physics._Colliders.get(testEntity)?.shape
-        assert.equal(after2, undefined)
+        const after2Collider = Physics._Colliders.get(testEntity)!
+        assert.equal(after2Collider, undefined)
       })
 
       it("... when the scale of the entity's transform changes", () => {
@@ -329,7 +331,6 @@ describe('ColliderComponent', () => {
           /*closest*/ true,
           /*includeSelf*/ false
         )
-        console.log(testEntity, parentEntity, newParent, ancestor)
         assert.equal(ancestor, newParent)
       })
     })
