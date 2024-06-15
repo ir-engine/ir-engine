@@ -50,7 +50,6 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import Well from '../layout/Well'
 import ErrorPopUp from '../popup/ErrorPopUp'
-import { PrefabSettingsState } from '../prefabs/PrefabEditors'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -106,26 +105,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       exporting.set(false)
     })
   }
-  const onExportPrefabModel = () => {
-    const prefabsSettings = getState(PrefabSettingsState)
 
-    if (exporting.value) {
-      console.warn('already exporting')
-      return
-    }
-    exporting.set(true)
-    //const fileName=defaultPrefabFolder+'/'+prefabName+'.gltf'
-    const defaultPrefabFolder = prefabsSettings.prefabFolder
-    const prefabName = prefabsSettings.prefabName
-    const fileName = defaultPrefabFolder + '/' + prefabName + '.gltf'
-    exportRelativeGLTF(entity, srcProject.value, fileName).then(() => {
-      const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
-      commitProperty(ModelComponent, 'src')(nuPath)
-      exporting.set(false)
-    })
-    prefabsSettings.prefabFolder = '/assets/custom-prefabs'
-    prefabsSettings.prefabName = 'prefab'
-  }
   useEffect(() => {
     srcPath.set(getRelativePath())
     exportType.set(getExportExtension())
@@ -139,13 +119,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           recursiveHipsLookup(modelComponent.asset.value.scene as Object3D | Scene))
     )
   }, [modelComponent.asset])
-
-  useEffect(() => {
-    if (modelComponent.save.value) {
-      onExportPrefabModel()
-      modelComponent.save.set(false)
-    }
-  }, [modelComponent.save])
 
   return (
     <NodeEditor
