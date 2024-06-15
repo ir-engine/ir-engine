@@ -41,8 +41,7 @@ const assetPath = 'asset'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
   // drop unused columns
   const sidColumnExists = await knex.schema.hasColumn(staticResourcePath, 'sid')
@@ -99,18 +98,18 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  const tableExists = await trx.schema.hasTable(locationPath)
+  const tableExists = await knex.schema.hasTable(locationPath)
 
   const now = await getDateTimeSql()
 
   if (tableExists) {
     const storageProvider = getStorageProvider()
-    const projects = await trx.select().from(projectPath)
+    const projects = await knex.select().from(projectPath)
     for (const project of projects) {
-      const assets = await trx.select().from(assetPath).where({ projectId: project.id })
+      const assets = await knex.select().from(assetPath).where({ projectId: project.id })
       const staticResources = [] as StaticResourceDatabaseType[]
       for (const asset of assets) {
-        const staticResource = await trx.select().from(staticResourcePath).where({ key: asset.assetURL })
+        const staticResource = await knex.select().from(staticResourcePath).where({ key: asset.assetURL })
         if (staticResource.length) continue
         staticResources.push({
           id: asset.id,
@@ -132,20 +131,19 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: now
         })
       }
-      await trx.from(staticResourcePath).insert(staticResources)
+      await knex.from(staticResourcePath).insert(staticResources)
     }
   }
 
   /** Change location table from storing sceneId as string to ref the scenetable */
-  await trx.schema.alterTable(locationPath, (table) => {
+  await knex.schema.alterTable(locationPath, (table) => {
     table.dropForeign('sceneId')
     table.foreign('sceneId').references('id').inTable(staticResourcePath).onDelete('CASCADE').onUpdate('CASCADE')
   })
 
-  await trx.schema.dropTable(assetPath)
+  await knex.schema.dropTable(assetPath)
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -153,8 +151,7 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
   // add back old columns
   const sidColumnExists = await knex.schema.hasColumn(staticResourcePath, 'sid')
@@ -210,6 +207,5 @@ export async function down(knex: Knex): Promise<void> {
     })
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
