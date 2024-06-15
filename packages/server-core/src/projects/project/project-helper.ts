@@ -79,7 +79,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getJobBody } from '../../k8s-job-helper'
-import { getStats } from '../../media/static-resource/static-resource-helper'
+import { getStats, regenerateProjectResourcesJson } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
@@ -1802,54 +1802,8 @@ export const uploadLocalProjectToProvider = async (
       }
     })
   )
-  await updateProjectResourcesJson(app, projectName)
+  await regenerateProjectResourcesJson(app, projectName)
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   const assetsOnly = !fs.existsSync(path.join(projectRootPath, 'xrengine.config.ts'))
   return { files: results.filter((success) => !!success) as string[], assetsOnly }
-}
-
-export const updateProjectResourcesJson = async (app: Application, projectName: string) => {
-  const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
-    query: { project: projectName },
-    paginate: false
-  })
-  if (resources.length === 0) return
-  const resourcesJson = Object.fromEntries(
-    resources.map((resource) => [
-      resource.key.replace(`projects/${projectName}/`, ''),
-      {
-        type: resource.type,
-        tags: resource.tags ?? undefined,
-        dependencies: resource.dependencies ?? undefined,
-        licensing: resource.licensing ?? undefined,
-        description: resource.description ?? undefined,
-        attribution: resource.attribution ?? undefined,
-        thumbnailURL: resource.thumbnailURL ?? undefined,
-        thumbnailMode: resource.thumbnailMode ?? undefined
-      }
-    ])
-  )
-
-  const key = `projects/${projectName}/resources.json`
-  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
-
-  const storageProvider = getStorageProvider()
-
-  await storageProvider.putObject(
-    {
-      Key: key,
-      Body: body,
-      ContentType: 'application/json'
-    },
-    {
-      isDirectory: false
-    }
-  )
-
-  if (config.fsProjectSyncEnabled) {
-    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
-    const dirname = path.dirname(filePath)
-    fs.mkdirSync(dirname, { recursive: true })
-    fs.writeFileSync(filePath, body)
-  }
 }

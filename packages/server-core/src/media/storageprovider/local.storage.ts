@@ -121,7 +121,8 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(this.PATH_PREFIX, key)
-    const result = await fs.promises.readFile(filePath)
+    /** @todo for some reason, fs.promises.readFile will not read long formatted json files */
+    const result = fs.readFileSync(filePath)
     return {
       Body: result,
       ContentType: getContentType(filePath)

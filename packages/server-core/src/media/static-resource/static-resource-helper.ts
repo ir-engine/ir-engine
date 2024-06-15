@@ -23,11 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import * as ffprobe from '@ffprobe-installer/ffprobe'
+import appRootPath from 'app-root-path'
 import execa from 'execa'
+import fs from 'fs'
 import mp3Duration from 'mp3-duration'
+import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type MediaUploadArguments = {
   media: Buffer
@@ -193,4 +200,124 @@ export const StatFunctions = {
   image: getImageStats,
   model: getModelStats,
   volumetric: getVolumetricStats
+}
+
+export const regenerateProjectResourcesJson = async (app: Application, projectName: string) => {
+  const resources: StaticResourceType[] = await app.service(staticResourcePath).find({
+    query: { project: projectName },
+    paginate: false
+  })
+  if (resources.length === 0) return
+  const resourcesJson = Object.fromEntries(
+    resources.map((resource) => [
+      resource.key.replace(`projects/${projectName}/`, ''),
+      {
+        type: resource.type,
+        tags: resource.tags ?? undefined,
+        dependencies: resource.dependencies ?? undefined,
+        licensing: resource.licensing ?? undefined,
+        description: resource.description ?? undefined,
+        attribution: resource.attribution ?? undefined,
+        thumbnailURL: resource.thumbnailURL ?? undefined,
+        thumbnailMode: resource.thumbnailMode ?? undefined
+      }
+    ])
+  )
+
+  const key = `projects/${projectName}/resources.json`
+  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+  const storageProvider = getStorageProvider()
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
+}
+
+export const patchSingleProjectResourcesJson = async (app: Application, resource: StaticResourceType) => {
+  const projectName = resource.project
+
+  const key = `projects/${projectName}/resources.json`
+  const storageProvider = getStorageProvider()
+
+  const result = await storageProvider.getObject(key)
+  const resourcesJson = JSON.parse(result.Body.toString())
+
+  const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
+  resourcesJson[projectRelativeKey] = {
+    type: resource.type,
+    tags: resource.tags ?? undefined,
+    dependencies: resource.dependencies ?? undefined,
+    licensing: resource.licensing ?? undefined,
+    description: resource.description ?? undefined,
+    attribution: resource.attribution ?? undefined,
+    thumbnailURL: resource.thumbnailURL ?? undefined,
+    thumbnailMode: resource.thumbnailMode ?? undefined
+  }
+
+  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
+}
+
+export const removeProjectResourcesJson = async (app: Application, resource: StaticResourceType) => {
+  const projectName = resource.project
+
+  const key = `projects/${projectName}/resources.json`
+  const storageProvider = getStorageProvider()
+
+  const resourcesJson = JSON.parse((await storageProvider.getObject(key)).Body.toString())
+
+  const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
+  delete resourcesJson[projectRelativeKey]
+
+  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+  await storageProvider.putObject(
+    {
+      Key: key,
+      Body: body,
+      ContentType: 'application/json'
+    },
+    {
+      isDirectory: false
+    }
+  )
+
+  if (config.fsProjectSyncEnabled) {
+    const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+    const dirname = path.dirname(filePath)
+    fs.mkdirSync(dirname, { recursive: true })
+    fs.writeFileSync(filePath, body)
+  }
 }

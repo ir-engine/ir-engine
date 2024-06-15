@@ -35,9 +35,9 @@ import resolveProjectId from '../../hooks/resolve-project-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
-import { updateProjectResourcesJson } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
+import { patchSingleProjectResourcesJson, removeProjectResourcesJson } from './static-resource-helper'
 import { StaticResourceService } from './static-resource.class'
 import {
   staticResourceDataResolver,
@@ -98,20 +98,36 @@ const createHashIfNeeded = async (context: HookContext<StaticResourceService>) =
 }
 
 const updateResourcesJson = async (context: HookContext<StaticResourceService>) => {
-  if (!context.result) throw new BadRequest('Batch update is not supported')
+  if (!context.method || !(context.method === 'create' || context.method === 'update' || context.method === 'patch'))
+    throw new BadRequest('[updateResourcesJson] Only create, update, patch methods are supported')
+
+  if (!context.result) throw new BadRequest('[updateResourcesJson] Result not found')
+
   const ignoreResourcesJson = context.params?.ignoreResourcesJson
   if (ignoreResourcesJson) return
 
   const results =
     'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
 
-  const projectNames = results.reduce((acc: string[], result) => {
-    if (result.project && result.key.startsWith('projects/') && !acc.includes(result.project)) acc.push(result.project)
-    return acc
-  }, [])
+  for (const result of results) {
+    await patchSingleProjectResourcesJson(context.app, result)
+  }
+}
 
-  for (const projectName of projectNames) {
-    await updateProjectResourcesJson(context.app, projectName)
+const removeResourcesJson = async (context: HookContext<StaticResourceService>) => {
+  if (!context.method || context.method !== 'remove')
+    throw new BadRequest('[removeResourcesJson] Only remove method is supported')
+
+  if (!context.result) throw new BadRequest('[removeResourcesJson] Result not found')
+
+  const ignoreResourcesJson = context.params?.ignoreResourcesJson
+  if (ignoreResourcesJson) return
+
+  const results =
+    'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
+
+  for (const result of results) {
+    await removeProjectResourcesJson(context.app, result)
   }
 }
 
@@ -237,7 +253,7 @@ export default {
     create: [updateResourcesJson],
     update: [updateResourcesJson],
     patch: [updateResourcesJson],
-    remove: [updateResourcesJson]
+    remove: [removeResourcesJson]
   },
 
   error: {
