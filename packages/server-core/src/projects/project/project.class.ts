@@ -81,26 +81,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
-
-    this.app.isSetup.then(() => this._callOnLoad())
-  }
-
-  async _callOnLoad() {
-    try {
-      const projects = await super._find({
-        paginate: false
-      })
-      await Promise.all(
-        projects.map(async (project) => {
-          if (!fs.existsSync(path.join(projectsRootFolder, project.name, 'xrengine.config.ts'))) return
-          const config = getProjectConfig(project.name)
-          if (config?.onEvent) return onProjectEvent(this.app, project, config.onEvent, 'onLoad')
-        })
-      )
-    } catch (err) {
-      logger.error(err)
-      throw err
-    }
   }
 
   async _seedProject(projectName: string): Promise<any> {
@@ -211,8 +191,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     }
 
     await Promise.all(promises)
-
-    await this._callOnLoad()
 
     if (removeProjects)
       for (const { name, id } of data) {

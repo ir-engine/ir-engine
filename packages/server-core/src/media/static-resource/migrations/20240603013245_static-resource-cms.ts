@@ -23,16 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  StaticResourceDatabaseType,
-  locationPath,
-  projectPath,
-  staticResourcePath
-} from '@etherealengine/common/src/schema.type.module'
-import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
+import { locationPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import type { Knex } from 'knex'
-import { getStorageProvider } from '../../storageprovider/storageprovider'
-import { createStaticResourceHash } from '../../upload-asset/upload-asset.service'
 
 const assetPath = 'asset'
 
@@ -97,42 +89,40 @@ export async function up(knex: Knex): Promise<void> {
     })
   }
 
-  const tableExists = await knex.schema.hasTable(locationPath)
-
-  const now = await getDateTimeSql()
-
-  if (tableExists) {
-    const storageProvider = getStorageProvider()
-    const projects = await knex.select().from(projectPath)
-    for (const project of projects) {
-      const assets = await knex.select().from(assetPath).where({ projectId: project.id })
-      const staticResources = [] as StaticResourceDatabaseType[]
-      for (const asset of assets) {
-        const staticResource = await knex.select().from(staticResourcePath).where({ key: asset.assetURL })
-        if (staticResource.length) continue
-        staticResources.push({
-          id: asset.id,
-          key: asset.assetURL,
-          mimeType: asset.assetURL.endsWith('.scene.json') ? 'application/json' : 'model/gltf+json',
-          userId: null!,
-          hash: createStaticResourceHash((await storageProvider.getObject(asset.assetURL)).Body),
-          type: 'scene',
-          project: project.name,
-          tags: null!,
-          dependencies: null!,
-          attribution: null!,
-          licensing: null!,
-          description: null!,
-          stats: null!,
-          thumbnailURL: null!,
-          thumbnailMode: null!,
-          createdAt: now,
-          updatedAt: now
-        })
-      }
-      await knex.from(staticResourcePath).insert(staticResources)
-    }
-  }
+  // const tableExists = await knex.schema.hasTable(locationPath)
+  // const now = await getDateTimeSql()
+  // if (tableExists) {
+  //   const storageProvider = getStorageProvider()
+  //   const projects = await knex.select().from(projectPath)
+  //   for (const project of projects) {
+  //     const assets = await knex.select().from(assetPath).where({ projectId: project.id })
+  //     const staticResources = [] as StaticResourceDatabaseType[]
+  //     for (const asset of assets) {
+  //       const staticResource = await knex.select().from(staticResourcePath).where({ key: asset.assetURL })
+  //       if (staticResource.length) continue
+  //       staticResources.push({
+  //         id: asset.id,
+  //         key: asset.assetURL,
+  //         mimeType: asset.assetURL.endsWith('.scene.json') ? 'application/json' : 'model/gltf+json',
+  //         userId: null!,
+  //         hash: createStaticResourceHash((await storageProvider.getObject(asset.assetURL)).Body),
+  //         type: 'scene',
+  //         project: project.name,
+  //         tags: null!,
+  //         dependencies: null!,
+  //         attribution: null!,
+  //         licensing: null!,
+  //         description: null!,
+  //         stats: null!,
+  //         thumbnailURL: null!,
+  //         thumbnailMode: null!,
+  //         createdAt: now,
+  //         updatedAt: now
+  //       })
+  //     }
+  //     if (staticResources.length) await knex.from(staticResourcePath).insert(staticResources)
+  //   }
+  // }
 
   /** Change location table from storing sceneId as string to ref the scenetable */
   await knex.schema.alterTable(locationPath, (table) => {
