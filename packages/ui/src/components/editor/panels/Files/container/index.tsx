@@ -36,6 +36,7 @@ import {
   projectPath,
   staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { Engine } from '@etherealengine/ecs'
 import { AssetSelectionChangePropsType } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
@@ -103,6 +104,15 @@ export type FileType = {
   size: string
   type: string
   url: string
+}
+
+const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
+  if (file.isFolder) {
+    return contentType.startsWith('image')
+  } else {
+    const guessedType: string = CommonKnownContentTypes[file.type]
+    return guessedType?.startsWith(contentType)
+  }
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -313,6 +323,19 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       newPath,
       isCopy
     })
+  }
+
+  const handleConfirmClose = () => {
+    contentToDeletePath.set('')
+
+    openConfirm.set(false)
+  }
+
+  const deleteContent = async (): Promise<void> => {
+    if (isLoading) return
+    openConfirm.set(false)
+    fileService.remove(contentToDeletePath.value)
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '', size: '' })
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
