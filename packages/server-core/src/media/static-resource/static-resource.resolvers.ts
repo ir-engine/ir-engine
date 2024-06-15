@@ -52,7 +52,7 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
     stats = JSON.parse(stats)
   }
 
-  const dependencies = JSON.parse(rawData.dependencies) as string[]
+  const dependencies = rawData.dependencies ? (JSON.parse(rawData.dependencies) as string[]) : []
 
   return {
     ...rawData,
