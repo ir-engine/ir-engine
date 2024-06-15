@@ -29,7 +29,7 @@ import { NodeCategory, SocketsList, makeFunctionNodeDefinition, sequence } from 
 
 export const getQuery = makeFunctionNodeDefinition({
   typeName: 'engine/query/get',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'get Query',
   configuration: {
     numInputs: {

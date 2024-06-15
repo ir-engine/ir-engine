@@ -28,6 +28,7 @@ import React from 'react'
 import { clamp } from '@etherealengine/spatial/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '@etherealengine/editor/src/functions/utils'
+import { useHookstate } from '@etherealengine/hyperflux'
 import { twMerge } from 'tailwind-merge'
 import Text from '../../../../primitives/tailwind/Text'
 
@@ -80,7 +81,10 @@ const NumericInput = ({
   max,
   ...rest
 }: NumericInputProp) => {
-  const handleStep = (event: React.KeyboardEvent<HTMLInputElement>, direction: number) => {
+  const tempValue = useHookstate(0)
+  const focused = useHookstate(false)
+
+  const handleStep = (event: React.KeyboardEvent<HTMLInputElement>, direction: number, focus = true) => {
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
     const nextValue = value + stepSize * direction
@@ -90,6 +94,17 @@ const NumericInput = ({
     if (onChange) {
       onChange(roundedValue)
     }
+
+    tempValue.set(
+      Number(
+        roundedValue.toLocaleString('fullwide', {
+          useGrouping: false,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+        })
+      )
+    )
+    focused.set(focus)
   }
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -109,6 +124,9 @@ const NumericInput = ({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value
 
+    tempValue.set(newValue as any)
+    focused.set(true)
+
     const parsedValue = parseFloat(newValue)
 
     if (!Number.isNaN(parsedValue)) {
@@ -118,11 +136,33 @@ const NumericInput = ({
     }
   }
 
+  const handleFocus = () => {
+    tempValue.set(
+      Number(
+        value.toLocaleString('fullwide', {
+          useGrouping: false,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+        })
+      )
+    )
+    focused.set(true)
+  }
+
+  const handleBlur = () => {
+    if (!focused.value) return
+    focused.set(false)
+
+    if (onRelease) {
+      onRelease(Number(tempValue.value!))
+    }
+  }
+
   return (
     <div
       className={twMerge(
-        prefix ? 'w-24 px-2 py-2' : 'w-52 px-5 py-2',
-        'flex h-8 items-center justify-between rounded bg-[#1A1A1A]',
+        prefix ? 'w-24 px-2 py-2' : 'w-1/2 px-5 py-2',
+        'flex h-10 items-center justify-between rounded-lg bg-[#1A1A1A]',
         className
       )}
     >
@@ -132,10 +172,12 @@ const NumericInput = ({
           'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none',
           inputClassName
         )}
-        value={toPrecisionString(value, displayPrecision)}
-        onKeyUp={handleKeyPress}
+        value={focused.value ? tempValue.value : toPrecisionString(value, displayPrecision)}
+        onKeyDown={handleKeyPress}
+        onFocus={handleFocus}
         onChange={handleChange}
-        onBlur={() => onRelease?.(value)}
+        onBlur={handleBlur}
+        type="number"
         {...rest}
       />
       {unit && (

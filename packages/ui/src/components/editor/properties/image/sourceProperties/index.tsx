@@ -56,12 +56,13 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
 
   return (
     <>
-      <InputGroup name="Transparency Mode" label={t('editor:properties.image.lbl-transparency')}>
+      <InputGroup name="Transparency" label={t('editor:properties.image.lbl-transparency')}>
         <SelectInput
           key={props.entity}
           options={imageTransparencyOptions}
           value={/*imageComponent.alphaMode.value*/ 'Opaque'}
           onChange={commitProperty(ImageComponent, 'alphaMode')}
+          className="w-1/2"
         />
       </InputGroup>
       {
@@ -90,6 +91,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           options={imageProjectionOptions}
           value={/*imageComponent.projection.value*/ 0}
           onChange={commitProperty(ImageComponent, 'projection')}
+          className="w-1/2"
         />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
@@ -98,6 +100,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           options={ImageProjectionSideOptions}
           value={/*imageComponent.side.value*/ 0}
           onChange={commitProperty(ImageComponent, 'side')}
+          className="w-1/2"
         />
       </InputGroup>
     </>

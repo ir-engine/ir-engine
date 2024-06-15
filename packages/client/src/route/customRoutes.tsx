@@ -44,13 +44,13 @@ const CustomRoutes = ({ customRoutes }) => {
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingCustom')} />}>
       <Routes>
         {matchedRoutes.map((route, i) => {
-          const { route: r, component, props: p } = route
+          const { route: r, component, props: p, componentProps } = route
           const Element = component as any
           return (
             <Route
               key={`custom-route-${i}`}
               path={r.split('/')[1] === '' ? `${r}*` : `${r}/*`}
-              element={<Element />}
+              element={<Element {...componentProps} />}
               {...p}
             />
           )

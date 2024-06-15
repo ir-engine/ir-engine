@@ -355,6 +355,7 @@
         "subtitle": "Edit Authentication Settings"
       },
       "service": "Service",
+      "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
@@ -518,7 +519,8 @@
         "subtitle": "Edit Project Settings",
         "submit": "Submit",
         "clear": "Clear",
-        "noSettingsMessage": "No settings schema available in xrengine.config.ts"
+        "noSettingsMessage": "No settings available",
+        "lastUpdatedBy": "Last updated by user id: {{userId}}"
       },
       "server": {
         "header": "Server",

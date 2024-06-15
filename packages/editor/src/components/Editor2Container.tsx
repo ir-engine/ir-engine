@@ -37,7 +37,8 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-import { EditorProgressBar } from '@etherealengine/ui/src/components/editor/util/EditorProgressBar'
+import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
+
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -93,7 +94,7 @@ const defaultLayout: LayoutData = {
             tabs: [ViewportPanelTab]
           },
           {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
           }
         ]
       },
@@ -161,7 +162,6 @@ const EditorContainer = () => {
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
-        <EditorProgressBar />
         <DndWrapper id="editor-container">
           <DragLayer />
           <Toolbar />

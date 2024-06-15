@@ -33,7 +33,8 @@ import { FileDataType } from '@etherealengine/editor/src/components/assets/FileB
 import { SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '@etherealengine/editor/src/functions/screenSpaceFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
+import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 import React, { MouseEventHandler, MutableRefObject, useEffect } from 'react'
@@ -42,10 +43,12 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
 import { VscBlank } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
+import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -108,12 +111,13 @@ export const FileTableListBody = ({
   const dragFn = drag ?? ((input) => input)
   const dropFn = drop ?? ((input) => input)
 
-  const staticResource = useFind(staticResourcePath, { query: { key: file.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, { query: { key: file.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
 
   const tableColumns = {
     name: (
-      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]">
+      <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
@@ -126,7 +130,8 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`h-[${fontSize * 3}px] text-[${fontSize}px] text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      className={`text-[#a3a3a3] hover:bg-theme-surfaceInput`}
+      style={{ height: `${fontSize * 3}px` }}
       onContextMenu={onContextMenu}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
@@ -135,7 +140,7 @@ export const FileTableListBody = ({
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
         .map((header, idx) => (
-          <td key={idx} className="text-base" style={{ fontSize }}>
+          <td key={idx} className="text-base" style={{ fontSize: `${fontSize}px` }}>
             {tableColumns[header]}
           </td>
         ))}
@@ -147,20 +152,24 @@ type FileGridItemProps = {
   item: FileDataType
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
+  isSelected: boolean
 }
 
 export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key } })
+  const { projectName } = useMutableState(EditorState)
+  const staticResource = useFind(staticResourcePath, { query: { key: props.item.key, project: projectName.value! } })
   const thumbnailURL = staticResource.data[0]?.thumbnailURL
   return (
     <div
-      className="flex w-[112px] cursor-pointer flex-col items-center text-center"
+      className={`flex h-32 w-28 cursor-pointer flex-col items-center text-center ${
+        props.isSelected ? 'rounded-md bg-blue-700/20' : ''
+      }`}
       onDoubleClick={props.item.isFolder ? props.onDoubleClick : undefined}
       onClick={props.onClick}
     >
       <div
-        className="mx-[16px] mt-[8px]"
+        className="mx-4 mt-2"
         style={{
           height: iconSize,
           width: iconSize,
@@ -174,9 +183,7 @@ export const FileGridItem: React.FC<FileGridItemProps> = (props) => {
           color="text-[#375DAF]"
         />
       </div>
-      <div className="text-secondary mb-[8px] line-clamp-1 w-full text-wrap break-all text-[14px]">
-        {props.item.fullName}
-      </div>
+      <div className="text-secondary mb-2 line-clamp-1 w-full text-wrap break-all text-sm">{props.item.fullName}</div>
     </div>
   )
 }
@@ -190,12 +197,12 @@ type FileBrowserItemType = {
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
-  deleteContent: (contentPath: string, type: string) => void
-  onClick: (params: FileDataType) => void
+  onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
   isListView: boolean
   staticResourceModifiedDates: Record<string, string>
+  isSelected: boolean
 }
 
 export function FileBrowserItem({
@@ -206,13 +213,13 @@ export function FileBrowserItem({
   setFileProperties,
   setOpenCompress,
   setOpenConvert,
-  deleteContent,
   onClick,
   dropItemsOnPanel,
   isFilesLoading,
   addFolder,
   isListView,
-  staticResourceModifiedDates
+  staticResourceModifiedDates,
+  isSelected
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
@@ -236,7 +243,7 @@ export function FileBrowserItem({
     setAnchorPosition({ left: 0, top: 0 })
   }
 
-  const onClickItem = () => onClick(item)
+  const onClickItem = (e: React.MouseEvent) => onClick(e, item)
 
   const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
@@ -304,11 +311,6 @@ export function FileBrowserItem({
     handleClose()
   }
 
-  const deleteContentCallback = () => {
-    deleteContent(item.key, item.type)
-    handleClose()
-  }
-
   const [_dragProps, drag, preview] = disableDnD
     ? [undefined, undefined, undefined]
     : useDrag(() => ({
@@ -347,10 +349,10 @@ export function FileBrowserItem({
           drag={drag}
         />
       ) : (
-        <div ref={drop} style={{ border: isOver ? '3px solid #ccc' : '' }}>
+        <div ref={drop} className={twMerge('h-min', isOver && 'border-2 border-gray-400')}>
           <div ref={drag}>
             <div onContextMenu={handleContextMenu}>
-              {<FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} />}
+              <FileGridItem item={item} onClick={onClickItem} onDoubleClick={onClickItem} isSelected={isSelected} />
             </div>
           </div>
         </div>
@@ -402,7 +404,12 @@ export function FileBrowserItem({
         >
           {t('editor:layout.filebrowser.renameAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={deleteContentCallback}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<DeleteFileModal file={item} />)}
+        >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
         <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>

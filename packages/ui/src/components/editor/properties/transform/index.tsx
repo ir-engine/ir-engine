@@ -36,8 +36,7 @@ import {
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
+import { LuMove3D } from 'react-icons/lu'
 
 import {
   EditorComponentType,
@@ -51,6 +50,8 @@ import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHel
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@etherealengine/spatial'
+
+import BooleanInput from '../../input/Boolean'
 import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
@@ -108,7 +109,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup name={t('editor:properties.transform.title')} description="change transform of an entity">
+    <PropertyGroup
+      name={t('editor:properties.transform.title')}
+      description="change transform of an entity"
+      icon={<TransformPropertyGroup.iconComponent />}
+    >
       <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
@@ -149,6 +154,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   )
 }
 
-TransformPropertyGroup.iconComponent = ThreeDRotationIcon
+TransformPropertyGroup.iconComponent = LuMove3D
 
 export default TransformPropertyGroup

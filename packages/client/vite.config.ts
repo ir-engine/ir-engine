@@ -137,11 +137,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
           `../projects/projects/${project}/vite.config.extension.ts`
         )
         if (typeof viteConfigExtension === 'function') {
-          const configExtension = await viteConfigExtension()
+          const configExtension = (await viteConfigExtension(config)) as UserConfig
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          config.plugins = [...config.plugins!, ...configExtension.default.plugins]
-          delete configExtension.default.plugins
-          config = merge(config, configExtension.default)
+          if (configExtension?.plugins) {
+            config.plugins = [...config.plugins!, ...configExtension.plugins]
+            delete configExtension.plugins
+          }
+          config = merge(config, configExtension)
         }
       } catch (e) {
         console.error(e)
@@ -332,6 +334,15 @@ export default defineConfig(async () => {
       target: 'esnext',
       sourcemap: process.env.VITE_SOURCEMAPS === 'true' ? true : false,
       minify: 'terser',
+      terserOptions: {
+        mangle: {
+          // This is a work-around for a terser bug which occurs when a local variable named `fetch` is
+          // used in a function that also references the global `fetch` function as a default parameter value
+          // In this case, terser was mangling the local `fetch` variable a different name (which is fine),
+          // however it also updated the default parameter to the same mangled name (uh-oh), causing a runtime error.
+          reserved: ['fetch']
+        }
+      },
       dynamicImportVarsOptions: {
         warnOnError: true
       },
