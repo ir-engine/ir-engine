@@ -170,7 +170,7 @@ export const FileThumbnailJobState = defineState({
       })) as Paginated<FileBrowserContentType>
       directories = files.data
         .filter((file) => file.type === 'folder')
-        .map((file) => directory + file.name)
+        .map((file) => directory + file.url.match(/([^/]+)\/*$/)?.pop())
         .concat(directories)
       let theseThumbnails = files.data.filter((file) => extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
       if (!forceRegenerate) {

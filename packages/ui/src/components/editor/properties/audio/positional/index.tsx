@@ -39,11 +39,11 @@ import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/compo
 import { DistanceModel, DistanceModelOptions } from '@etherealengine/engine/src/audio/constants/AudioConstants'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import Slider from '../../../../primitives/tailwind/Slider'
-import InputGroup from '../../input/Group'
-import NumericInput from '../../input/Numeric'
-import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
+import Slider from '../../../../../primitives/tailwind/Slider'
+import InputGroup from '../../../input/Group'
+import NumericInput from '../../../input/Numeric'
+import SelectInput from '../../../input/Select'
+import NodeEditor from '../../nodeEditor'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
@@ -65,7 +65,7 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
-      icon={<PiSpeakerLowLight />}
+      icon={<PositionalAudioNodeEditor.iconComponent />}
     >
       <InputGroup
         name="Distance Model"

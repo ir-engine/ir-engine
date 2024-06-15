@@ -932,6 +932,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
+      "name":"Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",

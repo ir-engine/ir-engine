@@ -97,7 +97,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.video.name')}
       description={t('editor:properties.video.description')}
-      icon={<HiOutlineVideoCamera />}
+      icon={<VideoNodeEditor.iconComponent />}
     >
       <ProgressBar value={5} paused={false} totalTime={100} />
       <InputGroup
