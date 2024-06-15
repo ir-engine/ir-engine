@@ -52,13 +52,6 @@ import {
   getTagComponentForRigidBody
 } from './RigidBodyComponent'
 
-function assertProxifiedVecUninitialized(vec, elems: number) {
-  assert.equal(vec.x, 0)
-  assert.equal(vec.y, 0)
-  assert.equal(vec.z, 0)
-  if (elems > 3) assert.equal(vec.w, 1)
-}
-
 const RigidBodyComponentDefaults = {
   type: BodyTypes.Fixed,
   ccd: false,
@@ -160,16 +153,16 @@ describe('RigidBodyComponent', () => {
       assertRigidBodyComponentEqual(before, RigidBodyComponentDefaults)
 
       setComponent(testEntity, RigidBodyComponent, Expected)
-      const data = getComponent(testEntity, RigidBodyComponent)
-      assert.equal(data.type, Expected.type)
-      assert.equal(data.ccd, Expected.ccd)
-      assert.equal(data.allowRolling, Expected.allowRolling)
-      assert.equal(data.canSleep, Expected.canSleep)
-      assert.equal(data.gravityScale, Expected.gravityScale)
-      assert.equal(data.enabledRotations.length, Expected.enabledRotations.length)
-      assert.equal(data.enabledRotations[0], Expected.enabledRotations[0])
-      assert.equal(data.enabledRotations[1], Expected.enabledRotations[1])
-      assert.equal(data.enabledRotations[2], Expected.enabledRotations[2])
+      const after = getComponent(testEntity, RigidBodyComponent)
+      assert.equal(after.type, Expected.type)
+      assert.equal(after.ccd, Expected.ccd)
+      assert.equal(after.allowRolling, Expected.allowRolling)
+      assert.equal(after.canSleep, Expected.canSleep)
+      assert.equal(after.gravityScale, Expected.gravityScale)
+      assert.equal(after.enabledRotations.length, Expected.enabledRotations.length)
+      assert.equal(after.enabledRotations[0], Expected.enabledRotations[0])
+      assert.equal(after.enabledRotations[1], Expected.enabledRotations[1])
+      assert.equal(after.enabledRotations[2], Expected.enabledRotations[2])
     })
 
     it('should not change values of an initialized RigidBodyComponent when the data passed had incorrect types', () => {
@@ -243,12 +236,20 @@ describe('RigidBodyComponent', () => {
       return destroyEngine()
     })
 
-    /**
-    // @todo How to change physicsWorld?
-    it("should create a RigidBody for the entity in the new PhysicsState.physicsWorld when it is changed", () => {
+    it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+      const before = Physics._Rigidbodies.get(testEntity)!.handle
+      assert.ok(physicsWorld!.bodies.contains(before))
+
+      // Change the world
+      const newWorld = Physics.createWorld()
+      newWorld!.timestep = 1 / 60
+      getMutableState(PhysicsState).physicsWorld!.set(newWorld!)
+      // Check the changes
+      RigidBodyComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately
+      const after = Physics._Rigidbodies.get(testEntity)!.handle
+      assert.ok(newWorld!.bodies.contains(after))
     })
-    */
 
     it('should set the correct RigidBody type on the API data when component.type changes', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
