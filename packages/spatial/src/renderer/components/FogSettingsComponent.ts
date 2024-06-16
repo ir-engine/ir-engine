@@ -37,6 +37,7 @@ import { useEntityContext } from '@etherealengine/ecs/src/EntityFunctions'
 import { FogComponent } from '@etherealengine/spatial/src/renderer/components/SceneComponents'
 
 import { FogShaders } from '../FogSystem'
+import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from './FogShaders'
 
 export enum FogType {
   Disabled = 'disabled',
@@ -95,22 +96,27 @@ export const FogSettingsComponent = defineComponent({
       switch (fogData.type) {
         case FogType.Linear:
           setComponent(entity, FogComponent, new Fog(fogData.color, fogData.near, fogData.far))
+          removeFogShader()
           break
 
         case FogType.Exponential:
           setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          removeFogShader()
           break
 
         case FogType.Brownian:
           setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          initBrownianMotionFogShader()
           break
 
         case FogType.Height:
           setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          initHeightFogShader()
           break
 
         default:
           removeComponent(entity, FogComponent)
+          removeFogShader()
           break
       }
     }, [fog.type])
@@ -138,7 +144,7 @@ export const FogSettingsComponent = defineComponent({
       const fogComponent = getOptionalComponent(entity, FogComponent)
       if (fogComponent && (fog.type.value === FogType.Brownian || fog.type.value === FogType.Height))
         for (const s of FogShaders) s.uniforms.heightFactor.value = fog.height.value
-    }, [fog.timeScale])
+    }, [fog.height])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
@@ -146,7 +152,7 @@ export const FogSettingsComponent = defineComponent({
         for (const s of FogShaders) {
           s.uniforms.fogTimeScale.value = fog.timeScale.value
         }
-    }, [fog.height])
+    }, [fog.timeScale])
 
     return null
   }
