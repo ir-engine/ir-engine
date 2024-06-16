@@ -1,7 +1,7 @@
 {
   "packages": [
     "packages/*",
-    "packages/projects/projects/*"
+    "packages/projects/projects/**"
   ],
   "version": "1.6.0",
   "npmClient": "npm",
