@@ -2087,27 +2087,75 @@ describe('PhysicsAPI', () => {
     })
 
     describe('drainCollisionEventQueue', () => {
+      let physicsWorld = undefined as World | undefined
+      let testEntity1 = UndefinedEntity
+      let testEntity2 = UndefinedEntity
+
       beforeEach(async () => {
         createEngine()
         await Physics.load()
+        physicsWorld = Physics.createWorld()
+        physicsWorld.timestep = 1 / 60
+        getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
+
+        testEntity1 = createEntity()
+        setComponent(testEntity1, TransformComponent)
+        setComponent(testEntity1, ColliderComponent)
+        setComponent(testEntity1, RigidBodyComponent)
+
+        testEntity2 = createEntity()
+        setComponent(testEntity2, TransformComponent)
+        setComponent(testEntity2, ColliderComponent)
+        setComponent(testEntity2, RigidBodyComponent)
       })
 
       afterEach(() => {
+        physicsWorld = undefined
         return destroyEngine()
       })
 
-      it('dummy', () => {
-        assert.ok(1)
+      function assertCollisionEventClosure(closure: any) {
+        type CollisionEventClosure = (handle1: number, handle2: number, started: boolean) => void
+        function hasCollisionEventClosureShape(closure: any): closure is CollisionEventClosure {
+          return typeof closure === 'function' && closure.length === 3
+        }
+        assert.ok(closure)
+        assert.ok(hasCollisionEventClosureShape(closure))
+      }
+
+      it('should return a function with the correct shape  (handle1: number, handle2: number, started: boolean) => void', () => {
+        assert.ok(physicsWorld)
+        const event = Physics.drainCollisionEventQueue(physicsWorld)
+        assertCollisionEventClosure(event)
       })
-      // should return a function with the correct shape  (handle1: number, handle2: number, started: boolean) => void
-      // should do nothing if one of the collider handles is not found
-      // should add a CollisionComponent to the entities contained in the userData of the parent rigidBody of each collider  (collider.parent())
-      // started: true
+
+      /**
+      // @todo Why are the colliders undefined?
+      it("should do nothing if any of the collider handles are not found", () => {
+        assert.ok(physicsWorld)
+        const event = Physics.drainCollisionEventQueue(physicsWorld)
+        assertCollisionEventClosure(event)
+        physicsWorld.step()
+        const collider1 = Physics._Colliders.get(testEntity1)
+        const collider2 = Physics._Colliders.get(testEntity2)
+        assert.ok(collider1)
+        assert.ok(collider2)
+
+        event(collider1.handle, 123456, true)
+        assert.ok(!hasComponent(testEntity1, CollisionComponent))
+        event(collider2.handle, 123456, true)
+        assert.ok(!hasComponent(testEntity2, CollisionComponent))
+      })
+      */
+
+      // @todo
+      // it("should add a CollisionComponent to the entities contained in the userData of the parent rigidBody of each collider  (collider.parent())", () => {})
+      // when started: true
       //   should create a CollisionEvents.TRIGGER_START when either of the colliders is a sensor and `started` is true
       //   should create a CollisionEvents.COLLISION_START otherwise if `started` is true
       //   should set entity2 in the CollisionComponent of entity1 if `started` is true
       //   should set entity1 in the CollisionComponent of entity2 if `started` is true
-      // started: false
+      // when started: false
       //   should create a CollisionEvents.TRIGGER_END when either of the colliders is a sensor and `started` is false
       //   should create a CollisionEvents.COLLISION_END otherwise if `started` is false
       //   should set CollisionEvents.TRIGGER_END to the CollisionComponent.type property of entity1.collision.get(entity2) when either of the colliders is a sensor and `started` is false
@@ -2117,24 +2165,42 @@ describe('PhysicsAPI', () => {
     }) // << drainCollisionEventQueue
 
     describe('drainContactEventQueue', () => {
+      let physicsWorld = undefined as World | undefined
+
       beforeEach(async () => {
         createEngine()
         await Physics.load()
+        physicsWorld = Physics.createWorld()
+        physicsWorld.timestep = 1 / 60
+        getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
       })
 
       afterEach(() => {
+        physicsWorld = undefined
         return destroyEngine()
       })
 
-      it('dummy', () => {
-        assert.ok(1)
+      function assertContactEventClosure(closure: any) {
+        type ContactEventClosure = (handle1: number, handle2: number, started: boolean) => void
+        function hasContactEventClosureShape(closure: any): closure is ContactEventClosure {
+          return typeof closure === 'function' && closure.length === 1
+        }
+        assert.ok(closure)
+        assert.ok(hasContactEventClosureShape(closure))
+      }
+
+      it('should return a function with the correct shape  (event: TempContactForceEvent) => void', () => {
+        assert.ok(physicsWorld)
+        const closure = Physics.drainContactEventQueue(physicsWorld)
+        assertContactEventClosure(closure)
       })
+
+      // @todo
+      // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists
+      // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists
+      // should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists
+      // should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists
     }) // << drainContactEventQueue
-    // should return a function with the correct shape  (event: TempContactForceEvent) => void
-    // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity1.collision.get(entity2) if the collision exists
-    // should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists
-    // should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists
-    // should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists
   }) // << Collisions
 })
 
