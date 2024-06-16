@@ -1584,6 +1584,7 @@ describe('PhysicsAPI', () => {
 
       /**
       // @todo Test the static resulting values, in order to not repeat the internal function's code (computing relative pos/rot)
+      // @todo Why is `.position` undefined?
       it('should set the position relative to the parent entity', () => {
         const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(testEntity, rootEntity)
@@ -1594,6 +1595,7 @@ describe('PhysicsAPI', () => {
 
       /**
       // @todo Test the static resulting values, in order to not repeat the internal function's code (computing relative pos/rot)
+      // @todo Why is `.rotation` undefined?
       it('should set the rotation relative to the parent entity', () => {
         const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(testEntity, rootEntity)
