@@ -704,7 +704,7 @@ transformed.z += mix(keyframeA.z, keyframeB.z, mixRatio);
         undefined,
         'baseColor'
       )
-      // media.src = 'https://localhost:8642/projects/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
+      // media.src = 'https://localhost:8642/projects/@etherealengine/default-project/ubx_kimberly_bird_t2_2k_std_30fps.mp4'
       mediaValue.preload = 'auto'
       media.addEventListener('loadeddata', () => {
         component.firstTextureFrameLoaded.set(true)

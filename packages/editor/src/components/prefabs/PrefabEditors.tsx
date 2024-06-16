@@ -33,82 +33,82 @@ export const PrefabShelfState = defineState({
     [
       {
         name: '3D Model',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/3d-model.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/3d-model.prefab.gltf`,
         category: 'Geo',
         detail: 'Blank 3D model ready for your own assets'
       },
       {
         name: 'Primitive Geometry',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/geo.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/geo.prefab.gltf`,
         category: 'Geo'
       },
       {
         name: 'Point Light',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/point-light.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/point-light.prefab.gltf`,
         category: 'Lighting'
       },
       {
         name: 'Spot Light',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/spot-light.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/spot-light.prefab.gltf`,
         category: 'Lighting'
       },
       {
         name: 'Directional Light',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/directional-light.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/directional-light.prefab.gltf`,
         category: 'Lighting'
       },
       {
         name: 'Ambient Light',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/ambient-light.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/ambient-light.prefab.gltf`,
         category: 'Lighting'
       },
       {
         name: 'Hemisphere Light',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/hemisphere-light.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/hemisphere-light.prefab.gltf`,
         category: 'Lighting'
       },
       {
         name: 'Box Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/box-collider.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/box-collider.prefab.gltf`,
         category: 'Collider',
         detail: 'Simple box collider'
       },
       {
         name: 'Sphere Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/sphere-collider.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/sphere-collider.prefab.gltf`,
         category: 'Collider',
         detail: 'Simple sphere collider'
       },
       {
         name: 'Cylinder Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/cylinder-collider.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/cylinder-collider.prefab.gltf`,
         category: 'Collider',
         detail: 'Simple cylinder collider'
       },
       {
         name: 'Mesh Collider',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/mesh-collider.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/mesh-collider.prefab.gltf`,
         category: 'Collider',
         detail: 'Simple mesh collider, drag and drop your mesh'
       },
       {
         name: 'Text',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/text.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/text.prefab.gltf`,
         category: 'Text'
       },
       {
         name: 'Skybox',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/skybox.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/skybox.prefab.gltf`,
         category: 'Lookdev'
       },
       {
         name: 'Postprocessing',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/postprocessing.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/postprocessing.prefab.gltf`,
         category: 'Lookdev'
       },
       {
         name: 'Fog',
-        url: `${config.client.fileServer}/projects/default-project/assets/prefabs/fog.prefab.gltf`,
+        url: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/prefabs/fog.prefab.gltf`,
         category: 'Lookdev'
       }
     ] as PrefabShelfItem[]

@@ -156,10 +156,18 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       fs.mkdirSync(projectsRootFolder, { recursive: true })
     }
 
+    // projects now take the form <orgname/projectname>
     const locallyInstalledProjects = fs
       .readdirSync(projectsRootFolder, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
+      .map((orgname) => {
+        return fs
+          .readdirSync(path.join(projectsRootFolder, orgname), { withFileTypes: true })
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => `${orgname}/${dirent.name}`)
+      })
+      .flat()
 
     const promises: Promise<any>[] = []
 

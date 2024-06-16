@@ -55,7 +55,7 @@ describe('location.test', () => {
 
     const scene = await app.service(staticResourcePath).find({
       query: {
-        key: 'projects/default-project/public/scenes/default.gltf'
+        key: 'projects/@etherealengine/default-project/public/scenes/default.gltf'
       }
     })
 

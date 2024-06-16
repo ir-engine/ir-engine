@@ -74,7 +74,7 @@ export const preloadedAnimations = {
   emotes: 'emotes'
 }
 
-export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`
+export const defaultAnimationPath = `${config.client.fileServer}/projects/@etherealengine/default-project/assets/animations/`
 
 export const matchesIkTarget = matches.some(
   ...Object.keys(ikTargets).map((k: keyof typeof ikTargets) => matches.literal(k))

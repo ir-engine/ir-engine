@@ -145,7 +145,7 @@ export const saveSceneGLTF = async (
 }
 
 export const onNewScene = async (
-  templateURL = config.client.fileServer + '/projects/default-project/public/scenes/default.gltf'
+  templateURL = config.client.fileServer + '/projects/@etherealengine/default-project/public/scenes/default.gltf'
 ) => {
   const { projectName } = getState(EditorState)
   if (!projectName) return

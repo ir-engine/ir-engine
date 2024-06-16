@@ -186,7 +186,7 @@ export const HyperspaceTagComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const [galaxyTexture] = useTexture(
-      `${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`,
+      `${config.client.fileServer}/projects/@etherealengine/default-project/assets/galaxyTexture.jpg`,
       entity
     )
 

@@ -45,7 +45,7 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
   const [gltf] = await getGLTFAsync(
-    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}_controller.glb`
+    `${config.client.fileServer}/projects/@etherealengine/default-project/assets/controllers/${handedness}_controller.glb`
   )
   let handMesh = gltf?.scene?.children[0]
 
@@ -85,7 +85,7 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   if (avatarInputControllerType === AvatarControllerType.None) return
 
   const [gltf] = await getGLTFAsync(
-    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}.glb`
+    `${config.client.fileServer}/projects/@etherealengine/default-project/assets/controllers/${handedness}.glb`
   )
   const handMesh = gltf?.scene?.children[0]
 

@@ -329,7 +329,7 @@ const reactor = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
   const [gltfs] = useBatchGLTF(
     animations.map((animationFile) => {
-      return `${config.client.fileServer}/projects/default-project/assets/animations/${animationFile}.glb`
+      return `${config.client.fileServer}/projects/@etherealengine/default-project/assets/animations/${animationFile}.glb`
     })
   )
   const manager = useMutableState(AnimationState)

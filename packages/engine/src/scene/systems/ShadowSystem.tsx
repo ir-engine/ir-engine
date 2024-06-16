@@ -478,7 +478,9 @@ const reactor = () => {
 
   const useShadows = useShadowsEnabled()
 
-  const [shadowTexture] = useTexture(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`)
+  const [shadowTexture] = useTexture(
+    `${config.client.fileServer}/projects/@etherealengine/default-project/assets/drop-shadow.png`
+  )
 
   useEffect(() => {
     if (!shadowTexture) return

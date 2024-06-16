@@ -76,7 +76,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: `${config.client.fileServer}/projects/default-project/assets/sample_etc1s.ktx2`,
+      source: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/sample_etc1s.ktx2`,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,

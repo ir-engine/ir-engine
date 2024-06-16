@@ -55,7 +55,7 @@ export const SkyboxComponent = defineComponent({
     return {
       backgroundColor: new Color(0x000000),
       equirectangularPath: '',
-      cubemapPath: `${config.client.fileServer}/projects/default-project/assets/skyboxsun25deg/`,
+      cubemapPath: `${config.client.fileServer}/projects/@etherealengine/default-project/assets/skyboxsun25deg/`,
       backgroundType: 1,
       sky: null! as Sky | null,
       skyboxProps: {

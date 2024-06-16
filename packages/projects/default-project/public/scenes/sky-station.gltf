@@ -33,7 +33,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/default-project/public/scenes/sky-station.envmap.ktx2",
+          "envMapOrigin": "__$project$__/@etherealengine/default-project/public/scenes/sky-station.envmap.ktx2",
           "boxProjection": true
         },
         "EE_camera_settings": {
@@ -203,8 +203,8 @@
         },
         "EE_visible": true,
         "EE_scene_settings": {
-          "thumbnailURL": "__$project$__/default-project/public/scenes/sky-station.thumbnail.jpg",
-          "loadingScreenURL": "__$project$__/default-project/public/scenes/sky-station.loadingscreen.ktx2",
+          "thumbnailURL": "__$project$__/@etherealengine/default-project/public/scenes/sky-station.thumbnail.jpg",
+          "loadingScreenURL": "__$project$__/@etherealengine/default-project/public/scenes/sky-station.loadingscreen.ktx2",
           "primaryColor": "#0A6493",
           "backgroundColor": "rgb(238, 232, 243)",
           "alternativeColor": "#316F9E",
@@ -230,7 +230,7 @@
         "EE_uuid": "35621369-7e83-4878-953c-f30bf81dc775",
         "EE_skybox": {
           "backgroundColor": 0,
-          "equirectangularPath": "__$project$__/default-project/assets/sky_skybox.jpg",
+          "equirectangularPath": "__$project$__/@etherealengine/default-project/assets/sky_skybox.jpg",
           "cubemapPath": "",
           "backgroundType": 2,
           "skyboxProps": {
@@ -289,7 +289,7 @@
     {
       "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -6.099999904632568, 1.2999999523162842, 0, 1],
       "extras": {
-        "src": "__$project$__/default-project/assets/Skybase.glb"
+        "src": "__$project$__/@etherealengine/default-project/assets/Skybase.glb"
       },
       "name": "Model",
       "extensions": {
@@ -299,7 +299,7 @@
           "receive": true
         },
         "EE_model": {
-          "src": "__$project$__/default-project/assets/Skybase.glb",
+          "src": "__$project$__/@etherealengine/default-project/assets/Skybase.glb",
           "cameraOcclusion": true,
           "convertToVRM": false
         },
@@ -320,7 +320,7 @@
           "type": "Texture",
           "envMapTextureType": "Equirectangular",
           "envMapSourceColor": 1193046,
-          "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
+          "envMapSourceURL": "__$project$__/@etherealengine/default-project/assets/sky_skybox.jpg",
           "envMapSourceEntityUUID": "",
           "envMapIntensity": 1.5
         },
@@ -342,7 +342,7 @@
           "redirect": false,
           "effectType": "Hyperspace",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20to%20Apartment.ktx2",
+          "previewImageURL": "__$project$__/@etherealengine/default-project/public/scenes/sky-station-Portal--%20to%20Apartment.ktx2",
           "spawnPosition": {
             "x": 49.5,
             "y": 2,
@@ -403,7 +403,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
+          "previewImageURL": "__$project$__/@etherealengine/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Interior.ktx2",
           "spawnPosition": {
             "x": 15,
             "y": 9,
@@ -464,7 +464,7 @@
           "redirect": false,
           "effectType": "None",
           "previewType": "Spherical",
-          "previewImageURL": "__$project$__/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
+          "previewImageURL": "__$project$__/@etherealengine/default-project/public/scenes/sky-station-Portal--%20Sky%20Station%20Exterior.ktx2",
           "spawnPosition": {
             "x": -60,
             "y": 3,
