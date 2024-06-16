@@ -27,10 +27,10 @@ import { Material, Shader, WebGLRenderer } from 'three'
 
 import { Component, defineComponent } from '@etherealengine/ecs'
 import { Entity, EntityUUID, UndefinedEntity } from '@etherealengine/ecs/src/Entity'
-import { TransparencyDitheringPlugin } from '@etherealengine/engine/src/avatar/components/TransparencyDitheringComponent'
 import { PluginType } from '@etherealengine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
+import { TransparencyDitheringPlugin } from './constants/plugins/TransparencyDitheringComponent'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'

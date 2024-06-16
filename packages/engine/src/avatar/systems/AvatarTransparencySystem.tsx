@@ -40,17 +40,16 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
-import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  TransparencyDitheringPlugin,
+  TransparencyDitheringRoot,
+  ditherCalculationType
+} from '@etherealengine/spatial/src/renderer/materials/constants/plugins/TransparencyDitheringComponent'
 import React, { useEffect } from 'react'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import {
-  TransparencyDitheringPlugin,
-  TransparencyDitheringRoot,
-  ditherCalculationType
-} from '../components/TransparencyDitheringComponent'
 
 const headDithering = 0
 const cameraDithering = 1
