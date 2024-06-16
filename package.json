@@ -9,7 +9,7 @@
   },
   "workspaces": [
     "packages/*",
-    "packages/projects/projects/*"
+    "packages/projects/projects/**"
   ],
   "keywords": [
     "three",

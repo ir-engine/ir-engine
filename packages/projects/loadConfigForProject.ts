@@ -30,7 +30,9 @@ const configs = {} as Record<string, ProjectConfigInterface>
 export const loadConfigForProject = async (project: string): Promise<ProjectConfigInterface | null> => {
   try {
     if (configs[project]) return configs[project]
-    const projectConfig = (await import(`./projects/${project}/xrengine.config.ts`)).default as ProjectConfigInterface
+    const [orgname, projectName] = project.split('/')
+    const projectConfig = (await import(`./projects/${orgname}/${projectName}/xrengine.config.ts`))
+      .default as ProjectConfigInterface
     configs[project] = projectConfig
     return projectConfig
   } catch (e) {
