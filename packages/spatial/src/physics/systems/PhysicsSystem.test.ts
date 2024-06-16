@@ -48,6 +48,12 @@ describe.skip('PhysicsSystem', () => {
   })
 })
 
+describe('smoothKinematicBody', () => {
+  // @todo
+  // it("should interpolate the position of the KinematicBody of the given entity", () => {})
+  // it("should interpolate the rotation of the KinematicBody of the given entity", () => {})
+})
+
 describe('PhysicsSystem', () => {
   describe('IDs', () => {
     it("should define the PhysicsSystem's UUID with the expected value", () => {
@@ -55,7 +61,7 @@ describe('PhysicsSystem', () => {
     })
   })
 
-  /**
-  // @todo How to run a System inside a Unit Test?
-  */
+  describe('execute', () => {})
+
+  describe('reactor', () => {})
 })
