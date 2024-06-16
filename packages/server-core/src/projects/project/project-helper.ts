@@ -1343,9 +1343,9 @@ export const updateProject = async (
   },
   params?: ProjectParams
 ) => {
-  if (data.sourceURL === 'default-project') {
+  if (data.sourceURL === '@etherealengine/default-project') {
     copyDefaultProject()
-    await uploadLocalProjectToProvider(app, 'default-project')
+    await uploadLocalProjectToProvider(app, '@etherealengine/default-project')
     if (params?.jobId) {
       const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
@@ -1357,7 +1357,7 @@ export const updateProject = async (
       (await app.service(projectPath).find({
         query: {
           action: 'admin',
-          name: 'default-project',
+          name: '@etherealengine/default-project',
           $limit: 1
         }
       })) as Paginated<ProjectType>

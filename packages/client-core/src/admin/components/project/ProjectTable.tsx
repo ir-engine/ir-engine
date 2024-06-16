@@ -108,7 +108,7 @@ export default function ProjectTable() {
           startIcon={<HiOutlineArrowPath />}
           size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={project.name === 'default-project'}
+          disabled={project.name === '@etherealengine/default-project'}
           onClick={() =>
             PopoverState.showPopupover(
               <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
@@ -121,7 +121,7 @@ export default function ProjectTable() {
           startIcon={<GrGithub />}
           size="small"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={!project || !project.repositoryPath || project.name === 'default-project'}
+          disabled={!project || !project.repositoryPath || project.name === '@etherealengine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
               <ConfirmDialog
@@ -180,7 +180,7 @@ export default function ProjectTable() {
           startIcon={<HiOutlineTrash />}
           size="small"
           className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-          disabled={project.name === 'default-project'}
+          disabled={project.name === '@etherealengine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
               <ConfirmDialog
@@ -221,7 +221,7 @@ export default function ProjectTable() {
         projectVersion: row.version,
         enabled: (
           <Toggle
-            disabled={row.name === 'default-project'}
+            disabled={row.name === '@etherealengine/default-project'}
             value={row.enabled}
             onChange={() => handleEnabledChange(row)}
           />

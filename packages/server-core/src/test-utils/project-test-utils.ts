@@ -37,7 +37,7 @@ import { createUser, getAuthParams } from './user-test-utils'
 
 export const createProject = async (app: Application, projectName?: string, user?: UserType) => {
   if (!projectName) {
-    projectName = `project-${Math.floor(Math.random() * (999 - 100 + 1) + 100)}`
+    projectName = `__test/project-${Math.floor(Math.random() * (999 - 100 + 1) + 100)}`
   }
 
   if (!user) {

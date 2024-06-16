@@ -280,7 +280,7 @@ const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
  */
 const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
   if (
-    (!config.db.forceRefresh && context.projectName === 'default-project') ||
+    (!config.db.forceRefresh && context.projectName === '@etherealengine/default-project') ||
     context.projectName === 'template-project'
   )
     throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)

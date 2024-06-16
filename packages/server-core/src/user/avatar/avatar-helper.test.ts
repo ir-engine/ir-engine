@@ -23,12 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project-helper'
 
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 // import fs from 'fs'
@@ -43,11 +41,6 @@ describe('avatar-helper', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-
-    // reset default project in case another test has tampered with it
-    copyDefaultProject()
-    await app.service(projectPath)._seedProject('default-project')
-    await uploadLocalProjectToProvider(app, 'default-project')
   })
 
   after(() => {

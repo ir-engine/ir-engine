@@ -265,8 +265,8 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
     }
   }
 
-  const onCreateProject = async (name: string, repositoryPath?: string) => {
-    projectCreateQuery({ name, repositoryPath }, { query: { action: 'studio' } })
+  const onCreateProject = async (orgname: string, projectName: string, repositoryPath?: string) => {
+    projectCreateQuery({ name: `${orgname}/${projectName}`, repositoryPath }, { query: { action: 'studio' } })
   }
 
   const onCreatePermission = async (userInviteCode: InviteCode, projectId: string) => {
@@ -366,7 +366,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
             </a>
             <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
               <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
-              {project.name !== 'default-project' && (
+              {project.name !== '@etherealengine/default-project' && (
                 <IconButton
                   className={styles.iconButton}
                   disableRipple
@@ -533,7 +533,7 @@ const ProjectsPage = ({ studioPath }: { studioPath: string }) => {
           </div>
         ) : null} */}
       </div>
-      {activeProjectValue?.name !== 'default-project' && (
+      {activeProjectValue?.name !== '@etherealengine/default-project' && (
         <Menu
           anchorEl={projectAnchorEl.value}
           open={Boolean(projectAnchorEl.value)}
