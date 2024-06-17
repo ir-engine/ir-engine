@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { BrowserRouter, history } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
 import { pipeLogs } from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -37,6 +36,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
 import { initializei18n } from './util'
 
 const initializeLogs = async () => {
@@ -68,7 +68,7 @@ export default function ({ children }): JSX.Element {
   return (
     <>
       <BrowserRouter history={history}>
-        <Suspense fallback={<LoadingCircle message={t('common:loader.loadingClient')} />}>{children}</Suspense>
+        <Suspense fallback={<LoadingView title={t('common:loader.loadingClient')} />}>{children}</Suspense>
       </BrowserRouter>
     </>
   )
