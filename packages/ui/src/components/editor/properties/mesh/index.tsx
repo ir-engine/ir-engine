@@ -27,11 +27,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent } from '@etherealengine/ecs/src/ComponentFunctions'
-import { Entity } from '@etherealengine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@etherealengine/ecs/src/Entity'
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { MeshComponent } from '@etherealengine/spatial/src/renderer/components/MeshComponent'
+import { GiMeshBall } from 'react-icons/gi'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
+import { Material } from 'three'
 import Accordion from '../../../../primitives/tailwind/Accordion'
+import MaterialEditor from '../../panels/Properties/material'
 import NodeEditor from '../nodeEditor'
 import GeometryEditor from './geometryEditor'
 
@@ -43,6 +46,7 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
     <NodeEditor
       name={t('editor:properties.mesh.name')}
       description={t('editor:properties.mesh.description')}
+      icon={<MeshNodeEditor.iconComponent />}
       {...props}
     >
       <Accordion
@@ -57,10 +61,12 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
         expandIcon={<HiPlusSmall />}
         shrinkIcon={<HiMinus />}
       >
-        {/* <MaterialEditor materialUUID={((meshComponent?.material as Material).uuid as EntityUUID) ?? null} /> */}
+        <MaterialEditor materialUUID={((meshComponent?.material as Material).uuid as EntityUUID) ?? null} />
       </Accordion>
     </NodeEditor>
   )
 }
+
+MeshNodeEditor.iconComponent = GiMeshBall
 
 export default MeshNodeEditor

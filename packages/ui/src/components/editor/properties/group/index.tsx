@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useState } from 'react'
+import { BiSolidComponent } from 'react-icons/bi'
 import { HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi'
 import { HiMiniXMark } from 'react-icons/hi2'
 import Button from '../../../../primitives/tailwind/Button'
@@ -43,7 +44,7 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
 
   return (
     <div className="justify-left flex w-full flex-col items-start rounded border-solid bg-[#242424] px-4 py-1.5">
-      <div className="flex items-center gap-2 text-[#FAFAFA]">
+      <div className="flex w-full items-center gap-2 text-[#FAFAFA]">
         <Button
           onClick={() => setMinimized(!minimized)}
           variant="outline"
@@ -74,6 +75,11 @@ const PropertyGroup = ({ name, icon, description, children, onClose, ...rest }: 
       {!minimized && <div className="flex w-full flex-col py-2">{children}</div>}
     </div>
   )
+}
+
+PropertyGroup.defaultProps = {
+  name: 'Component name',
+  icon: <BiSolidComponent />
 }
 
 export default PropertyGroup
