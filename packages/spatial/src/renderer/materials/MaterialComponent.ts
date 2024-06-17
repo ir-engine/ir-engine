@@ -43,8 +43,6 @@ import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
-export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
-
 export type MaterialPrototypeConstructor = new (...args: any) => any
 export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
 export type MaterialPrototypeDefinition = {

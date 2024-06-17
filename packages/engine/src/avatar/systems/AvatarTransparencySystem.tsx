@@ -40,6 +40,7 @@ import { TransformComponent } from '@etherealengine/spatial'
 import { FollowCameraComponent } from '@etherealengine/spatial/src/camera/components/FollowCameraComponent'
 import { XRControlsState } from '@etherealengine/spatial/src/xr/XRState'
 
+import { MaterialInstanceComponent } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
   TransparencyDitheringPlugin,
   TransparencyDitheringRoot,

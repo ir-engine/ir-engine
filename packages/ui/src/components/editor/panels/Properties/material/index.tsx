@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Texture, Uniform } from 'three'
 
 import {
+  defineQuery,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -42,16 +43,18 @@ import styles from '@etherealengine/editor/src/components/layout/styles.module.s
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@etherealengine/engine/src/assets/functions/resourceLoaderHooks'
 import { SourceComponent } from '@etherealengine/engine/src/scene/components/SourceComponent'
-import { setMaterialName } from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
+import {
+  getPrototypeEntityFromName,
+  setMaterialName
+} from '@etherealengine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import createReadableTexture from '@etherealengine/spatial/src/renderer/functions/createReadableTexture'
 import { getDefaultType } from '@etherealengine/spatial/src/renderer/materials/constants/DefaultArgs'
 import {
-  MaterialComponent,
-  MaterialComponents,
   MaterialPlugins,
-  prototypeByName
+  MaterialPrototypeComponent,
+  MaterialStateComponent
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { formatMaterialArgs } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -75,15 +78,16 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
   return blobs
 }
 
+const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const prototypes = Object.keys(prototypeByName).map((prototype) => ({
-    label: prototype,
+  const prototypes = prototypeQuery().map((prototype) => ({
+    label: getComponent(prototype, NameComponent),
     value: prototype
   }))
 
   const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  const materialComponent = useComponent(entity, MaterialComponent[MaterialComponents.State])
+  const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.value!
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
   const textureUnloadMap = useHookstate<Record<string, (() => void) | undefined>>({})
@@ -149,7 +153,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [materialName, prototypeName])
 
   const prototypeEntity = materialComponent.prototypeEntity.value!
-  const prototype = useComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+  const prototype = useComponent(prototypeEntity, MaterialPrototypeComponent)
 
   const shouldLoadTexture = async (value, key: string, parametersObject: State<any>) => {
     let prop
@@ -223,7 +227,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           value={prototypeName.value}
           options={prototypes}
           onChange={(protoId) => {
-            if (materialComponent.prototypeEntity.value) materialComponent.prototypeEntity.set(prototypeByName[protoId])
+            if (materialComponent.prototypeEntity.value)
+              materialComponent.prototypeEntity.set(getPrototypeEntityFromName(protoId as string)!)
             prototypeName.set(protoId as string)
           }}
         />

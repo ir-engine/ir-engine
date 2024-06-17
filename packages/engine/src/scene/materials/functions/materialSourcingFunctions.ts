@@ -27,6 +27,7 @@ import { Material } from 'three'
 
 import {
   createEntity,
+  defineQuery,
   Entity,
   EntityUUID,
   getComponent,
@@ -111,7 +112,8 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
   const materialEntity = createEntity()
   setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
   if (path) setComponent(materialEntity, SourceComponent, path)
-  const prototypeEntity = prototypeByName[material.type]
+  const prototypeEntity = getPrototypeEntityFromName(material.type)
+  if (!prototypeEntity) throw new PrototypeNotFoundError(`Material prototype ${material.type} not found`)
   setComponent(materialEntity, MaterialStateComponent, {
     material,
     prototypeEntity,
@@ -141,11 +143,9 @@ export const removeMaterial = (entity: Entity) => {
   removeEntity(entity)
 }
 
-export const getPrototypeConstructorFromName = (name: string) => {
-  const prototypeEntity = prototypeByName[name]
-  if (!prototypeEntity) return null
-  return getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeConstructor!
-}
+const prototypeQuery = defineQuery([MaterialPrototypeComponent])
+export const getPrototypeEntityFromName = (name: string) =>
+  prototypeQuery().find((entity) => getComponent(entity, NameComponent) === name)
 
 /**Sets a name and source hash for a given material entity */
 export const setMaterialName = (entity: Entity, name: string) => {
@@ -170,15 +170,9 @@ export const setMaterialName = (entity: Entity, name: string) => {
 }
 
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
-  const material = getOptionalComponent(
-    UUIDComponent.getEntityByUUID(materialUUID),
-    MaterialComponent[MaterialComponents.State]
-  )
+  const material = getOptionalComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent)
   if (!material?.prototypeEntity) return
-  const prototype = getComponent(
-    material.prototypeEntity,
-    MaterialComponent[MaterialComponents.Prototype]
-  ).prototypeArguments
+  const prototype = getComponent(material.prototypeEntity, MaterialPrototypeComponent).prototypeArguments
   if (!prototype) return
   return Object.fromEntries(
     Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])

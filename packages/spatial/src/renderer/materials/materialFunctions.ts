@@ -39,11 +39,10 @@ import {
 import { NameComponent } from '../../common/NameComponent'
 import { GroupComponent } from '../components/GroupComponent'
 import {
-  MaterialComponent,
-  MaterialComponents,
+  MaterialPrototypeComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
-  prototypeByName
+  MaterialStateComponent
 } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs) => {
@@ -82,18 +81,16 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
   const prototypeEntity = createEntity()
   const prototypeObject = {} as MaterialPrototypeObjectConstructor
   prototypeObject[prototype.prototypeId] = prototype.prototypeConstructor
-  setComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype], {
+  setComponent(prototypeEntity, MaterialPrototypeComponent, {
     prototypeConstructor: prototypeObject,
     prototypeArguments: prototype.arguments
   })
   setComponent(prototypeEntity, NameComponent, prototype.prototypeId)
   setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
-  prototypeByName[prototype.prototypeId] = prototypeEntity
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
-  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialComponent[MaterialComponents.State])
-    .material! as Material
+  return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent).material! as Material
 }
 
 export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
@@ -121,10 +118,10 @@ export const removePlugin = (material: Material, callback) => {
 /**Updates the material entity's threejs material prototype to match its
  * current prototype entity */
 export const updateMaterialPrototype = (materialEntity: Entity) => {
-  const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
+  const materialComponent = getComponent(materialEntity, MaterialStateComponent)
   const prototypeEntity = materialComponent.prototypeEntity!
   const prototypeName = getComponent(prototypeEntity, NameComponent)
-  const prototypeComponent = getComponent(prototypeEntity, MaterialComponent[MaterialComponents.Prototype])
+  const prototypeComponent = getComponent(prototypeEntity, MaterialPrototypeComponent)
   const prototypeConstructor = prototypeComponent.prototypeConstructor![prototypeName]
   if (!prototypeConstructor || !prototypeComponent.prototypeArguments) return
   const material = materialComponent.material
@@ -144,7 +141,7 @@ export const updateMaterialPrototype = (materialEntity: Entity) => {
     ...newMaterial.userData,
     ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
   }
-  setComponent(materialEntity, MaterialComponent[MaterialComponents.State], {
+  setComponent(materialEntity, MaterialStateComponent, {
     material: newMaterial,
     parameters: fullParameters
   })
