@@ -214,7 +214,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.skybox.name')}
       description={t('editor:properties.skybox.description')}
-      icon={<FiCloud />}
+      icon={<SkyboxNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
@@ -223,7 +223,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           options={SkyOptions}
           value={skyboxComponent.backgroundType.value.toString()}
           onChange={(value) => commitProperty(SkyboxComponent, 'backgroundType')(parseInt(value as string, 10))}
-          inputClassName="text-xs p-2"
         />
       </InputGroup>
       {renderSkyBoxProps()}

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { UUIDComponent } from '@etherealengine/ecs'
+import { UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -77,6 +77,7 @@ const mountPointInteractMessages = {
 const mountCallbackName = 'mountEntity'
 
 const mountEntity = (avatarEntity: Entity, mountEntity: Entity) => {
+  if (avatarEntity === UndefinedEntity) return //No avatar found, likely in edit mode for now
   const mountedEntities = getState(MountPointState)
   if (mountedEntities[getComponent(mountEntity, UUIDComponent)]) return //already sitting, exiting
 

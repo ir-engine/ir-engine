@@ -43,12 +43,12 @@ const GridTool = () => {
   }
 
   return (
-    <div id="transform-space" className="flex items-center bg-theme-surfaceInput">
+    <div className="flex items-center bg-theme-surfaceInput">
       <Button
         startIcon={<MdBorderClear />}
         onClick={onToggleGridVisible}
-        variant="transparent"
-        title={t('editor:toolbar.transformPivot.info-toggleGridVisibility')}
+        variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
+        title={t('editor:toolbar.grid.info-toggleGridVisibility')}
         className="px-0"
       />
       <NumericInput
@@ -60,6 +60,7 @@ const GridTool = () => {
         smallStep={0.5}
         mediumStep={1}
         largeStep={5}
+        min={0.0}
         unit="m"
       />
     </div>

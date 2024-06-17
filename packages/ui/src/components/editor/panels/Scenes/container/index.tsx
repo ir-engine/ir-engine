@@ -50,11 +50,15 @@ export default function ScenesPanel() {
   const contextMenuRef = useRef(null)
   const isContextMenuOpen = useHookstate<AssetType['id']>('')
   const scenesLoading = scenesQuery.status === 'pending'
-  const onCreateScene = async () => onNewScene()
 
-  const onClickScene = (scene: AssetType) => {
-    getMutableState(EditorState).scenePath.set(scene.assetURL)
+  const isCreatingScene = useHookstate(false)
+  const handleCreateScene = async () => {
+    isCreatingScene.set(true)
+    await onNewScene()
+    isCreatingScene.set(false)
   }
+
+  const onClickScene = (scene: AssetType) => getMutableState(EditorState).scenePath.set(scene.assetURL)
 
   const deleteSelectedScene = async (scene: AssetType) => {
     if (scene) {
@@ -77,11 +81,13 @@ export default function ScenesPanel() {
       <div className="mb-4 w-full bg-theme-surface-main">
         <Button
           startIcon={<HiOutlinePlusCircle />}
+          endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
+          disabled={isCreatingScene.value}
           variant="transparent"
           rounded="none"
-          className="ml-auto w-32 bg-theme-highlight px-2"
+          className="ml-auto bg-theme-highlight px-2"
           size="small"
-          onClick={onCreateScene}
+          onClick={handleCreateScene}
         >
           {t('editor:newScene')}
         </Button>
@@ -101,10 +107,10 @@ export default function ScenesPanel() {
                     src={config.client.fileServer + '/' + scene.thumbnailURL}
                     alt={scene.assetURL}
                     onError={(e) => {
-                      e.currentTarget.src = 'static/etherealengine_logo.png'
+                      e.currentTarget.src = 'static/ir.svg'
                     }}
                     crossOrigin="anonymous"
-                    className="block h-[100%] w-auto cursor-pointer rounded-t-lg object-cover"
+                    className="block h-full grow cursor-pointer self-center rounded-t-lg object-cover"
                     onClick={() => onClickScene(scene)}
                   />
                   <div className="flex items-center justify-between px-4 py-1">

@@ -39,8 +39,8 @@ import {
 } from '@etherealengine/visual-script'
 
 export const EngineVariableGet = makeFunctionNodeDefinition({
-  typeName: 'engine/variable/get',
-  category: NodeCategory.Query,
+  typeName: 'variable/get',
+  category: NodeCategory.Variable,
   label: 'Get',
   configuration: {
     variableName: {
@@ -87,8 +87,8 @@ export const EngineVariableGet = makeFunctionNodeDefinition({
 })
 
 export const EngineVariableSet = makeFlowNodeDefinition({
-  typeName: 'engine/variable/set',
-  category: NodeCategory.Action,
+  typeName: 'variable/set',
+  category: NodeCategory.Variable,
   label: 'Set',
   configuration: {
     variableName: {
@@ -152,8 +152,8 @@ export const getUseVariableSystemUUID = (variableName) =>
   (useVariableSystemUUID + `${variableName}-` + useVariableSystemCounter) as SystemUUID
 
 export const EngineVariableUse = makeEventNodeDefinition({
-  typeName: 'engine/variable/use',
-  category: NodeCategory.Event,
+  typeName: 'variable/use',
+  category: NodeCategory.Variable,
   label: 'Use',
   configuration: {
     variableName: {

@@ -34,15 +34,14 @@ import { identityProviderPath } from '@etherealengine/common/src/schemas/user/id
 export async function up(knex: Knex): Promise<void> {
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await trx.schema.alterTable(identityProviderPath, (table) => {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(identityProviderPath, (table) => {
     table.dropUnique(['userId', 'type'], 'identity_provider_user_id_type')
   })
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -50,13 +49,11 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  await trx.schema.alterTable(identityProviderPath, (table) => {
+  await knex.schema.alterTable(identityProviderPath, (table) => {
     table.unique(['userId', 'type'], { indexName: 'identity_provider_user_id_type' })
   })
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
