@@ -28,6 +28,7 @@ import assert from 'assert'
 import { fileBrowserPath } from '@etherealengine/common/src/schemas/media/file-browser.schema'
 import { destroyEngine } from '@etherealengine/ecs/src/Engine'
 
+import { ProjectType, projectPath } from '@etherealengine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -49,20 +50,23 @@ describe('file-browser.test', () => {
       .map((directory) => directory.key)
       .filter((directory) => directory.startsWith('projects/test'))
 
-    await Promise.all(directories.map((directory) => app.service(fileBrowserPath).remove(directory)))
-  })
-
-  after(() => {
+    try {
+      await Promise.all(directories.map((directory) => app.service(fileBrowserPath).remove(directory)))
+    } catch (error) {
+      console.error('Error while cleaning up test directories:', error)
+    }
     return destroyEngine()
   })
 
   describe('create', () => {
     const testProjectName = getRandomizedName('directory')
+    let project: ProjectType
     after(async () => {
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+      await app.service(projectPath).remove(project.id)
     })
 
     it('creates a directory', async () => {
+      project = await app.service(projectPath).create({ name: testProjectName })
       const createdDirectory = await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
       assert.equal(createdDirectory, true)
       const storageProvider = getStorageProvider()
@@ -72,12 +76,13 @@ describe('file-browser.test', () => {
 
   describe('find', () => {
     const testProjectName = getRandomizedName('directory')
+    let project: ProjectType
     before(async () => {
-      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+      project = await app.service(projectPath).create({ name: testProjectName })
     })
 
     after(async () => {
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+      await app.service(projectPath).remove(project.id)
     })
 
     it('gets the directory', async () => {
@@ -126,13 +131,14 @@ describe('file-browser.test', () => {
     const newData = getRandomizedName('new data')
     const body = Buffer.from(newData, 'utf-8')
     const testFileSize = Buffer.byteLength(body)
+    let project: ProjectType
 
     before(async () => {
-      await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
+      project = await app.service(projectPath).create({ name: testProjectName })
     })
 
     after(async () => {
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+      await app.service(projectPath).remove(project.id)
     })
 
     it('creates a file', async () => {
@@ -181,15 +187,22 @@ describe('file-browser.test', () => {
   })
 
   describe('update', () => {
-    const testFileName = getRandomizedName('file', '.txt')
-    const testProjectName = getRandomizedName('directory')
-    const testProjectName2 = getRandomizedName('directory2')
+    let testProjectName: string
+    let testProjectName2: string
     const testFileName2 = getRandomizedName('file2', '.md')
     const newData2 = getRandomizedName('new data 2')
     const testFileName3 = getRandomizedName('file3', '.mdx')
     const newData3 = getRandomizedName('new data 3')
+    let project: ProjectType
+    let project2: ProjectType
 
     beforeEach(async () => {
+      testProjectName = getRandomizedName('directory')
+      testProjectName2 = getRandomizedName('directory2')
+
+      project = await app.service(projectPath).create({ name: testProjectName })
+      project2 = await app.service(projectPath).create({ name: testProjectName2 })
+
       await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
       await app.service(fileBrowserPath).create('projects/' + testProjectName2 + '/public/')
 
@@ -209,8 +222,8 @@ describe('file-browser.test', () => {
     })
 
     afterEach(async () => {
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName)
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName2)
+      await app.service(projectPath).remove(project.id)
+      await app.service(projectPath).remove(project2.id)
     })
 
     it('copies file', async () => {
@@ -333,8 +346,10 @@ describe('file-browser.test', () => {
   describe('remove', () => {
     const testProjectName = getRandomizedName('directory')
     const testFileFullName = getRandomizedName('file', '.txt')
+    let project: ProjectType
 
     before(async () => {
+      project = await app.service(projectPath).create({ name: testProjectName })
       await app.service(fileBrowserPath).create('projects/' + testProjectName + '/public/')
       await app.service(fileBrowserPath).patch(null, {
         project: testProjectName,
@@ -345,7 +360,7 @@ describe('file-browser.test', () => {
     })
 
     after(async () => {
-      await app.service(fileBrowserPath).remove('projects/' + testProjectName + '/public/')
+      await app.service(projectPath).remove(project.id)
     })
 
     it('removes file', async () => {
