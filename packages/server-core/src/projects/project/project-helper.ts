@@ -1631,8 +1631,8 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
             licensing: item.licensing,
             description: item.description,
             attribution: item.attribution,
-            thumbnailURL: item.thumbnailURL,
-            thumbnailMode: item.thumbnailMode
+            thumbnailKey: (item as any).thumbnailURL, // old fields
+            thumbnailMode: (item as any).thumbnailType // old fields
           }
         ]
       })
@@ -1739,8 +1739,8 @@ export const uploadLocalProjectToProvider = async (
       const stats = await getStats(fileResult, contentType)
       const resourceInfo = resourcesJson[filePathRelative]
       const type = isScene ? 'scene' : resourceInfo?.type ? resourceInfo?.type : resourceInfo?.tags ? 'asset' : 'file' // assume if it has already been given tag metadata that it is an asset
-      const thumbnailURL =
-        resourceInfo?.thumbnailURL ?? isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined
+      const thumbnailKey =
+        resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
 
       if (existingKeySet.has(key)) {
         const id = existingKeySet.get(key)!
@@ -1758,7 +1758,7 @@ export const uploadLocalProjectToProvider = async (
             licensing: resourceInfo?.licensing ?? undefined,
             description: resourceInfo?.description ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
-            thumbnailURL,
+            thumbnailKey,
             thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
           },
           { ignoreResourcesJson: true }
@@ -1778,7 +1778,7 @@ export const uploadLocalProjectToProvider = async (
             licensing: resourceInfo?.licensing ?? undefined,
             description: resourceInfo?.description ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
-            thumbnailURL,
+            thumbnailKey,
             thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
           },
           { ignoreResourcesJson: true }

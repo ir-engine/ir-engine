@@ -43,7 +43,7 @@ type StaticResourceUploadArgs = {
   attribution?: string
   licensing?: string
   description?: string
-  thumbnailURL?: string
+  thumbnailKey?: string
   thumbnailMode?: string
 }
 
@@ -84,7 +84,7 @@ export const uploadStaticResource = async (app: Application, args: StaticResourc
         licensing: data.licensing,
         description: data.description,
         attribution: data.attribution,
-        thumbnailURL: data.thumbnailURL,
+        thumbnailKey: data.thumbnailKey,
         thumbnailMode: data.thumbnailMode
       },
       { isInternal: true }
@@ -103,7 +103,7 @@ export const uploadStaticResource = async (app: Application, args: StaticResourc
         licensing: data.licensing,
         description: data.description,
         attribution: data.attribution,
-        thumbnailURL: data.thumbnailURL,
+        thumbnailKey: data.thumbnailKey,
         thumbnailMode: data.thumbnailMode
       },
       { isInternal: true }

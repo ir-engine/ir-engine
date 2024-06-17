@@ -56,6 +56,7 @@ export const staticResourceSchema = Type.Object(
     description: Type.Optional(Type.String()),
     url: Type.String(),
     stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
+    thumbnailKey: Type.Optional(Type.String()),
     thumbnailURL: Type.Optional(Type.String()),
     thumbnailMode: Type.Optional(Type.String()), // 'automatic' | 'manual'
     createdAt: Type.String({ format: 'date-time' }),
@@ -66,7 +67,7 @@ export const staticResourceSchema = Type.Object(
 export interface StaticResourceType extends Static<typeof staticResourceSchema> {}
 
 export interface StaticResourceDatabaseType
-  extends Omit<StaticResourceType, 'url' | 'dependencies' | 'tags' | 'stats'> {
+  extends Omit<StaticResourceType, 'url' | 'dependencies' | 'tags' | 'stats' | 'thumbnailURL'> {
   dependencies: string
   tags: string
   stats: string
@@ -88,7 +89,7 @@ export const staticResourceDataSchema = Type.Partial(
     'licensing',
     'description',
     'stats',
-    'thumbnailURL',
+    'thumbnailKey',
     'thumbnailMode'
   ]),
   { $id: 'StaticResourceData' }
@@ -111,7 +112,7 @@ export const staticResourcePatchSchema = Type.Partial(
     'licensing',
     'description',
     'stats',
-    'thumbnailURL',
+    'thumbnailKey',
     'thumbnailMode'
   ]),
   {
@@ -135,7 +136,7 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'licensing',
   'description',
   'stats',
-  'thumbnailURL',
+  'thumbnailKey',
   'thumbnailMode'
 ])
 export const staticResourceQuerySchema = Type.Intersect(

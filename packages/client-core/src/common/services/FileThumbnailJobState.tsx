@@ -106,13 +106,13 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     .replaceAll(/[^a-zA-Z0-9\.\-_\s]/g, '')
     .replaceAll(/\s/g, '-')}-thumbnail.png`
   const file = new File([blob], thumbnailKey)
-  const [thumbnailURL] = await uploadToFeathersService(fileBrowserUploadPath, [file], {
+  await uploadToFeathersService(fileBrowserUploadPath, [file], {
     fileName: file.name,
     project: projectName,
     path: 'public/thumbnails/' + file.name,
     contentType: file.type
   }).promise
-  await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailURL, thumbnailMode })
+  await Engine.instance.api.service(staticResourcePath).patch(staticResourceId, { thumbnailKey, thumbnailMode })
 }
 
 const seenThumbnails = new Set<string>()
@@ -138,7 +138,7 @@ export const FileThumbnailJobState = defineState({
             return
           }
           const resource = resources.data[0]
-          if (resource.thumbnailURL != null) {
+          if (resource.thumbnailKey != null) {
             return
           }
           getMutableState(FileThumbnailJobState).merge([
@@ -195,7 +195,7 @@ export const FileThumbnailJobState = defineState({
           return
         }
         const resource = resources.data[0]
-        if (!forceRegenerate && resource.thumbnailURL != null) {
+        if (!forceRegenerate && resource.thumbnailKey != null) {
           return
         }
         getMutableState(FileThumbnailJobState).merge([

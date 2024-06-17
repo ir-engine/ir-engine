@@ -105,7 +105,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
           hash: createStaticResourceHash(fs.readFileSync(scene)),
           project: projectName,
           type: 'scene',
-          thumbnailURL: `projects/${projectName}/${sceneName.replace('.scene.json', '.thumbnail.jpg')}`
+          thumbnailKey: `projects/${projectName}/${sceneName.replace('.scene.json', '.thumbnail.jpg')}`
         })
       }
     }
