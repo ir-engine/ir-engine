@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { UserSettingPatch } from '@etherealengine/common/src/schema.type.module'
@@ -36,12 +37,11 @@ import {
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
+import { isMobile } from '@etherealengine/spatial/src/common/functions/isMobile'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { RendererState } from '@etherealengine/spatial/src/renderer/RendererState'
 import { XRState } from '@etherealengine/spatial/src/xr/XRState'
-
 import BooleanInput from '@etherealengine/ui/src/components/editor/input/Boolean'
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import SelectInput from '@etherealengine/ui/src/components/editor/input/Select'
@@ -49,10 +49,10 @@ import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
-export const ShadowMapResolutionOptions = [
+export const ShadowMapResolutionOptions: InputMenuItem[] = [
   {
     label: '256px',
     value: 256
@@ -153,21 +153,21 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     return true
   })
 
-  const colorModesMenu = Object.keys(themeSettings).map((el) => {
+  const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
     return {
       label: capitalizeFirstLetter(el),
       value: el
     }
   })
 
-  const controlSchemesMenu = controlSchemes.map(([label, value]) => {
+  const controlSchemesMenu: InputMenuItem[] = controlSchemes.map(([label, value]) => {
     return {
       label,
       value
     }
   })
 
-  const handOptionsMenu = handOptions.map((el) => {
+  const handOptionsMenu: InputMenuItem[] = handOptions.map((el) => {
     return {
       label: el,
       value: el
@@ -227,6 +227,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       className="w-full"
                       inputClassName="rounded-lg overflow-hidden"
                       onChange={(e) => handleChangeUserThemeMode(e)}
+                      options={colorModesMenu}
                     />
                   </InputGroup>
                 </div>
@@ -242,28 +243,28 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                     <SelectInput
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
-                      // menu={controlSchemesMenu}
-                      // onChange={(event) =>
-                      // getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
-                      // }
+                      options={controlSchemesMenu}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </div>
                   <div className="grid">
                     <SelectInput
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
-                      // menu={controlSchemesMenu}
-                      // onChange={(event) =>
-                      // getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
-                      // }
+                      options={controlSchemesMenu}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </div>
                   <div className="grid">
                     <SelectInput
                       label={t('user:usermenu.setting.lbl-preferred-hand')}
                       value={preferredHand}
-                      // menu={handOptionsMenu}
-                      // onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
+                      options={handOptionsMenu}
+                      onChange={(event) => getMutableState(InputState).preferredHand.set(event.target.value)}
                     />
                   </div>
                 </div>
@@ -480,8 +481,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               <SelectInput
                 label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
                 value={rendererState.shadowMapResolution.value}
-                // menu={ShadowMapResolutionOptions}
-                // onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
+                options={ShadowMapResolutionOptions}
+                onChange={(event) => rendererState.shadowMapResolution.set(event.target.value)}
               />
             )}
           </>
