@@ -68,6 +68,12 @@ export async function up(knex: Knex): Promise<void> {
       table.renameColumn('thumbnailType', 'thumbnailMode')
     })
   }
+  const thumbnailURLColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailURL')
+  if (thumbnailURLColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.renameColumn('thumbnailURL', 'thumbnailKey')
+    })
+  }
 
   // add new columns
   const typeColumnExists = await knex.schema.hasColumn(staticResourcePath, 'type')
@@ -88,41 +94,6 @@ export async function up(knex: Knex): Promise<void> {
       table.text('description').nullable()
     })
   }
-
-  // const tableExists = await knex.schema.hasTable(locationPath)
-  // const now = await getDateTimeSql()
-  // if (tableExists) {
-  //   const storageProvider = getStorageProvider()
-  //   const projects = await knex.select().from(projectPath)
-  //   for (const project of projects) {
-  //     const assets = await knex.select().from(assetPath).where({ projectId: project.id })
-  //     const staticResources = [] as StaticResourceDatabaseType[]
-  //     for (const asset of assets) {
-  //       const staticResource = await knex.select().from(staticResourcePath).where({ key: asset.assetURL })
-  //       if (staticResource.length) continue
-  //       staticResources.push({
-  //         id: asset.id,
-  //         key: asset.assetURL,
-  //         mimeType: asset.assetURL.endsWith('.scene.json') ? 'application/json' : 'model/gltf+json',
-  //         userId: null!,
-  //         hash: createStaticResourceHash((await storageProvider.getObject(asset.assetURL)).Body),
-  //         type: 'scene',
-  //         project: project.name,
-  //         tags: null!,
-  //         dependencies: null!,
-  //         attribution: null!,
-  //         licensing: null!,
-  //         description: null!,
-  //         stats: null!,
-  //         thumbnailURL: null!,
-  //         thumbnailMode: null!,
-  //         createdAt: now,
-  //         updatedAt: now
-  //       })
-  //     }
-  //     if (staticResources.length) await knex.from(staticResourcePath).insert(staticResources)
-  //   }
-  // }
 
   /** Change location table from storing sceneId as string to ref the scenetable */
   await knex.schema.alterTable(locationPath, (table) => {
@@ -173,6 +144,12 @@ export async function down(knex: Knex): Promise<void> {
   if (thumbnailModeColumnExists) {
     await knex.schema.alterTable(staticResourcePath, async (table) => {
       table.renameColumn('thumbnailMode', 'thumbnailType')
+    })
+  }
+  const thumbnailKeyColumnExists = await knex.schema.hasColumn(staticResourcePath, 'thumbnailKey')
+  if (thumbnailKeyColumnExists) {
+    await knex.schema.alterTable(staticResourcePath, async (table) => {
+      table.renameColumn('thumbnailKey', 'thumbnailURL')
     })
   }
 

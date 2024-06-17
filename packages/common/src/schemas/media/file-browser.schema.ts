@@ -73,7 +73,7 @@ export const fileBrowserPatchSchema = Type.Intersect(
         'attribution',
         'licensing',
         'description',
-        'thumbnailURL',
+        'thumbnailKey',
         'thumbnailMode'
       ])
     ),

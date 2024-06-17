@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import config from '@etherealengine/common/src/config'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { useClickOutside } from '@etherealengine/common/src/utils/useClickOutside'
 import { deleteScene, onNewScene } from '@etherealengine/editor/src/functions/sceneFunctions'
@@ -107,7 +106,7 @@ export default function ScenesPanel() {
                   className="my-2 flex h-[240px] w-[250px] flex-col justify-end rounded-lg bg-theme-surface-main"
                 >
                   <img
-                    src={config.client.fileServer + '/' + scene.thumbnailURL}
+                    src={scene.thumbnailURL}
                     alt={scene.key}
                     onError={(e) => {
                       e.currentTarget.src = 'static/ir.svg'

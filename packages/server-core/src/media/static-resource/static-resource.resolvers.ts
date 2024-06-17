@@ -70,6 +70,11 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     url: virtual(async (staticResource, context) => {
       const storageProvider = getStorageProvider()
       return storageProvider.getCachedURL(staticResource.key, context.params.isInternal)
+    }),
+    thumbnailURL: virtual(async (staticResource, context) => {
+      if (!staticResource.thumbnailKey) return
+      const storageProvider = getStorageProvider()
+      return storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal)
     })
   },
   {

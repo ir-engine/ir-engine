@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ResourcesJson } from '@etherealengine/common/src/interfaces/ResourcesJson'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import * as ffprobe from '@ffprobe-installer/ffprobe'
 import appRootPath from 'app-root-path'
@@ -218,7 +219,7 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
         licensing: resource.licensing ?? undefined,
         description: resource.description ?? undefined,
         attribution: resource.attribution ?? undefined,
-        thumbnailURL: resource.thumbnailURL ?? undefined,
+        thumbnailKey: resource.thumbnailKey ?? undefined,
         thumbnailMode: resource.thumbnailMode ?? undefined
       }
     ])
@@ -255,7 +256,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, resource
   const storageProvider = getStorageProvider()
 
   const result = await storageProvider.getObject(key)
-  const resourcesJson = JSON.parse(result.Body.toString())
+  const resourcesJson = JSON.parse(result.Body.toString()) as ResourcesJson
 
   const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
   resourcesJson[projectRelativeKey] = {
@@ -265,7 +266,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, resource
     licensing: resource.licensing ?? undefined,
     description: resource.description ?? undefined,
     attribution: resource.attribution ?? undefined,
-    thumbnailURL: resource.thumbnailURL ?? undefined,
+    thumbnailKey: resource.thumbnailKey ?? undefined,
     thumbnailMode: resource.thumbnailMode ?? undefined
   }
 
@@ -296,7 +297,7 @@ export const removeProjectResourcesJson = async (app: Application, resource: Sta
   const key = `projects/${projectName}/resources.json`
   const storageProvider = getStorageProvider()
 
-  const resourcesJson = JSON.parse((await storageProvider.getObject(key)).Body.toString())
+  const resourcesJson = JSON.parse((await storageProvider.getObject(key)).Body.toString()) as ResourcesJson
 
   const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
   delete resourcesJson[projectRelativeKey]

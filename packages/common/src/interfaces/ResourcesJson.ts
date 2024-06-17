@@ -27,13 +27,13 @@ Ethereal Engine. All Rights Reserved.
 export type ResourcesJson = Record<
   string,
   {
-    type: 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
+    type: string // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
     tags?: string[]
     dependencies?: string[] // other keys
     licensing?: string
     description?: string
     attribution?: string
-    thumbnailURL?: string
-    thumbnailMode?: 'automatic' | 'manual'
+    thumbnailKey?: string
+    thumbnailMode?: string // 'automatic' | 'manual'
   }
 >

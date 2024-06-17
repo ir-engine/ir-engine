@@ -1,914 +1,587 @@
-[
-  {
-    "id": "03c9fe3c-86aa-40d2-9a5e-6272e688e1dd",
-    "sid": "ldnmr5I_",
-    "hash": "fb729159e3ee3a4b2a9e5d7d6a20d792b52a7b5f61319c3d88d4f0fb03b4029e",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/animations/emotes.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
-  },
-  {
-    "id": "09e3c869-a2c6-4760-b957-755c6b234e10",
-    "sid": "tiMc37Oh",
-    "hash": "d456229ff1831c9d7751eba3d06186e84d5b5606149710b21dd47239e1ca1f19",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/negz.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+{
+  "public/scenes/apartment.envmap.ktx2": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:29.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": []
   },
-  {
-    "id": "0b876502-0c45-473e-80ac-e8cbb0112575",
-    "sid": "wNE_sDZA",
-    "hash": "c73b93a6c6d983b2aa73ea980df7c578a7b6ea00d4d4916a8e3a2d3974fe8562",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/cloud.png",
-    "mimeType": "image/png",
-    "project": "default-project",
+  "public/scenes/apartment.thumbnail.jpg": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:04.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetscloud.png-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": []
   },
-  {
-    "id": "0c330948-eb52-40c3-9e83-a9faa31f1327",
-    "sid": "_dNvOsXh",
-    "hash": "2434f9c5e1dd3e91561d1f07c2244c0b53d76df6d04ef17a99cabb6ef1de69f6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/animations/locomotion.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:48:09.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
-    "thumbnailType": "automatic"
+  "assets/avatars/male_03.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/male_03.png\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "0ce6d3b8-e5fd-45dd-8672-74c5b099a34a",
-    "sid": "bdk1ZZnT",
-    "hash": "3de69d05af9a5dec90515daa3da151f4955efaaf952a07abde40d672cabf49a0",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/sphere-collider.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:47:19.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "1024b8bb-6f6c-42b2-97e6-79bea4b04afb",
-    "sid": "D0Iak_Uk",
-    "hash": "2a590a8cf300c4d1143f57212a2f8592b609f512f5701aa8c14c96013caa7f7f",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_03.vrm",
-    "mimeType": "model/vrm",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:44.000Z",
-    "stats": {},
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "137e3d9a-3370-4a9a-a63a-023fc89cadf5",
-    "sid": "jFPlB2XJ",
-    "hash": "e9f0f3bea3221f1773f7e8f134b4f0aeae5374fb2281be3b4644ecfde9aadcb8",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/mesh-collider.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
-  },
-  {
-    "id": "154be446-540b-4a52-a3c2-10fbb73aac6b",
-    "sid": "hNnoJP4O",
-    "hash": "3c55ab75802f97411616668b5bbe1dee414565eb5f8b74c04d913113dde066b8",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/SampleVideo.mp4",
-    "mimeType": "video/mp4",
-    "project": "default-project",
-    "tags": [
-      "Video"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:07.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "2147ff8d-0746-4765-b8ff-7bbf79cc7472",
-    "sid": "G_UnaaOo",
-    "hash": "2a4d56a6bca5717c5498d4e2169da03e4db0da89c32bfe6ffa7c1c4434c41ad6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/keycard.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:04.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "229f6a5e-bcc0-4ece-891f-553584aa30c2",
-    "sid": "mHTBlTtb",
-    "hash": "efb7b3bde77c624e3b84544297ce821d407b2a544e58acc083df6f45288dcaf6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/geo.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:46.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "24cdce72-e562-43f7-ac3f-4a0ebb99a40e",
-    "sid": "eFfnlcDo",
-    "hash": "e8303796fb468c2d79ec37c231e4e911abffb5fcaa697737afd76e63bb99406c",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/fog.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:51.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "271c6fb6-a091-42ed-acb2-2b711a16cfd2",
-    "sid": "q5ZXh8Pv",
-    "hash": "6883ab981ed4a38cdb43d9846e1496e50d1da4f187953bdaf6881bd0707cd5da",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/apartment_skybox.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+  "assets/UV.png": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:45:57.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsUV.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "2a0e315e-c0eb-45ad-9685-7550a1ed2156",
-    "sid": "_lm6QNoY",
-    "hash": "a3bf931e1eaa4a9c7085fcb2e2cef13fad61bf430e4980963fa3ddbdbf9442cb",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/directional-light.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:49.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "2bce339a-4b17-4e36-bcb9-48010fed78d3",
-    "sid": "WBYHS9Fk",
-    "hash": "003af2d7e8fa4374f975eff071708704370673e9952cc8c779197023ee9bf1fc",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/collisioncube.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:12.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetscollisioncube.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "2ea73066-4596-4c84-92fe-b19ba1fc40da",
-    "sid": "cM2gATaI",
-    "hash": "4e77119aeeb6084dbccb3f141b326bc098795f532814f6c3c89dce99c55cc75c",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/skybox.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:47:08.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "2fb7386a-a9e3-439e-a7c7-2d66520bb3f8",
-    "sid": "41GETH5A",
-    "hash": "85aa2fd4c8c0110c56cfc987e9a55962cf41b91b5cbf0d9931e167285f3a6bde",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/galaxyTexture.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+  "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:06.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": []
   },
-  {
-    "id": "3447cf27-f9ec-4ca6-aad7-38c4fd2b96da",
-    "sid": "fS4DCAgW",
-    "hash": "7e9af39fbf7a9382b1a15159c8ae37df67aadf3b999fdb6e89e37e75c18dbae6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_02.vrm",
-    "mimeType": "application/octet-stream",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
+  "assets/avatars/female_03.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "36b138e2-0f53-4367-a607-9413e3b7735d",
-    "sid": "1gJnRcVc",
-    "hash": "78b738dc9aecc533ea170b9f848724f6ab4f9fb1ef88b9d0061019f7bd510ca6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_02.vrm",
-    "mimeType": "model/vrm",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:59.000Z",
-    "stats": {},
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "377e909c-baa5-40bc-8d19-faaa9ab0f360",
-    "sid": "aknsPJfH",
-    "hash": "624fad0699bbb4f09c6227f0fbd4bd55410c0a54b1bf0dc42ea4788972fb776e",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/apartment.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:01.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "45d19e2e-e8cc-4a6f-a9e3-14ceeedc8aa5",
-    "sid": "XEzaEFz_",
-    "hash": "f482a444c67ff3809c25701f6f9cbdbca16226da9a2fceb34de683b7f9f63885",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/animations/default_skeleton.vrm",
-    "mimeType": "application/octet-stream",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:48:19.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "45e985e0-dfb0-4653-934e-5fc70487a92e",
-    "sid": "7gST0d-p",
-    "hash": "27995e25efdc57822fd8005c5b6d459b4e8adf803c45e9110e7c6f8ca01a627a",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/posz.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+  "public/scenes/default.thumbnail.jpg": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T17:52:28.000Z"
+    "dependencies": []
   },
-  {
-    "id": "520ae895-4817-4269-a4cf-337cce2391d0",
-    "sid": "2CpeSROg",
-    "hash": "53a374348d7a760fd9b3f38f42af4ca814b756ea06aa061888b5a1295a29ddfd",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/posy.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+  "assets/default-silhouette.svg": {
+    "type": "file",
+    "tags": [
+      "unknown"
+    ],
+    "dependencies": []
+  },
+  "assets/drop-shadow.png": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:32.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsskyboxsun25degposy.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "538b469f-90b8-4cb2-9a54-bdf7a10b830e",
-    "sid": "j3bpxOPY",
-    "hash": "53d83234dd4dd909a1d74453c64247f0d85afb8bb9d76ac76169397c8ca2bbe5",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_01.png",
-    "mimeType": "image/png",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:22.000Z",
-    "stats": {
-      "width": 256,
-      "height": 256
-    },
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
-    "thumbnailType": "automatic"
+  "assets/avatars/female_01.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "587a10ce-5161-4890-b12c-4b2510385ec3",
-    "sid": "pnS7n_8T",
-    "hash": "1cadbe90a08f607bb862931a2d786fdd2468c2ef5ad1a1c0162347077299d1d8",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_02.png",
-    "mimeType": "image/png",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
-  },
-  {
-    "id": "597f8eed-c362-494f-83a2-51d4d7c4f913",
-    "sid": "kWvpHbY5",
-    "hash": "b73acbe3e542d6ec7edb841b3055526052884cef390791937e8b657d2299107d",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/cylinder-collider.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:59.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "5c5c2510-7141-4337-9a6f-11e02a990bfc",
-    "sid": "jyh3gL-0",
-    "hash": "8757f30dd5aee00811d76c0ac129582983692254913e45243f429e85d22764e0",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/animations/optional/seated.fbx",
-    "mimeType": "application/octet-stream",
-    "project": "default-project",
+  "assets/apartment.glb": {
+    "type": "file",
     "tags": [
       "Model"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "624d519f-9313-4294-a5a3-95cf073cb002",
-    "sid": "2z_IjlhZ",
-    "hash": "467c176ef1550d1cd2d01893bea3bc419aed27a8ad8b1bb561bacfe7a1fa187b",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/text.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:47:11.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
+  "assets/avatars/female_03.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/female_03.png\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "69377574-c584-4636-b81d-29358c96569a",
-    "sid": "uMw4s6I6",
-    "hash": "bc2facd8fd91d7b1129468288932803d1990a29800160e8dd7a23c154d8a8298",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/apartment-CubemapBake.png",
-    "mimeType": "image/png",
-    "project": "default-project",
+  "public/scenes/sky-station.envmap.ktx2": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
+    "dependencies": []
   },
-  {
-    "id": "699ddaa7-5283-47ba-92b0-2029e4311e41",
-    "sid": "uOZ7_WV5",
-    "hash": "fa0d92ce7ab40edebe784e50f0676ee5c445e947fcf3b883df2bf184cad8d52a",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/sky_skybox.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:25.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+  "assets/avatars/male_02.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]"
   },
-  {
-    "id": "7626e49a-44b4-4bdd-b01e-442f9fd72c02",
-    "sid": "6-n3iF-L",
-    "hash": "b32560a65571d71ceedb6d55c5cb846d6d9729587e8a8b92d8e9a4ffeef951fb",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/controllers/right_controller.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
-  },
-  {
-    "id": "7960aa45-218b-48cb-8b39-8424598cf8a9",
-    "sid": "KCeA6rdE",
-    "hash": "88e034c54ee19cfb6a205cfb1f71883e1efab0d82f8f9ecfdc73511d6f78304e",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/spot-light.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:47:13.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "7fab6aad-57e8-45f5-8284-b53d4e6754d1",
-    "sid": "FCC6Y_mw",
-    "hash": "120522ef0e083418b08608b7e278c474b8f2b1fd38a39e32c55e15caee03b9e6",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_03.vrm",
-    "mimeType": "model/vrm",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:48:05.000Z",
-    "stats": {},
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "81541215-ed0b-4a29-ae78-72e56323c143",
-    "sid": "bCeqVZYP",
-    "hash": "4fb87c539c24346ffdce7ccec33aad1cd3e8b2138aeb8d3bee98af0d351d5ce5",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/hemisphere-light.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:01.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "846a4e7f-c58b-4a3a-b385-fe436449dd19",
-    "sid": "1TTxhQ2h",
-    "hash": "c8d2a6d3b14b80d5493104e638c4e0e760ed7638675527785bbc6154c7865cc5",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/sample_etc1s.ktx2",
-    "mimeType": "image/ktx2",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:22.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "87f92e67-bf9a-483c-be2d-f2f60ee9f4dd",
-    "sid": "il1gykOP",
-    "hash": "3622ef5ed9b9e153e6082ce441bb9e99c487bc2f56653bccd9e1b1e717e1b272",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/postprocessing.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
-    "tags": [
-      "Prefab"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:56.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "8e6392f3-1bbd-4ebf-9aac-845f4002213c",
-    "sid": "Um-sNAJT",
-    "hash": "05b625e76e909c4963ce4933bdc9f85af8dc96a3e6416a9fecdd3263a52fadcc",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/controllers/right.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:49.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "9325c40a-6e6c-4506-bb70-41d676f0914f",
-    "sid": "x91bcJJh",
-    "hash": "f30572927231ae26aede448f6cf8664e824009d44e04043450b8d57b4c0c75ef",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_01.png",
-    "mimeType": "image/png",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:37.000Z",
-    "stats": {
-      "width": 256,
-      "height": 256
-    },
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "a1927fac-c0af-4a5f-8cb7-7c8c7c8f556f",
-    "sid": "NeU-6NNF",
-    "hash": "a5b239802a2278f7644b36f3777c5afd65f98c706f0b2b335dea9e5c31950d31",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/Skybase.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:22.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "a38b9e2a-6e7b-43c2-b0f3-78e4950203b4",
-    "sid": "Z2V7X6tM",
-    "hash": "67b1e6387f7ca09cb1c4f9ef47b1b1f76ca697a6a5af265e9ea80df4cb6adf09",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/portal_frame.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:16.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "a721efd8-cccf-4ee1-806f-2f1638cb362a",
-    "sid": "XrFtKA1K",
-    "hash": "3d25de0399b6ba94a06706273634e532547a874a3a424ce458d6fef3e1fa3c74",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_03.png",
-    "mimeType": "image/png",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:48:13.000Z",
-    "stats": {
-      "width": 256,
-      "height": 256
-    },
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "aecb33c9-068b-4941-95c8-c676538ee5f2",
-    "sid": "Fpf6nr38",
-    "hash": "41ed54bb8778598c3faf847c18a25c21afae5f5e220a55d7a165433ead859ef8",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/SampleAudio.mp3",
-    "mimeType": "audio/mpeg",
-    "project": "default-project",
+  "assets/SampleAudio.mp3": {
+    "type": "file",
     "tags": [
       "Audio"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
+    "dependencies": []
   },
-  {
-    "id": "aef4f3f2-1141-4274-b891-5dd9cb5148ab",
-    "sid": "-D-WQqfQ",
-    "hash": "751e23729dd842438d627bd06ae6231e2da8a05859254e546eecbb29eac4971c",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/point-light.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
+  "assets/skyboxsun25deg/negx.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/controllers/right_controller.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/default.envmap.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/Skybase.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/cylinder-collider.prefab.gltf": {
+    "type": "file",
     "tags": [
       "Prefab"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:04.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "b2436a3f-3c48-489c-9b60-56f1c571546e",
-    "sid": "B1cDxF-V",
-    "hash": "5e07fe07df51dbc337fa42a5837527618d37cf95c44ba65658769706fc835772",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/controllers/left_controller.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:16.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "b5b57ead-275a-4207-b77c-a9fbf2d49e48",
-    "sid": "dy6BmLI4",
-    "hash": "ce04c9f488771a2171b151d09e3275e16eeba53d2f64f1d6e4c6e88413b85a6b",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_01.vrm",
-    "mimeType": "application/octet-stream",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
-  },
-  {
-    "id": "b7356c10-3688-4a83-8d68-d62206ae9096",
-    "sid": "fOjvMlGg",
-    "hash": "64541bda5b5481fca1c586e988a2e66b9a8a856fef955a81b18c6ff02a9a3124",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/test-equippable.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:18.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "b893db6c-093a-47dd-a213-75012f5b241d",
-    "sid": "HDJyGNsB",
-    "hash": "5e16b307b7083dca1a74725271c8fb031eeea08dbd3c53c98148bf4cb921ffc3",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/drop-shadow.png",
-    "mimeType": "image/png",
-    "project": "default-project",
+  "assets/skyboxsun25deg/posx.jpg": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:05.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposx.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "bfe32aa1-8dc5-49f0-84df-9e351ecb32f3",
-    "sid": "7VRX1syv",
-    "hash": "58d3498ddcc70f7219f10211d76d99a74739c1670c52e9045688c426cd37de1f",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/3d-model.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
+  "assets/prefabs/ambient-light.prefab.gltf": {
+    "type": "file",
     "tags": [
       "Prefab"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T17:52:27.000Z"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "d612be68-59a1-457d-8ccf-632dadf69551",
-    "sid": "bPWNZU-Z",
-    "hash": "f6d22d9dd4c2698f51b9b734f0da5f2261c23dc120cde1db2d438e72c05a353b",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/male_01.vrm",
-    "mimeType": "model/vrm",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:53.000Z",
-    "stats": {},
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "db9e5cc0-ce69-4f4f-8a54-c7f04c6322a1",
-    "sid": "uiGaAqQa",
-    "hash": "b8f6ed232ca8757d75f2371f70148384de1b24c0e24fc491a0c3fd50ad1675c1",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/negy.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T17:52:28.000Z"
-  },
-  {
-    "id": "dca0061f-5dad-428a-b71f-8961beccfaeb",
-    "sid": "99cuwDAC",
-    "hash": "c69dee08526a4c2eb9207a3d4505bb1cad184d058305e1769586619be65399b8",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_03.png",
-    "mimeType": "image/png",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:48:02.000Z",
-    "stats": {
-      "width": 256,
-      "height": 256
-    },
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "dd1b17a0-7c7f-4ad6-b6f2-88b0f1ee40d8",
-    "sid": "CUpgt79y",
-    "hash": "0a90be50fab9065ee14be090f12c14038cef267d955318453b7782c578d5160e",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/controllers/left.glb",
-    "mimeType": "model/gltf-binary",
-    "project": "default-project",
-    "tags": [
-      "Model"
-    ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:27.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetscontrollersleft.glb-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "dd56871c-27d5-423e-a6d7-02f4f2d68dde",
-    "sid": "-ovFtobx",
-    "hash": "f3c2d5fb1d527d7ecf6c1b8cf68ad598f8099a3dd2fc8d74874e5747df3b515c",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/negx.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
-    "tags": [
-      "Image"
-    ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:28.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
-  },
-  {
-    "id": "e3601ef4-8f37-42aa-ad68-60eb06bc0d3b",
-    "sid": "WhkIg5v_",
-    "hash": "d69fc3bf86861764ccaaaa26838c94caee683037c17f70f8690b8bd012aeb3ca",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/ambient-light.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
+  "assets/prefabs/sphere-collider.prefab.gltf": {
+    "type": "file",
     "tags": [
       "Prefab"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:42.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "ed1bc4b4-fb9e-4587-854f-649211110f36",
-    "sid": "zpTAHciT",
-    "hash": "20ef2eaee355aef5d30e59df1366a94eafd218dd67d00932b93bc5128471819a",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/UV.png",
-    "mimeType": "image/png",
-    "project": "default-project",
+  "assets/animations/locomotion.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/sky-station.loadingscreen.ktx2": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:25.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsUV.png-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": []
   },
-  {
-    "id": "f78adf27-aa86-4a1f-92a2-79fd94eb394f",
-    "sid": "2Ig01xHW",
-    "hash": "5edbc806325dccccf6b5807d6e262cee476b55318927d446ef0bea2a8722e266",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/skyboxsun25deg/posx.jpg",
-    "mimeType": "image/jpeg",
-    "project": "default-project",
+  "public/scenes/sky-station.gltf": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/apartment.loadingscreen.ktx2": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:28.000Z",
-    "updatedAt": "2024-06-14T18:46:29.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsskyboxsun25degposx.jpg-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": []
   },
-  {
-    "id": "fadc0549-233c-45c9-aecb-69f53ad8d305",
-    "sid": "umPAkXwn",
-    "hash": "455e9f00398ffeb898ae09f2b97942222d7271d0b8448f923fdb886ff5c533b1",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/prefabs/box-collider.prefab.gltf",
-    "mimeType": "model/gltf+json",
-    "project": "default-project",
+  "assets/avatars/female_01.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/female_01.png\"]"
+  },
+  "public/scenes/default.loadingscreen.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_02.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/female_02.png\"]"
+  },
+  "assets/prefabs/fog.prefab.gltf": {
+    "type": "file",
     "tags": [
       "Prefab"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:46:54.000Z",
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  {
-    "id": "fdd1c145-bf5b-416b-9d1a-59e33d221c87",
-    "sid": "VJYTrBeV",
-    "hash": "bf0dee0cec15ec6c233d9703c9b09bc93f13439cca00da2ee9a77fd9dbcbf4d4",
-    "url": "",
-    "key": "projects/@etherealengine/default-project/assets/avatars/female_02.png",
-    "mimeType": "image/png",
-    "project": "default-project",
+  "assets/controllers/left_controller.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/galaxyTexture.jpg": {
+    "type": "file",
     "tags": [
       "Image"
     ],
-    "createdAt": "2024-06-14T17:52:27.000Z",
-    "updatedAt": "2024-06-14T18:47:31.000Z",
-    "stats": {
-      "width": 256,
-      "height": 256
-    },
-    "thumbnailURL": "projects/@etherealengine/default-project/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
-    "thumbnailType": "automatic"
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_03.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/apartment-CubemapBake.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/apartment-New-EnvMap Bake.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/sky_skybox.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/animations/default_skeleton.vrm": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/box-collider.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/portal_frame.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/collisioncube.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscollisioncube.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/postprocessing.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspostprocessing.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/skyboxsun25deg/posz.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/skyboxsun25deg/negy.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/mesh-collider.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": []
+  },
+  "assets/animations/optional/seated.fbx": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "assets/SampleVideo.mp4": {
+    "type": "file",
+    "tags": [
+      "Video"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/skyboxsun25deg/posy.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposy.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/test-equippable.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/female_02.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_02.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/male_02.png\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/hemisphere-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/cloud.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscloud.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/skyboxsun25deg/negz.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/apartment.gltf": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/male_01.png": {
+    "type": "thumbnail",
+    "tags": "[\"Image\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/keycard.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/sky-station.thumbnail.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/animations/emotes.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/spot-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/geo.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/apartment-Portal.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/directional-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/default.gltf": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "assets/controllers/right.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/3d-model.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/skybox.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_01.vrm": {
+    "type": "avatar",
+    "tags": "[\"Model\"]",
+    "dependencies": "[\"projects/default-project/assets/avatars/male_01.png\"]",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/text.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/apartment_skybox.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/sample_etc1s.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/point-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/controllers/left.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
   }
-]
+}
