@@ -136,105 +136,109 @@ export default function FilePropertiesModal({ file }: { file: FileDataType }) {
           <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.size')}</Text>
           <Text className="text-[#9CA0AA]">{file.size}</Text>
         </div>
-        <div className="grid grid-cols-2 items-center gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
-          <span className="flex items-center">
-            {resourceProperties.attribution.editing.value ? (
-              <>
-                <Input
-                  value={resourceProperties.attribution.input.value}
-                  onChange={(event) => resourceProperties.attribution.input.set(event.target.value)}
-                />
-                <Button
-                  title={t('common:components.save')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<RiSave2Line />}
-                  onClick={() => resourceProperties.attribution.editing.set(false)}
-                />
-              </>
-            ) : (
-              <>
-                <Text className="text-[#9CA0AA]">
-                  {resourceProperties.attribution.input.value || <em>{t('common:components.none')}</em>}
-                </Text>
-                <Button
-                  title={t('common:components.edit')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<HiPencil />}
-                  onClick={() => {
-                    resourceProperties.attribution.editing.set(true)
-                    staticResourceMutation.patch(resourceProperties.id.value, {
-                      attribution: resourceProperties.attribution.input.value
-                    })
-                  }}
-                />
-              </>
-            )}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 items-center gap-2">
-          <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
-          <span className="flex items-center">
-            {resourceProperties.licensing.editing.value ? (
-              <>
-                <Input
-                  value={resourceProperties.licensing.input.value}
-                  onChange={(event) => resourceProperties.licensing.input.set(event.target.value)}
-                />
-                <Button
-                  title={t('common:components.save')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<RiSave2Line />}
-                  onClick={() => resourceProperties.licensing.editing.set(false)}
-                />
-              </>
-            ) : (
-              <>
-                <Text className="text-[#9CA0AA]">
-                  {resourceProperties.licensing.input.value || <em>{t('common:components.none')}</em>}
-                </Text>
-                <Button
-                  title={t('common:components.edit')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<HiPencil />}
-                  onClick={() => {
-                    resourceProperties.licensing.editing.set(true)
-                    staticResourceMutation.patch(resourceProperties.id.value, {
-                      licensing: resourceProperties.licensing.input.value
-                    })
-                  }}
-                />
-              </>
-            )}
-          </span>
-        </div>
-        <div className="mt-10 flex flex-col gap-2">
-          <Text className="text-[#D3D5D9]" fontSize="sm">
-            {t('editor:layout.filebrowser.fileProperties.addTag')}
-          </Text>
-          <div className="flex items-center gap-2">
-            <Input
-              value={resourceProperties.tags.input.value}
-              onChange={(event) => resourceProperties.tags.input.set(event.target.value)}
-            />
-            <Button
-              startIcon={<HiPlus />}
-              title={t('editor:layout.filebrowser.fileProperties.add')}
-              onClick={handleAddTag}
-            />
-          </div>
-          <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
-            {resourceProperties.tags.all.value.map((tag) => (
-              <span className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
-                {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
+        {resourceProperties.id.value && (
+          <>
+            <div className="grid grid-cols-2 items-center gap-2">
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.attribution')}</Text>
+              <span className="flex items-center">
+                {resourceProperties.attribution.editing.value ? (
+                  <>
+                    <Input
+                      value={resourceProperties.attribution.input.value}
+                      onChange={(event) => resourceProperties.attribution.input.set(event.target.value)}
+                    />
+                    <Button
+                      title={t('common:components.save')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<RiSave2Line />}
+                      onClick={() => resourceProperties.attribution.editing.set(false)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-[#9CA0AA]">
+                      {resourceProperties.attribution.input.value || <em>{t('common:components.none')}</em>}
+                    </Text>
+                    <Button
+                      title={t('common:components.edit')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<HiPencil />}
+                      onClick={() => {
+                        resourceProperties.attribution.editing.set(true)
+                        staticResourceMutation.patch(resourceProperties.id.value, {
+                          attribution: resourceProperties.attribution.input.value
+                        })
+                      }}
+                    />
+                  </>
+                )}
               </span>
-            ))}
-          </div>
-        </div>
+            </div>
+            <div className="grid grid-cols-2 items-center gap-2">
+              <Text className="text-end">{t('editor:layout.filebrowser.fileProperties.licensing')}</Text>
+              <span className="flex items-center">
+                {resourceProperties.licensing.editing.value ? (
+                  <>
+                    <Input
+                      value={resourceProperties.licensing.input.value}
+                      onChange={(event) => resourceProperties.licensing.input.set(event.target.value)}
+                    />
+                    <Button
+                      title={t('common:components.save')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<RiSave2Line />}
+                      onClick={() => resourceProperties.licensing.editing.set(false)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Text className="text-[#9CA0AA]">
+                      {resourceProperties.licensing.input.value || <em>{t('common:components.none')}</em>}
+                    </Text>
+                    <Button
+                      title={t('common:components.edit')}
+                      variant="transparent"
+                      size="small"
+                      startIcon={<HiPencil />}
+                      onClick={() => {
+                        resourceProperties.licensing.editing.set(true)
+                        staticResourceMutation.patch(resourceProperties.id.value, {
+                          licensing: resourceProperties.licensing.input.value
+                        })
+                      }}
+                    />
+                  </>
+                )}
+              </span>
+            </div>
+            <div className="mt-10 flex flex-col gap-2">
+              <Text className="text-[#D3D5D9]" fontSize="sm">
+                {t('editor:layout.filebrowser.fileProperties.addTag')}
+              </Text>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={resourceProperties.tags.input.value}
+                  onChange={(event) => resourceProperties.tags.input.set(event.target.value)}
+                />
+                <Button
+                  startIcon={<HiPlus />}
+                  title={t('editor:layout.filebrowser.fileProperties.add')}
+                  onClick={handleAddTag}
+                />
+              </div>
+              <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
+                {resourceProperties.tags.all.value.map((tag) => (
+                  <span className="flex h-fit w-fit items-center rounded bg-[#2F3137] px-2 py-0.5">
+                    {tag} <HiXMark className="ml-1 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   )
