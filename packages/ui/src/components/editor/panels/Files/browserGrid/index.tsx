@@ -49,6 +49,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 import { ContextMenu } from '../../../layout/ContextMenu'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
+import FilePropertiesModal from './FilePropertiesModal'
 import RenameFileModal from './RenameFileModal'
 
 export const canDropItemOverFolder = (folderName: string) =>
@@ -193,7 +194,6 @@ type FileBrowserItemType = {
   disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   setFileProperties: any
-  setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
@@ -209,7 +209,6 @@ export function FileBrowserItem({
   item,
   disableDnD,
   currentContent,
-  setOpenPropertiesModal,
   setFileProperties,
   setOpenCompress,
   setOpenConvert,
@@ -290,13 +289,6 @@ export function FileBrowserItem({
       newPath: item.isFolder ? item.path + item.fullName : item.path,
       isCopy: currentContent.current.isCopy
     })
-  }
-
-  const viewAssetProperties = () => {
-    setFileProperties(item)
-
-    setOpenPropertiesModal(true)
-    handleClose()
   }
 
   const viewCompress = () => {
@@ -412,7 +404,12 @@ export function FileBrowserItem({
         >
           {t('editor:layout.assetGrid.deleteAsset')}
         </Button>
-        <Button variant="outline" size="small" fullWidth onClick={viewAssetProperties}>
+        <Button
+          variant="outline"
+          size="small"
+          fullWidth
+          onClick={() => PopoverState.showPopupover(<FilePropertiesModal file={item} />)}
+        >
           {t('editor:layout.filebrowser.viewAssetProperties')}
         </Button>
         <Button variant="outline" size="small" fullWidth onClick={viewCompress}>

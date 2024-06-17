@@ -45,7 +45,6 @@ import {
   availableTableColumns
 } from '@etherealengine/editor/src/components/assets/FileBrowser/FileBrowserState'
 import { FileDataType } from '@etherealengine/editor/src/components/assets/FileBrowser/FileDataType'
-import { FilePropertiesPanel } from '@etherealengine/editor/src/components/assets/FileBrowser/FilePropertiesPanel'
 import ImageCompressionPanel from '@etherealengine/editor/src/components/assets/ImageCompressionPanel'
 import ModelCompressionPanel from '@etherealengine/editor/src/components/assets/ModelCompressionPanel'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
@@ -151,7 +150,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const fileProperties = useHookstate<FileType | null>(null)
   const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
-  const openProperties = useHookstate(false)
   const openCompress = useHookstate(false)
   const openConvert = useHookstate(false)
 
@@ -468,7 +466,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                     onSelect(file)
                   }}
                   currentContent={currentContentRef}
-                  setOpenPropertiesModal={openProperties.set}
                   setFileProperties={fileProperties.set}
                   setOpenCompress={openCompress.set}
                   setOpenConvert={openConvert.set}
@@ -684,9 +681,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      {openProperties.value && fileProperties.value && (
-        <FilePropertiesPanel openProperties={openProperties} fileProperties={fileProperties} />
-      )}
       <ConfirmDialog
         open={openConfirm.value}
         description={t('editor:dialog.delete.confirm-content', {
