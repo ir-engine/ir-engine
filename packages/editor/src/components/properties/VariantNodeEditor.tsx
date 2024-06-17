@@ -317,3 +317,5 @@ export const BudgetVariantNodeEditor = (props: {
 }
 
 VariantNodeEditor.iconComponent = DeblurIcon
+
+export default VariantNodeEditor

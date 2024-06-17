@@ -39,7 +39,8 @@ export const ProjectBuildUpdateItemSchema = Type.Object(
     commitSHA: Type.String(),
     sourceBranch: Type.String(),
     updateType: StringEnum(projectUpdateTypes),
-    updateSchedule: Type.String()
+    updateSchedule: Type.String(),
+    token: Type.Optional(Type.Boolean())
   },
   { $id: 'ProjectUpdate', additionalProperties: false }
 )

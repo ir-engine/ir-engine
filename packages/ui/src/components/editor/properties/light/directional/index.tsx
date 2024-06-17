@@ -53,7 +53,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.directionalLight.name')}
       description={t('editor:properties.directionalLight.description')}
-      icon={<BsLightning />}
+      icon={<DirectionalLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput

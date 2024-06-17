@@ -59,18 +59,19 @@ export function ColorInput({
   return (
     <div
       className={twMerge(
-        'flex h-8 w-[200px] items-center gap-1 rounded bg-theme-primary px-1',
+        'relative flex h-8 w-[200px] items-center gap-1 rounded bg-theme-primary px-1',
         disabled && 'cursor-not-allowed',
         className
       )}
     >
       <div
         tabIndex={0}
-        className={`group h-5 w-5 rounded border border-black focus:border-theme-primary bg-[${hexColor}]`}
+        className={`group h-5 w-5 rounded border border-black focus:border-theme-primary`}
+        style={{ backgroundColor: hexColor }}
       >
         <SketchPicker
           className={twMerge(
-            'absolute z-10 mt-5 scale-0 group-hover:scale-100 group-focus:scale-100',
+            'absolute z-10 mt-5 scale-0 bg-theme-surface-main group-hover:scale-100 group-focus:scale-100',
             sketchPickerClassName
           )}
           color={hexColor}

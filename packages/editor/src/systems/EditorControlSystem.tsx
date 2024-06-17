@@ -35,7 +35,6 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -57,6 +56,7 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -236,14 +236,13 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const inputQuery = defineQuery([InputSourceComponent])
+let clickStartEntity = UndefinedEntity
 
 const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
 
   if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
-
-  const deltaSeconds = getState(ECSState).deltaSeconds
 
   const selectedEntities = SelectionState.getSelectedEntities()
 
@@ -277,29 +276,30 @@ const execute = () => {
   }
 
   if (buttons.PrimaryClick?.pressed) {
-    primaryClickAccum += deltaSeconds
-  }
-  if (buttons.PrimaryClick?.up) {
-    primaryClickAccum = 0
-  }
-  if (primaryClickAccum <= 0.2) {
-    if (buttons.PrimaryClick?.up) {
-      let clickedEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
+    if (buttons.PrimaryClick?.down) {
+      clickStartEntity = InputSourceComponent.getClosestIntersectedEntity(inputSources[0])
       while (
-        !hasComponent(clickedEntity, SourceComponent) &&
-        getOptionalComponent(clickedEntity, EntityTreeComponent)?.parentEntity
+        !hasComponent(clickStartEntity, SourceComponent) &&
+        getOptionalComponent(clickStartEntity, EntityTreeComponent)?.parentEntity
       ) {
-        clickedEntity = getComponent(clickedEntity, EntityTreeComponent).parentEntity!
+        clickStartEntity = getComponent(clickStartEntity, EntityTreeComponent).parentEntity!
       }
-      if (hasComponent(clickedEntity, SourceComponent)) {
-        const modelComponent = getAncestorWithComponent(clickedEntity, ModelComponent)
-        const ancestorModelEntity = modelComponent || clickedEntity
-        SelectionState.updateSelection([
-          getComponent(
-            SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickedEntity : ancestorModelEntity,
-            UUIDComponent
-          )
-        ])
+    }
+    const capturingEntity = getState(InputState).capturingEntity
+    if (capturingEntity !== UndefinedEntity && capturingEntity !== clickStartEntity) {
+      clickStartEntity = capturingEntity
+    }
+  }
+  if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
+    if (hasComponent(clickStartEntity, SourceComponent)) {
+      const selectedEntities = SelectionState.getSelectedEntities()
+      const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
+      const ancestorModelEntity = modelComponent || clickStartEntity
+      const targetSelection = selectedEntities[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
+
+      //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
+      if (selectedEntities.length !== 1 || (selectedEntities.length === 1 && selectedEntities[0] !== targetSelection)) {
+        SelectionState.updateSelection([getComponent(targetSelection, UUIDComponent)])
       }
     }
   }

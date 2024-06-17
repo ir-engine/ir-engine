@@ -47,7 +47,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import PropertyGroup from './PropertyGroup'
+import NodeEditor from './NodeEditor'
 import { commitProperty, EditorComponentType, updateProperty } from './Util'
 
 /**
@@ -125,7 +125,9 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   )
 
   return (
-    <PropertyGroup
+    <NodeEditor
+      {...props}
+      entity={props.entity}
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
@@ -204,6 +206,6 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           onChange={commitProperty(RenderSettingsComponent, 'shadowMapType')}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
