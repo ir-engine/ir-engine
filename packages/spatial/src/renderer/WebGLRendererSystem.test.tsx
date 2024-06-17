@@ -47,7 +47,12 @@ import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
-import { RendererComponent, WebGLRendererSystem, getSceneParameters } from './WebGLRendererSystem'
+import {
+  RendererComponent,
+  WebGLRendererSystem,
+  getNestedVisibleChildren,
+  getSceneParameters
+} from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
 import { GroupComponent, addObjectToGroup } from './components/GroupComponent'
 import { Object3DComponent } from './components/Object3DComponent'
@@ -62,6 +67,7 @@ describe('WebGl Renderer System', () => {
   let invisibleEntity: Entity
   let nestedVisibleEntity: Entity
   let nestedInvisibleEntity: Entity
+  let scene: SceneComponent
 
   const mockCanvas = () => {
     return {
@@ -81,7 +87,6 @@ describe('WebGl Renderer System', () => {
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)
-    setComponent(rootEntity, SceneComponent)
     setComponent(rootEntity, RendererComponent, { canvas: mockCanvas() })
     getMutableComponent(rootEntity, RendererComponent).set(new MockEngineRenderer())
     const rendererComp = getMutableComponent(rootEntity, RendererComponent)
@@ -97,7 +102,6 @@ describe('WebGl Renderer System', () => {
     const invisibleObject3d = setComponent(invisibleEntity, Object3DComponent, new Group())
     addObjectToGroup(invisibleEntity, invisibleObject3d)
     setComponent(invisibleEntity, EntityTreeComponent)
-    setComponent(rootEntity, SceneComponent, { children: [invisibleEntity] })
 
     visibleEntity = createEntity()
     setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -106,7 +110,8 @@ describe('WebGl Renderer System', () => {
     addObjectToGroup(visibleEntity, visibleObject3d)
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
-    setComponent(rootEntity, SceneComponent, { children: [visibleEntity] })
+
+    scene = setComponent(rootEntity, SceneComponent, { children: [invisibleEntity, visibleEntity] })
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -189,9 +194,7 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
-    assert(
-      globalThis._scene.children.length == 1 && globalThis._scene.children[0].entity == visibleEntity,
-      'visible children'
-    )
+    const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
+    assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
   })
 })
