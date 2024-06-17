@@ -39,28 +39,30 @@ const fsProjectSyncEnabled = config.fsProjectSyncEnabled
 
 describe('asset.test', () => {
   let app: Application
-  let projectName: string
-  let project: ProjectType
+  let projects = [] as ProjectType[]
   const params = { isInternal: true }
 
-  beforeEach(async () => {
+  before(async () => {
     config.fsProjectSyncEnabled = true
     app = createFeathersKoaApp()
     await app.setup()
-    projectName = `test-scene-project-${uuidv4()}`
-    project = await app.service(projectPath).create({ name: projectName })
   })
 
-  afterEach(async () => {
-    const foundProjects = (await app
-      .service(projectPath)
-      .find({ query: { name: projectName }, paginate: false })) as ProjectType[]
-    await app.service(projectPath).remove(foundProjects[0].id, { ...params })
+  after(async () => {
+    console.log('removing test projects', projects)
+    await Promise.all(projects.map(project => app
+        .service(projectPath)
+        .remove(project.id, { ...params })))
+    console.log('Removed test projects')
     await destroyEngine()
+    console.log('destroyed engine')
     config.fsProjectSyncEnabled = fsProjectSyncEnabled
   })
 
   it('should add a new asset from default but not populate to manifest', async () => {
+    const projectName = `test-scene-project-${uuidv4()}`
+    const project = await app.service(projectPath).create({ name: projectName })
+    projects.push(project)
     const storageProvider = getStorageProvider()
     const directory = `projects/${projectName}/public/scenes`
 
@@ -78,6 +80,9 @@ describe('asset.test', () => {
   })
 
   it('should add a new asset from default with increment', async () => {
+    const projectName = `test-scene-project-${uuidv4()}`
+    const project = await app.service(projectPath).create({ name: projectName })
+    projects.push(project)
     const storageProvider = getStorageProvider()
     const directory = `projects/${projectName}/public/scenes`
 
@@ -112,6 +117,9 @@ describe('asset.test', () => {
   })
 
   it('should query assets by projectName', async () => {
+    const projectName = `test-scene-project-${uuidv4()}`
+    const project = await app.service(projectPath).create({ name: projectName })
+    projects.push(project)
     const directory = `projects/${projectName}/public/scenes`
 
     const asset = await app.service(assetPath).create({
@@ -129,6 +137,9 @@ describe('asset.test', () => {
   })
 
   it('should update asset name', async () => {
+    const projectName = `test-scene-project-${uuidv4()}`
+    const project = await app.service(projectPath).create({ name: projectName })
+    projects.push(project)
     const directory = `projects/${projectName}/public/scenes`
 
     const asset = await app.service(assetPath).create({
@@ -154,9 +165,12 @@ describe('asset.test', () => {
   })
 
   it('should remove asset', async () => {
+    const projectName = `test-scene-project-${uuidv4()}`
+    const project = await app.service(projectPath).create({ name: projectName })
+    projects.push(project)
     const directory = `projects/${projectName}/public/scenes`
 
-    const asset = await app.service(assetPath).create({
+    await app.service(assetPath).create({
       project: projectName,
       isScene: true,
       sourceURL: 'projects/default-project/public/scenes/default.gltf',

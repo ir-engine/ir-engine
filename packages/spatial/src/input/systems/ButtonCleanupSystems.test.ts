@@ -34,7 +34,7 @@ describe('ButtonCleanupSystem', () => {
   // after(() => {
   //   document.hasFocus = focusCopy
   // })
-  // beforeEach(() => {
+  // before(() => {
   //   createEngine()
   // })
   // it('test button cleanup system', () => {
@@ -61,7 +61,7 @@ describe('ButtonCleanupSystem', () => {
   //   const buttons = inputSource.buttons.get(NO_PROXY)
   //   assert(buttons['0'].down === false)
   // })
-  // afterEach(() => {
+  // after(() => {
   //   return destroyEngine()
   // })
 })

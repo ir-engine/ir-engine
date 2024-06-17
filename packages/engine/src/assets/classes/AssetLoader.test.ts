@@ -39,11 +39,11 @@ import { AssetLoader } from './AssetLoader'
  * tests
  */
 describe('AssetLoader', async () => {
-  beforeEach(async () => {
+  before(async () => {
     createEngine()
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 
@@ -102,11 +102,11 @@ describe('AssetLoader', async () => {
   describe('AssetLoader.load', () => {
     let sandbox
 
-    beforeEach(() => {
+    before(() => {
       sandbox = Sinon.createSandbox()
     })
 
-    afterEach(() => {
+    after(() => {
       sandbox.restore()
     })
 

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach } from 'mocha'
 
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 

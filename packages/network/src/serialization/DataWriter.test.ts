@@ -62,9 +62,12 @@ import {
 import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
-  beforeEach(() => {
+  before(() => {
     createEngine()
     createMockNetwork()
+  })
+
+  beforeEach(() => {
     getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
@@ -73,7 +76,7 @@ describe('DataWriter', () => {
     ecsState.simulationTime.set(1)
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

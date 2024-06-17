@@ -41,7 +41,7 @@ import { ChannelState } from '../../social/services/ChannelService'
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement
 
-  beforeEach(() => {
+  before(() => {
     createDOM()
     rootContainer = document.createElement('div')
     document.body.appendChild(rootContainer)
@@ -49,7 +49,7 @@ describe('Instance Chat Component', () => {
     createEngine()
   })
 
-  afterEach(() => {
+  after(() => {
     document.body.removeChild(rootContainer)
     rootContainer = null!
   })

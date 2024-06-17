@@ -34,7 +34,7 @@ Ethereal Engine. All Rights Reserved.
 // ;(globalThis as any).window = {}
 
 describe('Auth Service', () => {
-  // beforeEach(() => {
+  // before(() => {
   //   createEngine()
   // })
   // describe('Auth Receptors', () => {

@@ -64,15 +64,18 @@ export const boxDynamicConfig = {
 } as ColliderDescOptions
 
 describe('Physics', () => {
-  beforeEach(async () => {
+  before(() => {
     createEngine()
+  })
+
+  beforeEach(async () => {
     await Physics.load()
     const physicsWorld = Physics.createWorld()
     getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
     physicsWorld.timestep = 1 / 60
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

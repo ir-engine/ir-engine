@@ -37,13 +37,16 @@ import { RigidBodyComponent } from './RigidBodyComponent'
 import { TriggerComponent } from './TriggerComponent'
 
 describe('ColliderComponent', () => {
-  beforeEach(async () => {
+  before(() => {
     createEngine()
+  })
+
+  beforeEach(async () => {
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

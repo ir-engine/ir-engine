@@ -49,20 +49,7 @@ describe('bot.service', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
-  after(() => {
-    return destroyEngine()
-  })
 
-  before(async () => {
-    testLocation = await createTestLocation(app, params)
-
-    testInstance = await app
-      .service(instancePath)
-      .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
-  })
-
-  before(async () => {
     const name = ('test-bot-user-name-' + uuidv4()) as UserName
     const avatarName = 'test-bot-avatar-name-' + uuidv4()
 
@@ -76,9 +63,25 @@ describe('bot.service', () => {
       isGuest: false,
       scopes: []
     })
+    console.log('created test-user')
   })
 
-  it('should create bot', async () => {
+  after(() => {
+    return destroyEngine()
+  })
+
+  before(async () => {
+    testLocation = await createTestLocation(app, params)
+
+    testInstance = await app
+      .service(instancePath)
+      .create({ locationId: testLocation.id as LocationID, roomCode: '' as RoomCode, currentUsers: 0 })
+  })
+
+  before(async () => {
+  })
+
+  it('pants should create bot', async () => {
     const name = 'test-bot-' + uuidv4()
     const description = uuidv4() + '-' + uuidv4()
     testBot = await app.service(botPath).create({
@@ -98,7 +101,7 @@ describe('bot.service', () => {
     assert.equal(testBot.locationId, testLocation.id)
   })
 
-  it('should create bot with botCommands', async () => {
+  it('pants should create bot with botCommands', async () => {
     const name = 'test-bot-' + uuidv4()
     const description = uuidv4() + '-' + uuidv4()
 
@@ -124,19 +127,19 @@ describe('bot.service', () => {
     })
   })
 
-  it('should find the bot', async () => {
+  it('pants should find the bot', async () => {
     const foundBots = await app.service(botPath).find({ isInternal: true })
     assert.ok(foundBots.data.find((bot) => bot.id === testBot.id))
   })
 
-  it('should patch the bot', async () => {
+  it('pants should patch the bot', async () => {
     const name = 'test-bot-' + uuidv4()
     const patchedBot = await app.service(botPath).patch(testBot.id, { name }, { isInternal: true })
     assert.equal(patchedBot.name, name)
     testBot = patchedBot
   })
 
-  it('should remove bot', async () => {
+  it('pants should remove bot', async () => {
     await app.service(botPath).remove(testBot.id, { isInternal: true })
     const foundBots = await app.service(botPath).find({ isInternal: true })
     assert.ok(!foundBots.data.find((bot) => bot.id === testBot.id))

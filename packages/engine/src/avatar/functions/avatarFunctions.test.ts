@@ -56,12 +56,12 @@
 // describe('avatarFunctions Unit', async () => {
 //   let assetModel
 
-//   beforeEach(async () => {
+//   before(async () => {
 //     createEngine()
 //     assetModel = await AssetLoader.loadAsync(testGLTF)
 //   })
 
-//   afterEach(() => {
+//   after(() => {
 //     return destroyEngine()
 //   })
 

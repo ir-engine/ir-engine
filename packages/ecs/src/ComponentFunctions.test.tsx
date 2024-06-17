@@ -45,12 +45,15 @@ import { createEntity, removeEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
 
 describe('ComponentFunctions', async () => {
-  beforeEach(() => {
+  before(() => {
     startEngine()
+  })
+
+  beforeEach(() => {
     ComponentMap.clear()
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 
@@ -308,15 +311,21 @@ describe('ComponentFunctions Hooks', async () => {
     let result = undefined as ResultType
     let counter = 0
 
-    beforeEach(() => {
+    before(() => {
       startEngine()
-      ComponentMap.clear()
       testEntity = createEntity()
+    })
+
+    beforeEach(() => {
+      ComponentMap.clear()
     })
 
     afterEach(() => {
       counter = 0
       removeEntity(testEntity)
+    })
+
+    after(() => {
       return destroyEngine()
     })
 
@@ -351,8 +360,11 @@ describe('ComponentFunctions Hooks', async () => {
     let result: ResultType = undefined
     let counter = 0
 
-    beforeEach(() => {
+    before(() => {
       startEngine()
+    })
+
+    beforeEach(() => {
       ComponentMap.clear()
       testEntity = createEntity()
     })
@@ -360,6 +372,9 @@ describe('ComponentFunctions Hooks', async () => {
     afterEach(() => {
       counter = 0
       removeEntity(testEntity)
+    })
+
+    after(() => {
       return destroyEngine()
     })
 

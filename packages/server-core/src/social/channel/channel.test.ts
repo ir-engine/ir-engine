@@ -38,12 +38,13 @@ import { createFeathersKoaApp } from '../../createApp'
 
 describe('channel service', () => {
   let app: Application
-  beforeEach(async () => {
+
+  before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

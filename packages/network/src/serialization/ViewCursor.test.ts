@@ -55,13 +55,16 @@ import {
 } from './ViewCursor'
 
 describe('ViewCursor read/write', () => {
-  beforeEach(() => {
+  before(() => {
     createEngine()
+  })
+
+  beforeEach(() => {
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTime.set(1)
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

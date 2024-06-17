@@ -87,7 +87,7 @@ export default (app: Application): void => {
       },
       pool: {
         min: 0,
-        max: appConfig.db.pool.max
+        max: 1
       }
     })
 

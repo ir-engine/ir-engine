@@ -66,7 +66,6 @@ describe('FeathersHooks', () => {
           get: (id) => {
             return new Promise((resolve) => {
               const data = db.find((item) => item.id === id)
-              console.log('get', id, data)
               resolve(data ? JSON.parse(JSON.stringify(data)) : null)
             })
           },

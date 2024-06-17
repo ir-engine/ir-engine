@@ -34,13 +34,16 @@ import { PhysicsState } from '../state/PhysicsState'
  * @todo
  */
 describe.skip('PhysicsSystem', () => {
-  beforeEach(async () => {
+  before(() => {
     createEngine()
+  })
+
+  beforeEach(async () => {
     await Physics.load()
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 })

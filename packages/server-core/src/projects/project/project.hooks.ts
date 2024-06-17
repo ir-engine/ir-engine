@@ -500,10 +500,9 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
     },
     paginate: false
   })) as any as StaticResourceType[]
-  staticResourceItems.length &&
-    staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id)
-    })
+  if (staticResourceItems.length)
+    await Promise.all(staticResourceItems.map(async (staticResource) => context.app.service(staticResourcePath).remove(staticResource.id).catch(err => Promise.resolve())))
+
 }
 
 /**

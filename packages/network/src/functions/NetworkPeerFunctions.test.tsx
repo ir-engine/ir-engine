@@ -40,13 +40,13 @@ import { NetworkState } from '../NetworkState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
-  beforeEach(() => {
+  before(() => {
     createEngine()
     createMockNetwork()
     Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

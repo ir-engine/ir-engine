@@ -60,15 +60,19 @@ import { dropEntity, grabEntity } from '../functions/grabbableFunctions'
 describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
   let sceneEntity: Entity
-  beforeEach(async () => {
+
+  before(() => {
     createEngine()
+  })
+
+  beforeEach(async () => {
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     sceneEntity = loadEmptyScene()
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

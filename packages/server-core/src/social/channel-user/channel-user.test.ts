@@ -30,21 +30,28 @@ import { channelUserPath, ChannelUserType } from '@etherealengine/common/src/sch
 import { channelPath } from '@etherealengine/common/src/schemas/social/channel.schema'
 import { RoomCode } from '@etherealengine/common/src/schemas/social/location.schema'
 import { AvatarID } from '@etherealengine/common/src/schemas/user/avatar.schema'
-import { InviteCode, UserName, userPath } from '@etherealengine/common/src/schemas/user/user.schema'
-import { destroyEngine } from '@etherealengine/ecs/src/Engine'
+import {InviteCode, UserID, UserName, userPath} from '@etherealengine/common/src/schemas/user/user.schema'
+import {destroyEngine, Engine} from '@etherealengine/ecs/src/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import {identityProviderPath} from "@etherealengine/common/src/schema.type.module";
+import {v4 as uuidv4} from "uuid";
 
 describe('channel-user service', () => {
   let app: Application
-  beforeEach(async () => {
+
+  before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
 
-  afterEach(() => {
-    return destroyEngine()
+  after(() => {
+    // setTimeout(() => {
+    console.log('destroying engine')
+      destroyEngine()
+    console.log('destroyed engine')
+    // }, 2000)
   })
 
   it('registered the service', () => {
@@ -59,6 +66,11 @@ describe('channel-user service', () => {
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
+    })
+    const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+      type: 'guest',
+      token: uuidv4(),
+      userId: user.id
     })
 
     const channel = await app.service(channelPath).create({}, { user })
@@ -82,7 +94,11 @@ describe('channel-user service', () => {
         channelId: channel.id,
         userId: user.id
       },
-      user
+      user,
+      authentication: {
+        strategy: 'jwt',
+        accessToken: newProvider.accessToken
+      }
     })
 
     const channelUserAfterRemove = (await app.service(channelUserPath).find({
@@ -110,6 +126,11 @@ describe('channel-user service', () => {
       avatarId: '' as AvatarID,
       inviteCode: '' as InviteCode,
       scopes: []
+    })
+    const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+      type: 'guest',
+      token: uuidv4(),
+      userId: user2.id
     })
 
     const instance = (await app.service(instancePath).create(
@@ -163,7 +184,12 @@ describe('channel-user service', () => {
           channelId: channel.id,
           userId: user.id
         },
-        user: user2
+        user: user2,
+        authentication: {
+          strategy: 'jwt',
+          accessToken: newProvider.accessToken
+        },
+        provider: 'external'
       })
     )
 
@@ -185,6 +211,11 @@ describe('channel-user service', () => {
       inviteCode: '' as InviteCode,
       scopes: []
     })
+    const newProvider = await Engine.instance.api.service(identityProviderPath).create({
+      type: 'guest',
+      token: uuidv4(),
+      userId: user.id
+    })
 
     const channel = await app.service(channelPath).create({})
 
@@ -198,7 +229,11 @@ describe('channel-user service', () => {
         },
         {
           user,
-          provider: 'rest' // force external to avoid authentication internal escape
+          authentication: {
+            strategy: 'jwt',
+            accessToken: newProvider.accessToken
+          },
+          provider: 'external' // force external to avoid authentication internal escape
         }
       )
     )

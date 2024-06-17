@@ -72,16 +72,19 @@ import { Vector3SoA } from './Utils'
 import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
-  beforeEach(() => {
+  before(() => {
     createEngine()
     createMockNetwork()
+  })
+
+  beforeEach(() => {
     getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 

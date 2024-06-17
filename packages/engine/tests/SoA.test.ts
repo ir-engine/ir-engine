@@ -33,7 +33,7 @@ import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { TransformComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
-  beforeEach(() => {
+  before(() => {
     createEngine()
   })
 
@@ -58,7 +58,7 @@ describe('Structure of Array Synchronization', () => {
     assert.strictEqual(transform.rotation.w, TransformComponent.rotation.w[entity])
   })
 
-  afterEach(() => {
+  after(() => {
     return destroyEngine()
   })
 })

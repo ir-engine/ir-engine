@@ -1663,6 +1663,7 @@ export const uploadLocalProjectToProvider = async (
     //if we have a resources.sql file, use it to populate static-resource table
     const manifest: StaticResourceType[] = JSON.parse(fs.readFileSync(resourceDBPath).toString())
 
+    console.log('manifest', manifest)
     for (const item of manifest) {
       if (existingKeySet.has(item.key)) {
         // logger.info(`Skipping upload of static resource: "${item.key}"`)
