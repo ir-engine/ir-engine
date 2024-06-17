@@ -110,7 +110,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
         anchorPosition={anchorPosition}
         className="h-[60%] w-full min-w-[300px] overflow-y-auto"
       >
-        {<ElementList />}
+        <ElementList type="components" />
       </Popover>
       <TransformPropertyGroup entity={entity} />
       {components.map((c, i) => (

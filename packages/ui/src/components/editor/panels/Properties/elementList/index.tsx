@@ -24,82 +24,129 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { startCase } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Component } from '@etherealengine/ecs/src/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 
-import PlaceHolderIcon from '@mui/icons-material/GroupAddOutlined'
-
+import { PrefabShelfItem, PrefabShelfState } from '@etherealengine/editor/src/components/prefabs/PrefabEditors'
 import { ItemTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
+import { addMediaNode } from '@etherealengine/editor/src/functions/addMediaNode'
 import { ComponentEditorsState } from '@etherealengine/editor/src/services/ComponentEditors'
 import { ComponentShelfCategoriesState } from '@etherealengine/editor/src/services/ComponentShelfCategoriesState'
 import { SelectionState } from '@etherealengine/editor/src/services/SelectionServices'
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { GrStatusPlaceholder } from 'react-icons/gr'
+import { IoIosArrowDown, IoIosArrowUp, IoMdAddCircle } from 'react-icons/io'
+import Button from '../../../../../primitives/tailwind/Button'
+import Text from '../../../../../primitives/tailwind/Text'
 import StringInput from '../../../input/String'
 import { usePopoverContextClose } from '../../../util/PopoverContext'
+
+type ElementsType = 'components' | 'prefabs'
 
 export type SceneElementType = {
   componentJsonID: string
   label: string
-  Icon: any
+  Icon: JSX.Element
   type: typeof ItemTypes.Component
 }
 
 const ComponentListItem = ({ item }: { item: Component }) => {
   const { t } = useTranslation()
-  useHookstate(getMutableState(ComponentEditorsState).keys).value // ensure reactively updates new components
-  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? PlaceHolderIcon
+  useMutableState(ComponentEditorsState).keys // ensure reactively updates new components
+  const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
   const handleClosePopover = usePopoverContextClose()
 
+  const jsonName = item.jsonID?.slice(3).replace('_', '-') || item.name
+
   return (
-    <button
-      className="flex w-full items-center bg-theme-primary p-4 text-white"
+    <Button
+      variant="transparent"
+      fullWidth
+      className="w-full bg-theme-primary p-4 text-white"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         handleClosePopover()
       }}
+      startIcon={<Icon className="h-6 w-6 text-white" />}
     >
-      <Icon className="h-6 w-6 text-white" />
       <div className="ml-4 w-full">
-        <h3 className="text-subtitle1 text-center text-white">
-          {startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase())}
-        </h3>
-        <p className="text-caption text-center text-white">
-          {t(`editor:layout.assetGrid.component-detail.${item.jsonID}`)}
-        </p>
+        <Text className="text-subtitle1 block text-center text-theme-primary">
+          {startCase(jsonName.replace('-', ' ').toLowerCase())}
+        </Text>
+        <Text component="p" className="text-caption block text-center text-theme-secondary">
+          {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
+        </Text>
       </div>
-    </button>
+    </Button>
+  )
+}
+
+const PrefabListItem = ({ item }: { item: PrefabShelfItem }) => {
+  const handleClosePopover = usePopoverContextClose()
+
+  return (
+    <Button
+      variant="transparent"
+      fullWidth
+      className="w-full bg-theme-primary p-4 text-white"
+      onClick={() => {
+        const url = item.url
+        if (!url.length) {
+          EditorControlFunctions.createObjectFromSceneElement()
+        } else {
+          addMediaNode(url)
+        }
+        handleClosePopover()
+      }}
+      startIcon={<IoMdAddCircle className="h-6 w-6 text-white" />}
+    >
+      <div className="ml-4 w-full">
+        <Text className="text-subtitle1 block text-center text-theme-primary">{item.name}</Text>
+        <Text component="p" className="text-caption block text-center text-theme-secondary">
+          {item.detail}
+        </Text>
+      </div>
+    </Button>
   )
 }
 
 const SceneElementListItem = ({
   categoryTitle,
   categoryItems,
-  isCollapsed
+  isCollapsed,
+  type
 }: {
   categoryTitle: string
-  categoryItems: Component[]
+  categoryItems: Component[] | PrefabShelfItem[]
   isCollapsed: boolean
+  type: ElementsType
 }) => {
-  const open = useHookstate(categoryTitle === 'Misc')
+  const open = useHookstate(false)
   return (
     <>
-      <button
+      <Button
+        variant="transparent"
+        fullWidth
+        className="w-full bg-theme-primary px-4 py-2 text-white"
+        textContainerClassName="text-start"
         onClick={() => open.set((prev) => !prev)}
-        className="flex w-full cursor-pointer items-center justify-between bg-theme-primary px-4 py-2 text-white"
+        endIcon={isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
       >
-        <span>{categoryTitle}</span>
-        {isCollapsed || open.value ? <IoIosArrowUp /> : <IoIosArrowDown />}
-      </button>
-      <div className={`${isCollapsed || open.value ? '' : 'hidden'}`}>
+        {categoryTitle}
+      </Button>
+      <div className={isCollapsed || open.value ? '' : 'hidden'}>
         <ul className="w-full bg-theme-primary">
-          {categoryItems.map((item) => (
-            <ComponentListItem key={item.jsonID || item.name} item={item} />
-          ))}
+          {categoryItems.map((item: Component | PrefabShelfItem) =>
+            type === 'components' ? (
+              <ComponentListItem key={(item as Component).jsonID || item.name} item={item as Component} />
+            ) : (
+              <PrefabListItem key={(item as PrefabShelfItem).url} item={item as PrefabShelfItem} />
+            )
+          )}
         </ul>
       </div>
     </>
@@ -107,7 +154,7 @@ const SceneElementListItem = ({
 }
 
 const useComponentShelfCategories = (search: string) => {
-  useHookstate(getMutableState(ComponentShelfCategoriesState)).value
+  useMutableState(ComponentShelfCategoriesState).value
 
   if (!search) {
     return Object.entries(getState(ComponentShelfCategoriesState))
@@ -123,12 +170,40 @@ const useComponentShelfCategories = (search: string) => {
     .filter(([_, items]) => !!items.length)
 }
 
-export function ElementList() {
+const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][] => {
+  const prefabState = useMutableState(PrefabShelfState).value
+  const prefabShelves = useMemo(() => {
+    const shelves: Record<string, PrefabShelfItem[]> = {}
+    for (const prefab of prefabState) {
+      shelves[prefab.category] ??= []
+      shelves[prefab.category].push(prefab)
+    }
+    return shelves
+  }, [prefabState])
+
+  if (!search) {
+    return Object.entries(prefabShelves)
+  }
+
+  const searchRegExp = new RegExp(search, 'gi')
+
+  return Object.entries(prefabShelves)
+    .map(([category, items]) => {
+      const filteredItems = items.filter((item) => item.name.match(searchRegExp)?.length)
+      return [category, filteredItems] as [string, PrefabShelfItem[]]
+    })
+    .filter(([_, items]) => !!items.length)
+}
+
+export function ElementList({ type }: { type: ElementsType }) {
   const { t } = useTranslation()
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const shelves = useComponentShelfCategories(search.query.value)
+  const shelves =
+    type === 'components'
+      ? useComponentShelfCategories(search.query.value)
+      : usePrefabShelfCategories(search.query.value)
   const inputReference = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -145,50 +220,29 @@ export function ElementList() {
 
   return (
     <>
-      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary">
-        <div className="p-2">
-          <h2 className="text-center uppercase text-white">{t('editor:layout.assetGrid.components')}</h2>
-          <StringInput
-            placeholder={t('editor:layout.assetGrid.components-search')}
-            value={search.local.value}
-            onChange={(val) => onSearch(val)}
-            inputRef={inputReference}
-          />
-        </div>
+      <div className="h-auto w-full overflow-x-hidden overflow-y-scroll bg-theme-primary p-2">
+        <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
+        <StringInput
+          placeholder={t(`editor:layout.assetGrid.${type}-search`)}
+          value={search.local.value}
+          onChange={(val) => onSearch(val)}
+          inputRef={inputReference}
+        />
       </div>
+      {type === 'prefabs' && (
+        <PrefabListItem item={{ name: 'Empty', url: '', category: '', detail: 'Basic scene entity' }} />
+      )}
       {shelves.map(([category, items]) => (
         <SceneElementListItem
           key={category}
           categoryTitle={category}
           categoryItems={items}
           isCollapsed={!!search.query.value}
+          type={type}
         />
       ))}
     </>
   )
-  {
-    /* <List
-      sx={{ width: 300, height: 600, bgcolor: 'var(--dockBackground)' }}
-      subheader={
-        <div style={{ padding: '0.5rem' }}>
-          <Typography style={{ color: 'var(--textColor)', textAlign: 'center', textTransform: 'uppercase' }}>
-            {t('editor:layout.assetGrid.components')}
-          </Typography>
-          <InputText
-            placeholder={t('editor:layout.assetGrid.components-search')}
-            value={search.local.value}
-            sx={{ mt: 1 }}
-            onChange={(e) => onSearch(e.target.value)}
-            inputRef={inputReference}
-          />
-        </div>
-      }
-    >
-      {shelves.map(([category, items]) => (
-       
-      ))}
-    </List>*/
-  }
 }
 
 export default ElementList

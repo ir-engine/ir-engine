@@ -37,7 +37,6 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Entity } from '@etherealengine/ecs/src/Entity'
-import CompoundNumericInput from '@etherealengine/editor/src/components/inputs/CompoundNumericInput'
 import {
   EditorComponentType,
   commitProperty,
@@ -48,10 +47,12 @@ import { UVOL2Component } from '@etherealengine/engine/src/scene/components/UVOL
 import { TextureType } from '@etherealengine/engine/src/scene/constants/UVOLTypes'
 import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import VideocamIcon from '@mui/icons-material/Videocam'
+import { MdVideocam } from 'react-icons/md'
+
 import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
+import Slider from '../../../../primitives/tailwind/Slider'
 import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
@@ -216,6 +217,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
+      icon={<VolumetricNodeEditor.iconComponent />}
     >
       <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
@@ -236,7 +238,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput
+        <Slider
           min={0}
           max={1}
           step={0.01}
@@ -262,7 +264,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       )}
 
       <InputGroup name="Playback Rate" label="Playback Rate">
-        <CompoundNumericInput
+        <Slider
           value={volumetricComponent.currentTrackInfo.playbackRate.value}
           min={0.5}
           max={4}
@@ -270,6 +272,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           onChange={(value: number) => {
             volumetricComponent.currentTrackInfo.playbackRate.set(value)
           }}
+          onRelease={() => {}}
         />
       </InputGroup>
 
@@ -380,6 +383,6 @@ function VolumetricCurrentTimeScrubber(props: { entity: Entity }) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = VideocamIcon
+VolumetricNodeEditor.iconComponent = MdVideocam
 
 export default VolumetricNodeEditor

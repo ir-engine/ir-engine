@@ -46,7 +46,7 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.shadow.name')}
       component={ShadowComponent}
       description={t('editor:properties.shadow.description')}
-      icon={<FaClone />}
+      icon={<ShadowNodeEditor.iconComponent />}
       {...props}
     >
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
@@ -59,4 +59,5 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
   )
 }
 
+ShadowNodeEditor.iconComponent = FaClone
 export default ShadowNodeEditor

@@ -76,7 +76,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.linkComp.title')}
       description={t('editor:properties.linkComp.description')}
-      icon={<PiLinkBreak />}
+      icon={<LinkNodeEditor.iconComponent />}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (

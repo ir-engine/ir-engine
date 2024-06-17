@@ -87,7 +87,7 @@ export const Vector2Input = ({
   const vy = value.y
 
   return (
-    <div className="flex flex-auto flex-row justify-start gap-1.5">
+    <div className="flex flex-row justify-end gap-1.5">
       <NumericInput
         {...rest}
         value={vx}

@@ -30,10 +30,10 @@ import {
 } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import * as k8s from '@kubernetes/client-node'
-import { RestEndpointMethodTypes } from '@octokit/rest'
+import { Octokit, RestEndpointMethodTypes } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
@@ -44,7 +44,8 @@ import semver from 'semver'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { AssetType } from '@etherealengine/common/src/constants/AssetType'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
@@ -56,11 +57,7 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/common/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/common/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/common/src/schemas/projects/project-destination-check.schema'
-import {
-  projectPath,
-  ProjectSettingType,
-  ProjectType
-} from '@etherealengine/common/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/common/src/schemas/setting/helm-setting.schema'
 import {
   identityProviderPath,
@@ -75,7 +72,6 @@ import {
 } from '@etherealengine/common/src/utils/fsHelperFunctions'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -83,6 +79,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { seedSceneAssets } from '../../assets/asset/asset-helper'
 import { getPodsData } from '../../cluster/pods/pods-helper'
+import { getJobBody } from '../../k8s-job-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -298,17 +295,17 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 
 export const onProjectEvent = async (
   app: Application,
-  projectName: string,
+  project: ProjectType,
   hookPath: string,
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, projectName, hookPath)).default
+  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
-      return await hooks[eventType](app, ...args)
+      return await hooks[eventType](app, project, ...args)
     }
-    return await hooks[eventType](app)
+    return await hooks[eventType](app, project)
   }
 }
 
@@ -410,7 +407,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
 
   const projectSetting = project.data?.[0]?.settings || []
 
-  const settings: ProjectSettingType[] = []
+  const settings = {}
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
 }
@@ -992,26 +989,16 @@ export async function getProjectUpdateJobBody(
     updateSchedule: string
   },
   app: Application,
-  userId: string,
-  jobId: string
+  jobId: string,
+  userId?: string,
+  token?: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
     'ts-node',
     '--swc',
     'scripts/update-project.ts',
-    `--userId`,
-    userId,
     '--sourceURL',
     data.sourceURL,
     '--destinationURL',
@@ -1020,13 +1007,25 @@ export async function getProjectUpdateJobBody(
     data.name,
     '--sourceBranch',
     data.sourceBranch,
-    '--updateType',
-    data.updateType,
-    '--updateSchedule',
-    data.updateSchedule,
     '--jobId',
     jobId
   ]
+  if (data.updateType) {
+    command.push('--updateType')
+    command.push(data.updateType as string)
+  }
+  if (data.updateSchedule) {
+    command.push('--updateSchedule')
+    command.push(data.updateSchedule)
+  }
+  if (token) {
+    command.push('--token')
+    command.push(token)
+  }
+  if (userId) {
+    command.push('--userId')
+    command.push(userId)
+  }
   if (data.commitSHA) {
     command.push('--commitSHA')
     command.push(data.commitSHA)
@@ -1039,44 +1038,16 @@ export async function getProjectUpdateJobBody(
     command.push('--reset')
     command.push(data.reset.toString())
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${data.name}-update`,
-      labels: {
-        'etherealengine/projectUpdater': 'true',
-        'etherealengine/autoUpdate': 'false',
-        'etherealengine/projectField': data.name,
-        'etherealengine/release': process.env.RELEASE_NAME!
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/projectUpdater': 'true',
-            'etherealengine/autoUpdate': 'false',
-            'etherealengine/projectField': data.name,
-            'etherealengine/release': process.env.RELEASE_NAME!
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${data.name}-update`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/projectUpdater': 'true',
+    'etherealengine/autoUpdate': 'false',
+    'etherealengine/projectField': data.name,
+    'etherealengine/release': process.env.RELEASE_NAME!
   }
+
+  const name = `${process.env.RELEASE_NAME}-${data.name}-update`
+  return getJobBody(app, command, name, labels)
 }
 export async function getProjectPushJobBody(
   app: Application,
@@ -1087,15 +1058,6 @@ export async function getProjectPushJobBody(
   commitSHA?: string,
   storageProviderName?: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
@@ -1121,42 +1083,16 @@ export async function getProjectPushJobBody(
     command.push('--storageProviderName')
     command.push(storageProviderName)
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`,
-      labels: {
-        'etherealengine/projectPusher': 'true',
-        'etherealengine/projectField': project.name,
-        'etherealengine/release': process.env.RELEASE_NAME!
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/projectPusher': 'true',
-            'etherealengine/projectField': project.name,
-            'etherealengine/release': process.env.RELEASE_NAME!
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-push`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/projectPusher': 'true',
+    'etherealengine/projectField': project.name,
+    'etherealengine/release': process.env.RELEASE_NAME!
   }
+
+  const name = `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-gh-push`
+
+  return getJobBody(app, command, name, labels)
 }
 
 export const getCronJobBody = (project: ProjectType, image: string): object => {
@@ -1225,15 +1161,6 @@ export async function getDirectoryArchiveJobBody(
   jobId: string,
   storageProviderName?: string
 ): Promise<k8s.V1Job> {
-  const apiPods = await getPodsData(
-    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-    'api',
-    'Api',
-    app
-  )
-
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-
   const command = [
     'npx',
     'cross-env',
@@ -1249,42 +1176,16 @@ export async function getDirectoryArchiveJobBody(
     command.push('--storageProviderName')
     command.push(storageProviderName)
   }
-  return {
-    metadata: {
-      name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
-      labels: {
-        'etherealengine/directoryArchiver': 'true',
-        'etherealengine/directoryField': projectName,
-        'etherealengine/release': process.env.RELEASE_NAME || ''
-      }
-    },
-    spec: {
-      template: {
-        metadata: {
-          labels: {
-            'etherealengine/directoryArchiver': 'true',
-            'etherealengine/directoryField': projectName,
-            'etherealengine/release': process.env.RELEASE_NAME || ''
-          }
-        },
-        spec: {
-          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
-          containers: [
-            {
-              name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
-              image,
-              imagePullPolicy: 'IfNotPresent',
-              command,
-              env: Object.entries(process.env).map(([key, value]) => {
-                return { name: key, value: value }
-              })
-            }
-          ],
-          restartPolicy: 'Never'
-        }
-      }
-    }
+
+  const labels = {
+    'etherealengine/directoryArchiver': 'true',
+    'etherealengine/directoryField': projectName,
+    'etherealengine/release': process.env.RELEASE_NAME || ''
   }
+
+  const name = `${process.env.RELEASE_NAME}-${projectName}-archive`
+
+  return getJobBody(app, command, name, labels)
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
@@ -1390,46 +1291,6 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
     )
 }
 
-export const createExecutorJob = async (
-  app: Application,
-  jobBody: k8s.V1Job,
-  jobLabelSelector: string,
-  timeout: number,
-  jobId: string
-) => {
-  const k8BatchClient = getState(ServerState).k8BatchClient
-
-  const name = jobBody.metadata!.name!
-  try {
-    await k8BatchClient.deleteNamespacedJob(name, 'default', undefined, undefined, 0, undefined, 'Background')
-  } catch (err) {
-    console.log('Old job did not exist, continuing...')
-  }
-
-  await k8BatchClient.createNamespacedJob('default', jobBody)
-  let counter = 0
-  return new Promise((resolve, reject) => {
-    const interval = setInterval(async () => {
-      counter++
-
-      const job = await app.service(apiJobPath).get(jobId)
-      console.log('job to be checked on', job, job.status)
-      if (job.status !== 'pending') clearInterval(interval)
-      if (job.status === 'succeeded') resolve(job.returnData)
-      if (job.status === 'failed') reject()
-      if (counter >= timeout) {
-        clearInterval(interval)
-        const date = await getDateTimeSql()
-        await app.service(apiJobPath).patch(jobId, {
-          status: 'failed',
-          endTime: date
-        })
-        reject('Job timed out; try again later or check error logs of job')
-      }
-    }, 1000)
-  })
-}
-
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
@@ -1477,6 +1338,7 @@ export const updateProject = async (
     sourceBranch: string
     updateType: ProjectType['updateType']
     updateSchedule: string
+    token?: string
   },
   params?: ProjectParams
 ) => {
@@ -1524,24 +1386,50 @@ export const updateProject = async (
     }
   })) as Paginated<ProjectType>
 
-  let project
+  let project, userId
   if (projectResult.data.length > 0) project = projectResult.data[0]
 
-  const userId = params!.user?.id || project?.updateUserId
-  if (!userId) throw new BadRequest('No user ID from call or existing project owner')
-
-  const githubIdentityProvider = (await app.service(identityProviderPath).find({
-    query: {
-      userId: userId,
-      type: 'github',
-      $limit: 1
+  let repoPath,
+    signingToken,
+    usesInstallationToken = false
+  if (params?.appJWT) {
+    const octokit = new Octokit({ auth: params.appJWT })
+    let repoInstallation
+    try {
+      repoInstallation = await octokit.rest.apps.getRepoInstallation({
+        owner: urlParts[urlParts.length - 2],
+        repo: urlParts[urlParts.length - 1]
+      })
+    } catch (err) {
+      throw new NotFound(
+        'The GitHub App associated with this deployment has not been installed with access to that repository, or that repository does not exist'
+      )
     }
-  })) as Paginated<IdentityProviderType>
+    const installationAccessToken = await octokit.rest.apps.createInstallationAccessToken({
+      installation_id: repoInstallation.data.id
+    })
+    signingToken = installationAccessToken.data.token
+    usesInstallationToken = true
+    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL, usesInstallationToken)
+    params.provider = 'server'
+  } else {
+    userId = params!.user?.id || project?.updateUserId
+    if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+    const githubIdentityProvider = (await app.service(identityProviderPath).find({
+      query: {
+        userId: userId,
+        type: 'github',
+        $limit: 1
+      }
+    })) as Paginated<IdentityProviderType>
 
-  let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
-  if (!repoPath) repoPath = data.sourceURL //public repo
+    if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+    signingToken = githubIdentityProvider.data[0].oauthToken
+    repoPath = await getAuthenticatedRepo(signingToken, data.sourceURL)
+    if (!repoPath) repoPath = data.sourceURL //public repo
+  }
 
   const gitCloner = useGit(projectLocalDirectory)
   await gitCloner.clone(repoPath, projectDirectory)
@@ -1589,9 +1477,13 @@ export const updateProject = async (
   const existingProject = existingProjectResult.total > 0 ? existingProjectResult.data[0] : null
   let repositoryPath = data.destinationURL || data.sourceURL
   const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
+  const installationSignedExec = INSTALLATION_SIGNED_REGEX.exec(repositoryPath)
   //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
   //Stripping the signed portion out if it's about to be inserted.
+  if (installationSignedExec)
+    repositoryPath = `https://github.com/${installationSignedExec[1]}/${installationSignedExec[2]}`
   if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
+
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
   const returned = !existingProject
@@ -1608,7 +1500,7 @@ export const updateProject = async (
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
           updateSchedule: data.updateSchedule,
-          updateUserId: userId,
+          updateUserId: userId || null,
           commitSHA,
           commitDate: toDateTimeSql(commitDate),
           assetsOnly: assetsOnly,
@@ -1629,7 +1521,7 @@ export const updateProject = async (
           sourceBranch: data.sourceBranch,
           updateType: data.updateType,
           updateSchedule: data.updateSchedule,
-          updateUserId: userId
+          updateUserId: userId || null
         },
         params
       )
@@ -1642,7 +1534,7 @@ export const updateProject = async (
     })
 
   if (data.reset) {
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
+    let repoPath = await getAuthenticatedRepo(signingToken, data.destinationURL, usesInstallationToken)
     if (!repoPath) repoPath = data.destinationURL //public repo
     await git.addRemote('destination', repoPath)
     await git.raw(['lfs', 'fetch', '--all'])
@@ -1659,7 +1551,7 @@ export const updateProject = async (
   }
   // run project install script
   if (projectConfig.onEvent) {
-    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+    await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
 
   // sync assets with latest query data
@@ -1751,7 +1643,7 @@ export const uploadLocalProjectToProvider = async (
   const resourceDBPath = path.join(projectRootPath, 'resources.json')
   const hasResourceDB = fs.existsSync(resourceDBPath)
 
-  const files = getFilesRecursive(projectRootPath)
+  const files = getFilesRecursive(projectRootPath, false, [path.join(projectRootPath, 'thumbnails')])
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   const resourceKey = (key, hash) => `${key}#${hash}`
@@ -1780,6 +1672,11 @@ export const uploadLocalProjectToProvider = async (
       //remove userId if exists
       if (item.userId) delete (item as any).userId
 
+      //resolve thumbnail URL
+      if (item.thumbnailURL) {
+        item.thumbnailURL = getCachedURL(item.thumbnailURL, cacheDomain)
+      }
+
       const newResource: Partial<StaticResourceType> = {}
 
       const validFields: (keyof StaticResourceType)[] = [
@@ -1794,7 +1691,9 @@ export const uploadLocalProjectToProvider = async (
         'sid',
         'stats',
         'tags',
-        'updatedAt'
+        'updatedAt',
+        'thumbnailType',
+        'thumbnailURL'
       ]
 
       for (const field of validFields) {
@@ -1830,13 +1729,13 @@ export const uploadLocalProjectToProvider = async (
       if (!hasResourceDB) {
         //otherwise, upload the files into static resources individually
         const staticResourceClasses = [
-          AssetClass.Audio,
-          AssetClass.Image,
-          AssetClass.Model,
-          AssetClass.Video,
-          AssetClass.Volumetric,
-          AssetClass.Material,
-          AssetClass.Prefab
+          AssetType.Audio,
+          AssetType.Image,
+          AssetType.Model,
+          AssetType.Video,
+          AssetType.Volumetric,
+          AssetType.Material,
+          AssetType.Prefab
         ]
         const thisFileClass = AssetLoader.getAssetClass(file)
         if (filePathRelative.startsWith('/assets/') && staticResourceClasses.includes(thisFileClass)) {

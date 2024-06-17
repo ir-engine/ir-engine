@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, CompressedTexture, CubeTexture, CubeTextureLoader, TextureLoader } from 'three'
+import { Color, CompressedTexture, CubeTexture, CubeTextureLoader } from 'three'
 
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
-
-export const textureLoader = new TextureLoader()
 
 export const getRGBArray = (color: Color): Uint8Array => {
   const resolution = 64 // Min value required

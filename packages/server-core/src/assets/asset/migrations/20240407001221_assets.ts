@@ -36,13 +36,12 @@ import { getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const sceneTableExists = await trx.schema.hasTable(assetPath)
+  const sceneTableExists = await knex.schema.hasTable(assetPath)
 
   if (sceneTableExists === false) {
-    await trx.schema.createTable(assetPath, (table) => {
+    await knex.schema.createTable(assetPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('assetURL', 255).notNullable().unique()
@@ -54,16 +53,16 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('updatedAt').notNullable()
     })
 
-    const locations = await trx.select().from(locationPath)
+    const locations = await knex.select().from(locationPath)
     if (locations.length > 0) {
       const locationSceneIds = await Promise.all(
         locations
           .filter((item) => item.sceneId)
           .map(async (location: LocationType) => {
             const id = v4()
-            await trx.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
+            await knex.from(locationPath).where({ sceneId: location.sceneId }).update({ sceneId: id })
             const [, projectName] = location.sceneId.split('/')
-            const projects = await trx.select().from(projectPath).where('name', projectName)
+            const projects = await knex.select().from(projectPath).where('name', projectName)
             if (!projects.length) return
             const projectId = projects[0].id
             return {
@@ -78,19 +77,18 @@ export async function up(knex: Knex): Promise<void> {
           .filter(Boolean)
       )
 
-      await trx.from(assetPath).insert(locationSceneIds)
+      await knex.from(assetPath).insert(locationSceneIds)
     }
   }
 
   /** Change location table from storing sceneId as string to ref the scenetable */
-  await trx.schema.alterTable(locationPath, (table) => {
+  await knex.schema.alterTable(locationPath, (table) => {
     //@ts-ignore
     table.uuid('sceneId').collate('utf8mb4_bin').alter()
     table.foreign('sceneId').references('id').inTable(assetPath).onDelete('CASCADE').onUpdate('CASCADE')
   })
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -98,15 +96,13 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(assetPath)
+  const tableExists = await knex.schema.hasTable(assetPath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(assetPath)
+    await knex.schema.dropTable(assetPath)
   }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

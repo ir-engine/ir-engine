@@ -39,6 +39,7 @@ import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
 import NodeEditor from '../../nodeEditor'
+import LightShadowProperties from '../shadowProperties'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -52,7 +53,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.directionalLight.name')}
       description={t('editor:properties.directionalLight.description')}
-      icon={<BsLightning />}
+      icon={<DirectionalLightNodeEditor.iconComponent />}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput
@@ -73,7 +74,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
           unit="cd"
         />
       </InputGroup>
-      {/*<LightShadowProperties entity={props.entity} component={DirectionalLightComponent} />*/}
+      <LightShadowProperties entity={props.entity} component={DirectionalLightComponent} />
       <InputGroup name="Camera Near" label={t('editor:properties.directionalLight.lbl-cameraNear')}>
         <NumericInput
           min={0}
