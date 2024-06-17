@@ -40,7 +40,7 @@ import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
 
 export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
   const entity = node?.entity as Entity
-  const defaultPrefabFolder = useHookstate<string>('/assets/custom-prefabs')
+  const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
   const prefabTag = useHookstate<string[]>([])
   const { t } = useTranslation()
@@ -57,7 +57,7 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       await exportRelativeGLTF(entity, srcProject, fileName)
       //pass tags to static resource
       const resources = await Engine.instance.api.service(staticResourcePath).find({
-        query: { key: 'projects/' + srcProject + fileName }
+        query: { key: 'projects/' + srcProject + '/' + fileName }
       })
       if (resources.data.length === 0) {
         throw new Error('User not found')
@@ -66,7 +66,7 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       const tags = [...prefabTag.value]
       await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: tags })
       PopoverState.hidePopupover()
-      defaultPrefabFolder.set('/assets/custom-prefabs')
+      defaultPrefabFolder.set('assets/custom-prefabs')
       prefabName.set('prefab')
       prefabTag.set([])
     } catch (e) {
