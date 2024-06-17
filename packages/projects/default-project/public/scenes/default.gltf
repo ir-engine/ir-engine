@@ -187,6 +187,130 @@
               "intensity": 1,
               "jitter": 1,
               "samples": 16
+            },
+            "ChromaticAberrationEffect": {
+              "isActive": false,
+              "offset": {
+                "x": 0.001,
+                "y": 0.0005
+              },
+              "radialModulation": false,
+              "modulationOffset": 0.15
+            },
+            "ColorAverageEffect": {
+              "isActive": false,
+              "blendFunction": 23
+            },
+            "DotScreenEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "angle": 1.5707963267948966,
+              "scale": 1
+            },
+            "FXAAEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "GlitchEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "delay": {
+                "x": 1.5,
+                "y": 3.5
+              },
+              "duration": {
+                "x": 0.6,
+                "y": 1
+              },
+              "strength": {
+                "x": 0.3,
+                "y": 1
+              },
+              "dtSize": 64,
+              "columns": 0.05,
+              "ratio": 0.85
+            },
+            "GridEffect": {
+              "isActive": false,
+              "blendFunction": 24,
+              "scale": 1,
+              "lineWidth": 0
+            },
+            "LensDistortionEffect": {
+              "isActive": false,
+              "distortion": {
+                "x": 0,
+                "y": 0
+              },
+              "principalPoint": {
+                "x": 0,
+                "y": 0
+              },
+              "focalLength": {
+                "x": 1,
+                "y": 1
+              },
+              "skew": 0
+            },
+            "LUT1DEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "LUT3DEffect": {
+              "isActive": false,
+              "blendFunction": 30
+            },
+            "NoiseEffect": {
+              "isActive": false,
+              "blendFunction": 28,
+              "premultiply": false
+            },
+            "PixelationEffect": {
+              "isActive": false,
+              "granularity": 30
+            },
+            "ScanlineEffect": {
+              "isActive": false,
+              "blendFunction": 24,
+              "density": 1.25,
+              "scrollSpeed": 0
+            },
+            "ShockWaveEffect": {
+              "isActive": false,
+              "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "speed": 2,
+              "maxRadius": 1,
+              "waveSize": 0.2,
+              "amplitude": 0.05
+            },
+            "TextureEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "aspectCorrection": false
+            },
+            "TiltShiftEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "offset": 0,
+              "rotation": 0,
+              "focusArea": 0.4,
+              "feather": 0.3,
+              "kernelSize": 2,
+              "resolutionScale": 0.5,
+              "resolutionX": -1,
+              "resolutionY": -1
+            },
+            "VignetteEffect": {
+              "isActive": false,
+              "blendFunction": 23,
+              "technique": 0,
+              "eskil": false,
+              "offset": 0.5,
+              "darkness": 0.5
             }
           },
           "enabled": false
@@ -254,7 +378,7 @@
           "backgroundColor": 0,
           "equirectangularPath": "",
           "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
-          "backgroundType": 1,
+          "backgroundType": 0,
           "skyboxProps": {
             "turbidity": 10,
             "rayleigh": 1,
@@ -262,48 +386,8 @@
             "mieCoefficient": 0.004999999999999893,
             "mieDirectionalG": 0.99,
             "inclination": 0.10471975511965978,
-            "azimuth": 0.16666666666666666
+            "azimuth": 0.20833333333333334
           }
-        }
-      }
-    },
-    {
-      "name": "ground plane",
-      "extensions": {
-        "EE_uuid": "38793f94-0b92-4ea1-af7b-5ec0e117628d",
-        "EE_visible": true,
-        "EE_ground_plane": {
-          "color": 5799734,
-          "visible": true
-        },
-        "EE_shadow": {
-          "cast": false,
-          "receive": true
-        },
-        "EE_rigidbody": {
-          "type": "fixed",
-          "ccd": false,
-          "allowRolling": true,
-          "enabledRotations": [
-            true,
-            true,
-            true
-          ],
-          "canSleep": true,
-          "gravityScale": 1
-        },
-        "EE_collider": {
-          "shape": "plane",
-          "mass": 1,
-          "massCenter": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "friction": 0.5,
-          "restitution": 0.5,
-          "collisionLayer": 4,
-          "collisionMask": 3
         }
       }
     },
@@ -378,6 +462,18 @@
           "shadowRadius": 1,
           "helper": null
         },
+        "EE_visible": true
+      }
+    },
+    {
+      "name": "platform",
+      "extensions": {
+        "EE_model": {
+          "src": "__$project$__/default-project/assets/platform.glb",
+          "cameraOcclusion": true,
+          "convertToVRM": false
+        },
+        "EE_uuid": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a",
         "EE_visible": true
       }
     }
