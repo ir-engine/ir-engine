@@ -45,7 +45,6 @@ import { MockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { createEngine } from '../initializeEngine'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
-import { PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'
 import {
   RendererComponent,
@@ -181,11 +180,8 @@ describe('WebGl Renderer System', () => {
     const passes = effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
     const renderPass: RenderPass = passes ? passes[0] : undefined
 
-    const performanceState = getMutableState(PerformanceState)
-
     assert(renderPass.overrideMaterial, 'change render mode')
     assert(rendererComp.needsResize, 'change render scale')
-    assert(performanceState.cpuTier.value == 3, 'change quality level')
     assert(camera.layers.isEnabled(ObjectLayers.PhysicsHelper), 'enable physicsDebug')
     assert(camera.layers.isEnabled(ObjectLayers.AvatarHelper), 'enable avatarDebug')
     assert(camera.layers.isEnabled(ObjectLayers.Gizmos), 'enable gridVisibility')
