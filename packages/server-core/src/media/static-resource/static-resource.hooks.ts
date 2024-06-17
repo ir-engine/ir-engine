@@ -110,7 +110,7 @@ const updateResourcesJson = async (context: HookContext<StaticResourceService>) 
     'data' in context.result ? context.result.data : Array.isArray(context.result) ? context.result : [context.result]
 
   for (const result of results) {
-    await patchSingleProjectResourcesJson(context.app, result)
+    await patchSingleProjectResourcesJson(context.app, result.id)
   }
 }
 

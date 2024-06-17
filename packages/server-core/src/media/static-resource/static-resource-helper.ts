@@ -249,7 +249,10 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
   }
 }
 
-export const patchSingleProjectResourcesJson = async (app: Application, resource: StaticResourceType) => {
+export const patchSingleProjectResourcesJson = async (app: Application, id: string) => {
+  // refetch resource since after hooks have not run resolvers yet to parse strings into objects
+  const resource = (await app.service(staticResourcePath).get(id)) as StaticResourceType
+
   const projectName = resource.project
 
   const key = `projects/${projectName}/resources.json`

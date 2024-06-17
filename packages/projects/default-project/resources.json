@@ -1,12 +1,5 @@
 {
-  "public/scenes/apartment.envmap.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/apartment.thumbnail.jpg": {
+  "public/scenes/default.loadingscreen.ktx2": {
     "type": "file",
     "tags": [
       "Image"
@@ -15,31 +8,96 @@
   },
   "assets/avatars/male_03.vrm": {
     "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/male_03.png\"]",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/default-project/assets/avatars/male_03.png"
+    ],
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/UV.png": {
+  "public/scenes/apartment.gltf": {
+    "type": "scene",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/public/scenes/apartment.thumbnail.jpg"
+  },
+  "assets/prefabs/text.prefab.gltf": {
     "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_02.png": {
+    "type": "thumbnail",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_03.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/default-project/assets/avatars/female_03.png"
+    ],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_03.png": {
+    "type": "thumbnail",
     "tags": [
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsUV.png-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
+  "assets/animations/optional/seated.fbx": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/apartment-New-EnvMap Bake.ktx2": {
     "type": "file",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
-  "assets/avatars/female_03.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
+  "assets/prefabs/geo.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/controllers/right_controller.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": []
+  },
+  "assets/SampleVideo.mp4": {
+    "type": "file",
+    "tags": [
+      "Video"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "public/scenes/default.thumbnail.jpg": {
@@ -49,12 +107,30 @@
     ],
     "dependencies": []
   },
-  "assets/default-silhouette.svg": {
+  "public/scenes/sky-station.envmap.ktx2": {
     "type": "file",
     "tags": [
-      "unknown"
+      "Image"
     ],
     "dependencies": []
+  },
+  "assets/prefabs/point-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/sample_etc1s.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
   "assets/drop-shadow.png": {
     "type": "file",
@@ -65,10 +141,105 @@
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsdrop-shadow.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/avatars/female_01.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
+  "public/scenes/sky-station.loadingscreen.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "public/scenes/sky-station.gltf": {
+    "type": "scene",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/public/scenes/sky-station.thumbnail.jpg"
+  },
+  "assets/skyboxsun25deg/negx.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/Skybase.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/female_01.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/default-project/assets/avatars/female_01.png"
+    ]
+  },
+  "assets/controllers/right.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/apartment_skybox.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/apartment.loadingscreen.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/animations/locomotion.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/apartment.thumbnail.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/test-equippable.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/hemisphere-light.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/apartment.glb": {
@@ -80,77 +251,22 @@
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/avatars/female_03.vrm": {
-    "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/female_03.png\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "public/scenes/sky-station.envmap.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "assets/avatars/male_02.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]"
-  },
-  "assets/SampleAudio.mp3": {
-    "type": "file",
-    "tags": [
-      "Audio"
-    ],
-    "dependencies": []
-  },
-  "assets/skyboxsun25deg/negx.jpg": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegx.jpg-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/controllers/right_controller.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/default.envmap.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "assets/Skybase.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSkybase.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/cylinder-collider.prefab.gltf": {
+  "assets/prefabs/spot-light.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/cloud.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscloud.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/skyboxsun25deg/posx.jpg": {
@@ -162,160 +278,14 @@
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposx.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/prefabs/ambient-light.prefab.gltf": {
+  "assets/prefabs/directional-light.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/sphere-collider.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Prefab"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/animations/locomotion.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationslocomotion.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "public/scenes/sky-station.loadingscreen.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/sky-station.gltf": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/apartment.loadingscreen.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "assets/avatars/female_01.vrm": {
-    "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/female_01.png\"]"
-  },
-  "public/scenes/default.loadingscreen.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "assets/avatars/female_02.vrm": {
-    "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/female_02.png\"]"
-  },
-  "assets/prefabs/fog.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Prefab"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/controllers/left_controller.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/galaxyTexture.jpg": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_03.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/apartment-CubemapBake.png": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "public/scenes/apartment-New-EnvMap Bake.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
-  },
-  "assets/sky_skybox.jpg": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/animations/default_skeleton.vrm": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/box-collider.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Prefab"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/portal_frame.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": []
   },
   "assets/collisioncube.glb": {
     "type": "file",
@@ -324,6 +294,55 @@
     ],
     "dependencies": [],
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscollisioncube.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/sky-station-Portal-- to Apartment.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_02.png": {
+    "type": "thumbnail",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/keycard.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/default.gltf": {
+    "type": "scene",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/public/scenes/default.thumbnail.jpg"
+  },
+  "assets/skyboxsun25deg/negy.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/female_03.png": {
+    "type": "thumbnail",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "assets/prefabs/postprocessing.prefab.gltf": {
@@ -342,35 +361,109 @@
     ],
     "dependencies": []
   },
-  "assets/skyboxsun25deg/negy.jpg": {
+  "assets/controllers/left_controller.glb": {
+    "type": "file",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft_controller.glb-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/box-collider.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsbox-collider.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/male_01.png": {
+    "type": "thumbnail",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "public/scenes/apartment.envmap.ktx2": {
     "type": "file",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
-  "assets/prefabs/mesh-collider.prefab.gltf": {
+  "public/scenes/sky-station.thumbnail.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/fog.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsfog.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  "assets/animations/optional/seated.fbx": {
-    "type": "file",
+  "assets/avatars/male_02.vrm": {
+    "type": "avatar",
     "tags": [
       "Model"
     ],
-    "dependencies": []
+    "dependencies": [
+      "projects/default-project/assets/avatars/male_02.png"
+    ],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
   },
-  "assets/SampleVideo.mp4": {
+  "assets/default-silhouette.svg": {
     "type": "file",
     "tags": [
-      "Video"
+      "unknown"
+    ],
+    "dependencies": []
+  },
+  "assets/sky_skybox.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsSampleVideo.mp4-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssky_skybox.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "assets/avatars/female_01.png": {
+    "type": "thumbnail",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/cylinder-collider.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": [],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabscylinder-collider.prefab.gltf-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/avatars/female_02.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/default-project/assets/avatars/female_02.png"
+    ]
   },
   "assets/skyboxsun25deg/posy.jpg": {
     "type": "file",
@@ -381,107 +474,45 @@
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degposy.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/test-equippable.glb": {
+  "assets/animations/default_skeleton.vrm": {
     "type": "file",
     "tags": [
       "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetstest-equippable.glb-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsanimationsdefault_skeleton.vrm-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/avatars/female_02.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_02.vrm": {
-    "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/male_02.png\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/hemisphere-light.prefab.gltf": {
+  "assets/prefabs/mesh-collider.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabshemisphere-light.prefab.gltf-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/cloud.png": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscloud.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/skyboxsun25deg/negz.jpg": {
-    "type": "file",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "public/scenes/apartment.gltf": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
     "dependencies": []
   },
-  "assets/avatars/male_01.png": {
-    "type": "thumbnail",
-    "tags": "[\"Image\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/keycard.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetskeycard.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "public/scenes/sky-station.thumbnail.jpg": {
+  "public/scenes/default.envmap.ktx2": {
     "type": "file",
     "tags": [
       "Image"
     ],
     "dependencies": []
   },
-  "assets/animations/emotes.glb": {
+  "assets/UV.png": {
     "type": "file",
     "tags": [
-      "Model"
-    ],
-    "dependencies": []
-  },
-  "assets/prefabs/spot-light.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Prefab"
+      "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsspot-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsUV.png-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/prefabs/geo.prefab.gltf": {
+  "assets/prefabs/ambient-light.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsgeo.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsambient-light.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
   "public/scenes/apartment-Portal.ktx2": {
@@ -491,37 +522,32 @@
     ],
     "dependencies": []
   },
-  "assets/prefabs/directional-light.prefab.gltf": {
+  "public/scenes/sky-station-Portal-- Sky Station Exterior.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/avatars/male_01.vrm": {
+    "type": "avatar",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/default-project/assets/avatars/male_01.png"
+    ],
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
+    "thumbnailMode": "automatic"
+  },
+  "assets/prefabs/sphere-collider.prefab.gltf": {
     "type": "file",
     "tags": [
       "Prefab"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsdirectional-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabssphere-collider.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
-  },
-  "public/scenes/default.gltf": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": []
-  },
-  "assets/controllers/right.glb": {
-    "type": "file",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersright.glb-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/3d-model.prefab.gltf": {
-    "type": "file",
-    "tags": [
-      "Prefab"
-    ],
-    "dependencies": []
   },
   "assets/prefabs/skybox.prefab.gltf": {
     "type": "file",
@@ -532,48 +558,53 @@
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabsskybox.prefab.gltf-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/avatars/male_01.vrm": {
-    "type": "avatar",
-    "tags": "[\"Model\"]",
-    "dependencies": "[\"projects/default-project/assets/avatars/male_01.png\"]",
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/prefabs/text.prefab.gltf": {
+  "assets/portal_frame.glb": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Model"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabstext.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsportal_frame.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/apartment_skybox.jpg": {
+  "assets/animations/emotes.glb": {
     "type": "file",
     "tags": [
-      "Image"
+      "Model"
     ],
-    "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsapartment_skybox.jpg-thumbnail.png",
-    "thumbnailMode": "automatic"
+    "dependencies": []
   },
-  "assets/sample_etc1s.ktx2": {
+  "assets/galaxyTexture.jpg": {
     "type": "file",
     "tags": [
       "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetssample_etc1s.ktx2-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsgalaxyTexture.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/prefabs/point-light.prefab.gltf": {
+  "assets/SampleAudio.mp3": {
     "type": "file",
     "tags": [
-      "Prefab"
+      "Audio"
+    ],
+    "dependencies": []
+  },
+  "assets/skyboxsun25deg/negz.jpg": {
+    "type": "file",
+    "tags": [
+      "Image"
     ],
     "dependencies": [],
-    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsprefabspoint-light.prefab.gltf-thumbnail.png",
+    "thumbnailKey": "projects/default-project/thumbnails/default-projectassetsskyboxsun25degnegz.jpg-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "public/scenes/sky-station-Portal-- Sky Station Interior.ktx2": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
   },
   "assets/controllers/left.glb": {
     "type": "file",
@@ -583,5 +614,19 @@
     "dependencies": [],
     "thumbnailKey": "projects/default-project/thumbnails/default-projectassetscontrollersleft.glb-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "assets/apartment-CubemapBake.png": {
+    "type": "file",
+    "tags": [
+      "Image"
+    ],
+    "dependencies": []
+  },
+  "assets/prefabs/3d-model.prefab.gltf": {
+    "type": "file",
+    "tags": [
+      "Prefab"
+    ],
+    "dependencies": []
   }
 }

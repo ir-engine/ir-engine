@@ -1638,7 +1638,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
       })
     ) as ResourcesJson
   }
-  if (newManifest) fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
+  if (newManifest) fs.writeFileSync(resourceJsonPath, Buffer.from(JSON.stringify(newManifest, null, 2)))
 }
 
 const staticResourceClasses = [
