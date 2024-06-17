@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
+import { GithubIcon } from '@etherealengine/client-core/src/common/components/Icons/GithubIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
 import { MetaIcon } from '@etherealengine/client-core/src/common/components/Icons/MetaIcon'
 import { XIcon } from '@etherealengine/client-core/src/common/components/Icons/XIcon'
-import Text from '@etherealengine/client-core/src/common/components/Text'
 import { initialAuthState, initialOAuthConnectedState } from '@etherealengine/client-core/src/common/initialAuthState'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import { PopupMenuServices } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
@@ -39,8 +39,6 @@ import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHo
 import InputGroup from '@etherealengine/ui/src/components/editor/input/Group'
 import StringInput from '@etherealengine/ui/src/components/editor/input/String'
 import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaArrowRightToBracket } from 'react-icons/fa6'
@@ -233,83 +231,91 @@ const ProfileModal = ({ user }) => {
         <div className="flex justify-center px-4 py-2">
           {
             <>
-              <div>
-                {
-                  <IconButton
-                    id="discord"
-                    icon={<DiscordIcon viewBox="0 0 40 40" />}
-                    onClick={handleOAuthServiceClick}
-                  />
-                }
-                {<IconButton id="google" icon={<GoogleIcon viewBox="0 0 40 40" />} onClick={handleOAuthServiceClick} />}
-                {
-                  <IconButton
-                    id="facebook"
-                    icon={<MetaIcon width="40" height="40" viewBox="0 0 40 40" />}
-                    onClick={handleOAuthServiceClick}
-                  />
-                }
-                {
-                  <IconButton
-                    id="linkedin"
-                    icon={<LinkedInIcon viewBox="0 0 40 40" />}
-                    onClick={handleOAuthServiceClick}
-                  />
-                }
-                {
-                  <IconButton
-                    id="twitter"
-                    icon={<XIcon width="40" height="40" viewBox="0 0 40 40" />}
-                    onClick={handleOAuthServiceClick}
-                  />
-                }
-                {<IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleOAuthServiceClick} />}
+              <div className="flex w-full justify-evenly">
+                <DiscordIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
+                <GoogleIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
+                <MetaIcon
+                  className="cursor-pointer"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 40 40"
+                  onClick={handleOAuthServiceClick}
+                />
+                <LinkedInIcon className="cursor-pointer" viewBox="0 0 40 40" onClick={handleOAuthServiceClick} />
+                <XIcon
+                  className="cursor-pointer"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 40 40"
+                  onClick={handleOAuthServiceClick}
+                />
+                <GithubIcon
+                  className="cursor-pointer"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 40 40"
+                  onClick={handleOAuthServiceClick}
+                />
               </div>
 
               {!selfUser?.isGuest.value && removeSocial && (
                 <>
-                  <Text align="center" variant="body2" mb={1} mt={2}>
-                    {t('user:usermenu.profile.removeSocial')}
-                  </Text>
+                  <div>{t('user:usermenu.profile.removeSocial')}</div>
 
                   <div>
                     {authState?.discord.value && oauthConnectedState.discord.value && (
-                      <IconButton
-                        id="discord"
-                        icon={<DiscordIcon viewBox="0 0 40 40" />}
+                      <DiscordIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
                         onClick={handleRemoveOAuthServiceClick}
                       />
                     )}
                     {authState?.google.value && oauthConnectedState.google.value && (
-                      <IconButton
-                        id="google"
-                        icon={<GoogleIcon viewBox="0 0 40 40" />}
+                      <GoogleIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
                         onClick={handleRemoveOAuthServiceClick}
                       />
                     )}
                     {authState?.facebook.value && oauthConnectedState.facebook.value && (
-                      <IconButton
-                        id="facebook"
-                        icon={<MetaIcon viewBox="0 0 40 40" />}
+                      <MetaIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
                         onClick={handleRemoveOAuthServiceClick}
                       />
                     )}
                     {authState?.linkedin.value && oauthConnectedState.linkedin.value && (
-                      <IconButton
-                        id="linkedin"
-                        icon={<LinkedInIcon viewBox="0 0 40 40" />}
+                      <LinkedInIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
                         onClick={handleRemoveOAuthServiceClick}
                       />
                     )}
                     {authState?.twitter.value && oauthConnectedState.twitter.value && (
-                      <IconButton
-                        id="twitter"
-                        icon={<XIcon viewBox="0 0 40 40" />}
+                      <XIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
                         onClick={handleRemoveOAuthServiceClick}
                       />
                     )}
                     {authState?.github.value && oauthConnectedState.github.value && (
-                      <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
+                      <GithubIcon
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 25 25"
+                        onClick={handleRemoveOAuthServiceClick}
+                      />
                     )}
                   </div>
                 </>
