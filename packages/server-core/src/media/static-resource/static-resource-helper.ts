@@ -255,6 +255,42 @@ export const patchSingleProjectResourcesJson = async (app: Application, resource
   const key = `projects/${projectName}/resources.json`
   const storageProvider = getStorageProvider()
 
+  if (!(await storageProvider.doesExist('resources.json', `projects/${projectName}`))) {
+    const resourcesJson = {
+      [resource.key.replace(`projects/${projectName}/`, '')]: {
+        type: resource.type,
+        tags: resource.tags ?? undefined,
+        dependencies: resource.dependencies ?? undefined,
+        licensing: resource.licensing ?? undefined,
+        description: resource.description ?? undefined,
+        attribution: resource.attribution ?? undefined,
+        thumbnailKey: resource.thumbnailKey ?? undefined,
+        thumbnailMode: resource.thumbnailMode ?? undefined
+      }
+    }
+
+    const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+
+    await storageProvider.putObject(
+      {
+        Key: key,
+        Body: body,
+        ContentType: 'application/json'
+      },
+      {
+        isDirectory: false
+      }
+    )
+
+    if (config.fsProjectSyncEnabled) {
+      const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+      const dirname = path.dirname(filePath)
+      fs.mkdirSync(dirname, { recursive: true })
+      fs.writeFileSync(filePath, body)
+    }
+    return
+  }
+
   const result = await storageProvider.getObject(key)
   const resourcesJson = JSON.parse(result.Body.toString()) as ResourcesJson
 
@@ -301,6 +337,15 @@ export const removeProjectResourcesJson = async (app: Application, resource: Sta
 
   const projectRelativeKey = resource.key.replace(`projects/${projectName}/`, '')
   delete resourcesJson[projectRelativeKey]
+
+  if (Object.keys(resourcesJson).length === 0) {
+    await storageProvider.deleteResources([key])
+    if (config.fsProjectSyncEnabled) {
+      const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
+      fs.unlinkSync(filePath)
+    }
+    return
+  }
 
   const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
 

@@ -311,7 +311,6 @@ const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   manifestData.name = context.projectName
   manifestData.engineVersion = engineVersion
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'manifest.json'), JSON.stringify(manifestData, null, 2))
-  fs.writeFileSync(path.resolve(projectLocalDirectory, 'resources.json'), JSON.stringify([], null, 2))
 
   // we should replace this with explicitly putting the files into the storage provider, rather than writing to disk
   await uploadLocalProjectToProvider(context.app, context.projectName, false)
