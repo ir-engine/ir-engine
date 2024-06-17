@@ -45,7 +45,7 @@ import { useTexture } from '@etherealengine/engine/src/assets/functions/resource
 import { GLTFDocumentState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelSceneID } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { NO_PROXY, defineState, getMutableState, none, useHookstate, useMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@etherealengine/spatial'
 import { CameraComponent } from '@etherealengine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
@@ -69,10 +69,8 @@ import { ErrorComponent } from '@etherealengine/engine/src/scene/components/Erro
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import { Paginated } from '@feathersjs/feathers'
-import { useTranslation } from 'react-i18next'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
-import { ProgressBarState } from './ProgressBarState'
 
 type ThumbnailJob = {
   key: string
@@ -124,23 +122,6 @@ const uploadThumbnail = async (key: string, projectName: string, staticResourceI
 }
 
 const seenThumbnails = new Set<string>()
-
-const ProgressBar = () => {
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
-  const { t } = useTranslation()
-
-  return (
-    <div
-      key="thumbnail-generation-progress-bar"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[1000] m-2 flex justify-center"
-    >
-      <div className="flex max-w-[500px] flex-col items-center rounded-md bg-gray-700 bg-opacity-50 px-4 py-2">
-        <div>{t('editor:generatingThumbnails.title')}</div>
-        <div>{t('editor:generatingThumbnails.amountRemaining', { count: thumbnailJobState.length })}</div>
-      </div>
-    </div>
-  )
-}
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
@@ -195,7 +176,7 @@ export const FileThumbnailJobState = defineState({
       })) as Paginated<FileBrowserContentType>
       directories = files.data
         .filter((file) => file.type === 'folder')
-        .map((file) => directory + file.name)
+        .map((file) => directory + file.url.match(/([^/]+)\/*$/)?.pop())
         .concat(directories)
       let theseThumbnails = files.data.filter((file) => extensionCanHaveThumbnail(file.key.split('.').pop() ?? ''))
       if (!forceRegenerate) {
@@ -308,9 +289,7 @@ const ThumbnailJobReactor = () => {
     if (jobState.length > 0) {
       const newJob = jobState[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
-      getMutableState(ProgressBarState)['thumbnail-generation'].set(<ProgressBar />)
     } else {
-      getMutableState(ProgressBarState)['thumbnail-generation'].set(none)
       cleanupState()
     }
   }, [jobState.length])

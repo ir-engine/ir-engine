@@ -56,6 +56,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.collider.name')}
       description={t('editor:properties.collider.description')}
+      icon={<ColliderComponentEditor.iconComponent />}
     >
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
