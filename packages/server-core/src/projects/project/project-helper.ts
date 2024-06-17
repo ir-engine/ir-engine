@@ -1615,7 +1615,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
     ? JSON.parse(fs.readFileSync(resourceJsonPath).toString())
     : undefined
 
-  let newManifest: ResourcesJson = (manifest as ResourcesJson) ?? {}
+  let newManifest: ResourcesJson | undefined = manifest as ResourcesJson | undefined
   if (Array.isArray(manifest)) {
     newManifest = Object.fromEntries(
       manifest.map((item) => {
@@ -1638,7 +1638,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
       })
     ) as ResourcesJson
   }
-  fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
+  if (newManifest) fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
 }
 
 const staticResourceClasses = [
@@ -1705,7 +1705,9 @@ export const uploadLocalProjectToProvider = async (
   // migrate resources.json if needed
   migrateResourcesJson(projectName, resourcesJsonPath)
 
-  const resourcesJson: ResourcesJson = JSON.parse(fs.readFileSync(resourcesJsonPath).toString())
+  const resourcesJson = fs.existsSync(resourcesJsonPath)
+    ? (JSON.parse(fs.readFileSync(resourcesJsonPath).toString()) as ResourcesJson)
+    : undefined
 
   /**
    * @todo replace all this verbosity with fileBrowser patch
@@ -1737,7 +1739,7 @@ export const uploadLocalProjectToProvider = async (
       const thisFileClass = AssetLoader.getAssetClass(key)
       const hash = createStaticResourceHash(fileResult)
       const stats = await getStats(fileResult, contentType)
-      const resourceInfo = resourcesJson[filePathRelative]
+      const resourceInfo = resourcesJson?.[filePathRelative]
       const type = isScene ? 'scene' : resourceInfo?.type ? resourceInfo?.type : resourceInfo?.tags ? 'asset' : 'file' // assume if it has already been given tag metadata that it is an asset
       const thumbnailKey =
         resourceInfo?.thumbnailKey ?? (isScene ? key.split('.').slice(0, -1).join('.') + '.thumbnail.jpg' : undefined)
