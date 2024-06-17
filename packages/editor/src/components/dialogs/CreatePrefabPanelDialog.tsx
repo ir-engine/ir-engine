@@ -24,38 +24,64 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
-import { Entity, getMutableComponent, hasComponent, setComponent } from '@etherealengine/ecs'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
+import { Engine, Entity, hasComponent, setComponent } from '@etherealengine/ecs'
+import exportModelGLTF from '@etherealengine/engine/src/assets/functions/exportModelGLTF'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { uploadProjectFiles } from '../../functions/assetFunctions'
+import { EditorState } from '../../services/EditorServices'
 import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
-import { PrefabSettingsState } from '../prefabs/PrefabEditors'
 
 export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
-  const prefabSettingsState = useHookstate(getMutableState(PrefabSettingsState))
   const entity = node?.entity as Entity
-  const [defaultPrefabFolder, setDefaultPrefabFolder] = useState<string>(prefabSettingsState.prefabFolder.value)
-  const [prefabName, setPrefabName] = useState<string>(prefabSettingsState.prefabName.value)
-  const [prefabTag, setPrefabTag] = useState<string>(prefabSettingsState.prefabTag.value)
+  const [defaultPrefabFolder, setDefaultPrefabFolder] = useState<string>('/assets/custom-prefabs')
+  const [prefabName, setPrefabName] = useState<string>('prefab')
+  const [prefabTag, setPrefabTag] = useState<string[]>([])
   const { t } = useTranslation()
 
   const onExportPrefab = async () => {
-    const defaultPrefabPath = prefabSettingsState.prefabFolder.value
-    const defaulPrefabName = prefabSettingsState.prefabName.value
-    prefabSettingsState.prefabFolder.set(defaultPrefabFolder)
-    prefabSettingsState.prefabName.set(prefabName)
-    prefabSettingsState.entity.set(entity)
     if (!hasComponent(entity, ModelComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([entity], ModelComponent, true)
       setComponent(entity, ModelComponent)
     }
-    const modelComponent = getMutableComponent(entity, ModelComponent)
+    //const modelComponent = getComponent(entity, ModelComponent)
+    const editorState = getState(EditorState)
+    const fileName = defaultPrefabFolder + '/' + prefabName + '.gltf'
+    //const srcProject =  useHookstate(() => pathResolver().exec(modelComponent.src.value)?.[1] ?? editorState.projectName!)
+    const srcProject = editorState.projectName!
     try {
-      await modelComponent.save.set(true)
+      const gltf = await exportModelGLTF(entity, {
+        projectName: srcProject,
+        relativePath: fileName,
+        binary: false,
+        embedImages: false,
+        includeCustomExtensions: true,
+        onlyVisible: false
+      })
+      const blob = [JSON.stringify(gltf, null, 2)]
+      const file = new File(blob, fileName)
+      const urls = await Promise.all(uploadProjectFiles(srcProject, [file], [`projects/${srcProject}`]).promises)
+      console.log('exported prefab data to ', ...urls)
+      //pass static resource
+      const resources = await Engine.instance.api.service(staticResourcePath).find({
+        query: { key: 'projects/' + srcProject + fileName }
+      })
+      if (resources.data.length === 0) {
+        throw new Error('User not found')
+      }
+      const resource = resources.data[0]
+      await Engine.instance.api.service(staticResourcePath).patch(resource.id, { tags: prefabTag })
       PopoverState.hidePopupover()
+      setDefaultPrefabFolder('/assets/custom-prefabs')
+      setPrefabName('prefab')
+      setPrefabTag([])
     } catch (e) {
       console.error(e)
     }
@@ -74,10 +100,39 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       />
       <Input value={prefabName} onChange={(event) => setPrefabName(event.target.value)} label="Name" />
 
-      <Input value={prefabTag} onChange={(event) => setPrefabTag(event.target.value)} label="Tag" />
-      <Button size="small" variant="outline" className="text-left text-xs">
+      <Button
+        size="small"
+        variant="outline"
+        className="text-left text-xs"
+        onClick={() => {
+          setPrefabTag([...(prefabTag ?? []), ''])
+        }}
+      >
         {t('editor:layout.filebrowser.fileProperties.addTag')}
       </Button>
+      <div>
+        {(prefabTag ?? []).map((tag, index) => (
+          <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
+            <Input
+              key={index}
+              label={t('editor:layout.filebrowser.fileProperties.tag')}
+              onChange={(event) => (prefabTag[index] = event.target.value)}
+              value={prefabTag.values[index]}
+            />
+            <Button
+              onClick={() => {
+                setPrefabTag(prefabTag.filter((_, i) => i !== index))
+              }}
+              size="small"
+              variant="outline"
+              className="text-left text-xs"
+            >
+              {' '}
+              x{' '}
+            </Button>
+          </div>
+        ))}
+      </div>
     </Modal>
   )
 }
