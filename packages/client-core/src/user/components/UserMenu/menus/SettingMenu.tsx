@@ -330,7 +330,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
         )}
 
         {selectedTab.value === 'audio' && (
-          <>
+          <div>
             {chromeDesktop && (
               <div className="py-2 text-xs">
                 {t('user:usermenu.setting.chromeAEC')}
@@ -439,7 +439,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
             </InputGroup>
             {/* </>
             </Collapse> */}
-          </>
+          </div>
         )}
 
         {/* Graphics Settings */}

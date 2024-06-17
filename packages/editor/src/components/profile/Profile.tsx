@@ -259,7 +259,7 @@ const ProfileModal = ({ user }) => {
               </div>
 
               {!selfUser?.isGuest.value && removeSocial && (
-                <>
+                <div className="flex w-full justify-evenly">
                   <div>{t('user:usermenu.profile.removeSocial')}</div>
 
                   <div>
@@ -318,7 +318,7 @@ const ProfileModal = ({ user }) => {
                       />
                     )}
                   </div>
-                </>
+                </div>
               )}
             </>
           }
