@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { defineState, getMutableState, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
@@ -96,7 +96,7 @@ export const ThemeState = defineState({
   extension: syncStateWithLocalStorage(['theme'])
 })
 
-export const ThemeProvider = ({ children }) => {
+export const useThemeProvider = () => {
   const themeState = useMutableState(ThemeState)
 
   useEffect(() => {
@@ -120,6 +120,4 @@ export const ThemeProvider = ({ children }) => {
       }
     }
   }
-
-  return <>{children}</>
 }
