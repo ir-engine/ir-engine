@@ -375,7 +375,7 @@
         "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3",
         "EE_visible": true,
         "EE_skybox": {
-          "backgroundColor": 0,
+          "backgroundColor": 151821,
           "equirectangularPath": "",
           "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
           "backgroundType": 0,
