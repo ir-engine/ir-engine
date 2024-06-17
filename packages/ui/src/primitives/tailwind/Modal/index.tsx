@@ -36,7 +36,8 @@ export interface ModalProps {
   title?: string
   hideFooter?: boolean
   className?: string
-  children: ReactNode
+  rawChildren?: ReactNode
+  children?: ReactNode
   submitLoading?: boolean
   showCloseButton?: boolean
   closeButtonDisabled?: boolean
@@ -92,7 +93,11 @@ export const ModalFooter = ({
   return (
     <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
       {showCloseButton && (
-        <Button variant="outline" disabled={closeButtonDisabled} onClick={() => onCancel && onCancel(false)}>
+        <Button
+          className="bg-[#162546] font-['Figtree']"
+          disabled={closeButtonDisabled}
+          onClick={() => onCancel && onCancel(false)}
+        >
           {closeButtonText || t('common:components.cancel')}
         </Button>
       )}
@@ -101,7 +106,7 @@ export const ModalFooter = ({
           endIcon={submitLoading ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
           disabled={submitButtonDisabled || submitLoading}
           onClick={onSubmit}
-          className="place-self-end"
+          className="place-self-end font-['Figtree']"
         >
           {submitButtonText || t('common:components.confirm')}
         </Button>
@@ -115,6 +120,7 @@ const Modal = ({
   onClose,
   onSubmit,
   hideFooter,
+  rawChildren,
   children,
   className,
   submitLoading,
@@ -129,7 +135,9 @@ const Modal = ({
     <div className={twClassName}>
       <div className="relative rounded-lg bg-theme-surface-main shadow">
         {onClose && <ModalHeader title={title} onClose={onClose} />}
-        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>
+        {rawChildren && rawChildren}
+        {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
+
         {!hideFooter && (
           <ModalFooter
             closeButtonText={closeButtonText}
