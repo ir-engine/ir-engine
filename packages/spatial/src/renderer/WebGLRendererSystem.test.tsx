@@ -66,7 +66,7 @@ describe('WebGl Renderer System', () => {
   let invisibleEntity: Entity
   let nestedVisibleEntity: Entity
   let nestedInvisibleEntity: Entity
-  let scene: SceneComponent
+  let scene: typeof SceneComponent
 
   const mockCanvas = () => {
     return {
