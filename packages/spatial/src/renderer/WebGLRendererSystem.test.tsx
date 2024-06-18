@@ -66,7 +66,6 @@ describe('WebGl Renderer System', () => {
   let invisibleEntity: Entity
   let nestedVisibleEntity: Entity
   let nestedInvisibleEntity: Entity
-  let scene: typeof SceneComponent
 
   const mockCanvas = () => {
     return {
@@ -110,7 +109,7 @@ describe('WebGl Renderer System', () => {
     setComponent(visibleEntity, GroupComponent)
     setComponent(visibleEntity, EntityTreeComponent)
 
-    scene = setComponent(rootEntity, SceneComponent, { children: [invisibleEntity, visibleEntity] })
+    setComponent(rootEntity, SceneComponent, { children: [invisibleEntity, visibleEntity] })
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
@@ -190,6 +189,7 @@ describe('WebGl Renderer System', () => {
     webGLRendererSystem?.execute()
 
     assert(!rendererComp.needsResize, 'resize updated')
+    const scene = getComponent(rootEntity, SceneComponent)
     const entitiesToRender = scene.children.map(getNestedVisibleChildren).flat()
     assert(entitiesToRender.length == 1 && entitiesToRender[0] == visibleEntity, 'visible children')
   })
