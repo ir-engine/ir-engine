@@ -23,37 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { lazy, Suspense } from 'react'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { useHookstate } from '@hookstate/core'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-
-const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
-const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
-
-/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
-function RouterComp({ route }: { route: string }) {
+export const LoadWebappInjection = (props) => {
   const { t } = useTranslation()
 
-  let RouteElement
+  const projectComponents = useHookstate(null as null | any[])
 
-  switch (route) {
-    case 'offline':
-      RouteElement = $offline
-      break
-    case 'location':
-      RouteElement = $location
-      break
-  }
+  useEffect(() => {
+    loadWebappInjection().then((result) => {
+      projectComponents.set(result)
+    })
+  }, [])
+
+  if (!projectComponents.value) return <LoadingView title={t('common:loader.authenticating')} />
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <RouteElement />
-      </Suspense>
-    </ErrorBoundary>
+    <>
+      {projectComponents.get(NO_PROXY)!.map((Component, i) => (
+        <Component key={i} />
+      ))}
+      {props.children}
+    </>
   )
 }
-
-export default RouterComp

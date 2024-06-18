@@ -67,7 +67,8 @@
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
-    "urlFetchError": "Failed to fetch \"{{url}}\""
+    "urlFetchError": "Failed to fetch \"{{url}}\"",
+    "invalidSceneName": "Provide a valid scene name"
   },
   "viewport": {
     "title": "Viewport",
