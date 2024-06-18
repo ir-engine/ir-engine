@@ -23,20 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React, { createRef } from 'react'
+// eslint-disable-next-line no-control-regex
+const invalidFileNameRegex = /[_<>:"/\\|?*\u0000-\u001F]/g
+const windowsReservedNameRegex = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 
-import FullscreenContainer from './index'
-import { Default as story } from './index.stories'
-
-describe('FullscreenContainer', () => {
-  it('- should render', () => {
-    const wrapper = shallow(
-      <FullscreenContainer {...story?.args} ref={createRef()}>
-        <div>hello</div>
-      </FullscreenContainer>
-    )
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+export default function isValidSceneName(sceneName: string) {
+  return (
+    sceneName.length >= 3 &&
+    sceneName.length <= 64 &&
+    !invalidFileNameRegex.test(sceneName) &&
+    !windowsReservedNameRegex.test(sceneName)
+  )
+}

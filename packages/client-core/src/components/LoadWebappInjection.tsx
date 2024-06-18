@@ -23,48 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import { useTranslation } from 'react-i18next'
 
-import { FullscreenContext } from '@etherealengine/client-core/src/components/useFullscreen'
-import { iOS } from '@etherealengine/spatial/src/common/functions/isMobile'
+export const LoadWebappInjection = (props) => {
+  const { t } = useTranslation()
 
-type Props = { children: JSX.Element | JSX.Element[] }
-
-export const FullscreenContainer = React.forwardRef((props: Props, ref: any) => {
-  const handle = useFullScreenHandle()
-
-  const renderEngineCanvas = () => {
-    const canvas = document.getElementById('engine-renderer-canvas')
-    if (!canvas) return
-    canvas.parentElement?.removeChild(canvas)
-    ref.current.appendChild(canvas)
-  }
+  const projectComponents = useHookstate(null as null | any[])
 
   useEffect(() => {
-    renderEngineCanvas()
+    loadWebappInjection().then((result) => {
+      projectComponents.set(result)
+    })
   }, [])
 
-  const setFullScreen = (value: boolean) => {
-    if (value) {
-      handle.enter().catch((err) => console.log(err))
-      renderEngineCanvas()
-    } else {
-      handle.exit().catch((err) => console.log(err))
-    }
-  }
+  if (!projectComponents.value) return <LoadingView title={t('common:loader.authenticating')} />
 
-  return iOS ? (
-    <div id={'engine-container'} ref={ref}>
+  return (
+    <>
+      {projectComponents.get(NO_PROXY)!.map((Component, i) => (
+        <Component key={i} />
+      ))}
       {props.children}
-    </div>
-  ) : (
-    <FullscreenContext.Provider value={[handle.active, setFullScreen]}>
-      <FullScreen handle={handle}>
-        <div id={'engine-container'} ref={ref}>
-          {props.children}
-        </div>
-      </FullScreen>
-    </FullscreenContext.Provider>
+    </>
   )
-})
+}

@@ -292,12 +292,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     fileService.update(null, { oldName, newName, oldPath, newPath, isCopy })
   }
 
-  const handleConfirmDelete = (contentPath: string, type: string) => {
-    contentToDeletePath.set(contentPath)
-
-    openConfirm.set(true)
-  }
-
   const handleConfirmClose = () => {
     contentToDeletePath.set('')
 
