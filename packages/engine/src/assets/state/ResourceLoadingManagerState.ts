@@ -31,18 +31,6 @@ import { ResourceManager, ResourceState, ResourceStatus } from '@etherealengine/
 
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
 
-export const ResourceLoadingManagerState = defineState({
-  name: 'ResourceLoadingManagerState',
-  initial: () => new ResourceLoadingManager(onItemStart, onStart, onLoad, onProgress, onError),
-  reactor: () => {
-    const resourceLoadingManager = useMutableState(ResourceLoadingManagerState)
-
-    useEffect(() => {
-      setDefaultLoadingManager(resourceLoadingManager.value as LoadingManager)
-    }, [resourceLoadingManager])
-  }
-})
-
 export const setDefaultLoadingManager = (
   loadingManager: LoadingManager = new ResourceLoadingManager(
     onItemStart,
@@ -91,3 +79,19 @@ const onLoad = () => {
 
 const onProgress = (url: string, loaded: number, total: number) => {}
 const onError = (url: string) => {}
+
+export const ResourceLoadingManagerState = defineState({
+  name: 'ResourceLoadingManagerState',
+  initial: () => new ResourceLoadingManager(onItemStart, onStart, onLoad, onProgress, onError),
+  reactor: () => {
+    const resourceLoadingManager = useMutableState(ResourceLoadingManagerState)
+
+    useEffect(() => {
+      setDefaultLoadingManager(resourceLoadingManager.value as LoadingManager)
+    }, [resourceLoadingManager])
+  },
+  initialize: () => {
+    // This is for getting around this file being removed during tree shaking
+    getState(ResourceLoadingManagerState)
+  }
+})
