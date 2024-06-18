@@ -25,15 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine, Entity, hasComponent, setComponent } from '@etherealengine/ecs'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { Engine, Entity } from '@etherealengine/ecs'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
@@ -46,10 +44,10 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
   const { t } = useTranslation()
 
   const onExportPrefab = async () => {
-    if (!hasComponent(entity, ModelComponent)) {
-      EditorControlFunctions.addOrRemoveComponent([entity], ModelComponent, true)
-      setComponent(entity, ModelComponent)
-    }
+    // if (!hasComponent(entity, ModelComponent)) {
+    //   EditorControlFunctions.addOrRemoveComponent([entity], ModelComponent, true)
+    //   setComponent(entity, ModelComponent)
+    // }
     const editorState = getState(EditorState)
     const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
