@@ -32,6 +32,7 @@ import { ManifestJson } from '@etherealengine/common/src/interfaces/ManifestJson
 import { assetPath, fileBrowserPath } from '@etherealengine/common/src/schema.type.module'
 import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
 
 import { HookContext } from '../../../declarations'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
@@ -162,6 +163,16 @@ export const ensureUniqueName = async (context: HookContext<AssetService>) => {
   }
 
   context.data.assetURL = fileDirectory + name
+}
+
+const validateSceneName = async (context: HookContext<AssetService>) => {
+  if (!context.data) throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  if (Array.isArray(context.data)) throw new BadRequest('Array is not supported')
+
+  const assetName = context.data.assetURL?.split('/').at(-1)?.split('.').at(0)
+  if (!isValidSceneName(assetName ?? '')) {
+    throw new BadRequest('scene name is invalid')
+  }
 }
 
 /**
@@ -319,6 +330,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
+        validateSceneName,
         ensureUniqueName,
         createSceneFiles,
         updateManifestCreate,
@@ -335,6 +347,7 @@ export default createSkippableHooks(
         iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
         schemaHooks.resolveData(assetDataResolver),
         resolveProjectIdForAssetData,
+        validateSceneName,
         ensureUniqueName,
         renameAsset,
         removeFieldsForAssetData
