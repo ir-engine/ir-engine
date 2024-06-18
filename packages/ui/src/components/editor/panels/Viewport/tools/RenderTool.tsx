@@ -68,17 +68,12 @@ const RenderModeTool = () => {
 
   const rendererState = useMutableState(RendererState)
   const options = [] as { label: string; value: string }[]
-  const isVisible = useHookstate(false)
 
   for (let key of Object.keys(RenderModes)) {
     options.push({
       label: RenderModes[key],
       value: RenderModes[key]
     })
-  }
-
-  const onChangeRenderMode = (mode: RenderModesType) => {
-    rendererState.renderMode.set(mode)
   }
 
   const handlePostProcessingChange = () => {
