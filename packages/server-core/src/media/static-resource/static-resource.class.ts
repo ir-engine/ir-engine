@@ -33,7 +33,9 @@ import {
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 
-export interface StaticResourceParams extends KnexAdapterParams<StaticResourceQuery> {}
+export interface StaticResourceParams extends KnexAdapterParams<StaticResourceQuery> {
+  ignoreResourcesJson?: boolean
+}
 
 export class StaticResourceService<
   T = StaticResourceType,
