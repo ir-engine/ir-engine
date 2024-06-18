@@ -66,7 +66,8 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useHookstate
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -758,4 +759,18 @@ function parseLoginDisplayCredential(credentials) {
   const displayIcon = loginDisplayVc.credentialSubject.displayIcon || DEFAULT_ICON
 
   return { displayName, displayIcon }
+}
+
+export const useAuthenticated = () => {
+  const authState = useHookstate(getMutableState(AuthState))
+
+  useEffect(() => {
+    AuthService.doLoginAuto()
+  }, [])
+
+  useEffect(() => {
+    Engine.instance.userID = authState.user.id.value
+  }, [authState.user.id])
+
+  return authState.isLoggedIn.value
 }

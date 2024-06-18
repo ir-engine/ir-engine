@@ -155,7 +155,9 @@ export const onNewScene = async (
       project: projectName,
       type: 'scene',
       body: templateURL,
-      path: 'public/scenes/New-Scene.gltf'
+      path: 'public/scenes/New-Scene.gltf',
+      thumbnailKey: templateURL.replace('.gltf', '.thumbnail.jpg'),
+      unique: true
     })
     if (!sceneData) return
     const sceneName = sceneData.key.split('/').pop()

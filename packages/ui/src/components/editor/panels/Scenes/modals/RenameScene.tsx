@@ -35,7 +35,9 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
-export default function RenameSceneModal({ sceneName, scene }: { sceneName: string; scene: StaticResourceType }) {
+type Props = { sceneName: string; scene: StaticResourceType; refetch: () => void }
+
+export default function RenameSceneModal({ sceneName, refetch, scene }: Props) {
   const { t } = useTranslation()
   const newSceneName = useHookstate(sceneName)
 
@@ -43,6 +45,7 @@ export default function RenameSceneModal({ sceneName, scene }: { sceneName: stri
     const currentURL = scene.key
     const newURL = currentURL.replace(currentURL.split('/').pop()!, newSceneName.value + '.gltf')
     const newData = await renameScene(scene, newURL, scene.project!)
+    refetch()
     getMutableState(EditorState).scenePath.set(newData[0].key)
     PopoverState.hidePopupover()
   }

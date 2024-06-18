@@ -43,7 +43,9 @@ import RenameSceneModal from '../modals/RenameScene'
 export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useMutableState(EditorState)
-  const scenesQuery = useFind(staticResourcePath, { query: { project: editorState.projectName.value, type: 'scene' } })
+  const scenesQuery = useFind(staticResourcePath, {
+    query: { project: editorState.projectName.value, type: 'scene', paginate: false }
+  })
   const scenes = scenesQuery.data
 
   const contextMenuRef = useRef(null)
@@ -58,6 +60,7 @@ export default function ScenesPanel() {
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
     await onNewScene()
+    scenesQuery.refetch()
     isCreatingScene.set(false)
   }
 
@@ -132,7 +135,11 @@ export default function ScenesPanel() {
                             fullWidth
                             onClick={() =>
                               PopoverState.showPopupover(
-                                <RenameSceneModal sceneName={getSceneName(scene)} scene={scene} />
+                                <RenameSceneModal
+                                  sceneName={getSceneName(scene)}
+                                  refetch={scenesQuery.refetch}
+                                  scene={scene}
+                                />
                               )
                             }
                           >

@@ -261,7 +261,11 @@ export class FileBrowserService
         throw new Error('Invalid URL ' + url)
       }
     }
-    const key = path.join('projects', data.project, data.path)
+
+    let key = path.join('projects', data.project, data.path)
+    if (data.unique) {
+      key = await ensureUniqueName(this.app, key)
+    }
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
     const contentType = data.contentType ?? getContentType(key)
@@ -327,4 +331,26 @@ export class FileBrowserService
 
     return result
   }
+}
+
+export const ensureUniqueName = async (app: Application, key: string) => {
+  const fileName = key.split('/').pop()!
+
+  const cleanedFileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.')
+  const fileExtension = fileName.split('/').pop()!.split('.').pop()
+  const fileDirectory = key!.split('/').slice(0, -1).join('/') + '/'
+  let counter = 0
+  let name = cleanedFileNameWithoutExtension + '.' + fileExtension
+
+  const storageProvider = getStorageProvider()
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    if (counter > 0) name = cleanedFileNameWithoutExtension + '-' + counter + '.' + fileExtension
+    const sceneNameExists = await storageProvider.doesExist(name, fileDirectory)
+    if (!sceneNameExists) break
+    counter++
+  }
+
+  return fileDirectory + name
 }
