@@ -2084,6 +2084,7 @@ describe('PhysicsAPI', () => {
     })
 
     describe('drainCollisionEventQueue', () => {
+      const InvalidHandle = 8198123
       let physicsWorld = undefined as World | undefined
       let testEntity1 = UndefinedEntity
       let testEntity2 = UndefinedEntity
@@ -2126,9 +2127,7 @@ describe('PhysicsAPI', () => {
         assertCollisionEventClosure(event)
       })
 
-      /**
-      // @todo Why are the colliders undefined?
-      it("should do nothing if any of the collider handles are not found", () => {
+      it('should do nothing if any of the collider handles are not found', () => {
         assert.ok(physicsWorld)
         const event = Physics.drainCollisionEventQueue(physicsWorld)
         assertCollisionEventClosure(event)
@@ -2138,12 +2137,14 @@ describe('PhysicsAPI', () => {
         assert.ok(collider1)
         assert.ok(collider2)
 
-        event(collider1.handle, 123456, true)
         assert.ok(!hasComponent(testEntity1, CollisionComponent))
-        event(collider2.handle, 123456, true)
+        event(collider1.handle, InvalidHandle, true)
+        assert.ok(!hasComponent(testEntity1, CollisionComponent))
+
+        assert.ok(!hasComponent(testEntity2, CollisionComponent))
+        event(collider2!.handle, InvalidHandle, true)
         assert.ok(!hasComponent(testEntity2, CollisionComponent))
       })
-      */
 
       // @todo
       // it("should add a CollisionComponent to the entities contained in the userData of the parent rigidBody of each collider  (collider.parent())", () => {})
