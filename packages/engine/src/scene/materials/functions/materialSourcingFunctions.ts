@@ -161,7 +161,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
-  if (oldName) {
+  if (oldName && canHash) {
     const oldHash = hashMaterial(getComponent(entity, SourceComponent), oldName)
     const preexistingMaterial = materialByHash[oldHash]
     if (preexistingMaterial && preexistingMaterial === getComponent(entity, UUIDComponent)) {
