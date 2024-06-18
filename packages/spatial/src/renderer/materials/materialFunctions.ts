@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/ecs'
 
 import { NameComponent } from '../../common/NameComponent'
-import { GroupComponent } from '../components/GroupComponent'
+import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialPrototypeComponent,
   MaterialPrototypeDefinition,
@@ -93,8 +93,8 @@ export const getMaterial = (uuid: EntityUUID) => {
   return getComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent).material! as Material
 }
 
-export const setGroupMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
-  const mesh = getComponent(groupEntity, GroupComponent)[0] as Mesh
+export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
+  const mesh = getComponent(groupEntity, MeshComponent) as Mesh
   if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])! ?? mesh.material
   else
     for (let i = 0; i < mesh.material.length; i++)

@@ -41,7 +41,7 @@ import {
 } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import {
   createMaterialPrototype,
-  setGroupMaterial,
+  setMeshMaterial,
   updateMaterialPrototype
 } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { iterateEntityNode } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -90,7 +90,7 @@ const MaterialEntityReactor = () => {
       for (const sourceEntity of materialComponent.instances.value) {
         iterateEntityNode(sourceEntity, (childEntity) => {
           const uuid = getOptionalComponent(childEntity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
-          if (uuid) setGroupMaterial(childEntity, uuid)
+          if (uuid) setMeshMaterial(childEntity, uuid)
         })
       }
   }, [materialComponent.material])
@@ -111,7 +111,7 @@ const MaterialInstanceReactor = () => {
   const materialComponent = useComponent(entity, MaterialInstanceComponent)
   const uuid = materialComponent.uuid
   useEffect(() => {
-    if (uuid.value) setGroupMaterial(entity, uuid.value as EntityUUID[])
+    if (uuid.value) setMeshMaterial(entity, uuid.value as EntityUUID[])
   }, [materialComponent.uuid])
   return null
 }
