@@ -10,6 +10,7 @@ on:
       - '**.json'
       - '**.wasm'
       - '**.sh'
+      - '**.yml'
   push:
     branches: [dev]
   merge_group:
