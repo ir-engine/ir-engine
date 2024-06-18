@@ -34,6 +34,7 @@ import Text from '../Text'
 interface ColorInputProp {
   value: Color
   onChange: (color: Color) => void
+  onRelease: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
   className?: string
@@ -44,6 +45,7 @@ interface ColorInputProp {
 export function ColorInput({
   value,
   onChange,
+  onRelease,
   disabled,
   className,
   textClassName,
@@ -77,6 +79,7 @@ export function ColorInput({
           color={hexColor}
           onChange={handleChange}
           disableAlpha={true}
+          onMouseUp={() => onRelease(value)}
         />
       </div>
       <Text fontFamily="Figtree" fontSize="xs" className={textClassName}>
