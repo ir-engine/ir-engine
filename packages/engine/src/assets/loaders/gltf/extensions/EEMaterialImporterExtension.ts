@@ -83,7 +83,6 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       if (!materialDef.extras) materialDef.extras = {}
       materialDef.extras['plugins'] = extension.plugins
     }
-    console.log(extension.plugins)
     const materialComponent = getComponent(
       UUIDComponent.getEntityByUUID(extension.uuid),
       MaterialComponent[MaterialComponents.State]

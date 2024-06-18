@@ -159,7 +159,6 @@ export const setMaterialName = (entity: Entity, name: string) => {
   const canHash = name !== '' && hasComponent(entity, SourceComponent)
   if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
-  console.log(materialComponent.material.value)
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
   if (oldName) {
@@ -171,7 +170,6 @@ export const setMaterialName = (entity: Entity, name: string) => {
   }
 
   setComponent(entity, NameComponent, name)
-  console.log(name)
   ;(materialComponent.material.value as Material).name = name
   if (!canHash) return
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
