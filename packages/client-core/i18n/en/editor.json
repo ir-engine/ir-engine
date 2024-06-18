@@ -26,6 +26,7 @@
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
+  "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
