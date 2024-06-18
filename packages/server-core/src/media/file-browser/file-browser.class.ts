@@ -42,8 +42,10 @@ import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@etherealengine/common/src/schemas/projects/project-permission.schema'
+import isValidSceneName from '@etherealengine/common/src/utils/validateSceneName'
 import { checkScope } from '@etherealengine/spatial/src/common/functions/checkScope'
 
+import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
@@ -262,6 +264,8 @@ export class FileBrowserService
       }
     }
 
+    validateSceneName(data.path)
+
     let key = path.join('projects', data.project, data.path)
     if (data.unique) {
       key = await ensureUniqueName(this.app, key)
@@ -330,6 +334,13 @@ export class FileBrowserService
       })
 
     return result
+  }
+}
+
+export const validateSceneName = async (key: string) => {
+  const assetName = key.split('/').at(-1)?.split('.').at(0)
+  if (!isValidSceneName(assetName ?? '')) {
+    throw new BadRequest('scene name is invalid')
   }
 }
 

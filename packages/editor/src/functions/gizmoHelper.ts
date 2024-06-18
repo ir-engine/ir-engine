@@ -51,6 +51,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/TransformGizmoVisualComponent'
+import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -339,23 +340,28 @@ export function gizmoUpdate(gizmoEntity) {
 
     // highlight selected axis
 
+    //handle.material._color = handle.material._color || handle.material.uniforms.color.value
     handle.material._color = handle.material._color || handle.material.color.clone()
     handle.material._opacity = handle.material._opacity || handle.material.opacity
+
+    //setGizmogizmoMaterialProperties(handle.material , handle.material._color , handle.material._opacity, true)
 
     handle.material.color.copy(handle.material._color)
     handle.material.opacity = handle.material._opacity
 
     if (gizmoControl.enabled && gizmoControl.axis) {
       if (handle.name === gizmoControl.axis) {
-        handle.material.color.setHex(0xffff00)
-        handle.material.opacity = 1.0
+        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       } else if (
         gizmoControl.axis.split('').some(function (a) {
           return handle.name === a
         })
       ) {
-        handle.material.color.setHex(0xffff00)
-        handle.material.opacity = 1.0
+        //setGizmoMaterial(handle, GizmoMaterial.YELLOW)
+        handle.material.color.set(gizmoMaterialProperties[GizmoMaterial.YELLOW].color)
+        handle.material.opacity = gizmoMaterialProperties[GizmoMaterial.YELLOW].opacity
       }
     }
   }
