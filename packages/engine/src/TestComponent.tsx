@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useEntityContext } from '@etherealengine/ecs'
+import { Entity, defineComponent, useEntityContext } from '@etherealengine/ecs'
 import { setCallback } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { useEffect } from 'react'
 
@@ -47,8 +47,12 @@ export const TestComponent = defineComponent({
     const entity = useEntityContext()
 
     useEffect(() => {
-      setCallback(entity, 'Test1', () => Test1)
-      setCallback(entity, 'Test2', () => Test2)
+      setCallback(entity, 'Test1', (triggerEntity: Entity, otherEntity: Entity) => {
+        Test1()
+      })
+      setCallback(entity, 'Test2', (triggerEntity: Entity, otherEntity: Entity) => {
+        Test2()
+      })
     }, [])
 
     return null
