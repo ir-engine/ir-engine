@@ -71,6 +71,7 @@ export const NoiseOffsetPlugin = defineComponent({
         shader.uniforms.textureSize = plugin.textureSize
         shader.uniforms.frequency = plugin.frequency
         shader.uniforms.amplitude = plugin.amplitude
+        plugin.noiseTexture.value = generateNoiseTexture(64)
         shader.uniforms.noiseTexture = plugin.noiseTexture
         shader.uniforms.offsetAxis = plugin.offsetAxis
         shader.uniforms.time = plugin.time

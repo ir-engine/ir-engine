@@ -269,7 +269,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             values={pluginValues.value}
             onChange={(key) => async (value) => {
               const property = await shouldLoadTexture(value, key, pluginParameters)
-              setComponent(entity, MaterialPlugins[selectedPlugin.value], { key: property })
+              getComponent(entity, MaterialPlugins[selectedPlugin.value])[key].value = property
               pluginValues[key].set(property)
             }}
             defaults={pluginParameters.value}

@@ -119,8 +119,14 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     const materialComponent = getComponent(materialEntity, MaterialComponent[MaterialComponents.State])
     const prototype = getComponent(materialComponent.prototypeEntity!, MaterialComponent[MaterialComponents.Prototype])
     const plugins = Object.keys(MaterialPlugins).map((plugin) => {
-      if (hasComponent(materialEntity, MaterialPlugins[plugin]))
-        return { id: plugin ?? '', uniforms: getComponent(materialEntity, MaterialPlugins[plugin]) }
+      if (!hasComponent(materialEntity, MaterialPlugins[plugin])) return
+      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin])
+      const uniforms = {}
+      for (const key in pluginComponent) {
+        console.log(pluginComponent[key])
+        uniforms[key] = pluginComponent[key].value
+      }
+      return { id: plugin, uniforms }
     })
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {

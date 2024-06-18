@@ -132,9 +132,9 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
     material.userData.plugins.map((plugin: MaterialExtensionPluginType) => {
       if (!plugin) return
       setComponent(materialEntity, MaterialPlugins[plugin.id])
-      const pluginComponent = getMutableComponent(materialEntity, MaterialPlugins[plugin.id])
+      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin.id])
       for (const [k, v] of Object.entries(plugin.uniforms)) {
-        if (v) pluginComponent[k].set(v)
+        if (v) pluginComponent[k].value = v
       }
     })
   setMaterialName(materialEntity, material.name)
