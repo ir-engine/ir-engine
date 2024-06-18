@@ -2,6 +2,12 @@ name: branch-build
 on:
   pull_request:
     branches: [dev]
+    paths:
+      - '**.ts'
+      - '**.tsx'
+      - '**.js'
+      - '**.jsx'
+      - '**.json'
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
