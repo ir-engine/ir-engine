@@ -70,6 +70,7 @@ export const SaveSceneDialog = () => {
       PopoverState.showPopupover(
         <ErrorDialog title={t('editor:savingError')} description={error.message || t('editor:savingErrorMsg')} />
       )
+      throw error
     }
     modalProcessing.set(false)
   }

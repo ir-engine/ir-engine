@@ -38,16 +38,22 @@ export default function RenameFileModal({ file }: { file: FileDataType }) {
   const { t } = useTranslation()
   const newFileName = useHookstate(file.name)
   const fileService = useMutation(fileBrowserPath)
+  const error = useHookstate('')
 
   const handleSubmit = async () => {
-    fileService.update(null, {
-      oldName: file.fullName,
-      newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
-      oldPath: file.path,
-      newPath: file.path,
-      isCopy: false
-    })
-    PopoverState.hidePopupover()
+    try {
+      await fileService.update(null, {
+        oldName: file.fullName,
+        newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
+        oldPath: file.path,
+        newPath: file.path,
+        isCopy: false
+      })
+      PopoverState.hidePopupover()
+    } catch (err) {
+      console.error(err)
+      error.set(err.message)
+    }
   }
 
   return (
@@ -57,6 +63,7 @@ export default function RenameFileModal({ file }: { file: FileDataType }) {
       onSubmit={handleSubmit}
       onClose={PopoverState.hidePopupover}
     >
+      {error.value && <p className="mt-2 text-red-700">{error.value}</p>}
       <Input value={newFileName.value} onChange={(event) => newFileName.set(event.target.value)} />
     </Modal>
   )

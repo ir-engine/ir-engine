@@ -34,6 +34,7 @@ import { AssetPatch, AssetType } from '@etherealengine/common/src/schemas/assets
 import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 
 import { HookContext } from '../../../declarations'
+import config from '../../appconfig'
 import { createSkippableHooks } from '../../hooks/createSkippableHooks'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
@@ -69,6 +70,9 @@ const removeAssetFiles = async (context: HookContext<AssetService>) => {
 
   const assetURL = asset.assetURL
   const thumbnailURL = asset.thumbnailURL
+
+  if (!config.fsProjectSyncEnabled && assetURL.startsWith('projects/default-project'))
+    throw new BadRequest("You cannot delete assets or scenes in project 'default-project'")
 
   const resourceKeys = thumbnailURL ? [assetURL, thumbnailURL] : [assetURL]
 
@@ -264,6 +268,9 @@ export const renameAsset = async (context: HookContext<AssetService>) => {
   }
 
   const asset = await context.app.service(assetPath).get(context.id!)
+
+  if (!config.fsProjectSyncEnabled && asset.assetURL.startsWith('projects/default-project'))
+    throw new BadRequest("You cannot rename any scenes in project 'default-project'")
 
   const data = context.data! as AssetPatch
 
