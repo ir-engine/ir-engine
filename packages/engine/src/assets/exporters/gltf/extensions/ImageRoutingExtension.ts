@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Material, Object3D, Object3DEventMap, Texture } from 'three'
 
 import { pathJoin, relativePathTo } from '@etherealengine/common/src/utils/miscUtils'
-import { EntityUUID, UUIDComponent, getComponent } from '@etherealengine/ecs'
+import { EntityUUID, UUIDComponent, getOptionalComponent } from '@etherealengine/ecs'
 
 import { SourceComponent } from '../../../../scene/components/SourceComponent'
 import { pathResolver } from '../../../functions/pathResolver'
@@ -45,7 +45,8 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     if (this.writer.options.binary || this.writer.options.embedImages) return
     const materialEntity = UUIDComponent.getEntityByUUID(material.uuid as EntityUUID)
     if (!materialEntity) return
-    const src = getComponent(materialEntity, SourceComponent)
+    const src = getOptionalComponent(materialEntity, SourceComponent)
+    if (!src) return
     const resolvedPath = pathResolver().exec(src)!
     let relativeSrc = resolvedPath[2]
     relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
