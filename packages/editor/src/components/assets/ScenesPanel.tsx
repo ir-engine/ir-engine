@@ -61,7 +61,9 @@ const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 export default function ScenesPanel() {
   const { t } = useTranslation()
   const editorState = useMutableState(EditorState)
-  const scenesQuery = useFind(staticResourcePath, { query: { project: editorState.projectName.value, type: 'scene' } })
+  const scenesQuery = useFind(staticResourcePath, {
+    query: { project: editorState.projectName.value, type: 'scene', paginate: false }
+  })
   const scenes = scenesQuery.data
 
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
@@ -74,6 +76,7 @@ export default function ScenesPanel() {
 
   const onCreateScene = async () => {
     await onNewScene()
+    scenesQuery.refetch()
   }
 
   const onClickExisting = async (e, scene: StaticResourceType) => {

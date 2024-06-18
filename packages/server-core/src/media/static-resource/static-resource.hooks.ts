@@ -31,6 +31,7 @@ import { staticResourcePath } from '@etherealengine/common/src/schemas/media/sta
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
 import collectAnalytics from '../../hooks/collect-analytics'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import resolveProjectId from '../../hooks/resolve-project-id'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
@@ -167,6 +168,7 @@ export default {
           [verifyScope('editor', 'write'), resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])]
         )
       ),
+      enableClientPagination() /** @todo we should either constrain this only for when type='scene' or remove it in favour of comprehensive front end pagination */,
       discardQuery('action', 'projectId'),
       collectAnalytics()
     ],
