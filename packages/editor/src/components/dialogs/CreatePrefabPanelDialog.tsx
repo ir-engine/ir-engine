@@ -44,10 +44,6 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
   const { t } = useTranslation()
 
   const onExportPrefab = async () => {
-    // if (!hasComponent(entity, ModelComponent)) {
-    //   EditorControlFunctions.addOrRemoveComponent([entity], ModelComponent, true)
-    //   setComponent(entity, ModelComponent)
-    // }
     const editorState = getState(EditorState)
     const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
