@@ -147,7 +147,6 @@ export const PortalComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, 'teleport', (triggerEntity: Entity, otherEntity: Entity) => {
-        console.log('teleport')
         if (otherEntity !== AvatarComponent.getSelfAvatarEntity()) return
         const now = Date.now()
         const { lastPortalTimeout, portalTimeoutDuration, activePortalEntity } = getState(PortalState)

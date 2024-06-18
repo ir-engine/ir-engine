@@ -36,12 +36,13 @@ import {
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
-import { Fog, FogExp2, MathUtils } from 'three'
+import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { createEngine } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
+import { FogShaders } from './FogShaders'
 import { FogComponent, SceneComponent } from './SceneComponents'
 
 describe('FogSettingsComponent', () => {
@@ -99,5 +100,28 @@ describe('FogSettingsComponent', () => {
     assert(fog.near == 2, 'fog set near')
     const fogExp2 = fogComponent as FogExp2
     assert(fogExp2.density == 0.02, 'fog set density')
+
+    assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.heightFog)
+    assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.heightFog)
+    assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.heightFog)
+    assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.heightFog)
+
+    fogSettingsComponent.type.set(FogType.Linear)
+    await act(() => {
+      rerender(<></>)
+    })
+    assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.default)
+    assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.default)
+    assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.default)
+    assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.default)
+
+    fogSettingsComponent.type.set(FogType.Brownian)
+    await act(() => {
+      rerender(<></>)
+    })
+    assert(ShaderChunk.fog_fragment == FogShaders.fog_fragment.brownianMotionFog)
+    assert(ShaderChunk.fog_pars_fragment == FogShaders.fog_pars_fragment.brownianMotionFog)
+    assert(ShaderChunk.fog_vertex == FogShaders.fog_vertex.brownianMotionFog)
+    assert(ShaderChunk.fog_pars_vertex == FogShaders.fog_pars_vertex.brownianMotionFog)
   })
 })
