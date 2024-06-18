@@ -353,8 +353,6 @@ const DropShadowReactor = () => {
   const shadowMaterial = useHookstate(shadowState)
   const isMeshOrModel = useMeshOrModel(entity)
   const shadow = useComponent(entity, ShadowComponent)
-  const entityTree = useComponent(entity, EntityTreeComponent)
-
   useEffect(() => {
     if (!shadow.cast.value || !shadowMaterial.value || !isMeshOrModel || hasComponent(entity, DropShadowComponent))
       return
@@ -382,15 +380,21 @@ const DropShadowReactor = () => {
     const shadowEntity = createEntity()
     const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
     addObjectToGroup(shadowEntity, shadowObject)
-    setComponent(shadowEntity, NameComponent, 'Shadow for ' + getComponent(entity, NameComponent))
+    setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(
+      shadowEntity,
+      NameComponent,
+      'Shadow for ' + getComponent(entity, NameComponent) + '_' + getComponent(entity, UUIDComponent)
+    )
     setComponent(shadowEntity, VisibleComponent)
+    setComponent(shadowEntity, ObjectLayerComponents[ObjectLayers.Scene])
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
     }
-  }, [shadowMaterial, isMeshOrModel, shadow, entityTree.children])
+  }, [shadowMaterial, isMeshOrModel, shadow])
 
   return null
 }
@@ -400,8 +404,7 @@ const shadowOffset = new Vector3(0, 0.01, 0)
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
 const sortedEntityTransforms = [] as Entity[]
 
-const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
-
+const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene], MeshComponent])
 const updateDropShadowTransforms = () => {
   const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
@@ -429,9 +432,8 @@ const updateDropShadowTransforms = () => {
     const sizeBias = 0.3
     const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
 
-    const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as any).material as Material
-    shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 0.6
-
+    const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as Mesh).material as Material
+    shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 2
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
