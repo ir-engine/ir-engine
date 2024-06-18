@@ -33,7 +33,18 @@ import {
   ResourceType
 } from '@etherealengine/spatial/src/resources/ResourceState'
 
-import { AssetLoader } from '../classes/AssetLoader'
+import { AssetExt } from '@etherealengine/common/src/constants/AssetType'
+import { AssetLoader, getLoader } from '../classes/AssetLoader'
+
+const getLoaderForResourceType = (resourceType: ResourceType) => {
+  switch (resourceType) {
+    case ResourceType.GLTF:
+      return getLoader(AssetExt.GLTF)
+    default:
+      break
+  }
+  return undefined
+}
 
 export const loadResource = <T extends ResourceAssetType>(
   url: string,
@@ -96,7 +107,8 @@ export const loadResource = <T extends ResourceAssetType>(
       onError(error)
       ResourceManager.unload(url, entity, uuid)
     },
-    signal
+    signal,
+    getLoaderForResourceType(resourceType)
   )
 }
 
