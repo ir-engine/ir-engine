@@ -47,7 +47,7 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
-import { TriggerSystem } from './TriggerSystem'
+import { TriggerSystem, triggerEnter } from './TriggerSystem'
 
 describe('TriggerSystem', () => {
   describe('IDs', () => {
@@ -59,49 +59,55 @@ describe('TriggerSystem', () => {
   const EnterStartValue = 42 // Start testOnEnter at 42
   let enterVal = EnterStartValue
   const TestOnEnterName = 'test.onEnter'
-  function testOnEnter() {
+  function testOnEnter(ent1, ent2) {
     ++enterVal
   }
 
   const ExitStartValue = 10_042 // Start testOnExit at 10_042
   let exitVal = ExitStartValue
-  const TestOnExitName = 'test.onEnter'
-  function testOnExit() {
+  const TestOnExitName = 'test.onExit'
+  function testOnExit(ent1, ent2) {
     ++exitVal
   }
 
   let triggerEntity = UndefinedEntity
+  let targetEntity = UndefinedEntity
   let testEntity = UndefinedEntity
-  let testEntityUUID = '' as EntityUUID
+  let targetEntityUUID = '' as EntityUUID
   let physicsWorld: World | undefined = undefined
 
   beforeEach(async () => {
     createEngine()
     await Physics.load()
     physicsWorld = Physics.createWorld()
-    getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
     physicsWorld!.timestep = 1 / 60
+    getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
     // Create the entity
     testEntity = createEntity()
     setComponent(testEntity, TransformComponent)
     setComponent(testEntity, RigidBodyComponent)
     setComponent(testEntity, ColliderComponent)
-    testEntityUUID = getComponent(testEntity, UUIDComponent)
+
+    targetEntity = createEntity()
+    setComponent(targetEntity, UUIDComponent, UUIDComponent.generateUUID())
+    setCallback(targetEntity, TestOnEnterName, testOnEnter)
+    setCallback(targetEntity, TestOnExitName, testOnExit)
+    targetEntityUUID = getComponent(targetEntity, UUIDComponent)
 
     triggerEntity = createEntity()
     setComponent(triggerEntity, TransformComponent)
     setComponent(triggerEntity, RigidBodyComponent)
     setComponent(triggerEntity, ColliderComponent)
-    setCallback(triggerEntity, TestOnEnterName, testOnEnter)
-    setCallback(triggerEntity, TestOnExitName, testOnExit)
     setComponent(triggerEntity, TriggerComponent, {
-      triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: testEntityUUID }]
+      triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: targetEntityUUID }]
     })
   })
 
   afterEach(() => {
     removeEntity(testEntity)
+    removeEntity(triggerEntity)
+    removeEntity(targetEntity)
     physicsWorld = undefined
     return destroyEngine()
   })
@@ -111,15 +117,11 @@ describe('TriggerSystem', () => {
     describe('for all entity.triggerComponent.triggers ...', () => {
       // it("... should only run if trigger.target defines the UUID of a valid entity", () => {})
       // it("... should only run if trigger.onEnter callback has a value and is part of the target.CallbackComponent.callbacks map", () => {})
-      /**
-      // @todo Why is this failing?
-      // Test setup is probably incorrect
       it('... should run the target.CallbackComponent.callbacks[trigger.onEnter] function', () => {
         assert.equal(enterVal, EnterStartValue)
-        triggerEnter(triggerEntity, testEntity, Hit)
+        triggerEnter(triggerEntity, targetEntity, Hit)
         assert.notEqual(enterVal, EnterStartValue)
       })
-      */
     })
   })
 
@@ -129,10 +131,10 @@ describe('TriggerSystem', () => {
       // it("... should only run if trigger.target defines the UUID of a valid entity", () => {})
       // it("... should only run if trigger.onExit callback has a value and is part of the target.CallbackComponent.callbacks map", () => {})
       /**
-      // @todo Why is this failing?
+      // @todo Why is this one failing, but not triggerEnter??
       it('... should run the target.CallbackComponent.callbacks[trigger.onExit] function', () => {
         assert.equal(exitVal, ExitStartValue)
-        triggerEnter(triggerEntity, testEntity, Hit)
+        triggerEnter(triggerEntity, targetEntity, Hit)
         assert.notEqual(exitVal, ExitStartValue)
       })
       */
