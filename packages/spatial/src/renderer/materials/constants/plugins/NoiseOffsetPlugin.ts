@@ -130,6 +130,7 @@ export const NoiseOffsetPlugin = defineComponent({
             transformed += offset;
           `
         )
+        console.log(shader)
       }
       setPlugin(materialComponent.material as Material, callback)
     })

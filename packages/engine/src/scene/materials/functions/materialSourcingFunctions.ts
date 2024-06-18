@@ -130,10 +130,11 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
   })
   if (material.userData?.plugins)
     material.userData.plugins.map((plugin: MaterialExtensionPluginType) => {
+      if (!plugin) return
       setComponent(materialEntity, MaterialPlugins[plugin.id])
       const pluginComponent = getMutableComponent(materialEntity, MaterialPlugins[plugin.id])
       for (const [k, v] of Object.entries(plugin.uniforms)) {
-        pluginComponent[k].set(v)
+        if (v) pluginComponent[k].set(v)
       }
     })
   setMaterialName(materialEntity, material.name)
@@ -158,6 +159,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
   const canHash = name !== '' && hasComponent(entity, SourceComponent)
   if (name === '') name = 'Material'
   const materialComponent = getMutableComponent(entity, MaterialComponent[MaterialComponents.State])
+  console.log(materialComponent.material.value)
   if (!materialComponent.material.value) return
   const oldName = getOptionalComponent(entity, NameComponent)
   if (oldName) {
@@ -169,6 +171,7 @@ export const setMaterialName = (entity: Entity, name: string) => {
   }
 
   setComponent(entity, NameComponent, name)
+  console.log(name)
   ;(materialComponent.material.value as Material).name = name
   if (!canHash) return
   const newHash = hashMaterial(getComponent(entity, SourceComponent), name)
