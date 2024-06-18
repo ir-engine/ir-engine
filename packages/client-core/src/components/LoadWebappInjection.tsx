@@ -23,19 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SnackbarKey, useSnackbar } from 'notistack'
-import React, { Fragment } from 'react'
+import { NO_PROXY } from '@etherealengine/hyperflux'
+import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
+import LoadingView from '@etherealengine/ui/src/primitives/tailwind/LoadingView'
+import { useHookstate } from '@hookstate/core'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+export const LoadWebappInjection = (props) => {
+  const { t } = useTranslation()
 
-export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
-  const { closeSnackbar } = useSnackbar()
+  const projectComponents = useHookstate(null as null | any[])
+
+  useEffect(() => {
+    loadWebappInjection().then((result) => {
+      projectComponents.set(result)
+    })
+  }, [])
+
+  if (!projectComponents.value) return <LoadingView title={t('common:loader.authenticating')} />
 
   return (
-    <Fragment>
-      {content}
-      <IconButton onClick={() => closeSnackbar(key)} icon={<Icon type="Close" sx={{ color: 'white' }} />} />
-    </Fragment>
+    <>
+      {projectComponents.get(NO_PROXY)!.map((Component, i) => (
+        <Component key={i} />
+      ))}
+      {props.children}
+    </>
   )
 }
