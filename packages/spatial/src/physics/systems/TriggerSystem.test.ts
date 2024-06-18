@@ -47,7 +47,7 @@ import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { TriggerComponent } from '../components/TriggerComponent'
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent } from '../types/PhysicsTypes'
-import { TriggerSystem, triggerEnter } from './TriggerSystem'
+import { TriggerSystem, triggerEnter, triggerExit } from './TriggerSystem'
 
 describe('TriggerSystem', () => {
   describe('IDs', () => {
@@ -130,14 +130,12 @@ describe('TriggerSystem', () => {
     describe('for all entity.triggerComponent.triggers ...', () => {
       // it("... should only run if trigger.target defines the UUID of a valid entity", () => {})
       // it("... should only run if trigger.onExit callback has a value and is part of the target.CallbackComponent.callbacks map", () => {})
-      /**
       // @todo Why is this one failing, but not triggerEnter??
       it('... should run the target.CallbackComponent.callbacks[trigger.onExit] function', () => {
         assert.equal(exitVal, ExitStartValue)
-        triggerEnter(triggerEntity, targetEntity, Hit)
+        triggerExit(triggerEntity, targetEntity, Hit)
         assert.notEqual(exitVal, ExitStartValue)
       })
-      */
     })
   })
 
