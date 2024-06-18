@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Component } from '@etherealengine/ecs'
 import { VisualScriptComponent } from '@etherealengine/engine'
+import { TestComponent } from '@etherealengine/engine/src/TestComponent'
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { GrabbableComponent } from '@etherealengine/engine/src/interaction/components/GrabbableComponent'
@@ -74,7 +75,6 @@ import { TriggerComponent } from '@etherealengine/spatial/src/physics/components
 import { GroupComponent } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@etherealengine/spatial/src/renderer/components/PostProcessingComponent'
 import { LookAtComponent } from '@etherealengine/spatial/src/transform/components/LookAtComponent'
-
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
@@ -130,7 +130,8 @@ export const ComponentShelfCategoriesState = defineState({
         SplineComponent,
         TextComponent,
         ScreenshareTargetComponent,
-        LookAtComponent
+        LookAtComponent,
+        TestComponent
       ]
     } as Record<string, Component[]>
   }

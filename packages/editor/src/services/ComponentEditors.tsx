@@ -120,6 +120,7 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
+import { TestComponent } from '@etherealengine/engine/src/TestComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline/track'
@@ -132,6 +133,8 @@ import VisualScriptNodeEditor from '@etherealengine/ui/src/components/editor/pro
 import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric'
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
+
+import { TestComponentNodeEditor } from '@etherealengine/engine/src/TestComponentNodeEditor'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',
@@ -187,7 +190,8 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [LookAtComponent.name]: LookAtNodeEditor
+      [LookAtComponent.name]: LookAtNodeEditor,
+      [TestComponent.name]: TestComponentNodeEditor
     } as Record<string, EditorComponentType>
   }
 })
