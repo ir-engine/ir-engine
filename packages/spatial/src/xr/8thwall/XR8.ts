@@ -209,7 +209,8 @@ const viewerInputSource = {
     id: '',
     index: 0,
     mapping: '',
-    timestamp: Date.now() - performance.timeOrigin
+    timestamp: Date.now() - performance.timeOrigin,
+    vibrationActuator: null
   },
   profiles: [] as string[]
 } as XRInputSource
