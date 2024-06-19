@@ -213,3 +213,7 @@ vite-error-overlay {
     height: 100%;
   }
 }
+
+iframe#launcher {
+  pointer-events: all;
+}
