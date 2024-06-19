@@ -27,7 +27,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import ClickAwayListener from './ClickAwayListener'
 
-type ContextMenuProps = {
+type PopOverMenuProps = {
   open: boolean
   anchorEl: null | HTMLElement
   panelId: string
@@ -36,7 +36,7 @@ type ContextMenuProps = {
   className?: string
 }
 
-export const ContextMenu = ({
+export const PopOverMenu = ({
   children,
   open,
   anchorEl,
@@ -44,7 +44,7 @@ export const ContextMenu = ({
   anchorPosition,
   onClose,
   className
-}: React.PropsWithChildren<ContextMenuProps>) => {
+}: React.PropsWithChildren<PopOverMenuProps>) => {
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
@@ -107,7 +107,7 @@ export const ContextMenu = ({
         {open && anchorEl && (
           <div
             ref={menuRef}
-            className="absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg"
+            className={twMerge('absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg', className)}
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
@@ -116,7 +116,7 @@ export const ContextMenu = ({
               overflowY: isScrollable ? 'auto' : 'visible'
             }}
           >
-            <div className={twMerge('flex flex-col truncate py-1', className)}>{children}</div>
+            {children}
           </div>
         )}
       </div>
@@ -124,4 +124,4 @@ export const ContextMenu = ({
   )
 }
 
-export default ContextMenu
+export default PopOverMenu

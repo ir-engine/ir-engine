@@ -62,8 +62,7 @@ import { HiMagnifyingGlass, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { HierarchyPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
 import Input from '../../../../../primitives/tailwind/Input'
-import ContextMenu from '../../../layout/ContextMenu'
-import Popover from '../../../layout/Popover'
+import PopOverMenu from '../../../layout/PopOverMenu'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../../Properties/elementList'
 import HierarchyTreeNode, { HierarchyTreeNodeProps, RenameNodeData, getNodeElId } from '../node'
@@ -476,7 +475,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
           </Button>
         </div>
-        <Popover
+        <PopOverMenu
           open={open}
           anchorEl={anchorElButton.value as any}
           onClose={() => {
@@ -484,16 +483,16 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             setAnchorPositionPop(undefined)
           }}
           panelId={HierarchyPanelTab.id!}
-          anchorPosition={anchorPositionPop}
+          anchorPosition={anchorPositionPop as any}
           className="h-[60%] w-full min-w-[300px] overflow-y-auto"
         >
           <ElementList type="prefabs" />
-        </Popover>
+        </PopOverMenu>
       </PopoverContext.Provider>
       <div id="heirarchy-panel" className="h-5/6 overflow-hidden">
         <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
       </div>
-      <ContextMenu
+      <PopOverMenu
         open={!!anchorEl}
         anchorEl={anchorEl}
         panelId={'heirarchy-panel'}
@@ -608,7 +607,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         >
           {t('editor:hierarchy.lbl-collapseAll')}
         </Button>
-      </ContextMenu>
+      </PopOverMenu>
     </>
   )
 }

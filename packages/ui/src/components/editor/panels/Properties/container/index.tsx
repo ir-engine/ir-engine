@@ -40,7 +40,7 @@ import { PopoverPosition } from '@mui/material'
 import { HiOutlinePlusCircle } from 'react-icons/hi'
 import { PropertiesPanelTab } from '..'
 import Button from '../../../../../primitives/tailwind/Button'
-import Popover from '../../../layout/Popover'
+import PopOverMenu from '../../../layout/PopOverMenu'
 import TransformPropertyGroup from '../../../properties/transform'
 import { PopoverContext } from '../../../util/PopoverContext'
 import ElementList from '../elementList'
@@ -99,7 +99,7 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           {t('editor:properties.lbl-addComponent')}
         </Button>
       </div>
-      <Popover
+      <PopOverMenu
         open={open}
         anchorEl={anchorEl.value as any}
         onClose={() => {
@@ -107,11 +107,11 @@ const EntityEditor = (props: { entityUUID: EntityUUID; multiEdit: boolean }) => 
           setAnchorPosition(undefined)
         }}
         panelId={PropertiesPanelTab.id!}
-        anchorPosition={anchorPosition}
+        anchorPosition={anchorPosition as any}
         className="h-[60%] w-full min-w-[300px] overflow-y-auto"
       >
         <ElementList type="components" />
-      </Popover>
+      </PopOverMenu>
       <TransformPropertyGroup entity={entity} />
       {components.map((c, i) => (
         <EntityComponentEditor

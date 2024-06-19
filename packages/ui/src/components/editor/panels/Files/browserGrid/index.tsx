@@ -46,7 +46,7 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
-import { ContextMenu } from '../../../layout/ContextMenu'
+import { PopOverMenu } from '../../../layout/PopOverMenu'
 import { FileIcon } from '../icon'
 import DeleteFileModal from './DeleteFileModal'
 import RenameFileModal from './RenameFileModal'
@@ -362,7 +362,7 @@ export function FileBrowserItem({
         </div>
       )}
 
-      <ContextMenu
+      <PopOverMenu
         open={open}
         anchorEl={anchorEl}
         panelId={'file-browser-panel'}
@@ -425,7 +425,7 @@ export function FileBrowserItem({
         <Button variant="outline" size="small" fullWidth onClick={viewConvert}>
           {t('editor:layout.filebrowser.convert')}
         </Button>
-      </ContextMenu>
+      </PopOverMenu>
     </>
   )
 }

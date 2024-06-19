@@ -53,7 +53,7 @@ import Input from '../../../../../primitives/tailwind/Input'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
 import Text from '../../../../../primitives/tailwind/Text'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
-import { ContextMenu } from '../../../layout/ContextMenu'
+import { PopOverMenu } from '../../../layout/PopOverMenu'
 import { FileIcon } from '../../Files/icon'
 
 type Category = {
@@ -155,7 +155,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       </span>
       <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
 
-      <ContextMenu
+      <PopOverMenu
         open={open}
         anchorEl={anchorEl}
         panelId={'asset-browser-panel'}
@@ -184,7 +184,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
             {t('editor:visualScript.modal.buttons.close')}
           </Button>
         </div>
-      </ContextMenu>
+      </PopOverMenu>
     </div>
   )
 }

@@ -39,7 +39,7 @@ import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
-import PopOver from '../../../layout/Popover'
+import PopOverMenu from '../../../layout/PopOverMenu'
 
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
@@ -103,12 +103,12 @@ const RenderModeTool = () => {
         className="p-2"
         onClick={(event) => {
           anchorEl.set(event.currentTarget)
-          anchorPosition.set({ left: event.clientX - 240, top: event.clientY + 10 })
+          anchorPosition.set({ left: event.clientX, top: event.clientY + 10 })
         }}
         startIcon={<RiArrowDownSLine />}
         id="render-settings-menu"
       />
-      <PopOver
+      <PopOverMenu
         open={!!anchorEl}
         anchorEl={anchorEl.value as HTMLElement}
         anchorPosition={anchorPosition.value}
@@ -139,7 +139,7 @@ const RenderModeTool = () => {
             disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
           />
         </InputGroup>
-      </PopOver>
+      </PopOverMenu>
     </div>
   )
 }

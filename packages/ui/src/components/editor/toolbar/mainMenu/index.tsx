@@ -27,7 +27,7 @@ import React from 'react'
 
 import MenuItem from '@mui/material/MenuItem'
 import Button from '../../../../primitives/tailwind/Button'
-import ContextMenu from '../../layout/ContextMenu'
+import PopOverMenu from '../../layout/PopOverMenu'
 
 interface Command {
   name: string
@@ -87,9 +87,9 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
+      <PopOverMenu open={open} anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
         {commands.map((command: Command) => renderMenu(command))}
-      </ContextMenu>
+      </PopOverMenu>
     </>
   )
 }

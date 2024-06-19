@@ -75,7 +75,7 @@ import Slider from '../../../../../primitives/tailwind/Slider'
 import Tooltip from '../../../../../primitives/tailwind/Tooltip'
 import BooleanInput from '../../../input/Boolean'
 import InputGroup from '../../../input/Group'
-import Popover from '../../../layout/Popover'
+import PopOverMenu from '../../../layout/PopOverMenu'
 import { FileBrowserItem, FileTableWrapper, canDropItemOverFolder } from '../browserGrid'
 
 type FileBrowserContentPanelProps = {
@@ -555,7 +555,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             />
           </Tooltip>
         </div>
-        <Popover
+        <PopOverMenu
           open={!!anchorEl.value}
           anchorEl={anchorEl.value as any}
           onClose={() => {
@@ -607,7 +607,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               </div>
             </>
           )}
-        </Popover>
+        </PopOverMenu>
       </>
     )
   }
