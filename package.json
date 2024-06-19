@@ -156,6 +156,6 @@
     "patch-package": "^6.5.1",
     "three": "0.158.0",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2"
+    "typescript": "5.4.5"
   }
 }
