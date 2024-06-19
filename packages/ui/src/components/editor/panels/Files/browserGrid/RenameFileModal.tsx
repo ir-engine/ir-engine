@@ -34,13 +34,15 @@ import { useMutation } from '@etherealengine/spatial/src/common/functions/Feathe
 import Input from '../../../../../primitives/tailwind/Input'
 import Modal from '../../../../../primitives/tailwind/Modal'
 
-export default function RenameFileModal({ file }: { file: FileDataType }) {
+export default function RenameFileModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()
   const newFileName = useHookstate(file.name)
   const fileService = useMutation(fileBrowserPath)
 
   const handleSubmit = async () => {
     fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
       oldName: file.fullName,
       newName: file.isFolder ? newFileName.value : `${newFileName.value}.${file.type}`,
       oldPath: file.path,

@@ -372,6 +372,7 @@ const AssetPanel = () => {
         key: {
           $like: `%${searchText.value}%` || undefined
         },
+        type: 'asset',
         project: projectName.value!,
         $sort: { mimeType: 1 },
         $limit: 10000
