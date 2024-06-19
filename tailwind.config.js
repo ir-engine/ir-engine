@@ -77,10 +77,8 @@ module.exports = {
       }
     }
   },
-  purge: {
-    safelist: [
-      ...Array.from({ length: 101 }, (_, i) => `via-[${i}%]`),
-      ...Array.from({ length: 101 }, (_, i) => `to-[${i}%]`)
-    ]
-  }
+  safelist: [
+    ...Array.from({ length: 101 }, (_, i) => `via-[${i}%]`),
+    ...Array.from({ length: 101 }, (_, i) => `to-[${i}%]`)
+  ]
 }
