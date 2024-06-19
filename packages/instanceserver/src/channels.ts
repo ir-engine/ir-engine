@@ -29,9 +29,7 @@ import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
 
-import commonConfig from '@etherealengine/common/src/config'
 import {
-  assetPath,
   ChannelID,
   channelPath,
   ChannelType,
@@ -46,6 +44,7 @@ import {
   InstanceType,
   LocationID,
   locationPath,
+  staticResourcePath,
   UserID,
   userKickPath,
   UserKickType,
@@ -299,9 +298,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     if (!sceneId) throw new Error('No sceneId provided')
 
     const sceneUpdatedListener = async () => {
-      const scene = await app.service(assetPath).get(sceneId, { headers })
-      const sceneURL = scene.assetURL
-      const gltfEntity = GLTFSourceState.load(commonConfig.client.fileServer + '/' + sceneURL, scene.id as EntityUUID)
+      const scene = await app.service(staticResourcePath).get(sceneId, { headers })
+      const gltfEntity = GLTFSourceState.load(scene.url, scene.id as EntityUUID)
       getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
 
       /** @todo - quick hack to wait until scene has loaded */
@@ -315,7 +313,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
       })
     }
 
-    app.service(assetPath).on('updated', sceneUpdatedListener)
+    app.service(staticResourcePath).on('updated', sceneUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')

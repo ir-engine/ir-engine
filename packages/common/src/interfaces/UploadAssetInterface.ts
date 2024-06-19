@@ -48,7 +48,6 @@ export type AdminAssetUploadArgumentsType = {
   name?: string
   project?: string
   hash?: string
-  stats?: any
 }
 
 export type AdminAssetUploadType = {
@@ -67,6 +66,6 @@ export interface UploadFile {
   originalname: string
   encoding?: string
   mimetype: string
-  buffer: Buffer | string
+  buffer: Buffer
   size: number
 }

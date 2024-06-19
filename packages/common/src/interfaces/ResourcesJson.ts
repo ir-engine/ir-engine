@@ -23,12 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { nanoid } from 'nanoid'
-
-/**
- * Generate unique string ID based on given character length
- * Default length is 8
- */
-export default (length = 8): string => {
-  return nanoid(length)
-}
+// key = /path/to/file.ext
+export type ResourcesJson = Record<
+  string,
+  {
+    type: string // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
+    tags?: string[]
+    dependencies?: string[] // other keys
+    licensing?: string
+    description?: string
+    attribution?: string
+    thumbnailKey?: string
+    thumbnailMode?: string // 'automatic' | 'manual'
+  }
+>
