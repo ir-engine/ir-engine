@@ -38,6 +38,7 @@ import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/compo
 import { NodeIDComponent } from '@etherealengine/spatial/src/transform/components/NodeIDComponent'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { GiTriggerHurt } from 'react-icons/gi'
 import { HiPlus, HiTrash } from 'react-icons/hi2'
 import Button from '../../../../primitives/tailwind/Button'
 import { SelectOptionsType } from '../../../../primitives/tailwind/Select'
@@ -80,6 +81,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.trigger.name')}
       description={t('editor:properties.trigger.description')}
+      icon={<TriggerProperties.iconComponent />}
     >
       <div className="my-3 flex justify-end">
         <Button
@@ -169,4 +171,5 @@ const TriggerProperties: EditorComponentType = (props) => {
   )
 }
 
+TriggerProperties.iconComponent = GiTriggerHurt
 export default TriggerProperties

@@ -44,7 +44,7 @@ import { getState, NO_PROXY, useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
 import { CallbackComponent } from '@etherealengine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@etherealengine/spatial/src/common/functions/createTransitionState'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
+import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { RigidBodyComponent } from '@etherealengine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import {
@@ -291,21 +291,25 @@ export const InteractableComponent = defineComponent({
     const entity = useEntityContext()
     const isEditing = useMutableState(EngineState).isEditing
 
-    InputComponent.useExecuteWithInput(() => {
-      const buttons = InputComponent.getMergedButtons(entity)
+    InputComponent.useExecuteWithInput(
+      () => {
+        const buttons = InputComponent.getMergedButtons(entity)
 
-      if (
-        buttons.Interact?.pressed &&
-        !buttons.Interact?.dragging &&
-        getState(InputState).capturingEntity === UndefinedEntity
-      ) {
-        InputState.setCapturingEntity(entity)
+        if (
+          buttons.Interact?.pressed &&
+          !buttons.Interact?.dragging &&
+          getState(InputState).capturingEntity === UndefinedEntity
+        ) {
+          InputState.setCapturingEntity(entity)
 
-        if (buttons.Interact?.up) {
-          callInteractCallbacks(entity)
+          if (buttons.Interact?.up) {
+            callInteractCallbacks(entity)
+          }
         }
-      }
-    }, true)
+      },
+      true,
+      InputExecutionOrder.After
+    )
 
     useEffect(() => {
       setComponent(entity, DistanceFromCameraComponent)

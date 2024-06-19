@@ -432,7 +432,7 @@ const buildPerformanceState = async (
     mobileTiers: [0, 15, 30, 45, 60, 75],
     override
   })
-  let tier = gpuTier.tier
+  let tier = gpuTier.type === 'FALLBACK' ? performanceState.gpuTier.value : gpuTier.tier
   performanceState.isMobileGPU.set(!!gpuTier.isMobile)
   if (gpuTier.gpu) performanceState.gpu.set(gpuTier.gpu)
   if (gpuTier.device) performanceState.device.set(gpuTier.device)

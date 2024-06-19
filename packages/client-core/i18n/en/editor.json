@@ -66,7 +66,8 @@
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
-    "urlFetchError": "Failed to fetch \"{{url}}\""
+    "urlFetchError": "Failed to fetch \"{{url}}\"",
+    "invalidSceneName": "Provide a valid scene name"
   },
   "viewport": {
     "title": "Viewport",
@@ -932,6 +933,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
+      "name":"Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
@@ -1165,6 +1167,7 @@
       "refresh": "Refresh",
       "back": "Back",
       "loadingFiles": "Loading files",
+      "loadingProjects": "Loading projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
@@ -1382,5 +1385,15 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
+  },
+  "assetMetadata": {
+    "name": "Name",
+    "path": "Path",
+    "type": "Type",
+    "tags": "Tags"
   }
 }

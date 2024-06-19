@@ -35,7 +35,6 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
-import { ECSState } from '@etherealengine/ecs/src/ECSState'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { defineQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { defineSystem } from '@etherealengine/ecs/src/SystemFunctions'
@@ -245,8 +244,6 @@ const execute = () => {
 
   if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
 
-  const deltaSeconds = getState(ECSState).deltaSeconds
-
   const selectedEntities = SelectionState.getSelectedEntities()
 
   const inputSources = inputQuery()
@@ -295,18 +292,15 @@ const execute = () => {
   }
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
     if (hasComponent(clickStartEntity, SourceComponent)) {
+      const selectedEntities = SelectionState.getSelectedEntities()
       const modelComponent = getAncestorWithComponent(clickStartEntity, ModelComponent)
       const ancestorModelEntity = modelComponent || clickStartEntity
+      const targetSelection = selectedEntities[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
 
-      console.log(
-        SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity
-      )
-      SelectionState.updateSelection([
-        getComponent(
-          SelectionState.getSelectedEntities()[0] === ancestorModelEntity ? clickStartEntity : ancestorModelEntity,
-          UUIDComponent
-        )
-      ])
+      //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
+      if (selectedEntities.length !== 1 || (selectedEntities.length === 1 && selectedEntities[0] !== targetSelection)) {
+        SelectionState.updateSelection([getComponent(targetSelection, UUIDComponent)])
+      }
     }
   }
 }

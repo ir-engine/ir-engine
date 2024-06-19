@@ -28,7 +28,7 @@ import React, { useEffect, useLayoutEffect } from 'react'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
   ComponentJSONIDMap,
   createEntity,
@@ -82,15 +82,14 @@ export const GLTFAssetState = defineState({
   initial: {} as Record<string, Entity>, // sceneID => entity
 
   useScene: (sceneID: string | undefined) => {
-    const scene = useGet(assetPath, sceneID).data
+    const scene = useGet(staticResourcePath, sceneID).data
     const scenes = useMutableState(GLTFAssetState)
-    const assetURL = scene?.assetURL
-    return assetURL ? scenes[assetURL].value : null
+    const sceneKey = scene?.url
+    return sceneKey ? scenes[sceneKey].value : null
   },
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const source = fileServer + '/' + sceneURL
-    const gltfEntity = GLTFSourceState.load(source, uuid as EntityUUID)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID)
     getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
 
