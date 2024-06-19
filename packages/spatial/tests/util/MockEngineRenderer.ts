@@ -25,17 +25,32 @@ Ethereal Engine. All Rights Reserved.
 
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
+import { EffectComposer } from 'postprocessing'
 import { EngineRenderer } from '../../src/renderer/WebGLRendererSystem'
 import { MockEventListener } from './MockEventListener'
+
+class MockRenderer {
+  setAnimationLoop = () => {}
+  domElement = new MockEventListener()
+  setPixelRatio = () => {}
+  getSize = () => 0
+  getContext = () => {}
+  getPixelRatio = () => 1
+}
 
 export class MockEngineRenderer extends EngineRenderer {
   static instance: EngineRenderer
 
   constructor() {
     super()
-    this.renderer = {
-      setAnimationLoop: () => {},
-      domElement: new MockEventListener()
-    } as unknown as WebGLRenderer
+    this.renderer = new MockRenderer() as unknown as WebGLRenderer
+    this.effectComposer = {
+      setSize: () => {},
+      passes: [{ name: 'RenderPass', overrideMaterial: null }],
+      setMainScene: () => {},
+      setMainCamera: () => {},
+      render: () => {}
+    } as unknown as EffectComposer
+    this.needsResize = false
   }
 }
