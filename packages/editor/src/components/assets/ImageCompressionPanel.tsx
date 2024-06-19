@@ -120,13 +120,15 @@ export default function ImageCompressionPanel({
     const props = fileProperties.value
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
+    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+    const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
     try {
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
-        fileName: newFileName,
-        path,
+        project: projectName,
+        path: relativePath + file.name,
         contentType: file.type
       }).promise
     } catch (err) {

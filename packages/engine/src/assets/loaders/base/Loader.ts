@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DefaultLoadingManager, LoadingManager } from 'three'
+import { ResourceLoadingManagerState } from '../../state/ResourceLoadingManagerState'
 
 interface Load<TData, TUrl> {
   load: (
@@ -53,6 +54,8 @@ class Loader<TData = unknown, TUrl = string> implements Load<TData, TUrl> {
     this.path = ''
     this.resourcePath = ''
     this.requestHeader = {}
+
+    ResourceLoadingManagerState.initialize()
   }
 
   load(

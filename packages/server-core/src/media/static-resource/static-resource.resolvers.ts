@@ -25,26 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
   StaticResourceDatabaseType,
-  StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/common/src/schemas/media/static-resource.schema'
 import { fromDateTimeSql, getDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
-  let metadata = JSON.parse(rawData.metadata) as any
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof metadata === 'string') {
-    metadata = JSON.parse(metadata)
-  }
-
   let tags = JSON.parse(rawData.tags) as string[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
@@ -61,9 +52,12 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
     stats = JSON.parse(stats)
   }
 
+  const dependencies = rawData.dependencies ? (JSON.parse(rawData.dependencies) as string[]) : []
+
   return {
     ...rawData,
-    metadata,
+    url: '', // TODO to make typescript happy...
+    dependencies,
     tags,
     stats
   }
@@ -72,7 +66,16 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
 export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
   {
     createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
-    updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt))
+    updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt)),
+    url: virtual(async (staticResource, context) => {
+      const storageProvider = getStorageProvider()
+      return storageProvider.getCachedURL(staticResource.key, context.params.isInternal)
+    }),
+    thumbnailURL: virtual(async (staticResource, context) => {
+      if (!staticResource.thumbnailKey) return
+      const storageProvider = getStorageProvider()
+      return storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal)
+    })
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -82,15 +85,10 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
   }
 )
 
-export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>({})
-
 export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
   {
     id: async () => {
       return uuidv4()
-    },
-    sid: async () => {
-      return nanoid(8)
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
@@ -100,8 +98,8 @@ export const staticResourceDataResolver = resolve<StaticResourceType, HookContex
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
+        dependencies: JSON.stringify(rawData.dependencies),
         stats: JSON.stringify(rawData.stats)
       }
     }
@@ -117,12 +115,10 @@ export const staticResourcePatchResolver = resolve<StaticResourceType, HookConte
     converter: async (rawData, context) => {
       return {
         ...rawData,
-        metadata: JSON.stringify(rawData.metadata),
         tags: JSON.stringify(rawData.tags),
+        dependencies: JSON.stringify(rawData.dependencies),
         stats: JSON.stringify(rawData.stats)
       }
     }
   }
 )
-
-export const staticResourceQueryResolver = resolve<StaticResourceQuery, HookContext>({})
