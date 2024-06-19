@@ -26,4 +26,4 @@ Ethereal Engine. All Rights Reserved.
 import { ClientInputSystem } from './systems/ClientInputSystem'
 import { FlyControlSystem } from './systems/FlyControlSystem'
 
-export { FlyControlSystem, ClientInputSystem }
+export { ClientInputSystem, FlyControlSystem }
