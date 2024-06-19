@@ -92,16 +92,7 @@ export type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
+export type FileType = FileDataType
 
 function fileConsistsOfContentType(file: FileDataType, contentType: string): boolean {
   if (file.isFolder) {
@@ -167,6 +158,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const projectName = useValidProjectForFileBrowser(selectedDirectory.value)
   const orgName = projectName.includes('/') ? projectName.split('/')[0] : ''
+
+  const fileProperties = useHookstate<FileType | null>(null)
+  const selectedFileKeys = useHookstate<string[]>([])
+  const anchorEl = useHookstate<HTMLButtonElement | null>(null)
 
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
 
@@ -435,7 +430,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       drop: (dropItem) => dropItemsOnPanel(dropItem as any),
       collect: (monitor) => ({ isFileDropOver: monitor.canDrop() && monitor.isOver() })
     })
-    const selectedFileKeys = useHookstate<string[]>([])
 
     const isListView = filesViewMode.value === 'list'
     const staticResourceData = useFind(staticResourcePath, {

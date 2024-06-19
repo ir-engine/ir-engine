@@ -47,7 +47,7 @@ import Slider from '@etherealengine/ui/src/primitives/tailwind/Slider'
 import Text from '@etherealengine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
+import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },

@@ -52,11 +52,11 @@ import {
 } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import { useTranslation } from 'react-i18next'
 import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTFPresets'
 import exportGLTF from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
-import { FileType } from './FileBrowser/FileBrowserContentPanel'
 
 import ConfirmDialog from '@etherealengine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'

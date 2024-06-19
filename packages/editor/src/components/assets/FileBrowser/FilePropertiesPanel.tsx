@@ -34,10 +34,10 @@ import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 
+import { FileType } from '@etherealengine/ui/src/components/editor/panels/Files/container'
 import { EditorState } from '../../../services/EditorServices'
 import { Button } from '../../inputs/Button'
 import styles from '../styles.module.scss'
-import { FileType } from './FileBrowserContentPanel'
 
 export const FilePropertiesPanel = (props: {
   openProperties: State<boolean>

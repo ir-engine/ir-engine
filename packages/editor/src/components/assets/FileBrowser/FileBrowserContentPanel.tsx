@@ -97,16 +97,7 @@ type DnDFileType = {
 
 export const FILES_PAGE_LIMIT = 100
 
-export type FileType = {
-  fullName: string
-  isFolder: boolean
-  key: string
-  name: string
-  path: string
-  size: string
-  type: string
-  url: string
-}
+type FileType = FileDataType
 
 const fileConsistsOfContentType = function (file: FileType, contentType: string): boolean {
   if (file.isFolder) {
