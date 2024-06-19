@@ -40,7 +40,6 @@ import {
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
 import verifyScope from '../../hooks/verify-scope'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
@@ -85,7 +84,7 @@ const updateWebManifest = async (context: HookContext<ClientSettingService>) => 
         : config.client.url[config.client.url.length - 1] !== '/' && data![0].startPath![0] !== '/'
         ? config.client.url + '/' + data![0].startPath
         : config.client.url + data![0].startPath
-    const cacheDomain = getCacheDomain(storageProvider)
+    const cacheDomain = storageProvider.getCacheDomain()
     webmanifest.icons = [
       {
         src: /https:\/\//.test(icon192px!)
