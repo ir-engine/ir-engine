@@ -111,8 +111,8 @@ export const ListLoop = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, write, commit }) => {
     const list = read<any[]>('list')
-    const startIndex = Math.max(0, Number(read<bigint>('startIndex')) ?? 0)
-    const endIndex = Math.min(list.length, Number(read<bigint>('endIndex')) ?? list.length)
+    const startIndex = Math.max(0, Number(read<bigint>('startIndex')) || 0)
+    const endIndex = Math.min(list.length, Number(read<bigint>('endIndex')) || list.length)
     const loopBodyIteration = (i: number) => {
       if (i < endIndex) {
         write('value', JSON.stringify(list[i]))
