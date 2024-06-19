@@ -69,12 +69,23 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt)),
     url: virtual(async (staticResource, context) => {
       const storageProvider = getStorageProvider()
-      return storageProvider.getCachedURL(staticResource.key, context.params.isInternal)
+      return storageProvider.getCachedURL(staticResource.key, context.params.isInternal) + '?v=' + staticResource.hash
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
       if (!staticResource.thumbnailKey) return
       const storageProvider = getStorageProvider()
-      return storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal)
+      /** @todo optimize this */
+      const thumbnailStaticResource = await context.app.service('static-resource').find({
+        query: {
+          key: staticResource.thumbnailKey
+        }
+      })
+      if (!thumbnailStaticResource.data.length) throw new Error('Thumbnail not found')
+      return (
+        storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal) +
+        '?v=' +
+        thumbnailStaticResource.data[0].hash
+      )
     })
   },
   {
