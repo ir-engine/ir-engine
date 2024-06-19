@@ -72,7 +72,7 @@ export const FileIcon = ({
   isFolder,
   color = 'text-white'
 }: {
-  thumbnailURL: string | null
+  thumbnailURL?: string
   type: string
   isFolder?: boolean
   color?: string
@@ -83,7 +83,7 @@ export const FileIcon = ({
     <>
       {isFolder ? (
         <HiFolder className={`${color}`} />
-      ) : thumbnailURL != null ? (
+      ) : thumbnailURL ? (
         <img className="h-full w-full min-w-[90px] object-contain" crossOrigin="anonymous" src={thumbnailURL} alt="" />
       ) : FallbackIcon ? (
         <FallbackIcon className={`${color}`} />

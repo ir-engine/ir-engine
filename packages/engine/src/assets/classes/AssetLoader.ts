@@ -108,15 +108,19 @@ const loadAsset = async <T>(
   onLoad: (response: T) => void = () => {},
   onProgress: (request: ProgressEvent) => void = () => {},
   onError: (event: ErrorEvent | Error) => void = () => {},
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  loader?: ReturnType<typeof getLoader>
 ) => {
   if (!url) {
     onError(new Error('URL is empty'))
     return
   }
   url = getAbsolutePath(url)
-  const assetExt = AssetLoader.getAssetType(url)
-  const loader = getLoader(assetExt)
+
+  if (!loader) {
+    const assetExt = AssetLoader.getAssetType(url)
+    loader = getLoader(assetExt)
+  }
 
   if (getState(EngineState).isEditing) url = bustURLCache(url)
   try {

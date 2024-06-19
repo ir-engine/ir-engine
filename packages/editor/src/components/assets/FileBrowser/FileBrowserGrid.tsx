@@ -235,6 +235,7 @@ type FileBrowserItemType = {
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
+  projectName: string
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
@@ -252,6 +253,7 @@ export function FileBrowserItem({
   setFileProperties,
   setOpenCompress,
   setOpenConvert,
+  projectName,
   deleteContent,
   onClick,
   dropItemsOnPanel,
@@ -332,6 +334,8 @@ export function FileBrowserItem({
 
     if (isFilesLoading) return
     fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
       oldName: currentContent.current.item.fullName,
       newName: currentContent.current.item.fullName,
       oldPath: currentContent.current.item.path,

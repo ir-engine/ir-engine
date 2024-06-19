@@ -79,7 +79,7 @@ function FogGroupReactor(props: { fogEntity: Entity }) {
   useEffect(() => {
     const customShader = fogComponent.type.value === FogType.Brownian || fogComponent.type.value === FogType.Height
     if (customShader) {
-      const objs = [...group]
+      const objs = [...group.value]
       for (const obj of objs) addFogShaderPlugin(obj as any)
       return () => {
         for (const obj of objs) removeFogShaderPlugin(obj as any)

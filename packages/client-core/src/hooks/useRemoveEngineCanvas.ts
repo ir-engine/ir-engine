@@ -28,11 +28,11 @@ import { useEffect } from 'react'
 export const useRemoveEngineCanvas = () => {
   useEffect(() => {
     const canvas = document.getElementById('engine-renderer-canvas')!
-    canvas.parentElement?.removeChild(canvas)
+    const parent = canvas.parentElement
+    parent?.removeChild(canvas)
 
     return () => {
-      const body = document.body
-      body.appendChild(canvas)
+      parent?.appendChild(canvas)
     }
   }, [])
 

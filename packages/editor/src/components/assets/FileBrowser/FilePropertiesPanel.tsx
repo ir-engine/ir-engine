@@ -30,7 +30,6 @@ import { useTranslation } from 'react-i18next'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { logger } from '@etherealengine/client-core/src/user/services/AuthService'
 import { staticResourcePath, StaticResourceType } from '@etherealengine/common/src/schema.type.module'
-import { projectResourcesPath } from '@etherealengine/common/src/schemas/media/project-resource.schema'
 import { Engine } from '@etherealengine/ecs/src/Engine'
 import { getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -70,7 +69,6 @@ export const FilePropertiesPanel = (props: {
         licensing: resourceProperties.licensing.value,
         attribution: resourceProperties.attribution.value
       })
-      await Engine.instance.api.service(projectResourcesPath).create({ project: resourceProperties.project.value })
       isModified.set(false)
       openProperties.set(false)
     }

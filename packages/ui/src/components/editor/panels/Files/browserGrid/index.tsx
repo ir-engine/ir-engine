@@ -121,7 +121,7 @@ export const FileTableListBody = ({
     name: (
       <span className="flex max-h-7 flex-row items-center gap-2 text-[#e7e7e7]" style={{ fontSize: `${fontSize}px` }}>
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
-        <FileIcon thumbnailURL={null} type={file.type} isFolder={file.isFolder} />
+        <FileIcon thumbnailURL={thumbnailURL} type={file.type} isFolder={file.isFolder} />
         {file.fullName}
       </span>
     ),
@@ -201,6 +201,7 @@ type FileBrowserItemType = {
   setOpenCompress: any
   setOpenConvert: any
   isFilesLoading: boolean
+  projectName: string
   onClick: (event: React.MouseEvent, currentFile: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   addFolder: () => void
@@ -217,6 +218,7 @@ export function FileBrowserItem({
   setFileProperties,
   setOpenCompress,
   setOpenConvert,
+  projectName,
   onClick,
   dropItemsOnPanel,
   isFilesLoading,
@@ -285,9 +287,11 @@ export function FileBrowserItem({
 
   const pasteContent = async () => {
     handleClose()
-
     if (isFilesLoading) return
+
     fileService.update(null, {
+      oldProject: projectName,
+      newProject: projectName,
       oldName: currentContent.current.item.fullName,
       newName: currentContent.current.item.fullName,
       oldPath: currentContent.current.item.path,
@@ -404,7 +408,7 @@ export function FileBrowserItem({
           variant="outline"
           size="small"
           fullWidth
-          onClick={() => PopoverState.showPopupover(<RenameFileModal file={item} />)}
+          onClick={() => PopoverState.showPopupover(<RenameFileModal projectName={projectName} file={item} />)}
         >
           {t('editor:layout.filebrowser.renameAsset')}
         </Button>

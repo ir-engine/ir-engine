@@ -30,7 +30,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 import { TypedString } from '../../types/TypeboxUtils'
-import { assetSchema } from '../assets/asset.schema'
+import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
@@ -60,7 +60,7 @@ export const locationSchema = Type.Object(
     isLobby: Type.Boolean(),
     /** @todo review */
     isFeatured: Type.Boolean(),
-    sceneAsset: Type.Ref(assetSchema),
+    sceneAsset: Type.Ref(staticResourceSchema),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
