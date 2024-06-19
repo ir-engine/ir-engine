@@ -30,7 +30,7 @@ import { useProjectPermissions } from '@etherealengine/client-core/src/user/useU
 import { useUserHasAccessHook } from '@etherealengine/client-core/src/user/userHasAccess'
 import { GLTFModifiedState } from '@etherealengine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
-import ContextMenu from '@etherealengine/ui/src/components/editor/layout/ContextMenu'
+import PopOverMenu from '@etherealengine/ui/src/components/editor/layout/PopOverMenu'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import { t } from 'i18next'
 import React from 'react'
@@ -154,7 +154,7 @@ export default function Toolbar() {
           {t('editor:toolbar.lbl-publish')}
         </Button>
       </div>
-      <ContextMenu
+      <PopOverMenu
         anchorEl={anchorEl.value as HTMLElement}
         anchorPosition={anchorPosition.value}
         open={anchorOpen.value}
@@ -176,7 +176,7 @@ export default function Toolbar() {
             </Button>
           </div>
         ))}
-      </ContextMenu>
+      </PopOverMenu>
     </>
   )
 }
