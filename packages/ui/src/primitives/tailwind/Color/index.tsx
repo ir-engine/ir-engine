@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { ColorResult } from '@uiw/color-convert'
 import SketchPicker from '@uiw/react-color-sketch'
 import React from 'react'
@@ -34,6 +33,7 @@ import Text from '../Text'
 interface ColorInputProp {
   value: Color
   onChange: (color: Color) => void
+  onRelease?: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
   className?: string
@@ -44,6 +44,7 @@ interface ColorInputProp {
 export function ColorInput({
   value,
   onChange,
+  onRelease,
   disabled,
   className,
   textClassName,
@@ -55,7 +56,6 @@ export function ColorInput({
     const color = new Color(result.hex)
     onChange(color)
   }
-
   return (
     <div
       className={twMerge(
@@ -77,6 +77,9 @@ export function ColorInput({
           color={hexColor}
           onChange={handleChange}
           disableAlpha={true}
+          onPointerLeave={() => {
+            onRelease && onRelease(value)
+          }}
         />
       </div>
       <Text fontFamily="Figtree" fontSize="xs" className={textClassName}>
