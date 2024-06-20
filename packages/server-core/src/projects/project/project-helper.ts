@@ -813,7 +813,7 @@ export const getProjectCommits = async (
 }
 
 export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
-  const builderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder` || ''
+  const builderRepo = `${process.env.SOURCE_REPO_URL}/${process.env.SOURCE_REPO_NAME_STEM}-builder`
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
@@ -1686,7 +1686,7 @@ export const uploadLocalProjectToProvider = async (
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
 
   const filteredFilesInProjectFolder = getFilesRecursive(projectRootPath).filter(
-    (file) => !file.includes(`projects/${projectName}/.git/`) && !file.includes(`projects/${projectName}/thumbnails/`)
+    (file) => !file.includes(`projects/${projectName}/.git/`)
   )
 
   const results = [] as (string | null)[]

@@ -148,4 +148,4 @@ function deleteTicket(ticketId: string): Promise<void> {
     .then((result) => {})
 }
 
-export { createTicket, getTicket, deleteTicket, getTicketsAssignment }
+export { createTicket, deleteTicket, getTicket, getTicketsAssignment }
