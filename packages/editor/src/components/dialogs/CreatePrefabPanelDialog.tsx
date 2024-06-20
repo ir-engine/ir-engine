@@ -24,14 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
+import config from '@etherealengine/common/src/config'
 import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
-import { Engine, Entity } from '@etherealengine/ecs'
+import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
+import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent } from '@etherealengine/ecs'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
+import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 import Button from '@etherealengine/ui/src/primitives/tailwind/Button'
 import Input from '@etherealengine/ui/src/primitives/tailwind/Input'
 import Modal from '@etherealengine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Scene } from 'three'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
@@ -47,8 +56,19 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
     const editorState = getState(EditorState)
     const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
+    const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
     try {
-      await exportRelativeGLTF(entity, srcProject, fileName)
+      const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+      const prefabEntity = createEntity()
+      const obj = new Scene()
+      addObjectToGroup(prefabEntity, obj)
+      proxifyParentChildRelationships(obj)
+      setComponent(prefabEntity, EntityTreeComponent, { parentEntity })
+      setComponent(prefabEntity, NameComponent, prefabName.value)
+      setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
+
+      await exportRelativeGLTF(prefabEntity, srcProject, fileName)
+      //await exportRelativeGLTF(entity, srcProject, fileName)
       //pass tags to static resource
       const resources = await Engine.instance.api.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
@@ -63,6 +83,8 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       defaultPrefabFolder.set('assets/custom-prefabs')
       prefabName.set('prefab')
       prefabTag.set([])
+      removeEntity(prefabEntity)
+      EditorControlFunctions.createObjectFromSceneElement([{ name: ModelComponent.jsonID, props: { src: fileURL } }])
     } catch (e) {
       console.error(e)
     }
