@@ -86,6 +86,7 @@ import { TransformComponent } from '@etherealengine/spatial/src/transform/compon
 import { XRLightProbeState } from '@etherealengine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@etherealengine/spatial/src/xr/XRState'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { useMeshOrModel } from '../components/ModelComponent'
@@ -270,9 +271,12 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
 function _CSMReactor() {
   const rendererEntity = useEntityContext()
   const renderSettingsEntity = useChildWithComponent(rendererEntity, RenderSettingsComponent)
+  const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
+  const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
 
   if (!rendererEntity) return null
   if (!renderSettingsEntity) return null
+  if (isEditor && ['Unlit', 'Lit'].includes(renderMode)) return null
 
   return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={renderSettingsEntity} />
 }
