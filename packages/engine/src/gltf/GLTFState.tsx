@@ -69,7 +69,6 @@ import { SceneComponent } from '@etherealengine/spatial/src/renderer/components/
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
-import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { proxifyParentChildRelationships } from '../scene/functions/loadGLTFModel'
 import { GLTFComponent } from './GLTFComponent'
@@ -190,9 +189,7 @@ export const GLTFSnapshotState = defineState({
   },
 
   reactor: () => {
-    const viewerEntity = useMutableState(EngineState).viewerEntity.value
     const state = useMutableState(GLTFSnapshotState)
-    if (!viewerEntity) return null
     return (
       <>
         {state.keys.map((source: string) => (

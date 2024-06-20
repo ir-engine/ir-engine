@@ -38,7 +38,6 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     const originalParent = canvas.parentElement
-    console.log(originalParent, parent, canvas)
     initializeSpatialEngine(canvas)
     parent.appendChild(canvas)
 
