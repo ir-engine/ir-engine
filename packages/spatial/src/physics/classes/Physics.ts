@@ -210,6 +210,9 @@ function enabledCcd(entity: Entity, enabled: boolean) {
 
 /**
  * @note `lockRotations(entity, true)` is the exact same as `setEnabledRotations(entity, [ true, true, true ])`
+ * @warning
+ * Does not unlock in current version (0.11.2). Fixed in 0.12
+ * https://github.com/dimforge/rapier.js/issues/282#issuecomment-2177426589
  */
 function lockRotations(entity: Entity, lock: boolean) {
   const rigidBody = Rigidbodies.get(entity)
