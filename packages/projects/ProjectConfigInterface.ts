@@ -102,8 +102,6 @@ export interface ProjectEventHooks {
    * In k8s, the next time the builder is run, OR immediately after the project is updated.
    */
   onInstall?: InstallFunctionType
-  /** Runs any time a server instance spins up */
-  onLoad?: InstallFunctionType
   /** Runs every time a project is updated in a deployment OR when the builder runs */
   onUpdate?: InstallFunctionType
   /** Runs when a project is uninstalled */
