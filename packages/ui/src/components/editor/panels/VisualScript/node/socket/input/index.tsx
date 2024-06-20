@@ -54,7 +54,7 @@ const InputFieldForValue = ({
   valueType
 }: Pick<InputSocketProps, 'choices' | 'value' | 'defaultValue' | 'name' | 'onChange' | 'valueType'>) => {
   const showChoices = choices?.length
-  const inputVal = String(value) ?? defaultValue ?? ''
+  const inputVal = String(value) // ?? defaultValue ?? ''
   const inputSocketStyle = {
     userDrag: 'none',
     WebkitUserDrag: 'none',
