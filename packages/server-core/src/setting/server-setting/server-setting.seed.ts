@@ -57,7 +57,7 @@ const server = {
   hub: JSON.stringify({
     endpoint: process.env.HUB_ENDPOINT
   }),
-  url: '' || (null! as string),
+  url: '',
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   gitPem: '',

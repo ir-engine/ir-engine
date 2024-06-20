@@ -272,7 +272,13 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
       }
     }
 
-    const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+    const sortedResourcesJson = Object.fromEntries(
+      Object.entries(resourcesJson).sort(([a], [b]) => {
+        return a.localeCompare(b)
+      })
+    )
+
+    const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
 
     await storageProvider.putObject(
       {
@@ -309,7 +315,13 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
     thumbnailMode: resource.thumbnailMode ?? undefined
   }
 
-  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+  const sortedResourcesJson = Object.fromEntries(
+    Object.entries(resourcesJson).sort(([a], [b]) => {
+      return a.localeCompare(b)
+    })
+  )
+
+  const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
 
   await storageProvider.putObject(
     {
