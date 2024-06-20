@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -116,7 +116,7 @@ const defaultLayout: LayoutData = {
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
-  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -128,11 +128,11 @@ const EditorContainer = () => {
     const scene = sceneQuery[0]
     if (!scene) return
 
-    projectName.set(scene.projectName)
-    sceneName.set(scene.assetURL.split('/').pop() ?? null)
+    projectName.set(scene.project!)
+    sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.assetURL])
+    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {

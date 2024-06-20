@@ -30,13 +30,12 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import {
-  assetPath,
   LocationData,
   LocationID,
   locationPath,
-  LocationType
+  LocationType,
+  staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
-import { AssetType } from '@etherealengine/common/src/schemas/assets/asset.schema'
 import { getState, useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useGet, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -88,14 +87,14 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const scenes = useFind(assetPath)
+  const scenes = useFind(staticResourcePath, { query: { type: 'scene' } })
   // const locationTypes = useFind(locationTypePath).data
 
   const locationMutation = useMutation(locationPath)
 
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const selectedSceneData = useGet(assetPath, selectedScene!)
+  const selectedSceneData = useGet(staticResourcePath, selectedScene!)
 
   const editorState = getState(EditorState)
 
@@ -107,13 +106,13 @@ const LocationDrawer = ({ open, mode, selectedLocation, selectedScene, onClose }
     ? [
         {
           value: selectedSceneData.data.id,
-          label: selectedSceneData.data.assetURL
+          label: selectedSceneData.data.key
         }
       ]
-    : scenes.data.map((el: AssetType) => {
+    : scenes.data.map((el) => {
         return {
           value: el.id,
-          label: el.assetURL
+          label: el.key
         }
       })
 

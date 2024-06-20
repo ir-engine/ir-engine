@@ -41,12 +41,11 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   const { t } = useTranslation()
 
   const serverSetting = useFind(serverSettingPath).data.at(0)
-  console.log('serverSetting', serverSetting)
+
   const id = serverSetting?.id
 
   const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
 
-  console.log('gaTrackingId', gaTrackingId.value)
   const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
   const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
   const dryRun = useHookstate(true)
