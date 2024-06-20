@@ -57,11 +57,11 @@ import { Physics } from './Physics'
 const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
 
 const Epsilon = 0.001
-function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
+export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) < epsilon, `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
-function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
+export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
   assert.ok(Math.abs(A - B) > epsilon, `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
 }
 
