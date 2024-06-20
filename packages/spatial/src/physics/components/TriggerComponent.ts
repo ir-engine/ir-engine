@@ -25,8 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import matches from 'ts-matches'
 
-import { defineComponent, EntityUUID } from '@etherealengine/ecs'
+import { defineComponent, EntityUUID, hasComponent, setComponent, useEntityContext } from '@etherealengine/ecs'
 import { NO_PROXY } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { CollisionGroups } from '../enums/CollisionGroups'
+import { Shapes } from '../types/PhysicsTypes'
+import { ColliderComponent } from './ColliderComponent'
+import { RigidBodyComponent } from './RigidBodyComponent'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -84,6 +89,21 @@ export const TriggerComponent = defineComponent({
   },
 
   reactor: () => {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      if (!hasComponent(entity, RigidBodyComponent)) {
+        setComponent(entity, RigidBodyComponent, { type: 'fixed' })
+      }
+      if (!hasComponent(entity, ColliderComponent)) {
+        setComponent(entity, ColliderComponent, {
+          shape: Shapes.Sphere,
+          collisionLayer: CollisionGroups.Trigger,
+          collisionMask: CollisionGroups.Avatars
+        })
+      }
+    }, [])
+
     return null
   }
 })
