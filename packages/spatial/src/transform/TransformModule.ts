@@ -27,4 +27,4 @@ import { SpawnPoseState } from './SpawnPoseState'
 import { LookAtSystem } from './systems/LookAtSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { SpawnPoseState, TransformSystem, LookAtSystem }
+export { LookAtSystem, SpawnPoseState, TransformSystem }

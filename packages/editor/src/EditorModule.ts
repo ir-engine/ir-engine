@@ -34,12 +34,12 @@ import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
-  EditorInstanceNetworkingSystem,
   EditorControlSystem,
+  EditorInstanceNetworkingSystem,
   GizmoSystem,
   HighlightSystem,
   ModelHandlingSystem,
   ObjectGridSnapSystem,
-  UploadRequestSystem,
-  RenderInfoSystem
+  RenderInfoSystem,
+  UploadRequestSystem
 }

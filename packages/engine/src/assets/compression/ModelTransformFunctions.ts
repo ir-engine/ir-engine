@@ -270,7 +270,8 @@ export async function combineMaterials(document: Document) {
       if (eeMat !== null && cachedEEMat !== null) {
         return (
           eeMat.prototype === cachedEEMat.prototype &&
-          ((eeMat.args === cachedEEMat.args) === null || (cachedEEMat.args && eeMat.args?.equals(cachedEEMat.args)))
+          ((eeMat.args === cachedEEMat.args && eeMat.args === null) ||
+            (cachedEEMat.args && eeMat.args?.equals(cachedEEMat.args)))
         )
       } else return material.equals(cachedMaterial)
     })

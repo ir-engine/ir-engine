@@ -288,7 +288,7 @@ describe('EditorControlFunctions', () => {
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
-        [`elements.${1}.position`]: {
+        [`elements.${1}.position` as string]: {
           x: 10,
           y: 10,
           z: 10

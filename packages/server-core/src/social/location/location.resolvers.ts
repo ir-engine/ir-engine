@@ -28,12 +28,12 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { projectPath, staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import {
-  locationAuthorizedUserPath,
-  LocationAuthorizedUserType
+  LocationAuthorizedUserType,
+  locationAuthorizedUserPath
 } from '@etherealengine/common/src/schemas/social/location-authorized-user.schema'
-import { locationBanPath, LocationBanType } from '@etherealengine/common/src/schemas/social/location-ban.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/common/src/schemas/social/location-ban.schema'
 import { locationSettingPath } from '@etherealengine/common/src/schemas/social/location-setting.schema'
 import { LocationID, LocationQuery, LocationType } from '@etherealengine/common/src/schemas/social/location.schema'
 import { UserID } from '@etherealengine/common/src/schemas/user/user.schema'
@@ -70,7 +70,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
     })) as LocationBanType[]
   }),
   sceneAsset: virtual(async (location, context) => {
-    return context.app.service(assetPath).get(location.sceneId)
+    return context.app.service(staticResourcePath).get(location.sceneId)
   }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
@@ -90,8 +90,11 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
   },
   projectId: async (value, location, context: HookContext<LocationService>) => {
     try {
-      const asset = await context.app.service(assetPath).get(location.sceneId)
-      return asset.projectId
+      const asset = await context.app.service(staticResourcePath).get(location.sceneId)
+      if (!asset.project) throw new BadRequest('Error populating projectId into location')
+      const project = await context.app.service(projectPath).find({ query: { name: asset.project } })
+      if (!project || project.total === 0) throw new BadRequest('Error populating projectId into location')
+      return project.data[0].id
     } catch (error) {
       throw new BadRequest('Error populating projectId into location')
     }
