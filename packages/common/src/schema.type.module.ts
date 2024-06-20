@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 export type * from './schemas/analytics/analytics.schema'
 export type * from './schemas/assets/asset-library.schema'
-export type * from './schemas/assets/asset.schema'
 export type * from './schemas/assets/model-transform.schema'
 export type * from './schemas/bot/bot-command.schema'
 export type * from './schemas/bot/bot.schema'
@@ -62,7 +61,6 @@ export type * from './schemas/projects/project-permission-type.schema'
 export type * from './schemas/projects/project-permission.schema'
 export type * from './schemas/projects/project.schema'
 export type * from './schemas/projects/projects.schema'
-export type * from './schemas/projects/scene-data.schema'
 export type * from './schemas/recording/recording-resource-upload.schema'
 export type * from './schemas/recording/recording-resource.schema'
 export type * from './schemas/recording/recording.schema'
@@ -262,8 +260,6 @@ export const projectPath = 'project'
 
 export const projectsPath = 'projects'
 
-export const assetPath = 'asset'
-
 export const builderInfoPath = 'builder-info'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
@@ -275,8 +271,6 @@ export const botCommandPath = 'bot-command'
 export const projectPermissionTypePath = 'project-permission-type'
 
 export const projectDestinationCheckPath = 'project-destination-check'
-
-export const sceneDataPath = 'scene-data'
 
 export const spawnPointPath = 'spawn-point'
 
@@ -301,3 +295,5 @@ export const migrationsInfoPath = 'knex_migrations'
 export const uploadAssetPath = 'upload-asset'
 
 export const invalidationPath = 'invalidation'
+
+export const imageConvertPath = 'image-convert'

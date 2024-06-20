@@ -23,11 +23,11 @@ import { useTranslation } from 'react-i18next'
 
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import {
-  assetPath,
   LocationData,
   LocationID,
   locationPath,
-  LocationType
+  LocationType,
+  staticResourcePath
 } from '@etherealengine/common/src/schema.type.module'
 import { useHookstate } from '@etherealengine/hyperflux'
 import { useFind, useMutation } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -65,7 +65,7 @@ export default function AddEditLocationModal({ location }: { location?: Location
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
 
-  const scenes = useFind(assetPath, {
+  const scenes = useFind(staticResourcePath, {
     query: {
       paginate: false
     }
@@ -160,8 +160,8 @@ export default function AddEditLocationModal({ location }: { location?: Location
               : [
                   { value: '', label: t('admin:components.location.selectScene'), disabled: true },
                   ...scenes.data.map((scene) => {
-                    const project = scene.projectName
-                    const name = scene.assetURL.split('/').pop()!.split('.').at(0)!
+                    const project = scene.project
+                    const name = scene.key.split('/').pop()!.split('.').at(0)!
                     return {
                       label: `${name} (${project})`,
                       value: scene.id

@@ -368,7 +368,7 @@ const AssetPanel = () => {
     const staticResourcesFindApi = () => {
       const query = {
         key: {
-          $like: `%${searchText.value}%` || undefined
+          $like: `%${searchText.value}%`
         },
         $sort: { mimeType: 1 },
         $limit: 10000
