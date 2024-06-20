@@ -63,18 +63,37 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
   }
 }
 
+/**
+ * the first few characters of resources hashes are appended as a version identifier to allow for cache busting
+ */
+
 export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
   {
     createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
     updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt)),
     url: virtual(async (staticResource, context) => {
       const storageProvider = getStorageProvider()
-      return storageProvider.getCachedURL(staticResource.key, context.params.isInternal)
+      return (
+        storageProvider.getCachedURL(staticResource.key, context.params.isInternal) +
+        '?hash=' +
+        staticResource.hash.slice(0, 6)
+      )
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
       if (!staticResource.thumbnailKey) return
       const storageProvider = getStorageProvider()
-      return storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal)
+      /** @todo optimize this */
+      const thumbnailStaticResource = await context.app.service('static-resource').find({
+        query: {
+          key: staticResource.thumbnailKey
+        }
+      })
+      if (!thumbnailStaticResource.data.length) return
+      return (
+        storageProvider.getCachedURL(staticResource.thumbnailKey, context.params.isInternal) +
+        '?hash=' +
+        thumbnailStaticResource.data[0].hash.slice(0, 6)
+      )
     })
   },
   {
