@@ -52,7 +52,10 @@ import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
+import { EntityUUID } from '@etherealengine/ecs'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import 'rc-dock/dist/rc-dock.css'
+import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import './Editor2Container.css'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
@@ -121,6 +124,8 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => PopoverState.showPopupover(<SaveSceneDialog />))
 
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
   useEffect(() => {
     const scene = sceneQuery[0]
     if (!scene) return
@@ -128,7 +133,8 @@ const EditorContainer = () => {
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-  }, [sceneQuery[0]?.key])
+    return setCurrentEditorScene(sceneQuery[0].url, sceneAssetID.value as EntityUUID)
+  }, [viewerEntity, sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {

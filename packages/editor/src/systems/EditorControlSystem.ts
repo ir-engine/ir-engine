@@ -26,13 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { EntityUUID, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
+import { PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
+  removeComponent,
   setComponent
 } from '@etherealengine/ecs/src/ComponentFunctions'
 import { Engine } from '@etherealengine/ecs/src/Engine'
@@ -58,13 +59,11 @@ import {
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
-import React from 'react'
 import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
 import {
   setTransformMode,
   toggleSnapMode,
@@ -308,18 +307,9 @@ const execute = () => {
   }
 }
 
-const EditorControlsReactor = () => {
-  useEffect(() => {
-    const viewerEntity = getState(EngineState).viewerEntity
-    // set the active orbit camera to the main camera
-    setComponent(viewerEntity, CameraOrbitComponent)
-    setComponent(viewerEntity, InputComponent)
-  }, [])
-  return null
-}
+const EditorControlsReactor = () => {}
 
 const reactor = () => {
-  const { sceneAssetID, scenePath } = useMutableState(EditorState)
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
 
@@ -343,13 +333,19 @@ const reactor = () => {
   const viewerEntity = useMutableState(EngineState).viewerEntity.value
 
   useEffect(() => {
-    if (!viewerEntity || !scenePath.value || !sceneAssetID.value) return
-    return setCurrentEditorScene(scenePath.value, sceneAssetID.value as EntityUUID)
-  }, [viewerEntity, scenePath.value, sceneAssetID.value])
+    if (!viewerEntity) return
 
-  if (!viewerEntity) return null
+    // set the active orbit camera to the main camera
+    setComponent(viewerEntity, CameraOrbitComponent)
+    setComponent(viewerEntity, InputComponent)
 
-  return <EditorControlsReactor />
+    return () => {
+      removeComponent(viewerEntity, CameraOrbitComponent)
+      removeComponent(viewerEntity, InputComponent)
+    }
+  }, [viewerEntity])
+
+  return null
 }
 
 export const EditorControlSystem = defineSystem({
