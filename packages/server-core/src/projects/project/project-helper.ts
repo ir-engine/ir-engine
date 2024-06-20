@@ -1686,7 +1686,7 @@ export const uploadLocalProjectToProvider = async (
   const resourcesJsonPath = path.join(projectRootPath, 'resources.json')
 
   const filteredFilesInProjectFolder = getFilesRecursive(projectRootPath).filter(
-    (file) => !file.includes(`projects/${projectName}/.git/`) && !file.includes(`projects/${projectName}/thumbnails/`)
+    (file) => !file.includes(`projects/${projectName}/.git/`)
   )
 
   const results = [] as (string | null)[]
