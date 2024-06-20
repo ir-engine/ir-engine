@@ -335,7 +335,6 @@ const ProfileModal = ({ user }) => {
 }
 
 export const Profile = ({ user }) => {
-  console.log(user)
   const { avatar } = user
   const anchorEl = useHookstate<HTMLElement | null>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
