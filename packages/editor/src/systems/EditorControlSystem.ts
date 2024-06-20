@@ -79,8 +79,8 @@ import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 
-const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
-let primaryClickAccum = 0
+// const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
+// let primaryClickAccum = 0
 
 const onKeyB = () => {
   getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
@@ -306,8 +306,6 @@ const execute = () => {
     }
   }
 }
-
-const EditorControlsReactor = () => {}
 
 const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
