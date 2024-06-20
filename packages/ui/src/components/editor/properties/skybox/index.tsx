@@ -191,7 +191,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
       <ColorInput
         value={skyboxComponent.backgroundColor.value}
         onChange={updateProperty(SkyboxComponent, 'backgroundColor')}
-        //onRelease={commitProperty(SkyboxComponent, 'backgroundColor')}
+        onRelease={commitProperty(SkyboxComponent, 'backgroundColor')}
       />
     </InputGroup>
   )
