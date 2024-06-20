@@ -147,9 +147,13 @@ export const RigidBodyComponent = defineComponent({
       Physics.setEnabledRotations(entity, [value, value, value])
     }, [component.allowRolling.value])
 
+    /**
+     * @todo Should these be three useffects instead?
+     *       It wasn't triggering with just one, because the array reference never changed
+     */
     useImmediateEffect(() => {
       Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
-    }, [component.enabledRotations])
+    }, [component.enabledRotations[0].value, component.enabledRotations[1].value, component.enabledRotations[2].value])
 
     return null
   }
