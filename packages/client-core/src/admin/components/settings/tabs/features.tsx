@@ -73,7 +73,7 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
       ]
       displayedFeatures.set(updatedFeatures)
     }
-  }, [featureFlagSettings])
+  }, [featureFlagSettings.data])
 
   return (
     <Accordion

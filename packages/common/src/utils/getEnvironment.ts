@@ -45,7 +45,7 @@ const isJsDom = () =>
   navigator.userAgent.includes('Node.js') ||
   navigator.userAgent.includes('jsdom')
 
-export { isBrowser, isWebWorker, isClient, isJsDom }
+export { isBrowser, isClient, isJsDom, isWebWorker }
 
 // ==== //
 

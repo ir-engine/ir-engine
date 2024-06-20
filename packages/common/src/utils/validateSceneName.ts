@@ -26,12 +26,14 @@ Ethereal Engine. All Rights Reserved.
 // eslint-disable-next-line no-control-regex
 const invalidFileNameRegex = /[_<>:"/\\|?*\u0000-\u001F]/g
 const windowsReservedNameRegex = /^(con|prn|aux|nul|com\d|lpt\d)$/i
+const validSceneNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9_\-\s]{1,62}[a-zA-Z0-9_\-]$/
 
 export default function isValidSceneName(sceneName: string) {
   return (
     sceneName.length >= 3 &&
     sceneName.length <= 64 &&
     !invalidFileNameRegex.test(sceneName) &&
-    !windowsReservedNameRegex.test(sceneName)
+    !windowsReservedNameRegex.test(sceneName) &&
+    validSceneNameRegex.test(sceneName)
   )
 }

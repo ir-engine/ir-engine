@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import type { Knex } from 'knex'
 
 import { projectPath } from '@etherealengine/common/src/schema.type.module'
-import { assetPath } from '@etherealengine/common/src/schemas/assets/asset.schema'
+
+export const assetPath = 'asset'
 
 /**
  * @param { import("knex").Knex } knex
