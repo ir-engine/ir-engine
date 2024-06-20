@@ -264,7 +264,7 @@ export class FileBrowserService
       }
     }
 
-    if (data.type !== 'scene') validateSceneName(data.path)
+    if (data.type === 'scene') validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
     if (data.unique) {
