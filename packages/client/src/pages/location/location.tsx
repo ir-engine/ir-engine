@@ -29,7 +29,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
-import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
 import LocationPage from '@etherealengine/client-core/src/world/Location'
 
 const LocationRoutes = () => {

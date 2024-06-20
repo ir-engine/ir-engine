@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getComponent } from '@etherealengine/ecs'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
+import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
@@ -33,12 +37,22 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     const parent = ref.current
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    const originalParent = canvas.parentElement
+    console.log(originalParent, parent, canvas)
     initializeSpatialEngine(canvas)
     parent.appendChild(canvas)
 
+    const observer = new ResizeObserver(() => {
+      getComponent(getState(EngineState).viewerEntity, RendererComponent).needsResize = true
+    })
+
+    observer.observe(ref.current)
+
     return () => {
       destroySpatialEngine()
+      observer.disconnect()
       parent.removeChild(canvas)
+      originalParent?.appendChild(canvas)
     }
   }, [ref.current])
 }

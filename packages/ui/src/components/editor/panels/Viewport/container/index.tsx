@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { Engine, getComponent } from '@etherealengine/ecs'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useEngineCanvas'
 import { SceneElementType } from '@etherealengine/editor/src/components/element/ElementList'
 import { ItemTypes, SupportedFileTypes } from '@etherealengine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@etherealengine/editor/src/functions/EditorControlFunctions'
@@ -33,8 +33,7 @@ import { getCursorSpawnPosition } from '@etherealengine/editor/src/functions/scr
 import { EditorState } from '@etherealengine/editor/src/services/EditorServices'
 import { useMutableState } from '@etherealengine/hyperflux'
 import { TransformComponent } from '@etherealengine/spatial'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -69,25 +68,6 @@ const ViewportDnD = () => {
     }
   })
 
-  useEffect(() => {
-    const viewportPanelNode = document.getElementById('viewport-panel')
-    if (!viewportPanelNode) return
-
-    const canvas = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement
-    viewportPanelNode.appendChild(canvas)
-
-    getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-
-    const observer = new ResizeObserver(() => {
-      getComponent(Engine.instance.viewerEntity, RendererComponent).needsResize = true
-    })
-
-    observer.observe(viewportPanelNode)
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
-
   return (
     <div
       id="viewport-panel"
@@ -105,6 +85,11 @@ const ViewPortPanelContainer = () => {
   const sceneName = useMutableState(EditorState).sceneName.value
   const clientSettingState = useMutableState(AdminClientSettingsState)
   const [clientSetting] = clientSettingState?.client?.value || []
+
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEngineCanvas(ref)
+
   return (
     <div className="relative z-30 flex h-full w-full flex-col bg-theme-surface-main">
       <div className="flex gap-1 p-1">
@@ -117,6 +102,7 @@ const ViewPortPanelContainer = () => {
         <PlayModeTool />
       </div>
       {sceneName ? <GizmoTool /> : null}
+      {/* canvas to render the world to, should take up full space */}
       {sceneName ? (
         <ViewportDnD />
       ) : (
@@ -125,6 +111,7 @@ const ViewPortPanelContainer = () => {
           <Text className="text-center">{t('editor:selectSceneMsg')}</Text>
         </div>
       )}
+      <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
     </div>
   )
 }
