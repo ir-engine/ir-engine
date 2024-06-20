@@ -140,8 +140,12 @@ export const RigidBodyComponent = defineComponent({
     }, [component.ccd])
 
     useImmediateEffect(() => {
-      Physics.lockRotations(entity, !component.allowRolling.value)
-    }, [component.allowRolling])
+      const value = component.allowRolling.value
+      /**
+       * @todo Change this back to `Physics.lockRotations( entity, !value )` when we update to Rapier >= 0.12.0
+       * https://github.com/dimforge/rapier.js/issues/282  */
+      Physics.setEnabledRotations(entity, [value, value, value])
+    }, [component.allowRolling.value])
 
     useImmediateEffect(() => {
       Physics.setEnabledRotations(entity, component.enabledRotations.value as [boolean, boolean, boolean])
