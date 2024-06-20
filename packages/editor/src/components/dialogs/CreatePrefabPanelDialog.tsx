@@ -84,7 +84,10 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       prefabName.set('prefab')
       prefabTag.set([])
       removeEntity(prefabEntity)
-      EditorControlFunctions.createObjectFromSceneElement([{ name: ModelComponent.jsonID, props: { src: fileURL } }])
+      EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: ModelComponent.jsonID, props: { src: fileURL } }],
+        parentEntity
+      )
     } catch (e) {
       console.error(e)
     }
