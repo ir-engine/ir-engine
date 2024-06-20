@@ -23,7 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { destroySpatialEngine, initializeSpatialEngine } from '@etherealengine/spatial/src/initializeEngine'
 import { useEffect } from 'react'
+
+export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
+  useEffect(() => {
+    if (!ref.current) return
+
+    const parent = ref.current
+
+    const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
+    initializeSpatialEngine(canvas)
+    parent.appendChild(canvas)
+
+    return () => {
+      destroySpatialEngine()
+      parent.removeChild(canvas)
+    }
+  }, [ref.current])
+}
 
 export const useRemoveEngineCanvas = () => {
   useEffect(() => {

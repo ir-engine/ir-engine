@@ -41,7 +41,6 @@ import healthcheck from 'koa-simple-healthcheck'
 import { pipeLogs } from '@etherealengine/common/src/logger'
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Engine } from '@etherealengine/ecs/src/Engine'
-import { initializeNode } from '@etherealengine/engine/src/initializeNode'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { createEngine } from '@etherealengine/spatial/src/initializeEngine'
@@ -187,9 +186,6 @@ export const createFeathersKoaApp = (
   }
 
   getMutableState(EngineState).publicPath.set(config.client.dist)
-  if (!appConfig.db.forceRefresh) {
-    initializeNode()
-  }
 
   const app = koa(feathers()) as Application
   Engine.instance.api = app

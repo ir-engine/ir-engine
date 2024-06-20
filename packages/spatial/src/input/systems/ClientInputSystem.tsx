@@ -223,8 +223,11 @@ const execute = () => {
     if (getComponent(eid, InputComponent).inputSources.length)
       getMutableComponent(eid, InputComponent).inputSources.set([])
 
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   // update 2D screen-based (driven by pointer api) input sources
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const camera = getComponent(viewerEntity, CameraComponent)
   for (const eid of pointers()) {
     const pointer = getComponent(eid, InputPointerComponent)
     const inputSource = getComponent(eid, InputSourceComponent)
@@ -720,9 +723,7 @@ const useXRInputSources = () => {
   }, [xrState.session])
 }
 
-const reactor = () => {
-  if (!isClient) return null
-
+const Reactor = () => {
   useNonSpatialInputSources()
   useGamepadInputSources()
   useXRInputSources()
@@ -763,7 +764,11 @@ export const ClientInputSystem = defineSystem({
   uuid: 'ee.engine.input.ClientInputSystem',
   insert: { before: InputSystemGroup },
   execute,
-  reactor
+  reactor: () => {
+    if (!isClient) return null
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })
 
 function updateMouseOrTouchDragging(emulatedInputSourceEntity: Entity, event: MouseEvent | TouchEvent) {

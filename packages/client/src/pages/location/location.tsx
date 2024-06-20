@@ -24,14 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense } from 'react'
+import React, { Suspense, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { useEngineInjection } from '@etherealengine/client-core/src/components/World/EngineHooks'
+import { useEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import LocationPage from '@etherealengine/client-core/src/world/Location'
 
 const LocationRoutes = () => {
+  const ref = useRef<HTMLElement>(document.body)
+  useEngineCanvas(ref)
+
   const projectsLoaded = useEngineInjection()
 
   if (!projectsLoaded) return <LoadingCircle message={t('common:loader.loadingProjects')} />

@@ -31,7 +31,6 @@ import {
   AnimationSystemGroup,
   defineQuery,
   defineSystem,
-  Engine,
   Entity,
   getComponent,
   getOptionalComponent,
@@ -42,6 +41,7 @@ import { NetworkState } from '@etherealengine/network'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { EngineState } from '../../EngineState'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -177,10 +177,16 @@ const execute = () => {
   const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirty)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
+  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
+  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
+
+  const viewerEntity = getState(EngineState).viewerEntity
+  if (!viewerEntity) return
+
   const cameraEntities = cameraQuery()
 
   for (const entity of cameraEntities) {
-    if (entity === Engine.instance.viewerEntity && xrFrame) continue
+    if (entity === viewerEntity && xrFrame) continue
 
     const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
@@ -191,11 +197,8 @@ const execute = () => {
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
 
-  const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
-  for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
-
-  const cameraPosition = getComponent(Engine.instance.viewerEntity, TransformComponent).position
-  const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+  const cameraPosition = getComponent(viewerEntity, TransformComponent).position
+  const camera = getComponent(viewerEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 

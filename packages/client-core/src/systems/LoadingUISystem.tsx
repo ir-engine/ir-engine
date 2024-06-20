@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity } from '@etherealengine/ecs'
+import { Entity, UndefinedEntity } from '@etherealengine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -69,6 +69,7 @@ import { XRUIComponent } from '@etherealengine/spatial/src/xrui/components/XRUIC
 import { ObjectFitFunctions } from '@etherealengine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { EngineState } from '@etherealengine/spatial/src/EngineState'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useRemoveEngineCanvas'
@@ -85,6 +86,20 @@ export const LoadingUISystemState = defineState({
   name: 'LoadingUISystemState',
   initial: () => {
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
+    return {
+      ui: null as null | ReturnType<typeof createLoaderDetailView>,
+      colors: {
+        main: '',
+        background: '',
+        alternate: ''
+      },
+      meshEntity: UndefinedEntity,
+      transition,
+      ready: false
+    }
+  },
+
+  createLoadingUI: () => {
     const ui = createLoaderDetailView()
     getMutableComponent(ui.entity, InputComponent).grow.set(false)
     setComponent(ui.entity, NameComponent, 'Loading XRUI')
@@ -117,17 +132,10 @@ export const LoadingUISystemState = defineState({
 
     getComponent(meshEntity, TransformComponent).scale.set(-1, 1, -1)
 
-    return {
+    getMutableState(LoadingUISystemState).merge({
       ui,
-      colors: {
-        main: '',
-        background: '',
-        alternate: ''
-      },
-      meshEntity,
-      transition,
-      ready: false
-    }
+      meshEntity
+    })
   }
 })
 
@@ -140,7 +148,12 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const state = useMutableState(LoadingUISystemState)
 
   useEffect(() => {
-    state.ui.get(NO_PROXY).state.progress.set(loadingProgress)
+    if (!state.ui.value) LoadingUISystemState.createLoadingUI()
+  }, [])
+
+  useEffect(() => {
+    const ui = state.ui.get(NO_PROXY)!
+    ui.state.progress.set(loadingProgress)
   }, [loadingProgress])
 
   /** Scene is loading */
@@ -160,7 +173,8 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    const xrui = getComponent(state.ui.entity.value, XRUIComponent)
+    const ui = state.ui.get(NO_PROXY)!
+    const xrui = getComponent(ui.entity!, XRUIComponent)
     const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
     if (!progressBar) return
 
@@ -261,7 +275,7 @@ const defaultColor = new Color()
 
 const execute = () => {
   const { transition, ui, meshEntity, colors, ready } = getState(LoadingUISystemState)
-  if (!transition) return
+  if (!ui) return
 
   const ecsState = getState(ECSState)
 
@@ -322,7 +336,7 @@ const execute = () => {
   setVisibleComponent(ui.entity, isReady)
 }
 
-const reactor = () => {
+const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
   const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const clientSettings = useHookstate(
@@ -353,5 +367,8 @@ export const LoadingUISystem = defineSystem({
   uuid: 'ee.client.LoadingUISystem',
   insert: { before: TransformSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!useMutableState(EngineState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })
