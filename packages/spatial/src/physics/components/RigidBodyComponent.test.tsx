@@ -27,6 +27,7 @@ import assert from 'assert'
 
 import { RigidBodyType, World } from '@dimforge/rapier3d-compat'
 import {
+  SystemDefinitions,
   UndefinedEntity,
   createEntity,
   destroyEngine,
@@ -38,9 +39,17 @@ import {
   setComponent
 } from '@etherealengine/ecs'
 import { getMutableState } from '@etherealengine/hyperflux'
-import { TransformComponent } from '../../SpatialModule'
+import { Vector3 } from 'three'
+import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
+import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
+import {
+  assertFloatApproxEq,
+  assertFloatApproxNotEq,
+  assertVecAllApproxNotEq,
+  assertVecApproxEq
+} from '../classes/Physics.test'
 import { PhysicsState } from '../state/PhysicsState'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
@@ -68,6 +77,19 @@ const RigidBodyComponentDefaults = {
   linearVelocity: 3,
   angularVelocity: 3,
   targetKinematicLerpMultiplier: 0
+}
+
+export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
+  assert.equal(A.length, B.length, err + ': Their lenght is not the same')
+  for (let id = 0; id < A.length && id < B.length; id++) {
+    assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same`)
+  }
+}
+
+export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
+  for (let id = 0; id < A.length && id < B.length; id++) {
+    assert.notDeepEqual(A[id], B[id], err)
+  }
 }
 
 function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
@@ -222,12 +244,18 @@ describe('RigidBodyComponent', () => {
       await Physics.load()
       physicsWorld = Physics.createWorld()
       physicsWorld!.timestep = 1 / 60
-      getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
+      const physicsState = getMutableState(PhysicsState)
+      physicsState.physicsWorld!.set(physicsWorld!)
+      physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainCollisions.set((val) => Physics.drainCollisionEventQueue(physicsWorld!))
+      /** @ts-ignore  @todo Remove ts-ignore. Hookstate interprets the closure type weirdly */
+      physicsState.drainContacts.set((val) => Physics.drainContactEventQueue(physicsWorld!))
 
       testEntity = createEntity()
       setComponent(testEntity, TransformComponent)
-      setComponent(testEntity, ColliderComponent)
       setComponent(testEntity, RigidBodyComponent)
+      setComponent(testEntity, ColliderComponent)
     })
 
     afterEach(() => {
@@ -235,6 +263,8 @@ describe('RigidBodyComponent', () => {
       physicsWorld = undefined
       return destroyEngine()
     })
+
+    const physicsSystemExecute = SystemDefinitions.get(PhysicsSystem)!.execute
 
     it('should create a RigidBody for the entity in the new PhysicsState.physicsWorld when the world is changed', () => {
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
@@ -316,41 +346,110 @@ describe('RigidBodyComponent', () => {
       assert.equal(afterECS, Expected)
     })
 
-    /**
-    // @todo how to check that rotations are actually locked?
-    // @todo Why are these not applying changes?
-    it("should lock/unlock rotations for the RigidBody on the API data when component.allowRolling changes", () => {
+    it('should lock/unlock rotations for the RigidBody on the API data when component.allowRolling changes', () => {
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+
       assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
       const TorqueImpulse = new Vector3(10, 20, 30)
       const body = Physics._Rigidbodies.get(testEntity)!
 
       // Defaults
-      const before = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      const one = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      const before = { x: one.x, y: one.y, z: one.z }
       assertVecApproxEq(before, Vector3_Zero, 3)
-      const Expected = !RigidBodyComponentDefaults.allowRolling 
-      assert.notEqual(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected)
+      const Expected = !RigidBodyComponentDefaults.allowRolling
+      assert.notEqual(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected) // Should still be the default
 
       // Locked
       setComponent(testEntity, RigidBodyComponent, { allowRolling: Expected })
       assert.equal(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected)
       body.applyTorqueImpulse(TorqueImpulse, false)
-      const after = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      physicsSystemExecute()
+      const two = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      const after = { x: two.x, y: two.y, z: two.z }
       assertVecApproxEq(before, after, 3)
 
       // Unlocked
       setComponent(testEntity, RigidBodyComponent, { allowRolling: !Expected })
       assert.equal(getComponent(testEntity, RigidBodyComponent).allowRolling, !Expected)
       body.applyTorqueImpulse(TorqueImpulse, false)
-      const unlocked = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      physicsSystemExecute()
+      const three = getComponent(testEntity, RigidBodyComponent).angularVelocity
+      const unlocked = { x: three.x, y: three.y, z: three.z }
       assertVecAllApproxNotEq(before, unlocked, 3)
     })
 
-    // @todo How to check that rotations are actually locked?
-    // @todo Why are these not applying changes?
-    it("should enable/disable rotations for each axis for the RigidBody on the API data when component.enabledRotations changes", () => {
-      assert.ok(RigidBodyComponent.reactorMap.get(testEntity)!.isRunning)
+    it('should enable/disable rotations for each axis for the RigidBody on the API data when component.enabledRotations changes', () => {
+      setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+
+      const reactor = RigidBodyComponent.reactorMap.get(testEntity)!
+      assert.ok(reactor.isRunning)
+      const TorqueImpulse = new Vector3(10, 20, 30)
+      const body = Physics._Rigidbodies.get(testEntity)!
+
+      // Defaults
+      const one = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxEq(one.x, Vector3_Zero.x)
+      assertFloatApproxEq(one.y, Vector3_Zero.y)
+      assertFloatApproxEq(one.z, Vector3_Zero.z)
+
+      // Locked
+      const AllLocked = [false, false, false] as [boolean, boolean, boolean]
+      assertArrayNotEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
+      setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllLocked })
+      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked)
+      reactor.run()
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      physicsSystemExecute()
+      const two = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxEq(one.x, two.x)
+      assertFloatApproxEq(one.y, two.y)
+      assertFloatApproxEq(one.z, two.z)
+
+      // Unlock X
+      const XUnlocked = [true, false, false] as [boolean, boolean, boolean]
+      setComponent(testEntity, RigidBodyComponent, { enabledRotations: XUnlocked })
+      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, XUnlocked)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      physicsSystemExecute()
+      const three = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxNotEq(two.x, three.x)
+      assertFloatApproxEq(two.y, three.y)
+      assertFloatApproxEq(two.z, three.z)
+
+      // Unlock Y
+      const YUnlocked = [false, true, false] as [boolean, boolean, boolean]
+      setComponent(testEntity, RigidBodyComponent, { enabledRotations: YUnlocked })
+      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, YUnlocked)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      physicsSystemExecute()
+      const four = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxEq(three.x, four.x)
+      assertFloatApproxNotEq(three.y, four.y)
+      assertFloatApproxEq(three.z, four.z)
+
+      // Unlock Z
+      const ZUnlocked = [false, false, true] as [boolean, boolean, boolean]
+      setComponent(testEntity, RigidBodyComponent, { enabledRotations: ZUnlocked })
+      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, ZUnlocked)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      physicsSystemExecute()
+      const five = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxEq(four.x, five.x)
+      assertFloatApproxEq(four.y, five.y)
+      assertFloatApproxNotEq(four.z, five.z)
+
+      // Unlock All
+      const AllUnlocked = [true, true, true] as [boolean, boolean, boolean]
+      setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllUnlocked })
+      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllUnlocked)
+      body.applyTorqueImpulse(TorqueImpulse, false)
+      physicsSystemExecute()
+      const six = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
+      assertFloatApproxNotEq(five.x, six.x)
+      assertFloatApproxNotEq(five.y, six.y)
+      assertFloatApproxNotEq(five.z, six.z)
     })
-    */
   }) // << reactor
 
   describe('getTagComponentForRigidBody', () => {
