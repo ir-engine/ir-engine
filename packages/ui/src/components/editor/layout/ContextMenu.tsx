@@ -48,8 +48,9 @@ export const ContextMenu = ({
   const panel = document.getElementById(panelId)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
-  const [positionY, setPositionY] = useState(0)
   const [positionX, setPositionX] = useState(0)
+  const [positionY, setPositionY] = useState(0)
+
   const [isScrollable, setIsScrollable] = useState(false)
   const parentRect = panel?.getBoundingClientRect()
 
@@ -105,7 +106,7 @@ export const ContextMenu = ({
         {open && anchorEl && (
           <div
             ref={menuRef}
-            className="absolute z-[200] rounded-lg bg-neutral-900 shadow-lg"
+            className="absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg"
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
