@@ -370,7 +370,7 @@ const AssetPanel = () => {
     const staticResourcesFindApi = () => {
       const query = {
         key: {
-          $like: `%${searchText.value}%` || undefined
+          $like: `%${searchText.value}%`
         },
         type: 'asset',
         project: projectName.value!,
