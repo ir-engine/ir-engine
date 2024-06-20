@@ -27,7 +27,32 @@ import { useEffect } from 'react'
 
 import { defineState, getMutableState, syncStateWithLocalStorage, useMutableState } from '@etherealengine/hyperflux'
 
-const lightTheme = {
+export interface CSSClasses {
+  'bg-primary': string
+  'bg-secondary': string
+  'bg-highlight': string
+  'bg-surface-main': string
+  'bg-surface-input': string
+  'bg-table-secondary': string
+  'bg-blue-secondary': string
+  'bg-banner-informative': string
+
+  'bg-tag-green': string
+  'bg-tag-lime': string
+  'bg-tag-red': string
+  'bg-tag-yellow': string
+
+  'text-primary': string
+  'text-secondary': string
+  'text-highlight': string
+  'icon-green': string
+  'icon-red': string
+
+  'border-primary': string
+  selection: string
+}
+
+const lightTheme: CSSClasses = {
   'bg-primary': '#F5F5F5',
   'bg-secondary': '#FFFFFF',
   'bg-highlight': '#D9D9D9',
@@ -52,7 +77,7 @@ const lightTheme = {
   selection: '#3166D0'
 }
 
-const darkTheme = {
+const darkTheme: CSSClasses = {
   'bg-primary': '#111113',
   'bg-secondary': '#000000',
   'bg-highlight': '#212226',
@@ -77,7 +102,7 @@ const darkTheme = {
   selection: '#1E4273'
 }
 
-const themes = {
+export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,
   dark: darkTheme,
   custom: {}
@@ -96,28 +121,28 @@ export const ThemeState = defineState({
   extension: syncStateWithLocalStorage(['theme'])
 })
 
+export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
+  if (themeClasses) {
+    const root = document.querySelector(':root') as any
+    for (const variable of Object.keys(themeClasses)) {
+      root.style.setProperty('--' + variable, themeClasses[variable])
+    }
+  }
+}
+
 export const useThemeProvider = () => {
   const themeState = useMutableState(ThemeState)
+  const themeClasses = themes[themeState.theme.value]
 
   useEffect(() => {
-    updateTheme()
+    updateTheme(themeClasses)
   }, [])
 
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
       html.setAttribute('data-theme', themeState.theme.value)
-      updateTheme()
+      updateTheme(themeClasses)
     }
   }, [themeState.theme])
-
-  const updateTheme = () => {
-    const theme = themes[themeState.theme.value]
-    if (theme) {
-      const root = document.querySelector(':root') as any
-      for (const variable of Object.keys(theme)) {
-        root.style.setProperty('--' + variable, theme[variable])
-      }
-    }
-  }
 }

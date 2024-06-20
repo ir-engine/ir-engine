@@ -119,12 +119,12 @@ const matchesMaterial = matches.guard((m): m is Material => matchesMaterialShape
 const matchesMeshMaterial = matches.guard((m): m is Material | Material[] => matchesMeshMaterialShape.test(m))
 
 export {
-  matchesVector3,
-  matchesQuaternion,
   matchesColor,
   matchesGeometry,
   matchesMaterial,
-  matchesMeshMaterial,
+  matchesMatrix3,
   matchesMatrix4,
-  matchesMatrix3
+  matchesMeshMaterial,
+  matchesQuaternion,
+  matchesVector3
 }

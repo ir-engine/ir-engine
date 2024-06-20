@@ -838,12 +838,12 @@ function computeMorphedAttributes(object) {
 }
 
 export {
+  computeMorphedAttributes,
   computeTangents,
-  mergeBufferGeometries,
-  mergeBufferAttributes,
-  interleaveAttributes,
   estimateBytesUsed,
+  interleaveAttributes,
+  mergeBufferAttributes,
+  mergeBufferGeometries,
   mergeVertices,
-  toTrianglesDrawMode,
-  computeMorphedAttributes
+  toTrianglesDrawMode
 }
