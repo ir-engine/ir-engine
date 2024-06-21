@@ -35,6 +35,7 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@etherealengine/ecs'
@@ -184,19 +185,19 @@ describe('TriggerSystem', () => {
   describe('execute', () => {
     const triggerSystemExecute = SystemDefinitions.get(TriggerSystem)!.execute
 
-    /**
-    // @todo Why is this still running when TriggerComponent is removed from triggerEntity?
-    it("should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)", () => {
+    it('should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)', () => {
       removeComponent(triggerEntity, TriggerComponent)
-      assert.equal(enterVal, EnterStartValue)
-      assert.equal(exitVal, ExitStartValue)
+      assert.equal(enterVal, EnterStartValue + 1) // +1 because the system runs once before this test
+      assert.equal(exitVal, ExitStartValue + 1)
       triggerSystemExecute()
-      assert.equal(exitVal, ExitStartValue)
-      assert.equal(enterVal, EnterStartValue)
+      assert.equal(enterVal, EnterStartValue + 1)
+      assert.equal(exitVal, ExitStartValue + 1)
     })
-    */
 
+    /**
+    // @todo How to access the hit.type value?
     // it("should run `triggerEnter` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_START", () => {})
     // it("should run `triggerExit` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_END", () => {})
+    */
   })
 })
