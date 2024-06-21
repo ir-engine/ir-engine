@@ -30,7 +30,7 @@ import { pathJoin } from '@etherealengine/common/src/utils/miscUtils'
 import { Engine, Entity, createEntity, getComponent, removeEntity, setComponent } from '@etherealengine/ecs'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { proxifyParentChildRelationships } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { EntityTreeComponent } from '@etherealengine/spatial/src/transform/components/EntityTree'
@@ -43,6 +43,7 @@ import { Scene } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import { HeirarchyTreeNodeType } from '../hierarchy/HeirarchyTreeWalker'
 
 export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeType }) {
@@ -84,10 +85,11 @@ export default function CreatePrefabPanel({ node }: { node?: HeirarchyTreeNodeTy
       prefabName.set('prefab')
       prefabTag.set([])
       removeEntity(prefabEntity)
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [{ name: ModelComponent.jsonID, props: { src: fileURL } }],
         parentEntity
       )
+      getMutableState(SelectionState).selectedEntities.set([entityUUID])
     } catch (e) {
       console.error(e)
     }
