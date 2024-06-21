@@ -416,7 +416,7 @@ const EditorContainer = () => {
     projectName.set(scene.project!)
     sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.key, scene.id as EntityUUID)
+    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
   }, [sceneQuery[0]?.key])
 
   useEffect(() => {

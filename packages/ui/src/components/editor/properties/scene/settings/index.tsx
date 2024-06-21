@@ -135,7 +135,10 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
 
     const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
 
-    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(loadingScreenURL)
+    const cleanURL = new URL(loadingScreenURL)
+    cleanURL.hash = ''
+    cleanURL.search = ''
+    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(cleanURL.href)
     state.merge({
       loadingScreenURL: null,
       loadingScreenImageData: null,

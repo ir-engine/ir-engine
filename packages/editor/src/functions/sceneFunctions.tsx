@@ -114,7 +114,10 @@ export const saveSceneGLTF = async (
 
   const [[newPath]] = await Promise.all(uploadProjectFiles(projectName, [file], [currentSceneDirectory]).promises)
 
-  const assetURL = newPath.replace(fileServer, '').slice(1) // remove leading slash
+  const newURL = new URL(newPath)
+  newURL.hash = ''
+  newURL.search = ''
+  const assetURL = newURL.href.replace(fileServer, '').slice(1) // remove leading slash
 
   if (sceneAssetID) {
     if (getState(EditorState).scenePath !== newPath) {
@@ -156,7 +159,7 @@ export const onNewScene = async (
       type: 'scene',
       body: templateURL,
       path: 'public/scenes/New-Scene.gltf',
-      thumbnailKey: templateURL.replace('.gltf', '.thumbnail.jpg'),
+      thumbnailKey: templateURL.replace(config.client.fileServer, '').replace('.gltf', '.thumbnail.jpg'),
       unique: true
     })
     if (!sceneData) return
@@ -174,7 +177,7 @@ export const onNewScene = async (
 }
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
-  const gltfEntity = GLTFSourceState.load(fileServer + '/' + sceneURL, uuid)
+  const gltfEntity = GLTFSourceState.load(sceneURL, uuid)
   getMutableComponent(Engine.instance.viewerEntity, SceneComponent).children.merge([gltfEntity])
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
