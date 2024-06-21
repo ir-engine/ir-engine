@@ -126,7 +126,8 @@ export default function MaterialLibraryPanel() {
                 const relativePath = pathJoin('assets', libraryName)
                 const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
                   binary: false,
-                  relativePath
+                  relativePath,
+                  projectName
                 })!) as { [key: string]: any }
                 const blob = [JSON.stringify(gltf)]
                 const file = new File(blob, libraryName)

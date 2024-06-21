@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 interface TooltipProps {
-  title: string
+  title: ReactNode
   direction?: 'top' | 'bottom' | 'left' | 'right'
   children: React.ReactElement
   className?: string

@@ -56,6 +56,7 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
           sketchPickerClassName="mt-2"
           value={groundPlaneComponent.color.value}
           onChange={updateProperty(GroundPlaneComponent, 'color')}
+          onRelease={commitProperty(GroundPlaneComponent, 'color')}
         />
       </InputGroup>
       <InputGroup
