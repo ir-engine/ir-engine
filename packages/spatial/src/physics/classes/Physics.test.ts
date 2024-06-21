@@ -93,7 +93,7 @@ export const boxDynamicConfig = {
   spawnScale: new Vector3(0.5, 0.25, 0.5)
 } as ColliderDescOptions
 
-describe('Physics', () => {
+describe('Physics : External API', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
@@ -355,7 +355,7 @@ describe('Physics', () => {
   })
 })
 
-describe('PhysicsAPI', () => {
+describe('Physics : Rapier->ECS API', () => {
   describe('createWorld', () => {
     beforeEach(async () => {
       createEngine()
@@ -373,14 +373,14 @@ describe('PhysicsAPI', () => {
 
     it('should create a world object with the default gravity when not specified', () => {
       const world = Physics.createWorld()
-      const gravity = new Vector3(0.0, -9.81, 0.0)
-      assert.deepEqual(world.gravity, gravity, 'The physics world was initialized with an unexpected gravity value')
+      const Expected = new Vector3(0.0, -9.81, 0.0)
+      assertVecApproxEq(world.gravity, Expected, 3)
     })
 
     it('should create a world object with a different gravity value when specified', () => {
       const expected = new Vector3(1.0, 2.0, 3.0)
       const world = Physics.createWorld(expected)
-      assert.deepEqual(world.gravity, expected, 'The physics world was initialized with an unexpected gravity value')
+      assertVecApproxEq(world.gravity, expected, 3)
     })
   })
 
@@ -445,13 +445,13 @@ describe('PhysicsAPI', () => {
       it('should create a body with no Linear Velocity', () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.linvel(), Vector3_Zero)
+        assertVecApproxEq(body.linvel(), Vector3_Zero, 3)
       })
 
       it('should create a body with no Angular Velocity', () => {
         Physics.createRigidBody(testEntity, physicsWorld!)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.angvel(), Vector3_Zero)
+        assertVecApproxEq(body.angvel(), Vector3_Zero, 3)
       })
 
       it("should store the entity in the body's userData property", () => {
@@ -613,7 +613,7 @@ describe('PhysicsAPI', () => {
       it("should set the body's Translation to the given Position", () => {
         Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.translation(), position)
+        assertVecApproxEq(body.translation(), position, 3)
       })
 
       it("should set the body's Rotation to the given value", () => {
@@ -625,13 +625,13 @@ describe('PhysicsAPI', () => {
       it("should set the body's Linear Velocity to the given value", () => {
         Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.linvel(), linVel)
+        assertVecApproxEq(body.linvel(), linVel, 3)
       })
 
       it("should set the body's Angular Velocity to the given value", () => {
         Physics.setRigidbodyPose(testEntity, position, rotation, linVel, angVel)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.angvel(), angVel)
+        assertVecApproxEq(body.angvel(), angVel, 3)
       })
     })
 
@@ -713,13 +713,13 @@ describe('PhysicsAPI', () => {
         const beforeBody = Physics._Rigidbodies.get(testEntity)
         assert.ok(beforeBody)
         const before = beforeBody.linvel()
-        assert.deepEqual(before, Vector3_Zero)
+        assertVecApproxEq(before, Vector3_Zero, 3)
         Physics.applyImpulse(testEntity, testImpulse)
         physicsSystemExecute()
         const afterBody = Physics._Rigidbodies.get(testEntity)
         assert.ok(afterBody)
         const after = afterBody.linvel()
-        assert.notDeepEqual(after, before)
+        assertVecAllApproxNotEq(after, before, 3)
       })
     })
 
@@ -731,15 +731,14 @@ describe('PhysicsAPI', () => {
         createEngine()
         await Physics.load()
         physicsWorld = Physics.createWorld()
-        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
         physicsWorld!.timestep = 1 / 60
+        getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
 
         // Create the entity
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
-        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
-        Physics.createRigidBody(testEntity, physicsWorld!)
+        setComponent(testEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -749,16 +748,23 @@ describe('PhysicsAPI', () => {
       })
 
       it('should lock rotations on the entity', () => {
-        const ExpectedValue = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+        const impulse = new Vector3(1, 2, 3)
         const body = Physics._Rigidbodies.get(testEntity)!
-        assert.notDeepEqual(body.rotation(), ExpectedValue)
+        const before = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
+        assertVecApproxEq(before, Vector3_Zero, 3)
+
+        body.applyTorqueImpulse(impulse, false)
+        const dummy = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
+        assertVecAllApproxNotEq(before, dummy, 3)
+
         Physics.lockRotations(testEntity, true)
-        body.setRotation(ExpectedValue, false)
-        assert.notDeepEqual(body.rotation(), ExpectedValue)
+        body.applyTorqueImpulse(impulse, false)
+        const after = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
+        assertVecApproxEq(dummy, after, 3)
       })
 
       /**
-      // @todo Fix this test
+      // @todo Fix this test when we update to Rapier >= v0.12
       it('should disable locked rotations on the entity', () => {
         const ExpectedValue = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const body = Physics._Rigidbodies.get(testEntity)!
@@ -775,7 +781,7 @@ describe('PhysicsAPI', () => {
         console.log(JSON.stringify(body.rotation()), "AFTEr")
         assertVecApproxEq(body.rotation(), ExpectedValue, 4)
       })
-    */
+      */
     })
 
     describe('setEnabledRotations', () => {
@@ -806,39 +812,45 @@ describe('PhysicsAPI', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const enabledRotation = [false, true, true] as [boolean, boolean, boolean]
         const body = Physics._Rigidbodies.get(testEntity)!
-        const before = body.rotation()
-        assert.deepEqual(before, Rotation_Zero)
+        const before = body.angvel()
+        assertVecApproxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(testEntity, enabledRotation)
-        Physics.applyImpulse(testEntity, testImpulse)
-        const after = body.rotation()
-        assert.equal(after.x, 0)
-        assert.equal(after.x, before.x)
+        body.applyTorqueImpulse(testImpulse, false)
+        physicsWorld!.step()
+        const after = body.angvel()
+        assertFloatApproxEq(after.x, before.x)
+        assertFloatApproxNotEq(after.y, before.y)
+        assertFloatApproxNotEq(after.z, before.z)
       })
 
       it('should disable rotations on the Y axis for the rigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
         const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
         const body = Physics._Rigidbodies.get(testEntity)!
-        const before = body.rotation()
-        assert.deepEqual(before, Rotation_Zero)
+        const before = body.angvel()
+        assertVecApproxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(testEntity, enabledRotation)
-        Physics.applyImpulse(testEntity, testImpulse)
-        const after = body.rotation()
-        assert.equal(after.y, 0)
-        assert.equal(after.y, before.y)
+        body.applyTorqueImpulse(testImpulse, false)
+        physicsWorld!.step()
+        const after = body.angvel()
+        assertFloatApproxNotEq(after.x, before.x)
+        assertFloatApproxEq(after.y, before.y)
+        assertFloatApproxNotEq(after.z, before.z)
       })
 
       it('should disable rotations on the Z axis for the rigidBody of the entity', () => {
         const testImpulse = new Vector3(1, 2, 3)
-        const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
+        const enabledRotation = [true, true, false] as [boolean, boolean, boolean]
         const body = Physics._Rigidbodies.get(testEntity)!
-        const before = body.rotation()
-        assert.deepEqual(before, Rotation_Zero)
+        const before = body.angvel()
+        assertVecApproxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(testEntity, enabledRotation)
-        Physics.applyImpulse(testEntity, testImpulse)
-        const after = body.rotation()
-        assert.equal(after.z, 0)
-        assert.equal(after.z, before.z)
+        body.applyTorqueImpulse(testImpulse, false)
+        physicsWorld!.step()
+        const after = body.angvel()
+        assertFloatApproxNotEq(after.x, before.x)
+        assertFloatApproxNotEq(after.y, before.y)
+        assertFloatApproxEq(after.z, before.z)
       })
     })
 
@@ -1890,7 +1902,7 @@ describe('PhysicsAPI', () => {
       it('should return (0,0,0) when the entity does not have a CharacterController', () => {
         const result = new Vector3(1, 2, 3)
         Physics.getComputedMovement(testEntity, result)
-        assert.deepEqual(result, Vector3_Zero)
+        assertVecApproxEq(result, Vector3_Zero, 3)
       })
 
       it("should return the same value contained in the `computedMovement` value of the entity's Character Controller", () => {
