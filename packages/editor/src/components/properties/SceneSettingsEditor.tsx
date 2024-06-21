@@ -47,7 +47,7 @@ import ColorInput from '../inputs/ColorInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import PropertyGroup from './PropertyGroup'
+import NodeEditor from './NodeEditor'
 import { commitProperties, commitProperty, EditorComponentType, updateProperty } from './Util'
 
 export const SceneSettingsEditor: EditorComponentType = (props) => {
@@ -83,7 +83,10 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
     const { promises } = uploadProjectFiles(projectName, [state.thumbnail.value], [currentSceneDirectory])
     const [[savedThumbnailURL]] = await Promise.all(promises)
-    commitProperty(SceneSettingsComponent, 'thumbnailURL')(savedThumbnailURL)
+    const cleanURL = new URL(savedThumbnailURL)
+    cleanURL.hash = ''
+    cleanURL.search = ''
+    commitProperty(SceneSettingsComponent, 'thumbnailURL')(cleanURL.href)
     state.merge({
       thumbnailURL: null,
       thumbnail: null,
@@ -129,7 +132,10 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
 
     const [[envmapURL], [loadingScreenURL]] = await Promise.all(promises.promises)
 
-    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(loadingScreenURL)
+    const cleanURL = new URL(loadingScreenURL)
+    cleanURL.hash = ''
+    cleanURL.search = ''
+    commitProperty(SceneSettingsComponent, 'loadingScreenURL')(cleanURL.href)
     state.merge({
       loadingScreenURL: null,
       loadingScreenImageData: null,
@@ -156,7 +162,9 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <PropertyGroup
+    <NodeEditor
+      {...props}
+      entity={props.entity}
       name={t('editor:properties.sceneSettings.name')}
       description={t('editor:properties.sceneSettings.description')}
     >
@@ -234,6 +242,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
         onChange={updateProperty(SceneSettingsComponent, 'sceneKillHeight')}
         onRelease={commitProperty(SceneSettingsComponent, 'sceneKillHeight')}
       />
-    </PropertyGroup>
+    </NodeEditor>
   )
 }

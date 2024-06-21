@@ -33,10 +33,10 @@ import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { apiJobPath } from '@etherealengine/common/src/schemas/cluster/api-job.schema'
-import { projectPath, ProjectType } from '@etherealengine/common/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/common/src/schemas/projects/project.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/common/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@etherealengine/common/src/utils/datetime-sql'
@@ -51,12 +51,13 @@ import {
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { createExecutorJob } from '../../k8s-job-helper'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { useGit } from '../../util/gitHelperFunctions'
-import { createExecutorJob, getProjectPushJobBody } from './project-helper'
+import { getProjectPushJobBody } from './project-helper'
 import { ProjectParams } from './project.class'
 
 // 30 MB. GitHub's documentation says that the blob upload cutoff is 50MB, but in testing some files that were around
@@ -66,9 +67,12 @@ const TOKEN_REGEX = /"RemoteAuth ([0-9a-zA-Z-_]+)"/
 const OID_REGEX = /oid sha256:([0-9a-fA-F]{64})/
 const PUSH_TIMEOUT = 60 * 10 //10 minute timeout on GitHub push jobs completing or failing
 
-export const getAuthenticatedRepo = async (token: string, repositoryPath: string) => {
+export const getAuthenticatedRepo = async (token: string, repositoryPath: string, isInstallationToken = false) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
+    if (isInstallationToken) {
+      return repositoryPath.replace('https://', `https://oauth2:${token}@`)
+    }
     const user = await getUser(token)
     return repositoryPath.replace('https://', `https://${user.data.login}:${token}@`)
   } catch (error) {
@@ -317,7 +321,7 @@ const uploadToRepo = async (
   filePaths: string[],
   org: string,
   repo: string,
-  branch = `master`,
+  branch = `main`,
   project: ProjectType,
   token: string,
   app: Application
@@ -415,7 +419,7 @@ const uploadToRepo = async (
     })
   }
 }
-export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'master') => {
+export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'main') => {
   try {
     await octo.repos.getBranch({ owner: org, repo, branch })
   } catch (err) {
@@ -628,7 +632,7 @@ const createNewCommit = async (
     })
   ).data
 
-const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `master`, commitSha: string) =>
+const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `main`, commitSha: string) =>
   octo.git.updateRef({
     owner: org,
     repo,

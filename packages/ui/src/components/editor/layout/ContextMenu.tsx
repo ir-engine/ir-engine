@@ -55,21 +55,34 @@ export const ContextMenu = ({
     if (open && menuRef.current) {
       const menuHeight = menuRef.current.offsetHeight
 
-      // The amount of space that the menu can fill based on the current anchor position
-      const spaceToBottomFromAnchor = window.innerHeight - anchorPosition.top
-      // We want to reposition the context menu whenever it will overflow the bottom of the screen
-      const shouldRepositionMenu = menuHeight > spaceToBottomFromAnchor
-
-      if (shouldRepositionMenu) {
-        // Align the menu bottom with the bottom of the viewport
-        positionY = window.innerHeight - menuHeight - (panel?.getBoundingClientRect().top || 0) + 30
+      // if the panel height is less than the menu height plus the menu pos y offset, we need to move the menu up
+      const offset = panel?.getBoundingClientRect().height! - (menuHeight + positionY)
+      if (offset < 0) {
+        positionY = positionY + offset
       }
     }
 
     return positionY
   }
 
-  const positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+  // Calculate the X position of the context menu based on the menu width and space to the right of the panel in order to avoid overflow
+  const calculatePositionX = () => {
+    let positionX = open ? anchorPosition.left - panel?.getBoundingClientRect().left! : 0
+
+    if (open && menuRef.current) {
+      const menuWidth = menuRef.current.offsetWidth
+
+      // if the panel width is less than the menu width plus the menu pos x offset, we need to move the menu left
+      const offset = panel?.getBoundingClientRect().width! - (menuWidth + positionX)
+      if (offset < 0) {
+        positionX = positionX + offset
+      }
+    }
+
+    return positionX
+  }
+
+  const [positionX, setPositionX] = useState(calculatePositionX())
   const [positionY, setPositionY] = useState(calculatePositionY())
 
   const [isScrollable, setIsScrollable] = useState(false)
@@ -84,6 +97,7 @@ export const ContextMenu = ({
       setIsScrollable(parentHeight <= menuHeight + 1)
 
       setPositionY(calculatePositionY())
+      setPositionX(calculatePositionX())
     }
   }, [open])
 
@@ -93,10 +107,11 @@ export const ContextMenu = ({
         {open && anchorEl && (
           <div
             ref={menuRef}
-            className="absolute z-[200] w-40 rounded-lg bg-neutral-900 shadow-lg"
+            className="absolute z-[200] w-fit min-w-44 rounded-lg bg-neutral-900 shadow-lg"
             style={{
               top: `${positionY}px`,
               left: `${positionX}px`,
+              maxWidth: `${panel?.getBoundingClientRect().width}px`,
               maxHeight: `${panel?.getBoundingClientRect().height}px`,
               overflowY: isScrollable ? 'auto' : 'visible'
             }}

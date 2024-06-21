@@ -55,17 +55,15 @@ import {
 import { State } from '@etherealengine/hyperflux'
 import { HiSparkles } from 'react-icons/hi'
 
-import NumericInputGroup from '@etherealengine/editor/src/components/inputs/NumericInputGroup'
-import ParameterInput from '@etherealengine/editor/src/components/inputs/ParameterInput'
 import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty
 } from '@etherealengine/editor/src/components/properties/Util'
-import { BooleanInput } from '@etherealengine/ui/src/components/editor/input/Boolean'
-import { Button } from '@mui/material'
+import Button from '../../../../primitives/tailwind/Button'
 import BehaviorInput from '../../input/Behavior'
+import BooleanInput from '../../input/Boolean'
 import ColorGenerator from '../../input/Generator/Color'
 import ValueGenerator from '../../input/Generator/Value'
 import InputGroup from '../../input/Group'
@@ -74,6 +72,7 @@ import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import NodeEditor from '../nodeEditor'
+import ParameterInput from '../parameter'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -186,7 +185,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.particle-system.name')}
       description={t('editor:properties.particle-system.description')}
-      icon={<HiSparkles />}
+      icon={<ParticleSystemNodeEditor.iconComponent />}
     >
       <h4 style={{ fontSize: '100%', fontWeight: 'normal' }}>Options</h4>
       <InputGroup name="Looping" label={t('editor:properties.particle-system.looping')}>
@@ -227,36 +226,26 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         element={(burst: State<BurstParametersJSON>) => {
           return (
             <div>
-              <NumericInputGroup
-                name="Time"
-                label={t('editor:properties.particle-system.burst.time')}
-                value={burst.time.value}
-                onChange={onSetState(burst.time)}
-              />
-              <NumericInputGroup
-                name="Count"
-                label={t('editor:properties.particle-system.burst.count')}
-                value={burst.count.value}
-                onChange={onSetState(burst.count)}
-              />
-              <NumericInputGroup
-                name="Cycle"
-                label={t('editor:properties.particle-system.burst.cycle')}
-                value={burst.cycle.value}
-                onChange={onSetState(burst.cycle)}
-              />
-              <NumericInputGroup
-                name="Interval"
-                label={t('editor:properties.particle-system.burst.interval')}
-                value={burst.interval.value}
-                onChange={onSetState(burst.interval)}
-              />
-              <NumericInputGroup
-                name="Probability"
-                label={t('editor:properties.particle-system.burst.probability')}
-                value={burst.probability.value}
-                onChange={onSetState(burst.probability)}
-              />
+              <InputGroup name="Time" label={t('editor:properties.particle-system.burst.time')}>
+                <NumericInput value={burst.time.value} onChange={onSetState(burst.time)} />
+              </InputGroup>
+
+              <InputGroup name="Count" label={t('editor:properties.particle-system.burst.count')}>
+                <NumericInput value={burst.count.value} onChange={onSetState(burst.count)} />
+              </InputGroup>
+
+              <InputGroup name="Cycle" label={t('editor:properties.particle-system.burst.cycle')}>
+                <NumericInput value={burst.cycle.value} onChange={onSetState(burst.cycle)} />
+              </InputGroup>
+
+              <InputGroup name="Interval" label={t('editor:properties.particle-system.burst.interval')}>
+                <NumericInput value={burst.interval.value} onChange={onSetState(burst.interval)} />
+              </InputGroup>
+
+              <InputGroup name="Probability" label={t('editor:properties.particle-system.burst.probability')}>
+                <NumericInput value={burst.probability.value} onChange={onSetState(burst.probability)} />
+              </InputGroup>
+
               <Button onClick={onRemoveBurst(burst as any)}>Remove Burst</Button>
             </div>
           )

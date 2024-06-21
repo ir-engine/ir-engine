@@ -43,7 +43,7 @@ const splineQuery = defineQuery([SplineComponent])
 
 export const getSpline = makeFunctionNodeDefinition({
   typeName: 'engine/spline/getSpline',
-  category: NodeCategory.Query,
+  category: NodeCategory.Engine,
   label: 'Get Spline Entity',
   in: {
     spline: (_) => {
@@ -76,7 +76,7 @@ const initialState = (): State => ({
 })
 export const addSplineTrack = makeAsyncNodeDefinition({
   typeName: 'engine/spline/addSplineTrack',
-  category: NodeCategory.Action,
+  category: NodeCategory.Engine,
   label: 'Add spline track',
   in: {
     flow: 'flow',

@@ -54,6 +54,7 @@ export interface SelectProps<T extends OptionValueType> {
   inputClassName?: string
   errorBorder?: boolean
   searchDisabled?: boolean
+  inputContainerClassName?: string
 }
 
 const Select = <T extends OptionValueType>({
@@ -72,7 +73,8 @@ const Select = <T extends OptionValueType>({
   inputVariant,
   inputClassName,
   errorBorder,
-  searchDisabled
+  searchDisabled,
+  inputContainerClassName
 }: SelectProps<T>) => {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
@@ -92,6 +94,7 @@ const Select = <T extends OptionValueType>({
   }, [options])
 
   const toggleDropdown = () => {
+    if (options.length === 0) return
     showOptions.set((v) => !v)
   }
 
@@ -148,9 +151,10 @@ const Select = <T extends OptionValueType>({
             onClick={toggleDropdown}
           />
         }
+        containerClassname={inputContainerClassName}
       />
       <div
-        className={`absolute z-10 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
+        className={`absolute z-30 mt-2 w-full rounded border border-theme-primary bg-theme-surface-main ${
           showOptions.value ? 'visible' : 'hidden'
         }`}
       >

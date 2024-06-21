@@ -30,7 +30,7 @@ import { DockLayout, DockMode, LayoutData, PanelData, TabData } from 'rc-dock'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { Entity, EntityUUID, getComponent, useComponent } from '@etherealengine/ecs'
 import { useQuery } from '@etherealengine/ecs/src/QueryFunctions'
 import { GLTFComponent } from '@etherealengine/engine/src/gltf/GLTFComponent'
@@ -286,7 +286,7 @@ const generateToolbarMenu = () => {
   return [
     {
       name: t('editor:menubar.newScene'),
-      action: onNewScene
+      action: () => onNewScene()
     },
     {
       name: t('editor:menubar.saveScene'),
@@ -371,7 +371,7 @@ const tabs = [
  */
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath, rootEntity } = useMutableState(EditorState)
-  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { assetURL: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -413,11 +413,11 @@ const EditorContainer = () => {
     const scene = sceneQuery[0]
     if (!scene) return
 
-    projectName.set(scene.projectName)
-    sceneName.set(scene.assetURL.split('/').pop() ?? null)
+    projectName.set(scene.project!)
+    sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.assetURL])
+    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {

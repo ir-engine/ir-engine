@@ -59,12 +59,11 @@ const Slider = ({ value, min = 0, max = 100, step = 1, width = 200, onChange, on
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
 
   const sliderStyle = {
-    '--tw-shadow': `-${width}px 0 0 ${width}px #214AA6 !important`,
     background: `linear-gradient(to right, #214AA6 ${gradientPercent}%, #214AA6 ${gradientPercent}%)`
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <input
         min={min}
         max={max}

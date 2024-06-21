@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 import { Vector3_Zero } from '@etherealengine/spatial/src/common/constants/MathConstants'
 import React from 'react'
-import { MdLink, MdLinkOff } from 'react-icons/md'
+import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Button from '../../../../primitives/tailwind/Button'
@@ -42,7 +42,7 @@ interface Vector3ScrubberProps {
   className?: string
 }
 
-export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ axis, onChange, onPointerUp, value, children, ...props }: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -59,7 +59,7 @@ export const Vector3Scrubber = ({ axis, onChange, value, children, ...props }: V
   props.className = twMerge(`text-${color}`)
   const content = children ?? axis?.toUpperCase()
   return (
-    <Scrubber onChange={onChange} value={value} {...props}>
+    <Scrubber onChange={onChange} onRelease={onPointerUp} value={value} {...props}>
       {content}
     </Scrubber>
   )
@@ -126,7 +126,12 @@ export const Vector3Input = ({
   return (
     <div className="flex flex-row flex-wrap justify-start gap-1.5">
       {uniformScaling && (
-        <Button startIcon={uniformEnabled.value ? <MdLink /> : <MdLinkOff />} onClick={onToggleUniform} />
+        <Button
+          variant="transparent"
+          startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
+          onClick={onToggleUniform}
+          className="p-0"
+        />
       )}
       <NumericInput
         {...rest}

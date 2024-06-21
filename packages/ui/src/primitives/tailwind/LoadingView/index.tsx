@@ -88,8 +88,4 @@ const LoadingView = ({
 
 LoadingView.displayName = 'LoadingView'
 
-LoadingView.defaultProps = {
-  message: 'Loading...'
-}
-
 export default LoadingView

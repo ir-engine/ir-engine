@@ -24,20 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three'
+import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import {
   defineComponent,
   Engine,
   Entity,
   getComponent,
-  getOptionalComponent,
-  InputSystemGroup,
+  removeComponent,
   setComponent,
   UndefinedEntity,
   useComponent,
-  useEntityContext,
-  useExecute
+  useEntityContext
 } from '@etherealengine/ecs'
 import {
   SnapMode,
@@ -47,14 +45,16 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { matches, useMutableState } from '@etherealengine/hyperflux'
-import { InputComponent } from '@etherealengine/spatial/src/input/components/InputComponent'
-import { InputSourceComponent } from '@etherealengine/spatial/src/input/components/InputSourceComponent'
+import { getState, matches, useMutableState } from '@etherealengine/hyperflux'
+import { InputComponent, InputExecutionOrder } from '@etherealengine/spatial/src/input/components/InputComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
-import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@etherealengine/spatial/src/transform/components/TransformComponent'
 
+import { InputState } from '@etherealengine/spatial/src/input/state/InputState'
+import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@etherealengine/spatial/src/renderer/constants/ObjectLayers'
+import { gizmoPlane } from '../constants/GizmoPresets'
 import { onPointerDown, onPointerHover, onPointerLost, onPointerMove, onPointerUp } from '../functions/gizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
@@ -126,60 +126,49 @@ export const TransformGizmoControlComponent = defineComponent({
     getComponent(Engine.instance.viewerEntity, RendererComponent).renderer.domElement.style.touchAction = 'none' // disable touch scroll , hmm the editor window isnt scrollable anyways
 
     const editorHelperState = useMutableState(EditorHelperState)
-    useExecute(
+    InputComponent.useExecuteWithInput(
       () => {
         const gizmoControlComponent = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
-        if (!gizmoControlComponent.enabled) return
-        if (!gizmoControlComponent.visualEntity) return
-        if (!gizmoControlComponent.planeEntity) return
+
+        if (!gizmoControlComponent.enabled || !gizmoControlComponent.visualEntity || !gizmoControlComponent.planeEntity)
+          return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-        const pickerInputSourceEntity = getComponent(visualComponent.picker[gizmoControlComponent.mode], InputComponent)
-          .inputSources[0]
-        const planeInputSourceEntity = getComponent(gizmoControlComponent.planeEntity, InputComponent).inputSources[0]
+        const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
 
-        if (pickerInputSourceEntity === undefined && planeInputSourceEntity === undefined) {
-          onPointerLost(gizmoControlEntity)
-          return
-        }
         onPointerHover(gizmoControlEntity)
 
-        const pickerButtons = getOptionalComponent(pickerInputSourceEntity, InputSourceComponent)?.buttons
-        const planeButtons = getOptionalComponent(planeInputSourceEntity, InputSourceComponent)?.buttons
+        const pickerButtons = InputComponent.getMergedButtons(pickerEntity)
+        const planeButtons = InputComponent.getMergedButtons(gizmoControlComponent.planeEntity)
 
-        if (!pickerButtons && !planeButtons) {
-          onPointerLost(gizmoControlEntity)
-          return
+        if (
+          (pickerButtons?.PrimaryClick?.pressed || planeButtons?.PrimaryClick?.pressed) &&
+          getState(InputState).capturingEntity === UndefinedEntity
+        ) {
+          InputState.setCapturingEntity(pickerEntity)
+          onPointerMove(gizmoControlEntity)
+
+          //pointer down
+          if (pickerButtons?.PrimaryClick?.down) {
+            setComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+            onPointerDown(gizmoControlEntity)
+          }
+
+          if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) {
+            onPointerUp(gizmoControlEntity)
+            onPointerLost(gizmoControlEntity)
+            onPointerLost(gizmoControlEntity)
+            removeComponent(gizmoControlComponent.planeEntity, VisibleComponent)
+          }
         }
-        if (!pickerButtons?.PrimaryClick && !planeButtons?.PrimaryClick) {
-          onPointerLost(gizmoControlEntity)
-          return
-        }
-
-        if (!pickerButtons?.PrimaryClick?.touched && !planeButtons?.PrimaryClick?.touched) return
-
-        onPointerMove(gizmoControlEntity)
-        if (planeButtons?.PrimaryClick?.up || pickerButtons?.PrimaryClick?.up) onPointerUp(gizmoControlEntity)
-        else if (pickerButtons?.PrimaryClick?.down) onPointerDown(gizmoControlEntity)
       },
-      { with: InputSystemGroup }
+      true,
+      InputExecutionOrder.Before
     )
 
     useEffect(() => {
-      const plane = new Mesh(
-        new PlaneGeometry(100000, 100000, 2, 2),
-        new MeshBasicMaterial({
-          visible: false,
-          wireframe: true,
-          side: DoubleSide,
-          transparent: true,
-          opacity: 0.1,
-          toneMapped: false
-        })
-      )
-
-      addObjectToGroup(gizmoControlComponent.planeEntity.value, plane)
-      plane.layers.set(ObjectLayers.TransformGizmo)
+      addObjectToGroup(gizmoControlComponent.planeEntity.value, gizmoPlane)
+      gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
       setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
       setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
     }, [])

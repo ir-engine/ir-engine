@@ -24,44 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
 import { t } from 'i18next'
+import { twMerge } from 'tailwind-merge'
 import NumericInput, { NumericInputProp } from '..'
 import { InfoTooltip } from '../../../layout/Tooltip'
-
-const stepperInputContainerStyle = {
-  display: 'flex',
-  flex: '1',
-  width: '100%',
-  height: '24px'
-}
-
-const stepperButtonStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'var(--toolbar)',
-  border: '1px solid var(--inputOutline)',
-  color: 'var(--textColor)',
-  width: '20px',
-  padding: '0',
-  margin: 0
-}
-
-const leftStepperButtonStyle = {
-  ...stepperButtonStyle,
-  borderTopLeftRadius: '4px',
-  borderBottomLeftRadius: '4px'
-}
-
-const rightStepperButtonStyle = {
-  ...stepperButtonStyle,
-  borderTopRightRadius: '4px',
-  borderBottomRightRadius: '4px'
-}
 
 export function NumericStepperInput({
   style,
@@ -85,16 +53,22 @@ export function NumericStepperInput({
   const onDecrement = () => onChange(value - mediumStep)
 
   return (
-    <div style={{ ...stepperInputContainerStyle, ...style }} className={className}>
+    <div className={twMerge('flex h-6 w-full flex-1', className)}>
       <InfoTooltip title={decrementTooltip} placement="bottom">
-        <button style={leftStepperButtonStyle} onClick={onDecrement}>
-          <ArrowLeftIcon fontSize="small" />
+        <button
+          className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-bl rounded-tl')}
+          onClick={onDecrement}
+        >
+          <FaChevronLeft fontSize="small" />
         </button>
       </InfoTooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
       <InfoTooltip title={incrementTooltip} placement="bottom">
-        <button style={rightStepperButtonStyle} onClick={onIncrement}>
-          <ArrowRightIcon fontSize="small" />
+        <button
+          className={twMerge('m-0 flex w-5 justify-center p-0 align-middle', 'rounded-br rounded-tr')}
+          onClick={onIncrement}
+        >
+          <FaChevronRight fontSize="small" />
         </button>
       </InfoTooltip>
     </div>

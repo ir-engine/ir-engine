@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { PropsWithChildren } from 'react'
 
+import { categoryColorMap } from '@etherealengine/ui/src/components/editor/panels/VisualScript/util/colors'
 import { NodeCategory, NodeSpecJSON } from '@etherealengine/visual-script'
-
-import { categoryColorMap, colors } from '../util/colors'
+import { colors } from '@mui/material'
 
 const nodeContainerStyle = {
   borderRadius: '0.25rem',

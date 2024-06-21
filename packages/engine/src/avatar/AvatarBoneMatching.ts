@@ -680,7 +680,6 @@ export default function avatarBoneMatching(asset: VRM | GLTF): VRM | GLTF {
     if (removeSuffix) boneName = boneName.slice(0, 9) + target.name.slice(10)
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      target.name = bone
       bones[bone] = { node: target } as VRMHumanBone
     }
   })

@@ -37,7 +37,7 @@ const makeInitialState = (): State => ({
 export const LifecycleOnStart = makeEventNodeDefinition({
   typeName: 'flow/lifecycle/onStart',
   label: 'On Start',
-  category: NodeCategory.Event,
+  category: NodeCategory.Flow,
   in: {},
   out: {
     flow: 'flow'

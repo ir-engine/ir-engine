@@ -28,12 +28,10 @@ Ethereal Engine. All Rights Reserved.
 import * as VolumetricNodes from '@etherealengine/engine/src/scene/components/VolumetricNodes'
 import {
   getNodeDescriptions,
-  GetSceneProperty,
   getStringConversionsForValueType,
   IRegistry,
   memo,
   NodeDefinition,
-  SetSceneProperty,
   ValueTypeMap
 } from '@etherealengine/visual-script'
 
@@ -98,8 +96,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     OnAxis,
     // async
     //switchScene.Description,
-    ...SetSceneProperty(engineValueTypeNames),
-    ...GetSceneProperty(engineValueTypeNames),
+    //...SetSceneProperty(engineValueTypeNames),
+    //...GetSceneProperty(engineValueTypeNames),
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap()),

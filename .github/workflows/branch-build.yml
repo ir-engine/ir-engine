@@ -97,6 +97,42 @@ jobs:
   test:
     needs: install-modules
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - client
+          - client-core
+          - common
+          - ecs
+          - editor
+          - engine
+          - hyperflux
+          - matchmaking
+          - network
+          - server
+          - spatial
+          - taskserver
+          - visual-script
+          - xrui
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - run: cd packages/${{ matrix.package }} && npm run test
+
+  test_docker:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - server-core
+          - instanceserver
     defaults:
       run:
         shell: bash
@@ -108,4 +144,4 @@ jobs:
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: git config --global user.email "you@example.com" && git config --global user.name "Your Name"
-      - run: npm run test
+      - run: cd packages/${{ matrix.package }} && npm run test

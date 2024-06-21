@@ -26,6 +26,7 @@
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
   "loadingScenes": "Loading Scenes",
+  "loadingScenesWithProgress": "Scene Loading... {{progress}}% ({{assetsLeft}} assets left)",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
@@ -35,7 +36,7 @@
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",
-    "quit": "Quit"
+    "quit": "Quit to Dashboard"
   },
   "errors": {
     "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",
@@ -66,7 +67,8 @@
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
-    "urlFetchError": "Failed to fetch \"{{url}}\""
+    "urlFetchError": "Failed to fetch \"{{url}}\"",
+    "invalidSceneName": "Provide a valid scene name"
   },
   "viewport": {
     "title": "Viewport",
@@ -268,6 +270,13 @@
         "lbl-callbackID": "Callback ID"
       }
     },
+    "lookAt": {
+      "name": "LookAt",
+      "description": "A component that makes the entity always face the user, or another entity",
+      "target": "Target Entity",
+      "xAxis": "X Axis",
+      "yAxis": "Y Axis"
+    },
     "grabbable": {
       "name": "Grabbable",
       "description": "A grabbable component that can be picked up and manipulated by the user"
@@ -294,7 +303,8 @@
       "lbl-currentTime": "Current Time",
       "lbl-isMusic": "Is Music",
       "lbl-size": "Size",
-      "seektime": "Start Time"
+      "seektime": "Start Time",
+      "lbl-mediaControls": "Media Controls"
     },
     "mesh": {
       "name": "Mesh",
@@ -314,7 +324,7 @@
         "path": "Path:",
         "prototype": "Prototype",
         "loading": "Loading...",
-        "addPlugin": "Add Plugin",
+        "setPlugin": "Set Plugin",
         "plugin": "Plugin"
       },
       "materialProperties": {
@@ -548,7 +558,7 @@
       "name": "Image",
       "description": "Dynamically loads an image.",
       "lbl-imgURL": "Image URL",
-      "lbl-transparency": "Transparency Mode",
+      "lbl-transparency": "Transparency",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
       "lbl-side": "Side",
@@ -820,6 +830,7 @@
       "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
+      "name": "Spot Light",
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
       "lbl-intensity": "Intensity",
@@ -856,7 +867,27 @@
       "lbl-fit-info": "How the video should be stretched within the given canvas size",
       "lbl-media-info": "An entity w/ a media component that should be sourced for display",
       "description": "Display a video",
-      "lbl-projection": "Projection"
+      "lbl-projection": "Projection",
+      "lbl-side": "Side",
+      "lbl-side-info": "The side of the video to display",
+      "lbl-use-alpha": "Use Alpha",
+      "lbl-use-alpha-info": "If true, the video will be rendered with an alpha channel",
+      "lbl-alpha-threshold": "Alpha Threshold",
+      "lbl-alpha-threshold-info": "The alpha value below which the video will be considered transparent",
+      "lbl-uv-offset": "UV Offset",
+      "lbl-uv-offset-info": "The offset of the video texture in UV space",
+      "lbl-uv-scale": "UV Scale",
+      "lbl-uv-scale-info": "The scale of the video texture in UV space",
+      "lbl-wrap-s": "Wrap S",
+      "lbl-wrap-s-info": "The wrap mode of the video texture in the S direction",
+      "lbl-wrap-t": "Wrap T",
+      "lbl-wrap-t-info": "The wrap mode of the video texture in the T direction",
+      "lbl-use-alpha-uv-transform": "Use Alpha UV Transform",
+      "lbl-use-alpha-uv-transform-info": "If true, the alpha channel will be transformed by its own UV transform",
+      "lbl-alpha-uv-offset": "Alpha UV Offset",
+      "lbl-alpha-uv-offset-info": "The offset of the alpha channel in UV space",
+      "lbl-alpha-uv-scale": "Alpha UV Scale",
+      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -866,7 +897,7 @@
     "spline": {
       "name": "Spline",
       "description": "Create and customize curves.",
-      "lbl-addNode": "Add node to curve"
+      "lbl-addNode": "Nodes"
     },
     "splinetrack": {
       "name": "Spline Track",
@@ -903,6 +934,7 @@
       "lbl-torusknot": "Torus Knot"
     },
     "portal": {
+      "name":"Portal",
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
       "description": "A Portal to teleport players to specified location",
@@ -1085,11 +1117,12 @@
       "openInNewTab": "Open URL in New Tab",
       "deleteAsset": "Delete Asset",
       "prefab": "Prefab",
-      "prefab-search": "Search Prefabs ...",
+      "prefabs": "Prefabs",
+      "prefabs-search": "Search Prefabs ...",
       "components": "Components",
       "components-search": "Search Components ...",
       "component-detail": {
-        "gltf-model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
@@ -1129,15 +1162,19 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
+      "renameFile": "Rename File",
+      "deleteFile": "Delete File",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
       "loadingFiles": "Loading files",
+      "loadingProjects": "Loading projects",
       "compress": "Compress",
       "convert": "Convert",
       "downloadProject": "Download Project",
       "uploadAssets": "Upload Assets",
       "search-placeholder": "Search folders",
+      "generatingThumbnails": "Generating Thumbnails ({{count}} remaining)",
       "fileProperties": {
         "name": "Name:",
         "type": "Type:",
@@ -1192,6 +1229,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
+    "lbl-createPrefab": "Create Prefab",
     "issues": "Issues",
     "copy-paste": {
       "no-hierarchy-nodes": "No hierarchy nodes found"
@@ -1349,5 +1387,15 @@
   "tabs": {
     "scene-assets": "Assets",
     "project-assets": "Project Assets"
+  },
+  "generatingThumbnails": {
+    "title": "Generating Thumbnails",
+    "amountRemaining": "{{count}} remaining"
+  },
+  "assetMetadata": {
+    "name": "Name",
+    "path": "Path",
+    "type": "Type",
+    "tags": "Tags"
   }
 }

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
-import { assetPath } from '@etherealengine/common/src/schema.type.module'
+import { staticResourcePath } from '@etherealengine/common/src/schema.type.module'
 import { EntityUUID } from '@etherealengine/ecs'
 import { getMutableState, useHookstate, useMutableState } from '@etherealengine/hyperflux'
 import { useFind } from '@etherealengine/spatial/src/common/functions/FeathersHooks'
@@ -37,7 +37,8 @@ import { MaterialsPanelTab } from '@etherealengine/ui/src/components/editor/pane
 import { PropertiesPanelTab } from '@etherealengine/ui/src/components/editor/panels/Properties'
 import { ScenePanelTab } from '@etherealengine/ui/src/components/editor/panels/Scenes'
 import { ViewportPanelTab } from '@etherealengine/ui/src/components/editor/panels/Viewport'
-import { EditorProgressBar } from '@etherealengine/ui/src/components/editor/util/EditorProgressBar'
+import { VisualScriptPanelTab } from '@etherealengine/ui/src/components/editor/panels/VisualScript'
+
 import ErrorDialog from '@etherealengine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@etherealengine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -50,7 +51,6 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import AssetDropZone from './assets/AssetDropZone'
 import { SaveSceneDialog } from './dialogs/SaveSceneDialog2'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
@@ -94,7 +94,7 @@ const defaultLayout: LayoutData = {
             tabs: [ViewportPanelTab]
           },
           {
-            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+            tabs: [ScenePanelTab, FilesPanelTab, AssetsPanelTab, VisualScriptPanelTab]
           }
         ]
       },
@@ -116,7 +116,7 @@ const defaultLayout: LayoutData = {
 
 const EditorContainer = () => {
   const { sceneAssetID, sceneName, projectName, scenePath } = useMutableState(EditorState)
-  const sceneQuery = useFind(assetPath, { query: { assetURL: scenePath.value ?? '' } }).data
+  const sceneQuery = useFind(staticResourcePath, { query: { key: scenePath.value ?? '' } }).data
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -128,11 +128,11 @@ const EditorContainer = () => {
     const scene = sceneQuery[0]
     if (!scene) return
 
-    projectName.set(scene.projectName)
-    sceneName.set(scene.assetURL.split('/').pop() ?? null)
+    projectName.set(scene.project!)
+    sceneName.set(scene.key.split('/').pop() ?? null)
     sceneAssetID.set(sceneQuery[0].id)
-    return setCurrentEditorScene(scene.assetURL, scene.id as EntityUUID)
-  }, [sceneQuery[0]?.assetURL])
+    return setCurrentEditorScene(scene.url, scene.id as EntityUUID)
+  }, [sceneQuery[0]?.key])
 
   useEffect(() => {
     return () => {
@@ -162,12 +162,10 @@ const EditorContainer = () => {
         className="flex flex-col bg-black"
         style={scenePath.value ? { background: 'transparent' } : {}}
       >
-        <EditorProgressBar />
         <DndWrapper id="editor-container">
           <DragLayer />
           <Toolbar />
           <div className="mt-1 flex overflow-hidden">
-            <AssetDropZone />
             <DockContainer>
               <DockLayout
                 ref={dockPanelRef}

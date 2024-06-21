@@ -47,12 +47,17 @@ import LightShadowProperties from '../shadowProperties'
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.entity, SpotLightComponent).value
+  const lightComponent = useComponent(props.entity, SpotLightComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.spotLight.description')} icon={<LuCircleDot />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.spotLight.name')}
+      description={t('editor:properties.spotLight.description')}
+      icon={<SpotLightNodeEditor.iconComponent />}
+    >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
+        <ColorInput value={lightComponent.color.value} onChange={updateProperty(SpotLightComponent, 'color')} />
       </InputGroup>
       <InputGroup name="Intensity" label={t('editor:properties.spotLight.lbl-intensity')}>
         <NumericInput
@@ -60,7 +65,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
-          value={lightComponent.intensity}
+          value={lightComponent.intensity.value}
           onChange={updateProperty(SpotLightComponent, 'intensity')}
           onRelease={commitProperty(SpotLightComponent, 'intensity')}
         />
@@ -71,7 +76,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={1}
           smallStep={0.01}
           mediumStep={0.1}
-          value={lightComponent.penumbra}
+          value={lightComponent.penumbra.value}
           onChange={updateProperty(SpotLightComponent, 'penumbra')}
           onRelease={commitProperty(SpotLightComponent, 'penumbra')}
         />
@@ -83,7 +88,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={_Math.radToDeg(lightComponent.angle)}
+          value={_Math.radToDeg(lightComponent.angle.value)}
           onChange={(value) => updateProperty(SpotLightComponent, 'angle')(_Math.degToRad(value))}
           onRelease={(value) => commitProperty(SpotLightComponent, 'angle')(_Math.degToRad(value))}
           unit="°"
@@ -95,7 +100,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           smallStep={0.1}
           mediumStep={1}
           largeStep={10}
-          value={lightComponent.range}
+          value={lightComponent.range.value}
           onChange={updateProperty(SpotLightComponent, 'range')}
           onRelease={commitProperty(SpotLightComponent, 'range')}
           unit="m"
@@ -107,7 +112,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           max={10}
           smallStep={0.1}
           mediumStep={1}
-          value={lightComponent.decay}
+          value={lightComponent.decay.value}
           onChange={updateProperty(SpotLightComponent, 'decay')}
           onRelease={commitProperty(SpotLightComponent, 'decay')}
         />

@@ -36,15 +36,15 @@ import { WebGLRendererSystem } from './WebGLRendererSystem'
 
 /** Components */
 export {
+  AmbientLightComponent,
+  /** Systems */
+  DebugRendererSystem,
   DirectionalLightComponent,
   HemisphereLightComponent,
   PointLightComponent,
+  RenderInfoSystem,
   SpotLightComponent,
   TransformComponent,
-  XRAnchorComponent,
-  /** Systems */
-  DebugRendererSystem,
-  RenderInfoSystem,
   WebGLRendererSystem,
-  AmbientLightComponent
+  XRAnchorComponent
 }
