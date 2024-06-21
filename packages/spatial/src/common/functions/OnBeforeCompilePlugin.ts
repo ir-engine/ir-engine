@@ -58,7 +58,6 @@ export type PluginType = PluginObjectType | typeof Material.prototype.onBeforeCo
 /**@deprecated Use setPlugin instead */
 export function addOBCPlugin(material: Material, plugin: PluginType): void {
   material.onBeforeCompile = plugin as any
-  console.log(material.onBeforeCompile)
   material.needsUpdate = true
 }
 
