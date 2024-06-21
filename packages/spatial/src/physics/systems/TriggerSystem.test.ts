@@ -28,6 +28,7 @@ import assert from 'assert'
 import { World } from '@dimforge/rapier3d-compat'
 import {
   EntityUUID,
+  SystemDefinitions,
   SystemUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -55,6 +56,8 @@ describe('TriggerSystem', () => {
       assert.equal(TriggerSystem, 'ee.engine.TriggerSystem' as SystemUUID)
     })
   })
+
+  const InvalidEntityUUID = 'dummyID-123456' as EntityUUID
 
   const EnterStartValue = 42 // Start testOnEnter at 42
   let enterVal = EnterStartValue
@@ -115,8 +118,28 @@ describe('TriggerSystem', () => {
   describe('triggerEnter', () => {
     const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
-      // it("... should only run if trigger.target defines the UUID of a valid entity", () => {})
-      // it("... should only run if trigger.onEnter callback has a value and is part of the target.CallbackComponent.callbacks map", () => {})
+      it('... should only run if trigger.target defines the UUID of a valid entity', () => {
+        setComponent(triggerEntity, TriggerComponent, {
+          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
+        })
+        assert.equal(enterVal, EnterStartValue)
+        triggerEnter(triggerEntity, targetEntity, Hit)
+        assert.equal(enterVal, EnterStartValue)
+      })
+
+      it('... should only run if trigger.onEnter callback has a value and is part of the target.CallbackComponent.callbacks map', () => {
+        const noEnterEntity = createEntity()
+        setComponent(noEnterEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setCallback(noEnterEntity, TestOnExitName, testOnExit)
+        const noEnterEntityUUID = getComponent(noEnterEntity, UUIDComponent)
+        setComponent(triggerEntity, TriggerComponent, {
+          triggers: [{ onEnter: null, onExit: TestOnExitName, target: noEnterEntityUUID }]
+        })
+        assert.equal(enterVal, EnterStartValue)
+        triggerEnter(triggerEntity, targetEntity, Hit)
+        assert.equal(enterVal, EnterStartValue)
+      })
+
       it('... should run the target.CallbackComponent.callbacks[trigger.onEnter] function', () => {
         assert.equal(enterVal, EnterStartValue)
         triggerEnter(triggerEntity, targetEntity, Hit)
@@ -128,9 +151,28 @@ describe('TriggerSystem', () => {
   describe('triggerExit', () => {
     const Hit = {} as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
-      // it("... should only run if trigger.target defines the UUID of a valid entity", () => {})
-      // it("... should only run if trigger.onExit callback has a value and is part of the target.CallbackComponent.callbacks map", () => {})
-      // @todo Why is this one failing, but not triggerEnter??
+      it('... should only run if trigger.target defines the UUID of a valid entity', () => {
+        setComponent(triggerEntity, TriggerComponent, {
+          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
+        })
+        assert.equal(exitVal, ExitStartValue)
+        triggerExit(triggerEntity, targetEntity, Hit)
+        assert.equal(exitVal, ExitStartValue)
+      })
+
+      it('... should only run if trigger.onExit callback has a value and is part of the target.CallbackComponent.callbacks map', () => {
+        const noExitEntity = createEntity()
+        setComponent(noExitEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setCallback(noExitEntity, TestOnExitName, testOnExit)
+        const noExitEntityUUID = getComponent(noExitEntity, UUIDComponent)
+        setComponent(triggerEntity, TriggerComponent, {
+          triggers: [{ onEnter: TestOnEnterName, onExit: null, target: noExitEntityUUID }]
+        })
+        assert.equal(exitVal, ExitStartValue)
+        triggerExit(triggerEntity, targetEntity, Hit)
+        assert.equal(exitVal, ExitStartValue)
+      })
+
       it('... should run the target.CallbackComponent.callbacks[trigger.onExit] function', () => {
         assert.equal(exitVal, ExitStartValue)
         triggerExit(triggerEntity, targetEntity, Hit)
@@ -140,7 +182,20 @@ describe('TriggerSystem', () => {
   })
 
   describe('execute', () => {
-    // it("should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)", () => {})
+    const triggerSystemExecute = SystemDefinitions.get(TriggerSystem)!.execute
+
+    /**
+    // @todo Why is this still running when TriggerComponent is removed from triggerEntity?
+    it("should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)", () => {
+      removeComponent(triggerEntity, TriggerComponent)
+      assert.equal(enterVal, EnterStartValue)
+      assert.equal(exitVal, ExitStartValue)
+      triggerSystemExecute()
+      assert.equal(exitVal, ExitStartValue)
+      assert.equal(enterVal, EnterStartValue)
+    })
+    */
+
     // it("should run `triggerEnter` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_START", () => {})
     // it("should run `triggerExit` for all entities that match the collisionQuery and have a hit.type === CollisionEvents.TRIGGER_END", () => {})
   })
