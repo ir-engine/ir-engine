@@ -77,7 +77,7 @@ const lightTheme: CSSClasses = {
   selection: '#3166D0'
 }
 
-const darkTheme = {
+const darkTheme: CSSClasses = {
   'bg-primary': '#111113',
   'bg-secondary': '#000000',
   'bg-highlight': '#212226',
@@ -103,7 +103,7 @@ const darkTheme = {
   selection: '#1E4273'
 }
 
-export const themes = {
+export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,
   dark: darkTheme,
   custom: {}
@@ -122,21 +122,12 @@ export const ThemeState = defineState({
   extension: syncStateWithLocalStorage(['theme'])
 })
 
-const updateTheme = (themeClasses) => {
+export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
   if (themeClasses) {
     const root = document.querySelector(':root') as any
-    for (const [variable, value] of Object.entries(themeClasses) as any) {
-      if (typeof value === 'object') {
-        for (const [shade, shadeValue] of Object.entries(value as any)) {
-          root.style.setProperty(`--${variable}-${shade}`, shadeValue)
-        }
-        // Set the default color without the shade
-        root.style.setProperty(`--${variable}`, value.DEFAULT)
-      } else {
-        root.style.setProperty(`--${variable}`, value)
-      }
+    for (const variable of Object.keys(themeClasses)) {
+      root.style.setProperty('--' + variable, themeClasses[variable])
     }
-    console.log(root.style)
   }
 }
 
