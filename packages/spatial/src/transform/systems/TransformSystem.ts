@@ -181,13 +181,10 @@ const execute = () => {
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
 
   const viewerEntity = getState(EngineState).viewerEntity
-  if (!viewerEntity) return
-
   const cameraEntities = cameraQuery()
 
   for (const entity of cameraEntities) {
-    if (entity === viewerEntity && xrFrame) continue
-
+    if (xrFrame && entity === viewerEntity) continue
     const camera = getComponent(entity, CameraComponent)
     camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
     const viewCamera = camera.cameras[0]
@@ -196,6 +193,8 @@ const execute = () => {
     viewCamera.projectionMatrix.copy(camera.projectionMatrix)
     viewCamera.projectionMatrixInverse.copy(camera.projectionMatrixInverse)
   }
+
+  if (!viewerEntity) return
 
   const cameraPosition = getComponent(viewerEntity, TransformComponent).position
   const camera = getComponent(viewerEntity, CameraComponent)

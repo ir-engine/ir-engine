@@ -24,13 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
-import { Group } from 'three'
+import { Group, WebGLRenderer } from 'three'
 
 import { isClient } from '@etherealengine/common/src/utils/getEnvironment'
-import { getComponent } from '@etherealengine/ecs'
 import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '@etherealengine/spatial/src/EngineState'
-import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
@@ -50,8 +48,9 @@ import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDraco
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
   ktxLoader.setTranscoderPath(getState(EngineState).publicPath + '/loader_decoders/basis/')
-  const viewerEntity = getState(EngineState).viewerEntity
-  ktxLoader.detectSupport(getComponent(viewerEntity, RendererComponent).renderer)
+  const renderer = new WebGLRenderer()
+  ktxLoader.detectSupport(renderer)
+  renderer.dispose()
   loader.setKTX2Loader(ktxLoader)
 }
 

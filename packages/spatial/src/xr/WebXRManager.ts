@@ -321,6 +321,12 @@ export function createWebXRManager(renderer: WebGLRenderer) {
     onAnimationFrameCallback = callback
   }
 
+  scope.dispose = function () {}
+  scope.addEventListener = function (type: string, listener: EventListener) {}
+  scope.hasEventListener = function (type: string, listener: EventListener) {}
+  scope.removeEventListener = function (type: string, listener: EventListener) {}
+  scope.dispatchEvent = function (event: Event) {}
+
   return scope
 }
 
