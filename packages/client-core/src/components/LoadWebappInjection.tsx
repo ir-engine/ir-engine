@@ -41,7 +41,8 @@ export const LoadWebappInjection = (props) => {
     })
   }, [])
 
-  if (!projectComponents.value) return <LoadingView title={t('common:loader.authenticating')} />
+  if (!projectComponents.value)
+    return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
 
   return (
     <>

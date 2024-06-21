@@ -223,4 +223,4 @@ const TablePagination = ({
 }
 
 export default Table
-export { TableHeaderCell, TableCell, TableRow, TableHeadRow, TableBody, TablePagination, Table }
+export { Table, TableBody, TableCell, TableHeadRow, TableHeaderCell, TablePagination, TableRow }

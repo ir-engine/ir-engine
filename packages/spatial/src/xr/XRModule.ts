@@ -36,9 +36,8 @@ import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
 import { XRSystem } from './XRSystem'
 
 export {
-  XR8System,
-  XRPersistentAnchorSystem,
   VPSSystem,
+  XR8System,
   XRAnchorSystem,
   XRCameraInputSystem,
   XRCameraUpdateSystem,
@@ -46,6 +45,7 @@ export {
   XRDetectedMeshSystem,
   XRHapticsSystem,
   XRLightProbeSystem,
+  XRPersistentAnchorSystem,
   XRScenePlacementShaderSystem,
   XRSystem
 }

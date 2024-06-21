@@ -48,10 +48,16 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
     const src = getOptionalComponent(materialEntity, SourceComponent)
     if (!src) return
     const resolvedPath = pathResolver().exec(src)!
-    let relativeSrc = resolvedPath[2]
-    relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    const projectDst = this.writer.options.projectName!
+    let projectSrc = this.writer.options.projectName!
+    let relativeSrc = './assets/'
+    if (resolvedPath) {
+      projectSrc = resolvedPath[1]
+      relativeSrc = resolvedPath[2]
+      relativeSrc = relativeSrc.replace(/\/[^\/]*$/, '')
+    }
     const dst = this.writer.options.relativePath!.replace(/\/[^\/]*$/, '')
-    const relativeBridge = relativePathTo(dst, relativeSrc)
+    const relativeBridge = relativePathTo(pathJoin(projectDst, dst), pathJoin(projectSrc, relativeSrc))
 
     for (const [field, value] of Object.entries(material)) {
       if (field === 'envMap') continue
@@ -61,8 +67,15 @@ export default class ImageRoutingExtension extends ExporterExtension implements 
         let oldURI = texture.userData.src
         if (!oldURI) {
           const resolved = pathResolver().exec(texture.image.src)!
+          const oldProject = resolved[1]
           const relativeOldURL = resolved[2]
-          oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          if (oldProject !== projectSrc) {
+            const srcWithProject = pathJoin(projectSrc, relativeSrc)
+            const dstWithProject = pathJoin(oldProject, relativeOldURL)
+            oldURI = relativePathTo(srcWithProject, dstWithProject)
+          } else {
+            oldURI = relativePathTo(relativeSrc, relativeOldURL)
+          }
         }
         const newURI = pathJoin(relativeBridge, oldURI)
         if (!texture.image.src) {

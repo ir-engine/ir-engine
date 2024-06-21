@@ -90,7 +90,6 @@ export const MaterialStateComponent = defineComponent({
       parameters: {} as { [key: string]: any },
       // all entities using this material. an undefined entity at index 0 is a fake user
       instances: [] as Entity[],
-      pluginEntities: [] as Entity[],
       prototypeEntity: UndefinedEntity as Entity
     }
   },
@@ -98,8 +97,6 @@ export const MaterialStateComponent = defineComponent({
     if (json?.material && component.material.value !== undefined) component.material.set(json.material)
     if (json?.parameters && component.parameters.value !== undefined) component.parameters.set(json.parameters)
     if (json?.instances && component.instances.value !== undefined) component.instances.set(json.instances)
-    if (json?.pluginEntities && component.pluginEntities.value !== undefined)
-      component.pluginEntities.set(json.pluginEntities)
     if (json?.prototypeEntity && component.prototypeEntity.value !== undefined)
       component.prototypeEntity.set(json.prototypeEntity)
   }

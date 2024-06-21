@@ -36,8 +36,8 @@ import { UserUISystem } from '../user/UserUISystem'
 import './ClientNetworkModule'
 
 export {
-  AvatarUISystem,
   AvatarSpawnSystem,
+  AvatarUISystem,
   LoadingUISystem,
   MediaControlSystem,
   UserUISystem,

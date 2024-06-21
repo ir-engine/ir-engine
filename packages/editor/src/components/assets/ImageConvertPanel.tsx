@@ -26,14 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 import React from 'react'
 
-import { API } from '@etherealengine/client-core/src/API'
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { State } from '@etherealengine/hyperflux'
 
+import { imageConvertPath } from '@etherealengine/common/src/schema.type.module'
+import { Engine } from '@etherealengine/ecs'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
+import { FileType } from './FileBrowser/FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 export default function ImageConvertPanel({
@@ -43,16 +45,18 @@ export default function ImageConvertPanel({
   onRefreshDirectory
 }: {
   openConvert: State<boolean>
-  fileProperties: State<any>
+  fileProperties: FileType
   convertProperties: State<ImageConvertParms>
   onRefreshDirectory: () => Promise<void>
 }) {
   function convertImage() {
-    const props = fileProperties.value
+    const props = fileProperties
     convertProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-    API.instance.client
-      .service('image-convert')
-      .create(convertProperties.value)
+    Engine.instance.api
+      .service(imageConvertPath)
+      .create({
+        ...convertProperties.value
+      })
       .then(() => {
         onRefreshDirectory()
         openConvert.set(false)
@@ -67,9 +71,9 @@ export default function ImageConvertPanel({
       classes={{ paper: styles.paperDialog }}
     >
       <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
-        {fileProperties.value?.name}
+        {fileProperties?.name}
       </DialogTitle>
-      <Typography>{fileProperties.value?.isFolder ? 'Directory' : 'File'}</Typography>
+      <Typography>{fileProperties?.isFolder ? 'Directory' : 'File'}</Typography>
       <Grid container spacing={3} style={{ width: '100%', margin: '2 rem' }}>
         <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
           <Typography className={styles.primatyText}>Convert</Typography>

@@ -120,7 +120,11 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     await uploadProjectFiles(projectName, [new File([envmap], filename)], [currentSceneDirectory]).promises[0]
   )[0]
 
-  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
+  const cleanURL = new URL(url)
+  cleanURL.hash = ''
+  cleanURL.search = ''
+
+  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: cleanURL.href })
 }
 
 /** @todo replace resolution with LODs */
