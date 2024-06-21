@@ -375,7 +375,7 @@
         "EE_uuid": "e7d6bfb1-6390-4a8b-b744-da83b059c2d3",
         "EE_visible": true,
         "EE_skybox": {
-          "backgroundColor": 13816530,
+          "backgroundColor": 3026478,
           "equirectangularPath": "",
           "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
           "backgroundType": 0,
@@ -474,7 +474,19 @@
           "convertToVRM": false
         },
         "EE_uuid": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a",
-        "EE_visible": true
+        "EE_visible": true,
+        "EE_shadow": {
+          "cast": true,
+          "receive": true
+        },
+        "EE_envmap": {
+          "type": "Skybox",
+          "envMapTextureType": "Equirectangular",
+          "envMapSourceColor": 4095,
+          "envMapSourceURL": "",
+          "envMapSourceEntityUUID": "",
+          "envMapIntensity": 1
+        }
       }
     }
   ],
