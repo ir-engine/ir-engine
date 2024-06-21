@@ -225,14 +225,14 @@ export function FileBrowserItem({
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
 
   const fileService = useMutation(fileBrowserPath)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       left: event.clientX + 2,
       top: event.clientY - 6
@@ -240,7 +240,7 @@ export function FileBrowserItem({
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
+    setAnchorEvent(null)
     setAnchorPosition({ left: 0, top: 0 })
   }
 
@@ -362,7 +362,7 @@ export function FileBrowserItem({
       )}
 
       <ContextMenu
-        anchorEl={anchorEl}
+        anchorEvent={anchorEvent}
         panelId={'file-browser-panel'}
         anchorPosition={anchorPosition}
         onClose={handleClose}

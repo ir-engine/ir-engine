@@ -42,13 +42,13 @@ interface MainMenuProp {
 
 const MainMenu = ({ commands, icon }: MainMenuProp) => {
   const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
 
   const onOpen = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
 
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       left: 0,
       top: event.currentTarget.offsetHeight + 6
@@ -56,7 +56,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
+    setAnchorEvent(null)
     setAnchorPosition({ left: 0, top: 0 })
   }
 
@@ -86,7 +86,7 @@ const MainMenu = ({ commands, icon }: MainMenuProp) => {
           onClick={(event) => onOpen(event as any)}
         />
       </div>
-      <ContextMenu anchorEl={anchorEl} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu anchorEvent={anchorEvent} panelId="menu" anchorPosition={anchorPosition} onClose={handleClose}>
         {commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>
     </>

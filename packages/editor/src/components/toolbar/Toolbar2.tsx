@@ -110,7 +110,7 @@ const toolbarMenu = generateToolbarMenu()
 
 export default function Toolbar() {
   const { t } = useTranslation()
-  const anchorEl = useHookstate<HTMLElement | null>(null)
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName } = useMutableState(EditorState)
@@ -134,7 +134,7 @@ export default function Toolbar() {
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
-              anchorEl.set(event.currentTarget)
+              anchorEvent.set(event)
             }}
           />
         </div>
@@ -153,10 +153,10 @@ export default function Toolbar() {
         </Button>
       </div>
       <ContextMenu
-        anchorEl={anchorEl.value as HTMLElement}
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
         anchorPosition={anchorPosition.value}
         panelId="toolbar-menu"
-        onClose={() => anchorEl.set(null)}
+        onClose={() => anchorEvent.set(null)}
       >
         {toolbarMenu.map(({ name, action, hotkey }, index) => (
           <div key={index}>

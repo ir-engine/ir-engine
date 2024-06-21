@@ -98,12 +98,12 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   const { t } = useTranslation()
 
   const [anchorPosition, setAnchorPosition] = React.useState<any>(undefined)
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [anchorEvent, setAnchorEvent] = React.useState<null | React.MouseEvent<HTMLDivElement>>(null)
 
   const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setAnchorEl(event.currentTarget)
+    setAnchorEvent(event)
     setAnchorPosition({
       top: event.clientY,
       left: event.clientX
@@ -111,7 +111,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
+    setAnchorEvent(null)
     setAnchorPosition({ left: 0, top: 0 })
   }
 
@@ -155,7 +155,7 @@ const ResourceFile = ({ resource }: { resource: StaticResourceType }) => {
       <span className="w-[100px] overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-white">{name}</span>
 
       <ContextMenu
-        anchorEl={anchorEl}
+        anchorEvent={anchorEvent}
         panelId={'asset-browser-panel'}
         anchorPosition={anchorPosition}
         onClose={handleClose}
