@@ -120,7 +120,6 @@ const execute = () => {
       if (selecting) {
         cameraOrbit.isOrbiting.set(true)
         const mouseMovement = inputPointer.movement
-        console.log('mouseMovement', mouseMovement)
         if (mouseMovement) {
           cameraOrbit.cursorDeltaX.set(mouseMovement.x)
           cameraOrbit.cursorDeltaY.set(mouseMovement.y)
