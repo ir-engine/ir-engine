@@ -132,7 +132,7 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
-  const inputPointerEntity = InputPointerComponent.getPointerForCanvas(Engine.instance.viewerEntity)
+  const inputPointerEntity = InputPointerComponent.getPointersForCanvas(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
   const hits = Physics.castRayFromCamera(

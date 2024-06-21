@@ -845,7 +845,7 @@ const redirectPointerEventsToXRUI = (canvasEntity: Entity, evt: PointerEvent) =>
   for (const i of inputSource.intersections) {
     const entity = i.entity
     const xrui = getOptionalComponent(entity, XRUIComponent)
-    if (!xrui) continue
+    if (!xrui) return
     xrui.updateWorldMatrix(true, true)
     const raycaster = inputSource.raycaster
     const hit = xrui.hitTest(raycaster.ray)
