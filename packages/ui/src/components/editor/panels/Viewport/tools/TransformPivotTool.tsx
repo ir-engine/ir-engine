@@ -75,7 +75,7 @@ const TransformPivotTool = () => {
       />
       <Select
         key={editorHelperState.transformPivot.value}
-        inputClassName="py-1 h-6 rounded-sm text-theme-primary-400 text-xs"
+        inputClassName="py-1 h-6 rounded-sm text-theme-secondary text-xs"
         className="w-28 p-1"
         onChange={setTransformPivot}
         options={transformPivotOptions}

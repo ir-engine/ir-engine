@@ -102,7 +102,7 @@ const Tabs = ({
               key={index}
               className={twMerge(
                 twTabClassName,
-                currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
+                currentTab.value === index ? 'border-b border-b-blue-500 font-semibold text-theme-primary' : '',
                 tab.disabled ? 'border-none' : ''
               )}
               disabled={tab.disabled}

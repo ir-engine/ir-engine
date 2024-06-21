@@ -87,13 +87,13 @@ export default function Servers() {
           <div
             key={info.id}
             className={`flex h-16 w-44 cursor-pointer items-start justify-between rounded-2xl bg-theme-surface-main p-4 ${
-              serverType.value === info.id && 'border-b-2 border-b-blue-primary'
+              serverType.value === info.id && 'border-b-2 border-b-blue-500'
             }`}
             onClick={() => serverType.set(info.id)}
           >
             <Text fontSize="sm">{info.label}</Text>
             <Badge
-              className="h-6 rounded-[90px] bg-blue-primary text-white"
+              className="h-6 rounded-[90px] bg-blue-500 text-white"
               label={`${info.pods.filter((inf) => inf.status === 'Running').length}/${info.pods.length}`}
             />
           </div>

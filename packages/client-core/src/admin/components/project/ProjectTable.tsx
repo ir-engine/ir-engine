@@ -107,7 +107,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineArrowPath />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() =>
             PopoverState.showPopupover(
@@ -120,7 +120,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<GrGithub />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -141,7 +141,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineUsers />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(
@@ -154,7 +154,7 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineCommandLine />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             PopoverState.showPopupover(
@@ -172,14 +172,14 @@ export default function ProjectTable() {
         <Button
           startIcon={<HiOutlineFolder />}
           size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
         >
           {t('admin:components.common.view')}
         </Button>
         <Button
           startIcon={<HiOutlineTrash />}
           size="small"
-          className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="h-min whitespace-pre bg-theme-blue-secondary text-blue-600 disabled:opacity-50 dark:text-white"
           disabled={project.name === 'default-project'}
           onClick={() => {
             PopoverState.showPopupover(

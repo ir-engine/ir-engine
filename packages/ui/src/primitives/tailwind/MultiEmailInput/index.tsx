@@ -139,7 +139,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
               {item}
               <Button
                 disabled={disabled}
-                className="button bg-theme-surface-main p-1 text-[#6B7280] disabled:opacity-50 dark:text-theme-primary-400 [&>*]:m-0"
+                className="button bg-theme-surface-main p-1 text-theme-secondary disabled:opacity-50 dark:text-theme-secondary [&>*]:m-0"
                 onClick={() => handleDelete(item)}
               >
                 <IoMdClose />

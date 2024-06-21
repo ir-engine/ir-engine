@@ -128,10 +128,10 @@ export default function Toolbar() {
             <img src="favicon-32x32.png" alt="iR Engine Logo" className={`h-7 w-7 opacity-50`} />
           </div>
           <Button
-            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-theme-primary-400" />}
+            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-theme-secondary" />}
             iconContainerClassName="ml-2 mr-1"
             rounded="none"
-            startIcon={<RxHamburgerMenu size={24} className="text-[#9CA0AA]" />}
+            startIcon={<RxHamburgerMenu size={24} className="text-theme-secondary" />}
             className="-mr-1 border-0 bg-transparent p-0"
             onClick={(event) => {
               anchorOpen.set(true)
@@ -143,10 +143,10 @@ export default function Toolbar() {
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-theme-surface-main p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-          <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+          <div className="rounded-2xl bg-blue-500 px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5">
-          <span className="text-[#B2B5BD]">{projectName.value}</span>
+          <span className="text-theme-secondary">{projectName.value}</span>
           <span>/</span>
           <span>{sceneName.value}</span>
         </div>
@@ -164,7 +164,7 @@ export default function Toolbar() {
         {toolbarMenu.map(({ name, action, hotkey }, index) => (
           <div key={index}>
             <Button
-              className="px-4 py-[10px] text-left font-light text-[#9CA0AA]"
+              className="text-secondary px-4 py-[10px] text-left font-light"
               textContainerClassName="text-xs"
               variant="sidebar"
               size="small"

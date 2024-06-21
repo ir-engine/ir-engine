@@ -344,9 +344,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           )}
 
           <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-            {IconComponent && (
-              <IconComponent className="h-5 w-5 flex-shrink-0 text-white dark:text-theme-primary-400" />
-            )}
+            {IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0 text-white dark:text-theme-secondary" />}
             <div className="flex flex-1 items-center">
               {renaming ? (
                 <div className="relative h-[15px] w-full">
@@ -360,7 +358,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   />
                 </div>
               ) : (
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-theme-primary-400">
+                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-theme-secondary">
                   <span className="text-nowrap text-sm leading-4">{nodeName}</span>
                 </div>
               )}

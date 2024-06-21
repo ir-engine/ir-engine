@@ -394,7 +394,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     return (
       <nav
-        className="flex h-full w-full rounded-[4px] border border-theme-primary bg-theme-primary text-xs text-theme-primary-400"
+        className="flex h-full w-full rounded-[4px] border border-theme-primary bg-theme-primary text-xs text-theme-secondary"
         aria-label="Breadcrumb"
       >
         <span className="flex h-full w-full items-center justify-center space-x-2 overflow-x-auto whitespace-nowrap px-4">
@@ -411,7 +411,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                 </span>
               ) : (
                 <a
-                  className="cursor-pointer overflow-hidden align-middle text-xs text-theme-primary-400 hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+                  className="cursor-pointer overflow-hidden align-middle text-xs text-theme-secondary hover:text-theme-highlight hover:underline focus:text-theme-highlight"
                   onClick={() => handleBreadcrumbDirectoryClick(file)}
                 >
                   <span className="inline-block w-full overflow-hidden overflow-ellipsis whitespace-nowrap text-right align-middle">
@@ -658,8 +658,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             }}
             labelClassname="text-sm text-red-500"
             containerClassname="flex h-full bg-theme-primary rounded-[4px] w-full"
-            className="h-7 w-full rounded-[4px] bg-theme-primary py-0 text-xs text-theme-primary-400 placeholder:text-theme-primary-400 focus-visible:ring-0"
-            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-theme-primary-400" />}
+            className="h-7 w-full rounded-[4px] bg-theme-primary py-0 text-xs text-theme-secondary placeholder:text-theme-secondary focus-visible:ring-0"
+            startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-theme-secondary" />}
           />
         </div>
 

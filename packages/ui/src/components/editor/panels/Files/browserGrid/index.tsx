@@ -75,7 +75,7 @@ export const FileTableWrapper = ({ wrap, children }: { wrap: boolean; children: 
             {availableTableColumns
               .filter((header) => selectedTableColumns[header])
               .map((header) => (
-                <th key={header} className="table-cell text-xs font-normal dark:text-theme-primary-400">
+                <th key={header} className="table-cell text-xs font-normal dark:text-theme-secondary">
                   {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
                 </th>
               ))}
@@ -130,7 +130,7 @@ export const FileTableListBody = ({
   return (
     <tr
       key={file.key}
-      className={`text-theme-primary-400 hover:bg-theme-surfaceInput`}
+      className={`text-theme-secondary hover:bg-theme-surfaceInput`}
       style={{ height: `${fontSize * 3}px` }}
       onContextMenu={onContextMenu}
       onClick={onClick}

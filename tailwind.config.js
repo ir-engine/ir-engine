@@ -44,20 +44,7 @@ module.exports = {
       },
       textColor: {
         theme: {
-          // primary: 'var(--text-primary)',
-          primary: {
-            DEFAULT: 'var(--text-primary)',
-            100: 'var(--text-primary-100)',
-            200: 'var(--text-primary-200)',
-            300: 'var(--text-primary-300)',
-            400: 'var(--text-primary-400)',
-            500: 'var(--text-primary-500)',
-            600: 'var(--text-primary-600)',
-            700: 'var(--text-primary-700)',
-            800: 'var(--text-primary-800)',
-            900: 'var(--text-primary-900)',
-            950: 'var(--text-primary-950)'
-          },
+          primary: 'var(--text-primary)',
           secondary: 'var(--text-secondary)',
           highlight: 'var(--text-highlight)',
           iconGreen: 'var(--icon-green)',
@@ -86,7 +73,92 @@ module.exports = {
         }
       },
       colors: {
-        'blue-primary': '#375DAF'
+        // BRAND COLORS
+        'magenta': {
+          100: '#ECDAE6',
+          200: '#DAB4CD',
+          300: '#C78FB4',
+          400: '#B4699B',
+          500: '#A24482',
+          600: '#823668',
+          700: '#61294E',
+          800: '#411B34',
+          900: '#200E1A'
+        },
+        'blue': {
+          100: '#D7DFEF',
+          200: '#AFBEDF',
+          300: '#879ECF',
+          400: '#5F7DBF',
+          500: '#375DAF',
+          600: '#2C4ABC',
+          700: '#213869',
+          800: '#162546',
+          900: '#0B1323'
+        },
+        'purple': {
+          100: '#E0D4FD',
+          200: '#C1A9FB',
+          300: '#A27EF9',
+          400: '#8353F7',
+          500: '#6428F5',
+          600: '#5020C4',
+          700: '#3C1893',
+          800: '#281062',
+          900: '#140831'
+        },
+        // SUPPORTING COLORS
+        'green': {
+          50: '#ECFDF5',
+          100: '#D1FAE5',
+          200: '#A7F3DO',
+          300: '#6EE7B7',
+          400: '#34D399',
+          500: '#10B981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065F46',
+          900: '#064E3B'
+        },
+        'yellow': {
+          50: '#FEFC38',
+          100: '#FEF9C3',
+          200: '#FEF08A',
+          300: '#FDE047',
+          400: '#FACC15',
+          500: '#EAB308',
+          600: '#CA8A04',
+          700: '#A16207',
+          800: '#854D0E',
+          900: '#713F12'
+        },
+        'red' : {
+          50: '#FFF1F2',
+          100: '#FFE4E6',
+          200: '#FECDD3',
+          300: '#FDA4AF',
+          400: '#FB7185',
+          500: '#F43F5E',
+          600: '#E11D48',
+          700: '#BE123C',
+          800: '#9F1239',
+          900: '#881337'
+        },
+        // NEUTRALS
+        'neutral': {
+          50: '#FAFAFA',
+          100: '#F5F5F5',
+          200: '#E5E5E5',
+          300: '#D4D4D4',
+          400: '#A3A3A3',
+          500: '#4B4C4E',
+          600: '#3B3B3B',
+          700: '#2E2E2E',
+          800: '#242424',
+          850: '#1C1C1C',
+          900: '#141414',
+          950: '#080808'
+        }
       }
     }
   },

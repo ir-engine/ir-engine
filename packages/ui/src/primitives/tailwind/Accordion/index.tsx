@@ -86,7 +86,7 @@ const Accordion = forwardRef(
         </div>
 
         {!openState.value && subtitle && (
-          <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-theme-primary-400">
+          <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-theme-secondary">
             {subtitle}
           </Text>
         )}

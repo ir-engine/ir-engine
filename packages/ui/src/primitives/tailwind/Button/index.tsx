@@ -54,7 +54,7 @@ const sizes = {
 }
 
 const variants = {
-  primary: 'bg-blue-primary',
+  primary: 'bg-blue-500',
   outline: 'border border-solid border-theme-primary bg-theme-surface-main dark:bg-theme-highlight text-theme-primary',
   pink: 'bg-[#C162A2]',
   danger: 'bg-red-500',

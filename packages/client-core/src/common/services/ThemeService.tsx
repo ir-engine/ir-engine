@@ -92,23 +92,10 @@ const darkTheme = {
   'bg-tag-red': '#B30911',
   'bg-tag-yellow': '#CA8A04',
 
-  // 'text-primary': '#F5F5F5',
-  'text-primary': {
-    DEFAULT: '#F5F5F5',
-    100: '#F5F5F5',
-    200: '#E5E5E5',
-    300: '#D4D4D4',
-    400: '#A3A3A3',
-    500: '#4B4C4E',
-    600: '#3B3B3B',
-    700: '#2E2E2E',
-    800: '#242424',
-    850: '#1C1C1C',
-    900: '#141414',
-    950: '#080808'
-  },
-  'text-secondary': '#D4D4D4',
+  'text-primary': '#F5F5F5',
+  'text-secondary': '#A3A3A3',
   'text-highlight': '#FFFFFF',
+
   'icon-green': '#0D9488 ',
   'icon-red': '#FB7185',
 
