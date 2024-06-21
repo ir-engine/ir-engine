@@ -43,7 +43,9 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { Engine, EntityUUID, UUIDComponent, entityExists, useQuery } from '@etherealengine/ecs'
 import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/components/CameraOrbitComponent'
 
+import { PopoverState } from '@etherealengine/client-core/src/common/services/PopoverState'
 import useUpload from '@etherealengine/editor/src/components/assets/useUpload'
+import CreatePrefabPanel from '@etherealengine/editor/src/components/dialogs/CreatePrefabPanelDialog'
 import {
   HeirarchyTreeNodeType,
   heirarchyTreeWalker
@@ -83,6 +85,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const [anchorPosition, setAnchorPosition] = React.useState({ left: 0, top: 0 })
   const [anchorPositionPop, setAnchorPositionPop] = React.useState<undefined | PopoverPosition>(undefined)
+
   const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
@@ -94,6 +97,9 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
   const sourcedEntities = useQuery([SourceComponent])
   const rootEntity = UUIDComponent.useEntityByUUID(rootEntityUUID)
   const rootEntityTree = useComponent(rootEntity, EntityTreeComponent)
+  const panel = document.getElementById('propertiesPanel')
+  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
+  const open = !!anchorElButton.value
 
   const MemoTreeNode = useCallback(
     (props: HierarchyTreeNodeProps) => (
@@ -438,9 +444,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
       {MemoTreeNode}
     </FixedSizeList>
   )
-  const panel = document.getElementById('propertiesPanel')
-  const anchorElButton = useHookstate<HTMLButtonElement | null>(null)
-  const open = !!anchorElButton.value
+
   return (
     <>
       <PopoverContext.Provider
@@ -460,6 +464,7 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
             className="m-1 rounded bg-theme-primary text-[#A3A3A3]"
             startComponent={<HiMagnifyingGlass className="text-white" />}
           />
+
           <Button
             startIcon={<HiOutlinePlusCircle />}
             variant="transparent"
@@ -607,6 +612,18 @@ function HierarchyPanelContents(props: { sceneURL: string; rootEntityUUID: Entit
         >
           {t('editor:hierarchy.lbl-collapseAll')}
         </Button>
+
+        <Button
+          fullWidth
+          size="small"
+          variant="transparent"
+          className="text-left text-xs"
+          onClick={() => PopoverState.showPopupover(<CreatePrefabPanel node={contextSelectedItem!} />)}
+        >
+          {t('editor:hierarchy.lbl-createPrefab')}
+        </Button>
+
+        {/* )} */}
       </ContextMenu>
     </>
   )

@@ -27,7 +27,14 @@ import React, { useEffect, useRef } from 'react'
 import { Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { generateEntityUUID, getComponent, getMutableComponent, setComponent, UUIDComponent } from '@etherealengine/ecs'
+import {
+  generateEntityUUID,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent,
+  UUIDComponent
+} from '@etherealengine/ecs'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@etherealengine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -35,6 +42,7 @@ import { CameraOrbitComponent } from '@etherealengine/spatial/src/camera/compone
 import { NameComponent } from '@etherealengine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@etherealengine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@etherealengine/spatial/src/renderer/components/VisibleComponent'
+import { MaterialComponent, MaterialComponents } from '@etherealengine/spatial/src/renderer/materials/MaterialComponent'
 import { getMaterial } from '@etherealengine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@etherealengine/spatial/src/renderer/WebGLRendererSystem'
 import { MaterialsPanelTab } from '../../Materials'
@@ -44,6 +52,10 @@ export const MaterialPreviewCanvas = () => {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MaterialsPanelTab.id!)
+  const materialComponent = useComponent(
+    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
+    MaterialComponent[MaterialComponents.State]
+  )
 
   useEffect(() => {
     if (!selectedMaterial.value) return
@@ -59,7 +71,7 @@ export const MaterialPreviewCanvas = () => {
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
     orbitCamera.refocus.set(true)
-  }, [selectedMaterial])
+  }, [selectedMaterial, materialComponent.material])
 
   useEffect(() => {
     if (!panelRef?.current) return
