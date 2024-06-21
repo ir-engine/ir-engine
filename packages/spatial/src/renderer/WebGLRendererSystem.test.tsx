@@ -155,8 +155,8 @@ describe('WebGl Renderer System', () => {
   })
 
   it('Test WebGL Reactors', async () => {
-    const webGLRendererSystem = SystemDefinitions.get(WebGLRendererSystem)
-    const RenderSystem = webGLRendererSystem?.reactor!
+    const webGLRendererSystem = SystemDefinitions.get(WebGLRendererSystem)!
+    const RenderSystem = webGLRendererSystem.reactor!
     const tag = <RenderSystem />
     const { rerender, unmount } = render(tag)
 
