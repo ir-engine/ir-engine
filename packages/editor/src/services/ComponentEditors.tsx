@@ -120,6 +120,7 @@ import SkyboxNodeEditor from '@etherealengine/ui/src/components/editor/propertie
 import SpawnPointNodeEditor from '@etherealengine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@etherealengine/ui/src/components/editor/properties/spline'
 
+import { CameraTriggerComponent } from '@etherealengine/engine/src/CameraTriggerComponent'
 import { TestComponent } from '@etherealengine/engine/src/TestComponent'
 import InputComponentNodeEditor from '@etherealengine/ui/src/components/editor/properties/input'
 import PlaylistNodeEditor from '@etherealengine/ui/src/components/editor/properties/playlist'
@@ -134,6 +135,7 @@ import VolumetricNodeEditor from '@etherealengine/ui/src/components/editor/prope
 import NewVolumetricNodeEditor from '@etherealengine/ui/src/components/editor/properties/volumetric/new'
 import { EditorComponentType } from '../components/properties/Util'
 
+import { CameraTriggerNodeEditor } from '@etherealengine/engine/src/CameraTriggerNodeEditor'
 import { TestComponentNodeEditor } from '@etherealengine/engine/src/TestComponentNodeEditor'
 
 export const ComponentEditorsState = defineState({
@@ -191,7 +193,8 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [TestComponent.name]: TestComponentNodeEditor
+      [TestComponent.name]: TestComponentNodeEditor,
+      [CameraTriggerComponent.name]: CameraTriggerNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

@@ -109,7 +109,7 @@ export const FollowCameraComponent = defineComponent({
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
       shoulderSide: true,
-      locked: true,
+      locked: false,
       raycastProps
     }
   },
@@ -236,8 +236,10 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   }
 
   const delta = getState(ECSState).deltaSeconds
-  followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
-  followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  if (!followCamera.locked) {
+    followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
+    followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
+  }
 }
 
 const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])

@@ -156,6 +156,12 @@ const execute = () => {
 
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
+
+    const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (followComponent?.locked) {
+      continue
+    }
+
     const target =
       getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
       getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -166,7 +172,6 @@ const execute = () => {
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, inputState.preferredHand)
     target.theta -= x * 2
     target.phi += z * 2
-
     const keyDelta = (buttons?.ArrowLeft ? 1 : 0) + (buttons?.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta
     setTargetCameraRotation(cameraEntity, target.phi, target.theta)

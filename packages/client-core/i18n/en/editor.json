@@ -1032,6 +1032,16 @@
       "lbl-performerURL": "Performer URL",
       "lbl-asset": "Asset",
       "assets": "Assets"
+    },
+    "cameraTrigger": {
+      "name": "Camera Trigger",
+      "description": "Camera Component",
+      "lbl-lookAt": "Look At",
+      "lbl-offset": "Offset",
+      "lbl-lockCamera": "Lock Camera",
+      "lbl-angleTheta": "Theta Angle",
+      "lbl-anglePhi": "Phi Angle",
+      "lbl-distance": "Distance"
     }
   },
   "projects": {

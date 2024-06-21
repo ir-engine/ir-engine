@@ -54,6 +54,6 @@ export const switchCameraMode = (
 
   if (cameraFollow.mode === CameraMode.FirstPerson) {
     cameraFollow.phi = 0
-    cameraFollow.locked = true
+    cameraFollow.locked = false
   }
 }
