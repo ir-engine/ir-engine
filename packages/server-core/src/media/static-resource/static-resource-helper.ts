@@ -225,8 +225,14 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
     ])
   )
 
+  const sortedResourcesJson = Object.fromEntries(
+    Object.entries(resourcesJson).sort(([a], [b]) => {
+      return a.localeCompare(b)
+    })
+  )
+
   const key = `projects/${projectName}/resources.json`
-  const body = Buffer.from(JSON.stringify(resourcesJson, null, 2))
+  const body = Buffer.from(JSON.stringify(sortedResourcesJson, null, 2))
 
   const storageProvider = getStorageProvider()
 
