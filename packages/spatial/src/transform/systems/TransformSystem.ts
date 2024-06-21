@@ -102,6 +102,7 @@ export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vec
 }
 
 const _frustum = new Frustum()
+const _worldPos = new Vector3()
 const _projScreenMatrix = new Matrix4()
 
 const transformDepths = new Map<Entity, number>()
@@ -211,7 +212,7 @@ const execute = () => {
     )?.box
     const cull = boundingBox
       ? _frustum.intersectsBox(boundingBox)
-      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+      : _frustum.containsPoint(TransformComponent.getWorldPosition(entity, _worldPos))
     FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
   }
 }
