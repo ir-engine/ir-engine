@@ -143,8 +143,10 @@ export const createMaterialEntity = (material: Material, path?: string, user?: E
 
 export const removeMaterial = (entity: Entity) => {
   const name = getComponent(entity, NameComponent)
-  const hash = hashMaterial(getComponent(entity, SourceComponent), name)
-  delete materialByHash[hash]
+  if (hasComponent(entity, SourceComponent)) {
+    const hash = hashMaterial(getComponent(entity, SourceComponent), name)
+    delete materialByHash[hash]
+  }
   removeEntity(entity)
 }
 
